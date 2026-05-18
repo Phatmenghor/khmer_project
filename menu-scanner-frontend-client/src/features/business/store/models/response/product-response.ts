@@ -40,8 +40,8 @@ export interface ProductDetailResponseModel {
   brandName: string;
   barcode: string;
   sku: string;
-  // Stock tracking
-  stockStatus: string; // ENABLED or DISABLED
+
+  stockStatus: string;
   totalStock: number;
   quantityAvailable: number;
   quantityReserved: number;
@@ -49,7 +49,7 @@ export interface ProductDetailResponseModel {
   images: ProductImage[];
   sizes: ProductSize[];
   customizations: ProductCustomizationDto[];
-  isSelected?: boolean; // Frontend state for bulk operations (default: false)
+  isSelected?: boolean;
 }
 
 interface ProductImage {
@@ -73,7 +73,7 @@ export interface ProductSize {
   hasPromotion: boolean;
   quantity: string;
   createdAt: string;
-  // Stock tracking for size variants
+
   totalStock: number;
   quantityAvailable: number;
   quantityReserved: number;

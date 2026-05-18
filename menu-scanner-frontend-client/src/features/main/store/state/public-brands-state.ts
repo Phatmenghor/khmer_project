@@ -1,6 +1,5 @@
-/**
- * Public Brands State Hook
- */
+
+
 
 import { useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -42,25 +41,25 @@ export const usePublicBrandsState = () => {
   );
 
   return {
-    // State
+
     brands,
     pagination,
     loading,
     error,
     loaded,
 
-    // Actions
+
     fetchBrands,
     clearBrands: handleClearBrands,
     resetState,
 
-    // Computed
+
     isInitialLoading: loading.initial,
     isLoadingMore: loading.loadMore,
     hasMore: pagination.hasMore,
     totalBrands: pagination.totalElements,
 
-    // Dispatch for advanced usage
+
     dispatch,
   };
 };

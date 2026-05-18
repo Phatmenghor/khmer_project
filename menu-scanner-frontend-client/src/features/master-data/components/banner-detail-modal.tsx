@@ -35,7 +35,7 @@ export function BannerDetailModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTitle className="sr-only">Banner Details - {banner?.businessName}</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-semibold text-foreground">
@@ -47,22 +47,22 @@ export function BannerDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Banner Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Banner Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Labels Row - Top alignment */}
+                {}
                 <div className="flex flex-col md:flex-row gap-6">
-                  {/* Left label - Business Name */}
+                  {}
                   <div className="w-full md:w-1/2">
                     <p className="text-sm font-medium text-foreground">Business Name</p>
                   </div>
-                  {/* Right label - Banner Image */}
+                  {}
                   {banner.imageUrl && (
                     <div className="w-full md:w-1/2">
                       <p className="text-sm font-medium text-foreground">Banner Image</p>
@@ -70,15 +70,15 @@ export function BannerDetailModal({
                   )}
                 </div>
 
-                {/* Content Row - Fields and Image */}
+                {}
                 <div className="flex flex-col md:flex-row gap-6">
-                  {/* Basic Info - Left Side (50%) */}
+                  {}
                   <div className="w-full md:w-1/2 space-y-4">
                     <p className="text-foreground">{banner.businessName || "---"}</p>
                     <DisplayField label="Status" value={banner.status ? formatEnumValue(banner.status) : "---"} />
                   </div>
 
-                  {/* Banner Image - Right Side (50%) */}
+                  {}
                   {banner.imageUrl && (
                     <div className="w-full md:w-1/2">
                       <div className="max-w-md h-40 rounded-md overflow-hidden bg-muted border border-border">
@@ -94,7 +94,7 @@ export function BannerDetailModal({
               </CardContent>
             </Card>
 
-            {/* System Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>System Information</CardTitle>

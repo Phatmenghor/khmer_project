@@ -83,7 +83,7 @@ const STATUS_COLORS: Record<
   },
 };
 
-// Status timeline will be fetched from API
+
 interface StatusTimelineItem {
   id: string;
   name: string;
@@ -115,7 +115,7 @@ export default function OrderDetailPage() {
   const [copied, setCopied] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-  // Fetch order details and status timeline
+
   useEffect(() => {
     if (!orderId) return;
 
@@ -123,10 +123,10 @@ export default function OrderDetailPage() {
       try {
         setState((prev) => ({ ...prev, loading: true, error: null }));
 
-        // Fetch order details
+
         const orderResult = await dispatch(fetchOrderDetailsService(orderId)).unwrap();
 
-        // Fetch order statuses (filtered to ACTIVE only, sorted by order on backend)
+
         const statusResult = await dispatch(
           fetchAllOrderStatusService({
             businessId: AppDefault.BUSINESS_ID,
@@ -136,7 +136,7 @@ export default function OrderDetailPage() {
           })
         ).unwrap();
 
-        // Statuses are already sorted by order field on the backend
+
         const sortedStatuses = statusResult.content || [];
 
         setState((prev) => ({
@@ -295,7 +295,7 @@ export default function OrderDetailPage() {
 
   return (
     <PageContainer className="min-h-screen flex flex-col py-6 sm:py-8">
-      {/* Back Button */}
+      {}
       <div className="mb-6">
         <CustomButton
           variant="ghost"
@@ -307,24 +307,24 @@ export default function OrderDetailPage() {
         </CustomButton>
       </div>
 
-      {/* Header */}
+      {}
       <PageHeader
         title="Order Details"
         icon={Package}
       />
 
-      {/* Main Content Grid */}
+      {}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Left Column - Main Details */}
+        {}
         <div className="lg:col-span-2 space-y-6">
-          {/* Order Summary Card */}
+          {}
           <div className="rounded-2xl border border-border/50 bg-card p-6">
             <h2 className="text-lg font-bold text-foreground mb-4">
               Order Summary
             </h2>
 
             <div className="space-y-4">
-              {/* Order Number with Copy */}
+              {}
               <div className="flex items-start justify-between pb-4 border-b border-border/50">
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
@@ -345,7 +345,7 @@ export default function OrderDetailPage() {
                 </CustomButton>
               </div>
 
-              {/* Order Date/Time */}
+              {}
               <div className="grid grid-cols-2 gap-4 pb-4 border-b border-border/50">
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
@@ -368,7 +368,7 @@ export default function OrderDetailPage() {
                 </div>
               </div>
 
-              {/* Payment Status Only */}
+              {}
               <div className="pb-4 border-b border-border/50">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                   Payment Status
@@ -390,7 +390,7 @@ export default function OrderDetailPage() {
                 </div>
               </div>
 
-              {/* Delivery Method */}
+              {}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
@@ -412,7 +412,7 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Order Timeline - Horizontal Steps */}
+          {}
           <div className="rounded-2xl border border-border/50 bg-card p-6">
             <h2 className="text-lg font-bold text-foreground mb-6">
               Order Progress
@@ -431,7 +431,7 @@ export default function OrderDetailPage() {
 
                     return (
                       <div key={status.id} className="flex flex-col items-center flex-shrink-0">
-                        {/* Status Step Circle */}
+                        {}
                         <div className="flex gap-1 items-center">
                           <div
                             className={cn(
@@ -452,7 +452,7 @@ export default function OrderDetailPage() {
                             )}
                           </div>
 
-                          {/* Connector Line */}
+                          {}
                           {index < state.statusTimeline.length - 1 && (
                             <div
                               className={cn(
@@ -465,7 +465,7 @@ export default function OrderDetailPage() {
                           )}
                         </div>
 
-                        {/* Status Label and Date */}
+                        {}
                         <div className="mt-3 text-center min-w-[70px]">
                           <span className="text-xs font-semibold text-foreground block break-words">
                             {status.name}
@@ -493,7 +493,7 @@ export default function OrderDetailPage() {
             )}
           </div>
 
-          {/* Order Items */}
+          {}
           <div className="rounded-2xl border border-border/50 bg-card p-6">
             <h2 className="text-lg font-bold text-foreground mb-4">
               Order Items ({order.items?.length || 0})
@@ -506,7 +506,7 @@ export default function OrderDetailPage() {
                     key={item.id}
                     className="flex gap-4 pb-4 border-b border-border/50 last:border-0 last:pb-0"
                   >
-                    {/* Product Image */}
+                    {}
                     <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-muted border border-border/50">
                       {item.product?.imageUrl ? (
                         <img
@@ -521,7 +521,7 @@ export default function OrderDetailPage() {
                       )}
                     </div>
 
-                    {/* Product Details */}
+                    {}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0">
@@ -541,7 +541,7 @@ export default function OrderDetailPage() {
                         )}
                       </div>
 
-                      {/* Pricing */}
+                      {}
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">
@@ -574,7 +574,7 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Pricing Breakdown */}
+          {}
           <div className="rounded-2xl border border-border/50 bg-card p-6">
             <h2 className="text-lg font-bold text-foreground mb-4">
               Pricing Summary
@@ -625,9 +625,9 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
-        {/* Right Column - Info Cards */}
+        {}
         <div className="space-y-6">
-          {/* Delivery Information */}
+          {}
           <div className="rounded-2xl border border-border/50 bg-card p-6">
             <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
               <MapPin className="h-5 w-5 text-primary" />
@@ -652,7 +652,7 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Customer Information */}
+          {}
           <div className="rounded-2xl border border-border/50 bg-card p-6">
             <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
               <User className="h-5 w-5 text-primary" />
@@ -684,7 +684,7 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          {/* Customer Notes */}
+          {}
           {order.customerNote && (
             <div className="rounded-2xl border border-border/50 bg-card p-6">
               <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
@@ -698,7 +698,7 @@ export default function OrderDetailPage() {
             </div>
           )}
 
-          {/* Business Notes */}
+          {}
           {order.businessNote && (
             <div className="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 p-6">
               <h2 className="text-lg font-bold text-amber-900 dark:text-amber-200 mb-4 flex items-center gap-2">
@@ -715,7 +715,7 @@ export default function OrderDetailPage() {
       </div>
 
 
-      {/* Cancel Confirmation Modal */}
+      {}
       {showCancelConfirm && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="rounded-2xl bg-card border border-border max-w-sm w-full p-6">
@@ -756,22 +756,22 @@ export default function OrderDetailPage() {
   );
 }
 
-// Loading Skeleton Component
+
 function OrderDetailSkeleton() {
   return (
     <PageContainer className="min-h-screen flex flex-col py-6 sm:py-8">
       <div className="mb-6 h-10 w-24 bg-muted rounded-lg animate-pulse" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column skeleton */}
+        {}
         <div className="lg:col-span-2 space-y-6">
-          {/* Header skeleton */}
+          {}
           <div className="space-y-3">
             <div className="h-8 w-48 bg-muted rounded-lg animate-pulse" />
             <div className="h-4 w-32 bg-muted rounded-lg animate-pulse" />
           </div>
 
-          {/* Card skeletons */}
+          {}
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
@@ -787,7 +787,7 @@ function OrderDetailSkeleton() {
           ))}
         </div>
 
-        {/* Right column skeleton */}
+        {}
         <div className="space-y-6">
           {[1, 2].map((i) => (
             <div

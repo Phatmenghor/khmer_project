@@ -1,15 +1,10 @@
-/**
- * ============================================
- * Date & Time Utilities
- * Standard: Backend UTC ➜ Cambodia (UTC +7)
- * Timezone: Asia/Phnom_Penh
- * ============================================
- */
+
+
 
 export function dateTimeFormat(timestamp: string | null | undefined): string {
   if (!timestamp) return "- - -";
 
-  const date = new Date(timestamp); // UTC input
+  const date = new Date(timestamp);
 
   return date.toLocaleString("en-US", {
     timeZone: "Asia/Phnom_Penh",
@@ -26,7 +21,7 @@ export function dateTimeFormat(timestamp: string | null | undefined): string {
 export function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "- - -";
 
-  // Force UTC to avoid browser timezone shift
+
   const date = new Date(dateStr + "T00:00:00Z");
 
   const khDate = new Date(

@@ -1,4 +1,4 @@
-// components/shared/form/index.ts
+
 import { Control, FieldError, FieldValues, Path } from "react-hook-form";
 
 export interface BaseFieldProps<T extends FieldValues = any> {

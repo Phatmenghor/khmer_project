@@ -34,10 +34,10 @@ import { sessionTableColumns } from "@/features/sessions/table/session-table";
 import { SessionsDetailModal } from "@/features/sessions/components/session-detail-modal";
 
 export default function SessionPage() {
-  // Clean up state when leaving admin area (performance optimization)
+
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     sessionState,
     sessionsData,
@@ -59,7 +59,7 @@ export default function SessionPage() {
     session: null as SessionResponseModel | null,
   });
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -136,7 +136,7 @@ export default function SessionPage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (sessionsContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -177,7 +177,7 @@ export default function SessionPage() {
           onSearchChange={handleSearchChange}
         ></CardHeaderSection>
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <DataTableWithPagination
           data={sessionsContent}
           columns={columns}
@@ -194,14 +194,14 @@ export default function SessionPage() {
         />
       </div>
 
-      {/* Modals Session Detail */}
+      {}
       <SessionsDetailModal
         sessionId={detailModalState.sessionId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete Session */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

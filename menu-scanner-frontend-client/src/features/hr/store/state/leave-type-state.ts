@@ -13,7 +13,7 @@ import {
 export const useLeaveTypeState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const leaveTypeState = useAppSelector(selectLeaveTypeState);
   const leaveTypeData = useAppSelector(selectLeaveType);
   const leaveTypeContent = useAppSelector(selectLeaveTypeContent);

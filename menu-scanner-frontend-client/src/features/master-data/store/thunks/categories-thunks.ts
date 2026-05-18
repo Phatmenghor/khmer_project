@@ -1,7 +1,5 @@
-/**
- * Categories Management - Async Thunks
- * Redux thunks for Categories CRUD operations
- */
+
+
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
@@ -12,9 +10,7 @@ import {
 } from "../models/request/categories-request";
 import { CreateCategoriesData } from "../models/schema/categories-schema";
 
-/**
- * Fetch all categories
- */
+
 export const fetchAllCategoriesService = createApiThunk<
   any,
   AllCategoriesRequest
@@ -26,9 +22,7 @@ export const fetchAllCategoriesService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Fetch all categories with product count (for admin page)
- */
+
 export const fetchAllCategoriesWithProductCountService = createApiThunk<
   any,
   AllCategoriesRequest
@@ -40,9 +34,7 @@ export const fetchAllCategoriesWithProductCountService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Fetch categories by ID
- */
+
 export const fetchCategoriesByIdService = createApiThunk<any, string>(
   "categories/fetchById",
   async (categoriesId) => {
@@ -53,9 +45,7 @@ export const fetchCategoriesByIdService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Create categories
- */
+
 export const createCategoriesService = createApiThunk<
   any,
   CreateCategoriesData
@@ -67,9 +57,7 @@ export const createCategoriesService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Update categories
- */
+
 export const updateCategoriesService = createApiThunk<
   any,
   UpdateCategoriesParams
@@ -81,9 +69,7 @@ export const updateCategoriesService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Toggle category status
- */
+
 export const toggleCategoriesStatusService = createApiThunk<any, any>(
   "categories/toggleStatus",
   async (category) => {
@@ -105,9 +91,7 @@ export const toggleCategoriesStatusService = createApiThunk<any, any>(
   }
 );
 
-/**
- * Delete categories
- */
+
 export const deleteCategoriesService = createApiThunk<any, string>(
   "categories/delete",
   async (categoriesId) => {

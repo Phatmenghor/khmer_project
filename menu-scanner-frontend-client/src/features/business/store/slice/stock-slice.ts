@@ -1,16 +1,12 @@
-/**
- * Product Stock Management - Redux Slice
- * Manages Product Stock state: data, loading, errors, filters, operations
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ProductManagementState } from "../models/type/product-type";
 import { fetchAllProductStockAdminService, updateStockStatusService } from "../thunks/stock-thunks";
 import { ProductStatus } from "@/constants/status/status";
 
-/**
- * Initial state
- */
+
 const initialState: ProductManagementState = {
   data: null,
   selectedProduct: null,
@@ -19,7 +15,7 @@ const initialState: ProductManagementState = {
   filters: {
     search: "",
     pageNo: 1,
-    status: ProductStatus.ALL, // Initialize with ALL status
+    status: ProductStatus.ALL,
   },
   operations: {
     isCreating: false,
@@ -33,9 +29,7 @@ const initialState: ProductManagementState = {
   },
 };
 
-/**
- * Stock slice
- */
+
 const stockSlice = createSlice({
   name: "stocks",
   initialState,
@@ -74,7 +68,7 @@ const stockSlice = createSlice({
       return initialState;
     },
 
-    // Optimistic update for stock status toggle
+
     updateStockStatusOptimistic: (state, action: PayloadAction<{ productId: string; newStatus: "ENABLED" | "DISABLED" }>) => {
       if (state.data?.content) {
         const product = state.data.content.find((p: any) => p.id === action.payload.productId);
@@ -84,7 +78,7 @@ const stockSlice = createSlice({
       }
     },
 
-    // Revert optimistic update if API fails
+
     revertStockStatusOptimistic: (state, action: PayloadAction<{ productId: string; previousStatus: "ENABLED" | "DISABLED" }>) => {
       if (state.data?.content) {
         const product = state.data.content.find((p: any) => p.id === action.payload.productId);
@@ -109,14 +103,14 @@ const stockSlice = createSlice({
         state.error = action.payload as string;
         state.isLoading = false;
       })
-      // Update stock status
+
       .addCase(updateStockStatusService.pending, (state) => {
         state.operations.isUpdatingStatus = true;
         state.error = null;
       })
       .addCase(updateStockStatusService.fulfilled, (state, action) => {
         state.operations.isUpdatingStatus = false;
-        // Update the product in the data
+
         if (state.data?.content) {
           const updatedProduct = action.payload;
           const index = state.data.content.findIndex((p: any) => p.id === updatedProduct.id);

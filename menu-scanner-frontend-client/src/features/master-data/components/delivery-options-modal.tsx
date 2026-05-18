@@ -55,7 +55,7 @@ export default function DeliveryOptionsModal({
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
 
-  // Local state for image upload loading
+
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -109,7 +109,7 @@ export default function DeliveryOptionsModal({
     }
   }, [isOpen, isCreate, deliveryOptions, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -120,7 +120,7 @@ export default function DeliveryOptionsModal({
     try {
       let finalImageUrl = data.imageUrl;
 
-      // Upload image if it's a base64 string with loading state
+
       if (finalImageUrl && isBase64Image(finalImageUrl)) {
         setIsUploadingImage(true);
         try {
@@ -190,7 +190,7 @@ export default function DeliveryOptionsModal({
           isCreate={isCreate}
         />
 
-        {/* Show loading spinner in edit mode when form is empty */}
+        {}
         {!isCreate && !imageUrl ? (
           <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
@@ -201,7 +201,7 @@ export default function DeliveryOptionsModal({
             className="flex flex-col flex-1 overflow-hidden"
           >
             <FormBody>
-              {/* Display Redux errors */}
+              {}
               {reduxError && (
                 <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
                   <p className="text-sm text-destructive font-medium">
@@ -211,7 +211,7 @@ export default function DeliveryOptionsModal({
               )}
 
               <div className="space-y-6">
-                {/* Banner Image Section - Prominent display */}
+                {}
                 <div className="space-y-3">
                   <ClickableImageUpload
                     label="Delivery Options Image"
@@ -225,13 +225,13 @@ export default function DeliveryOptionsModal({
                   />
                 </div>
 
-                {/* Divider */}
+                {}
                 <div className="border-t pt-6">
                   <h3 className="text-sm font-semibold text-foreground mb-4">
                     Delivery Options Details
                   </h3>
 
-                  {/* Delivery Options Details Grid */}
+                  {}
                   <div className="grid grid-cols-2 gap-4">
                     <TextField
                       control={control}

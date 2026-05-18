@@ -13,7 +13,7 @@ import {
 export const useSessionState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const sessionState = useAppSelector(selectSessionState);
   const sessionsData = useAppSelector(selectSessions);
   const sessionsContent = useAppSelector(selectSessionsContent);

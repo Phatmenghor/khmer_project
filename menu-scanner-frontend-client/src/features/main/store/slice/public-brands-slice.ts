@@ -1,7 +1,5 @@
-/**
- * Public Brands Slice
- * Manages brands data for public-facing pages with caching and scroll restoration
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
@@ -21,7 +19,7 @@ export interface PublicBrandsState {
     loadMore: boolean;
   };
   error: string | null;
-  loaded: boolean; // Track if data has been loaded
+  loaded: boolean;
 }
 
 const initialState: PublicBrandsState = {
@@ -54,7 +52,7 @@ const publicBrandsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch brands
+
       .addCase(fetchPublicBrands.pending, (state, action) => {
         const isLoadMore = action.meta.arg.append;
         if (isLoadMore) {
@@ -70,14 +68,14 @@ const publicBrandsSlice = createSlice({
         const isLoadMore = action.meta.arg.append;
 
         if (isLoadMore) {
-          // Memory optimization: Keep only last 3 pages of data (like YouTube)
+
           const MAX_PAGES_IN_MEMORY = 3;
           const maxItems = MAX_PAGES_IN_MEMORY * pageSize;
 
-          // Append new brands
+
           const updatedBrands = [...state.brands, ...content];
 
-          // If we exceed the limit, remove oldest items
+
           if (updatedBrands.length > maxItems) {
             const itemsToRemove = updatedBrands.length - maxItems;
             state.brands = updatedBrands.slice(itemsToRemove);
@@ -85,7 +83,7 @@ const publicBrandsSlice = createSlice({
             state.brands = updatedBrands;
           }
         } else {
-          // Replace brands
+
           state.brands = content;
         }
 

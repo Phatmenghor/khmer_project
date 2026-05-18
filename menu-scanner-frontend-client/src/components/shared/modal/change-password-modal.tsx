@@ -57,7 +57,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
     mode: "onChange",
   });
 
-  // Clear errors when modal opens/closes
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -97,7 +97,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 flex flex-col">
-        {/* Header */}
+        {}
         <FormHeader
           title="Change Password"
           description="Update your password to keep your account secure"
@@ -109,9 +109,9 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-hidden"
         >
-          {/* Body */}
+          {}
           <FormBody>
-            {/* Error Display */}
+            {}
             {reduxError && (
               <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
                 <p className="text-sm text-destructive font-medium">
@@ -120,9 +120,9 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
               </div>
             )}
 
-            {/* Form Fields */}
+            {}
             <div className="space-y-4">
-              {/* Current Password */}
+              {}
               <div className="relative">
                 <TextField
                   control={control}
@@ -151,7 +151,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
                 </Button>
               </div>
 
-              {/* New Password */}
+              {}
               <div className="relative">
                 <TextField
                   control={control}
@@ -180,7 +180,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
                 </Button>
               </div>
 
-              {/* Confirm Password */}
+              {}
               <div className="relative">
                 <TextField
                   control={control}
@@ -211,7 +211,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
             </div>
           </FormBody>
 
-          {/* Footer */}
+          {}
           <FormFooter
             isSubmitting={isProfileLoading}
             isDirty={isDirty}

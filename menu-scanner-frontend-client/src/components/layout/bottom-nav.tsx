@@ -99,7 +99,7 @@ export function BottomNav() {
             );
           })}
         </div>
-        {/* Safe area spacer for devices with home indicator */}
+        {}
         <div className="h-safe-bottom bg-background" />
       </nav>
 

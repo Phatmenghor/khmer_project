@@ -10,12 +10,7 @@ interface SizeStockHistoryTableHandlers {
   isDeleting: boolean;
 }
 
-/**
- * Get expiry date text color based on status
- * Primary: Not expired, more than 10 days away
- * Orange: Expiring within 10 days
- * Red: Already expired
- */
+
 function getExpiryDateVariant(expiryDate: string): {
   textClass: string;
 } {
@@ -44,9 +39,7 @@ function getExpiryDateVariant(expiryDate: string): {
   return { textClass: "text-primary" };
 }
 
-/**
- * Format expiry date with time (DD/MM/YYYY, h:mm AM/PM)
- */
+
 function formatExpiryDate(timestamp: string | null | undefined): string {
   if (!timestamp) return "---";
 
@@ -65,9 +58,7 @@ function formatExpiryDate(timestamp: string | null | undefined): string {
   }
 }
 
-/**
- * Size Stock History Table Columns - Display size stock history with edit/delete actions
- */
+
 export function createSizeStockHistoryColumns(
   handleEditStock: (stock: ProductStockDto) => void,
   handleDeleteStock: (stock: ProductStockDto) => void,

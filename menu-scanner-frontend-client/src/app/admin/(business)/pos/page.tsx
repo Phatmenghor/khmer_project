@@ -61,7 +61,7 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { useLocalStorageSync } from "@/hooks/useLocalStorageSync";
 import { useFilterURLSync } from "@/hooks/useFilterURLSync";
 
-// ─── Redux Imports ───
+
 import { usePOSPageState } from "@/features/business/store/state/pos-page-state";
 import {
   setSelectedDeliveryOption,
@@ -110,7 +110,7 @@ import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/bus
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { useSelector } from "react-redux";
 
-// ─── Type Definitions ───
+
 type CartItemEditData = {
   id: string;
   productName: string;
@@ -196,10 +196,10 @@ type POSCheckoutPayload = {
 export default function PosPage() {
   const dispatch = useAppDispatch() as AppDispatch;
 
-  // ─── Business Settings from Redux (for tax percentage, colors, etc) ───
+
   const businessSettings = useSelector((state: RootState) => selectBusinessSettings(state));
 
-  // ─── Redux State ───
+
   const {
     selectedDeliveryOption,
     selectedPaymentOption,
@@ -228,14 +228,14 @@ export default function PosPage() {
     promotionOpen,
   } = usePOSPageState();
 
-  // ─── localStorage Sync with Redux (Cart) ───
+
   useLocalStorageSync({
     storageKey: "pos:cart",
     debounceMs: 1000,
     enabled: true,
   });
 
-  // ─── URL Sync with Redux (Filters) ───
+
   useFilterURLSync({
     enabled: true,
     debounceMs: 800,
@@ -246,15 +246,15 @@ export default function PosPage() {
   const categoryScrollRef = useRef<HTMLDivElement>(null);
   const posPageRef = useRef<HTMLDivElement>(null);
 
-  // ─── Debounce search ───
+
   const debouncedSearch = useDebounce(searchTerm, 400);
-  // ─── Edit Cart Item for Price/Promotion ───
+
   const [editingItemForPrice, setEditingItemForPrice] = useState<PosPageCartItem | null>(null);
 
-  // ─── Order-Level Discount ───
+
   const [orderDiscount, setOrderDiscount] = useState<OrderDiscountType>(null);
 
-  // Mobile responsive zoom
+
   useEffect(() => {
     const applyResponsiveZoom = () => {
       if (posPageRef.current) {
@@ -270,18 +270,18 @@ export default function PosPage() {
     return () => window.removeEventListener("resize", applyResponsiveZoom);
   }, []);
 
-  // ─── Initialize Categories, Brands, and Business Settings on Mount ───
+
   useEffect(() => {
     dispatch(fetchPOSPageCategoriesService());
     dispatch(fetchPOSPageBrandsService());
-    // Fetch business settings from Redux (includes tax percentage, colors, etc)
+
     dispatch(fetchBusinessSettingsThunk());
   }, [dispatch]);
 
-  // ─── Use constant skeleton count to avoid hydration mismatch ───
+
   const skeletonCount = 4;
 
-  // ─── Fetch Products when filters/search change ───
+
   useEffect(() => {
     dispatch(setProductPage(1));
     dispatch(setProducts([]));
@@ -301,7 +301,7 @@ export default function PosPage() {
   const loadMoreProducts = () => {
     if (hasMoreProducts && !productsLoading) {
       const nextPage = productPage + 1;
-      // IMPORTANT: Update productPage BEFORE fetching so reducer knows to append, not replace
+
       dispatch(setProductPage(nextPage));
       dispatch(
         fetchPOSPageProductsService({
@@ -315,14 +315,14 @@ export default function PosPage() {
     }
   };
 
-  // ─── Infinite Scroll ───
+
   const { observerTarget } = useInfiniteScroll({
     onLoadMore: loadMoreProducts,
     hasMore: hasMoreProducts,
     isLoading: productsLoading,
   });
 
-  // ─── Track Scroll Position ───
+
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   useEffect(() => {
@@ -332,7 +332,7 @@ export default function PosPage() {
     if (!viewport) return;
 
     const handleScroll = () => {
-      // Show button if scrolled down more than 200px
+
       setShowScrollToTop(viewport.scrollTop > 200);
     };
 
@@ -340,7 +340,7 @@ export default function PosPage() {
     return () => viewport.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ─── Keyboard shortcuts ───
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "F2") {
@@ -352,7 +352,7 @@ export default function PosPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // ─── Category Scroll Handler ───
+
   const scrollCategories = useCallback((direction: "left" | "right") => {
     const viewport = categoryScrollRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]"
@@ -366,7 +366,6 @@ export default function PosPage() {
   }, []);
 
 
-  // ─── Scroll Products to Top ───
   const scrollProductsToTop = useCallback(() => {
     const viewport = productGridRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]"
@@ -377,7 +376,7 @@ export default function PosPage() {
       behavior: "smooth",
     });
   }, []);
-  // ─── Configure Category Scroll Styling ───
+
   useEffect(() => {
     const categoryContainer = categoryScrollRef.current;
     if (!categoryContainer) return;
@@ -399,14 +398,14 @@ export default function PosPage() {
     });
   }, []);
 
-  // ─── Cart Logic ───
+
   const addToCart = useCallback(
     (product: ProductDetailResponseModel, size?: ProductSize, editingId?: string | null, quantity: number = 1, customizationIds?: string[]) => {
-      // Generate unique cart ID including customizations
+
       const customizationKey = customizationIds && customizationIds.length > 0
         ? `-${customizationIds.sort().join("-")}`
         : "";
-      
+
       const cartId = size
         ? `${product.id}-${size.id}${customizationKey}`
         : `${product.id}${customizationKey}`;
@@ -429,10 +428,10 @@ export default function PosPage() {
           })
         : [];
 
-      // Calculate total customization price adjustment
+
       const customizationTotal = customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0);
 
-      // Include customization prices in final price
+
       finalPrice = finalPrice + customizationTotal;
       const newItem: PosPageCartItem = {
         id: cartId,
@@ -454,28 +453,28 @@ export default function PosPage() {
       };
 
       if (editingId) {
-        // Edit mode: replace existing item quantity
+
         const existingItem = cartItems.find((item) => item.id === editingId);
         if (existingItem) {
           dispatch(updateCartItem({
             ...newItem,
-            quantity: quantity,  // Use NEW quantity, not old
+            quantity: quantity,
             totalPrice: finalPrice * quantity,
           }));
         }
       } else if (cartItems.some((item) => item.id === cartId)) {
-        // Same product/size/customizations exists: REPLACE quantity (not merge)
+
         dispatch(updateCartItem({
           ...newItem,
-          quantity: quantity,  // REPLACE, not merge
+          quantity: quantity,
           totalPrice: finalPrice * quantity,
         }));
       } else {
-        // New item: add to cart
+
         dispatch(addCartItem(newItem));
       }
 
-      // Store customizations for this product so they're available if modal opens again
+
       if (customizations.length > 0) {
         dispatch(storeProductCustomizations({
           productId: product.id,
@@ -501,7 +500,7 @@ export default function PosPage() {
         dispatch(removeCartItem(cartId));
         dispatch(clearProductCustomizations(item.productId));
       } else {
-        // Note: finalPrice already includes customization prices
+
         dispatch(updateCartItem({
           ...item,
           quantity: newQuantity,
@@ -525,7 +524,7 @@ export default function PosPage() {
 
   const clearCart = () => dispatch(clearCartItems());
 
-  // ─── Cart Calculations with Tax ───
+
   const cartSummary = useMemo(() => {
     let totalItems = cartItems.length;
     let totalQuantity = 0;
@@ -536,14 +535,14 @@ export default function PosPage() {
       totalQuantity += item.quantity;
       const itemSubtotal = item.finalPrice * item.quantity;
       subtotal += itemSubtotal;
-      // Calculate customization total for each item
+
       if (item.customizations && item.customizations.length > 0) {
         const itemCustomizationTotal = item.customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0);
         customizationTotal += itemCustomizationTotal * item.quantity;
       }
     });
     const deliveryFee = selectedDeliveryOption?.price || 0;
-    // Calculate tax from business settings (taxPercentage is 0-100, convert to decimal)
+
     const taxPercentage = businessSettings?.taxPercentage || 0;
     const taxAmount = subtotal * (taxPercentage / 100);
     const finalTotal = Math.max(0, subtotal + deliveryFee + taxAmount);
@@ -560,7 +559,7 @@ export default function PosPage() {
     };
   }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage]);
 
-  // ─── Product Click Handler ───
+
   const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
     const hasCustomizations = product.customizations && product.customizations.length > 0;
     if (product.hasSizes || hasCustomizations) {
@@ -570,12 +569,12 @@ export default function PosPage() {
     addToCart(product, undefined, undefined, 1);
   }, [dispatch, addToCart]);
 
-  // ─── Handle Edit Cart Item for Price/Promotion ───
+
   const handleEditPriceItem = useCallback((item: PosPageCartItem) => {
     setEditingItemForPrice(item);
   }, []);
 
-  // ─── Save Cart Item Price Changes ───
+
   const handleSaveItemChanges = useCallback((editData: CartItemEditData) => {
     if (!editingItemForPrice) return;
 
@@ -592,13 +591,13 @@ export default function PosPage() {
     setEditingItemForPrice(null);
   }, [dispatch, editingItemForPrice]);
 
-  // ─── Handle Order-Level Discount ───
+
   const handleDiscountApply = (discount: Exclude<OrderDiscountType, null>) => {
     setOrderDiscount(discount);
     showToast.success(`Discount applied: saved $${discount.discountAmount.toFixed(2)}`);
   };
 
-  // ─── Submit Order ───
+
   const handleSubmitOrder = async () => {
     if (cartItems.length === 0) {
       showToast.error(Messages.cart.emptyCart);
@@ -610,17 +609,15 @@ export default function PosPage() {
       return;
     }
 
-    // Build POSCheckoutRequest payload with complete audit trail
-    // Items: before/after snapshots + metadata for each change
-    // Order: before/after pricing + discount metadata
+
     const payload: POSCheckoutPayload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
       customerName: "Walk-in Customer",
       customerPhone: "",
       customerEmail: "",
-      customerAddress: "",  // POS address entry
+      customerAddress: "",
 
-      // Full delivery option details (same as public checkout)
+
       deliveryOption: {
         name: selectedDeliveryOption.name || "Delivery",
         description: selectedDeliveryOption.description || "POS Order",
@@ -628,7 +625,7 @@ export default function PosPage() {
         price: selectedDeliveryOption.price || 0,
       },
 
-      // Cart — items with full customization details
+
       cart: {
         businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
         businessName: products[0]?.businessName || "",
@@ -639,11 +636,11 @@ export default function PosPage() {
           productSizeId: item.productSizeId || null,
           sizeName: item.sizeName || null,
           quantity: item.quantity,
-          // Send full customization details (only customizations, not duplicate IDs)
+
           customizations: item.customizations || [],
           finalPrice: item.finalPrice,
           totalPrice: item.totalPrice,
-          // SKU and barcode for store tracking
+
           sku: item.sku || "",
           barcode: item.barcode || "",
         })),
@@ -654,30 +651,30 @@ export default function PosPage() {
         finalTotal: cartSummary.finalTotal,
       },
 
-      // Pricing with complete breakdown including tax
+
       pricing: {
-        // Base pricing
+
         subtotal: cartSummary.subtotal,
         customizationTotal: cartSummary.customizationTotal,
         deliveryFee: selectedDeliveryOption?.price || 0,
-        // Tax breakdown
+
         taxPercentage: cartSummary.taxPercentage,
         taxAmount: cartSummary.taxAmount,
-        // Optional: order-level discount
+
         discountAmount: orderDiscount?.discountAmount || 0,
         discountType: orderDiscount?.type || null,
         discountReason: orderDiscount?.reason || null,
-        // Final total after all adjustments
+
         finalTotal: cartSummary.finalTotal,
       },
 
-      // Payment info
+
       payment: {
         paymentMethod: "CASH",
         paymentStatus: "PAID",
       },
 
-      // Notes
+
       customerNote: customerNote || "",
       businessNote: "Created via POS System",
       orderStatus: OrderStatus.PENDING,
@@ -702,18 +699,18 @@ export default function PosPage() {
     }
   };
 
-  // ─── Render ───
+
   return (
     <div
       ref={posPageRef}
       className="flex flex-col h-full w-full max-md:p-1"
       style={{ zoom: "0.8" }}
     >
-      {/* ─── Main Content ─── */}
+      {}
       <div className="flex max-md:flex-col md:flex-row flex-1 overflow-hidden">
-        {/* ─── Product Section ─── */}
+        {}
         <div className="flex-1 flex flex-col overflow-hidden relative">
-          {/* Search & Brand Filter Bar */}
+          {}
           <div className="flex flex-wrap items-end gap-2 max-md:gap-1 max-md:p-2 md:p-3 border-b bg-muted/20 shrink-0">
             <div className="relative flex-1 max-md:min-w-[140px] md:min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 max-md:h-3.5 max-md:w-3.5 h-4 w-4 text-muted-foreground" />
@@ -726,7 +723,7 @@ export default function PosPage() {
                 onChange={(e) => dispatch(setSearchTerm(e.target.value))}
               />
             </div>
-            {/* Brand Filter */}
+            {}
             <Popover open={brandOpen} onOpenChange={(open) => dispatch(setBrandOpen(open))}>
               <PopoverTrigger asChild>
                 <Button
@@ -785,7 +782,7 @@ export default function PosPage() {
                 </Command>
               </PopoverContent>
             </Popover>
-            {/* Promotion Filter */}
+            {}
             <Popover open={promotionOpen} onOpenChange={(open) => dispatch(setPromotionOpen(open))}>
               <PopoverTrigger asChild>
                 <Button
@@ -839,7 +836,7 @@ export default function PosPage() {
                 </Command>
               </PopoverContent>
             </Popover>
-            {/* Clear All Filter Button */}
+            {}
               <Button
                 variant="ghost"
                 size="icon"
@@ -856,7 +853,7 @@ export default function PosPage() {
               </Button>
           </div>
 
-          {/* Categories Horizontal Scroll */}
+          {}
           <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 h-10 mt-2">
             <Button
               variant="outline"
@@ -914,7 +911,7 @@ export default function PosPage() {
             </Button>
           </div>
 
-          {/* Product Grid */}
+          {}
           <ScrollArea className="flex-1 w-full overflow-hidden" ref={productGridRef}>
             <div
               className="w-full max-md:p-2 md:p-4"
@@ -936,12 +933,12 @@ export default function PosPage() {
                   onQuantityChange={updateQuantity}
                 />
               ))}
-              {/* ALWAYS show skeleton loaders when hasMoreProducts is true - matches home page pattern */}
+              {}
               {hasMoreProducts &&
                 Array.from({ length: skeletonCount }).map((_, i) => (
                   <ProductCardSkeleton key={`skeleton-pagination-${i}`} />
                 ))}
-              {/* ALWAYS show loading message when hasMoreProducts is true */}
+              {}
               {hasMoreProducts && (
                 <div className="col-span-full flex flex-col items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
@@ -993,8 +990,8 @@ export default function PosPage() {
               </div>
             )}
           </ScrollArea>
-          
-          {/* Scroll to Top Button */}
+
+          {}
           {showScrollToTop && (
             <Button
               variant="outline"
@@ -1008,7 +1005,7 @@ export default function PosPage() {
           )}
         </div>
 
-        {/* ─── Cart Panel ─── */}
+        {}
         <div
           className={`${
             showCart ? "flex" : "hidden"
@@ -1016,7 +1013,7 @@ export default function PosPage() {
             showCart && "fixed inset-0 z-50 md:relative md:z-auto max-md:bottom-0 max-md:w-full max-md:h-auto"
           }`}
         >
-          {/* Cart Header */}
+          {}
           <div className="flex items-center justify-between px-4 py-3 border-b shrink-0">
             <div>
               <h2 className="font-semibold text-sm">Current Order</h2>
@@ -1049,7 +1046,7 @@ export default function PosPage() {
             </div>
           </div>
 
-          {/* Cart Items */}
+          {}
           <div className="flex-1 overflow-hidden flex flex-col min-h-0">
             {cartItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground flex-1">
@@ -1086,7 +1083,7 @@ export default function PosPage() {
             )}
           </div>
 
-          {/* Checkout Section */}
+          {}
           <div className="border-t bg-card shrink-0">
             <div className="p-3 space-y-2">
               <div className="grid grid-cols-2 gap-2">
@@ -1192,8 +1189,8 @@ export default function PosPage() {
                   More
                   {orderDiscount && (
                     <span className="ml-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                      {orderDiscount.type === "fixed" 
-                        ? `-$${orderDiscount.value.toFixed(2)}` 
+                      {orderDiscount.type === "fixed"
+                        ? `-$${orderDiscount.value.toFixed(2)}`
                         : `-${orderDiscount.value}%`}
                     </span>
                   )}
@@ -1263,7 +1260,7 @@ export default function PosPage() {
       />
 
 
-      {/* Edit Cart Item Modal for Price/Promotion */}
+      {}
       <POSEditCartItemModal
         open={!!editingItemForPrice}
         onOpenChange={(open) => {
@@ -1300,4 +1297,3 @@ export default function PosPage() {
     </div>
   );
 }
-

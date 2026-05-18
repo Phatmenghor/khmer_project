@@ -57,7 +57,7 @@ export function LeaveTypeDetailModal({
     >
       {leaveTypeData ? (
         <div className="space-y-6">
-          {/* Leave Type Information */}
+          {}
           <DetailSection title="Leave Type Information">
             <DetailRow
               label="Leave Type Name"
@@ -71,7 +71,7 @@ export function LeaveTypeDetailModal({
             />
           </DetailSection>
 
-          {/* System Information */}
+          {}
           <DetailSection title="System Information">
             <DetailRow
               label="Leave Type ID"

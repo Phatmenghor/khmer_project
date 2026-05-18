@@ -30,7 +30,7 @@ interface PublicProductState {
     filters: string | null;
   };
   scrollY: number;
-  loadedFilters: string; // Track what filters the products were loaded with
+  loadedFilters: string;
 }
 
 const initialState: PublicProductState = {
@@ -56,7 +56,7 @@ const initialState: PublicProductState = {
     filters: null,
   },
   scrollY: 0,
-  loadedFilters: "", // Initialize empty
+  loadedFilters: "",
 };
 
 const publicProductSlice = createSlice({
@@ -75,7 +75,7 @@ const publicProductSlice = createSlice({
       state.products = [];
       state.pagination = initialState.pagination;
       state.scrollY = 0;
-      state.loadedFilters = ""; // Clear loaded filters too
+      state.loadedFilters = "";
     },
 
     clearSelectedProduct: (state) => {
@@ -93,13 +93,11 @@ const publicProductSlice = createSlice({
       .addCase(fetchPublicProducts.fulfilled, (state, action) => {
         const newProducts = action.payload.content || [];
 
-        // Append new products, deduplicating by ID to prevent duplicate keys
-        // when server-side inserts shift items across page boundaries
+
         const existingIds = new Set(state.products.map((p) => p.id));
         const uniqueNew = newProducts.filter((p) => !existingIds.has(p.id));
 
-        // Simply append new products without trimming
-        // This allows scroll anchoring to detect product count increase
+
         state.products = [...state.products, ...uniqueNew];
 
         state.loading.list = false;
@@ -158,7 +156,7 @@ const publicProductSlice = createSlice({
 
 export const {
   setScrollY,
-  setLoadedFilters, // Export new action
+  setLoadedFilters,
   clearProducts,
   clearSelectedProduct,
   resetPublicProductState,

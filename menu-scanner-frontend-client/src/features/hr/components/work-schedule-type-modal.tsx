@@ -80,7 +80,7 @@ export default function WorkScheduleTypeModal({
     mode: "onChange",
   });
 
-  // Fetch user data for edit mode
+
   useEffect(() => {
     const fetchWorkScheduleData = async () => {
       if (!workScheduleId || !isOpen || isCreate) return;
@@ -106,7 +106,7 @@ export default function WorkScheduleTypeModal({
     fetchWorkScheduleData();
   }, [workScheduleId, isOpen, isCreate, reset, dispatch]);
 
-  // Reset form for create mode
+
   useEffect(() => {
     if (isOpen && isCreate) {
       reset({
@@ -116,7 +116,7 @@ export default function WorkScheduleTypeModal({
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());

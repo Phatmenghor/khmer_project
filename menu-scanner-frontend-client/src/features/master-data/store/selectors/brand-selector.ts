@@ -24,9 +24,7 @@ export const selectFilters = (state: RootState) => state.brand.filters;
 
 export const selectOperations = (state: RootState) => state.brand.operations;
 
-/**
- * Select pagination metadata
- */
+
 export const selectPagination = createSelector([selectBrand], (data) => ({
   currentPage: data?.pageNo || 1,
   totalPages: data?.totalPages || 1,

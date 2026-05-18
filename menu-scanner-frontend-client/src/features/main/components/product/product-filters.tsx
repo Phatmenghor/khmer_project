@@ -58,7 +58,6 @@ function ProductFiltersComponent({
   const [maxPrice, setMaxPrice] = useState<string>("");
 
 
-  // Sync from URL
   useEffect(() => {
     setSelectedCategory(searchParams.get("categoryId") || "");
     setSelectedBrand(searchParams.get("brandId") || "");
@@ -139,10 +138,9 @@ function ProductFiltersComponent({
     (hasPriceFilter ? 1 : 0);
 
 
-  // Create filter content once to avoid duplicate component instances
   const filterContent = (
     <div className="space-y-5">
-      {/* Promotion - top, hidden when locked */}
+      {}
       {!lockedPromotion && (
         <>
           <div
@@ -192,7 +190,7 @@ function ProductFiltersComponent({
         </>
       )}
 
-      {/* Category - Combobox */}
+      {}
       <ComboboxSelectCategoriesPublic
         selectedCategory={selectedCategory}
         onChangeSelected={(categoryId) =>
@@ -205,7 +203,7 @@ function ProductFiltersComponent({
 
       <Separator />
 
-      {/* Brand - Combobox */}
+      {}
       <ComboboxSelectBrandPublic
         selectedBrand={selectedBrand}
         onChangeSelected={(brandId) => updateFilter("brandId", brandId)}
@@ -216,7 +214,7 @@ function ProductFiltersComponent({
 
       <Separator />
 
-      {/* Status - Multi-select checkboxes */}
+      {}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-green-500/10">
@@ -253,7 +251,7 @@ function ProductFiltersComponent({
 
       <Separator />
 
-      {/* Price Range */}
+      {}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-yellow-500/10">
@@ -301,11 +299,11 @@ function ProductFiltersComponent({
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {}
       <div className="hidden lg:flex w-72 flex-shrink-0">
         <div className="sticky top-24 h-[calc(100vh-7rem)] w-full">
           <div className="bg-card border rounded-xl shadow-sm h-full flex flex-col">
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/60 flex-shrink-0">
               <div className="flex items-center gap-2.5">
                 <SlidersHorizontal className="h-5 w-5 text-primary" />
@@ -329,7 +327,7 @@ function ProductFiltersComponent({
               )}
             </div>
 
-            {/* Results count */}
+            {}
             <div className="px-5 py-3 border-b border-border/40 flex-shrink-0 bg-muted/30">
               <p className="text-xs text-muted-foreground">
                 <span className="font-semibold text-foreground">
@@ -339,7 +337,7 @@ function ProductFiltersComponent({
               </p>
             </div>
 
-            {/* Scrollable content */}
+            {}
             <ScrollArea className="flex-1">
               <div className="p-5">
                 {filterContent}
@@ -349,7 +347,7 @@ function ProductFiltersComponent({
         </div>
       </div>
 
-      {/* Mobile Filters */}
+      {}
       <div className="lg:hidden w-full">
         <div className="flex items-center justify-between gap-3 bg-card border rounded-xl p-4 shadow-sm">
           <div className="flex-1 min-w-0">
@@ -440,8 +438,8 @@ function ProductFiltersComponent({
 }
 
 export const ProductFilters = memo(ProductFiltersComponent, (prevProps, nextProps) => {
-  // Only re-render if basePath or lockedPromotion changes
-  // Ignore totalResults changes as they don't affect filter behavior
+
+
   return (
     prevProps.basePath === nextProps.basePath &&
     prevProps.lockedPromotion === nextProps.lockedPromotion

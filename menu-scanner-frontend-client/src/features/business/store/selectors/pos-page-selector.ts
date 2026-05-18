@@ -1,19 +1,18 @@
-/**
- * POS Page - Selectors
- */
+
+
 
 import { RootState } from "@/store";
 
-// ─── Base ───
+
 export const selectPOSPageState = (state: RootState) => state.posPage;
 
-// ─── Payment & Delivery ───
+
 export const selectSelectedDeliveryOption = (state: RootState) =>
   state.posPage.selectedDeliveryOption;
 export const selectSelectedPaymentOption = (state: RootState) =>
   state.posPage.selectedPaymentOption;
 
-// ─── Products & Filters ───
+
 export const selectProducts = (state: RootState) => state.posPage.products;
 export const selectProductsLoading = (state: RootState) =>
   state.posPage.productsLoading;
@@ -35,18 +34,18 @@ export const selectProductPage = (state: RootState) =>
 export const selectHasMoreProducts = (state: RootState) =>
   state.posPage.hasMoreProducts;
 
-// ─── Cart ───
+
 export const selectCartItems = (state: RootState) => state.posPage.cartItems;
 export const selectCartPricing = (state: RootState) => state.posPage.cartPricing;
 export const selectShowCart = (state: RootState) => state.posPage.showCart;
 
-// ─── Order ───
+
 export const selectCustomerNote = (state: RootState) =>
   state.posPage.customerNote;
 export const selectIsSubmitting = (state: RootState) =>
   state.posPage.isSubmitting;
 
-// ─── Modals ───
+
 export const selectSizePickerProduct = (state: RootState) =>
   state.posPage.sizePickerProduct;
 export const selectEditingCartItemId = (state: RootState) =>
@@ -58,7 +57,7 @@ export const selectSuccessOrder = (state: RootState) =>
 export const selectShowOrderDetailsModal = (state: RootState) =>
   state.posPage.showOrderDetailsModal;
 
-// ─── UI ───
+
 export const selectBrandOpen = (state: RootState) => state.posPage.brandOpen;
 export const selectPromotionFilter = (state: RootState) =>
   state.posPage.promotionFilter;

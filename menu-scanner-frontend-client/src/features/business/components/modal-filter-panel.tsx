@@ -13,21 +13,7 @@ import { BrandResponseModel } from "@/features/master-data/store/models/response
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { Badge } from "@/components/ui/badge";
 
-/**
- * ModalFilterPanel - Show filters in a modal/drawer
- *
- * Features:
- * - Clean header with search and button
- * - All filters in collapsible modal
- * - Shows active filter count
- * - Responsive design
- * - Good for mobile
- *
- * Usage:
- * ```tsx
- * <ModalFilterPanel config={filterConfig} />
- * ```
- */
+
 export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
   config,
 }) => {
@@ -136,16 +122,16 @@ export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
 
   return (
     <>
-      {/* Header */}
+      {}
       <Card>
         <CardContent className="py-3 sm:py-5">
           <div className="flex items-center gap-2 mb-3">
             <h1 className="text-base sm:text-lg font-bold">{config.title}</h1>
           </div>
 
-          {/* Search Bar + Filters Button */}
+          {}
           <div className="flex items-center gap-3">
-            {/* Search */}
+            {}
             <div className="flex-1 relative group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
               <Input
@@ -157,7 +143,7 @@ export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
               />
             </div>
 
-            {/* Filters Button */}
+            {}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="flex items-center gap-2 px-3 py-2 rounded-md border border-gray-700 bg-gray-900 hover:bg-gray-800 transition-colors"
@@ -171,7 +157,7 @@ export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
               )}
             </button>
 
-            {/* Add Button */}
+            {}
             {config.buttonText && (
               <Button
                 disabled={config.buttonDisabled}
@@ -188,10 +174,10 @@ export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
         </CardContent>
       </Card>
 
-      {/* Filter Modal/Panel */}
+      {}
       {isOpen && (
         <div className="mt-3 bg-gray-900/50 rounded-lg border border-gray-800 p-6 max-h-96 overflow-y-auto">
-          {/* Header */}
+          {}
           <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-800">
             <h2 className="text-sm font-bold flex items-center gap-2">
               <SlidersHorizontal className="w-4 h-4" />
@@ -205,12 +191,12 @@ export const ModalFilterPanel: React.FC<{ config: FilterPanelConfig }> = ({
             </button>
           </div>
 
-          {/* Filters - Grid layout for consistent spacing */}
+          {}
           <div className="grid gap-4 w-full">
             {config.filters.map((filter) => renderFilter(filter))}
           </div>
 
-          {/* Action Buttons */}
+          {}
           <div className="mt-6 pt-4 border-t border-gray-800 flex gap-2">
             <Button
               onClick={() => setIsOpen(false)}

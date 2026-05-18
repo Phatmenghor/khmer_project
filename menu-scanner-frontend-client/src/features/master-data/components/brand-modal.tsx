@@ -45,7 +45,7 @@ type Props = {
 export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
 
-  // Local state for image upload loading
+
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -77,7 +77,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
   useEffect(() => {
     if (isOpen) {
       if (isCreate) {
-        // Reset form for create mode
+
         reset({
           name: "",
           imageUrl: "",
@@ -85,7 +85,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
           status: Status.ACTIVE,
         });
       } else if (brand) {
-        // Populate form with brand data for edit mode
+
         reset({
           name: brand.name || "",
           imageUrl: brand.imageUrl || "",
@@ -96,7 +96,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
     }
   }, [isOpen, brand, isCreate, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -107,7 +107,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
     try {
       let finalImageUrl = data.imageUrl;
 
-      // Upload image if it's a base64 string with loading state
+
       if (finalImageUrl && isBase64Image(finalImageUrl)) {
         setIsUploadingImage(true);
         try {
@@ -175,7 +175,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
           className="flex flex-col flex-1 overflow-hidden"
         >
             <FormBody>
-              {/* Display Redux errors */}
+              {}
               {reduxError && (
                 <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
                   <p className="text-sm text-destructive font-medium">
@@ -185,7 +185,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
               )}
 
               <div className="space-y-6">
-                {/* Banner Image Section - Prominent display */}
+                {}
                 <div className="space-y-3">
                   <ClickableImageUpload
                     label="Brand Logo"
@@ -201,13 +201,13 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
                   />
                 </div>
 
-                {/* Divider */}
+                {}
                 <div className="border-t pt-6">
                   <h3 className="text-sm font-semibold text-foreground mb-4">
                     Banner Details
                   </h3>
 
-                  {/* Banner Details Grid */}
+                  {}
                   <div className="grid grid-cols-2 gap-4">
                     <TextField
                       control={control}

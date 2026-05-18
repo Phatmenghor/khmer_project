@@ -51,33 +51,33 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
   const size = collapsed ? "sm" : avatarSize;
   const sizes = sizeClasses[size];
 
-  // Get user display name
+
   const displayName =
     user.displayName ||
     user.fullName ||
     `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
     "GUEST USER";
 
-  // Get fallback letter
+
   const fallbackLetter =
     user.fullName?.charAt(0) || user.firstName?.charAt(0) || "U";
 
-  // Image preview handlers - smooth like CustomAvatar
+
   const handleMouseEnter = () => {
     if (!enableImagePreview || !user.profileImageUrl) return;
 
-    // Clear any pending close timeout
+
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
     }
 
-    // Set 600ms delay before opening
+
     openTimeoutRef.current = setTimeout(() => {
       setShowPreview(true);
-      setImageLoading(true); // Reset loading state when opening
+      setImageLoading(true);
       justOpenedRef.current = true;
 
-      // Reset the justOpened flag after 500ms to allow closing
+
       setTimeout(() => {
         justOpenedRef.current = false;
       }, 500);
@@ -85,28 +85,28 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
   };
 
   const handleMouseLeave = () => {
-    // Don't close if modal just opened
+
     if (justOpenedRef.current) return;
 
-    // Clear the open timeout if user leaves before 600ms
+
     if (openTimeoutRef.current) {
       clearTimeout(openTimeoutRef.current);
     }
 
-    // Delay before closing to allow moving mouse to preview
+
     closeTimeoutRef.current = setTimeout(() => {
       setShowPreview(false);
     }, 4000);
   };
 
   const handlePreviewMouseEnter = () => {
-    // Clear close timeout when hovering preview
+
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
     }
   };
 
-  // Avatar component with Dialog trigger
+
   const AvatarComponent = (
     <div className="relative">
       <Dialog open={showPreview} onOpenChange={setShowPreview}>
@@ -138,7 +138,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
             <DialogTitle className="sr-only">{displayName || "Image Preview"}</DialogTitle>
             <div className="relative bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl border border-border">
               <div className="flex flex-col items-center gap-4">
-                {/* Loading spinner */}
+                {}
                 {imageLoading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 rounded-2xl z-10">
                     <div className="flex flex-col items-center gap-3">
@@ -170,7 +170,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
         )}
       </Dialog>
 
-      {/* Online/Offline indicator */}
+      {}
       {showOnlineIndicator && (
         <div
           className={`absolute -bottom-0.5 -right-0.5 ${
@@ -183,7 +183,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
     </div>
   );
 
-  // Collapsed view
+
   if (collapsed) {
     return (
       <div className={`border-t border-border/50 p-2 ${className}`}>
@@ -192,7 +192,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
     );
   }
 
-  // Expanded view
+
   const CardContent = (
     <div
       className={`flex items-center gap-3 p-3 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors duration-300 ${
@@ -212,7 +212,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
         )}
       </div>
 
-      {/* Loading indicator */}
+      {}
       {isLoading && (
         <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse shadow-sm shadow-yellow-500/50"></div>
       )}

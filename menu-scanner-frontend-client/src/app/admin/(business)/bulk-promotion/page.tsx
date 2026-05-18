@@ -101,12 +101,12 @@ export default function BulkPromotionPage() {
   const selectedProductIdsFromRedux = useAppSelector(selectSelectedProductIds);
   const selectedSizesFromRedux = useAppSelector(selectPromotionSizeSelections);
 
-  // Convert array to Map for efficient lookup
+
   const selectedProductIds = useMemo(() => {
     return new Map(selectedProductIdsFromRedux.map((id) => [id, true]));
   }, [selectedProductIdsFromRedux]);
 
-  // Convert Redux size selections (arrays) to Map<string, Set<string>> for efficient lookup in table
+
   const selectedSizes = useMemo(() => {
     const sizeMap = new Map<string, Set<string>>();
     Object.entries(selectedSizesFromRedux).forEach(([productId, sizeArray]) => {
@@ -129,22 +129,22 @@ export default function BulkPromotionPage() {
   const [showResetModal, setShowResetModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
-  // Debounce search query for performance (400ms delay)
+
   const debouncedSearchQuery = useDebounce(searchQuery, 400);
 
-  // Detail modal state
+
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
     productId: "",
   });
 
-  // Reset promotion modal state
+
   const [resetPromotionState, setResetPromotionState] = useState({
     isOpen: false,
     product: null as ProductDetailResponseModel | null,
   });
 
-  // Clear selected promotions modal state
+
   const [showClearSelectedModal, setShowClearSelectedModal] = useState(false);
   const [isClearingSelected, setIsClearingSelected] = useState(false);
 
@@ -162,15 +162,14 @@ export default function BulkPromotionPage() {
     },
   });
 
-  // ─── localStorage Sync with Redux (Bulk Promotion Selections) ───
-  // Same pattern as POS cart sync - clean and simple!
+
   const { clearSelections } = useBulkPromotionStorageSync({
     storageKey: "bulk-promotion:selected-products",
     debounceMs: 1000,
     enabled: true,
   });
 
-  // ─── localStorage Sync for Size Selections ───
+
   const { clearSelections: clearSizeSelections } =
     useBulkPromotionSizesStorageSync({
       storageKey: "bulk-promotion:selected-sizes",
@@ -178,7 +177,7 @@ export default function BulkPromotionPage() {
       enabled: true,
     });
 
-  // Fetch products on mount and when filters change
+
   useEffect(() => {
     dispatch(
       fetchAllProductAdminService({
@@ -207,15 +206,15 @@ export default function BulkPromotionPage() {
     hasPromotionFilter,
   ]);
 
-  // Toggle product selection (and auto-select/deselect all sizes)
+
   const handleSelectProduct = useCallback(
     (productId: string) => {
       const isCurrentlySelected = selectedProductIds.has(productId);
 
-      // Get the product to access its sizes
+
       const product = productContent.find((p) => p.id === productId);
 
-      // Always toggle the product regardless of sizes
+
       dispatch(toggleSelectedProduct(productId));
 
       if (
@@ -224,56 +223,56 @@ export default function BulkPromotionPage() {
         product.hasSizes &&
         product.sizes
       ) {
-        // Selecting product WITH sizes: auto-select all sizes
+
         const sizeIds = product.sizes.map((s) => s.id);
         dispatch(selectAllSizesForProduct({ productId, sizeIds }));
       } else if (isCurrentlySelected) {
-        // Deselecting: clear all sizes for this product (if any)
+
         dispatch(clearSizesForProduct(productId));
       }
     },
     [dispatch, selectedProductIds, productContent],
   );
 
-  // Toggle size selection for a product
+
   const handleSizeToggle = useCallback(
     (productId: string, sizeId: string) => {
-      // Get current selected sizes for this product
+
       const currentSizesForProduct = selectedSizes.get(productId);
       const sizeIsCurrentlySelected =
         currentSizesForProduct && currentSizesForProduct.has(sizeId);
 
-      // Check if product is already selected
+
       const isProductSelected = selectedProductIds.has(productId);
 
       if (!sizeIsCurrentlySelected) {
-        // User is SELECTING a size
-        // If product is not selected, auto-select it
+
+
         if (!isProductSelected) {
           dispatch(toggleSelectedProduct(productId));
         }
       } else {
-        // User is DESELECTING a size
-        // Check if this is the last size for this product
+
+
         const remainingSizes = currentSizesForProduct
           ? new Set(
               Array.from(currentSizesForProduct).filter((s) => s !== sizeId),
             )
           : new Set();
 
-        // If no more sizes selected for this product, auto-deselect the product
+
         if (remainingSizes.size === 0 && isProductSelected) {
           dispatch(toggleSelectedProduct(productId));
         }
       }
 
-      // Toggle the size
+
       dispatch(toggleSizeForProduct({ productId, sizeId }));
     },
     [dispatch, selectedProductIds, selectedSizes],
   );
 
-  // Select/deselect all products on current page (and auto-select/deselect sizes)
+
   const handleSelectAll = useCallback(
     (checked: boolean) => {
       if (checked && productContent.length > 0) {
@@ -284,7 +283,7 @@ export default function BulkPromotionPage() {
         ]);
         dispatch(setSelectedProducts(Array.from(combined)));
 
-        // Auto-select all sizes for newly selected products (only if they have sizes)
+
         productContent.forEach((product) => {
           if (
             !selectedProductIds.has(product.id) &&
@@ -304,7 +303,7 @@ export default function BulkPromotionPage() {
         );
         dispatch(setSelectedProducts(filtered));
 
-        // Clear all sizes for deselected products
+
         productContent.forEach((product) => {
           if (pageIdsSet.has(product.id)) {
             dispatch(clearSizesForProduct(product.id));
@@ -315,16 +314,16 @@ export default function BulkPromotionPage() {
     [selectedProductIdsFromRedux, selectedProductIds, productContent, dispatch],
   );
 
-  // Check if all products on current page are selected
+
   const allSelected =
     productContent.length > 0 &&
     productContent.every((p) => selectedProductIds.has(p.id));
 
-  // Check if some products are selected
+
   const someSelected =
     productContent.some((p) => selectedProductIds.has(p.id)) && !allSelected;
 
-  // Filter handlers
+
   const handleBrandChange = (brand: BrandResponseModel | null) => {
     setSelectedBrand(brand);
     dispatch(setPageNo(1));
@@ -357,7 +356,7 @@ export default function BulkPromotionPage() {
     dispatch(setPageNo(1));
   };
 
-  // Clear all selections (for testing/resetting)
+
   const handleClearAllSelections = () => {
     dispatch(clearSelectedProducts());
     dispatch(clearAllSizeSelections());
@@ -366,10 +365,10 @@ export default function BulkPromotionPage() {
     showToast.success(Messages.promotions.allSelectionsCleared);
   };
 
-  // Get selected product IDs as array
+
   const selectedIds = Array.from(selectedProductIds.keys());
 
-  // Handle view product details
+
   const handleViewDetails = useCallback(
     (product: ProductDetailResponseModel) => {
       setDetailModalState({
@@ -380,15 +379,15 @@ export default function BulkPromotionPage() {
     [],
   );
 
-  // Handle edit product
+
   const handleEditProduct = useCallback(
     (product: ProductDetailResponseModel) => {
-      // Navigate to product edit or show modal
+
     },
     [],
   );
 
-  // Handle reset promotion
+
   const handleResetPromotion = useCallback(
     (product: ProductDetailResponseModel) => {
       setResetPromotionState({
@@ -399,7 +398,7 @@ export default function BulkPromotionPage() {
     [],
   );
 
-  // Close detail modal
+
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
@@ -407,7 +406,7 @@ export default function BulkPromotionPage() {
     });
   };
 
-  // Close reset promotion modal
+
   const closeResetPromotionModal = () => {
     setResetPromotionState({
       isOpen: false,
@@ -415,16 +414,16 @@ export default function BulkPromotionPage() {
     });
   };
 
-  // Confirm reset promotion (single product only)
+
   const handleConfirmResetPromotion = async () => {
     if (!resetPromotionState.product?.id) return;
 
-    // Optimistic update - update state immediately
+
     dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
 
     closeResetPromotionModal();
 
-    // Call API in background without blocking UI
+
     dispatch(resetProductPromotionService(resetPromotionState.product.id))
       .then(() => {
         showToast.success(
@@ -436,16 +435,16 @@ export default function BulkPromotionPage() {
       });
   };
 
-  // Sync selected products to form
+
   useEffect(() => {
     form.setValue("productIds", selectedIds);
   }, [selectedIds, form]);
 
-  // Watch form values
+
   const promotionType = form.watch("promotionType");
   const promotionValue = form.watch("promotionValue");
 
-  // Discount display
+
   const discountDisplay = useMemo(() => {
     if (!promotionType || !promotionValue) return null;
     return promotionType === "PERCENTAGE"
@@ -453,7 +452,7 @@ export default function BulkPromotionPage() {
       : `$${promotionValue}`;
   }, [promotionType, promotionValue]);
 
-  // Form validity - check required fields manually
+
   const hasValidPromotionType = !!promotionType;
   const hasValidPromotionValue = promotionValue && promotionValue > 0;
   const hasValidDates =
@@ -469,7 +468,7 @@ export default function BulkPromotionPage() {
     hasValidDates &&
     hasSelectedProducts;
 
-  // Define table columns using bulk promotion table
+
   const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
     () =>
       bulkPromotionTableColumns({
@@ -504,7 +503,7 @@ export default function BulkPromotionPage() {
     ],
   );
 
-  // Handle page change
+
   const handlePageChange = (page: number) => {
     dispatch(setPageNo(page));
     dispatch(
@@ -526,7 +525,7 @@ export default function BulkPromotionPage() {
     );
   };
 
-  // Handle page size change
+
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
     dispatch(setPageNo(1));
@@ -549,7 +548,7 @@ export default function BulkPromotionPage() {
     );
   };
 
-  // Handle form submission
+
   const onSubmit = async (data: BulkPromotionFormData) => {
     if (selectedIds.length === 0) {
       showToast.error(Messages.product.selectAtLeastOne);
@@ -558,7 +557,7 @@ export default function BulkPromotionPage() {
 
     setIsSubmitting(true);
     try {
-      // Build product size mapping
+
       const productSizeMapping: Record<string, string[]> = {};
       selectedIds.forEach((productId) => {
         const sizeSet = selectedSizes.get(productId);
@@ -598,12 +597,12 @@ export default function BulkPromotionPage() {
       showToast.success(
         result.message || "Bulk promotion created successfully!",
       );
-      // Clear selections after successful creation (keep discount settings for reuse)
+
       dispatch(clearSelectedProducts());
       dispatch(clearAllSizeSelections());
       clearSelections();
 
-      // Reset form but keep discount type and amount for reuse
+
       form.reset({
         ...form.getValues(),
         productIds: [],
@@ -617,35 +616,35 @@ export default function BulkPromotionPage() {
             : "Failed to create bulk promotion";
 
       showToast.error(String(errorMessage));
-      // Note: Optimistic update remains in state. User can refresh if needed.
+
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handle apply button click
+
   const handleApplyClick = async () => {
-    // Manually trigger validation first
+
     const isValidForm = await form.trigger();
 
     if (!isValidForm) {
       return;
     }
 
-    // Trigger form submission
+
     await form.handleSubmit(onSubmit)();
   };
 
-  // Handle reset all promotions
+
   const handleResetAllPromotions = async () => {
     try {
       setIsResetting(true);
       await dispatch(resetAllPromotionsService()).unwrap();
       showToast.success(Messages.promotions.allResetFull);
       setShowResetModal(false);
-      // Clear size selections as well
+
       dispatch(clearAllSizeSelections());
-      // Refresh products list
+
       dispatch(
         fetchAllProductAdminService({
           search: debouncedSearchQuery,
@@ -672,7 +671,7 @@ export default function BulkPromotionPage() {
     }
   };
 
-  // Handle clear selected promotions - shows confirmation modal
+
   const handleClearSelectedPromotionsClick = () => {
     if (selectedIds.length === 0) {
       showToast.error(Messages.product.selectAtLeastOne);
@@ -681,11 +680,11 @@ export default function BulkPromotionPage() {
     setShowClearSelectedModal(true);
   };
 
-  // Execute clear selected promotions after confirmation
+
   const handleConfirmClearSelected = async () => {
     setIsClearingSelected(true);
     try {
-      // Build product size mapping
+
       const productSizeMapping: Record<string, string[]> = {};
       selectedIds.forEach((productId) => {
         const sizeSet = selectedSizes.get(productId);
@@ -717,7 +716,7 @@ export default function BulkPromotionPage() {
       ).unwrap();
 
       showToast.success(Messages.promotions.cleared);
-      // Clear selections after successful reset
+
       dispatch(clearSelectedProducts());
       dispatch(clearAllSizeSelections());
       clearSelections();
@@ -733,7 +732,7 @@ export default function BulkPromotionPage() {
 
   return (
     <div className="flex flex-1 flex-col h-full bg-background scroll-smooth">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between px-4 sm:px-6 py-4 bg-background border-b border-border shrink-0">
         <div className="flex items-center gap-3">
           <Button
@@ -785,14 +784,14 @@ export default function BulkPromotionPage() {
         data-no-progress="true"
         className="flex flex-1 flex-col lg:flex-row overflow-hidden min-h-0"
       >
-        {/* Left Column - Product Selection */}
+        {}
         <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
-          {/* Filters + Select All Control - Modern Responsive Design */}
+          {}
           <div className="rounded-lg border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
-            {/* Top Row - Select All Control + Search (Responsive) */}
+            {}
             <div className="px-4 py-3 border-b border-border/40">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                {/* Left Side - Checkbox + Status Text */}
+                {}
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <CustomCheckbox
                     checked={allSelected}
@@ -804,7 +803,7 @@ export default function BulkPromotionPage() {
                     className="flex-shrink-0"
                   />
 
-                  {/* Status Text */}
+                  {}
                   <div className="flex flex-col gap-0.5 min-w-0">
                     <span className="text-sm font-semibold text-foreground">
                       {allSelected
@@ -823,9 +822,9 @@ export default function BulkPromotionPage() {
                   </div>
                 </div>
 
-                {/* Right Side - Search + Clear Button */}
+                {}
                 <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-                  {/* Search Input - Constrained width */}
+                  {}
                   <div className="relative flex-1 sm:flex-none sm:w-auto sm:min-w-[300px] sm:max-w-[370px]">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                     <input
@@ -847,7 +846,7 @@ export default function BulkPromotionPage() {
                     )}
                   </div>
 
-                  {/* Clear Selection Button */}
+                  {}
                   {selectedIds.length > 0 && (
                     <button
                       type="button"
@@ -863,9 +862,9 @@ export default function BulkPromotionPage() {
               </div>
             </div>
 
-            {/* Filters Row - Responsive Grid */}
+            {}
             <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-              {/* Category Filter */}
+              {}
               <div className="min-w-0">
                 <ComboboxSelectCategories
                   dataSelect={selectedCategories}
@@ -875,7 +874,7 @@ export default function BulkPromotionPage() {
                 />
               </div>
 
-              {/* Brand Filter */}
+              {}
               <div className="min-w-0">
                 <ComboboxSelectBrand
                   dataSelect={selectedBrand}
@@ -885,7 +884,7 @@ export default function BulkPromotionPage() {
                 />
               </div>
 
-              {/* Promotion Status Filter */}
+              {}
               <div className="min-w-0">
                 <CustomSelect
                   options={PROMOTION_FILTER_OPTIONS}
@@ -900,7 +899,7 @@ export default function BulkPromotionPage() {
             </div>
           </div>
 
-          {/* Products Table with DataTableWithPagination */}
+          {}
           <div className="flex-1 overflow-y-auto overflow-x-auto min-h-0">
             <DataTableWithPagination<ProductDetailResponseModel>
               data={productContent}
@@ -920,11 +919,11 @@ export default function BulkPromotionPage() {
           </div>
         </div>
 
-        {/* Right Column - Promotion Settings */}
+        {}
         <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth bg-background">
           <div className="flex-1 min-h-0 overflow-y-auto">
             <div className="px-4 sm:px-5 md:px-4 lg:px-5 py-6 sm:py-8 md:py-6 lg:py-8 space-y-5 sm:space-y-6 md:space-y-5 lg:space-y-6">
-              {/* Header Section */}
+              {}
               <div className="space-y-2 border-b border-border pb-4">
                 <h2 className="text-lg sm:text-xl font-bold text-foreground">
                   Promotion Setup
@@ -934,16 +933,16 @@ export default function BulkPromotionPage() {
                 </p>
               </div>
 
-              {/* Selected Count Card */}
+              {}
               <div className="rounded-lg p-5 bg-gradient-to-r from-primary/15 to-green-500/15 border border-primary/25 shadow-sm">
                 <div className="space-y-3">
                   <p className="text-xs font-bold uppercase tracking-wider text-primary/70">
                     Selection Status
                   </p>
 
-                  {/* Stats Row */}
+                  {}
                   <div className="flex items-center gap-6 sm:gap-8">
-                    {/* Products Count */}
+                    {}
                     <div className="flex items-baseline gap-2">
                       <p className="text-5xl sm:text-6xl font-black text-primary">
                         {selectedIds.length}
@@ -953,10 +952,10 @@ export default function BulkPromotionPage() {
                       </p>
                     </div>
 
-                    {/* Divider */}
+                    {}
                     <div className="h-12 w-px bg-primary/20" />
 
-                    {/* Sizes Count */}
+                    {}
                     <div className="flex items-baseline gap-2">
                       <p className="text-3xl sm:text-4xl font-black text-green-600">
                         {Object.values(selectedSizesFromRedux).reduce(
@@ -977,9 +976,9 @@ export default function BulkPromotionPage() {
                 </div>
               </div>
 
-              {/* Form Sections - Grouped with Card Style */}
+              {}
               <div className="space-y-4">
-                {/* Discount Section Card */}
+                {}
                 <div className="rounded-lg border border-border/60 p-4 space-y-3 bg-muted/30 hover:bg-muted/50 transition-colors">
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary" />
@@ -1022,7 +1021,7 @@ export default function BulkPromotionPage() {
                   </div>
                 </div>
 
-                {/* Duration Section Card */}
+                {}
                 <div className="rounded-lg border border-border/60 p-4 space-y-3 bg-muted/30 hover:bg-muted/50 transition-colors">
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-600" />
@@ -1052,7 +1051,7 @@ export default function BulkPromotionPage() {
                 </div>
               </div>
 
-              {/* Action Buttons - Modern Style with Border */}
+              {}
               <div className="border-t border-border pt-5">
                 <div className="flex gap-3 sm:gap-4 md:gap-3 lg:gap-4">
                   <CancelButton
@@ -1080,14 +1079,14 @@ export default function BulkPromotionPage() {
         </div>
       </form>
 
-      {/* Product Detail Modal */}
+      {}
       <ProductDetailModal
         productId={detailModalState.productId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Reset Promotion Modal */}
+      {}
       <ConfirmationModal
         isOpen={resetPromotionState.isOpen}
         onClose={closeResetPromotionModal}
@@ -1102,7 +1101,7 @@ export default function BulkPromotionPage() {
         isDangerous={false}
       />
 
-      {/* Reset All Promotions Modal */}
+      {}
       <ConfirmationModal
         isOpen={showResetModal}
         onClose={() => setShowResetModal(false)}
@@ -1116,7 +1115,7 @@ export default function BulkPromotionPage() {
         isSubmitting={isResetting}
       />
 
-      {/* Clear Selected Promotions Modal */}
+      {}
       <ConfirmationModal
         isOpen={showClearSelectedModal}
         onClose={() => setShowClearSelectedModal(false)}

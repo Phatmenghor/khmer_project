@@ -7,14 +7,7 @@ interface PageContainerProps {
   as?: React.ElementType;
 }
 
-/**
- * PageContainer - Reusable container component for consistent width across all pages
- * Ensures navbar and body content have the same max-width for better UI/UX
- *
- * @param children - Content to be wrapped
- * @param className - Additional Tailwind classes
- * @param as - HTML element to render (default: "div")
- */
+
 export const PageContainer = ({
   children,
   className,

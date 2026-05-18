@@ -1,19 +1,15 @@
 import { useState, useEffect } from "react";
 
-/**
- * Responsive skeleton count configuration
- */
+
 export interface SkeletonCountConfig {
-  mobile?: number; // < 640px
-  tablet?: number; // >= 640px && < 1024px
-  desktop?: number; // >= 1024px && < 1280px
-  large?: number; // >= 1280px && < 1536px
-  xlarge?: number; // >= 1536px
+  mobile?: number;
+  tablet?: number;
+  desktop?: number;
+  large?: number;
+  xlarge?: number;
 }
 
-/**
- * Default skeleton counts for different screen sizes
- */
+
 const DEFAULT_COUNTS: SkeletonCountConfig = {
   mobile: 4,
   tablet: 8,
@@ -22,11 +18,7 @@ const DEFAULT_COUNTS: SkeletonCountConfig = {
   xlarge: 15,
 };
 
-/**
- * Hook to get responsive skeleton count based on screen size
- * @param customCounts - Optional custom counts for different breakpoints
- * @returns Current skeleton count based on screen size
- */
+
 export function useSkeletonCount(
   customCounts?: SkeletonCountConfig
 ): number {
@@ -56,11 +48,9 @@ export function useSkeletonCount(
   return skeletonCount;
 }
 
-/**
- * Preset configurations for common use cases
- */
+
 export const SkeletonPresets = {
-  // Product grids
+
   productGrid: {
     mobile: 4,
     tablet: 6,
@@ -68,7 +58,7 @@ export const SkeletonPresets = {
     large: 10,
     xlarge: 12,
   },
-  // Category/Brand grids
+
   categoryGrid: {
     mobile: 4,
     tablet: 6,
@@ -76,7 +66,7 @@ export const SkeletonPresets = {
     large: 12,
     xlarge: 12,
   },
-  // List views
+
   listView: {
     mobile: 3,
     tablet: 5,
@@ -84,7 +74,7 @@ export const SkeletonPresets = {
     large: 10,
     xlarge: 12,
   },
-  // Card grids
+
   cardGrid: {
     mobile: 2,
     tablet: 4,

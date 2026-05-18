@@ -16,7 +16,7 @@ export const ROUTES = {
 
   LOCATION: "/location",
 
-  // Admin routes
+
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin",
@@ -55,9 +55,6 @@ export const ROUTES = {
   },
 } as const;
 
-/**
- * Route Groups for Sidebar Navigation
- */
 
 interface MenuItem {
   title: string;
@@ -89,10 +86,7 @@ export const SIDEBAR_MENU: MenuItem[] = [
         href: ROUTES.ADMIN.USERS,
       },
 
-      // {
-      //   title: "Sessions",
-      //   href: ROUTES.ADMIN.USER_SESSIONS,
-      // },
+
     ],
   },
 
@@ -181,37 +175,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       },
     ],
   },
-  // {
-  //   title: "HR",
-  //   icon: Database,
-  //   items: [
-  //     {
-  //       title: "Work Schedule Types",
-  //       href: ROUTES.HR.WORK_SCHEDULE_TYPE,
-  //     },
-  //     {
-  //       title: "Leave Type",
-  //       href: ROUTES.HR.LEAVE_TYPE,
-  //     },
-  //     {
-  //       title: "Work Schedules",
-  //       href: ROUTES.HR.WORK_SCHEDULE,
-  //     },
-  //     {
-  //       title: "Leave",
-  //       href: ROUTES.HR.LEAVE,
-  //     },
-  //     {
-  //       title: "Attendance",
-  //       href: ROUTES.HR.ATTENDANCE,
-  //     },
-  //   ],
-  // },
+
+
 ];
 
-/**
- * Route Helpers
- */
 
 export const isPublicRoute = (pathname: string): boolean => {
   return pathname === ROUTES.HOME || pathname === ROUTES.AUTH.LOGIN;
@@ -233,9 +200,6 @@ export const getActiveMenuItem = (pathname: string): MenuItem | null => {
   return null;
 };
 
-/**
- * Breadcrumb Helpers
- */
 
 export interface Breadcrumb {
   label: string;
@@ -250,7 +214,7 @@ export const getBreadcrumbs = (pathname: string): Breadcrumb[] => {
   segments.forEach((segment, index) => {
     currentPath += `/${segment}`;
 
-    // Format segment name
+
     const label = segment
       .split("-")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -265,9 +229,6 @@ export const getBreadcrumbs = (pathname: string): Breadcrumb[] => {
   return breadcrumbs;
 };
 
-/**
- * Navigation Helpers
- */
 
 export const getDefaultAdminRoute = (): string => {
   return "PLATFORM_USERS";

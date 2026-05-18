@@ -18,11 +18,7 @@ interface PageSizeSelectFieldProps {
   label?: string;
 }
 
-/**
- * PageSizeSelectField Component
- * Custom Popover-based page size selector following SelectField pattern
- * Avoids scroll bugs with native Select component
- */
+
 export function PageSizeSelectField({
   pageSize,
   pageSizeOptions,

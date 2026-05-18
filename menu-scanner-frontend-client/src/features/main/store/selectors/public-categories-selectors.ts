@@ -1,6 +1,5 @@
-/**
- * Public Categories Selectors
- */
+
+
 
 import { RootState } from "@/store";
 import { createSelector } from "@reduxjs/toolkit";

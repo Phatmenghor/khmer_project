@@ -1,8 +1,5 @@
-/**
- * POS Page State Persistence Hook
- * Manages URL params for filters and localStorage for cart
- * FIXED: Prevents infinite loops with proper initialization control
- */
+
+
 
 import { useEffect, useCallback, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -20,49 +17,26 @@ import {
 import { usePOSPersistence, POSFilterState } from "./use-pos-persistence";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 
-/**
- * Hook configuration options
- */
+
 interface UsePOSStatePersistenceOptions {
-  /**
-   * Enable URL parameter persistence for filters
-   * @default true
-   */
+
+
   enableUrlPersistence?: boolean;
 
-  /**
-   * Enable localStorage persistence for cart
-   * @default true
-   */
+
   enableCartPersistence?: boolean;
 
-  /**
-   * Debounce time (ms) before saving cart to localStorage
-   * @default 1000
-   */
+
   cartSaveDebounceMs?: number;
 
-  /**
-   * Debounce time (ms) before saving filters to URL
-   * @default 800
-   */
+
   filterSaveDebounceMs?: number;
 
-  /**
-   * Callback when state is loaded from persistence
-   */
+
   onStateLoaded?: (loadedState: { filters: POSFilterState; cart: PosPageCartItem[] }) => void;
 }
 
-/**
- * Main hook for POS state persistence
- * Handles automatic sync between Redux, URL params, and localStorage
- *
- * FIXED INFINITE LOOP:
- * - Uses ref to track initialization (run once on mount)
- * - Prevents saving during initial load
- * - Proper debouncing to prevent circular updates
- */
+
 export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = {}) {
   const {
     enableUrlPersistence = true,
@@ -79,22 +53,19 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
 
   const persistence = usePOSPersistence();
 
-  // Use ref to track initialization - prevents infinite loops
+
   const initRef = useRef(false);
   const filterTimeoutRef = useRef<NodeJS.Timeout>();
   const cartTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // ────────────────────────────────────────────────────────────
-  // STEP 1: Initialize (Load from persistence)
-  // Run ONCE on mount only - empty dependency array
-  // ────────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (typeof window === "undefined" || initRef.current) return;
 
     initRef.current = true;
 
     try {
-      // Load from URL params
+
       if (enableUrlPersistence) {
         const filters = persistence.loadFiltersFromUrl();
         if (Object.values(filters).some((v) => v)) {
@@ -102,7 +73,7 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
         }
       }
 
-      // Load from localStorage
+
       if (enableCartPersistence) {
         const cart = persistence.loadCartFromStorage();
         if (cart.length > 0) {
@@ -110,7 +81,7 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
         }
       }
 
-      // Callback
+
       if (onStateLoaded) {
         onStateLoaded({
           filters: persistence.loadFiltersFromUrl(),
@@ -122,24 +93,21 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
     } catch (error) {
       persistence.setInitialized(true);
     }
-  }, []); // Empty array - RUN ONLY ONCE on mount
+  }, []);
 
-  // ────────────────────────────────────────────────────────────
-  // STEP 2: Save filters (ONLY after initialized)
-  // Debounce 800ms to prevent excessive updates
-  // ────────────────────────────────────────────────────────────
+
   useEffect(() => {
-    // Skip if disabled or not initialized yet
+
     if (!enableUrlPersistence || !persistence.isInitialized || !initRef.current) {
       return;
     }
 
-    // Clear old timeout
+
     if (filterTimeoutRef.current) {
       clearTimeout(filterTimeoutRef.current);
     }
 
-    // Set new timeout for debounced save
+
     filterTimeoutRef.current = setTimeout(() => {
       try {
         persistence.saveFiltersToUrl({
@@ -157,22 +125,19 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
     };
   }, [searchTerm, promotionFilter, enableUrlPersistence, persistence, filterSaveDebounceMs]);
 
-  // ────────────────────────────────────────────────────────────
-  // STEP 3: Save cart (ONLY after initialized)
-  // Debounce 1000ms to prevent excessive updates
-  // ────────────────────────────────────────────────────────────
+
   useEffect(() => {
-    // Skip if disabled or not initialized yet
+
     if (!enableCartPersistence || !persistence.isInitialized || !initRef.current) {
       return;
     }
 
-    // Clear old timeout
+
     if (cartTimeoutRef.current) {
       clearTimeout(cartTimeoutRef.current);
     }
 
-    // Set new timeout for debounced save
+
     cartTimeoutRef.current = setTimeout(() => {
       try {
         if (cartItems.length > 0) {
@@ -191,9 +156,6 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
     };
   }, [cartItems, enableCartPersistence, persistence, cartSaveDebounceMs]);
 
-  // ────────────────────────────────────────────────────────────
-  // PUBLIC API
-  // ────────────────────────────────────────────────────────────
 
   const clearAllPersistence = useCallback(() => {
     try {
@@ -267,9 +229,7 @@ export function usePOSStatePersistence(options: UsePOSStatePersistenceOptions = 
   };
 }
 
-/**
- * Hook to track filter changes for debugging
- */
+
 export function usePOSFilterSync() {
   const persistence = usePOSPersistence();
   const searchTerm = useAppSelector(selectSearchTerm);

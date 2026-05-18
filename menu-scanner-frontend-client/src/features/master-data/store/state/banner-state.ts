@@ -13,7 +13,7 @@ import {
 export const useBannerState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const bannerState = useAppSelector(selectBannerState);
   const bannerData = useAppSelector(selectBanner);
   const bannerContent = useAppSelector(selecBannerContent);

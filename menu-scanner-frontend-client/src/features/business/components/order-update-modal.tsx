@@ -29,7 +29,7 @@ import {
   formatStockDeductionItems,
 } from "@/services/stock-management-service";
 
-// Validation schema
+
 const updateOrderSchema = z.object({
   orderStatus: z.string().min(1, "Order status is required"),
   businessNote: z.string().optional(),
@@ -132,7 +132,7 @@ export function OrderUpdateModal({
         },
       };
 
-      // Check if status is changing to CONFIRMED or COMPLETED
+
       const isStatusChanging = previousOrderStatus !== data.orderStatus;
       const isConfirmedOrCompleted = ["CONFIRMED", "COMPLETED"].includes(
         data.orderStatus
@@ -143,7 +143,7 @@ export function OrderUpdateModal({
         businessSettings?.enableStock === "ENABLED" &&
         orderData.items?.length > 0;
 
-      // Update order first
+
       await dispatch(
         updateOrderAdminService({
           orderId,
@@ -151,7 +151,7 @@ export function OrderUpdateModal({
         })
       ).unwrap();
 
-      // Deduct stock if conditions are met
+
       if (shouldDeductStock) {
         try {
           const stockItems = formatStockDeductionItems(orderData.items);
@@ -204,7 +204,7 @@ export function OrderUpdateModal({
           className="flex flex-col flex-1 overflow-hidden"
         >
           <FormBody>
-            {/* Order Status */}
+            {}
             <SelectField
               control={control}
               name="orderStatus"
@@ -216,7 +216,7 @@ export function OrderUpdateModal({
               error={errors.orderStatus}
             />
 
-            {/* Payment Method */}
+            {}
             <SelectField
               control={control}
               name="paymentMethod"
@@ -228,7 +228,7 @@ export function OrderUpdateModal({
               error={errors.paymentMethod}
             />
 
-            {/* Payment Status */}
+            {}
             <SelectField
               control={control}
               name="paymentStatus"
@@ -240,7 +240,7 @@ export function OrderUpdateModal({
               error={errors.paymentStatus}
             />
 
-            {/* Business Note */}
+            {}
             <TextAreaField
               control={control}
               name="businessNote"

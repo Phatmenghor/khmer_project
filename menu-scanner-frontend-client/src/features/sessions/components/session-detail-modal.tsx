@@ -57,7 +57,7 @@ export function SessionsDetailModal({
     >
       {sessionData ? (
         <div className="space-y-6">
-          {/* Session Information */}
+          {}
           <DetailSection title="Personal Information">
             <DetailRow
               label="User Identifier"
@@ -133,7 +133,7 @@ export function SessionsDetailModal({
             />
           </DetailSection>
 
-          {/* System Information */}
+          {}
           <DetailSection title="System Information">
             <DetailRow
               label="Session ID"

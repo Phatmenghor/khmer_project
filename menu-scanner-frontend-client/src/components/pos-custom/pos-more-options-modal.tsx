@@ -13,18 +13,18 @@ interface POSMoreOptionsModalProps {
   onOpenChange: (open: boolean) => void;
   customerNote: string;
   onNoteChange: (note: string) => void;
-  // Current order total for audit trail (before discount)
+
   currentOrderTotal?: number;
-  // Discount callbacks - includes complete before/after audit trail
+
   onDiscountApply?: (discount: {
     type: "fixed" | "percentage";
     value: number;
     reason: string;
-    // ✅ AUDIT TRAIL: Complete before/after snapshot
-    beforeTotal: number;           // Order total BEFORE discount
-    afterTotal: number;            // Order total AFTER discount
-    discountAmount: number;        // Actual discount amount applied
-    appliedAt: string;             // ISO timestamp of when applied
+
+    beforeTotal: number;
+    afterTotal: number;
+    discountAmount: number;
+    appliedAt: string;
   }) => void;
 }
 
@@ -42,13 +42,13 @@ export function POSMoreOptionsModal({
   const [discountReason, setDiscountReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Calculate discount amount based on type
+
   const calculateDiscountAmount = (): number => {
     const value = parseFloat(discountValue) || 0;
     if (discountType === "fixed") {
       return value;
     } else {
-      // Percentage: calculate as percentage of current total
+
       return (currentOrderTotal * value) / 100;
     }
   };
@@ -56,11 +56,11 @@ export function POSMoreOptionsModal({
   const handleApply = () => {
     setIsSubmitting(true);
 
-    // Apply discount if enabled
+
     if (showDiscount && discountValue && onDiscountApply) {
       const discountAmountValue = calculateDiscountAmount();
       if (discountAmountValue > 0) {
-        // Calculate before/after for complete audit trail
+
         const beforeTotal = currentOrderTotal;
         const afterTotal = Math.max(0, currentOrderTotal - discountAmountValue);
 
@@ -68,7 +68,7 @@ export function POSMoreOptionsModal({
           type: discountType,
           value: parseFloat(discountValue),
           reason: discountReason || "Manual discount applied at POS",
-          // ✅ AUDIT TRAIL: Complete snapshot
+
           beforeTotal,
           afterTotal,
           discountAmount: discountAmountValue,
@@ -78,7 +78,7 @@ export function POSMoreOptionsModal({
     }
 
     setTimeout(() => {
-      // Reset discount form
+
       setShowDiscount(false);
       setDiscountValue("");
       setDiscountReason("");
@@ -94,10 +94,10 @@ export function POSMoreOptionsModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full sm:max-w-[400px] p-0 gap-0">
-        {/* Hidden Title for Accessibility */}
+        {}
         <DialogTitle className="sr-only">Order Options</DialogTitle>
 
-        {/* Header */}
+        {}
         <div className="px-6 pt-6 pb-4 border-b flex-shrink-0">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-primary/10 rounded-lg shrink-0">
@@ -109,9 +109,9 @@ export function POSMoreOptionsModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="px-4 py-4 space-y-3 overflow-y-auto max-h-[calc(100vh-280px)]">
-          {/* ─── Order Note Section ─── */}
+          {}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-slate-900 block">Order Note</label>
             <Textarea
@@ -127,9 +127,9 @@ export function POSMoreOptionsModal({
             </div>
           </div>
 
-          {/* ─── Discount Section ─── */}
+          {}
           <div className="space-y-2 border-t pt-3">
-            {/* Toggle Button */}
+            {}
             <button
               type="button"
               onClick={() => setShowDiscount(!showDiscount)}
@@ -147,10 +147,10 @@ export function POSMoreOptionsModal({
               <ChevronRight className={cn("w-4 h-4 transition-transform", showDiscount && "rotate-90")} />
             </button>
 
-            {/* Discount Form */}
+            {}
             {showDiscount && (
               <div className="space-y-3 mt-2 p-3 border border-red-200 rounded bg-red-50">
-                {/* Type Selection */}
+                {}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700">Type</label>
                   <div className="grid grid-cols-2 gap-2">
@@ -189,7 +189,7 @@ export function POSMoreOptionsModal({
                   </div>
                 </div>
 
-                {/* Amount Input */}
+                {}
                 <div className="space-y-1.5">
                   <label htmlFor="discount-value" className="text-xs font-semibold text-slate-700">
                     {discountType === "fixed" ? "Amount" : "Percentage (0-100%)"}
@@ -223,7 +223,7 @@ export function POSMoreOptionsModal({
                   </div>
                 </div>
 
-                {/* Reason Input */}
+                {}
                 <div className="space-y-1.5">
                   <label htmlFor="discount-reason" className="text-xs font-semibold text-slate-700">
                     Reason
@@ -242,7 +242,7 @@ export function POSMoreOptionsModal({
                   </div>
                 </div>
 
-                {/* Preview: Before/After Calculation */}
+                {}
                 {discountValue && (
                   <div className="space-y-2 border-t pt-3 mt-3">
                     <p className="text-xs font-semibold text-slate-700">Audit Trail Preview</p>
@@ -271,7 +271,7 @@ export function POSMoreOptionsModal({
           </div>
         </div>
 
-        {/* Footer */}
+        {}
         <div className="px-4 py-3 border-t bg-slate-50 flex gap-2.5">
           <CustomButton
             variant="outline"

@@ -29,9 +29,7 @@ interface ProductTableOptions {
   handlers: ProductTableHandlers;
 }
 
-/**
- * ProductImagePreview - Display product image with preview styling
- */
+
 function ProductImagePreview({
   product,
 }: {
@@ -69,9 +67,7 @@ function ProductImagePreview({
   );
 }
 
-/**
- * SizesDisplay - Display product sizes in simple bordered boxes
- */
+
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;

@@ -107,7 +107,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Banner Section */}
+      {}
       <div className="relative">
         <PageContainer className="pt-3 sm:pt-6">
           <BannerSection
@@ -118,7 +118,7 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      {/* Categories Section - With Background */}
+      {}
       <div className="relative py-6 sm:py-10 bg-muted/5">
         <PageContainer>
           <CategoriesSection
@@ -130,7 +130,7 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      {/* Promotions Section - Highlighted Background */}
+      {}
       <div className="relative py-6 sm:py-10 bg-amber-50/30 dark:bg-amber-950/10">
         <PageContainer>
           <PromotionsSection
@@ -142,7 +142,7 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      {/* Featured Products Section */}
+      {}
       <div className="relative py-6 sm:py-10">
         <PageContainer>
           <ProductsSection

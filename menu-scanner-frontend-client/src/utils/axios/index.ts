@@ -15,52 +15,52 @@ import {
   clearAdminTokens,
 } from "../local-storage/token";
 
-/** Get the correct token based on current route */
+
 const getActiveToken = (): string | undefined => {
   if (typeof window === "undefined") return undefined;
 
-  // Use admin token for admin routes, customer token for public routes
+
   if (isAdminPath()) {
     return getAdminToken();
   }
   return getToken();
 };
 
-/** Get the correct refresh token based on current route */
+
 const getActiveRefreshToken = (): string | undefined => {
   if (typeof window === "undefined") return undefined;
 
-  // Match the token type based on current route
+
   if (isAdminPath()) {
     return getAdminRefreshToken();
   }
   return getRefreshToken();
 };
 
-/** Check if the active user is admin based on current route and token availability */
+
 const isAdminUser = (): boolean => {
   if (typeof window === "undefined") return false;
-  // If on admin route, user should have admin token
+
   if (isAdminPath()) {
     return !!getAdminToken();
   }
-  // If on public route, user should have customer token
+
   return false;
 };
 
-/** True when the current page is an admin route (browser only). */
+
 const isAdminPath = (): boolean =>
   typeof window !== "undefined" &&
   window.location.pathname.startsWith("/admin");
 import { toast } from "sonner";
 
-// Define types
+
 type RequestMetadata = {
   startTime: number;
   requestId: string;
 };
 
-// Extend AxiosRequestConfig to include metadata and retry flag
+
 declare module "axios" {
   interface InternalAxiosRequestConfig {
     metadata?: RequestMetadata;
@@ -68,15 +68,15 @@ declare module "axios" {
   }
 }
 
-// Flag to track if a token refresh is in progress
+
 let isRefreshing = false;
-// Queue of requests waiting for token refresh
+
 let failedQueue: Array<{
   resolve: (value: unknown) => void;
   reject: (reason?: unknown) => void;
 }> = [];
 
-// Process the queue after token refresh
+
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -88,11 +88,11 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
-// Environment detection
+
 const isBrowser = typeof window !== "undefined";
 const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === "development";
 
-// Colors for console output
+
 const colors = {
   green: isBrowser ? "color: #4caf50" : "\x1b[32m",
   red: isBrowser ? "color: #f44336" : "\x1b[31m",
@@ -103,7 +103,7 @@ const colors = {
   reset: isBrowser ? "" : "\x1b[0m",
 };
 
-// Format timestamp for better readability
+
 const formatTimestamp = (): string => {
   const now = new Date();
   return (
@@ -118,15 +118,15 @@ const formatTimestamp = (): string => {
   );
 };
 
-// Generate unique request ID
+
 const generateRequestId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
 };
 
-// Simple logger with request ID and improved timestamp
+
 const logger = {
   log: (message: string, data?: unknown, requestId?: string): void => {
-    // Only use development check for normal logs
+
     if (isDevelopment) {
       const timestamp = formatTimestamp();
       const logId = requestId ? `[${requestId}] ` : "";
@@ -146,7 +146,7 @@ const logger = {
   },
 
   success: (message: string, data?: unknown, requestId?: string): void => {
-    // Only use development check for success logs
+
     if (isDevelopment) {
       const timestamp = formatTimestamp();
       const logId = requestId ? `[${requestId}] ` : "";
@@ -166,7 +166,7 @@ const logger = {
   },
 
   error: (message: string, data?: unknown, requestId?: string): void => {
-    // Always log errors regardless of environment
+
     const timestamp = formatTimestamp();
     const logId = requestId ? `[${requestId}] ` : "";
     if (isBrowser) {
@@ -180,7 +180,7 @@ const logger = {
   },
 
   warn: (message: string, data?: unknown, requestId?: string): void => {
-    // Always log warnings regardless of environment
+
     const timestamp = formatTimestamp();
     const logId = requestId ? `[${requestId}] ` : "";
     if (isBrowser) {
@@ -197,14 +197,14 @@ const logger = {
     }
   },
 
-  // New method for request body logs specifically
+
   requestBody: (
     method: string,
     url: string,
     data: unknown,
     requestId?: string
   ): void => {
-    // Always log request body logs regardless of environment
+
     const timestamp = formatTimestamp();
     const logId = requestId ? `[${requestId}] ` : "";
     const messagePrefix = `REQUEST BODY [${method.toUpperCase()}] ${url}:`;
@@ -212,12 +212,12 @@ const logger = {
     if (isBrowser) {
       console.group(`%c${timestamp} ${logId}${messagePrefix}`, colors.purple);
 
-      // Log the raw body only
+
       console.log("%cRequest payload:", colors.cyan, formatRequestData(data));
 
       console.groupEnd();
     } else {
-      // For server-side, use a simpler approach
+
       console.log(
         `${colors.purple}${timestamp} ${logId}${messagePrefix}${colors.reset}`
       );
@@ -227,7 +227,7 @@ const logger = {
       );
     }
 
-    // Add to memory logs with detailed structure
+
     addLogEntry({
       timestamp: timestamp,
       requestId: requestId || "unknown",
@@ -238,17 +238,17 @@ const logger = {
   },
 };
 
-// Enhanced function to safely truncate or format request data
+
 const formatRequestData = (data: unknown): unknown => {
   if (!data) return undefined;
 
   try {
     const dataStr = JSON.stringify(data);
-    // If data is large, provide better structured preview
+
     if (dataStr.length > 5000) {
       if (Array.isArray(data)) {
         const firstThree = data.slice(0, 3);
-        // For arrays, also analyze the structure of first items
+
         const itemAnalysis = firstThree.map((item) => {
           if (typeof item === "object" && item !== null) {
             return {
@@ -275,12 +275,12 @@ const formatRequestData = (data: unknown): unknown => {
         const totalKeys = keys.length;
         const previewKeys = keys.slice(0, 5);
 
-        // Create preview with first few properties
+
         previewKeys.forEach((key) => {
           preview[key] = (data as Record<string, unknown>)[key];
         });
 
-        // Add analysis of property types
+
         const propertyTypes: Record<string, string> = {};
         keys.forEach((key) => {
           const value = (data as Record<string, unknown>)[key];
@@ -313,32 +313,32 @@ const formatRequestData = (data: unknown): unknown => {
   }
 };
 
-// Create axios instances with enhanced request body logging
+
 const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
   const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-    timeout: requiresAuth ? 300000 : 30000, // 5 minutes for auth requests (long-running operations like resetAllPromotions)
-    withCredentials: true, // Send cookies with requests
+    timeout: requiresAuth ? 300000 : 30000,
+    withCredentials: true,
     headers: {
       "Content-Type": "application/json",
     },
   });
 
-  // Request interceptor with enhanced request body logging
+
   axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-      // Generate request ID and track start time
+
       const requestId = generateRequestId();
       config.metadata = {
         startTime: Date.now(),
         requestId,
       };
 
-      // Add request ID to headers for tracing
+
       config.headers = config.headers || {};
       config.headers["X-Request-ID"] = requestId;
 
-      // Handle authentication — use the single active token
+
       if (requiresAuth) {
         const token = getActiveToken();
 
@@ -353,12 +353,12 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         }
       }
 
-      // Always log basic request info
+
       logger.log(
         `Request: ${config.method?.toUpperCase()} ${config.url}`,
         {
           headers: Object.keys(config.headers).reduce((acc, key) => {
-            // Don't log sensitive headers like Authorization
+
             if (key !== "Authorization") {
               acc[key] = config.headers[key];
             } else {
@@ -370,9 +370,9 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         requestId
       );
 
-      // Enhanced request body logging
+
       if (config.data) {
-        // Use the new dedicated request body logger
+
         logger.requestBody(
           config.method || "unknown",
           config.url || "unknown",
@@ -380,14 +380,14 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           requestId
         );
 
-        // For mutation operations (POST, PUT, PATCH) log with higher visibility
+
         if (
           config.method &&
           ["post", "put", "patch", "delete"].includes(
             config.method.toLowerCase()
           )
         ) {
-          // Add additional structured logging for mutation operations (dev only)
+
           const dataSize = JSON.stringify(config.data).length;
           logger.log(
             `Mutation operation: ${config.method.toUpperCase()} ${config.url}`,
@@ -400,7 +400,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           );
         }
       } else {
-        // Log when there's no request body but method typically has one (dev only)
+
         if (
           config.method &&
           ["post", "put", "patch"].includes(config.method.toLowerCase())
@@ -418,26 +418,26 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       return config;
     },
     (error: unknown) => {
-      // Log request setup errors
+
       logger.error("Request Setup Error:", (error as Error).message);
       return Promise.reject(error);
     }
   );
 
-  // Response interceptor
+
   axiosInstance.interceptors.response.use(
     (response: AxiosResponse): AxiosResponse => {
-      // Get request metadata with ID
+
       const { startTime, requestId } = response.config.metadata || {
         startTime: Date.now(),
         requestId: "unknown",
       };
 
-      // Calculate and log performance for successful requests
+
       const endTime = Date.now();
       const duration = endTime - startTime;
 
-      // Log status and duration with request ID
+
       logger.success(
         `Response: ${response.config.method?.toUpperCase()} ${
           response.config.url
@@ -451,13 +451,13 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         requestId
       );
 
-      // Log response data if in development mode
+
       if (isDevelopment) {
         const dataSize = JSON.stringify(response.data).length;
         if (dataSize > 10000) {
           logger.log(`Response data (truncated):`, undefined, requestId);
 
-          // Handle array data
+
           if (Array.isArray(response.data)) {
             logger.log(
               `Array with ${response.data.length} items. First 2 items:`,
@@ -465,7 +465,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
               requestId
             );
           }
-          // Handle object data
+
           else if (
             typeof response.data === "object" &&
             response.data !== null
@@ -496,9 +496,9 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       const err = error as AxiosError;
       const originalRequest = err.config;
 
-      // Handle 401 Unauthorized with refresh token logic
+
       if (err.response?.status === 401 && originalRequest && !originalRequest._retry) {
-        // Check if this is the refresh token endpoint itself failing
+
         if (originalRequest.url?.includes("/api/v1/auth/refresh")) {
           const admin = isAdminUser();
           const hadToken = admin ? !!getAdminToken() : !!getToken();
@@ -510,17 +510,17 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           }
 
           if (typeof window !== "undefined") {
-            // Only show session expired if user WAS logged in
-            // Skip on login page and public pages
+
+
             const isOnLoginPage = window.location.pathname.includes("/login");
             const isOnPublicHome = window.location.pathname === "/";
 
             if (!isOnLoginPage && !isOnPublicHome && hadToken) {
               toast.error("Session expired. Please login again.");
-              // Auto-refresh page after short delay to show toast
+
               setTimeout(() => {
                 window.location.href = admin ? "/admin/login" : "/login";
-                // Ensure page refresh instead of just redirect
+
                 setTimeout(() => {
                   window.location.reload();
                 }, 500);
@@ -530,7 +530,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           return Promise.reject(error);
         }
 
-        // If already refreshing, queue this request
+
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
@@ -549,7 +549,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         originalRequest._retry = true;
         isRefreshing = true;
 
-        // Try to refresh the token using the active token type
+
         const admin = isAdminUser();
         const refreshToken = getActiveRefreshToken();
 
@@ -562,17 +562,17 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           else clearAllTokens();
 
           if (typeof window !== "undefined") {
-            // Only show session expired if user WAS logged in
-            // Skip on login page and public pages
+
+
             const isOnLoginPage = window.location.pathname.includes("/login");
             const isOnPublicHome = window.location.pathname === "/";
 
             if (!isOnLoginPage && !isOnPublicHome && hadToken) {
               toast.error("Session expired. Please login again.");
-              // Auto-refresh page after short delay to show toast
+
               setTimeout(() => {
                 window.location.href = admin ? "/admin/login" : "/login";
-                // Ensure page refresh instead of just redirect
+
                 setTimeout(() => {
                   window.location.reload();
                 }, 500);
@@ -592,7 +592,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
             response.data.data;
 
-          // Store refreshed tokens in the correct cookie set
+
           if (admin) {
             storeAdminTokens(newAccessToken, newRefreshToken);
           } else {
@@ -615,17 +615,17 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           else clearAllTokens();
 
           if (typeof window !== "undefined") {
-            // Only show session expired if user WAS logged in
-            // Skip on login page and public pages
+
+
             const isOnLoginPage = window.location.pathname.includes("/login");
             const isOnPublicHome = window.location.pathname === "/";
 
             if (!isOnLoginPage && !isOnPublicHome && hadToken) {
               toast.error("Session expired. Please login again.");
-              // Auto-refresh page after short delay to show toast
+
               setTimeout(() => {
                 window.location.href = admin ? "/admin/login" : "/login";
-                // Ensure page refresh instead of just redirect
+
                 setTimeout(() => {
                   window.location.reload();
                 }, 500);
@@ -638,16 +638,16 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         }
       }
 
-      // Get request ID from metadata
+
       const requestId = err.config?.metadata?.requestId || "unknown";
 
-      // Don't log 404 for endpoints where it's expected (e.g., no default address)
+
       const is404ForExpectedEndpoint =
         err.response?.status === 404 &&
         err.config?.url?.includes("/locations/default");
 
       if (!is404ForExpectedEndpoint) {
-        // Log error with details and request ID
+
         const errorDetails = {
           method: err.config?.method?.toUpperCase(),
           url: err.config?.url,
@@ -659,35 +659,35 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         logger.error(`API Error:`, errorDetails, requestId);
       }
 
-      // Enhanced error request body logging (skip for expected 404s)
+
       if (err.config?.data && !is404ForExpectedEndpoint) {
-        // Log with comprehensive details
+
         logger.error(
           `Request body for failed request:`,
           formatRequestData(err.config.data),
           requestId
         );
 
-        // Add additional dedicated request body logging for errors
+
         logger.requestBody(
           err.config.method || "unknown",
           err.config.url || "unknown",
           err.config.data,
-          `${requestId}-error` // Add error suffix to distinguish in logs
+          `${requestId}-error`
         );
       }
 
-      // Log response data for errors (skip for expected 404s)
+
       if (err.response?.data && !is404ForExpectedEndpoint) {
         const errorResponseData = err.response.data;
         let formattedErrorData;
 
-        // Try to extract error details more effectively
+
         if (
           typeof errorResponseData === "object" &&
           errorResponseData !== null
         ) {
-          // Look for common error fields
+
           const errorMessage =
             (errorResponseData as { error?: { message?: string } }).error
               ?.message ||
@@ -695,7 +695,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
             (errorResponseData as { error?: string; message?: string }).error ||
             JSON.stringify(errorResponseData);
 
-          // Try to extract validation errors if present
+
           const validationErrors =
             (errorResponseData as { errors?: unknown }).errors ||
             (errorResponseData as { validationErrors?: unknown })
@@ -721,7 +721,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
   return axiosInstance;
 };
 
-// Store all logs for debugging
+
 interface LogEntry {
   timestamp: string;
   requestId: string;
@@ -732,26 +732,26 @@ interface LogEntry {
 
 const memoryLogs: LogEntry[] = [];
 
-// Helper function to add a log entry
+
 export function addLogEntry(entry: LogEntry): void {
-  // Ensure we have a properly formatted timestamp
+
   if (!entry.timestamp) {
     entry.timestamp = formatTimestamp();
   }
 
   memoryLogs.push(entry);
 
-  // Keep only last 200 logs in memory (increased from 100)
+
   if (memoryLogs.length > 200) {
     memoryLogs.shift();
   }
 }
 
-// Helper function to view all logs with improved formatting
+
 export function viewLogs(filter?: string): void {
   let logsToDisplay = memoryLogs;
 
-  // Apply filter if provided
+
   if (filter) {
     const lcFilter = filter.toLowerCase();
     logsToDisplay = memoryLogs.filter((log) => {
@@ -783,7 +783,7 @@ export function viewLogs(filter?: string): void {
   );
 }
 
-// Helper function to view full log details including data
+
 export function viewLogDetails(index: number): void {
   if (index >= 0 && index < memoryLogs.length) {
     console.log(`Log Details for entry #${index}:`, memoryLogs[index]);
@@ -792,17 +792,17 @@ export function viewLogDetails(index: number): void {
   }
 }
 
-// Helper function to find logs by request ID
+
 export function findLogsByRequestId(requestId: string): LogEntry[] {
   return memoryLogs.filter((log) => log.requestId === requestId);
 }
 
-// Helper function to find request body logs specifically
+
 export function findRequestBodyLogs(): LogEntry[] {
   return memoryLogs.filter((log) => log.level === "request-body");
 }
 
-// Helper to view all request body logs
+
 export function viewRequestBodyLogs(): void {
   const requestBodyLogs = findRequestBodyLogs();
   console.log(`Found ${requestBodyLogs.length} request body logs:`);
@@ -815,9 +815,9 @@ export function viewRequestBodyLogs(): void {
   });
 }
 
-// Export axios instances
+
 export const axiosClientWithAuth = createAxiosInstance(true);
 export const axiosClient = createAxiosInstance(false);
 
-// Export logger and utilities
+
 export { logger, formatRequestData };

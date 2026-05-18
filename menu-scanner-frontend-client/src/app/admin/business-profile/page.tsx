@@ -73,7 +73,7 @@ export default function BusinessProfileEditorPage() {
 
   return (
     <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl">
-      {/* Header */}
+      {}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-8">
         <div>
           <h1 className="text-xl sm:text-3xl font-bold">Business Profile</h1>
@@ -100,14 +100,14 @@ export default function BusinessProfileEditorPage() {
         </div>
       </div>
 
-      {/* Status Badge */}
+      {}
       <div className="mb-6">
         <Badge variant={profile.isPublished ? "default" : "secondary"}>
           {profile.isPublished ? "Published" : "Draft"}
         </Badge>
       </div>
 
-      {/* Tabs */}
+      {}
       <div className="border-b border-gray-200 mb-6">
         <nav className="flex gap-4 overflow-x-auto">
           {tabs.map((tab) => (
@@ -127,7 +127,7 @@ export default function BusinessProfileEditorPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Basic Info Tab */}
+        {}
         {activeTab === "basic" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="lg:col-span-2">
@@ -232,7 +232,7 @@ export default function BusinessProfileEditorPage() {
           </div>
         )}
 
-        {/* Contact & Hours Tab */}
+        {}
         {activeTab === "contact" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
@@ -384,7 +384,7 @@ export default function BusinessProfileEditorPage() {
                         checked={hours.isOpen}
                         className="rounded"
                         onChange={() => {
-                          // Handle toggle
+
                         }}
                       />
                       {hours.isOpen && (
@@ -413,7 +413,7 @@ export default function BusinessProfileEditorPage() {
           </div>
         )}
 
-        {/* Images & Gallery Tab */}
+        {}
         {activeTab === "media" && (
           <div className="grid grid-cols-1 gap-6">
             <Card>
@@ -489,7 +489,7 @@ export default function BusinessProfileEditorPage() {
           </div>
         )}
 
-        {/* Social Media Tab */}
+        {}
         {activeTab === "social" && (
           <Card>
             <CardHeader>
@@ -579,7 +579,7 @@ export default function BusinessProfileEditorPage() {
           </Card>
         )}
 
-        {/* Placeholder for other tabs */}
+        {}
         {(activeTab === "services" || activeTab === "team") && (
           <Card>
             <CardHeader>

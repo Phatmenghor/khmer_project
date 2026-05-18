@@ -128,7 +128,7 @@ export default function CartPage() {
 
   useEffect(() => setMounted(true), []);
 
-  // Fetch all cart items on mount
+
   useEffect(() => {
     if (!authReady) return;
     if (!isAuthenticated) return;
@@ -217,7 +217,7 @@ export default function CartPage() {
 
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
 
-          {/* ── Cart Items ── */}
+          {}
           <div className="lg:col-span-2 space-y-3">
             {items.length > 0 && (
               <div className="text-xs text-muted-foreground">
@@ -254,7 +254,7 @@ export default function CartPage() {
 
           </div>
 
-          {/* ── Order Summary (desktop) ── */}
+          {}
           <div className="hidden lg:block lg:col-span-1">
             <div className="bg-card border rounded-2xl p-5 sticky top-24">
               <h2 className="text-lg font-bold mb-4 flex items-center justify-between">
@@ -265,7 +265,7 @@ export default function CartPage() {
               </h2>
 
               <div className="space-y-3 mb-5">
-                {/* Items count with quantity */}
+                {}
                 <div className="bg-muted/50 rounded-lg p-3 mb-4">
                   <div className="text-xs text-muted-foreground mb-2">Items Breakdown</div>
                   <div className="flex justify-between items-center">
@@ -275,13 +275,13 @@ export default function CartPage() {
                   <div className="text-xs text-muted-foreground mt-1">total quantity</div>
                 </div>
 
-                {/* Subtotal */}
+                {}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium">{formatCurrency(subtotal)}</span>
                 </div>
 
-                {/* Discount */}
+                {}
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-sm bg-red-50/30 dark:bg-red-950/20 p-2.5 rounded-lg border border-red-200/50 dark:border-red-800/30">
                     <span className="text-red-700 dark:text-red-400 font-medium">Discount Applied</span>
@@ -289,13 +289,13 @@ export default function CartPage() {
                   </div>
                 )}
 
-                {/* Shipping */}
+                {}
                 <div className="flex justify-between text-sm pt-2 border-t">
                   <span className="text-muted-foreground">Shipping & Fees</span>
                   <span className="text-muted-foreground text-xs">Calculated at checkout</span>
                 </div>
 
-                {/* Total */}
+                {}
                 <div className="bg-primary/10 rounded-lg p-3 border border-primary/20">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-bold text-foreground">Total Amount</span>
@@ -318,7 +318,7 @@ export default function CartPage() {
         </div>
       </PageContainer>
 
-      {/* Mobile sticky checkout bar */}
+      {}
       <div className="fixed bottom-16 left-0 right-0 z-40 lg:hidden bg-background/95 backdrop-blur-sm border-t px-4 py-3">
         <div className="flex items-center justify-between mb-2.5">
           <div className="text-xs">

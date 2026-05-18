@@ -1,7 +1,5 @@
-﻿/**
- * Auth Feature - Async Thunks
- * Redux thunks for async auth operations
- */
+﻿
+
 
 import {
   ChangePasswordRequest,
@@ -12,19 +10,15 @@ import { createApiThunk } from "@/utils/axios/api-wrapper";
 import { storeAdminTokens, storeTokens } from "@/utils/local-storage/token";
 import { storeAdminUserInfo, storeUserInfo } from "@/utils/local-storage/userInfo";
 
-/**
- * Login thunk
- */
+
 export const loginService = createApiThunk<any, LoginCredentialsRequest>(
   "auth/login",
   async (credentials) => {
     const response = await axiosClient.post("/api/v1/auth/login", credentials);
     const data = response.data.data;
 
-    // Store tokens immediately in thunk BEFORE reducer runs
-    // Side effects belong in thunks, NOT in reducers!
-    if (data.accessToken) {
 
+    if (data.accessToken) {
       const isAdmin = (userType?: string) => userType === "BUSINESS_USER";
 
       if (isAdmin(data.userType)) {
@@ -41,10 +35,7 @@ export const loginService = createApiThunk<any, LoginCredentialsRequest>(
   }
 );
 
-/**
- * Get profile thunk
- * Fetches user profile information
- */
+
 export const getProfileService = createApiThunk<any, void>(
   "auth/getProfile",
   async () => {
@@ -53,10 +44,7 @@ export const getProfileService = createApiThunk<any, void>(
   }
 );
 
-/**
- * Update profile thunk
- * Updates current user's profile
- */
+
 export const updateProfileService = createApiThunk<any, any>(
   "auth/updateProfile",
   async (profileData) => {
@@ -68,10 +56,6 @@ export const updateProfileService = createApiThunk<any, any>(
   }
 );
 
-/**
- * Change password thunk
- * Changes current user's password
- */
 
 export const changePasswordService = createApiThunk<any, ChangePasswordRequest>(
   "auth/changePassword",
@@ -84,10 +68,7 @@ export const changePasswordService = createApiThunk<any, ChangePasswordRequest>(
   }
 );
 
-/**
- * Delete account thunk
- * Deletes current user's account
- */
+
 export const deleteAccountService = createApiThunk<any, void>(
   "auth/deleteAccount",
   async () => {
@@ -96,9 +77,7 @@ export const deleteAccountService = createApiThunk<any, void>(
   }
 );
 
-/**
- * Customer registration request
- */
+
 export interface CustomerRegisterRequest {
   userIdentifier: string;
   email?: string;
@@ -111,10 +90,7 @@ export interface CustomerRegisterRequest {
   address?: string;
 }
 
-/**
- * Register customer thunk
- * Creates a new customer account
- */
+
 export const registerCustomerService = createApiThunk<any, CustomerRegisterRequest>(
   "auth/registerCustomer",
   async (registerData) => {

@@ -1,17 +1,5 @@
-/**
- * Hook for managing dynamic filter state
- * Simplifies filter management across multiple pages
- *
- * Usage:
- * ```tsx
- * const {
- *   filters,
- *   updateFilter,
- *   resetFilters,
- *   getFilterValue,
- * } = useDynamicFilters(initialFilters);
- * ```
- */
+
+
 
 import { useCallback } from 'react';
 

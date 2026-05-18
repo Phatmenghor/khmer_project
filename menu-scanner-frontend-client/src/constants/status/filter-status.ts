@@ -86,7 +86,7 @@ export const SUBSCRIPTION_FILTER = [
   { value: SubscriptionStatus.EXPIRING_SOON, label: "Expiring Soon" },
 ];
 
-// Auto renew filter options
+
 export const AUTO_RENEW_FILTER = [
   { value: Status.ALL, label: "All Status" },
   { value: Status.ACTIVE, label: "Auto Renew" },

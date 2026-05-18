@@ -1,7 +1,5 @@
-﻿/**
- * Auth Feature - Redux Slice
- * Manages auth state: user, profile, loading, errors
- */
+﻿
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserAuthResponseModel } from "../models/response/auth-resposne";
@@ -37,18 +35,14 @@ import { SocialSyncResponse } from "../models/response/social-auth-response";
 
 const isAdmin = (userType?: string) => userType === "BUSINESS_USER";
 
-/**
- * Extended auth state with social sync info
- */
+
 interface ExtendedAuthState extends AuthState {
   socialSync: SocialSyncResponse | null;
   isSocialLoading: boolean;
   isNewUser: boolean;
 }
 
-/**
- * Initial auth state
- */
+
 const initialState: ExtendedAuthState = {
   isAuthenticated: false,
   authReady: false,
@@ -62,32 +56,25 @@ const initialState: ExtendedAuthState = {
   isNewUser: false,
 };
 
-/**
- * Auth slice
- */
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    /**
-     * Set user directly (useful after checking local storage)
-     */
+
+
     setUser: (state, action: PayloadAction<UserAuthResponseModel>) => {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload.accessToken;
       state.authReady = true;
     },
 
-    /**
-     * Mark auth initialization as complete (even when no token found)
-     */
+
     setAuthReady: (state) => {
       state.authReady = true;
     },
 
-    /**
-     * Clear authentication state
-     */
+
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
@@ -101,35 +88,27 @@ const authSlice = createSlice({
       clearAdminUserInfo();
     },
 
-    /**
-     * Clear any errors
-     */
+
     clearError: (state) => {
       state.error = null;
     },
 
-    /**
-     * Set social sync info
-     */
+
     setSocialSync: (state, action: PayloadAction<SocialSyncResponse | null>) => {
       state.socialSync = action.payload;
     },
 
-    /**
-     * Clear new user flag
-     */
+
     clearNewUserFlag: (state) => {
       state.isNewUser = false;
     },
 
-    /**
-     * Reset auth state
-     */
+
     resetAuthState: () => initialState,
   },
 
   extraReducers: (builder) => {
-    // Login thunk handlers
+
     builder
       .addCase(loginService.pending, (state) => {
         state.isLoading = true;
@@ -141,8 +120,7 @@ const authSlice = createSlice({
         state.isAuthenticated = !!action.payload.accessToken;
         state.authReady = true;
 
-        // NOTE: Token storage now happens in the loginService thunk (side effects in thunks, not reducers!)
-        // Reducer is pure function - no side effects here
+
       })
       .addCase(loginService.rejected, (state, action) => {
         state.isLoading = false;
@@ -150,7 +128,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       });
 
-    // Get profile thunk handlers
+
     builder
       .addCase(getProfileService.pending, (state) => {
         state.isProfileLoading = true;
@@ -165,7 +143,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Update profile thunk handlers
+
     builder
       .addCase(updateProfileService.pending, (state) => {
         state.isProfileLoading = true;
@@ -174,7 +152,7 @@ const authSlice = createSlice({
       .addCase(updateProfileService.fulfilled, (state, action) => {
         state.isProfileLoading = false;
         state.profile = action.payload;
-        // Update user info in state if needed
+
         if (state.user) {
           state.user.fullName = action.payload.fullName || state.user.fullName;
           state.user.profileImageUrl =
@@ -186,7 +164,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Change password thunk handlers
+
     builder
       .addCase(changePasswordService.pending, (state) => {
         state.isLoading = true;
@@ -200,7 +178,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Delete account thunk handlers
+
     builder
       .addCase(deleteAccountService.pending, (state) => {
         state.isLoading = true;
@@ -217,7 +195,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Telegram authenticate thunk handlers
+
     builder
       .addCase(telegramAuthenticateService.pending, (state) => {
         state.isSocialLoading = true;
@@ -228,7 +206,7 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.isNewUser = action.payload.isNewUser;
 
-        // Create user object from social auth response
+
         const socialResponse = action.payload;
         state.user = {
           accessToken: socialResponse.accessToken,
@@ -247,7 +225,7 @@ const authSlice = createSlice({
           isSubscriptionActive: "",
         };
 
-        // Store tokens in admin or customer cookies based on userType
+
         if (isAdmin(socialResponse.userType)) {
           storeAdminTokens(socialResponse.accessToken, socialResponse.refreshToken);
           storeAdminUserInfo(state.user);
@@ -261,7 +239,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Social authenticate thunk handlers (generic)
+
     builder
       .addCase(socialAuthenticateService.pending, (state) => {
         state.isSocialLoading = true;
@@ -303,16 +281,16 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Get social sync status thunk handlers (used when backend endpoint is available)
+
     builder
       .addCase(getSocialSyncService.fulfilled, (state, action) => {
         state.socialSync = action.payload;
       })
       .addCase(getSocialSyncService.rejected, () => {
-        // Silently ignore — endpoint may not be available yet
+
       });
 
-    // Sync Telegram account thunk handlers
+
     builder
       .addCase(syncTelegramAccountService.pending, (state) => {
         state.isSocialLoading = true;
@@ -327,7 +305,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Unsync social account thunk handlers
+
     builder
       .addCase(unsyncSocialAccountService.pending, (state) => {
         state.isSocialLoading = true;
@@ -342,7 +320,7 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Logout service thunk handlers
+
     builder
       .addCase(logoutService.pending, (state) => {
         state.isLoading = true;
@@ -351,15 +329,15 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = false;
 
-        // Only clear tokens for the user type being logged out
+
         const isAdmin = state.user?.userType === "BUSINESS_USER";
 
         if (isAdmin) {
-          // Admin logout - only clear admin tokens
+
           clearAdminTokens();
           clearAdminUserInfo();
         } else {
-          // Customer logout - only clear customer tokens
+
           clearAllTokens();
           clearUserInfo();
         }
@@ -370,19 +348,19 @@ const authSlice = createSlice({
         state.isNewUser = false;
       })
       .addCase(logoutService.rejected, (state) => {
-        // Even if server logout fails, clear local state
+
         state.isLoading = false;
         state.isAuthenticated = false;
 
-        // Only clear tokens for the user type being logged out
+
         const isAdmin = state.user?.userType === "BUSINESS_USER";
 
         if (isAdmin) {
-          // Admin logout - only clear admin tokens
+
           clearAdminTokens();
           clearAdminUserInfo();
         } else {
-          // Customer logout - only clear customer tokens
+
           clearAllTokens();
           clearUserInfo();
         }

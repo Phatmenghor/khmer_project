@@ -55,8 +55,8 @@ export interface UserResponseModel {
   phoneNumber: string;
   profileImageUrl: string;
   userType: string;
-  accountStatus: string;          // Business user status (ACTIVE, END_WORK, LOCKED)
-  status: string;                 // System status
+  accountStatus: string;
+  status: string;
   roles: string[];
   position?: string;
   address?: string;

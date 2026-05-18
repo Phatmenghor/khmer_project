@@ -19,16 +19,14 @@ interface BulkPromotionTableOptions {
   isLoading: boolean;
   pageNo: number;
   pageSize: number;
-  selectedSizes?: Map<string, Set<string>>; // productId -> sizeIds
+  selectedSizes?: Map<string, Set<string>>;
   onSizeToggle?: (productId: string, sizeId: string) => void;
   onViewDetails?: (product: ProductDetailResponseModel) => void;
   onEditProduct?: (product: ProductDetailResponseModel) => void;
   onResetPromotion?: (product: ProductDetailResponseModel) => void;
 }
 
-/**
- * ProductImagePreview - Display product image with square rounded styling
- */
+
 function ProductImagePreview({
   product,
 }: {
@@ -202,7 +200,7 @@ export const bulkPromotionTableColumns = ({
                       : "bg-white border-border/50 hover:bg-gray-50 hover:border-border/70",
                   )}
                 >
-                  {/* Custom Checkbox */}
+                  {}
                   <CustomCheckbox
                     checked={isSelected}
                     onCheckedChange={() => onSizeToggle?.(product.id, size.id)}
@@ -211,12 +209,12 @@ export const bulkPromotionTableColumns = ({
                     ariaLabel={`Select ${size.name}`}
                   />
 
-                  {/* Size Name */}
+                  {}
                   <span className="font-medium text-foreground group-hover:text-primary transition-colors">
                     {size.name}
                   </span>
 
-                  {/* Size Promotion Status Badge */}
+                  {}
                   {hasPromotion && (
                     <span className="bg-red-100/70 text-red-700 text-xs h-fit px-1 py-0.5 rounded inline-block font-semibold">
                       {size.promotionType === "PERCENTAGE"

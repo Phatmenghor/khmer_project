@@ -42,7 +42,7 @@ export function DeleteConfirmationModal({
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset state when dialog opens/closes
+
   useEffect(() => {
     if (isOpen) {
       setConfirmationValue("");
@@ -101,7 +101,7 @@ export function DeleteConfirmationModal({
             </Alert>
           )}
 
-          {/* Confirmation Input for Critical Actions */}
+          {}
           {requireConfirmation && (
             <div className="space-y-2">
               <Label htmlFor="confirmation" className="text-sm font-medium">
@@ -123,7 +123,7 @@ export function DeleteConfirmationModal({
             </div>
           )}
 
-          {/* Error Alert */}
+          {}
           {(error || errorMessage) && (
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />

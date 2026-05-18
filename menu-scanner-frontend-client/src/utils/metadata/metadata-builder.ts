@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
-/**
- * Build metadata with business name
- * Used across all pages and layouts
- */
+
 export const buildMetadata = (
   businessName: string = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
 ): Metadata => {
@@ -20,9 +17,7 @@ export const buildMetadata = (
   };
 };
 
-/**
- * Build admin metadata with business name
- */
+
 export const buildAdminMetadata = (
   businessName: string = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
 ): Metadata => {
@@ -36,9 +31,7 @@ export const buildAdminMetadata = (
   };
 };
 
-/**
- * Build auth metadata
- */
+
 export const buildAuthMetadata = (
   businessName: string = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
 ): Metadata => {
@@ -48,9 +41,7 @@ export const buildAuthMetadata = (
   };
 };
 
-/**
- * Build public metadata with business name
- */
+
 export const buildPublicMetadata = (
   businessName: string = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
   pageName?: string

@@ -37,7 +37,7 @@ import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
 
-// Filter options for stock status
+
 const STOCK_STATUS_FILTER = [
   { value: "ALL", label: "All Stock Status" },
   { value: "ENABLED", label: "Stock Enabled" },
@@ -46,10 +46,10 @@ const STOCK_STATUS_FILTER = [
 
 
 export default function SizeStockPage() {
-  // Clean up state when leaving admin area (performance optimization)
+
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     stockState,
     stockData,
@@ -61,7 +61,7 @@ export default function SizeStockPage() {
     dispatch,
   } = useStockState();
 
-  // Local UI state for modals only
+
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
     productId: "",
@@ -79,13 +79,13 @@ export default function SizeStockPage() {
     useState<CategoriesResponseModel | null>(null);
   const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
 
-  // Debounce refs for stock status toggle
+
   const stockStatusDebounceRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
-  // Stock management state (to detect when stock is created)
+
   const stockManagementSuccessMessage = useAppSelector(
     (state: { stockManagement?: { successMessage?: string } }) => state.stockManagement?.successMessage
   );
@@ -98,14 +98,13 @@ export default function SizeStockPage() {
   });
 
   useEffect(() => {
-    // Build stockStatuses array (following API pattern)
+
     let stockStatuses: string[] | undefined;
     if (stockStatusFilter === "ENABLED" || stockStatusFilter === "DISABLED") {
       stockStatuses = [stockStatusFilter];
     }
-    // if ALL, stockStatuses remains undefined (no filter)
 
-    // Build statuses array (following API pattern)
+
     let statuses: string[] | undefined;
     if (filters.status !== ProductStatus.ALL && filters.status) {
       statuses = [filters.status];
@@ -120,7 +119,7 @@ export default function SizeStockPage() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         stockStatuses,
-        hasSize: true, // Filter to only products with sizes
+        hasSize: true,
       }),
     );
   }, [
@@ -134,10 +133,10 @@ export default function SizeStockPage() {
     stockStatusFilter,
   ]);
 
-  // Refetch products when stock is created to update totalStock
+
   useEffect(() => {
     if (stockManagementSuccessMessage) {
-      // Refetch the products list to get updated totalStock
+
       let stockStatuses: string[] | undefined;
       if (stockStatusFilter === "ENABLED" || stockStatusFilter === "DISABLED") {
         stockStatuses = [stockStatusFilter];
@@ -157,13 +156,13 @@ export default function SizeStockPage() {
           brandId: selectedBrand?.id,
           categoryId: selectedCategories?.id,
           stockStatuses,
-          hasSize: true, // Filter to only products with sizes
+          hasSize: true,
         }),
       );
     }
   }, [stockManagementSuccessMessage]);
 
-  // Event handlers
+
   const handleCreateStock = (product: ProductDetailResponseModel) => {
     setStockManagementState({
       isOpen: true,
@@ -182,7 +181,7 @@ export default function SizeStockPage() {
     (product: ProductDetailResponseModel) => {
       if (!product.id) return;
 
-      // Clear any existing debounce timer for this product
+
       if (stockStatusDebounceRefs.current[product.id]) {
         clearTimeout(stockStatusDebounceRefs.current[product.id]);
       }
@@ -190,7 +189,7 @@ export default function SizeStockPage() {
       const newStatus = product.stockStatus === "ENABLED" ? "DISABLED" : "ENABLED";
       const previousStatus = product.stockStatus as "ENABLED" | "DISABLED";
 
-      // Optimistic update - update UI immediately for fast feedback
+
       dispatch(
         updateStockStatusOptimistic({
           productId: product.id,
@@ -198,7 +197,7 @@ export default function SizeStockPage() {
         })
       );
 
-      // Debounce API call by 300ms to prevent rapid clicks
+
       stockStatusDebounceRefs.current[product.id] = setTimeout(() => {
         dispatch(
           updateStockStatusService({
@@ -213,7 +212,7 @@ export default function SizeStockPage() {
             );
           })
           .catch((error: unknown) => {
-            // Revert optimistic update if API fails
+
             dispatch(
               revertStockStatusOptimistic({
                 productId: product.id,
@@ -294,7 +293,7 @@ export default function SizeStockPage() {
     setStockStatusFilter(value);
   };
 
-  // Create filter configuration for CollapsibleFilterPanel
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Size Stock Information",
     searchValue: filters.search,
@@ -351,7 +350,7 @@ export default function SizeStockPage() {
           essentialFilterIds={["productStatus", "stockStatus"]}
         />
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <div className="overflow-x-auto max-w-full rounded-lg border">
           <DataTableWithPagination
           data={stockContent}
@@ -370,14 +369,14 @@ export default function SizeStockPage() {
         </div>
       </div>
 
-      {/* Modals Product Detail */}
+      {}
       <ProductDetailModal
         productId={detailModalState.productId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Size Stock Management Modal */}
+      {}
       <SizeStockManagementModal
         isOpen={stockManagementState.isOpen}
         onClose={closeStockManagementModal}

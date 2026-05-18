@@ -1,9 +1,6 @@
 const UNREACHABLE_IMAGE_DOMAINS = ["via.placeholder.com"];
 
-/**
- * Returns the fallback image path when the given URL belongs to a known
- * unreachable / placeholder domain, preventing server-side fetch failures.
- */
+
 export function sanitizeImageUrl(
   url: string | null | undefined,
   fallback: string

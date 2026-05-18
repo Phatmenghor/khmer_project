@@ -9,9 +9,8 @@ const businessSettingsSlice = createSlice({
   name: "businessSettings",
   initialState: initialBusinessSettingsState,
   reducers: {
-    /**
-     * Clear business settings
-     */
+
+
     clearBusinessSettings: (state) => {
       state.data = null;
       state.error = null;
@@ -19,7 +18,7 @@ const businessSettingsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Handle fetchBusinessSettingsThunk
+
     builder
       .addCase(fetchBusinessSettingsThunk.pending, (state) => {
         state.isLoading = true;
@@ -36,7 +35,7 @@ const businessSettingsSlice = createSlice({
         state.data = null;
       });
 
-    // Handle updateBusinessSettingsThunk
+
     builder
       .addCase(updateBusinessSettingsThunk.pending, (state) => {
         state.isLoading = true;

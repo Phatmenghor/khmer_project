@@ -1,4 +1,4 @@
-// utils/toast.ts
+
 import { toast, ToastOptions } from "react-toastify";
 
 const defaultOptions: ToastOptions = {

@@ -1,7 +1,5 @@
-/**
- * Public Categories Slice
- * Manages categories data for public-facing pages with caching and scroll restoration
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
@@ -54,7 +52,7 @@ const publicCategoriesSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch categories
+
       .addCase(fetchPublicCategories.pending, (state, action) => {
         const isLoadMore = action.meta.arg.append;
         if (isLoadMore) {
@@ -70,14 +68,14 @@ const publicCategoriesSlice = createSlice({
         const isLoadMore = action.meta.arg.append;
 
         if (isLoadMore) {
-          // Memory optimization: Keep only last 3 pages of data (like YouTube)
+
           const MAX_PAGES_IN_MEMORY = 3;
           const maxItems = MAX_PAGES_IN_MEMORY * pageSize;
 
-          // Append new categories
+
           const updatedCategories = [...state.categories, ...content];
 
-          // If we exceed the limit, remove oldest items
+
           if (updatedCategories.length > maxItems) {
             const itemsToRemove = updatedCategories.length - maxItems;
             state.categories = updatedCategories.slice(itemsToRemove);

@@ -25,14 +25,12 @@ const initialState: WorkScheduleManagementState = {
   },
 };
 
-/**
- * Work Schedule slice
- */
+
 const workScheduleSlice = createSlice({
   name: "work-schedule",
   initialState,
   reducers: {
-    // Filter actions
+
     setSearchFilter: (state, action: PayloadAction<string>) => {
       state.filters.search = action.payload;
       state.filters.pageNo = 1;
@@ -42,7 +40,7 @@ const workScheduleSlice = createSlice({
       state.filters.pageNo = action.payload;
     },
 
-    // Utility actions
+
     clearError: (state) => {
       state.error = null;
     },
@@ -84,7 +82,7 @@ const workScheduleSlice = createSlice({
       .addCase(fetchWorkScheduleByIdService.fulfilled, (state, action) => {
         state.operations.isFetchingDetail = false;
         state.selectedWorkSchedule = action.payload;
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (user) => user.id === action.payload.id,
@@ -128,7 +126,7 @@ const workScheduleSlice = createSlice({
         state.operations.isUpdating = false;
         state.selectedWorkSchedule = action.payload;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((user) =>
             user.id === action.payload.id ? action.payload : user,

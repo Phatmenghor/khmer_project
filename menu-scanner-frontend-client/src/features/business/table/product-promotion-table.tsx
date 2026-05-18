@@ -37,9 +37,7 @@ interface ProductPromotionTableOptions {
   handlers: ProductTableHandlers;
 }
 
-/**
- * ProductImagePreview - Display product image with preview styling
- */
+
 function ProductImagePreview({
   product,
 }: {
@@ -77,10 +75,7 @@ function ProductImagePreview({
   );
 }
 
-/**
- * SizesDisplay - Display product sizes in simple bordered boxes
- * Uses secondary color (yellow) from business theme for borders
- */
+
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   const { secondary } = useBusinessColors();
 

@@ -21,9 +21,7 @@ export const selectFilters = (state: RootState) => state.stocks.filters;
 
 export const selectOperations = (state: RootState) => state.stocks.operations;
 
-/**
- * Select pagination metadata
- */
+
 export const selectPagination = createSelector([selectStock], (data) => ({
   currentPage: data?.pageNo || 1,
   totalPages: data?.totalPages || 1,

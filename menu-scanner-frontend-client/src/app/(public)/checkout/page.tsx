@@ -96,12 +96,12 @@ export default function CheckoutPage() {
     isProcessing: false,
   });
 
-  // Set mounted after hydration
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Fetch defaults and options on mount
+
   useEffect(() => {
     if (!mounted || !authReady || !isAuthenticated) return;
 
@@ -117,7 +117,7 @@ export default function CheckoutPage() {
           }));
         }
       } catch (error: unknown) {
-        // "No default address found" is expected - don't log as error
+
         const isExpectedError =
           error?.response?.status === 404 ||
           (typeof error === "string" && error.includes("No default")) ||
@@ -133,7 +133,7 @@ export default function CheckoutPage() {
     fetchDefaults();
   }, [mounted, authReady, isAuthenticated, dispatch]);
 
-  // Set default delivery option if available
+
   useEffect(() => {
     if (deliveryOptions && deliveryOptions.length > 0 && !checkoutState.selectedDeliveryOptionId) {
       setCheckoutState((prev) => ({
@@ -143,7 +143,7 @@ export default function CheckoutPage() {
     }
   }, [deliveryOptions, checkoutState.selectedDeliveryOptionId]);
 
-  // Fetch payment options for the current business
+
   useEffect(() => {
     if (!mounted) return;
 
@@ -161,7 +161,7 @@ export default function CheckoutPage() {
     fetchPaymentOptions();
   }, [mounted, dispatch]);
 
-  // Set default payment option if available
+
   useEffect(() => {
     if (paymentOptions && paymentOptions.length > 0 && !checkoutState.selectedPaymentOptionId) {
       setCheckoutState((prev) => ({
@@ -171,7 +171,7 @@ export default function CheckoutPage() {
     }
   }, [paymentOptions, checkoutState.selectedPaymentOptionId]);
 
-  // Populate customer information from profile on mount
+
   useEffect(() => {
     if (profile && mounted && authReady) {
       setCheckoutState((prev) => ({
@@ -199,7 +199,7 @@ export default function CheckoutPage() {
   );
 
   const deliveryFee = selectedDeliveryOption?.price || 0;
-  const taxRate = 0; // 0% tax for now
+  const taxRate = 0;
   const taxAmount = (finalTotal + deliveryFee) * taxRate;
   const orderTotal = finalTotal + deliveryFee + taxAmount;
 
@@ -251,8 +251,8 @@ export default function CheckoutPage() {
     setCheckoutState((prev) => ({ ...prev, isProcessing: true }));
 
     try {
-      // Development: Uses AppDefault.BUSINESS_ID
-      // Production: Will get businessId from subdomain routing
+
+
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
         addressId: selectedAddress?.id,
@@ -295,7 +295,7 @@ export default function CheckoutPage() {
           totalQuantity: totalQuantity,
           subtotalBeforeDiscount: subtotal,
           subtotal: subtotal,
-          customizationTotal: 0,  // Frontend will calculate from item customizations if needed
+          customizationTotal: 0,
           totalDiscount: discountAmount,
           finalTotal: finalTotal,
         },
@@ -316,18 +316,16 @@ export default function CheckoutPage() {
       };
 
 
-      // Call API endpoint to create order
       const orderResult: OrderResponse = await dispatch(createOrderService(checkoutPayload)).unwrap();
 
       showToast.success(Messages.orders.placed);
 
-      // Redirect to customer orders page
+
       setTimeout(() => {
         router.push("/orders");
       }, 1500);
     } catch (error: unknown) {
 
-      // Show user-friendly error message
       const errorMessage =
         error?.response?.data?.message ||
         (error as { message?: string })?.message ||
@@ -339,7 +337,7 @@ export default function CheckoutPage() {
     }
   };
 
-  // Prevent hydration mismatch - show skeleton until mounted
+
   if (!mounted || !authReady) {
     return <CheckoutPageSkeleton />;
   }
@@ -390,7 +388,7 @@ export default function CheckoutPage() {
 
   return (
     <PageContainer className="py-0 pb-40 sm:pb-20 lg:pb-8">
-      {/* Professional Header - Matches Cart Page */}
+      {}
       <PageHeader
         title="Checkout"
         subtitle={`${items.length} ${items.length === 1 ? "item" : "items"} • ${totalQuantity} total quantity`}
@@ -400,11 +398,11 @@ export default function CheckoutPage() {
       />
 
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main Content */}
+        {}
         <div className="lg:col-span-2 space-y-6">
-          {/* Card 1: Delivery Information - Clean & Professional */}
+          {}
           <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 space-y-6">
-            {/* Delivery Address */}
+            {}
             <div className="space-y-3">
               <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
@@ -428,14 +426,14 @@ export default function CheckoutPage() {
               />
             </div>
 
-            {/* Divider */}
+            {}
             <div className="border-t border-border/50" />
 
-            {/* Customer Information */}
+            {}
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-foreground">Contact Information</h4>
               <div className="grid sm:grid-cols-3 gap-4">
-                {/* Customer Name */}
+                {}
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-foreground">
                     Full Name <span className="text-red-500">*</span>
@@ -454,7 +452,7 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                {/* Customer Phone */}
+                {}
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-foreground">
                     Phone Number <span className="text-red-500">*</span>
@@ -473,7 +471,7 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                {/* Customer Email */}
+                {}
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-foreground">
                     Email Address <span className="text-red-500">*</span>
@@ -494,12 +492,12 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Divider */}
+            {}
             <div className="border-t border-border/50" />
 
-            {/* Delivery & Payment Options - Side by Side */}
+            {}
             <div className="grid sm:grid-cols-2 gap-6">
-              {/* Delivery Option */}
+              {}
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <Truck className="h-4 w-4 text-primary" />
@@ -525,7 +523,7 @@ export default function CheckoutPage() {
 
               </div>
 
-              {/* Payment Method */}
+              {}
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <CreditCard className="h-4 w-4 text-primary" />
@@ -551,7 +549,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Special Instructions */}
+            {}
             <div className="space-y-3 pt-4 border-t border-border/50">
               <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-primary" />
@@ -582,7 +580,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Card 2: Order Items */}
+          {}
           <div className="bg-card border border-border rounded-2xl p-6 sm:p-7">
             <div className="mb-6">
               <h3 className="font-semibold text-foreground mb-1.5">Order Items</h3>
@@ -621,21 +619,21 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Card 3: Order Summary - Sticky on LG, Full on Mobile */}
+        {}
         <div className="lg:col-span-1">
-          {/* Mobile/Tablet: Full width summary above footer */}
+          {}
           <div className="lg:hidden bg-gradient-to-b from-card to-card/95 border border-border rounded-t-3xl p-6 sm:p-8 space-y-6 mt-8">
             <div>
               <h2 className="text-lg font-bold text-foreground mb-6">Order Summary</h2>
 
               <div className="space-y-4">
-                {/* Subtotal */}
+                {}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground font-medium">Subtotal</span>
                   <span className="font-semibold text-foreground">{formatCurrency(subtotal)}</span>
                 </div>
 
-                {/* Discount */}
+                {}
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-sm bg-red-50/50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200/50 dark:border-red-800/30">
                     <span className="text-red-600 dark:text-red-400 font-semibold">Discount</span>
@@ -643,7 +641,7 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {/* Delivery Fee */}
+                {}
                 <div className="flex justify-between text-sm pt-2.5 border-t border-border/50">
                   <span className="text-muted-foreground font-medium">Delivery Fee</span>
                   <span className="font-semibold text-primary">
@@ -651,7 +649,7 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
-                {/* Tax */}
+                {}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground font-medium flex items-center gap-1">
                     Tax
@@ -660,7 +658,7 @@ export default function CheckoutPage() {
                   <span className="font-semibold text-foreground">{formatCurrency(taxAmount)}</span>
                 </div>
 
-                {/* Total */}
+                {}
                 <div className="flex justify-between items-center pt-4 border-t-2 border-border">
                   <span className="font-bold text-lg text-foreground">Total Amount</span>
                   <div className="text-right">
@@ -676,7 +674,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Validation Alert */}
+            {}
             {(!checkoutState.selectedAddressId ||
               !checkoutState.selectedDeliveryOptionId ||
               !checkoutState.selectedPaymentOptionId) && (
@@ -688,7 +686,7 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {/* Checkout Button with Shadow and Margins */}
+            {}
             <CustomButton
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
@@ -715,19 +713,19 @@ export default function CheckoutPage() {
             </p>
           </div>
 
-          {/* Desktop: Sticky Summary */}
+          {}
           <div className="hidden lg:block bg-card border border-border rounded-2xl p-6 sm:p-7 sticky top-24 space-y-6">
             <div>
               <h2 className="text-base font-semibold text-foreground mb-5">Order Summary</h2>
 
               <div className="space-y-3.5">
-                {/* Subtotal */}
+                {}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal ({items.length} {items.length === 1 ? "item" : "items"})</span>
                   <span className="font-medium text-foreground">{formatCurrency(subtotal)}</span>
                 </div>
 
-                {/* Discount */}
+                {}
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-red-600 dark:text-red-400 font-medium">Discount</span>
@@ -735,7 +733,7 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {/* Delivery Fee */}
+                {}
                 <div className="flex justify-between text-sm pt-2.5 border-t border-border/50">
                   <span className="text-muted-foreground">Delivery Fee</span>
                   <span className="font-medium text-primary">
@@ -743,7 +741,7 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
-                {/* Tax */}
+                {}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground flex items-center gap-1">
                     Tax
@@ -752,7 +750,7 @@ export default function CheckoutPage() {
                   <span className="font-medium text-foreground">{formatCurrency(taxAmount)}</span>
                 </div>
 
-                {/* Total */}
+                {}
                 <div className="flex justify-between items-center pt-3.5 border-t border-border">
                   <span className="font-semibold text-foreground">Total</span>
                   <div className="text-right">
@@ -768,7 +766,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Validation Alert */}
+            {}
             {(!checkoutState.selectedAddressId ||
               !checkoutState.selectedDeliveryOptionId ||
               !checkoutState.selectedPaymentOptionId) && (
@@ -780,7 +778,7 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {/* Checkout Button */}
+            {}
             <CustomButton
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}

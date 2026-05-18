@@ -14,7 +14,7 @@ import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { TextAreaField } from "@/components/shared/form-field/textarea-field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-// Validation schema for cancel order form
+
 const cancelOrderSchema = z.object({
   customerNote: z.string().max(500, "Note cannot exceed 500 characters").optional().default(""),
 });
@@ -52,7 +52,7 @@ export function CancelOrderModal({
     mode: "onChange",
   });
 
-  // Reset state when modal opens/closes
+
   useEffect(() => {
     if (isOpen) {
       reset();
@@ -90,7 +90,7 @@ export function CancelOrderModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 flex flex-col">
-        {/* Header */}
+        {}
         <FormHeader
           title="Cancel Order"
           description={`You are about to cancel order #${orderNumber}`}
@@ -102,9 +102,9 @@ export function CancelOrderModal({
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-hidden"
         >
-          {/* Body */}
+          {}
           <FormBody>
-            {/* Alert Box */}
+            {}
             <Alert className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/20">
               <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
               <AlertDescription className="text-red-700 dark:text-red-300">
@@ -112,7 +112,7 @@ export function CancelOrderModal({
               </AlertDescription>
             </Alert>
 
-            {/* Order Information Display */}
+            {}
             <div className="space-y-3 p-4 bg-muted rounded-lg border border-muted-foreground/20">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Order Number:</span>
@@ -126,7 +126,7 @@ export function CancelOrderModal({
               </div>
             </div>
 
-            {/* Error Display */}
+            {}
             {error && (
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
@@ -134,7 +134,7 @@ export function CancelOrderModal({
               </Alert>
             )}
 
-            {/* Customer Note Field */}
+            {}
             <div className="space-y-2">
               <TextAreaField
                 control={control}
@@ -151,7 +151,7 @@ export function CancelOrderModal({
             </div>
           </FormBody>
 
-          {/* Footer */}
+          {}
           <FormFooter
             isSubmitting={isSubmitting}
             isDirty={isDirty}

@@ -27,9 +27,7 @@ export const selectOperations = (state: RootState) => state.users.operations;
 export const selectIsResettingPassword = (state: RootState) =>
   state.users.operations.isResettingPassword;
 
-/**
- * Select pagination metadata
- */
+
 export const selectPagination = createSelector([selectUsers], (data) => ({
   currentPage: data?.pageNo || 1,
   totalPages: data?.totalPages || 1,

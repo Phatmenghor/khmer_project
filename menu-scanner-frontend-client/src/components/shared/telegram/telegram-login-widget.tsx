@@ -14,10 +14,7 @@ interface TelegramLoginWidgetProps {
   className?: string;
 }
 
-/**
- * Telegram Login Widget Component
- * Renders the official Telegram Login Widget for authentication
- */
+
 export function TelegramLoginWidget({
   botName,
   onAuth,
@@ -30,7 +27,7 @@ export function TelegramLoginWidget({
 }: TelegramLoginWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Create global callback function for Telegram widget
+
   const handleTelegramAuth = useCallback(
     (data: TelegramAuthData) => {
       onAuth(data);
@@ -39,11 +36,11 @@ export function TelegramLoginWidget({
   );
 
   useEffect(() => {
-    // Add callback to window object
+
     const callbackName = `telegramCallback_${Date.now()}`;
     (window as any)[callbackName] = handleTelegramAuth;
 
-    // Create and inject the Telegram widget script
+
     const script = document.createElement("script");
     script.src = "https://telegram.org/js/telegram-widget.js?22";
     script.async = true;
@@ -59,13 +56,13 @@ export function TelegramLoginWidget({
       script.setAttribute("data-lang", lang);
     }
 
-    // Clear container and append script
+
     if (containerRef.current) {
       containerRef.current.innerHTML = "";
       containerRef.current.appendChild(script);
     }
 
-    // Cleanup
+
     return () => {
       delete (window as any)[callbackName];
       if (containerRef.current) {
@@ -85,13 +82,10 @@ export function TelegramLoginWidget({
   return <div ref={containerRef} className={className} />;
 }
 
-/**
- * Custom Telegram Login Button
- * A styled button that triggers Telegram login popup
- */
+
 interface TelegramLoginButtonProps {
   botName: string;
-  botId?: string; // Numeric bot ID for OAuth popup
+  botId?: string;
   onAuth: (data: TelegramAuthData) => void;
   disabled?: boolean;
   loading?: boolean;
@@ -118,7 +112,7 @@ export function TelegramLoginButton({
 
     const telegramBotId = botId || botName;
 
-    // Use embed=1 so Telegram sends auth data via postMessage to the opener
+
     const authUrl = `https://oauth.telegram.org/auth?bot_id=${telegramBotId}&origin=${encodeURIComponent(
       window.location.origin
     )}&embed=1&request_access=write`;
@@ -136,7 +130,7 @@ export function TelegramLoginButton({
 
     let resolved = false;
 
-    // Primary: catch postMessage from oauth.telegram.org (embed=1 approach)
+
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== "https://oauth.telegram.org") return;
 
@@ -154,7 +148,7 @@ export function TelegramLoginButton({
       }
     };
 
-    // Fallback: poll popup URL for tgAuthResult (redirect approach)
+
     const checkPopup = setInterval(() => {
       if (!popup || popup.closed) {
         if (!resolved) {
@@ -174,7 +168,7 @@ export function TelegramLoginButton({
           onAuth(authData as TelegramAuthData);
         }
       } catch {
-        // Cross-origin — popup still on oauth.telegram.org, keep polling
+
       }
     }, 300);
 
@@ -218,9 +212,7 @@ export function TelegramLoginButton({
   );
 }
 
-/**
- * Telegram Icon SVG Component
- */
+
 function TelegramIcon({ className = "" }: { className?: string }) {
   return (
     <svg

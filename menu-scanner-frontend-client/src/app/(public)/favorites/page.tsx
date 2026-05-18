@@ -36,12 +36,12 @@ export default function FavoritesPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Prevent hydration mismatch by only rendering after client mount
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Calculate responsive skeleton count based on screen width
+
   const calculateSkeletonCount = useCallback(() => {
     const width = window.innerWidth;
     if (width < 640) setSkeletonCount(2);
@@ -51,14 +51,14 @@ export default function FavoritesPage() {
     else setSkeletonCount(6);
   }, []);
 
-  // Handle window resize for skeleton count
+
   useEffect(() => {
     calculateSkeletonCount();
     window.addEventListener("resize", calculateSkeletonCount);
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
 
-  // Fixed page size of 15 for favorites
+
   const pageSize = 15;
 
   const isInitialFavoritesLoading =
@@ -66,7 +66,7 @@ export default function FavoritesPage() {
     items.length === 0 &&
     !loaded;
 
-  // Initial load
+
   useEffect(() => {
     if (!authReady) return;
     if (isAuthenticated && !loaded) {
@@ -74,7 +74,7 @@ export default function FavoritesPage() {
     }
   }, [authReady, isAuthenticated, loaded, dispatch, pageSize]);
 
-  // Load more handler
+
   const handleLoadMore = useCallback(() => {
     if (
       pagination.hasMore &&
@@ -86,14 +86,14 @@ export default function FavoritesPage() {
     }
   }, [dispatch, pagination.hasMore, pagination.currentPage, loading.fetch, items.length, pageSize]);
 
-  // Smart pagination with debounce
+
   const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
     handleLoadMore,
     pagination.hasMore && !loading.fetch,
     [pagination.hasMore, loading.fetch, handleLoadMore]
   );
 
-  // Intersection observer for infinite scroll
+
   useEffect(() => {
     if (!pagination.hasMore || !sentinelRef.current) {
       if (observerRef.current) {
@@ -159,7 +159,7 @@ export default function FavoritesPage() {
       });
   };
 
-  // Loading skeleton (also shown on server to prevent hydration mismatch)
+
   if (!mounted || !authReady || (loading.fetch && !loaded)) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
@@ -173,7 +173,7 @@ export default function FavoritesPage() {
     );
   }
 
-  // Not logged in
+
   if (!isAuthenticated) {
     return (
       <>
@@ -210,7 +210,7 @@ export default function FavoritesPage() {
     );
   }
 
-  // Empty state
+
   if (items.length === 0) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-12 sm:py-20">
@@ -234,7 +234,7 @@ export default function FavoritesPage() {
     );
   }
 
-  // Favorites with infinite scroll
+
   return (
     <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
       <PageHeader
@@ -257,7 +257,7 @@ export default function FavoritesPage() {
         }
       />
 
-      {/* Favorites Grid */}
+      {}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
         {items.map((product, index) => {
           const uniqueKey = `favorites-${product.id}-${index}`;
@@ -265,7 +265,7 @@ export default function FavoritesPage() {
         })}
       </div>
 
-      {/* Skeleton loaders ALWAYS show while hasMore: true */}
+      {}
       {pagination.hasMore && (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mt-6">
@@ -274,7 +274,7 @@ export default function FavoritesPage() {
             ))}
           </div>
 
-          {/* Loading spinner */}
+          {}
           <div className="flex flex-col items-center justify-center mt-6 py-6">
             <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
             <p className="text-xs sm:text-sm text-muted-foreground">
@@ -284,12 +284,12 @@ export default function FavoritesPage() {
         </>
       )}
 
-      {/* Sentinel element for scroll detection */}
+      {}
       {pagination.hasMore && !loading.fetch && (
         <div ref={sentinelRef} className="h-10 w-full mt-6" />
       )}
 
-      {/* End of favorites message */}
+      {}
       {!pagination.hasMore && items.length > 0 && (
         <div className="flex flex-col items-center justify-center mt-10 py-8 px-4">
           <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">

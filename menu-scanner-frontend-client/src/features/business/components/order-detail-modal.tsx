@@ -89,7 +89,7 @@ export function OrderDetailModal({
         Order Details - {orderData.orderNumber}
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div>
             <h2 className="text-lg font-semibold text-foreground">
@@ -101,16 +101,16 @@ export function OrderDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-{/* Order & Pricing Information */}
+{}
             <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
               <CardHeader className="pb-4 border-b">
                 <CardTitle className="text-lg font-bold text-foreground">📋 Order & Pricing</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 pt-4">
-                {/* Order Details */}
+                {}
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
                   <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-3">Order Details</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -193,7 +193,7 @@ export function OrderDetailModal({
                   </div>
                 </div>
 
-                {/* Pricing Details */}
+                {}
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                   <h4 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-3">💰 Pricing Breakdown</h4>
                   <div className="space-y-3">
@@ -284,7 +284,7 @@ export function OrderDetailModal({
               </CardContent>
             </Card>
 
-            {/* Order Items */}
+            {}
             {orderData.items && orderData.items.length > 0 && (
               <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
                 <CardHeader className="pb-4 border-b">
@@ -301,10 +301,10 @@ export function OrderDetailModal({
                       key={item.id}
                       className="p-4 border rounded-lg bg-gray-50 border-gray-200"
                     >
-                      {/* Product Image and Header */}
+                      {}
                       <div className="mb-3">
                         <div className="flex items-start gap-3">
-                          {/* Product Image - 64x64 */}
+                          {}
                           {item.product?.imageUrl && (
                             <div className="flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
                               <img
@@ -314,7 +314,7 @@ export function OrderDetailModal({
                               />
                             </div>
                           )}
-                          {/* Product Name and Details */}
+                          {}
                           <div className="flex-1">
                             <div className="flex items-center justify-between gap-2 mb-1">
                               <h4 className="font-semibold text-sm">
@@ -326,7 +326,7 @@ export function OrderDetailModal({
                                 </span>
                               )}
                             </div>
-                            {/* Size, SKU, and Barcode */}
+                            {}
                             <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
                               {item.product?.sizeName && (
                                 <span>Size: <span className="font-medium">{item.product.sizeName}</span></span>
@@ -342,15 +342,15 @@ export function OrderDetailModal({
                         </div>
                       </div>
 
-                      {/* Item Pricing */}
+                      {}
                       <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-xs border-t pt-3 mt-3">
-                        {/* Qty */}
+                        {}
                         <div className="space-y-1">
                           <span className="text-muted-foreground text-xs font-medium">Qty:</span>
                           <p className="font-bold text-lg">{item.quantity}</p>
                         </div>
 
-                        {/* Original Price */}
+                        {}
                         {item.hasPromotion && item.currentPrice && (
                           <div className="space-y-1">
                             <span className="text-muted-foreground text-xs font-medium">Original Price:</span>
@@ -358,7 +358,7 @@ export function OrderDetailModal({
                           </div>
                         )}
 
-                        {/* Discount Amount */}
+                        {}
                         {item.hasPromotion && (
                           <div className="space-y-1">
                             <span className="text-muted-foreground text-xs font-medium">Discount:</span>
@@ -366,19 +366,19 @@ export function OrderDetailModal({
                           </div>
                         )}
 
-                        {/* Unit Price */}
+                        {}
                         <div className="space-y-1">
                           <span className="text-muted-foreground text-xs font-medium">Unit Price:</span>
                           <p className="font-bold text-sm">{formatCurrency(item.finalPrice)}</p>
                         </div>
 
-                        {/* Item Total */}
+                        {}
                         <div className="space-y-1">
                           <span className="text-muted-foreground text-xs font-medium">Item Total:</span>
                           <p className="font-bold text-green-600 text-sm">{formatCurrency(item.totalPrice)}</p>
                         </div>
 
-                        {/* Add-ons */}
+                        {}
                         {(item.customizationTotal ?? 0) > 0 && (
                           <div className="space-y-1">
                             <span className="text-muted-foreground text-xs font-medium">Add-ons:</span>
@@ -387,7 +387,7 @@ export function OrderDetailModal({
                         )}
                       </div>
 
-                      {/* Customizations if any */}
+                      {}
                       {item.customizations && item.customizations.length > 0 && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
                           <h5 className="text-xs font-bold text-blue-700 uppercase mb-2">✨ Add-ons / Customizations</h5>
@@ -410,14 +410,14 @@ export function OrderDetailModal({
             )}
 
 
-            {/* Delivery Information */}
+            {}
             {orderData.deliveryAddress && (
               <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
                 <CardHeader className="pb-4 border-b">
                   <CardTitle className="text-lg font-bold text-foreground">📍 Delivery Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-4">
-                  {/* Delivery Details */}
+                  {}
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                     <h4 className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-3">Address & Delivery</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -463,7 +463,7 @@ export function OrderDetailModal({
                               {orderData.deliveryAddress.note}
                             </p>
                             <div className="flex gap-1 flex-shrink-0">
-                              {/* Copy Button */}
+                              {}
                               <button
                                 onClick={() => {
                                   const fullAddress = [
@@ -486,7 +486,7 @@ export function OrderDetailModal({
                               >
                                 📋 Copy
                               </button>
-                              {/* View Google Maps Button */}
+                              {}
                               {orderData.deliveryAddress.latitude &&
                                 orderData.deliveryAddress.longitude && (
                                   <button
@@ -511,7 +511,7 @@ export function OrderDetailModal({
             )}
 
 
-            {/* Status History */}
+            {}
             {orderData.statusHistory && orderData.statusHistory.length > 0 && (
               <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
                 <CardHeader className="pb-4 border-b">
@@ -526,7 +526,7 @@ export function OrderDetailModal({
                         key={history.id}
                         className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 hover:border-slate-300"
                       >
-                        {/* Status Badge and Timestamp */}
+                        {}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
                             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white text-xs font-bold">
@@ -541,7 +541,7 @@ export function OrderDetailModal({
                           </span>
                         </div>
 
-                        {/* Note */}
+                        {}
                         {history.note && (
                           <p className="text-sm text-slate-600 border-l-3 border-blue-500 pl-3 mb-0">
                             {history.note}
@@ -554,7 +554,7 @@ export function OrderDetailModal({
               </Card>
             )}
 
-            {/* System Information */}
+            {}
             <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
               <CardHeader className="pb-4 border-b">
                 <CardTitle className="text-lg font-bold text-foreground">⚙️ System Information</CardTitle>

@@ -51,7 +51,7 @@ const favoriteSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Service 1: Fetch Favorites with Pagination (infinite scroll)
+
       .addCase(fetchFavoritePaginated.pending, (state) => {
         state.loading.fetch = true;
         state.error = null;
@@ -63,7 +63,7 @@ const favoriteSlice = createSlice({
           const newItems = action.payload.content || [];
           const pageNo = action.meta.arg.pageNo;
 
-          // First page: replace items, subsequent pages: append
+
           if (pageNo === 1) {
             state.items = newItems;
           } else {
@@ -83,7 +83,7 @@ const favoriteSlice = createSlice({
         state.error = (action.payload as string) || "Failed to fetch favorites";
       })
 
-      // Service 2: Fetch All Favorites List (legacy - kept for backward compatibility)
+
       .addCase(fetchFavoriteList.pending, (state) => {
         state.loading.fetch = true;
         state.error = null;
@@ -106,42 +106,42 @@ const favoriteSlice = createSlice({
         state.error = (action.payload as string) || "Failed to fetch favorites";
       })
 
-      // Service 2: Toggle Favorite (optimistic - update UI first, API in background)
+
       .addCase(toggleFavorite.pending, (state, action) => {
         const { productId, isFavorited } = action.meta.arg;
         if (isFavorited) {
-          // Currently favorited → remove optimistically
+
           const idx = state.items.findIndex((item) => item.id === productId);
           if (idx >= 0) state.items.splice(idx, 1);
           state.totalItems = Math.max(0, state.totalItems - 1);
         } else {
-          // Not favorited → add optimistically (count only; full item loaded on next fetch)
+
           state.totalItems += 1;
         }
       })
       .addCase(toggleFavorite.fulfilled, (state, action) => {
         state.error = null;
-        // When adding a new favorite, mark stale so favorites page refetches
-        // to get full product data (optimistic only increments count)
+
+
         if (!action.meta.arg.isFavorited) {
           state.loaded = false;
         }
       })
       .addCase(toggleFavorite.rejected, (state, action) => {
-        // Rollback based on what we tried to do
+
         const { isFavorited } = action.meta.arg;
         if (isFavorited) {
-          // We tried to remove → add count back
+
           state.totalItems += 1;
         } else {
-          // We tried to add → subtract count back
+
           state.totalItems = Math.max(0, state.totalItems - 1);
         }
         state.error =
           (action.payload as string) || "Failed to toggle favorite";
       })
 
-      // Service 3: Clear all favorites
+
       .addCase(clearAllFavorites.pending, (state) => {
         state.loading.clearAll = true;
         state.error = null;

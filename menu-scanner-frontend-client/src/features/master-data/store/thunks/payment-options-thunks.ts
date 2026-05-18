@@ -1,7 +1,5 @@
-/**
- * Payment Options Management - Async Thunks
- * Redux thunks for Payment Options CRUD operations
- */
+
+
 
 import { axiosClientWithAuth, axiosClient } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
@@ -11,10 +9,7 @@ import {
 } from "../models/request/payment-options-request";
 import { CreatePaymentOptionData } from "../models/schema/payment-options-schema";
 
-/**
- * Fetch payment options for a specific business (public - no auth required)
- * Used during checkout to display available payment methods
- */
+
 export const fetchPublicPaymentOptionsService = createApiThunk<any, AllPaymentOptionsRequest>(
   "paymentOptions/fetchPublic",
   async (params) => {
@@ -26,9 +21,7 @@ export const fetchPublicPaymentOptionsService = createApiThunk<any, AllPaymentOp
   }
 );
 
-/**
- * Fetch all payment options with filters and pagination
- */
+
 export const fetchAllPaymentOptionsService = createApiThunk<any, AllPaymentOptionsRequest>(
   "paymentOptions/fetchAll",
   async (params) => {
@@ -40,9 +33,7 @@ export const fetchAllPaymentOptionsService = createApiThunk<any, AllPaymentOptio
   }
 );
 
-/**
- * Fetch my business payment options with filters and pagination
- */
+
 export const fetchMyBusinessPaymentOptionsService = createApiThunk<any, AllPaymentOptionsRequest>(
   "paymentOptions/fetchMyBusiness",
   async (params) => {
@@ -54,9 +45,7 @@ export const fetchMyBusinessPaymentOptionsService = createApiThunk<any, AllPayme
   }
 );
 
-/**
- * Fetch payment option by ID
- */
+
 export const fetchPaymentOptionByIdService = createApiThunk<any, string>(
   "paymentOptions/fetchById",
   async (id) => {
@@ -67,9 +56,7 @@ export const fetchPaymentOptionByIdService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Create a new payment option
- */
+
 export const createPaymentOptionService = createApiThunk<
   any,
   CreatePaymentOptionData
@@ -81,9 +68,7 @@ export const createPaymentOptionService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Update payment option
- */
+
 export const updatePaymentOptionService = createApiThunk<
   any,
   UpdatePaymentOptionParams
@@ -95,9 +80,7 @@ export const updatePaymentOptionService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Delete payment option
- */
+
 export const deletePaymentOptionService = createApiThunk<any, string>(
   "paymentOptions/delete",
   async (id) => {

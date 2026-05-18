@@ -3,9 +3,7 @@ import { useUrlParams } from "./use-url-params";
 import { useLocalStorage } from "./use-local-storage";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 
-/**
- * POS Page Filter State
- */
+
 export interface POSFilterState {
   search: string;
   categoryId: string | null;
@@ -13,19 +11,14 @@ export interface POSFilterState {
   hasPromotion: boolean;
 }
 
-/**
- * POS Page Cart State (for localStorage)
- */
+
 export interface POSCartState {
   items: PosPageCartItem[];
   lastUpdated: number;
-  version: number; // For future migration
+  version: number;
 }
 
-/**
- * Combined POS persistence hook
- * Manages filters via URL and cart via localStorage
- */
+
 export function usePOSPersistence() {
   const urlParams = useUrlParams();
   const cartStorage = useLocalStorage<POSCartState | null>("pos:cart", null, {
@@ -37,9 +30,6 @@ export function usePOSPersistence() {
 
   const isInitializedRef = useRef(false);
 
-  // ────────────────────────────────────────────
-  // FILTER MANAGEMENT (URL PARAMS)
-  // ────────────────────────────────────────────
 
   const loadFiltersFromUrl = useCallback((): POSFilterState => {
     return {
@@ -76,9 +66,6 @@ export function usePOSPersistence() {
     urlParams.removeParams(["search", "categoryId", "brandId", "hasPromotion"]);
   }, [urlParams]);
 
-  // ────────────────────────────────────────────
-  // CART MANAGEMENT (LOCALSTORAGE)
-  // ────────────────────────────────────────────
 
   const loadCartFromStorage = useCallback((): PosPageCartItem[] => {
     if (cartStorage.value && cartStorage.value.items) {
@@ -102,9 +89,6 @@ export function usePOSPersistence() {
     cartStorage.removeValue();
   }, [cartStorage]);
 
-  // ────────────────────────────────────────────
-  // COMBINED STATE
-  // ────────────────────────────────────────────
 
   const loadAll = useCallback(
     () => ({
@@ -127,9 +111,6 @@ export function usePOSPersistence() {
     clearCartFromStorage();
   }, [clearFiltersInUrl, clearCartFromStorage]);
 
-  // ────────────────────────────────────────────
-  // HELPERS
-  // ────────────────────────────────────────────
 
   const hasPersistedState = useCallback((): boolean => {
     const params = urlParams.getAllParams();
@@ -148,24 +129,24 @@ export function usePOSPersistence() {
   );
 
   return {
-    // Filters (URL)
+
     loadFiltersFromUrl,
     saveFiltersToUrl,
     clearFiltersInUrl,
 
-    // Cart (localStorage)
+
     loadCartFromStorage,
     saveCartToStorage,
     clearCartFromStorage,
 
-    // Combined
+
     loadAll,
     saveAll,
     clearAll,
     hasPersistedState,
     exportState,
 
-    // State
+
     isInitialized: isInitializedRef.current,
     setInitialized: (value: boolean) => {
       isInitializedRef.current = value;
@@ -173,10 +154,7 @@ export function usePOSPersistence() {
   };
 }
 
-/**
- * Hook to sync Redux state with persistence layer
- * Use this in your main POS page component
- */
+
 export function usePOSSyncPersistence(
   onLoadFilters: (filters: POSFilterState) => void,
   onLoadCart: (items: PosPageCartItem[]) => void,
@@ -185,11 +163,11 @@ export function usePOSSyncPersistence(
   const persistence = usePOSPersistence();
   const initializationTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Initialize on mount
+
   useEffect(() => {
     if (typeof window === "undefined" || persistence.isInitialized) return;
 
-    // Delay initialization to ensure Redux is ready
+
     initializationTimeoutRef.current = setTimeout(() => {
       const { filters, cart } = persistence.loadAll();
 
@@ -211,14 +189,14 @@ export function usePOSSyncPersistence(
     };
   }, [persistence, onLoadFilters, onLoadCart]);
 
-  // Auto-save cart when it changes
+
   useEffect(() => {
     const debounceTimeoutRef = setTimeout(() => {
       const state = persistence.exportState();
       if (state.cart.length > 0) {
         persistence.saveCartToStorage(state.cart);
       }
-    }, 500); // Debounce 500ms
+    }, 500);
 
     return () => clearTimeout(debounceTimeoutRef);
   }, [persistence]);
@@ -226,9 +204,7 @@ export function usePOSSyncPersistence(
   return persistence;
 }
 
-/**
- * Helper to validate cart items before loading
- */
+
 export function validatePOSCartItems(items: any[]): items is PosPageCartItem[] {
   if (!Array.isArray(items)) return false;
   return items.every(
@@ -241,9 +217,7 @@ export function validatePOSCartItems(items: any[]): items is PosPageCartItem[] {
   );
 }
 
-/**
- * Helper to sanitize filters (remove invalid values)
- */
+
 export function sanitizePOSFilters(filters: any): POSFilterState {
   return {
     search: typeof filters.search === "string" ? filters.search : "",

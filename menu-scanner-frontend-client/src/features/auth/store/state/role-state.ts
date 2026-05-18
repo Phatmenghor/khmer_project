@@ -13,7 +13,7 @@ import {
 export const useRolesState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const rolesState = useAppSelector(selectRolesState);
   const rolesData = useAppSelector(selectRoles);
   const rolesContent = useAppSelector(selectRoleContent);

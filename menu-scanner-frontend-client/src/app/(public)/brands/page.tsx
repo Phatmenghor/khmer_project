@@ -73,7 +73,7 @@ export default function BrandsPage() {
           }
         />
 
-        {/* Initial Loading */}
+        {}
         {isInitialLoading && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
             {Array.from({ length: skeletonCount }).map((_, i) => (
@@ -82,7 +82,7 @@ export default function BrandsPage() {
           </div>
         )}
 
-        {/* Empty State */}
+        {}
         {!isInitialLoading && brands.length === 0 && (
           <EmptyState
             icon={Store}
@@ -92,7 +92,7 @@ export default function BrandsPage() {
           />
         )}
 
-        {/* Brands Grid */}
+        {}
         {!isInitialLoading && brands.length > 0 && (
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
@@ -122,7 +122,7 @@ export default function BrandsPage() {
               </div>
             )}
 
-            {/* Sentinel div — callback ref ensures observer connects after mount */}
+            {}
             {hasMore && !isLoadingMore && (
               <div ref={observerTarget} className="h-4" />
             )}

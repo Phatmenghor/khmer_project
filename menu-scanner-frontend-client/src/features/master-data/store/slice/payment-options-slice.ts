@@ -1,7 +1,5 @@
-/**
- * PaymentOptions Management - Redux Slice
- * Manages PaymentOptions state: data, loading, errors, filters, operations
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { PaymentOptionsManagementState } from "../models/type/payment-options-type";
@@ -16,9 +14,7 @@ import {
   updatePaymentOptionService,
 } from "../thunks/payment-options-thunks";
 
-/**
- * Initial state
- */
+
 const initialState: PaymentOptionsManagementState = {
   data: null,
   selectedPaymentOption: null,
@@ -37,9 +33,7 @@ const initialState: PaymentOptionsManagementState = {
   },
 };
 
-/**
- * PaymentOptions slice
- */
+
 const paymentOptionsSlice = createSlice({
   name: "payment-options",
   initialState,
@@ -128,7 +122,7 @@ const paymentOptionsSlice = createSlice({
         state.selectedPaymentOption = action.payload;
         state.operations.isFetchingDetail = false;
 
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (option) => option.id === action.payload.id
@@ -172,7 +166,7 @@ const paymentOptionsSlice = createSlice({
         state.selectedPaymentOption = action.payload;
         state.operations.isUpdating = false;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((option) =>
             option.id === action.payload.id ? action.payload : option
@@ -191,7 +185,7 @@ const paymentOptionsSlice = createSlice({
       })
       .addCase(deletePaymentOptionService.fulfilled, (state, action) => {
         if (state.data) {
-          // Extract ID from payload (could be string or object)
+
           const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
           state.data.content = state.data.content.filter(
             (option) => option.id !== deletedId

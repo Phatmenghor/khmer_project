@@ -54,11 +54,7 @@ const CUSTOM_SELECT_SIZES = {
   },
 } as const;
 
-/**
- * CustomSelect Component
- * Popover-based dropdown (replaces native Select to avoid scroll bugs)
- * Follows SelectField pattern with full accessibility support
- */
+
 export const CustomSelect: React.FC<CustomSelectProps> = ({
   options,
   value = "",
@@ -102,13 +98,13 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             disabled={disabled}
             className={cn(
               "w-full justify-between gap-2 transition-all duration-200",
-              // Default state
+
               "border-input",
-              // Hover state
+
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              // Focus state
+
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
-              // Active/Open state
+
               open && "bg-primary/20 border-primary text-primary",
               sizeConfig.button,
               className,
@@ -122,7 +118,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
               className={cn(
                 "truncate",
                 selectedOption ? "text-foreground" : "text-muted-foreground",
-                // Change text color when open
+
                 open && "text-primary"
               )}
             >

@@ -1,7 +1,5 @@
-/**
- * Categories Management - Redux Slice
- * Manages Categories state: data, loading, errors, filters, operations
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Status } from "@/constants/status/status";
@@ -16,9 +14,7 @@ import {
   toggleCategoriesStatusService,
 } from "../thunks/categories-thunks";
 
-/**
- * Initial state
- */
+
 const initialState: CategoriesManagementState = {
   data: null,
   dataWithProductCount: null,
@@ -38,9 +34,7 @@ const initialState: CategoriesManagementState = {
   },
 };
 
-/**
- * Categories slice
- */
+
 const categoriesSlice = createSlice({
   name: "categories",
   initialState,
@@ -91,7 +85,7 @@ const categoriesSlice = createSlice({
         state.isLoading = false;
       });
 
-    // Handle categories with product count (for admin page)
+
     builder
       .addCase(fetchAllCategoriesWithProductCountService.pending, (state) => {
         state.isLoading = true;
@@ -116,7 +110,7 @@ const categoriesSlice = createSlice({
         state.selectedCategories = action.payload;
         state.operations.isFetchingDetail = false;
 
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (user) => user.id === action.payload.id
@@ -160,7 +154,7 @@ const categoriesSlice = createSlice({
         state.selectedCategories = action.payload;
         state.operations.isUpdating = false;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((user) =>
             user.id === action.payload.id ? action.payload : user
@@ -178,10 +172,10 @@ const categoriesSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteCategoriesService.fulfilled, (state, action) => {
-        // Extract ID from payload (could be string or object)
+
         const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
 
-        // Update both data and dataWithProductCount
+
         if (state.data) {
           state.data.content = state.data.content.filter(
             (user) => user.id !== deletedId
@@ -214,10 +208,10 @@ const categoriesSlice = createSlice({
         state.operations.isDeleting = false;
       });
 
-    // Handle toggle status (background update without loading state)
+
     builder
       .addCase(toggleCategoriesStatusService.fulfilled, (state, action) => {
-        // Update in both lists
+
         if (state.data) {
           state.data.content = state.data.content.map((category) =>
             category.id === action.payload.id ? action.payload : category

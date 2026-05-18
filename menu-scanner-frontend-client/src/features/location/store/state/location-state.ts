@@ -24,10 +24,7 @@ import {
   LocationUpdateRequest,
 } from "../models/request/location-request";
 
-/**
- * Custom state hook for user location management.
- * Encapsulates Redux dispatch + selectors into a single composable hook.
- */
+
 export const useLocationState = () => {
   const dispatch = useAppDispatch();
 
@@ -45,7 +42,7 @@ export const useLocationState = () => {
   const reset = useCallback(() => dispatch(resetLocationState()), [dispatch]);
 
   return {
-    // ── State ──────────────────────────────────────────────────────────
+
     locations: useAppSelector(selectLocations),
     data: useAppSelector(selectLocationData),
     defaultLocation: useAppSelector(selectDefaultLocation),
@@ -53,12 +50,12 @@ export const useLocationState = () => {
     locationCount: useAppSelector(selectLocationCount),
     locationPagination: useAppSelector(selectLocationPagination),
 
-    // ── Loading / Error ────────────────────────────────────────────────
+
     isLoading: useAppSelector(selectLocationIsLoading),
     error: useAppSelector(selectLocationError),
     operations: useAppSelector(selectLocationOperations),
 
-    // ── Actions ────────────────────────────────────────────────────────
+
     fetchAll,
     fetchAllWithPagination,
     create,
@@ -68,7 +65,7 @@ export const useLocationState = () => {
     clearError,
     reset,
 
-    // ── Raw dispatch ──────────────────────────────────────────────────
+
     dispatch,
   };
 };

@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import Autoplay from "embla-carousel-autoplay";
 
-// App images constants
+
 const appImages = {
   NoImage: "/assets/image/no-image.png",
 };
@@ -25,10 +25,7 @@ interface BannerSectionProps {
   error: string | null;
 }
 
-/**
- * Memoized component to prevent unnecessary re-renders
- * Only re-renders when props actually change (banners, loading, error)
- */
+
 const BannerSectionComponent = ({
   banners,
   loading,
@@ -40,7 +37,7 @@ const BannerSectionComponent = ({
     new Set(),
   );
 
-  // Create autoplay plugin with smooth settings
+
   const autoplayPlugin = React.useRef(
     Autoplay({
       delay: 5000,
@@ -137,7 +134,7 @@ const BannerSectionComponent = ({
               const totalBanners = banners.length;
 
               if (totalBanners <= maxDots) {
-                // Show all dots if less than or equal to max
+
                 return banners.map((_, idx) => (
                   <button
                     key={idx}
@@ -157,12 +154,12 @@ const BannerSectionComponent = ({
                 ));
               }
 
-              // Show subset of dots with current slide centered
+
               const half = Math.floor(maxDots / 2);
               let startIdx = Math.max(0, current - half);
               let endIdx = Math.min(totalBanners, startIdx + maxDots);
 
-              // Adjust if we're at the end
+
               if (endIdx - startIdx < maxDots) {
                 startIdx = Math.max(0, endIdx - maxDots);
               }
@@ -195,8 +192,5 @@ const BannerSectionComponent = ({
   );
 };
 
-/**
- * Export memoized component
- * Prevents re-renders when parent updates but props remain the same
- */
+
 export const BannerSection = React.memo(BannerSectionComponent);

@@ -1,7 +1,5 @@
-/**
- * Social Auth Feature - Async Thunks
- * Redux thunks for Telegram/Google social authentication
- */
+
+
 
 import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
@@ -16,10 +14,7 @@ import {
   RefreshTokenResponse,
 } from "../models/response/social-auth-response";
 
-/**
- * Social authenticate thunk
- * For login/registration with Telegram or Google
- */
+
 export const socialAuthenticateService = createApiThunk<
   SocialAuthResponse,
   SocialAuthRequest
@@ -31,10 +26,7 @@ export const socialAuthenticateService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Telegram authenticate helper
- * Converts Telegram widget data to API request
- */
+
 export const telegramAuthenticateService = createApiThunk<
   SocialAuthResponse,
   {
@@ -57,10 +49,7 @@ export const telegramAuthenticateService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Sync social account thunk
- * Link existing account to Telegram/Google
- */
+
 export const syncSocialAccountService = createApiThunk<
   SocialSyncResponse,
   SocialAuthRequest
@@ -72,10 +61,7 @@ export const syncSocialAccountService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Get current social sync status thunk
- * Fetches connected social accounts for the current user
- */
+
 export const getSocialSyncService = createApiThunk<SocialSyncResponse, void>(
   "auth/getSocialSync",
   async () => {
@@ -84,10 +70,7 @@ export const getSocialSyncService = createApiThunk<SocialSyncResponse, void>(
   }
 );
 
-/**
- * Telegram sync helper
- * Converts Telegram widget data to sync request
- */
+
 export const syncTelegramAccountService = createApiThunk<
   SocialSyncResponse,
   {
@@ -110,10 +93,7 @@ export const syncTelegramAccountService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Unsync social account thunk
- * Disconnect Telegram/Google from account
- */
+
 export const unsyncSocialAccountService = createApiThunk<
   SocialSyncResponse,
   "TELEGRAM" | "GOOGLE"
@@ -124,10 +104,7 @@ export const unsyncSocialAccountService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Refresh token thunk
- * Get new access token using refresh token
- */
+
 export const refreshTokenService = createApiThunk<
   RefreshTokenResponse,
   RefreshTokenRequest
@@ -136,19 +113,15 @@ export const refreshTokenService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Logout thunk
- * Invalidate current session on server
- */
+
 export const logoutService = createApiThunk<void, void>(
   "auth/logout",
   async () => {
     try {
       await axiosClientWithAuth.post("/api/v1/users/logout", {});
     } catch (err: any) {
-      // Logout endpoint might fail, but we'll clear tokens locally anyway
-      // Don't throw - continue to clear local tokens
+
+
     }
   }
 );
-

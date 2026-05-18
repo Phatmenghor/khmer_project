@@ -27,7 +27,7 @@ export default function PageProgressBar() {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
 
-      // Don't track clicks on buttons, inputs, or form elements - only direct links!
+
       if (target.tagName === "BUTTON" || target.tagName === "INPUT" || target.closest("button") || target.closest("input")) {
         return;
       }
@@ -35,7 +35,7 @@ export default function PageProgressBar() {
       const anchor = target.closest("a");
 
       if (anchor && anchor.href) {
-        // Skip if explicitly disabled or inside a dialog
+
         if (anchor.hasAttribute("data-no-progress") || anchor.closest('[role="dialog"]')) {
           return;
         }

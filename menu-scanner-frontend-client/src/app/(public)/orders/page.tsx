@@ -89,19 +89,19 @@ export default function OrdersPage() {
   });
   const [cancelingOrderId, setCancelingOrderId] = useState<string | null>(null);
 
-  // Hydration fix
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Smart scroll restoration: Keep position on navigation, reset on browser refresh
+
   useScrollRestoration({
     enabled: true,
     restoreOnMount: true,
     customKey: "orders",
   });
 
-  // Build current filters string for comparison
+
   const currentFilters = JSON.stringify({
     status: filters.status,
     paymentStatus: filters.paymentStatus,
@@ -109,7 +109,7 @@ export default function OrdersPage() {
     businessId: profile?.businessId || AppDefault.BUSINESS_ID,
   });
 
-  // Build display tabs from Redux status tabs
+
   useEffect(() => {
     const tabs: StatusTab[] = [
       { value: "", label: "All Orders" },
@@ -121,7 +121,7 @@ export default function OrdersPage() {
     setDisplayTabs(tabs);
   }, [statusTabs]);
 
-  // Load orders function
+
   const loadOrders = async (pageNo: number) => {
     await dispatch(
       fetchMyOrdersService({
@@ -135,21 +135,21 @@ export default function OrdersPage() {
     );
   };
 
-  // Main fetch effect
+
   useEffect(() => {
     if (!authReady || !isAuthenticated || !mounted) return;
 
     const hasOrdersInStore = orders.length > 0;
     const filtersMatch = loadedFilters === currentFilters;
 
-    // If data exists and filters match, don't fetch
+
     if (hasOrdersInStore && filtersMatch) {
       return;
     }
 
-    // Need to fetch if filters changed or no data
+
     if (!filtersMatch || !hasOrdersInStore) {
-      // Clear old data if filters changed
+
       if (!filtersMatch && hasOrdersInStore) {
         dispatch(clearOrders());
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -174,13 +174,13 @@ export default function OrdersPage() {
   };
 
   const handleCancelOrder = (order: Order) => {
-    // Only allow canceling PENDING orders
+
     if (order.orderStatus !== "PENDING") {
       showToast.error(Messages.orders.pendingOnly);
       return;
     }
 
-    // Open cancel modal instead of calling API directly
+
     setCancelModalState({
       isOpen: true,
       orderId: order.id,
@@ -198,21 +198,21 @@ export default function OrdersPage() {
     try {
       setCancelingOrderId(orderId);
 
-      // Call the cancel order service from Redux
+
       await reduxDispatch(cancelOrderService(orderId)).unwrap();
 
       showToast.success(Messages.orders.cancelled);
 
-      // Close the modal
+
       setCancelModalState({ isOpen: false, orderId: "", orderNumber: "" });
 
-      // Reload orders to reflect the cancellation
+
       loadOrders(currentPage);
     } catch (error: unknown) {
       const errorMessage =
         (error as { message?: string })?.message || "Failed to cancel order. Please try again.";
       showToast.error(errorMessage);
-      throw error; // Re-throw to let the modal handle it
+      throw error;
     } finally {
       setCancelingOrderId(null);
     }
@@ -224,11 +224,6 @@ export default function OrdersPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Page size is now fixed at 15 items per page
-  // const handlePageSizeChange = (size: number) => {
-  //   dispatch(setGlobalPageSize(size));
-  //   setCurrentPage(1);
-  // };
 
   const handleStatusChange = (value: string) => {
     setFilters((prev) => ({ ...prev, status: value }));
@@ -247,7 +242,7 @@ export default function OrdersPage() {
 
   const hasActiveFilters = filters.status || filters.paymentStatus || filters.search;
 
-  // Create table columns
+
   const tableColumns = useMemo(
     () => createOrderTableColumns(handleViewOrder, handleCancelOrder, cancelingOrderId, pagination),
     [cancelingOrderId, pagination]
@@ -255,7 +250,7 @@ export default function OrdersPage() {
 
   const totalOrders = pagination.totalElements;
 
-  // Prevent hydration mismatch
+
   if (!mounted || !authReady) {
     return <OrdersPageSkeleton />;
   }
@@ -284,18 +279,18 @@ export default function OrdersPage() {
 
   return (
     <PageContainer className="min-h-screen flex flex-col py-6 sm:py-8">
-      {/* Header */}
+      {}
       <PageHeader
         title="My Orders"
         subtitle={`You have ${totalOrders} order${totalOrders !== 1 ? "s" : ""}`}
         icon={ShoppingBag}
       />
 
-      {/* Filters Section */}
+      {}
       <div className="mt-8 mb-6 space-y-4">
-        {/* Search and Filters Row - Search left, Filters right */}
+        {}
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end w-full">
-          {/* Search Bar - Left side, takes available space */}
+          {}
           <div className="flex-1 min-w-0 w-full sm:w-auto">
             <label className="text-sm font-semibold text-foreground mb-2 block">
               Search Orders
@@ -326,9 +321,9 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          {/* Filters and Clear Button Container - Right side */}
+          {}
           <div className="flex flex-shrink-0 gap-3 items-end w-full sm:w-auto">
-            {/* Order Status Filter */}
+            {}
             <div className="w-auto flex-shrink-0
               [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
               [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
@@ -346,7 +341,7 @@ export default function OrdersPage() {
               />
             </div>
 
-            {/* Payment Status Filter */}
+            {}
             <div className="w-auto flex-shrink-0
               [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
               [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
@@ -361,7 +356,7 @@ export default function OrdersPage() {
               />
             </div>
 
-            {/* Clear Filters Button */}
+            {}
             {hasActiveFilters && (
               <CustomButton
                 onClick={handleClearFilters}
@@ -375,7 +370,7 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        {/* Active Filters Display */}
+        {}
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2 pt-2">
             {filters.status && (
@@ -415,7 +410,7 @@ export default function OrdersPage() {
         )}
       </div>
 
-      {/* Data Table */}
+      {}
       {!isAuthenticated ? (
         <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-6">
           <div className="flex items-start gap-4">
@@ -482,14 +477,14 @@ export default function OrdersPage() {
         />
       )}
 
-      {/* Detail Modal */}
+      {}
       <CustomerOrderDetailModal
         orderId={detailModalState.orderId}
         isOpen={detailModalState.isOpen}
         onClose={() => setDetailModalState({ isOpen: false, orderId: "" })}
       />
 
-      {/* Cancel Order Modal */}
+      {}
       <CancelOrderModal
         isOpen={cancelModalState.isOpen}
         onClose={() =>
@@ -503,7 +498,7 @@ export default function OrdersPage() {
   );
 }
 
-// Helper function to create table columns
+
 function createOrderTableColumns(
   handleViewOrder: (order: Order) => void,
   handleCancelOrder: (order: Order) => void,

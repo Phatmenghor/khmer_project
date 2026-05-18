@@ -4,7 +4,7 @@ import { ToggleFavoriteRequest } from "../models/request/favorite-request";
 import { AllFavoriteResponseModel } from "../models/response/favorite-response";
 import { AppDefault } from "@/constants/app-resource/default/default";
 
-// Service 1: Fetch favorites list with pagination
+
 export const fetchFavoritePaginated = createApiThunk<
   AllFavoriteResponseModel,
   { pageNo: number; pageSize: number }
@@ -19,7 +19,7 @@ export const fetchFavoritePaginated = createApiThunk<
   },
 );
 
-// Service 2 (Legacy): Fetch all favorites list - kept for backward compatibility
+
 export const fetchFavoriteList = createApiThunk<AllFavoriteResponseModel, void>(
   "product-favorites/fetchFavoriteList",
   async () => {
@@ -31,7 +31,7 @@ export const fetchFavoriteList = createApiThunk<AllFavoriteResponseModel, void>(
   },
 );
 
-// Service 3: Toggle favorite (auto add if not exist, remove if exist - dynamic)
+
 export const toggleFavorite = createApiThunk<void, ToggleFavoriteRequest>(
   "product-favorites/toggleFavorite",
   async (data) => {
@@ -41,7 +41,7 @@ export const toggleFavorite = createApiThunk<void, ToggleFavoriteRequest>(
   },
 );
 
-// Service 4: Clear all favorites
+
 export const clearAllFavorites = createApiThunk<void, void>(
   "product-favorites/clearAllFavorites",
   async () => {

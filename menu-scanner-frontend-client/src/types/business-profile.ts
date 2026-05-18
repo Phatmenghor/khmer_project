@@ -1,55 +1,53 @@
-/**
- * Business Profile Types
- * Multi-tenant business portfolio system
- */
+
+
 
 export interface BusinessProfile {
-  // Basic Information
+
   id: string;
-  slug: string; // URL-friendly identifier (e.g., "my-coffee-shop")
+  slug: string;
   businessName: string;
   tagline?: string;
   description: string;
   logo?: string;
   coverImage?: string;
 
-  // Business Type & Industry
+
   businessType: BusinessType;
   industry: string;
 
-  // Contact Information
+
   contact: ContactInfo;
 
-  // Social Media
+
   socialMedia?: SocialMediaLinks;
 
-  // Business Hours
+
   businessHours?: BusinessHours[];
 
-  // Gallery
+
   gallery?: GalleryItem[];
 
-  // Features & Services
+
   features?: string[];
   services?: Service[];
 
-  // Team Members
+
   team?: TeamMember[];
 
-  // Customer Reviews (Enhanced)
+
   reviews?: CustomerReview[];
 
-  // Stats/Achievements
+
   stats?: BusinessStats;
 
-  // Theme & Customization
+
   theme?: ThemeSettings;
 
-  // Visibility & Settings
+
   isPublished: boolean;
   customDomain?: string;
 
-  // Metadata
+
   createdAt: string;
   updatedAt: string;
 }
@@ -69,7 +67,7 @@ export interface ContactInfo {
   phone: string;
   whatsapp?: string;
   address: Address;
-  mapLink?: string; // Google Maps link
+  mapLink?: string;
 }
 
 export interface Address {
@@ -93,8 +91,8 @@ export interface SocialMediaLinks {
 export interface BusinessHours {
   day: DayOfWeek;
   isOpen: boolean;
-  openTime?: string; // "09:00"
-  closeTime?: string; // "18:00"
+  openTime?: string;
+  closeTime?: string;
   is24Hours?: boolean;
 }
 
@@ -138,38 +136,38 @@ export interface TeamMember {
   };
 }
 
-// Enhanced Customer Review System
+
 export interface CustomerReview {
   id: string;
   customerName: string;
   customerEmail?: string;
   customerPhone?: string;
   customerPhoto?: string;
-  rating: number; // 1-5
+  rating: number;
   comment: string;
-  title?: string; // Review title/headline
+  title?: string;
 
-  // Rich details
-  visitDate?: string; // When they visited/used service
-  serviceUsed?: string; // Which service/product they reviewed
+
+  visitDate?: string;
+  serviceUsed?: string;
   wouldRecommend?: boolean;
 
-  // Review metadata
-  isVerified?: boolean; // Verified purchase/visit
-  isApproved: boolean; // Admin approval
+
+  isVerified?: boolean;
+  isApproved: boolean;
   createdAt: string;
 
-  // Optional response from business
+
   businessResponse?: {
     message: string;
     respondedAt: string;
-    respondedBy?: string; // Staff name
+    respondedBy?: string;
   };
 
-  // Helpful votes
+
   helpfulCount?: number;
 
-  // Additional photos from customer
+
   photos?: string[];
 }
 
@@ -193,7 +191,7 @@ export interface ThemeSettings {
   layout?: "modern" | "classic" | "minimal" | "bold";
 }
 
-// Section Visibility Settings
+
 export interface ProfileSectionSettings {
   showHero: boolean;
   showAbout: boolean;
@@ -207,7 +205,7 @@ export interface ProfileSectionSettings {
   showBusinessHours: boolean;
 }
 
-// Form data for editing
+
 export interface BusinessProfileFormData {
   businessName: string;
   tagline: string;

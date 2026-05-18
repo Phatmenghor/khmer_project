@@ -24,9 +24,7 @@ export const selectError = (state: RootState) => state.roles.error;
 export const selectFilters = (state: RootState) => state.roles.filters;
 export const selectOperations = (state: RootState) => state.roles.operations;
 
-/**
- * Select pagination metadata
- */
+
 export const selectPagination = createSelector([selectRoles], (data) => ({
   currentPage: data?.pageNo || 1,
   totalPages: data?.totalPages || 1,

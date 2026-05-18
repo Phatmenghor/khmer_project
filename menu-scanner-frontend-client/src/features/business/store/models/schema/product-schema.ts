@@ -1,9 +1,7 @@
-// product.schema.ts
+
 import { z } from "zod";
 
-/**
- * Image Schema
- */
+
 export const imageSchema = z.object({
   id: z.string().optional(),
   imageUrl: z
@@ -12,9 +10,7 @@ export const imageSchema = z.object({
     .or(z.string().min(1, "Image URL required")),
 });
 
-/**
- * Customization Schema
- */
+
 export const customizationSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Customization name is required"),
@@ -24,9 +20,7 @@ export const customizationSchema = z.object({
     .optional(),
 });
 
-/**
- * Size Schema with Promotion Validation
- */
+
 export const sizeSchema = z
   .object({
     id: z.string().optional(),
@@ -44,7 +38,7 @@ export const sizeSchema = z
   })
   .refine(
     (data) => {
-      // If promotion type is set and not "NONE", validate promotion fields
+
       if (data.promotionType && data.promotionType !== "NONE") {
         return (
           data.promotionValue !== undefined &&
@@ -65,7 +59,7 @@ export const sizeSchema = z
   )
   .refine(
     (data) => {
-      // Validate that end date is after start date
+
       if (
         data.promotionType &&
         data.promotionType !== "NONE" &&
@@ -84,9 +78,7 @@ export const sizeSchema = z
     }
   );
 
-/**
- * Base Product Schema (shared fields)
- */
+
 const baseProductSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   description: z.string().min(1, "Description is required"),
@@ -99,7 +91,7 @@ const baseProductSchema = z.object({
     .url("Invalid main image URL")
     .or(z.string().min(1, "Main image required")),
 
-  // Pricing - optional because it depends on sizes
+
   price: z.number().min(0, "Price must be positive").optional(),
   promotionType: z.string().optional(),
   promotionValue: z
@@ -115,13 +107,11 @@ const baseProductSchema = z.object({
   status: z.string().min(1, "Status is required"),
 });
 
-/**
- * Create Product Schema with Validations
- */
+
 export const createProductSchema = baseProductSchema
   .refine(
     (data) => {
-      // If no sizes, price is required
+
       if (!data.sizes || data.sizes.length === 0) {
         return data.price !== undefined && data.price >= 0;
       }
@@ -134,7 +124,7 @@ export const createProductSchema = baseProductSchema
   )
   .refine(
     (data) => {
-      // If no sizes and promotion type is set (not NONE), validate promotion fields
+
       if (
         (!data.sizes || data.sizes.length === 0) &&
         data.promotionType &&
@@ -159,7 +149,7 @@ export const createProductSchema = baseProductSchema
   )
   .refine(
     (data) => {
-      // Validate that end date is after start date for main product
+
       if (
         (!data.sizes || data.sizes.length === 0) &&
         data.promotionType &&
@@ -179,16 +169,14 @@ export const createProductSchema = baseProductSchema
     }
   );
 
-/**
- * Update Product Schema with Validations
- */
+
 export const updateProductSchema = baseProductSchema
   .extend({
     id: z.string().min(1, "Product ID is required"),
   })
   .refine(
     (data) => {
-      // If no sizes, price is required
+
       if (!data.sizes || data.sizes.length === 0) {
         return data.price !== undefined && data.price >= 0;
       }
@@ -201,7 +189,7 @@ export const updateProductSchema = baseProductSchema
   )
   .refine(
     (data) => {
-      // If no sizes and promotion type is set (not NONE), validate promotion fields
+
       if (
         (!data.sizes || data.sizes.length === 0) &&
         data.promotionType &&
@@ -226,7 +214,7 @@ export const updateProductSchema = baseProductSchema
   )
   .refine(
     (data) => {
-      // Validate that end date is after start date for main product
+
       if (
         (!data.sizes || data.sizes.length === 0) &&
         data.promotionType &&
@@ -246,9 +234,7 @@ export const updateProductSchema = baseProductSchema
     }
   );
 
-/**
- * Combined form data type - includes all possible fields
- */
+
 export type ProductFormData = {
   id?: string;
   name: string;

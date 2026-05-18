@@ -25,9 +25,7 @@ export const selectFilters = (state: RootState) => state.sessions.filters;
 
 export const selectOperations = (state: RootState) => state.sessions.operations;
 
-/**
- * Select pagination metadata
- */
+
 export const selectPagination = createSelector(
   [selectDeliveryOptions],
   (data) => ({

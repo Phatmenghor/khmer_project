@@ -31,7 +31,7 @@ export function BrandCard({ brand, className }: BrandCardProps) {
         )}
       >
         <CardContent className="p-4 sm:p-5 flex flex-col items-center justify-center gap-3">
-          {/* Logo Container */}
+          {}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
             {!imageError && brand.imageUrl ? (
               <>
@@ -58,14 +58,14 @@ export function BrandCard({ brand, className }: BrandCardProps) {
             )}
           </div>
 
-          {/* Brand Name - always visible */}
+          {}
           <div className="text-center w-full">
             <h3 className="font-semibold text-sm sm:text-base line-clamp-2 text-foreground group-hover:text-primary transition-colors leading-snug">
               {brand.name}
             </h3>
           </div>
 
-          {/* Product Count - always visible */}
+          {}
           {brand.activeProducts > 0 && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground group-hover:text-primary/80 transition-colors">
               <ShoppingBag className="h-3 w-3" />

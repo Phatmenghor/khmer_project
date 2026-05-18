@@ -1,7 +1,5 @@
-/**
- * User Management - Redux Slice
- * Manages user state: data, loading, errors, filters, operations
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
@@ -16,9 +14,7 @@ import {
 import { UserManagementState } from "../models/type/users-types";
 import { AccountStatus, UserRole } from "@/constants/status/status";
 
-/**
- * Initial state
- */
+
 const initialState: UserManagementState = {
   data: null,
   selectedUser: null,
@@ -39,14 +35,12 @@ const initialState: UserManagementState = {
   },
 };
 
-/**
- * Users slice
- */
+
 const usersSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    // Filter actions
+
     setSearchFilter: (state, action: PayloadAction<string>) => {
       state.filters.search = action.payload;
       state.filters.pageNo = 1;
@@ -66,7 +60,7 @@ const usersSlice = createSlice({
       state.filters.pageNo = action.payload;
     },
 
-    // Utility actions
+
     clearError: (state) => {
       state.error = null;
     },
@@ -85,7 +79,7 @@ const usersSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    // Fetch users handlers - ONLY affects list loading
+
     builder
       .addCase(fetchAllUsersService.pending, (state) => {
         state.isLoading = true;
@@ -100,7 +94,7 @@ const usersSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Fetch user by ID handlers - USE SEPARATE LOADING STATE
+
     builder
       .addCase(fetchUserByIdService.pending, (state) => {
         state.operations.isFetchingDetail = true;
@@ -111,7 +105,7 @@ const usersSlice = createSlice({
         state.operations.isFetchingDetail = false;
         state.selectedUser = action.payload;
 
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (user) => user.id === action.payload.id
@@ -126,7 +120,7 @@ const usersSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Create user handlers
+
     builder
       .addCase(createUserService.pending, (state) => {
         state.operations.isCreating = true;
@@ -147,7 +141,7 @@ const usersSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Update user handlers
+
     builder
       .addCase(updateUserService.pending, (state) => {
         state.operations.isUpdating = true;
@@ -157,7 +151,7 @@ const usersSlice = createSlice({
         state.operations.isUpdating = false;
         state.selectedUser = action.payload;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((user) =>
             user.id === action.payload.id ? action.payload : user
@@ -169,7 +163,7 @@ const usersSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Delete user handlers
+
     builder
       .addCase(deleteUserService.pending, (state) => {
         state.operations.isDeleting = true;
@@ -178,7 +172,7 @@ const usersSlice = createSlice({
       .addCase(deleteUserService.fulfilled, (state, action) => {
         state.operations.isDeleting = false;
         if (state.data) {
-          // Extract ID from payload (could be string or object)
+
           const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
           state.data.content = state.data.content.filter(
             (user) => user.id !== deletedId
@@ -197,7 +191,7 @@ const usersSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Toggle user status handlers
+
     builder
       .addCase(toggleUserStatusService.pending, (state) => {
         state.error = null;
@@ -213,7 +207,7 @@ const usersSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Admin change password handlers
+
     builder
       .addCase(adminChangePasswordService.pending, (state) => {
         state.operations.isResettingPassword = true;

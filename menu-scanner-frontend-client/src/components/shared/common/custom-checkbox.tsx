@@ -17,19 +17,7 @@ interface CustomCheckboxProps {
   ariaLabel?: string;
 }
 
-/**
- * CustomCheckbox - Modern, accessible checkbox with smooth animations
- * @param checked - Whether checkbox is checked
- * @param onCheckedChange - Callback when checkbox state changes
- * @param disabled - Whether checkbox is disabled
- * @param id - HTML id attribute
- * @param className - Additional CSS classes
- * @param size - Size variant: sm (16px), md (20px), lg (24px), xl (32px)
- * @param variant - Style variant: default, accent, outline
- * @param label - Optional label text
- * @param title - Tooltip text
- * @param ariaLabel - ARIA label for accessibility
- */
+
 export function CustomCheckbox({
   checked = false,
   onCheckedChange,
@@ -42,7 +30,7 @@ export function CustomCheckbox({
   title,
   ariaLabel,
 }: CustomCheckboxProps) {
-  // Size configuration (20% smaller)
+
   const sizeConfig = {
     sm: {
       box: "w-[12.8px] h-[12.8px]",
@@ -70,7 +58,7 @@ export function CustomCheckbox({
     },
   };
 
-  // Modern variant configuration with smooth transitions
+
   const variantConfig = {
     default: {
       unchecked:
@@ -101,24 +89,24 @@ export function CustomCheckbox({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onCheckedChange && !disabled) {
       onCheckedChange(e.target.checked);
-      // Blur input to allow scroll immediately after click
+
       e.currentTarget.blur();
     }
   };
 
   const baseCheckboxClass = cn(
-    // Base styles
+
     "relative inline-flex items-center justify-center rounded-md",
-    // Smooth transitions and animations
+
     "transition-all duration-200 ease-out",
-    // Size
+
     config.box,
-    // State colors
+
     checked ? varConfig.checked : varConfig.unchecked,
-    // Cursor and disabled state
+
     !disabled && "cursor-pointer",
     disabled && "opacity-50 cursor-not-allowed",
-    // Focus ring for accessibility
+
     "focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-1",
     className
   );
@@ -155,7 +143,7 @@ export function CustomCheckbox({
     </>
   );
 
-  // Wrapper for label (if provided)
+
   if (label) {
     return (
       <label className="flex items-center gap-2 cursor-pointer group">
@@ -178,7 +166,7 @@ export function CustomCheckbox({
     );
   }
 
-  // Checkbox only (no label)
+
   return (
     <div className={baseCheckboxClass} title={title}>
       {checkboxContent}

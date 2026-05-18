@@ -1,7 +1,5 @@
-/**
- * Banner Management - Async Thunks
- * Redux thunks for banner CRUD operations
- */
+
+
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
@@ -11,9 +9,7 @@ import {
 } from "../models/request/banner-request";
 import { CreateBannerData } from "../models/schema/banner-schema";
 
-/**
- * Fetch all banner
- */
+
 export const fetchAllBannerService = createApiThunk<any, AllBannerRequest>(
   "banners/fetchAll",
   async (params) => {
@@ -25,9 +21,7 @@ export const fetchAllBannerService = createApiThunk<any, AllBannerRequest>(
   }
 );
 
-/**
- * Fetch banner by ID
- */
+
 export const fetchBannerByIdService = createApiThunk<any, string>(
   "banners/fetchById",
   async (bannerId) => {
@@ -38,9 +32,7 @@ export const fetchBannerByIdService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Create banner
- */
+
 export const createBannerService = createApiThunk<any, CreateBannerData>(
   "banners/create",
   async (bannerData) => {
@@ -52,9 +44,7 @@ export const createBannerService = createApiThunk<any, CreateBannerData>(
   }
 );
 
-/**
- * Update banner
- */
+
 export const updateBannerService = createApiThunk<any, UpdateBannerParams>(
   "banners/update",
   async ({ id, payload }) => {
@@ -66,9 +56,7 @@ export const updateBannerService = createApiThunk<any, UpdateBannerParams>(
   }
 );
 
-/**
- * Delete banner
- */
+
 export const deleteBannerService = createApiThunk<any, string>(
   "banners/delete",
   async (bannerId) => {
@@ -79,9 +67,7 @@ export const deleteBannerService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Toggle banner status
- */
+
 export const toggleBannerStatusService = createApiThunk<any, any>(
   "banners/toggleStatus",
   async (banner) => {

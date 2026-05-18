@@ -36,7 +36,7 @@ export function BrandDetailModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTitle className="sr-only">Brand Details - {brand?.name}</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-semibold text-foreground">
@@ -48,22 +48,22 @@ export function BrandDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Brand Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Brand Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Labels Row - Top alignment */}
+                {}
                 <div className="flex flex-col md:flex-row gap-6">
-                  {/* Left label - Brand Name */}
+                  {}
                   <div className="w-full md:w-1/2">
                     <p className="text-sm font-medium text-foreground">Brand Name</p>
                   </div>
-                  {/* Right label - Brand Image */}
+                  {}
                   {brand.imageUrl && (
                     <div className="w-full md:w-1/2">
                       <p className="text-sm font-medium text-foreground">Brand Image</p>
@@ -71,9 +71,9 @@ export function BrandDetailModal({
                   )}
                 </div>
 
-                {/* Content Row - Fields and Image */}
+                {}
                 <div className="flex flex-col md:flex-row gap-6">
-                  {/* Basic Info - Left Side (50%) */}
+                  {}
                   <div className="w-full md:w-1/2 space-y-4">
                     <p className="text-foreground">{brand.name || "---"}</p>
                     <DisplayField label="Description" value={brand.description || "---"} />
@@ -82,7 +82,7 @@ export function BrandDetailModal({
                     <DisplayField label="Active Products" value={formatProductCount(brand.activeProducts)} />
                   </div>
 
-                  {/* Brand Image - Right Side (50%) */}
+                  {}
                   {brand.imageUrl && (
                     <div className="w-full md:w-1/2">
                       <div className="h-40 w-40 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
@@ -98,7 +98,7 @@ export function BrandDetailModal({
               </CardContent>
             </Card>
 
-            {/* System Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>System Information</CardTitle>

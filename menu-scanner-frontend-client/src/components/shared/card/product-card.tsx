@@ -41,7 +41,7 @@ interface ProductCardProps {
   className?: string;
 }
 
-// Global cache to track loaded images across all product cards
+
 const imageLoadedCache = new Set<string>();
 
 function ProductCardComponent({ product, className }: ProductCardProps) {
@@ -51,29 +51,26 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sizePickerProduct, setSizePickerProduct] = useState<ProductDetailResponseModel | null>(null);
-  // Local state for instant UI updates - displays immediately when clicking +/-
-  // Redux and API updates happen in background
+
+
   const [localQuantity, setLocalQuantity] = useState<number | null>(null);
 
-  // Use optimized memoized selectors - only subscribe to this product's quantity
-  // CRITICAL: This component only re-renders when THIS product's quantity changes,
-  // not when any other cart item changes!
+
   const quantity = useSelector((state: RootState) => selectProductQuantityInCart(state, product.id, null));
   const totalQuantity = useSelector((state: RootState) => selectProductTotalQuantity(state, product.id));
 
-  // Use local quantity if set (for instant UI updates), fallback to Redux quantity
+
   const displayQuantityValue = localQuantity !== null ? localQuantity : quantity;
 
-  // Sync local state with Redux when Redux updates
+
   useEffect(() => {
     if (localQuantity !== null && localQuantity === quantity) {
-      // API response confirmed, clear local state override
+
       setLocalQuantity(null);
     }
   }, [quantity, localQuantity]);
 
-  // Derive from the favorites store (authoritative) — falls back to prop when not yet loaded.
-  // This fixes the bug where navigating away and back shows stale isFavorited from listing data.
+
   const isFavoritedFromStore = favLoaded
     ? favoriteItems.some((item) => item.id === product.id)
     : (product?.isFavorited ?? false);
@@ -82,13 +79,11 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     setIsFavorited(isFavoritedFromStore);
   }, [isFavoritedFromStore]);
 
-  // Debounced cart API calls
+
   const { debouncedUpdate } = useCartDebounce(cartDispatch);
 
-  // Get current cart item for this product (without size)
-  // This is used to determine if we show Add to Cart or +/- buttons
-  const isInCart = totalQuantity > 0;
 
+  const isInCart = totalQuantity > 0;
 
 
   const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.NoImage);
@@ -110,21 +105,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     }
   };
 
-  /**
-   * Add to cart handler
-   *
-   * For products with sizes OR customizations: Opens size picker modal
-   * For simple products: Immediately adds 1 unit with optimistic update
-   *
-   * IMPORTANT: When adding for first time, we always use quantity = 1
-   * (never use product.quantity from listing, as that's stale/unrelated data)
-   *
-   * Flow:
-   * 1. Optimistic update to Redux (instant UI feedback)
-   * 2. Debounced API call fires 500ms after last +/- click
-   * 3. Backend returns fresh cart state
-   * 4. Frontend conflict resolution protects optimistic updates from being overwritten
-   */
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -137,28 +118,23 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
     const hasCustomizations = product.customizations && product.customizations.length > 0;
 
-    // For products with sizes OR customizations, open the size picker modal
+
     if (hasSizes || hasCustomizations) {
       setSizePickerProduct(product);
       return;
     }
 
-    // For simple products, add directly to cart
-    // If already in cart, this button shouldn't show (+/- buttons show instead)
-    // But if it does, treat as increment
+
     if (isInCart) {
       handleIncrement(e as any);
       return;
     }
 
-    // First time adding to cart - always start from 0 → 1
-    // (Never use product.quantity from listing, it's from a different API)
+
     const timestamp = Date.now();
     const newQty = 1;
     const key = cartItemKey(product.id, null);
 
-    // Dispatch optimistic update FIRST for instant UI feedback
-    // This updates Redux immediately while API call happens in background
 
     cartDispatch(
       addLocalCartItem({
@@ -179,24 +155,11 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       })
     );
 
-    // Queue API call with debounce (500ms delay)
-    // If user clicks +/- in next 500ms, debounce resets
-    // After delay, exactly 1 API call fires with latest quantity
 
     debouncedUpdate(key, product.id, null, newQty, timestamp);
   };
 
-  /**
-   * Increment quantity by 1
-   *
-   * For simple products (no sizes/customizations): Just increment quantity
-   * For sized/customizable products: Only open modal if adding new variant (not already in cart)
-   *
-   * Optimistic update pattern:
-   * 1. Update Redux immediately (UI reflects change instantly)
-   * 2. Debounced API call (batches rapid clicks)
-   * 3. Conflict resolution protects against stale responses
-   */
+
   const handleIncrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -205,30 +168,28 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
     const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
     const hasCustomizations = product.customizations && product.customizations.length > 0;
 
-    // Only allow increment if item is already in cart (isInCart button shown)
+
     if (!isInCart) {
       return;
     }
 
-    // If product has sizes/customizations AND is already in cart without a size,
-    // just increment the simple variant (don't open modal)
-    // Only open modal if user wants to add a different sized variant
+
     if ((hasSizes || hasCustomizations) && quantity === 0) {
-      // No simple variant in cart, open modal to choose size
+
       setSizePickerProduct(product);
       return;
     }
 
-    // Increment the quantity
+
     const newQty = (displayQuantityValue) + 1;
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    // UPDATE UI FIRST - instant display update
+
     const uiUpdateTime = performance.now();
     setLocalQuantity(newQty);
 
-    // Then dispatch to Redux in background
+
     const reduxTime = performance.now();
     cartDispatch(
       updateLocalCartItem({
@@ -239,44 +200,33 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       })
     );
 
-    // Queue API call with debounce (500ms)
+
     const debounceTime = performance.now();
     debouncedUpdate(key, product.id, null, newQty, ts);
   }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
 
-  /**
-   * Decrement quantity by 1, remove if reaches 0
-   *
-   * For simple products (no sizes/customizations): Just decrement quantity
-   * For sized/customizable products: Just decrement simple variant if in cart
-   *
-   * When quantity reaches 0:
-   * - Redux removes item immediately
-   * - Success message displayed
-   * - Debounced API call sends quantity=0 to backend
-   * - Backend deletes cart item
-   */
+
   const handleDecrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
     const clickTime = performance.now();
 
-    // Only allow decrement if item is already in cart (isInCart button shown)
+
     if (!isInCart) {
       return;
     }
 
-    // Decrement the quantity (min 0, which triggers removal)
+
     const newQty = Math.max(0, displayQuantityValue - 1);
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    // UPDATE UI FIRST - instant display update
+
     const uiUpdateTime = performance.now();
     setLocalQuantity(newQty);
 
-    // Then dispatch to Redux in background
+
     const reduxTime = performance.now();
     cartDispatch(
       updateLocalCartItem({
@@ -287,76 +237,75 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       })
     );
 
-    // Show removal message when reaching 0
+
     if (newQty === 0) {
       showToast.success(Messages.cart.removed);
     }
 
-    // Queue API call with debounce
+
     const debounceTime = performance.now();
     debouncedUpdate(key, product.id, null, newQty, ts);
   }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
 
-  // Favorite toggle with optimistic UI update (like Facebook)
-  // Updates UI instantly, syncs with API in background
+
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!isAuthenticated) { setShowLoginModal(true); return; }
 
-    // Update UI instantly - no delay, no disabled state!
+
     const newFavState = !isFavorited;
     setIsFavorited(newFavState);
 
-    // Fire API in background - don't block or disable button
+
     favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited }))
       .unwrap()
       .catch((error: any) => {
-        // Rollback on failure only
+
         setIsFavorited((prev) => !prev);
         showToast.error(error?.message || Messages.favorites.updateFailed);
       });
   };
 
-  // Convert public cart items to PosPageCartItem format for compatibility
+
   const posCartItems = useMemo(() => {
     return cartItems.map((item) => ({
       ...item,
-      // Use customizations from API response, or empty array if not present
+
       customizations: item.customizations || [],
     })) as PosPageCartItem[];
   }, [cartItems]);
 
-  // Build initial quantities map like POS page
+
   const initialQuantities = useMemo(() => {
     return sizePickerProduct ? buildQuantityMap(posCartItems, sizePickerProduct.id) : new Map<string, number>();
   }, [sizePickerProduct, posCartItems]);
 
-  // Determine if we're editing (product is already in cart) or adding new
+
   const isEditingProduct = useMemo(() => {
     return sizePickerProduct && totalQuantity > 0;
   }, [sizePickerProduct, totalQuantity]);
 
-  // Get the first cart item for this product (if editing)
+
   const editingCartItemId = useMemo(() => {
     if (!sizePickerProduct || !posCartItems) return undefined;
     const cartItem = posCartItems.find((item) => item.productId === sizePickerProduct.id);
     return cartItem?.id;
   }, [sizePickerProduct, posCartItems]);
 
-  // Handle size picker selection like POS page
+
   const handleSizeSelect = useCallback(
     (selectedProduct: ProductDetailResponseModel, size: ProductSize | undefined, qty: number | undefined, customizationIds: string[] | undefined) => {
       const timestamp = Date.now();
       const sizeId = size?.id === "__no_size__" ? null : size?.id || null;
-      // Use nullish coalescing (??) instead of || to allow qty=0 for removal operations
+
       const quantity = qty ?? 1;
       const customizations = customizationIds || [];
 
-      // Optimistic update FIRST for instant UI feedback
+
       if (isEditingProduct) {
-        // Update existing item (handles removal when qty=0)
+
         cartDispatch(
           updateLocalCartItem({
             productId: selectedProduct.id,
@@ -366,7 +315,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
           })
         );
       } else if (quantity > 0) {
-        // Add new item only if quantity > 0
+
         cartDispatch(
           addLocalCartItem({
             productId: selectedProduct.id,
@@ -386,13 +335,13 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
           })
         );
       } else {
-        // qty=0 for new item - do nothing
+
       }
 
-      // Close modal immediately for instant feedback
+
       setSizePickerProduct(null);
 
-      // Call API in background
+
       cartDispatch(
         addToCart({
           productId: selectedProduct.id,
@@ -407,8 +356,8 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   );
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";
-  // Display the quantity that +/- buttons are updating
-  // Uses local state for instant UI updates, falls back to Redux quantity
+
+
   const displayQuantity = displayQuantityValue;
 
   return (
@@ -422,7 +371,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
             className,
           )}
         >
-          {/* Image */}
+          {}
           <div className="relative aspect-square overflow-hidden bg-muted/30">
             {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
 
@@ -441,7 +390,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
               sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
             />
 
-            {/* Promo badge */}
+            {}
             {product?.hasPromotion && (
               <div className="absolute top-2 left-2 z-10 pointer-events-none">
                 <Badge variant="destructive" className="text-xs font-bold px-2 py-0.5 shadow-md">
@@ -452,14 +401,14 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
               </div>
             )}
 
-            {/* Out of stock overlay */}
+            {}
             {isOutOfStock && (
               <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center pointer-events-none">
                 <Badge variant="secondary" className="text-xs font-semibold px-3 py-1">Out of Stock</Badge>
               </div>
             )}
 
-            {/* Favorite button */}
+            {}
             <div className="absolute top-2 right-2 z-20">
               <CustomButton
                 size="icon"
@@ -476,7 +425,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
               </CustomButton>
             </div>
 
-            {/* Sizes/Customizations badge */}
+            {}
             {(product.hasSizes || (product.customizations && product.customizations.length > 0)) && (
               <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
                 <Badge variant="secondary" className="text-xs font-medium px-1.5 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
@@ -496,7 +445,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
             )}
           </div>
 
-          {/* Info */}
+          {}
           <div className="p-3 flex flex-col flex-1">
             <h3 className="font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">{product.name}</h3>
 
@@ -565,41 +514,32 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
   );
 }
 
-/**
- * Memoized ProductCard with custom equality check.
- * Only re-renders when product data or className actually changes,
- * NOT when parent list updates or cart state changes.
- *
- * This prevents 90%+ of unnecessary re-renders during:
- * - Infinite scroll pagination
- * - Other cart items updating
- * - Filter/sort changes
- */
+
 export const ProductCard = memo(
   ProductCardComponent,
   (prevProps, nextProps) => {
-    // Return true if props are EQUAL (skip re-render)
-    // Return false if props are DIFFERENT (allow re-render)
+
+
     return (
-      // Product ID must be same
+
       prevProps.product.id === nextProps.product.id &&
-      // Price must not change
+
       prevProps.product.displayPrice === nextProps.product.displayPrice &&
-      // Image URL must not change
+
       prevProps.product.mainImageUrl === nextProps.product.mainImageUrl &&
-      // Promotion status must not change
+
       prevProps.product.hasPromotion === nextProps.product.hasPromotion &&
-      // Promotion value must not change (for display)
+
       prevProps.product.displayPromotionValue === nextProps.product.displayPromotionValue &&
-      // Promotion type must not change
+
       prevProps.product.displayPromotionType === nextProps.product.displayPromotionType &&
-      // Status must not change
+
       prevProps.product.status === nextProps.product.status &&
-      // Sizes must not change
+
       prevProps.product.hasSizes === nextProps.product.hasSizes &&
-      // Customizations must not change
+
       (prevProps.product.customizations?.length ?? 0) === (nextProps.product.customizations?.length ?? 0) &&
-      // className must match (usually doesn't change)
+
       prevProps.className === nextProps.className
     );
   }

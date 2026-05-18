@@ -12,9 +12,7 @@ import {
 } from "../thunks/role-thunks";
 import { deleteUserService } from "../thunks/users-thunks";
 
-/**
- * Initial state
- */
+
 const initialState: RoleManagementState = {
   data: null,
   selectedRole: null,
@@ -37,7 +35,7 @@ const roleSlice = createSlice({
   name: "roles",
   initialState,
   reducers: {
-    // Filter actions
+
     setSearchFilter: (state, action: PayloadAction<string>) => {
       state.filters.search = action.payload;
       state.filters.pageNo = 1;
@@ -47,7 +45,7 @@ const roleSlice = createSlice({
       state.filters.pageNo = action.payload;
     },
 
-    // Utility actions
+
     clearError: (state) => {
       state.error = null;
     },
@@ -104,7 +102,7 @@ const roleSlice = createSlice({
         state.operations.isFetchingDetail = false;
         state.selectedRole = action.payload;
 
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (role) => role.id === action.payload.id,

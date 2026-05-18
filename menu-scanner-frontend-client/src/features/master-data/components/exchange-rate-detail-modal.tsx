@@ -49,7 +49,7 @@ export function ExchangeRateDetailModal({
         <DialogTitle>Exchange Rate Details - {formatKhrRate(exchangeRate.usdToKhrRate)}</DialogTitle>
       </VisuallyHidden>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-semibold text-foreground">
@@ -61,10 +61,10 @@ export function ExchangeRateDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Exchange Rate Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Exchange Rate Information</CardTitle>
@@ -92,7 +92,7 @@ export function ExchangeRateDetailModal({
               </CardContent>
             </Card>
 
-            {/* System Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>System Information</CardTitle>

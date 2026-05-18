@@ -95,7 +95,7 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
 
   return (
     <div className={`flex items-center justify-end gap-2 p-4 ${className}`}>
-      {/* Previous Button */}
+      {}
       <button
         onClick={handlePreviousPage}
         disabled={currentPage === 1}
@@ -113,7 +113,7 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
         <span className="hidden sm:inline">Previous</span>
       </button>
 
-      {/* Page Numbers */}
+      {}
       <div className="flex items-center gap-1">
         {getPaginationItems().map((item, index) => {
           if (item === "ellipsis") {
@@ -133,7 +133,7 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
               onClick={() => onPageChange(item)}
               className={`
                 ${classes.pageButton}
-                rounded-lg font-medium px-2 transition-all duration-200 
+                rounded-lg font-medium px-2 transition-all duration-200
                 ${
                   currentPage === item
                     ? "bg-primary text-primary-foreground shadow-sm"
@@ -147,7 +147,7 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
         })}
       </div>
 
-      {/* Next Button */}
+      {}
       <button
         onClick={handleNextPage}
         disabled={currentPage === totalPages}

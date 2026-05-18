@@ -19,14 +19,14 @@ interface POSCartItemProps {
   hasPromotion?: boolean;
   promotionType?: string | null;
   promotionValue?: number | null;
-  // Customizations/Add-ons
+
   customizations?: Array<{
     id: string;
     productCustomizationId: string;
     name: string;
     priceAdjustment: number;
   }>;
-  // Audit trail fields
+
   originalPrice?: number;
   hadChangeFromPOS?: boolean;
   auditChangeType?: string;
@@ -56,7 +56,7 @@ export function POSCartItem({
 }: POSCartItemProps) {
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 relative group">
-      {/* Delete Button - Top Right */}
+      {}
       <CustomButton
         size="icon"
         variant="outline"
@@ -68,7 +68,7 @@ export function POSCartItem({
       </CustomButton>
 
       <div className="flex gap-4">
-        {/* Product Image */}
+        {}
         <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
           <Image
             src={sanitizeImageUrl(productImageUrl, appImages.NoImage)}
@@ -77,7 +77,7 @@ export function POSCartItem({
             className="object-cover"
           />
 
-          {/* Promotion Badge - Top Left Corner */}
+          {}
           {hasPromotion && (
             <div className="absolute top-1 left-1 z-10 pointer-events-none">
               <Badge variant="destructive" className="text-[9px] font-bold px-1.5 py-0.5 shadow-md">
@@ -89,14 +89,14 @@ export function POSCartItem({
           )}
         </div>
 
-        {/* Product Details */}
+        {}
         <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
-          {/* Name */}
+          {}
           <h3 className="font-semibold text-sm leading-tight text-slate-900 line-clamp-1 mb-2">
             {productName}
           </h3>
 
-          {/* Size & Customizations on same line */}
+          {}
           <div className="mb-2 flex items-center gap-2">
             {sizeName && (
               <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
@@ -110,9 +110,9 @@ export function POSCartItem({
             )}
           </div>
 
-          {/* Price & Quantity Controls */}
+          {}
           <div className="flex items-center justify-between gap-3">
-            {/* Price */}
+            {}
             <div className="flex items-baseline gap-2">
               <span className="font-bold text-base text-slate-900">
                 {formatCurrency(finalPrice)}
@@ -124,9 +124,9 @@ export function POSCartItem({
               )}
             </div>
 
-            {/* Quantity Controls */}
+            {}
             <div className="flex items-center gap-1">
-              {/* Edit Button */}
+              {}
               <CustomButton
                 size="icon"
                 variant="outline"
@@ -137,7 +137,7 @@ export function POSCartItem({
                 <Edit2 className="h-3.5 w-3.5" />
               </CustomButton>
 
-              {/* Minus Button */}
+              {}
               <CustomButton
                 size="icon"
                 variant="outline"
@@ -147,12 +147,12 @@ export function POSCartItem({
                 <Minus className="h-3 w-3" />
               </CustomButton>
 
-              {/* Quantity Display */}
+              {}
               <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
                 {quantity}
               </div>
 
-              {/* Plus Button */}
+              {}
               <CustomButton
                 size="icon"
                 variant="outline"
@@ -166,7 +166,7 @@ export function POSCartItem({
         </div>
       </div>
 
-      {/* Audit Trail - Before/After Comparison */}
+      {}
       {hadChangeFromPOS && originalPrice && (
         <div className="mt-4 pt-4 border-t border-slate-200">
           <div className="text-xs font-semibold text-slate-600 mb-3 flex items-center gap-2">
@@ -174,7 +174,7 @@ export function POSCartItem({
             POS Audit Trail
           </div>
           <div className="flex items-center justify-between gap-3 text-xs">
-            {/* Before */}
+            {}
             <div className="flex-1 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
               <div className="text-slate-500 font-medium mb-1">Before</div>
               <div className="font-semibold text-slate-900">
@@ -187,10 +187,10 @@ export function POSCartItem({
               )}
             </div>
 
-            {/* Arrow */}
+            {}
             <div className="text-slate-400 font-bold">→</div>
 
-            {/* After */}
+            {}
             <div className="flex-1 bg-green-50 rounded-lg p-2.5 border border-green-200">
               <div className="text-green-700 font-medium mb-1">After</div>
               <div className="font-semibold text-green-900">

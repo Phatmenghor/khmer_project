@@ -29,9 +29,7 @@ export const selectFilters = (state: RootState) =>
 export const selectOperations = (state: RootState) =>
   state.deliveryOptions.operations;
 
-/**
- * Select pagination metadata
- */
+
 export const selectPagination = createSelector(
   [selectDeliveryOptions],
   (data) => ({

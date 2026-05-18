@@ -1,5 +1,5 @@
 "use client";
-// components/CardHeaderSection.tsx
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,7 +58,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
     <div>
       <Card>
         <CardContent className="py-3 sm:py-5">
-          {/* Title Section with Back Button */}
+          {}
           <div className="flex items-center gap-2 mb-3">
             {(back || isMobile) && (
               <ActionButton
@@ -74,9 +74,9 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
             )}
           </div>
 
-          {/* Search, Filters, and Actions */}
+          {}
           <div className="flex flex-wrap items-end gap-2">
-            {/* Search input - stays left */}
+            {}
             {onSearchChange && (
               <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
                 <div className="relative w-full group">
@@ -92,9 +92,9 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
               </div>
             )}
 
-            {/* Filters + Button - pushed to the right */}
+            {}
             <div className="flex flex-wrap items-end gap-2 ml-auto">
-              {/* Filters via customSelect */}
+              {}
               {customSelect && (
                 <div className="flex flex-wrap gap-2 items-end
                   [&>*]:w-auto [&>*]:flex-shrink-0
@@ -103,7 +103,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                 </div>
               )}
 
-              {/* Filters via children */}
+              {}
               {children &&
                 React.Children.map(children, (child) => (
                   <div className="w-auto flex-shrink-0
@@ -114,7 +114,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                   </div>
                 ))}
 
-              {/* Action buttons */}
+              {}
               {buttonText && buttonHref && (
                 <TooltipProvider>
                   <Tooltip>
@@ -174,7 +174,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
           )}
         </CardContent>
 
-        {/* Tabs Section */}
+        {}
         {tabs && (
           <div className="border-t border-gray-800 px-6 bg-gray-850">
             <div className="[&>*]:text-gray-300 [&>*:hover]:text-gray-100 [&>*[data-state=active]]:text-pink-400 [&>*[data-state=active]]:border-pink-400">

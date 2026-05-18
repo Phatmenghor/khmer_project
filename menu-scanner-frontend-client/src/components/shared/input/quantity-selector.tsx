@@ -12,7 +12,7 @@ interface QuantitySelectorProps {
   max?: number;
   size?: "sm" | "md";
   className?: string;
-  /** pending = qty changed but not yet saved to cart (amber); default = primary */
+
   pending?: boolean;
 }
 
@@ -30,7 +30,7 @@ export function QuantitySelector({
   const latestCommittedRef = useRef(value);
   const isTypingRef = useRef(false);
 
-  // Sync with external value only when not actively typing
+
   useEffect(() => {
     latestCommittedRef.current = value;
     if (!isTypingRef.current) {
@@ -38,7 +38,7 @@ export function QuantitySelector({
     }
   }, [value]);
 
-  // Cleanup on unmount
+
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -77,20 +77,20 @@ export function QuantitySelector({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
 
-    // Allow clearing the field
+
     if (raw === "") {
       setInputText("");
       isTypingRef.current = true;
       return;
     }
 
-    // Only allow digits, max 3 characters
+
     if (!/^\d{1,3}$/.test(raw)) return;
 
     setInputText(raw);
     isTypingRef.current = true;
 
-    // Debounce commit for typed input
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       commitValue(parseInt(raw, 10));

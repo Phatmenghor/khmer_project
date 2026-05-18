@@ -79,7 +79,7 @@ export function ComboboxSelectBrand({
     lg: "h-10 text-base",
   };
 
-  // Helper function to remove duplicates by ID
+
   const removeDuplicates = (
     items: BrandResponseModel[]
   ): BrandResponseModel[] => {
@@ -117,7 +117,7 @@ export function ComboboxSelectBrand({
           setData(removeDuplicates(newData));
         }
       } else {
-        // Merge with existing data and remove duplicates
+
         setData((prev) => removeDuplicates([...prev, ...result.content]));
       }
 

@@ -1,6 +1,5 @@
-/**
- * Public Categories State Hook
- */
+
+
 
 import { useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -45,25 +44,25 @@ export const usePublicCategoriesState = () => {
   );
 
   return {
-    // State
+
     categories,
     pagination,
     loading,
     error,
     loaded,
 
-    // Actions
+
     fetchCategories,
     clearCategories: handleClearCategories,
     resetState,
 
-    // Computed
+
     isInitialLoading: loading.initial,
     isLoadingMore: loading.loadMore,
     hasMore: pagination.hasMore,
     totalCategories: pagination.totalElements,
 
-    // Dispatch for advanced usage
+
     dispatch,
   };
 };

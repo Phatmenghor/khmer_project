@@ -70,7 +70,7 @@ export function StockItemManagementModal({
     mode: "onChange",
   });
 
-  // Get display title - shows size name for SIZE type
+
   const getTitle = () => {
     if (!stockItem) return "";
     if (stockItem.type === "SIZE") {
@@ -79,7 +79,7 @@ export function StockItemManagementModal({
     return stockItem.productName || "";
   };
 
-  // Handle success/error messages
+
   useEffect(() => {
     if (successMessage) {
       showToast.success(successMessage);
@@ -101,7 +101,7 @@ export function StockItemManagementModal({
     }
   }, [error, dispatch]);
 
-  // Load history - filter by productSizeId for SIZE type, only by productId for PRODUCT type
+
   useEffect(() => {
     if (isOpen && stockItem) {
       dispatch(
@@ -115,7 +115,7 @@ export function StockItemManagementModal({
     }
   }, [isOpen, stockItem, dispatch, historyPageNo, historyPageSize]);
 
-  // Reset form when modal opens or closes
+
   useEffect(() => {
     if (isOpen) {
       form.reset({
@@ -260,7 +260,7 @@ export function StockItemManagementModal({
         Stock Management - {getTitle()}
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
@@ -295,10 +295,10 @@ export function StockItemManagementModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Add/Update Stock Form */}
+            {}
             <Card ref={formSectionRef}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -308,9 +308,9 @@ export function StockItemManagementModal({
               </CardHeader>
               <CardContent>
                 <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-6">
-                  {/* Form Grid */}
+                  {}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Quantity On Hand */}
+                    {}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Quantity On Hand <span className="text-red-500">*</span>
@@ -340,7 +340,7 @@ export function StockItemManagementModal({
                       </p>
                     </div>
 
-                    {/* Price In */}
+                    {}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Unit Price (Cost) <span className="text-red-500">*</span>
@@ -374,7 +374,7 @@ export function StockItemManagementModal({
                       </p>
                     </div>
 
-                    {/* Expiry Date */}
+                    {}
                     <DateTimePickerField
                       control={form.control}
                       className="h-10"
@@ -384,7 +384,7 @@ export function StockItemManagementModal({
                       error={form.formState.errors.expiryDate}
                     />
 
-                    {/* Location */}
+                    {}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Storage Location
@@ -400,12 +400,12 @@ export function StockItemManagementModal({
                     </div>
                   </div>
 
-                  {/* Sales Preview Section */}
+                  {}
                   {stockItem && stockItem.price && (
                     <div className="border-t pt-6">
                       <h3 className="text-sm font-semibold mb-3">Sales Preview</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Selling Price */}
+                        {}
                         <div className="bg-muted/50 p-4 rounded-lg">
                           <div className="flex justify-between items-start mb-2">
                             <div>
@@ -421,7 +421,7 @@ export function StockItemManagementModal({
                             )}
                           </div>
 
-                          {/* Promotion Info */}
+                          {}
                           {stockItem.hasPromotion === true && (
                             <div className="mt-3 pt-3 border-t border-muted space-y-2 text-xs">
                               <div>
@@ -459,7 +459,7 @@ export function StockItemManagementModal({
                           )}
                         </div>
 
-                        {/* Revenue Calculation */}
+                        {}
                         <div className="bg-muted/50 p-4 rounded-lg">
                           <p className="text-xs text-muted-foreground mb-3">Total Revenue (if sold all)</p>
                           <div className="space-y-3">
@@ -502,7 +502,7 @@ export function StockItemManagementModal({
               </CardContent>
             </Card>
 
-            {/* Stock History Table */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Stock History</CardTitle>
@@ -530,10 +530,10 @@ export function StockItemManagementModal({
           </div>
         </div>
 
-        {/* Form Footer with Action Buttons */}
+        {}
         <div className="px-6 py-4 border-t bg-gradient-to-r from-muted/50 to-muted/30 flex-shrink-0">
           <div className="flex items-center justify-between gap-4">
-            {/* Left: Status Message on Create Mode */}
+            {}
             {!editingStock && (
               <div className="text-sm text-muted-foreground flex items-center gap-2">
                 {(isCreating || isUpdating) && (
@@ -552,7 +552,7 @@ export function StockItemManagementModal({
               </div>
             )}
 
-            {/* Switch to Add Button */}
+            {}
             {editingStock && (
               <Button
                 type="button"
@@ -579,7 +579,7 @@ export function StockItemManagementModal({
             )}
             <div className="flex-1" />
 
-            {/* Status Message on Edit Mode */}
+            {}
             {editingStock && (
               <div className="text-sm text-muted-foreground flex items-center gap-2">
                 {isUpdating && (
@@ -598,7 +598,7 @@ export function StockItemManagementModal({
               </div>
             )}
 
-            {/* Action Buttons */}
+            {}
             <div className="flex gap-2">
               <CancelButton
                 onClick={() => {
@@ -626,7 +626,7 @@ export function StockItemManagementModal({
           </div>
         </div>
 
-        {/* Delete Confirmation Modal */}
+        {}
         <DeleteConfirmationModal
           isOpen={deleteState.isOpen}
           onClose={closeDeleteModal}

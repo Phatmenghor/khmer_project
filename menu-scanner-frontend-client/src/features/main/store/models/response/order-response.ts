@@ -1,6 +1,5 @@
-/**
- * Order Response Types - Simplified without audit trail snapshots
- */
+
+
 
 import { OrderStatus } from '@/enums/order-status.enum';
 import { OrderSource } from '@/enums/order-source.enum';

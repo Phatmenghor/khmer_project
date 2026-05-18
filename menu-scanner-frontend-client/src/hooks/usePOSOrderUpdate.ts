@@ -1,15 +1,5 @@
-/**
- * usePOSOrderUpdate Hook - DEPRECATED
- *
- * No longer needed with simplified POS architecture
- * Orders are now complete when created (no update/confirm workflow)
- *
- * For updating order status/payment after creation:
- * Use standard updateOrderAdminService from order-admin-thunks
- *
- * For creating new POS orders:
- * Use usePOSCheckout() instead
- */
+
+
 
 import { useCallback, useState } from 'react';
 

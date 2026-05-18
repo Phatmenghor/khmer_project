@@ -96,7 +96,7 @@ export default function PaymentOptionsModal({
     }
   }, [isOpen, isCreate, paymentOption, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());

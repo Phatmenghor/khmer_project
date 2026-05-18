@@ -1,6 +1,6 @@
 let NProgressModule: any = null;
 
-// Initialize NProgress
+
 const initNProgress = async () => {
   if (!NProgressModule) {
     NProgressModule = await import("nprogress");
@@ -8,7 +8,7 @@ const initNProgress = async () => {
   return NProgressModule.default;
 };
 
-// Global utility functions
+
 export const startProgress = async () => {
   const NProgress = await initNProgress();
   NProgress.start();
@@ -24,7 +24,7 @@ export const incrementProgress = async (amount?: number) => {
   NProgress.inc(amount);
 };
 
-// Global hook for manual control
+
 export const useGlobalProgress = () => {
   return {
     start: startProgress,
@@ -33,7 +33,7 @@ export const useGlobalProgress = () => {
   };
 };
 
-// Global progress for API calls or async operations
+
 export const withProgress = async <T>(
   asyncFn: () => Promise<T>,
   options?: { autoStart?: boolean; autoStop?: boolean }
@@ -49,11 +49,10 @@ export const withProgress = async <T>(
   }
 };
 
-// next.config.js - Global webpack configuration
-/** @type {import('next').NextConfig} */
+
 const nextConfig = {
   webpack: (config: any) => {
-    // Ensure NProgress is available globally
+
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,

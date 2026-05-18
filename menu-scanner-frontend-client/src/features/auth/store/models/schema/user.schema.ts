@@ -1,9 +1,7 @@
-// user.schema.ts
+
 import { z } from "zod";
 
-/**
- * Address Type
- */
+
 export interface Address {
   id?: string;
   addressType: string;
@@ -16,9 +14,7 @@ export interface Address {
   country: string;
 }
 
-/**
- * Emergency Contact Type
- */
+
 export interface EmergencyContact {
   id?: string;
   name: string;
@@ -26,9 +22,7 @@ export interface EmergencyContact {
   relationship: string;
 }
 
-/**
- * Document Type
- */
+
 export interface Document {
   id?: string;
   type: string;
@@ -36,9 +30,7 @@ export interface Document {
   fileUrl: string;
 }
 
-/**
- * Education Type
- */
+
 export interface Education {
   id?: string;
   level: string;
@@ -50,9 +42,7 @@ export interface Education {
   certificateUrl: string;
 }
 
-/**
- * Address Schema for form validation
- */
+
 export const addressSchema = z.object({
   id: z.string().optional(),
   addressType: z.string().min(1, "Address type is required"),
@@ -65,9 +55,7 @@ export const addressSchema = z.object({
   country: z.string().optional().or(z.literal("")),
 });
 
-/**
- * Emergency Contact Schema for form validation
- */
+
 export const emergencyContactSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Contact name is required"),
@@ -75,9 +63,7 @@ export const emergencyContactSchema = z.object({
   relationship: z.string().min(1, "Relationship is required"),
 });
 
-/**
- * Document Schema for form validation
- */
+
 export const documentSchema = z.object({
   id: z.string().optional(),
   type: z.string().min(1, "Document type is required"),
@@ -85,9 +71,7 @@ export const documentSchema = z.object({
   fileUrl: z.string().optional().or(z.literal("")),
 });
 
-/**
- * Education Schema for form validation
- */
+
 export const educationSchema = z.object({
   id: z.string().optional(),
   level: z.string().min(1, "Education level is required"),
@@ -99,9 +83,7 @@ export const educationSchema = z.object({
   certificateUrl: z.string().optional().or(z.literal("")),
 });
 
-/**
- * Create User Schema
- */
+
 export const createUserSchema = z.object({
   userIdentifier: z
     .string()
@@ -120,11 +102,11 @@ export const createUserSchema = z.object({
   businessId: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).min(1, "At least one role is required"),
   accountStatus: z.string().min(1, "Account status is required"),
-  // Personal Info
+
   nickname: z.string().optional().or(z.literal("")),
   gender: z.string().optional().or(z.literal("")),
   dateOfBirth: z.string().optional().or(z.literal("")),
-  // Employment Info
+
   employeeId: z.string().optional().or(z.literal("")),
   position: z.string().optional().or(z.literal("")),
   department: z.string().optional().or(z.literal("")),
@@ -132,18 +114,16 @@ export const createUserSchema = z.object({
   joinDate: z.string().optional().or(z.literal("")),
   leaveDate: z.string().optional().or(z.literal("")),
   shift: z.string().optional().or(z.literal("")),
-  // Other
+
   remark: z.string().optional().or(z.literal("")),
-  // Array fields
+
   addresses: z.array(addressSchema).optional(),
   emergencyContacts: z.array(emergencyContactSchema).optional(),
   documents: z.array(documentSchema).optional(),
   educations: z.array(educationSchema).optional(),
 });
 
-/**
- * Update User Schema
- */
+
 export const updateUserSchema = z.object({
   id: z.string().min(1, "User ID is required"),
   firstName: z.string().optional().or(z.literal("")),
@@ -157,11 +137,11 @@ export const updateUserSchema = z.object({
   accountStatus: z.string().optional().or(z.literal("")),
   businessId: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).optional(),
-  // Personal Info
+
   nickname: z.string().optional().or(z.literal("")),
   gender: z.string().optional().or(z.literal("")),
   dateOfBirth: z.string().optional().or(z.literal("")),
-  // Employment Info
+
   employeeId: z.string().optional().or(z.literal("")),
   position: z.string().optional().or(z.literal("")),
   department: z.string().optional().or(z.literal("")),
@@ -169,9 +149,9 @@ export const updateUserSchema = z.object({
   joinDate: z.string().optional().or(z.literal("")),
   leaveDate: z.string().optional().or(z.literal("")),
   shift: z.string().optional().or(z.literal("")),
-  // Other
+
   remark: z.string().optional().or(z.literal("")),
-  // Array fields
+
   addresses: z.array(addressSchema).optional(),
   emergencyContacts: z.array(emergencyContactSchema).optional(),
   documents: z.array(documentSchema).optional(),
@@ -193,9 +173,7 @@ export const changePasswordSchema = z
     path: ["confirmPassword"],
   });
 
-/**
- * Combined form data type - includes all possible fields
- */
+
 export type UserFormData = {
   id: string;
   userIdentifier?: string;
@@ -209,11 +187,11 @@ export type UserFormData = {
   businessId?: string;
   roles: string[];
   accountStatus: string;
-  // Personal Info
+
   nickname?: string;
   gender?: string;
   dateOfBirth?: string;
-  // Employment Info
+
   employeeId?: string;
   position?: string;
   department?: string;
@@ -221,9 +199,9 @@ export type UserFormData = {
   joinDate?: string;
   leaveDate?: string;
   shift?: string;
-  // Other
+
   remark?: string;
-  // Array fields
+
   addresses?: Address[];
   emergencyContacts?: EmergencyContact[];
   documents?: Document[];

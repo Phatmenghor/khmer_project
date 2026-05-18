@@ -40,10 +40,10 @@ import { selectGlobalPageSize } from "@/store/selectors/global-settings-selector
 import { useAppSelector } from "@/store";
 
 export default function CategoriesPage() {
-  // Clean up state when leaving admin area (performance optimization)
+
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     categoriesState,
     categoriesData,
@@ -55,11 +55,11 @@ export default function CategoriesPage() {
     dispatch,
   } = useCategoriesState();
 
-  // Use categories with product count for admin page display
+
   const categoriesWithProductCount = useAppSelector(selectCategoriesWithProductCountContent);
   const paginationWithProductCount = useAppSelector(selectPaginationWithProductCount);
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -76,7 +76,7 @@ export default function CategoriesPage() {
     categories: null as CategoriesResponseModel | null,
   });
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -103,7 +103,7 @@ export default function CategoriesPage() {
     globalPageSize,
   ]);
 
-  // Event handlers
+
   const handleCreateCategories = () => {
     setModalState({
       isOpen: true,
@@ -195,7 +195,7 @@ export default function CategoriesPage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (categoriesWithProductCount.length === 1 && paginationWithProductCount.currentPage > 1) {
         const newPage = paginationWithProductCount.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -252,7 +252,7 @@ export default function CategoriesPage() {
           </div>
         </CardHeaderSection>
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <DataTableWithPagination
           data={categoriesWithProductCount}
           columns={columns}
@@ -269,7 +269,7 @@ export default function CategoriesPage() {
         />
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <CategoriesModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -277,14 +277,14 @@ export default function CategoriesPage() {
         mode={modalState.mode}
       />
 
-      {/* Modals categories Detail */}
+      {}
       <CategoriesDetailModal
         categories={detailModalState.categories}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete User */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

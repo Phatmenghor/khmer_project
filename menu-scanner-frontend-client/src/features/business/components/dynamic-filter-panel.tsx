@@ -16,36 +16,7 @@ interface DynamicFilterPanelProps {
   config: FilterPanelConfig;
 }
 
-/**
- * DynamicFilterPanel - Reusable filter panel component
- * Renders filters dynamically based on configuration
- * Works across all admin pages (Products, Stock Items, etc.)
- *
- * Usage:
- * ```tsx
- * const filterConfig: FilterPanelConfig = {
- *   title: "Products",
- *   searchValue: filters.search,
- *   searchPlaceholder: "Search...",
- *   onSearchChange: handleSearchChange,
- *   filters: [
- *     {
- *       id: 'sortBy',
- *       type: 'select',
- *       label: 'Sort By',
- *       options: sortOptions,
- *       value: filters.sortBy,
- *       onChange: handleSortChange,
- *     },
- *     // more filters...
- *   ],
- *   buttonText: 'Add',
- *   buttonDisabled: true,
- * };
- *
- * return <DynamicFilterPanel config={filterConfig} />;
- * ```
- */
+
 export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
   config,
 }) => {
@@ -168,7 +139,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
         ) : undefined
       }
     >
-      {/* Responsive grid layout to keep label + input together */}
+      {}
       <div
         className="grid gap-3 w-full"
         style={{

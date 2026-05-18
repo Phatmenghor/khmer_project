@@ -1,28 +1,27 @@
 import { saveAs } from "file-saver";
 import ExcelJS from "exceljs";
 
-// ==================== TYPES ====================
 
 export interface ExcelColumn {
-  /** Column header text */
+
   header: string;
-  /** Data key/property name */
+
   key: string;
-  /** Column width in characters */
+
   width?: number;
-  /** Data type for formatting */
+
   type?: "text" | "number" | "date" | "boolean" | "currency" | "percentage";
-  /** Number format (e.g., "0.00", "mm/dd/yyyy") */
+
   format?: string;
-  /** Excel formula (use {row} placeholder for current row) */
+
   formula?: string;
-  /** Custom cell styling */
+
   style?: Partial<ExcelJS.Style>;
-  /** Hide this column */
+
   hidden?: boolean;
-  /** Freeze this column */
+
   frozen?: boolean;
-  /** Custom value transformer */
+
   transform?: (value: any, row: any, index: number) => any;
 }
 
@@ -41,86 +40,84 @@ export interface ConditionalFormatRule {
 }
 
 export interface ExcelSheet {
-  /** Sheet name */
+
   name: string;
-  /** Data array */
+
   data: any[];
-  /** Column definitions */
+
   columns: ExcelColumn[];
-  /** Conditional formatting rules */
+
   conditionalFormatting?: Array<{
     ref: string;
     rules: ConditionalFormatRule[];
   }>;
-  /** Enable auto filter */
+
   autoFilter?: boolean;
-  /** Number of rows to freeze */
+
   freezeRows?: number;
-  /** Number of columns to freeze */
+
   freezeColumns?: number;
-  /** Group data by these fields */
+
   groupBy?: string[];
-  /** Sort data by these fields */
+
   sortBy?: Array<{ key: string; order: "asc" | "desc" }>;
-  /** Add totals row */
+
   totals?: Array<{
     column: string;
     type: "sum" | "average" | "count" | "max" | "min";
     label?: string;
   }>;
-  /** Custom row height */
+
   rowHeight?: number;
-  /** Custom header row height */
+
   headerHeight?: number;
 }
 
 export interface ExcelExportOptions {
-  /** Output filename */
+
   filename?: string;
-  /** Document title */
+
   title?: string;
-  /** Document subtitle */
+
   subtitle?: string;
-  /** Document author */
+
   author?: string;
-  /** Company name */
+
   company?: string;
-  /** Document subject */
+
   subject?: string;
-  /** Keywords for search */
+
   keywords?: string[];
-  /** Document category */
+
   category?: string;
-  /** Document description */
+
   description?: string;
-  /** Creation date */
+
   created?: Date;
-  /** Last modified date */
+
   modified?: Date;
 
-  // Styling options
-  /** Header row styling */
+
   headerStyle?: Partial<ExcelJS.Style>;
-  /** Title styling */
+
   titleStyle?: Partial<ExcelJS.Style>;
-  /** Subtitle styling */
+
   subtitleStyle?: Partial<ExcelJS.Style>;
-  /** Data row styling */
+
   dataStyle?: Partial<ExcelJS.Style>;
-  /** Alternate row styling */
+
   alternateRowStyle?: Partial<ExcelJS.Style>;
-  /** Total row styling */
+
   totalRowStyle?: Partial<ExcelJS.Style>;
 
-  // Display options
-  /** Include cell borders */
+
   includeBorders?: boolean;
-  /** Include gridlines */
+
   includeGridlines?: boolean;
-  /** Use alternate row colors */
+
   useAlternateRows?: boolean;
 
-  // Page setup
+
   pageSetup?: {
     orientation?: "portrait" | "landscape";
     fitToPage?: boolean;
@@ -137,7 +134,7 @@ export interface ExcelExportOptions {
     };
   };
 
-  // Protection
+
   protection?: {
     password?: string;
     selectLockedCells?: boolean;
@@ -155,19 +152,18 @@ export interface ExcelExportOptions {
     pivotTables?: boolean;
   };
 
-  // Custom formatters and validators
+
   customFormatters?: Record<
     string,
     (value: any, row: any, index: number) => string
   >;
   validators?: Record<string, (value: any, row: any, index: number) => boolean>;
 
-  // Callbacks
+
   onProgress?: (progress: number) => void;
   onError?: (error: Error) => void;
 }
 
-// ==================== MAIN CLASS ====================
 
 export class ExcelExporter {
   private workbook: ExcelJS.Workbook;
@@ -259,17 +255,13 @@ export class ExcelExporter {
       this.workbook.description = this.options.description;
   }
 
-  /**
-   * Add a worksheet to the workbook
-   * @param sheetConfig Sheet configuration
-   * @returns The created worksheet
-   */
+
   public addSheet(sheetConfig: ExcelSheet): ExcelJS.Worksheet {
     const worksheet = this.workbook.addWorksheet(sheetConfig.name);
     let currentRow = 1;
 
     try {
-      // Add title and subtitle
+
       if (this.options.title) {
         currentRow = this.addTitle(
           worksheet,
@@ -285,10 +277,10 @@ export class ExcelExporter {
         );
       }
 
-      // Process data
+
       let processedData = this.processData(sheetConfig.data, sheetConfig);
 
-      // Add headers
+
       currentRow = this.addHeaders(
         worksheet,
         sheetConfig.columns,
@@ -296,7 +288,7 @@ export class ExcelExporter {
         sheetConfig.headerHeight
       );
 
-      // Add data rows
+
       currentRow = this.addDataRows(
         worksheet,
         processedData,
@@ -305,7 +297,7 @@ export class ExcelExporter {
         sheetConfig.rowHeight
       );
 
-      // Add totals
+
       if (sheetConfig.totals) {
         this.addTotals(
           worksheet,
@@ -316,7 +308,7 @@ export class ExcelExporter {
         );
       }
 
-      // Apply styling and formatting
+
       this.applyStyles(worksheet, sheetConfig.columns, currentRow);
       if (sheetConfig.conditionalFormatting) {
         this.applyConditionalFormatting(
@@ -325,7 +317,7 @@ export class ExcelExporter {
         );
       }
 
-      // Configure sheet properties
+
       this.configureSheet(worksheet, sheetConfig);
 
       this.options.onProgress?.(100);
@@ -414,20 +406,20 @@ export class ExcelExporter {
         const cell = excelRow.getCell(colIndex + 1);
         let value = row[col.key];
 
-        // Apply column transform
+
         if (col.transform) {
           value = col.transform(value, row, index);
         }
 
-        // Apply custom formatter
+
         if (this.options.customFormatters?.[col.key]) {
           value = this.options.customFormatters[col.key](value, row, index);
         }
 
-        // Apply type-specific formatting
+
         this.applyTypeFormatting(cell, value, col);
 
-        // Apply data validation
+
         if (this.options.validators?.[col.key]) {
           if (!this.options.validators[col.key](value, row, index)) {
             cell.style = {
@@ -441,7 +433,7 @@ export class ExcelExporter {
           }
         }
 
-        // Apply alternating row style
+
         if (index % 2 === 1 && this.options.useAlternateRows) {
           cell.style = { ...cell.style, ...this.options.alternateRowStyle };
         }
@@ -457,7 +449,7 @@ export class ExcelExporter {
     col: ExcelColumn
   ) {
     if (col.formula) {
-      // Handle formulas
+
       const formula = col.formula.replace(/\{row\}/g, cell.row.toString());
       cell.value = { formula };
     } else if (col.type === "date" && value) {
@@ -523,7 +515,7 @@ export class ExcelExporter {
       cell.style = this.options.totalRowStyle ?? {};
     });
 
-    // Add total label
+
     const labelCell = totalRow.getCell(1);
     labelCell.value = "Total";
     labelCell.style = this.options.totalRowStyle ?? {};
@@ -532,7 +524,7 @@ export class ExcelExporter {
   private processData(data: any[], config: ExcelSheet): any[] {
     let processedData = [...data];
 
-    // Apply sorting
+
     if (config.sortBy) {
       processedData.sort((a, b) => {
         for (const sort of config.sortBy!) {
@@ -546,7 +538,7 @@ export class ExcelExporter {
       });
     }
 
-    // Apply grouping
+
     if (config.groupBy) {
       const grouped = processedData.reduce((acc, item) => {
         const groupKey = config.groupBy!.map((key) => item[key]).join("|");
@@ -597,7 +589,7 @@ export class ExcelExporter {
   }
 
   private configureSheet(worksheet: ExcelJS.Worksheet, config: ExcelSheet) {
-    // Auto filter
+
     if (config.autoFilter) {
       worksheet.autoFilter = {
         from: { row: 1, column: 1 },
@@ -605,7 +597,7 @@ export class ExcelExporter {
       };
     }
 
-    // Freeze panes
+
     if (config.freezeRows || config.freezeColumns) {
       worksheet.views = [
         {
@@ -616,7 +608,7 @@ export class ExcelExporter {
       ];
     }
 
-    // Page setup
+
     if (this.options.pageSetup) {
       worksheet.pageSetup = {
         orientation: this.options.pageSetup.orientation || "portrait",
@@ -635,7 +627,7 @@ export class ExcelExporter {
       };
     }
 
-    // Protection
+
     if (this.options.protection) {
       worksheet.protect(
         this.options.protection.password || "",
@@ -654,9 +646,7 @@ export class ExcelExporter {
     return result;
   }
 
-  /**
-   * Export the workbook as a file download
-   */
+
   public async export(): Promise<void> {
     const buffer = await this.workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
@@ -665,16 +655,12 @@ export class ExcelExporter {
     saveAs(blob, this.options.filename!);
   }
 
-  /**
-   * Get the workbook as an ArrayBuffer
-   */
+
   public async getBuffer(): Promise<ArrayBuffer> {
     return await this.workbook.xlsx.writeBuffer();
   }
 
-  /**
-   * Get the workbook as a Blob
-   */
+
   public async getBlob(): Promise<Blob> {
     const buffer = await this.getBuffer();
     return new Blob([buffer], {
@@ -682,19 +668,13 @@ export class ExcelExporter {
     });
   }
 
-  /**
-   * Get the underlying ExcelJS workbook for advanced operations
-   */
+
   public getWorkbook(): ExcelJS.Workbook {
     return this.workbook;
   }
 }
 
-// ==================== UTILITY FUNCTIONS ====================
 
-/**
- * Quick export function for simple data
- */
 export async function quickExport(
   data: any[],
   options: {
@@ -711,7 +691,7 @@ export async function quickExport(
     title: options.title,
   });
 
-  // Auto-generate columns if not provided
+
   const columns =
     options.columns ||
     (data.length > 0
@@ -734,9 +714,7 @@ export async function quickExport(
   await exporter.export();
 }
 
-/**
- * Create predefined student scores exporter
- */
+
 export function createStudentScoreExporter(options: ExcelExportOptions = {}) {
   return new ExcelExporter({
     filename: "student-scores.xlsx",
@@ -747,9 +725,7 @@ export function createStudentScoreExporter(options: ExcelExportOptions = {}) {
   });
 }
 
-/**
- * Get predefined student score columns
- */
+
 export function getStudentScoreColumns(
   includePersonalInfo: boolean = true
 ): ExcelColumn[] {
@@ -823,16 +799,14 @@ export function getStudentScoreColumns(
   return columns;
 }
 
-/**
- * Get predefined grade conditional formatting
- */
+
 export function getGradeConditionalFormatting(
   startRow: number = 2,
   endRow: number = 100
 ): ExcelSheet["conditionalFormatting"] {
   return [
     {
-      ref: `L${startRow}:L${endRow}`, // Grade column
+      ref: `L${startRow}:L${endRow}`,
       rules: [
         {
           type: "cellIs",
@@ -867,9 +841,7 @@ export function getGradeConditionalFormatting(
   ];
 }
 
-/**
- * Export student scores with predefined configuration
- */
+
 export async function exportStudentScores(
   students: any[],
   options: {

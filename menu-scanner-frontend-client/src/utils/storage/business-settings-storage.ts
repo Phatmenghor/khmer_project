@@ -11,7 +11,7 @@ interface CachedBusinessSettings {
 }
 
 export const businessSettingsStorage = {
-  // Get cached settings from localStorage
+
   getCached: (): CachedBusinessSettings | null => {
     try {
       if (typeof window === "undefined") return null;
@@ -25,7 +25,7 @@ export const businessSettingsStorage = {
     }
   },
 
-  // Save settings to localStorage
+
   setCached: (data: BusinessSettingsResponse, hash: string): void => {
     try {
       if (typeof window === "undefined") return;
@@ -41,7 +41,7 @@ export const businessSettingsStorage = {
     }
   },
 
-  // Get stored hash for change detection
+
   getStoredHash: (): string | null => {
     try {
       if (typeof window === "undefined") return null;
@@ -54,7 +54,7 @@ export const businessSettingsStorage = {
     }
   },
 
-  // Get cache timestamp
+
   getCacheTimestamp: (): number => {
     try {
       if (typeof window === "undefined") return 0;
@@ -67,7 +67,7 @@ export const businessSettingsStorage = {
     }
   },
 
-  // Clear cached settings
+
   clearCache: (): void => {
     try {
       if (typeof window === "undefined") return;
@@ -76,7 +76,7 @@ export const businessSettingsStorage = {
     }
   },
 
-  // Check if cache is valid (not too old)
+
   isCacheValid: (maxAgeMs: number = 3600000): boolean => {
     const timestamp = businessSettingsStorage.getCacheTimestamp();
     if (!timestamp) return false;

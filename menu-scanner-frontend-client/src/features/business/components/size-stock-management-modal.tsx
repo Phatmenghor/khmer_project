@@ -79,14 +79,14 @@ export function SizeStockManagementModal({
     mode: "onChange",
   });
 
-  // Set first size as selected when modal opens
+
   useEffect(() => {
     if (isOpen && product?.sizes && product.sizes.length > 0 && !selectedSize) {
       setSelectedSize(product.sizes[0]);
     }
   }, [isOpen, product, selectedSize]);
 
-  // Handle success/error messages
+
   useEffect(() => {
     if (successMessage) {
       showToast.success(successMessage);
@@ -108,7 +108,7 @@ export function SizeStockManagementModal({
     }
   }, [error, dispatch]);
 
-  // Load history when modal opens or pagination changes
+
   useEffect(() => {
     if (isOpen && product) {
       dispatch(
@@ -121,7 +121,7 @@ export function SizeStockManagementModal({
     }
   }, [isOpen, product, dispatch, historyPageNo, historyPageSize]);
 
-  // Reset form when modal opens or closes
+
   useEffect(() => {
     if (isOpen) {
       form.reset({
@@ -267,7 +267,7 @@ export function SizeStockManagementModal({
         Size Stock Management - {product?.name}
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
@@ -302,11 +302,11 @@ export function SizeStockManagementModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
 
-            {/* Add/Update Stock Form */}
+            {}
             {selectedSize && (
               <Card ref={formSectionRef}>
                 <CardHeader>
@@ -317,7 +317,7 @@ export function SizeStockManagementModal({
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-6">
-                    {/* Size Selector */}
+                    {}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Select Size <span className="text-red-500">*</span>
@@ -348,7 +348,7 @@ export function SizeStockManagementModal({
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Quantity On Hand */}
+                      {}
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">
                           Quantity On Hand <span className="text-red-500">*</span>
@@ -378,7 +378,7 @@ export function SizeStockManagementModal({
                         </p>
                       </div>
 
-                      {/* Price In */}
+                      {}
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">
                           Unit Price (Cost) <span className="text-red-500">*</span>
@@ -412,7 +412,7 @@ export function SizeStockManagementModal({
                         </p>
                       </div>
 
-                      {/* Expiry Date */}
+                      {}
                       <DateTimePickerField
                         control={form.control}
                         className="h-10"
@@ -422,7 +422,7 @@ export function SizeStockManagementModal({
                         error={form.formState.errors.expiryDate}
                       />
 
-                      {/* Location */}
+                      {}
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">
                           Storage Location
@@ -438,12 +438,12 @@ export function SizeStockManagementModal({
                       </div>
                     </div>
 
-                    {/* Preview Section */}
+                    {}
                     {selectedSize && (
                       <div className="border-t pt-6">
                         <h3 className="text-sm font-semibold mb-4">Sales Preview</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Selling Price */}
+                          {}
                           <div className="bg-muted/50 p-4 rounded-lg">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
@@ -485,7 +485,7 @@ export function SizeStockManagementModal({
                               )}
                             </div>
 
-                            {/* Revenue Calculation */}
+                            {}
                             <div className="bg-muted/50 p-4 rounded-lg">
                               <p className="text-xs text-muted-foreground mb-3">Total Revenue (if sold all)</p>
                               <div className="space-y-3">
@@ -531,7 +531,7 @@ export function SizeStockManagementModal({
               </Card>
             )}
 
-            {/* Stock History Table */}
+            {}
             {selectedSize && (
               <Card>
                 <CardHeader>
@@ -561,7 +561,7 @@ export function SizeStockManagementModal({
           </div>
         </div>
 
-        {/* Form Footer with Action Buttons */}
+        {}
         <div className="px-6 py-4 border-t bg-gradient-to-r from-muted/50 to-muted/30 flex-shrink-0">
           <div className="flex items-center justify-between gap-4">
             {!editingStock && (
@@ -653,7 +653,7 @@ export function SizeStockManagementModal({
             </div>
           </div>
 
-        {/* Delete Confirmation Modal */}
+        {}
         <DeleteConfirmationModal
           isOpen={deleteState.isOpen}
           onClose={closeDeleteModal}

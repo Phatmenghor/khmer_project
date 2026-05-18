@@ -1,9 +1,5 @@
-/**
- * usePOSCheckout Hook
- * Creates orders from POS with full admin capabilities
- * Use this for creating NEW orders from POS
- * For updating existing orders, use usePOSOrderUpdate instead
- */
+
+
 
 import { useCallback, useState } from 'react';
 import { useAppDispatch } from '@/store';
@@ -28,14 +24,7 @@ export function usePOSCheckout() {
     error: null,
   });
 
-  /**
-   * Create a complete order from POS
-   * All order details can be set by admin including:
-   * - Custom prices (override product prices)
-   * - Promotions for items
-   * - Delivery and payment options
-   * - Customer info or create for existing customer
-   */
+
   const createPOSOrder = useCallback(
     async (request: POSCheckoutRequest) => {
       setState({ isCreating: true, error: null });
@@ -66,9 +55,7 @@ export function usePOSCheckout() {
     [dispatch]
   );
 
-  /**
-   * Helper to build a POS checkout request from cart items
-   */
+
   const buildPOSCheckoutRequest = (params: {
     businessId: string;
     items: POSCheckoutItemRequest[];
@@ -105,9 +92,7 @@ export function usePOSCheckout() {
     };
   };
 
-  /**
-   * Helper to build a POS checkout item from cart item
-   */
+
   const buildPOSCheckoutItem = (params: {
     productId: string;
     sizeId?: string | null;
@@ -127,11 +112,11 @@ export function usePOSCheckout() {
   };
 
   return {
-    // State
+
     isCreating: state.isCreating,
     error: state.error,
 
-    // Methods
+
     createPOSOrder,
     buildPOSCheckoutRequest,
     buildPOSCheckoutItem,

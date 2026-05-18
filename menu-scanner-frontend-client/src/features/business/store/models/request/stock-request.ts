@@ -23,11 +23,7 @@ export interface ProductStockFilterRequest extends BaseGetAllRequest {
   search?: string;
 }
 
-/**
- * Type-safe filter request for product stock items listing
- * Uses easy field names: totalStock, productName, etc.
- * Default sorting: totalStock DESC (high to low)
- */
+
 export interface ProductStockItemsFilterRequest {
   pageNo?: number;
   pageSize?: number;

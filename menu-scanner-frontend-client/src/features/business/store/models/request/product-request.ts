@@ -13,12 +13,12 @@ export interface AllProductRequest extends BaseGetAllRequest {
 }
 
 export interface ProductImageRequest {
-  id?: string; // If exists, update; if not, create
+  id?: string;
   imageUrl: string;
 }
 
 export interface ProductSizeRequest {
-  id?: string; // If exists, update; if not, create
+  id?: string;
   name: string;
   price: number;
   promotionType?: string;
@@ -31,17 +31,17 @@ export interface CreateProductRequest {
   name: string;
   description: string;
   categoryId: string;
-  brandId?: string; // Optional
+  brandId?: string;
   mainImageUrl: string;
 
-  // Pricing - null if sizes exist
+
   price?: number | null;
   promotionType?: string | null;
   promotionValue?: number | null;
   promotionFromDate?: string | null;
   promotionToDate?: string | null;
 
-  // Images and sizes
+
   images?: ProductImageRequest[];
   sizes?: ProductSizeRequest[];
 
@@ -52,20 +52,17 @@ export interface UpdateProductRequest {
   name?: string;
   description?: string;
   categoryId?: string;
-  brandId?: string; // Optional
+  brandId?: string;
   mainImageUrl?: string;
 
-  // Pricing - null if sizes exist
+
   price?: number | null;
   promotionType?: string | null;
   promotionValue?: number | null;
   promotionFromDate?: string | null;
   promotionToDate?: string | null;
 
-  // Images and sizes
-  // Missing items from original list will be deleted
-  // Empty array removes all
-  // Items with id are updates, without id are creates
+
   images?: ProductImageRequest[];
   sizes?: ProductSizeRequest[];
 

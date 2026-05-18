@@ -11,7 +11,7 @@ export function ScrollReset() {
   const restorationAttempts = useRef(0);
 
   useEffect(() => {
-    // Disable browser's default scroll restoration
+
     if (typeof window !== "undefined") {
       window.history.scrollRestoration = "manual";
     }
@@ -26,7 +26,7 @@ export function ScrollReset() {
   useEffect(() => {
     restorationAttempts.current = 0;
 
-    // Restore scroll position for this pathname
+
     const restoreScroll = () => {
       try {
         const saved = sessionStorage.getItem(SCROLL_POSITIONS_KEY);
@@ -45,20 +45,20 @@ export function ScrollReset() {
               });
             };
 
-            // Multiple restoration attempts
-            restore(); // Immediate
-            setTimeout(restore, 0); // Next tick
-            setTimeout(restore, 50); // After 50ms
-            setTimeout(restore, 100); // After 100ms
-            setTimeout(restore, 200); // After 200ms
 
-            // Final attempt after content should be loaded
+            restore();
+            setTimeout(restore, 0);
+            setTimeout(restore, 50);
+            setTimeout(restore, 100);
+            setTimeout(restore, 200);
+
+
             setTimeout(() => {
               restore();
               isRestoringRef.current = false;
             }, 300);
           } else {
-            // No saved position - scroll to top
+
             window.scrollTo(0, 0);
             isRestoringRef.current = false;
           }
@@ -72,7 +72,7 @@ export function ScrollReset() {
       }
     };
 
-    // Start restoration
+
     restoreScroll();
   }, [pathname]);
 
@@ -80,7 +80,7 @@ export function ScrollReset() {
     let rafId: number | null = null;
     let lastKnownScrollY = window.scrollY;
 
-    // Track scroll position efficiently
+
     const handleScroll = () => {
       if (isRestoringRef.current) return;
 
@@ -94,7 +94,7 @@ export function ScrollReset() {
       });
     };
 
-    // Save scroll position
+
     const saveScroll = () => {
       if (isRestoringRef.current) return;
 
@@ -105,7 +105,7 @@ export function ScrollReset() {
 
         positions[currentPath] = lastKnownScrollY;
 
-        // Keep only last 20 pages
+
         const keys = Object.keys(positions);
         if (keys.length > 20) {
           const sorted = keys.sort();
@@ -128,19 +128,19 @@ export function ScrollReset() {
       }
     };
 
-    // Listen to scroll
+
     window.addEventListener("scroll", handleScroll, { passive: true });
 
-    // Save before navigation
+
     const saveBeforeNavigation = () => {
       if (rafId) {
         cancelAnimationFrame(rafId);
-        lastKnownScrollY = window.scrollY; // Get current scroll immediately
+        lastKnownScrollY = window.scrollY;
       }
       saveScroll();
     };
 
-    // Intercept Next.js router
+
     const originalPushState = window.history.pushState;
     const originalReplaceState = window.history.replaceState;
 
@@ -154,10 +154,10 @@ export function ScrollReset() {
       return originalReplaceState.apply(this, args);
     };
 
-    // Handle popstate (browser back/forward)
+
     window.addEventListener("popstate", saveBeforeNavigation);
 
-    // Handle page visibility changes
+
     const handleVisibilityChange = () => {
       if (document.hidden) {
         saveBeforeNavigation();
@@ -165,10 +165,10 @@ export function ScrollReset() {
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Save before unload
+
     window.addEventListener("beforeunload", saveBeforeNavigation);
 
-    // Additional: Save on click events (for Link clicks)
+
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const link = target.closest("a");
@@ -188,7 +188,7 @@ export function ScrollReset() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       document.removeEventListener("click", handleClick, true);
 
-      // Restore original methods
+
       window.history.pushState = originalPushState;
       window.history.replaceState = originalReplaceState;
     };

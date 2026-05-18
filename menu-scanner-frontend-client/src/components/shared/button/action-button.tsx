@@ -56,7 +56,7 @@ export const ActionButton = ({
   </TooltipProvider>
 );
 
-// Alternative version with conditional tooltip (only shows if tooltip is provided)
+
 export const ConditionalActionButton = ({
   icon,
   tooltip,

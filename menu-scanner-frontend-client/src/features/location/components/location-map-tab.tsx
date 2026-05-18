@@ -116,10 +116,10 @@ export function LocationMapTab({
 
   return (
     <>
-      {/* ── Fullscreen controls overlay (rendered on top of fixed map) ── */}
+      {}
       {isFullScreen && (
         <div className="fixed inset-0 z-[201] flex flex-col pointer-events-none">
-          {/* Top bar */}
+          {}
           <div className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur-sm pointer-events-auto shrink-0">
             <h2 className="text-base font-semibold">Select Location on Map</h2>
             <div className="flex items-center gap-2">
@@ -144,7 +144,7 @@ export function LocationMapTab({
             </div>
           </div>
 
-          {/* Fullscreen search */}
+          {}
           <div className="px-4 py-2 border-b bg-background/95 backdrop-blur-sm pointer-events-auto shrink-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -158,7 +158,7 @@ export function LocationMapTab({
             </div>
           </div>
 
-          {/* Coords badge at bottom */}
+          {}
           <div className="flex-1 relative">
             <CenterPin size="h-10 w-10" isDragging={isDragging} />
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 shadow-lg pointer-events-auto">
@@ -172,7 +172,7 @@ export function LocationMapTab({
         </div>
       )}
 
-      {/* ── Normal map view (search + controls) ── */}
+      {}
       <div className="space-y-3">
         {!isFullScreen && (
           <div className="flex items-center gap-2">
@@ -207,11 +207,8 @@ export function LocationMapTab({
           </div>
         )}
 
-        {/*
-          Map container — always rendered so Google Maps ref stays valid.
-          When fullscreen: fixed inset-0 z-[200] (behind the controls overlay).
-          When normal: relative, rounded border.
-        */}
+        {
+}
         <div
           className={`relative ${
             isFullScreen
@@ -237,7 +234,7 @@ export function LocationMapTab({
           {!isFullScreen && mapError && <MapErrorBanner />}
         </div>
 
-        {/* Coords bar */}
+        {}
         {!isFullScreen && hasCoords && (
           <div className="bg-muted/50 px-3 py-2 rounded-md flex items-center justify-between">
             <CoordsBadge

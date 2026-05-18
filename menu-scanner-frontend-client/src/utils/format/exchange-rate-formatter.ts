@@ -1,7 +1,5 @@
-/**
- * Exchange Rate Formatter Utility
- * Formats exchange rates for display with proper currency notation
- */
+
+
 
 export const formatExchangeRate = (rate: number | undefined, currency: string): string => {
   if (rate === undefined || rate === null) {

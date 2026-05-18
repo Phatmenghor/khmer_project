@@ -1,10 +1,8 @@
-/**
- * Scroll Position Manager
- * Manages scroll positions with cookie/localStorage support for persistence
- */
+
+
 
 const SCROLL_STORAGE_KEY = "scroll_positions";
-const SCROLL_COOKIE_EXPIRY = 7; // days
+const SCROLL_COOKIE_EXPIRY = 7;
 
 export interface ScrollPosition {
   path: string;
@@ -28,9 +26,7 @@ export class ScrollManager {
     return ScrollManager.instance;
   }
 
-  /**
-   * Load scroll positions from localStorage
-   */
+
   private loadFromStorage(): void {
     if (typeof window === "undefined") return;
 
@@ -41,7 +37,7 @@ export class ScrollManager {
         const now = Date.now();
         const maxAge = SCROLL_COOKIE_EXPIRY * 24 * 60 * 60 * 1000;
 
-        // Filter out old positions (older than SCROLL_COOKIE_EXPIRY days)
+
         data
           .filter((item) => now - item.timestamp < maxAge)
           .forEach((item) => {
@@ -52,9 +48,7 @@ export class ScrollManager {
     }
   }
 
-  /**
-   * Save scroll positions to localStorage
-   */
+
   private saveToStorage(): void {
     if (typeof window === "undefined") return;
 
@@ -65,17 +59,15 @@ export class ScrollManager {
     }
   }
 
-  /**
-   * Save scroll position for a path with debouncing
-   */
+
   savePosition(path: string, position: number, debounceMs: number = 150): void {
-    // Clear existing timer
+
     const existingTimer = this.debounceTimers.get(path);
     if (existingTimer) {
       clearTimeout(existingTimer);
     }
 
-    // Set new timer
+
     const timer = setTimeout(() => {
       this.positions.set(path, {
         path,
@@ -89,14 +81,12 @@ export class ScrollManager {
     this.debounceTimers.set(path, timer);
   }
 
-  /**
-   * Get scroll position for a path
-   */
+
   getPosition(path: string): number | null {
     const position = this.positions.get(path);
     if (!position) return null;
 
-    // Check if position is still valid
+
     const now = Date.now();
     const maxAge = SCROLL_COOKIE_EXPIRY * 24 * 60 * 60 * 1000;
 
@@ -109,32 +99,24 @@ export class ScrollManager {
     return position.position;
   }
 
-  /**
-   * Clear scroll position for a path
-   */
+
   clearPosition(path: string): void {
     this.positions.delete(path);
     this.saveToStorage();
   }
 
-  /**
-   * Clear all scroll positions
-   */
+
   clearAllPositions(): void {
     this.positions.clear();
     this.saveToStorage();
   }
 
-  /**
-   * Get all stored positions
-   */
+
   getAllPositions(): ScrollPosition[] {
     return Array.from(this.positions.values());
   }
 
-  /**
-   * Cleanup old positions (older than expiry days)
-   */
+
   cleanup(): void {
     const now = Date.now();
     const maxAge = SCROLL_COOKIE_EXPIRY * 24 * 60 * 60 * 1000;
@@ -153,5 +135,5 @@ export class ScrollManager {
   }
 }
 
-// Export singleton instance
+
 export const scrollManager = ScrollManager.getInstance();

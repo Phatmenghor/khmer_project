@@ -16,12 +16,12 @@ export function LocationPrimaryBanner({ location }: LocationPrimaryBannerProps) 
   return (
     <div className="mb-5 rounded-2xl bg-gradient-to-r from-amber-50 to-amber-100/60 border border-amber-200/70 dark:from-amber-950/30 dark:to-amber-900/20 dark:border-amber-700/40 overflow-hidden shadow-sm">
       <div className="flex items-start gap-4 p-4 sm:p-5">
-        {/* Icon */}
+        {}
         <div className="p-3 rounded-xl bg-amber-100 dark:bg-amber-900/40 shrink-0">
           <LabelIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500 shrink-0" />
@@ -46,7 +46,7 @@ export function LocationPrimaryBanner({ location }: LocationPrimaryBannerProps) 
           )}
         </div>
 
-        {/* Pin icon right side */}
+        {}
         <div className="hidden sm:flex items-center justify-center shrink-0">
           <MapPin className="h-10 w-10 text-amber-300/60 dark:text-amber-700/40" />
         </div>

@@ -81,7 +81,7 @@ export function ProductDetailModal({
         Product Details - {productData.name}
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
@@ -110,10 +110,10 @@ export function ProductDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Product Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Product Information</CardTitle>
@@ -164,7 +164,7 @@ export function ProductDetailModal({
               </CardContent>
             </Card>
 
-            {/* Pricing Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Pricing Information</CardTitle>
@@ -221,7 +221,7 @@ export function ProductDetailModal({
               </CardContent>
             </Card>
 
-            {/* Product Images */}
+            {}
             {productData.images && productData.images.length > 0 && (
               <Card>
                 <CardHeader>
@@ -246,7 +246,7 @@ export function ProductDetailModal({
               </Card>
             )}
 
-            {/* Product Sizes */}
+            {}
             {productData.hasSizes &&
               productData.sizes &&
               productData.sizes.length > 0 && (
@@ -326,7 +326,7 @@ export function ProductDetailModal({
                 </Card>
               )}
 
-            {/* Stock Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Stock Information</CardTitle>
@@ -367,7 +367,7 @@ export function ProductDetailModal({
               </CardContent>
             </Card>
 
-            {/* Product Customizations */}
+            {}
             {productData.customizations &&
               productData.customizations.length > 0 && (
                 <Card>
@@ -405,7 +405,7 @@ export function ProductDetailModal({
                 </Card>
               )}
 
-            {/* Engagement Statistics */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Engagement Statistics</CardTitle>
@@ -432,7 +432,7 @@ export function ProductDetailModal({
               </CardContent>
             </Card>
 
-            {/* System Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>System Information</CardTitle>

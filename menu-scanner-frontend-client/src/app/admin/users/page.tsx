@@ -62,7 +62,7 @@ export default function UserBusinessPage() {
   const debouncedSearch = useDebounce(filters.search, 400);
   const rolesContent = useAppSelector(selectRolesList);
 
-  // Build dynamic role filter options with static ALL_ROLES option
+
   const roleFilterOptions = [
     { value: UserRole.ALL, label: "All Roles" },
     ...rolesContent.map((role) => ({
@@ -76,7 +76,7 @@ export default function UserBusinessPage() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Fetch roles for the filter (all roles as list, no pagination needed)
+
   useEffect(() => {
     dispatch(
       fetchAllRolesListService({
@@ -86,7 +86,7 @@ export default function UserBusinessPage() {
     );
   }, [dispatch]);
 
-  // Fetch users when filters or search change
+
   useEffect(() => {
     const filterPayload = {
       search: debouncedSearch,

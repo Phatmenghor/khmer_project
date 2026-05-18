@@ -65,7 +65,7 @@ const publicLocationSlice = createSlice({
     resetPublicLocation: () => initialState,
   },
   extraReducers: (builder) => {
-    // Provinces
+
     builder
       .addCase(fetchProvincesService.pending, (state) => {
         state.loading.provinces = true;
@@ -81,7 +81,7 @@ const publicLocationSlice = createSlice({
           (action.payload as string) || "Failed to fetch provinces";
       });
 
-    // Districts
+
     builder
       .addCase(fetchDistrictsService.pending, (state) => {
         state.loading.districts = true;
@@ -97,7 +97,7 @@ const publicLocationSlice = createSlice({
           (action.payload as string) || "Failed to fetch districts";
       });
 
-    // Communes
+
     builder
       .addCase(fetchCommunesService.pending, (state) => {
         state.loading.communes = true;
@@ -112,7 +112,7 @@ const publicLocationSlice = createSlice({
         state.error = (action.payload as string) || "Failed to fetch communes";
       });
 
-    // Villages
+
     builder
       .addCase(fetchVillagesService.pending, (state) => {
         state.loading.villages = true;

@@ -80,7 +80,7 @@ export function UserBusinessDetailModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTitle className="sr-only">User Details - {userData.fullName}</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
@@ -109,10 +109,10 @@ export function UserBusinessDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Personal Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Personal Information</CardTitle>
@@ -156,7 +156,7 @@ export function UserBusinessDetailModal({
               </CardContent>
             </Card>
 
-            {/* Employment Information */}
+            {}
             {(userData.employeeId ||
               userData.position ||
               userData.department ||
@@ -182,7 +182,7 @@ export function UserBusinessDetailModal({
               </Card>
             )}
 
-            {/* Addresses */}
+            {}
             {userData.addresses && userData.addresses.length > 0 && (
               <Card>
                 <CardHeader>
@@ -209,7 +209,7 @@ export function UserBusinessDetailModal({
               </Card>
             )}
 
-            {/* Emergency Contacts */}
+            {}
             {userData.emergencyContacts && userData.emergencyContacts.length > 0 && (
               <Card>
                 <CardHeader>
@@ -231,7 +231,7 @@ export function UserBusinessDetailModal({
               </Card>
             )}
 
-            {/* Documents */}
+            {}
             {userData.documents && userData.documents.length > 0 && (
               <Card>
                 <CardHeader>
@@ -266,7 +266,7 @@ export function UserBusinessDetailModal({
               </Card>
             )}
 
-            {/* Education */}
+            {}
             {userData.educations && userData.educations.length > 0 && (
               <Card>
                 <CardHeader>
@@ -309,7 +309,7 @@ export function UserBusinessDetailModal({
               </Card>
             )}
 
-            {/* Remarks */}
+            {}
             {userData.remark && (
               <Card>
                 <CardHeader>
@@ -321,7 +321,7 @@ export function UserBusinessDetailModal({
               </Card>
             )}
 
-            {/* System Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>System Information</CardTitle>

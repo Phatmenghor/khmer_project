@@ -90,7 +90,7 @@ export default function AttendanceModal({
     fetchAttendanceData();
   }, [attendanceId, isOpen, dispatch, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());

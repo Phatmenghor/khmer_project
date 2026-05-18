@@ -43,13 +43,13 @@ export function LanguageSwitcher({
     setLocale(selectedLocale);
 
     startTransition(() => {
-      // Store in cookie and localStorage
+
       document.cookie = `locale=${selectedLocale}; path=/; max-age=${
         365 * 24 * 60 * 60
       }; SameSite=Lax`;
       localStorage.setItem("locale", selectedLocale);
 
-      // Refresh to apply new locale
+
       router.refresh();
     });
   };

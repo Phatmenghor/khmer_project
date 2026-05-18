@@ -39,7 +39,7 @@ const stockManagementSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Create Product Stock
+
     builder
       .addCase(createProductStockService.pending, (state) => {
         state.isCreating = true;
@@ -48,7 +48,7 @@ const stockManagementSlice = createSlice({
       .addCase(createProductStockService.fulfilled, (state, action) => {
         state.isCreating = false;
         state.successMessage = "Stock created successfully";
-        // Add to history if available
+
         if (state.history) {
           state.history.content.unshift(action.payload);
           state.history.totalElements += 1;
@@ -59,7 +59,7 @@ const stockManagementSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Get Product Stock History
+
     builder
       .addCase(getProductStockHistoryService.pending, (state) => {
         state.isLoading = true;
@@ -74,7 +74,7 @@ const stockManagementSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Update Product Stock
+
     builder
       .addCase(updateProductStockService.pending, (state) => {
         state.isUpdating = true;
@@ -83,7 +83,7 @@ const stockManagementSlice = createSlice({
       .addCase(updateProductStockService.fulfilled, (state, action) => {
         state.isUpdating = false;
         state.successMessage = "Stock updated successfully";
-        // Update in history if available
+
         if (state.history) {
           const index = state.history.content.findIndex(
             (s) => s.id === action.payload.id
@@ -98,7 +98,7 @@ const stockManagementSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Delete Product Stock
+
     builder
       .addCase(deleteProductStockService.pending, (state) => {
         state.isDeleting = true;
@@ -107,7 +107,7 @@ const stockManagementSlice = createSlice({
       .addCase(deleteProductStockService.fulfilled, (state, action) => {
         state.isDeleting = false;
         state.successMessage = "Stock deleted successfully";
-        // Remove from history if available
+
         if (state.history) {
           state.history.content = state.history.content.filter(
             (s) => s.id !== action.payload

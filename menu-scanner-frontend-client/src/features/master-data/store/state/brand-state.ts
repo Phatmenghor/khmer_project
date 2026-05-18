@@ -13,7 +13,7 @@ import {
 export const useBrandState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const brandState = useAppSelector(selectBrandState);
   const brandData = useAppSelector(selectBrand);
   const brandContent = useAppSelector(selectBrandContent);

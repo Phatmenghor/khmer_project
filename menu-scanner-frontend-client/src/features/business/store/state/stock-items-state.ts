@@ -1,14 +1,11 @@
 import { useAppDispatch, useAppSelector } from "@/store";
 import { RootState } from "@/store";
 
-/**
- * Custom hook for accessing stock items state and dispatch
- * Provides a convenient way to access commonly used selectors and dispatch functions
- */
+
 export const useStockItemsState = () => {
   const dispatch = useAppDispatch();
 
-  // Select individual parts of state
+
   const stockItemsState = useAppSelector((state: RootState) => state.stockItems);
   const stockItemsData = useAppSelector((state: RootState) => state.stockItems.data);
   const stockItemsContent = useAppSelector((state: RootState) => state.stockItems.items);

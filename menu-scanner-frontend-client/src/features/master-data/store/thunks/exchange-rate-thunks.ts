@@ -1,7 +1,5 @@
-/**
- * Exchange Rate Management - Async Thunks
- * Redux thunks for Exchange Rate CRUD operations
- */
+
+
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
@@ -11,9 +9,7 @@ import {
 } from "../models/request/exchange-rate-request";
 import { CreateExchangeRateData } from "../models/schema/exchange-rate-schema";
 
-/**
- * Fetch all ExchangeRate
- */
+
 export const fetchAllExchangeRateService = createApiThunk<
   any,
   AllExchangeRateRequest
@@ -25,9 +21,7 @@ export const fetchAllExchangeRateService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Fetch all ExchangeRate for current business
- */
+
 export const fetchAllMyBusinessExchangeRateService = createApiThunk<
   any,
   AllExchangeRateRequest
@@ -39,9 +33,7 @@ export const fetchAllMyBusinessExchangeRateService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Fetch ExchangeRate by ID
- */
+
 export const fetchExchangeRateByIdService = createApiThunk<any, string>(
   "business-exchange-rates/fetchById",
   async (id) => {
@@ -52,9 +44,7 @@ export const fetchExchangeRateByIdService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Create ExchangeRate
- */
+
 export const createExchangeRateService = createApiThunk<
   any,
   CreateExchangeRateData
@@ -66,9 +56,7 @@ export const createExchangeRateService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Update ExchangeRate
- */
+
 export const updateExchangeRateService = createApiThunk<
   any,
   UpdateExchangeRateParams
@@ -80,9 +68,7 @@ export const updateExchangeRateService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Delete ExchangeRate
- */
+
 export const deleteExchangeRateService = createApiThunk<any, string>(
   "business-exchange-rates/delete",
   async (id) => {

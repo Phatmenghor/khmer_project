@@ -80,7 +80,7 @@ export function POSEditCartItemModal({
   const [reason, setReason] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  // Initialize form when modal opens
+
   useEffect(() => {
     if (open && item) {
       setNewPrice(item.currentPrice.toString());
@@ -94,7 +94,7 @@ export function POSEditCartItemModal({
   const handleSave = async () => {
     if (!item || !newPrice || !newQuantity) return;
 
-    // Validate quantity is at least 1
+
     const qty = parseInt(newQuantity);
     if (qty < 1) {
       showToast.error(Messages.product.minQuantity);
@@ -134,24 +134,24 @@ export function POSEditCartItemModal({
 
   if (!item) return null;
 
-  // Safe calculations
+
   const parsedPrice = newPrice ? parseFloat(newPrice) : item.currentPrice;
   const parsedQuantity = newQuantity ? parseInt(newQuantity) : item.quantity;
 
   const calculatedFinalPrice = isNaN(parsedPrice) ? item.currentPrice : parsedPrice;
   const calculatedQuantity = isNaN(parsedQuantity) ? item.quantity : Math.max(1, parsedQuantity);
 
-  // Calculate total add-ons price
+
   const addonsTotal = item.customizations && item.customizations.length > 0
     ? item.customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0)
     : 0;
 
-  // Price with add-ons (unit price before quantity)
+
   const priceWithAddons = calculatedFinalPrice + addonsTotal;
 
   const calculatedTotal = priceWithAddons * calculatedQuantity;
 
-  // Check if form is dirty (with null safety)
+
   const isDirty = !item ? false : (
     reason.trim() !== "" ||
     newPrice !== (item.currentPrice?.toString() || "") ||
@@ -165,7 +165,7 @@ export function POSEditCartItemModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full sm:max-w-[600px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
-        {/* Header */}
+        {}
         <FormHeader
           title="Edit Cart Item"
           description={item.productName}
@@ -173,9 +173,9 @@ export function POSEditCartItemModal({
           showAvatar={false}
         />
 
-        {/* Body */}
+        {}
         <FormBody contentClassName="space-y-6">
-          {/* Product Info Card */}
+          {}
           <div className="flex gap-4 p-4 bg-muted/30 rounded-lg border">
             <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-white border flex-shrink-0">
               <Image
@@ -198,7 +198,7 @@ export function POSEditCartItemModal({
             </div>
           </div>
 
-          {/* Add-ons Section */}
+          {}
           {item.customizations && item.customizations.length > 0 && (
             <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
               <h4 className="font-semibold text-sm text-green-900">Add-ons ({item.customizations.length})</h4>
@@ -213,7 +213,7 @@ export function POSEditCartItemModal({
             </div>
           )}
 
-          {/* Quantity Section - FIRST */}
+          {}
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -229,7 +229,7 @@ export function POSEditCartItemModal({
                   New Qty *
                 </Label>
                 <div className="flex items-center gap-2 h-10">
-                  {/* Minus Button */}
+                  {}
                   <CustomButton
                     size="icon"
                     variant="outline"
@@ -244,12 +244,12 @@ export function POSEditCartItemModal({
                     <Minus className="h-3 w-3" />
                   </CustomButton>
 
-                  {/* Quantity Display */}
+                  {}
                   <div className="flex-1 text-center h-10 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
                     {newQuantity || item.quantity}
                   </div>
 
-                  {/* Plus Button */}
+                  {}
                   <CustomButton
                     size="icon"
                     variant="outline"
@@ -266,7 +266,7 @@ export function POSEditCartItemModal({
             </div>
           </div>
 
-          {/* Promotion Section - SECOND */}
+          {}
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -304,7 +304,7 @@ export function POSEditCartItemModal({
             </div>
           </div>
 
-          {/* Price Section - THIRD */}
+          {}
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -333,7 +333,7 @@ export function POSEditCartItemModal({
             </div>
           </div>
 
-          {/* Reason Section */}
+          {}
           <div className="space-y-3">
             <Label className="text-sm font-semibold">Reason for Change (Optional)</Label>
             <Textarea
@@ -344,7 +344,7 @@ export function POSEditCartItemModal({
             />
           </div>
 
-          {/* Summary */}
+          {}
           <div className="space-y-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
             <h4 className="font-semibold text-sm">Summary</h4>
             <div className="space-y-2 text-sm">
@@ -394,7 +394,7 @@ export function POSEditCartItemModal({
           </div>
         </FormBody>
 
-        {/* Footer */}
+        {}
         <FormFooter
           isSubmitting={isSaving}
           isDirty={isDirty}

@@ -138,7 +138,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
-        {/* Header */}
+        {}
         <DialogHeader className="text-left">
           <div>
             <DialogTitle className="text-2xl">{businessName}</DialogTitle>
@@ -150,9 +150,9 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
 
         <Separator />
 
-        {/* Body - Register Form */}
+        {}
         <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-          {/* First and Last Name Row */}
+          {}
           <div className="grid grid-cols-2 gap-3">
             <TextField
               name="firstName"
@@ -218,7 +218,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             onTogglePassword={() => setShowConfirmPassword((v) => !v)}
           />
 
-          {/* Footer - Submit Button */}
+          {}
           <DialogFooter className="pt-2">
             <Button
               type="submit"

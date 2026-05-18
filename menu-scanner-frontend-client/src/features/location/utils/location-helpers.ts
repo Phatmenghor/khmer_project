@@ -21,10 +21,7 @@ const LABEL_ICON_MAP: Record<string, React.ElementType> = {
   family: Heart,
 };
 
-/**
- * Returns a Lucide icon component based on the label string.
- * Falls back to MapPin if no keyword matches.
- */
+
 export function getLabelIcon(label?: string | null): React.ElementType {
   if (!label) return MapPin;
   const lower = label.toLowerCase();
@@ -34,9 +31,7 @@ export function getLabelIcon(label?: string | null): React.ElementType {
   return MapPin;
 }
 
-/**
- * Builds a comma-separated address string from location fields.
- */
+
 export function formatLocationAddress(location: LocationResponseModel): string {
   const parts = [
     location.houseNumber,
@@ -50,9 +45,7 @@ export function formatLocationAddress(location: LocationResponseModel): string {
   return parts.length > 0 ? parts.join(", ") : "No address details";
 }
 
-/**
- * Returns true if the location is set as primary/default.
- */
+
 export function isLocationPrimary(location: LocationResponseModel): boolean {
   return location.isPrimary || location.isDefault;
 }

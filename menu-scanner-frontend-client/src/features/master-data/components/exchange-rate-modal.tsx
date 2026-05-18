@@ -80,7 +80,7 @@ export default function ExchangeRateModal({
     mode: "onChange",
   });
 
-  // Reset form when modal opens in create mode or when exchangeRate changes
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -103,7 +103,7 @@ export default function ExchangeRateModal({
     }
   }, [isOpen, isCreate, exchangeRate, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -119,17 +119,17 @@ export default function ExchangeRateModal({
         notes: data.notes,
       };
 
-      // Add status only when updating (not for create)
+
       if (!isCreate && data.status) {
         payload.status = data.status;
       }
 
       if (isCreate) {
-        // Optimistic update: close modal immediately
+
         showToast.success(Messages.exchangeRate.created);
         handleClose();
 
-        // Make API call in background (fire and forget with error handling)
+
         dispatch(createExchangeRateService(payload))
           .unwrap()
           .catch((error: any) => {
@@ -138,7 +138,7 @@ export default function ExchangeRateModal({
             );
           });
       } else {
-        // Optimistic update: update local state and close modal immediately
+
         if (exchangeRate) {
           const updatedRate: ExchangeRateResponseModel = {
             ...exchangeRate,
@@ -147,7 +147,7 @@ export default function ExchangeRateModal({
             usdToVndRate: data.usdToVndRate || exchangeRate.usdToVndRate,
             status: (data.status || exchangeRate.status) as "ACTIVE" | "INACTIVE",
             notes: data.notes || exchangeRate.notes,
-            // Preserve other fields
+
             id: exchangeRate.id,
             businessId: exchangeRate.businessId,
             businessName: exchangeRate.businessName,
@@ -163,7 +163,7 @@ export default function ExchangeRateModal({
         showToast.success(Messages.exchangeRate.updated);
         handleClose();
 
-        // Make API call in background (fire and forget with error handling)
+
         dispatch(
           updateExchangeRateService({
             id: exchangeRate?.id!,
@@ -212,7 +212,7 @@ export default function ExchangeRateModal({
           className="flex flex-col flex-1 overflow-hidden"
         >
           <FormBody>
-            {/* Display Redux errors */}
+            {}
             {reduxError && (
               <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
                 <p className="text-sm text-destructive font-medium">
@@ -221,7 +221,7 @@ export default function ExchangeRateModal({
               </div>
             )}
 
-            {/* Exchange Rate Fields */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <TextField
                 control={control as any}
@@ -272,7 +272,7 @@ export default function ExchangeRateModal({
               )}
             </div>
 
-            {/* Notes - Separate Row */}
+            {}
             <TextareaField
               control={control as any}
               name="notes"

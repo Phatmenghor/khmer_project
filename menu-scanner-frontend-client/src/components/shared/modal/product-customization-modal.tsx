@@ -48,10 +48,10 @@ export function ProductCustomizationModal({
   const [quantity, setQuantity] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Initialize modal on open
+
   useEffect(() => {
     if (open && product) {
-      // Set first size if product has sizes
+
       if (product.hasSizes && product.sizes && product.sizes.length > 0) {
         setSelectedSize(product.sizes[0]);
       } else {
@@ -69,7 +69,7 @@ export function ProductCustomizationModal({
     }
   }, [open, product]);
 
-  // Get current price for selected size or product
+
   const currentPrice = useMemo(() => {
     if (selectedSize) {
       return selectedSize.price || 0;
@@ -77,7 +77,7 @@ export function ProductCustomizationModal({
     return product?.price || 0;
   }, [selectedSize, product]);
 
-  // Get final price (after promotion)
+
   const finalPrice = useMemo(() => {
     if (selectedSize) {
       return selectedSize.finalPrice || selectedSize.price || 0;
@@ -85,7 +85,7 @@ export function ProductCustomizationModal({
     return product?.displayPrice || product?.price || 0;
   }, [selectedSize, product]);
 
-  // Check if has promotion
+
   const hasPromotion = useMemo(() => {
     if (selectedSize) {
       return selectedSize.hasPromotion;
@@ -93,7 +93,7 @@ export function ProductCustomizationModal({
     return product?.hasPromotion;
   }, [selectedSize, product]);
 
-  // Handle customization toggle
+
   const handleCustomizationToggle = useCallback(
     (customizationId: string) => {
       setSelectedCustomizations((prev) => {
@@ -109,7 +109,7 @@ export function ProductCustomizationModal({
     []
   );
 
-  // Handle add to cart
+
   const handleAddToCart = useCallback(async () => {
     if (!product) return;
 
@@ -128,7 +128,7 @@ export function ProductCustomizationModal({
         quantity
       );
 
-      // Close modal on success
+
       onOpenChange(false);
       showToast.success(Messages.cart.added);
     } catch (error: any) {
@@ -147,11 +147,11 @@ export function ProductCustomizationModal({
           <DialogTitle>Select Options</DialogTitle>
         </DialogHeader>
 
-        {/* Product Info */}
+        {}
         <div className="space-y-3">
           <h3 className="font-semibold text-base">{product.name}</h3>
 
-          {/* Prices */}
+          {}
           <div className="flex flex-col gap-1">
             <span className={cn("text-sm text-muted-foreground line-through", !hasPromotion && "invisible")}>
               {formatCurrency(currentPrice)}
@@ -162,7 +162,7 @@ export function ProductCustomizationModal({
           </div>
         </div>
 
-        {/* Sizes */}
+        {}
         {product.hasSizes && product.sizes && product.sizes.length > 0 && (
           <div className="space-y-2">
             <label className="text-sm font-semibold">Select Size</label>
@@ -186,7 +186,7 @@ export function ProductCustomizationModal({
           </div>
         )}
 
-        {/* Customizations */}
+        {}
         {product.customizations && product.customizations.length > 0 && (
           <div className="space-y-3">
             <label className="text-sm font-semibold">Add-ons</label>
@@ -226,7 +226,7 @@ export function ProductCustomizationModal({
           </div>
         )}
 
-        {/* Quantity */}
+        {}
         <div className="space-y-2">
           <label className="text-sm font-semibold">Quantity</label>
           <QuantitySelector
@@ -237,7 +237,7 @@ export function ProductCustomizationModal({
           />
         </div>
 
-        {/* Total Price */}
+        {}
         <div className="bg-muted/50 p-3 rounded-lg space-y-1">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Item Price:</span>
@@ -249,7 +249,7 @@ export function ProductCustomizationModal({
           </div>
         </div>
 
-        {/* Add to Cart Button */}
+        {}
         <CustomButton
           onClick={handleAddToCart}
           disabled={isSaving || isLoading || (product.hasSizes && !selectedSize)}

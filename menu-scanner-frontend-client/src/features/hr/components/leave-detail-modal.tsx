@@ -89,7 +89,7 @@ export function LeaveDetailModal({
     >
       {leaveData ? (
         <div className="space-y-6">
-          {/* Leave Information */}
+          {}
           <DetailSection title="Leave Information">
             <DetailRow
               label="Full Name"
@@ -158,7 +158,7 @@ export function LeaveDetailModal({
             />
           </DetailSection>
 
-          {/* System Information */}
+          {}
           <DetailSection title="System Information">
             <DetailRow
               label="Leave Type ID"
@@ -187,7 +187,7 @@ export function LeaveDetailModal({
             />
           </DetailSection>
 
-          {/* Action Buttons */}
+          {}
           <div className="flex items-center justify-end gap-3 pt-4 border-t">
             {onEdit && (
               <Button

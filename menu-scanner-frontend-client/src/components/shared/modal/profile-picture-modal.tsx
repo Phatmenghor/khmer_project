@@ -35,7 +35,7 @@ export function ProfilePictureModal({
   const [selectedImage, setSelectedImage] = useState<string>(currentImageUrl || "");
   const [isRemoving, setIsRemoving] = useState(false);
 
-  // Reset state when modal opens/closes
+
   React.useEffect(() => {
     if (isOpen) {
       setSelectedImage(currentImageUrl || "");
@@ -117,12 +117,12 @@ export function ProfilePictureModal({
           <VisuallyHidden>Upload, download, or remove your profile picture</VisuallyHidden>
         </DialogDescription>
 
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b">
           <h2 className="text-lg font-semibold">Update Profile Picture</h2>
         </div>
 
-        {/* Body - Image Preview */}
+        {}
         <div className="p-6 flex flex-col items-center gap-4">
           <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 flex items-center justify-center bg-gray-100">
             {selectedImage || currentImageUrl ? (
@@ -147,9 +147,9 @@ export function ProfilePictureModal({
           )}
         </div>
 
-        {/* Footer - Action Buttons */}
+        {}
         <div className="border-t px-6 py-4 space-y-3">
-          {/* Select Photo Button */}
+          {}
           <Button
             onClick={() => fileInputRef.current?.click()}
             className="w-full gap-2 bg-primary hover:bg-primary/90"
@@ -168,7 +168,7 @@ export function ProfilePictureModal({
             )}
           </Button>
 
-          {/* Download Picture */}
+          {}
           {currentImageUrl && (
             <Button
               onClick={handleDownload}
@@ -181,7 +181,7 @@ export function ProfilePictureModal({
             </Button>
           )}
 
-          {/* Remove Picture */}
+          {}
           {currentImageUrl && !isRemoving && (
             <Button
               onClick={handleRemoveClick}
@@ -194,7 +194,7 @@ export function ProfilePictureModal({
             </Button>
           )}
 
-          {/* Footer Buttons - Cancel and Save */}
+          {}
           <div className="flex gap-2 pt-2">
             <Button
               onClick={handleCancel}
@@ -221,7 +221,7 @@ export function ProfilePictureModal({
           </div>
         </div>
 
-        {/* Hidden File Input */}
+        {}
         <input
           ref={fileInputRef}
           type="file"

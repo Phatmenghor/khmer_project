@@ -8,36 +8,17 @@ interface UseLazyImageLoadOptions {
   onIntersect?: () => void;
 }
 
-/**
- * Hook that uses IntersectionObserver to lazy-load images.
- *
- * Benefits:
- * - Images only load when they're about to enter the viewport
- * - Reduces bandwidth consumption
- * - Faster initial page load
- * - Perfect for infinite scroll product lists
- *
- * Usage:
- * ```tsx
- * const { ref, isInView } = useLazyImageLoad();
- *
- * return (
- *   <div ref={ref}>
- *     {isInView && <Image src={url} ... />}
- *   </div>
- * );
- * ```
- */
+
 export function useLazyImageLoad(options: UseLazyImageLoadOptions = {}) {
   const {
     threshold = 0,
-    rootMargin = '50px', // Start loading 50px before image enters viewport
+    rootMargin = '50px',
     onIntersect = () => {},
   } = options;
 
   const ref = useRef<HTMLElement | null>(null);
   const [isInView, setIsInView] = useState(false);
-  const [hasBeenInView, setHasBeenInView] = useState(false); // Track if ever loaded
+  const [hasBeenInView, setHasBeenInView] = useState(false);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -46,11 +27,11 @@ export function useLazyImageLoad(options: UseLazyImageLoadOptions = {}) {
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsInView(true);
-          setHasBeenInView(true); // Keep track that it was loaded once
+          setHasBeenInView(true);
           onIntersect();
-          // Optionally: observer.unobserve(entry.target); // Stop observing after first load
+
         } else {
-          // setIsInView(false); // Uncomment to unload when out of view (aggressive)
+
         }
       },
       {
@@ -69,10 +50,7 @@ export function useLazyImageLoad(options: UseLazyImageLoadOptions = {}) {
   return { ref, isInView, hasBeenInView };
 }
 
-/**
- * Hook for observing multiple elements (e.g., in a grid of product cards).
- * Returns a map of element refs to their visibility state.
- */
+
 export function useLazyLoadObserver(options: UseLazyImageLoadOptions = {}) {
   const {
     threshold = 0,
@@ -88,7 +66,7 @@ export function useLazyLoadObserver(options: UseLazyImageLoadOptions = {}) {
         const newVisibleIds = new Set(visibleIds);
 
         entries.forEach((entry) => {
-          // Find the ID associated with this element
+
           const elementId = entry.target.getAttribute('data-lazy-id');
           if (elementId) {
             if (entry.isIntersecting) {
@@ -107,7 +85,7 @@ export function useLazyLoadObserver(options: UseLazyImageLoadOptions = {}) {
       }
     );
 
-    // Observe all registered elements
+
     refsMap.current.forEach((element) => {
       observer.observe(element);
     });

@@ -69,7 +69,7 @@ export function SizeStockItemModal({
     mode: "onChange",
   });
 
-  // Handle success/error messages
+
   useEffect(() => {
     if (successMessage) {
       showToast.success(successMessage);
@@ -91,7 +91,7 @@ export function SizeStockItemModal({
     }
   }, [error, dispatch]);
 
-  // Load history when modal opens or pagination changes - filter by size
+
   useEffect(() => {
     if (isOpen && stockItem) {
       dispatch(
@@ -105,7 +105,7 @@ export function SizeStockItemModal({
     }
   }, [isOpen, stockItem, dispatch, historyPageNo, historyPageSize]);
 
-  // Reset form when modal opens or closes
+
   useEffect(() => {
     if (isOpen) {
       form.reset({
@@ -250,7 +250,7 @@ export function SizeStockItemModal({
         Size Stock Management - {stockItem?.productName} - {stockItem?.sizeName}
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
@@ -285,10 +285,10 @@ export function SizeStockItemModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Add/Update Stock Form */}
+            {}
             <Card ref={formSectionRef}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -298,9 +298,9 @@ export function SizeStockItemModal({
               </CardHeader>
               <CardContent>
                 <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-6">
-                  {/* Form Grid */}
+                  {}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Quantity On Hand */}
+                    {}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Quantity On Hand <span className="text-red-500">*</span>
@@ -330,7 +330,7 @@ export function SizeStockItemModal({
                       </p>
                     </div>
 
-                    {/* Price In */}
+                    {}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Unit Price (Cost) <span className="text-red-500">*</span>
@@ -364,7 +364,7 @@ export function SizeStockItemModal({
                       </p>
                     </div>
 
-                    {/* Expiry Date */}
+                    {}
                     <DateTimePickerField
                       control={form.control}
                       className="h-10"
@@ -374,7 +374,7 @@ export function SizeStockItemModal({
                       error={form.formState.errors.expiryDate}
                     />
 
-                    {/* Location */}
+                    {}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Storage Location
@@ -393,7 +393,7 @@ export function SizeStockItemModal({
               </CardContent>
             </Card>
 
-            {/* Stock History Table */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Stock History</CardTitle>
@@ -421,10 +421,10 @@ export function SizeStockItemModal({
           </div>
         </div>
 
-        {/* Form Footer with Action Buttons */}
+        {}
         <div className="px-6 py-4 border-t bg-gradient-to-r from-muted/50 to-muted/30 flex-shrink-0">
           <div className="flex items-center justify-between gap-4">
-            {/* Left: Status Message on Create Mode */}
+            {}
             {!editingStock && (
               <div className="text-sm text-muted-foreground flex items-center gap-2">
                 {(isCreating || isUpdating) && (
@@ -443,7 +443,7 @@ export function SizeStockItemModal({
               </div>
             )}
 
-            {/* Switch to Add Button */}
+            {}
             {editingStock && (
               <Button
                 type="button"
@@ -470,7 +470,7 @@ export function SizeStockItemModal({
             )}
             <div className="flex-1" />
 
-            {/* Status Message on Edit Mode */}
+            {}
             {editingStock && (
               <div className="text-sm text-muted-foreground flex items-center gap-2">
                 {isUpdating && (
@@ -489,7 +489,7 @@ export function SizeStockItemModal({
               </div>
             )}
 
-            {/* Action Buttons */}
+            {}
             <div className="flex gap-2">
               <CancelButton
                 onClick={() => {
@@ -517,7 +517,7 @@ export function SizeStockItemModal({
           </div>
         </div>
 
-        {/* Delete Confirmation Modal */}
+        {}
         <DeleteConfirmationModal
           isOpen={deleteState.isOpen}
           onClose={closeDeleteModal}

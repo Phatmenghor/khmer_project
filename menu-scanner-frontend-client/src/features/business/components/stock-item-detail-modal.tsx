@@ -33,7 +33,7 @@ export function StockItemDetailModal({
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const productData = useAppSelector(selectSelectedProduct);
 
-  // Fetch product details to get image and more info
+
   React.useEffect(() => {
     const fetchProductData = async () => {
       if (!item?.productId || !isOpen) return;
@@ -74,7 +74,7 @@ export function StockItemDetailModal({
         Stock Item Details - {item.productName}
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header with Product Image */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
@@ -113,10 +113,10 @@ export function StockItemDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Product Description */}
+            {}
             {item.description && (
               <Card>
                 <CardHeader>
@@ -130,7 +130,7 @@ export function StockItemDetailModal({
               </Card>
             )}
 
-            {/* Product Identification */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Product Identification</CardTitle>
@@ -149,7 +149,7 @@ export function StockItemDetailModal({
               </CardContent>
             </Card>
 
-            {/* Stock Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Stock Information</CardTitle>
@@ -196,7 +196,7 @@ export function StockItemDetailModal({
               </CardContent>
             </Card>
 
-            {/* Pricing Information */}
+            {}
             {productData && (
               <Card>
                 <CardHeader>
@@ -267,7 +267,7 @@ export function StockItemDetailModal({
               </Card>
             )}
 
-            {/* Product Images */}
+            {}
             {productData?.images && productData.images.length > 0 && (
               <Card>
                 <CardHeader>
@@ -292,7 +292,7 @@ export function StockItemDetailModal({
               </Card>
             )}
 
-            {/* Availability & Inventory */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Availability & Inventory</CardTitle>
@@ -347,7 +347,7 @@ export function StockItemDetailModal({
               </CardContent>
             </Card>
 
-            {/* Engagement & Analytics */}
+            {}
             {(item.viewCount !== undefined || item.favoriteCount !== undefined) && (
               <Card>
                 <CardHeader>
@@ -380,7 +380,7 @@ export function StockItemDetailModal({
               </Card>
             )}
 
-            {/* Metadata */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Metadata</CardTitle>

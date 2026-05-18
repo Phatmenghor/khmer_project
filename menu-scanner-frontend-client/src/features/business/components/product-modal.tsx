@@ -56,7 +56,7 @@ type Props = {
   isOpen: boolean;
 };
 
-const MAX_PRODUCT_IMAGES = 5; // Maximum number of product images allowed
+const MAX_PRODUCT_IMAGES = 5;
 
 export default function ProductModal({
   isOpen,
@@ -115,7 +115,7 @@ export default function ProductModal({
     mode: "onChange",
   });
 
-  // Field arrays for images, sizes, and customizations
+
   const {
     fields: imageFields,
     append: appendImage,
@@ -149,25 +149,25 @@ export default function ProductModal({
   const hasSizes = sizeFields.length > 0;
   const showPromotionFields = promotionType && promotionType !== "NONE";
 
-  // Calculate remaining slots
+
   const remainingSlots = MAX_PRODUCT_IMAGES - imageFields.length;
   const canAddMore = imageFields.length < MAX_PRODUCT_IMAGES;
 
-  // Handle multiple image uploads with max limit
+
   const handleMultipleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    // Check if adding these files would exceed the limit
+
     if (imageFields.length >= MAX_PRODUCT_IMAGES) {
       showToast.error(`Maximum ${MAX_PRODUCT_IMAGES} images allowed`);
       event.target.value = "";
       return;
     }
 
-    // Calculate how many files we can actually accept
+
     const availableSlots = MAX_PRODUCT_IMAGES - imageFields.length;
     const filesToProcess = Array.from(files).slice(0, availableSlots);
 
@@ -184,7 +184,7 @@ export default function ProductModal({
     setIsProcessingImages(true);
 
     try {
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
       const fileToBase64 = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -240,7 +240,7 @@ export default function ProductModal({
     }
   };
 
-  // Fetch product data for edit mode
+
   useEffect(() => {
     const fetchProductData = async () => {
       if (!productId || !isOpen || isCreate) return;
@@ -251,7 +251,7 @@ export default function ProductModal({
         if (fetchProductByIdService.fulfilled.match(resultAction)) {
           const data = resultAction.payload;
 
-          // Set combobox selections
+
           if (data.brandId) {
             setSelectedBrand({
               id: data.brandId,
@@ -293,7 +293,7 @@ export default function ProductModal({
     fetchProductData();
   }, [productId, isOpen, isCreate, reset, dispatch]);
 
-  // Reset form for create mode
+
   useEffect(() => {
     if (isOpen && isCreate) {
       setSelectedBrand(null);
@@ -319,14 +319,14 @@ export default function ProductModal({
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
     }
   }, [isOpen, dispatch]);
 
-  // Helper function to clean promotion data
+
   const cleanPromotionData = (
     promotionType?: string,
     promotionValue?: number,
@@ -354,7 +354,7 @@ export default function ProductModal({
     try {
       setIsUploadingImage(true);
 
-      // Upload main image if it's base64
+
       let finalMainImageUrl = data.mainImageUrl;
       if (finalMainImageUrl && isBase64Image(finalMainImageUrl)) {
         try {
@@ -366,7 +366,7 @@ export default function ProductModal({
         }
       }
 
-      // Upload product images
+
       const processedImages = await Promise.all(
         (data.images || []).map(async (img: any) => {
           if (!img.imageUrl) return null;
@@ -394,7 +394,7 @@ export default function ProductModal({
 
       setIsUploadingImage(false);
 
-      // Clean sizes data
+
       const cleanedSizes = (data.sizes || []).map((size) => ({
         id: size.id,
         name: size.name,
@@ -407,14 +407,14 @@ export default function ProductModal({
         ),
       }));
 
-      // Clean customizations data
+
       const cleanedCustomizations = (data.customizations || []).map((customization) => ({
         id: customization.id,
         name: customization.name,
         priceAdjustment: customization.priceAdjustment || 0,
       }));
 
-      // Prepare base payload
+
       const basePayload = {
         name: data.name,
         description: data.description,
@@ -429,7 +429,7 @@ export default function ProductModal({
         status: data.status,
       };
 
-      // If product has sizes, pricing comes from sizes
+
       const payload = hasSizes
         ? {
             ...basePayload,
@@ -522,7 +522,7 @@ export default function ProductModal({
                   </div>
                 )}
 
-                {/* Basic Information */}
+                {}
                 <Card>
                   <CardHeader>
                     <CardTitle>Basic Information</CardTitle>
@@ -627,7 +627,7 @@ export default function ProductModal({
                   </CardContent>
                 </Card>
 
-                {/* Main Product Image */}
+                {}
                 <Card>
                   <CardHeader>
                     <CardTitle>Product Image</CardTitle>
@@ -650,7 +650,7 @@ export default function ProductModal({
                   </CardContent>
                 </Card>
 
-                {/* Pricing Section - Only show if no sizes */}
+                {}
                 {!hasSizes && (
                   <Card>
                     <CardHeader>
@@ -713,7 +713,7 @@ export default function ProductModal({
                           />
                         </div>
 
-                        {/* Only show promotion fields when type is not NONE */}
+                        {}
                         {showPromotionFields && (
                           <>
                             <div>
@@ -762,7 +762,7 @@ export default function ProductModal({
                   </Card>
                 )}
 
-                {/* Product Sizes */}
+                {}
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -1022,7 +1022,7 @@ export default function ProductModal({
                   </CardContent>
                 </Card>
 
-                {/* Product Customizations */}
+                {}
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -1115,7 +1115,7 @@ export default function ProductModal({
                   </CardContent>
                 </Card>
 
-                {/* Product Images */}
+                {}
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -1178,10 +1178,10 @@ export default function ProductModal({
                                 }
                                 onChange={(base64) => {
                                   if (base64 === "") {
-                                    // Image removed - delete from array
+
                                     removeImage(index);
                                   } else {
-                                    // Image uploaded/changed
+
                                     setValue(
                                       `images.${index}.imageUrl`,
                                       base64,

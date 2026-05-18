@@ -72,10 +72,10 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
     mode: "onChange",
   });
 
-  // Cast control to any for compatibility with field components
+
   const control = formControl as any;
 
-  // Helper function to convert API format (UPPERCASE_WITH_UNDERSCORES) to display format (Title Case With Spaces)
+
   const convertApiFormatToDisplay = (name: string): string => {
     return name
       .split("_")
@@ -103,7 +103,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -112,7 +112,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
 
   const onSubmit = async (data: RoleFormData) => {
     try {
-      // Convert name to uppercase with underscores for spaces
+
       const convertedName = data.name!
         .toUpperCase()
         .replace(/\s+/g, "_");

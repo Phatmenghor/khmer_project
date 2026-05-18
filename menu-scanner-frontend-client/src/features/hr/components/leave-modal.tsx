@@ -115,7 +115,7 @@ export default function LeaveModal({
     fetchLeaveData();
   }, [leaveId, isOpen, isCreate, dispatch, reset]);
 
-  // Reset form for create mode
+
   useEffect(() => {
     if (isOpen && isCreate) {
       reset({
@@ -128,7 +128,7 @@ export default function LeaveModal({
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());

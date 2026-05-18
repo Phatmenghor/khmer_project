@@ -52,7 +52,7 @@ export function ComboboxSelectLeaveType({
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch leave types when combobox opens
+
   useEffect(() => {
     if (!open || leaveTypes.length > 0) return;
 
@@ -81,17 +81,17 @@ export function ComboboxSelectLeaveType({
     setOpen(false);
   };
 
-  // Filter leave types based on search term
+
   const filteredLeaveTypes = leaveTypes.filter((type) =>
     type.enumName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Find the selected leave type to display
+
   const selectedLeaveType = leaveTypes.find(
     (type) => type.enumName === value,
   );
 
-  // Display value even before data loads (for edit mode)
+
   const displayValue = selectedLeaveType
     ? selectedLeaveType.enumName
     : value || placeholder;

@@ -26,9 +26,7 @@ interface SizeStockTableOptions {
   handlers: SizeStockTableHandlers;
 }
 
-/**
- * ProductImagePreview - Display product image with preview styling
- */
+
 function ProductImagePreview({
   product,
 }: {
@@ -66,9 +64,7 @@ function ProductImagePreview({
   );
 }
 
-/**
- * StockStatusBadge - Display stock status with simple color coding
- */
+
 function StockStatusBadge({
   stock,
   hasSizes,
@@ -91,18 +87,16 @@ function StockStatusBadge({
   return <span className="text-xs font-medium text-green-600">{stock} Items</span>;
 }
 
-/**
- * SizesDisplay - Display product sizes horizontally with stock color-coded borders
- */
+
 function SizesDisplay({ sizes }: { sizes: ProductSize[] | undefined }) {
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;
   }
 
   const getBorderColor = (stock: number) => {
-    if (stock === 0) return "#DC2626"; // red
-    if (stock < 10) return "#FCD34D"; // yellow
-    return "#16A34A"; // green
+    if (stock === 0) return "#DC2626";
+    if (stock < 10) return "#FCD34D";
+    return "#16A34A";
   };
 
   return (
@@ -122,9 +116,7 @@ function SizesDisplay({ sizes }: { sizes: ProductSize[] | undefined }) {
   );
 }
 
-/**
- * Size Stock Table Columns - Specialized for products with size variants
- */
+
 export const sizeStockTableColumns = ({
   data,
   handlers,

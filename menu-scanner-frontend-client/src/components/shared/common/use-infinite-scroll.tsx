@@ -17,8 +17,7 @@ export const useInfiniteScroll = ({
 }: UseInfiniteScrollOptions) => {
   const [targetEl, setTargetEl] = useState<HTMLDivElement | null>(null);
 
-  // Callback ref: fires when the sentinel div mounts/unmounts
-  // This ensures the observer is created after the element is in the DOM
+
   const observerTarget = useCallback((node: HTMLDivElement | null) => {
     setTargetEl(node);
   }, []);

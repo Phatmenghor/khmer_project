@@ -15,24 +15,17 @@ import { TelegramAuthData } from "@/features/auth/store/models/request/social-au
 import { SocialAuthConfig } from "@/constants/app-resource/default/default";
 
 interface TelegramLoginModalProps {
-  /** Called with the Telegram auth data after user approves in Telegram */
+
   onAuth: (data: TelegramAuthData) => Promise<void>;
-  /** Button label shown to open the modal */
+
   buttonLabel?: string;
-  /** Button class for the trigger */
+
   className?: string;
   disabled?: boolean;
   loading?: boolean;
 }
 
-/**
- * TelegramLoginModal
- *
- * Shows a styled trigger button. On click, opens a Dialog explaining the
- * Telegram login flow and embeds the custom TelegramLoginButton (popup).
- *
- * The backend auto-detects login vs register — no separate flows needed.
- */
+
 export function TelegramLoginModal({
   onAuth,
   buttonLabel = "Continue with Telegram",
@@ -55,7 +48,7 @@ export function TelegramLoginModal({
 
   return (
     <>
-      {/* Trigger button */}
+      {}
       <Button
         type="button"
         variant="outline"
@@ -71,7 +64,7 @@ export function TelegramLoginModal({
         {loading ? "Connecting..." : buttonLabel}
       </Button>
 
-      {/* Modal */}
+      {}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>

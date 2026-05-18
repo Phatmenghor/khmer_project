@@ -1,5 +1,5 @@
 export const Messages = {
-  // ─── Auth ──────────────────────────────────────────────────────────────────
+
   auth: {
     loginSuccess: "Welcome to admin dashboard!",
     loginFailed: "Login failed",
@@ -16,7 +16,6 @@ export const Messages = {
     deleteAccountFailed: "Failed to delete account",
   },
 
-  // ─── Profile ───────────────────────────────────────────────────────────────
   profile: {
     updated: "Profile updated successfully",
     updateFailed: "Failed to update profile",
@@ -27,7 +26,6 @@ export const Messages = {
     imageUploadFailed: "Failed to upload profile image",
   },
 
-  // ─── Cart ──────────────────────────────────────────────────────────────────
   cart: {
     added: "Added to cart",
     updated: "Cart updated",
@@ -41,7 +39,6 @@ export const Messages = {
     setQuantity: "Please set quantity greater than 0 to add customizations",
   },
 
-  // ─── Favorites ─────────────────────────────────────────────────────────────
   favorites: {
     removed: "Removed from favorites",
     removeFailed: "Failed to remove from favorites",
@@ -50,7 +47,6 @@ export const Messages = {
     updateFailed: "Failed to update favorites",
   },
 
-  // ─── Orders ────────────────────────────────────────────────────────────────
   orders: {
     placed: "Order placed successfully! Redirecting...",
     created: "Order created successfully",
@@ -63,7 +59,6 @@ export const Messages = {
     updated: "Updated successfully",
   },
 
-  // ─── Location ──────────────────────────────────────────────────────────────
   location: {
     created: "Location created",
     updated: "Location updated",
@@ -82,7 +77,6 @@ export const Messages = {
     selectCommune: "Please select a commune first",
   },
 
-  // ─── Product ───────────────────────────────────────────────────────────────
   product: {
     created: "Product created successfully",
     updated: "Product updated successfully",
@@ -99,7 +93,6 @@ export const Messages = {
     statusUpdateFailed: "Failed to update product status",
   },
 
-  // ─── Promotions ────────────────────────────────────────────────────────────
   promotions: {
     allReset: "All promotions reset successfully",
     allResetFull: "All promotions have been reset successfully!",
@@ -110,7 +103,6 @@ export const Messages = {
     allSelectionsCleared: "All selections cleared",
   },
 
-  // ─── Banner ────────────────────────────────────────────────────────────────
   banner: {
     created: "Banner created successfully",
     updated: "Banner updated successfully",
@@ -121,7 +113,6 @@ export const Messages = {
     imageUploadFailed: "Failed to upload banner image. Please try again.",
   },
 
-  // ─── Brand ─────────────────────────────────────────────────────────────────
   brand: {
     created: "Brand created successfully",
     updated: "Brand updated successfully",
@@ -131,7 +122,6 @@ export const Messages = {
     imageUploadFailed: "Failed to upload brand image. Please try again.",
   },
 
-  // ─── Category ──────────────────────────────────────────────────────────────
   category: {
     created: "Category created successfully",
     updated: "Category updated successfully",
@@ -140,7 +130,6 @@ export const Messages = {
     deleteFailed: "Failed to delete categories",
   },
 
-  // ─── Payment ───────────────────────────────────────────────────────────────
   payment: {
     created: "Payment option created successfully",
     updated: "Payment option updated successfully",
@@ -151,7 +140,6 @@ export const Messages = {
     selectMethod: "Please select a payment method",
   },
 
-  // ─── Delivery ──────────────────────────────────────────────────────────────
   delivery: {
     created: "Delivery options created successfully",
     updated: "Delivery options updated successfully",
@@ -162,14 +150,12 @@ export const Messages = {
     selectAddress: "Please select a delivery address",
   },
 
-  // ─── Exchange Rate ─────────────────────────────────────────────────────────
   exchangeRate: {
     created: "Exchange rate created successfully",
     updated: "Exchange rate updated successfully",
     deleteFailed: "Failed to delete Exchange Rate",
   },
 
-  // ─── Business Settings ─────────────────────────────────────────────────────
   business: {
     settingsUpdated: "Business settings updated successfully",
     settingsUpdateFailed: "Failed to update business settings",
@@ -179,7 +165,6 @@ export const Messages = {
     logoUploadFailed: "Failed to upload logo",
   },
 
-  // ─── Reviews ───────────────────────────────────────────────────────────────
   reviews: {
     approved: "Review approved successfully",
     rejected: "Review rejected",
@@ -188,7 +173,6 @@ export const Messages = {
     selectRating: "Please select a rating",
   },
 
-  // ─── Users ─────────────────────────────────────────────────────────────────
   users: {
     statusUpdated: "User business status updated successfully",
     statusUpdateFailed: "Failed to update user business status",
@@ -197,7 +181,6 @@ export const Messages = {
     sessionDeleteFailed: "Failed to delete session",
   },
 
-  // ─── HR ────────────────────────────────────────────────────────────────────
   hr: {
     attendanceUpdated: "Attendance updated successfully",
     attendanceDeleteFailed: "Failed to delete attendance",
@@ -208,19 +191,16 @@ export const Messages = {
     workScheduleDeleteFailed: "Failed to delete work schedule",
   },
 
-  // ─── Upload ────────────────────────────────────────────────────────────────
   upload: {
     imageFailed: "Failed to upload image",
     orderError: "Error updating order",
   },
 
-  // ─── Clipboard ─────────────────────────────────────────────────────────────
   clipboard: {
     linkCopied: "Link copied to clipboard",
     addressCopied: "Address copied!",
   },
 
-  // ─── Validation ────────────────────────────────────────────────────────────
   validation: {
     requiredFields: "Please complete all required fields",
     saveFailed: "Error saving changes. Please try again.",

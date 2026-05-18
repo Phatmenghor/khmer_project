@@ -2,9 +2,7 @@
 
 import React from "react";
 
-/**
- * Cache entry with TTL (Time To Live)
- */
+
 export interface CacheEntry<T> {
   data: T;
   timestamp: number;
@@ -12,10 +10,7 @@ export interface CacheEntry<T> {
   key: string;
 }
 
-/**
- * Cache manager with TTL support
- * Automatically expires old cache entries
- */
+
 export class CacheManager {
   private static instance: CacheManager;
   private cache = new Map<string, CacheEntry<any>>();
@@ -30,16 +25,12 @@ export class CacheManager {
     return CacheManager.instance;
   }
 
-  /**
-   * Check if cache entry is expired
-   */
+
   private isExpired<T>(entry: CacheEntry<T>): boolean {
     return Date.now() - entry.timestamp > entry.ttlMs;
   }
 
-  /**
-   * Set cache with TTL in milliseconds
-   */
+
   set<T>(key: string, data: T, ttlMs: number = 3600000): void {
     const entry: CacheEntry<T> = {
       data,
@@ -48,10 +39,10 @@ export class CacheManager {
       key,
     };
 
-    // Store in memory (always)
+
     this.memoryCache.set(key, entry);
 
-    // Store in localStorage if possible (for persistence)
+
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem(`cache_${key}`, JSON.stringify(entry));
@@ -60,32 +51,30 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Get cache entry if not expired
-   */
+
   get<T>(key: string): T | null {
-    // Try memory first
+
     let entry = this.memoryCache.get(key);
 
-    // Fallback to localStorage
+
     if (!entry && typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem(`cache_${key}`);
         if (stored) {
           entry = JSON.parse(stored);
-          // Restore to memory cache
+
           this.memoryCache.set(key, entry);
         }
       } catch (e) {
       }
     }
 
-    // Check if expired
+
     if (entry && !this.isExpired(entry)) {
       return entry.data as T;
     }
 
-    // Remove expired entry
+
     this.memoryCache.delete(key);
     if (typeof window !== "undefined") {
       localStorage.removeItem(`cache_${key}`);
@@ -94,16 +83,12 @@ export class CacheManager {
     return null;
   }
 
-  /**
-   * Check if cache exists and is not expired
-   */
+
   has(key: string): boolean {
     return this.get(key) !== null;
   }
 
-  /**
-   * Clear specific cache
-   */
+
   clear(key: string): void {
     this.memoryCache.delete(key);
     if (typeof window !== "undefined") {
@@ -111,9 +96,7 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Clear all cache for a pattern
-   */
+
   clearPattern(pattern: string): void {
     const regex = new RegExp(pattern);
     const keysToDelete: string[] = [];
@@ -132,9 +115,7 @@ export class CacheManager {
     });
   }
 
-  /**
-   * Clear all cache
-   */
+
   clearAll(): void {
     this.memoryCache.clear();
     if (typeof window !== "undefined") {
@@ -146,9 +127,7 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Get cache statistics
-   */
+
   getStats(): { memory: number; localStorage: number } {
     let localStorageSize = 0;
     if (typeof window !== "undefined") {
@@ -168,19 +147,15 @@ export class CacheManager {
 
 export const cacheManager = CacheManager.getInstance();
 
-/**
- * Cache time constants (in milliseconds)
- */
+
 export const CACHE_TTL = {
-  SHORT: 5 * 60 * 1000, // 5 minutes
-  MEDIUM: 30 * 60 * 1000, // 30 minutes
-  LONG: 60 * 60 * 1000, // 1 hour
-  VERY_LONG: 24 * 60 * 60 * 1000, // 24 hours
+  SHORT: 5 * 60 * 1000,
+  MEDIUM: 30 * 60 * 1000,
+  LONG: 60 * 60 * 1000,
+  VERY_LONG: 24 * 60 * 60 * 1000,
 };
 
-/**
- * Hook to use cache with React
- */
+
 export function useCache<T>(
   key: string,
   fetchFn: () => Promise<T>,

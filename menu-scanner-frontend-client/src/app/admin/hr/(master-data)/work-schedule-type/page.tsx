@@ -36,7 +36,7 @@ export default function WorkScheduleTypePage() {
   useAdminCleanup(resetState);
   const searchParams = useSearchParams();
 
-  // Redux state
+
   const {
     workScheduleTypeState,
     workScheduleTypeData,
@@ -48,7 +48,7 @@ export default function WorkScheduleTypePage() {
     dispatch,
   } = useWorkScheduleTypeState();
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -65,7 +65,7 @@ export default function WorkScheduleTypePage() {
     workSchedule: null as WorkScheduleTypeResponseModel | null,
   });
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -74,7 +74,7 @@ export default function WorkScheduleTypePage() {
     baseRoute: ROUTES.HR.WORK_SCHEDULE_TYPE,
   });
 
-  // Initialize URL and Redux state on mount
+
   useEffect(() => {
     const pageParam = searchParams.get("pageNo");
     const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
@@ -84,7 +84,7 @@ export default function WorkScheduleTypePage() {
     }
   }, [searchParams, filters.pageNo, dispatch]);
 
-  // Fetch users when filters change
+
   useEffect(() => {
     dispatch(
       fetchAllWorkSchedulesTypeService({
@@ -95,7 +95,7 @@ export default function WorkScheduleTypePage() {
     );
   }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
 
-  // Event handlers
+
   const handleCreate = () => {
     setModalState({
       isOpen: true,
@@ -174,7 +174,7 @@ export default function WorkScheduleTypePage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (workScheduleTypeContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -225,7 +225,7 @@ export default function WorkScheduleTypePage() {
           openModal={handleCreate}
         ></CardHeaderSection>
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <DataTableWithPagination
           data={workScheduleTypeContent}
           columns={columns}
@@ -242,7 +242,7 @@ export default function WorkScheduleTypePage() {
         />
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <WorkScheduleTypeModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -250,14 +250,14 @@ export default function WorkScheduleTypePage() {
         mode={modalState.mode}
       />
 
-      {/* Modals User Detail */}
+      {}
       <WorkScheduleTypeDetailModal
         workScheduleId={detailModalState.id}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete User */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

@@ -89,7 +89,7 @@ export function ImageUploadField({
       </Label>
 
       <div className="space-y-3">
-        {/* Preview */}
+        {}
         {preview && (
           <div className="relative w-full h-48 bg-muted rounded-lg overflow-hidden border">
             <img
@@ -111,7 +111,7 @@ export function ImageUploadField({
           </div>
         )}
 
-        {/* Upload Button */}
+        {}
         {!preview && (
           <div
             className={cn(
@@ -146,7 +146,7 @@ export function ImageUploadField({
           </div>
         )}
 
-        {/* Change Image Button (when preview exists) */}
+        {}
         {preview && (
           <div>
             <input

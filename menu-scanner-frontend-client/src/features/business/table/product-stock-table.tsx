@@ -25,9 +25,7 @@ interface StockTableOptions {
   handlers: StockTableHandlers;
 }
 
-/**
- * ProductImagePreview - Display product image with preview styling
- */
+
 function ProductImagePreview({
   product,
 }: {
@@ -65,9 +63,7 @@ function ProductImagePreview({
   );
 }
 
-/**
- * StockStatusBadge - Display stock status with simple color coding
- */
+
 function StockStatusBadge({
   stock,
   hasSizes,
@@ -90,9 +86,7 @@ function StockStatusBadge({
   return <span className="text-xs font-medium text-green-600">{stock} Items</span>;
 }
 
-/**
- * Product Stock Table Columns - Display general product stock
- */
+
 export const stockTableColumns = ({
   data,
   handlers,

@@ -109,7 +109,7 @@ export function ComboboxSelectVillage({
     }
   };
 
-  // Reset and refetch when communeCode or debouncedSearch changes
+
   useEffect(() => {
     setPage(1);
     setLastPage(false);

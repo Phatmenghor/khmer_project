@@ -38,7 +38,7 @@ export function DetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full sm:max-w-6xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <DialogHeader className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center gap-4 pr-8">
             {(avatarUrl || avatarName) && (
@@ -61,7 +61,7 @@ export function DetailModal({
           </div>
         </DialogHeader>
 
-        {/* Content - Use explicit height calculation */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6">{isLoading ? <Loading /> : children}</div>
         </div>

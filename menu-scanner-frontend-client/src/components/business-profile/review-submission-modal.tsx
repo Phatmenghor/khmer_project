@@ -48,19 +48,18 @@ export function ReviewSubmissionModal({
       customerName: data.customerName,
       rating,
       comment: data.comment,
-      isApproved: false, // Requires admin approval
+      isApproved: false,
       createdAt: new Date().toISOString(),
     };
 
 
-    // Call parent handler or API
     onSubmit?.(review);
 
     showToast.success(
       "Thank you for your review! It will be published after approval."
     );
 
-    // Reset form
+
     reset();
     setRating(0);
     onClose();
@@ -71,7 +70,7 @@ export function ReviewSubmissionModal({
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
+        {}
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
           <h2 className="text-2xl font-bold">Write a Review</h2>
           <button
@@ -82,9 +81,9 @@ export function ReviewSubmissionModal({
           </button>
         </div>
 
-        {/* Content */}
+        {}
         <form onSubmit={handleSubmit(onFormSubmit)} className="p-6 space-y-6">
-          {/* Business Name */}
+          {}
           <div className="text-center pb-4 border-b">
             <p className="text-gray-600">You're reviewing</p>
             <h3 className="text-xl font-semibold text-orange-600">

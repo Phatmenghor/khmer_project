@@ -28,9 +28,7 @@ export const selectFilters = (state: RootState) =>
 export const selectOperations = (state: RootState) =>
   state.workScheduleType.operations;
 
-/**
- * Select pagination metadata
- */
+
 export const selectPagination = createSelector(
   [selectWorkScheduleType],
   (data) => ({

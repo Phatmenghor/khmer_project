@@ -21,37 +21,10 @@ export interface FilterGroup {
 
 interface TabbedFilterPanelProps {
   config: FilterPanelConfig;
-  filterGroups: FilterGroup[]; // Organize filters into tabs
+  filterGroups: FilterGroup[];
 }
 
-/**
- * TabbedFilterPanel - Organize filters by categories in tabs
- *
- * Features:
- * - Group related filters together
- * - Switch between filter categories
- * - Shows active filter count per tab
- * - Clean, organized interface
- *
- * Example groups:
- * - Sort & Order
- * - Product Filters (Brand, Category, Type)
- * - Status Filters (Stock Status, Product Status)
- * - Advanced (Low Stock Threshold)
- *
- * Usage:
- * ```tsx
- * <TabbedFilterPanel
- *   config={filterConfig}
- *   filterGroups={[
- *     { id: 'sort', label: 'Sort', filterIds: ['sortBy', 'sortDirection'] },
- *     { id: 'product', label: 'Product', filterIds: ['brand', 'category', 'productType'] },
- *     { id: 'status', label: 'Status', filterIds: ['stockStatus', 'productStatus'] },
- *     { id: 'advanced', label: 'Advanced', filterIds: ['lowStockThreshold'] },
- *   ]}
- * />
- * ```
- */
+
 export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
   config,
   filterGroups,
@@ -191,9 +164,9 @@ export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
         }
       />
 
-      {/* Filter Tabs */}
+      {}
       <div className="bg-gray-900/50 rounded-lg border border-gray-800 overflow-hidden">
-        {/* Tab Headers */}
+        {}
         <div className="flex border-b border-gray-800 overflow-x-auto">
           {filterGroups.map((group) => {
             const activeCount = getTabActiveCount(group);
@@ -220,7 +193,7 @@ export const TabbedFilterPanel: React.FC<TabbedFilterPanelProps> = ({
           })}
         </div>
 
-        {/* Tab Content - Responsive grid layout */}
+        {}
         <div className="p-4 grid gap-3 w-full"
           style={{
             gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',

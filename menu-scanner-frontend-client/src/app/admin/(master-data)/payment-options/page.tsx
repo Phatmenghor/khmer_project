@@ -36,10 +36,10 @@ import { paymentOptionsTableColumns } from "@/features/master-data/table/payment
 import { PaymentOptionResponse } from "@/features/master-data/store/models/response/payment-option-response";
 
 export default function PaymentOptionsPage() {
-  // Clean up state when leaving admin area
+
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     paymentOptionsState,
     paymentOptionsData,
@@ -51,7 +51,7 @@ export default function PaymentOptionsPage() {
     dispatch,
   } = usePaymentOptionsState();
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -68,7 +68,7 @@ export default function PaymentOptionsPage() {
     paymentOption: null as PaymentOptionResponse | null,
   });
 
-  // Global page size from global settings
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -78,7 +78,7 @@ export default function PaymentOptionsPage() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Fetch payment options for current user's business when filters change
+
   useEffect(() => {
     dispatch(
       fetchMyBusinessPaymentOptionsService({
@@ -96,7 +96,7 @@ export default function PaymentOptionsPage() {
     globalPageSize,
   ]);
 
-  // Event handlers
+
   const handleCreatePaymentOption = () => {
     setModalState({
       isOpen: true,
@@ -206,7 +206,7 @@ export default function PaymentOptionsPage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (paymentOptionsContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -262,7 +262,7 @@ export default function PaymentOptionsPage() {
           </div>
         </CardHeaderSection>
 
-        {/* Data Table */}
+        {}
         <DataTableWithPagination
           data={paymentOptionsContent}
           columns={columns}
@@ -279,7 +279,7 @@ export default function PaymentOptionsPage() {
         />
       </div>
 
-      {/* Modals */}
+      {}
       <PaymentOptionsModal
         isOpen={modalState.isOpen}
         mode={modalState.mode}

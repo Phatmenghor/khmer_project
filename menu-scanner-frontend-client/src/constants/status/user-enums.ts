@@ -1,6 +1,5 @@
-/**
- * User-related enum constants matching backend enums
- */
+
+
 
 export enum AddressType {
   CURRENT = "CURRENT",

@@ -3,9 +3,7 @@ import { AllSessionRequest } from "@/features/auth/store/models/request/session-
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
 
-/**
- * Fetch all Sessions
- */
+
 export const fetchAllSessionsService = createApiThunk<any, AllSessionRequest>(
   "sessions/fetchAll",
   async (params) => {
@@ -18,9 +16,7 @@ export const fetchAllSessionsService = createApiThunk<any, AllSessionRequest>(
   },
 );
 
-/**
- * Fetch Session by ID
- */
+
 export const fetchSessionByIdService = createApiThunk<any, string>(
   "sessions/fetchById",
   async (id) => {
@@ -29,9 +25,7 @@ export const fetchSessionByIdService = createApiThunk<any, string>(
   },
 );
 
-/**
- * Delete Session by ID
- */
+
 export const deleteSessionByIDService = createApiThunk<any, string>(
   "sessions/delete",
   async (id) => {
@@ -42,9 +36,7 @@ export const deleteSessionByIDService = createApiThunk<any, string>(
   },
 );
 
-/**
- * Delete Session by User ID
- */
+
 export const deleteSessionByUserIDService = createApiThunk<any, string>(
   "sessions/deleteByUserID",
   async (id) => {

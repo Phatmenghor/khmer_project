@@ -47,7 +47,7 @@ export default function ResetPasswordModal({
 }: ResetPasswordModalProps) {
   const dispatch = useAppDispatch();
 
-  // Get resetting password state from Redux
+
   const isResettingPassword = useAppSelector(selectIsResettingPassword);
 
   const [showPassword, setShowPassword] = useState(false);
@@ -101,7 +101,7 @@ export default function ResetPasswordModal({
 
         <FormBody>
           <div className="space-y-6">
-            {/* User Preview Card */}
+            {}
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
@@ -128,7 +128,7 @@ export default function ResetPasswordModal({
               </CardContent>
             </Card>
 
-            {/* Default Password Section */}
+            {}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Key className="h-4 w-4 text-muted-foreground" />
@@ -174,7 +174,7 @@ export default function ResetPasswordModal({
               </p>
             </div>
 
-            {/* Warning Card */}
+            {}
             <Card className="border-orange-200 bg-orange-50/50">
               <CardContent className="pt-6">
                 <div className="flex gap-3">

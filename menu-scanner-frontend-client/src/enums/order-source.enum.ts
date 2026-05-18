@@ -1,11 +1,9 @@
-/**
- * Order Source Enum
- * Tracks whether order came from POS (admin) or Public (customer)
- */
+
+
 
 export enum OrderSource {
-  PUBLIC = 'PUBLIC',      // Customer order from website/app
-  POS = 'POS',            // Admin order from POS system
+  PUBLIC = 'PUBLIC',
+  POS = 'POS',
 }
 
 export const OrderSourceConfig = {

@@ -33,9 +33,7 @@ export const selectFilters = (state: RootState) => state.categories.filters;
 export const selectOperations = (state: RootState) =>
   state.categories.operations;
 
-/**
- * Select pagination metadata
- */
+
 export const selectPagination = createSelector([selectCategories], (data) => ({
   currentPage: data?.pageNo || 1,
   totalPages: data?.totalPages || 1,
@@ -47,9 +45,7 @@ export const selectPagination = createSelector([selectCategories], (data) => ({
   hasPrevious: data?.hasPrevious || false,
 }));
 
-/**
- * Select pagination metadata for categories with product count
- */
+
 export const selectPaginationWithProductCount = createSelector(
   [selectCategoriesWithProductCount],
   (data) => ({

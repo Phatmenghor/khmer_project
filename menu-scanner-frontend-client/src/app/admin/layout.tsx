@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { buildAdminMetadata } from "@/utils/metadata/metadata-builder";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
-// Force all admin routes to use dynamic rendering
+
 export const dynamic = "force-dynamic";
 
 interface DashboardGroupLayoutProps {

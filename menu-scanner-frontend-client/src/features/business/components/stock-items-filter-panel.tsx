@@ -10,7 +10,7 @@ import { BrandResponseModel } from "@/features/master-data/store/models/response
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 
 interface StockItemsFilterPanelProps {
-  // Sort
+
   sortByValue: string;
   sortByOptions: Array<{ value: string; label: string }>;
   onSortByChange: (value: string) => void;
@@ -19,7 +19,7 @@ interface StockItemsFilterPanelProps {
   sortDirectionOptions: Array<{ value: string; label: string }>;
   onSortDirectionChange: (value: string) => void;
 
-  // Filters
+
   selectedBrand: BrandResponseModel | null;
   onBrandChange: (brand: BrandResponseModel | null) => void;
 
@@ -38,23 +38,17 @@ interface StockItemsFilterPanelProps {
   hasSizesOptions: Array<{ value: string; label: string }>;
   onHasSizesChange: (value: string) => void;
 
-  // Low stock threshold
+
   lowStockThresholdValue: string;
   onLowStockThresholdChange: (value: string) => void;
 
-  // Sort options for badge filtering
+
   sortByOptions: Array<{ value: string; label: string }>;
 }
 
-/**
- * Stock Items Filter Panel - Works with CardHeaderSection
- * Add button stays on first row right, filters wrap below
- * Layout:
- * [Search] [Filters...] [Add Button]
- *          [More Filters...]
- */
+
 export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
-  // Sort
+
   sortByValue,
   sortByOptions,
   onSortByChange,
@@ -62,7 +56,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
   sortDirectionOptions,
   onSortDirectionChange,
 
-  // Filters
+
   selectedBrand,
   onBrandChange,
   selectedCategories,
@@ -77,11 +71,11 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
   hasSizesOptions,
   onHasSizesChange,
 
-  // Low stock threshold
+
   lowStockThresholdValue,
   onLowStockThresholdChange,
 }) => {
-  // Calculate active filters for badge display
+
   const activeFilters = useMemo(() => {
     const filters = [];
 
@@ -138,9 +132,9 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
 
   return (
     <>
-      {/* Filters Row - wraps independently, Add button NOT included */}
+      {}
       <div className="flex flex-wrap gap-3 items-stretch">
-        {/* Sort Field */}
+        {}
         <CustomSelect
           options={sortByOptions}
           value={sortByValue}
@@ -148,7 +142,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           onValueChange={onSortByChange}
         />
 
-        {/* Sort Direction */}
+        {}
         <CustomSelect
           options={sortDirectionOptions}
           value={sortDirectionValue}
@@ -156,7 +150,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           onValueChange={onSortDirectionChange}
         />
 
-        {/* Brand Filter */}
+        {}
         <ComboboxSelectBrand
           dataSelect={selectedBrand}
           onChangeSelected={onBrandChange}
@@ -164,7 +158,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           showAllOption={true}
         />
 
-        {/* Category Filter */}
+        {}
         <ComboboxSelectCategories
           dataSelect={selectedCategories}
           onChangeSelected={onCategoriesChange}
@@ -172,7 +166,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           showAllOption={true}
         />
 
-        {/* Stock Status */}
+        {}
         <CustomSelect
           options={stockStatusOptions}
           value={stockStatusValue}
@@ -180,7 +174,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           onValueChange={onStockStatusChange}
         />
 
-        {/* Product Status */}
+        {}
         <CustomSelect
           options={productStatusOptions}
           value={productStatusValue}
@@ -188,7 +182,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           onValueChange={onProductStatusChange}
         />
 
-        {/* Product Type */}
+        {}
         <CustomSelect
           options={hasSizesOptions}
           value={hasSizesValue}
@@ -196,7 +190,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           onValueChange={onHasSizesChange}
         />
 
-        {/* Low Stock Threshold */}
+        {}
         <Input
           type="number"
           inputMode="numeric"
@@ -204,7 +198,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
           value={lowStockThresholdValue}
           onChange={(e) => {
             const value = e.target.value;
-            // Only allow positive integers
+
             if (value === "" || /^\d+$/.test(value)) {
               onLowStockThresholdChange(value);
             }
@@ -214,7 +208,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
         />
       </div>
 
-      {/* Active Filters Badges - Only show if there are active filters */}
+      {}
       {activeFilters.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {activeFilters.map((filter) => (
@@ -225,8 +219,7 @@ export const StockItemsFilterPanel: React.FC<StockItemsFilterPanelProps> = ({
         </div>
       )}
 
-      {/* Add Button - rendered separately by CardHeaderSection as customAddNewButton */}
+      {}
     </>
   );
 };
-

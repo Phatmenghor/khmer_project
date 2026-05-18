@@ -96,7 +96,7 @@ const stockItemsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Get Stock Items
+
       .addCase(getProductStockItemsService.pending, (state) => {
         state.isLoading = true;
         state.error = null;

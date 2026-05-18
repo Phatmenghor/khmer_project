@@ -41,10 +41,7 @@ function getUserTypeFromCookie(): string {
   );
 }
 
-/**
- * Telegram Sync Card Component
- * Shows connection status and allows connect/disconnect Telegram account
- */
+
 export function TelegramSyncCard({
   socialSync,
   onSyncSuccess,
@@ -60,7 +57,7 @@ export function TelegramSyncCard({
   const isTelegramConnected =
     socialSync?.telegramId !== null && socialSync?.telegramId !== undefined;
 
-  // Handle Telegram sync
+
   const handleTelegramSync = async (telegramData: TelegramAuthData) => {
     setIsConnecting(true);
     try {
@@ -97,7 +94,7 @@ export function TelegramSyncCard({
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              {/* Telegram Icon / Avatar */}
+              {}
               <div className="relative flex-shrink-0">
                 {isTelegramConnected && socialSync?.telegramPhotoUrl ? (
                   <CustomAvatar
@@ -126,7 +123,7 @@ export function TelegramSyncCard({
                 )}
               </div>
 
-              {/* Connection Info */}
+              {}
               <div className="min-w-0">
                 <h3 className="font-semibold text-foreground">Telegram</h3>
                 {isTelegramConnected ? (
@@ -164,7 +161,7 @@ export function TelegramSyncCard({
               </div>
             </div>
 
-            {/* Action Button */}
+            {}
             {isTelegramConnected ? (
               <Button
                 variant="outline"
@@ -197,7 +194,7 @@ export function TelegramSyncCard({
         </CardContent>
       </Card>
 
-      {/* Disconnect Confirmation Dialog */}
+      {}
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <DialogContent>
           <DialogHeader>

@@ -11,7 +11,7 @@ import defaultSettings from "@/constants/defaults/business-settings-default.json
 interface UseBusinessSettingsCacheOptions {
   businessId?: string;
   onSettingsUpdate?: (settings: BusinessSettingsResponse) => void;
-  cacheDurationMs?: number; // Default 1 hour
+  cacheDurationMs?: number;
 }
 
 export const useBusinessSettingsCache = ({
@@ -23,20 +23,20 @@ export const useBusinessSettingsCache = ({
   const apiCallInProgressRef = useRef(false);
 
   useEffect(() => {
-    // Prevent duplicate initial loads
+
     if (initialLoadRef.current) return;
     initialLoadRef.current = true;
 
     const initializeSettings = async () => {
       try {
-        // Step 1: Try to get from localStorage (instant)
+
         const cached = businessSettingsStorage.getCached();
         if (cached?.data) {
         } else {
-          // Step 2: If no cache, use default
+
         }
 
-        // Step 3: If we have a businessId and cache is old, fetch from API
+
         if (businessId && !apiCallInProgressRef.current) {
           const isCacheValid = businessSettingsStorage.isCacheValid(cacheDurationMs);
 
@@ -48,7 +48,7 @@ export const useBusinessSettingsCache = ({
               const newHash = generateBusinessSettingsHash(freshSettings);
               const storedHash = businessSettingsStorage.getStoredHash();
 
-              // Step 4: Compare hashes to detect changes
+
               if (newHash !== storedHash) {
                 businessSettingsStorage.setCached(freshSettings, newHash);
                 onSettingsUpdate?.(freshSettings);
@@ -56,7 +56,6 @@ export const useBusinessSettingsCache = ({
               }
             } catch (error) {
 
-              // Keep using cached or default settings on error
               if (!cached?.data) {
               }
             } finally {
@@ -80,7 +79,7 @@ export const useBusinessSettingsCache = ({
   };
 };
 
-// Helper to get business settings for use outside of React components
+
 export const getBusinessSettingsSync = (): BusinessSettingsResponse => {
   try {
     const cached = businessSettingsStorage.getCached();
@@ -90,7 +89,7 @@ export const getBusinessSettingsSync = (): BusinessSettingsResponse => {
   }
 };
 
-// Helper to clear business settings cache
+
 export const clearBusinessSettingsCache = (): void => {
   businessSettingsStorage.clearCache();
 };

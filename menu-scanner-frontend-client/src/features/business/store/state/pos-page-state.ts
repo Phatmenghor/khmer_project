@@ -1,6 +1,5 @@
-/**
- * POS Page - State Hook
- */
+
+
 
 import { useAppDispatch, useAppSelector } from "@/store";
 import {

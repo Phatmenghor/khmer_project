@@ -37,7 +37,7 @@ import { AttendanceDetailModal } from "@/features/hr/components/attendance-detai
 export default function AttendancePage() {
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     attendanceState,
     attendanceData,
@@ -49,7 +49,7 @@ export default function AttendancePage() {
     dispatch,
   } = useAttendanceState();
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -66,7 +66,7 @@ export default function AttendancePage() {
     attendance: null as AttendanceResponseModel | null,
   });
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -76,7 +76,7 @@ export default function AttendancePage() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Fetch work schedules when filters change
+
   useEffect(() => {
     dispatch(
       fetchAllAttendanceService({
@@ -87,7 +87,7 @@ export default function AttendancePage() {
     );
   }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
 
-  // Event handlers
+
   const handleCreate = () => {
     setModalState({
       isOpen: true,
@@ -166,7 +166,7 @@ export default function AttendancePage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (attendanceContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -214,7 +214,7 @@ export default function AttendancePage() {
           onSearchChange={handleSearchChange}
         ></CardHeaderSection>
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <DataTableWithPagination
           data={attendanceContent}
           columns={columns}
@@ -231,21 +231,21 @@ export default function AttendancePage() {
         />
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <AttendanceModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
         attendanceId={modalState.id}
       />
 
-      {/* Modals Attendance Detail */}
+      {}
       <AttendanceDetailModal
         attendanceId={detailModalState.id}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete Work Schedule */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

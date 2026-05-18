@@ -71,7 +71,7 @@ export function ProductStockItemManagementModal({
     mode: "onChange",
   });
 
-  // Handle success/error messages
+
   useEffect(() => {
     if (successMessage) {
       showToast.success(successMessage);
@@ -93,7 +93,7 @@ export function ProductStockItemManagementModal({
     }
   }, [error, dispatch]);
 
-  // Load history when modal opens or pagination changes
+
   useEffect(() => {
     if (isOpen && stockItem) {
       dispatch(
@@ -106,7 +106,7 @@ export function ProductStockItemManagementModal({
     }
   }, [isOpen, stockItem, dispatch, historyPageNo, historyPageSize]);
 
-  // Reset form when modal opens or closes
+
   useEffect(() => {
     if (isOpen) {
       form.reset({
@@ -249,7 +249,7 @@ export function ProductStockItemManagementModal({
         Stock Management - {stockItem?.productName}
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
@@ -289,11 +289,11 @@ export function ProductStockItemManagementModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
 
-            {/* Add/Update Stock Form */}
+            {}
             <Card ref={formSectionRef}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -303,9 +303,9 @@ export function ProductStockItemManagementModal({
               </CardHeader>
               <CardContent>
                 <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-6">
-                  {/* Form Grid */}
+                  {}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Quantity On Hand */}
+                    {}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Quantity On Hand <span className="text-red-500">*</span>
@@ -335,7 +335,7 @@ export function ProductStockItemManagementModal({
                       </p>
                     </div>
 
-                    {/* Price In */}
+                    {}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Unit Price (Cost) <span className="text-red-500">*</span>
@@ -369,7 +369,7 @@ export function ProductStockItemManagementModal({
                       </p>
                     </div>
 
-                    {/* Expiry Date */}
+                    {}
                     <DateTimePickerField
                       control={form.control}
                       className="h-10"
@@ -379,7 +379,7 @@ export function ProductStockItemManagementModal({
                       error={form.formState.errors.expiryDate}
                     />
 
-                    {/* Location */}
+                    {}
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
                         Storage Location
@@ -399,7 +399,7 @@ export function ProductStockItemManagementModal({
               </CardContent>
             </Card>
 
-            {/* Form Footer */}
+            {}
             <div className="flex gap-2 justify-end">
               <CancelButton
                 onClick={onClose}
@@ -424,7 +424,7 @@ export function ProductStockItemManagementModal({
               </Button>
             </div>
 
-            {/* Stock History Table */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Stock History</CardTitle>
@@ -452,7 +452,7 @@ export function ProductStockItemManagementModal({
           </div>
         </div>
 
-        {/* Delete Confirmation Modal */}
+        {}
         <DeleteConfirmationModal
           isOpen={deleteState.isOpen}
           onClose={closeDeleteModal}

@@ -109,7 +109,7 @@ export function ComboboxSelectDistrict({
     }
   };
 
-  // Reset and refetch when provinceCode or debouncedSearch changes
+
   useEffect(() => {
     setPage(1);
     setLastPage(false);

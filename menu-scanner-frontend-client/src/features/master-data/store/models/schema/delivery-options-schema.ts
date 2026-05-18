@@ -1,8 +1,6 @@
 import { z } from "zod";
 
-/**
- * Create DeliveryOptions Schema
- */
+
 export const createDeliveryOptionsSchema = z.object({
   name: z.string().min(1, "name is required"),
   imageUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
@@ -11,9 +9,7 @@ export const createDeliveryOptionsSchema = z.object({
   status: z.string().min(1, "Status is required"),
 });
 
-/**
- * Update DeliveryOptions Schema
- */
+
 export const updateDeliveryOptionsSchema = z.object({
   name: z.string().min(1, "name is required"),
   imageUrl: z.string().url("Invalid URL").optional().or(z.literal("")),

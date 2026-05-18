@@ -12,13 +12,10 @@ interface StockItemsHeaderProps {
   searchValue: string;
   searchPlaceholder: string;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  children: React.ReactNode; // Filters go here
+  children: React.ReactNode;
 }
 
-/**
- * Custom header for Stock Items page
- * Keeps search on left row 1, Add button on right row 1, filters wrap below
- */
+
 export const StockItemsHeader: React.FC<StockItemsHeaderProps> = ({
   title,
   searchValue,
@@ -32,7 +29,7 @@ export const StockItemsHeader: React.FC<StockItemsHeaderProps> = ({
   return (
     <Card>
       <CardContent className="py-3 sm:py-5">
-        {/* Title Section with Back Button */}
+        {}
         <div className="flex items-center gap-2 mb-3">
           {isMobile && (
             <ActionButton
@@ -46,11 +43,11 @@ export const StockItemsHeader: React.FC<StockItemsHeaderProps> = ({
           {title && <h1 className="text-base sm:text-lg font-bold">{title}</h1>}
         </div>
 
-        {/* Search and Filters Container */}
+        {}
         <div className="space-y-3">
-          {/* Row 1: Search + Add Button (stays on same row) */}
+          {}
           <div className="flex items-end gap-3">
-            {/* Search input - left */}
+            {}
             <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
               <div className="relative w-full group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
@@ -64,7 +61,7 @@ export const StockItemsHeader: React.FC<StockItemsHeaderProps> = ({
               </div>
             </div>
 
-            {/* Add Button - right, stays on same row */}
+            {}
             <Button
               disabled
               variant="default"
@@ -77,7 +74,7 @@ export const StockItemsHeader: React.FC<StockItemsHeaderProps> = ({
             </Button>
           </div>
 
-          {/* Row 2+: Filters (wrap independently) */}
+          {}
           <div className="flex flex-wrap gap-3 items-stretch">{children}</div>
         </div>
       </CardContent>

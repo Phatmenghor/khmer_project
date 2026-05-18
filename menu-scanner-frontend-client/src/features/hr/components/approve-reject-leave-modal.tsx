@@ -65,7 +65,7 @@ export default function ApproveRejectLeaveModal({
     mode: "onChange",
   });
 
-  // Reset form when modal opens
+
   useEffect(() => {
     if (isOpen) {
       reset({

@@ -62,7 +62,7 @@ export function AttendanceDetailModal({
   const [expandedCheckIn, setExpandedCheckIn] = useState<string | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
 
-  // Fetch attendance data
+
   useEffect(() => {
     const fetchAttendanceData = async () => {
       if (!attendanceId || !isOpen) return;
@@ -75,7 +75,7 @@ export function AttendanceDetailModal({
     fetchAttendanceData();
   }, [attendanceId, isOpen, dispatch]);
 
-  // Fetch addresses for all check-ins
+
   useEffect(() => {
     const fetchAddresses = async () => {
       if (!attendanceData?.checkIns || attendanceData.checkIns.length === 0) {
@@ -102,7 +102,7 @@ export function AttendanceDetailModal({
     fetchAddresses();
   }, [attendanceData?.checkIns]);
 
-  // Calculate distance between START and END
+
   useEffect(() => {
     if (!attendanceData?.checkIns || attendanceData.checkIns.length < 2) {
       setDistance(null);
@@ -158,7 +158,7 @@ export function AttendanceDetailModal({
         key={checkIn.id}
         className="border rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors overflow-hidden"
       >
-        {/* Header - Always visible */}
+        {}
         <button
           onClick={() => setExpandedCheckIn(isExpanded ? null : checkIn.id)}
           className="w-full p-4 text-left hover:bg-muted/70 transition-colors flex items-center justify-between"
@@ -195,7 +195,7 @@ export function AttendanceDetailModal({
               {checkIn.checkInType}
             </span>
 
-            {/* Expand/Collapse arrow */}
+            {}
             <div
               className={`transform transition-transform ${
                 isExpanded ? "rotate-180" : ""
@@ -206,10 +206,10 @@ export function AttendanceDetailModal({
           </div>
         </button>
 
-        {/* Expanded Content */}
+        {}
         {isExpanded && (
           <div className="border-t px-4 py-4 space-y-4 bg-background/50">
-            {/* Time and Coordinates */}
+            {}
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">
@@ -230,7 +230,7 @@ export function AttendanceDetailModal({
               </div>
             </div>
 
-            {/* Full Address */}
+            {}
             {address && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1">
@@ -240,7 +240,7 @@ export function AttendanceDetailModal({
               </div>
             )}
 
-            {/* Static Map Preview */}
+            {}
             {staticMapUrl && (
               <div className="rounded border overflow-hidden">
                 <img
@@ -252,9 +252,9 @@ export function AttendanceDetailModal({
               </div>
             )}
 
-            {/* Action Buttons */}
+            {}
             <div className="flex gap-2 flex-wrap">
-              {/* Google Maps Button */}
+              {}
               <a
                 href={getGoogleMapsUrl(checkIn.latitude, checkIn.longitude)}
                 target="_blank"
@@ -266,7 +266,7 @@ export function AttendanceDetailModal({
                 <ExternalLink size={12} />
               </a>
 
-              {/* Directions Button */}
+              {}
               {directionUrl && (
                 <a
                   href={directionUrl}
@@ -280,7 +280,7 @@ export function AttendanceDetailModal({
                 </a>
               )}
 
-              {/* Copy Coordinates */}
+              {}
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(
@@ -294,7 +294,7 @@ export function AttendanceDetailModal({
               </button>
             </div>
 
-            {/* Remarks */}
+            {}
             {checkIn.remarks && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Remarks</p>
@@ -304,7 +304,7 @@ export function AttendanceDetailModal({
               </div>
             )}
 
-            {/* Distance info */}
+            {}
             {distance !== null &&
               checkIn.checkInType === "END" &&
               attendanceData?.checkIns?.length &&
@@ -319,7 +319,7 @@ export function AttendanceDetailModal({
                 </div>
               )}
 
-            {/* Meta Information */}
+            {}
             <div className="text-xs text-muted-foreground pt-2 border-t">
               <p>ID: {checkIn.id}</p>
             </div>
@@ -339,7 +339,7 @@ export function AttendanceDetailModal({
     >
       {attendanceData ? (
         <div className="space-y-6">
-          {/* Attendance Information */}
+          {}
           <DetailSection title="Schedule Information">
             <DetailRow
               label="Full Name"
@@ -372,7 +372,7 @@ export function AttendanceDetailModal({
             />
           </DetailSection>
 
-          {/* Summary Stats */}
+          {}
           {attendanceData?.checkIns && attendanceData.checkIns.length > 0 && (
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
@@ -393,7 +393,7 @@ export function AttendanceDetailModal({
             </div>
           )}
 
-          {/* Check-ins Section */}
+          {}
           {attendanceData?.checkIns && attendanceData.checkIns.length > 0 && (
             <DetailSection title="Check-in Details">
               <div className="space-y-3">
@@ -411,7 +411,7 @@ export function AttendanceDetailModal({
             </DetailSection>
           )}
 
-          {/* System Information */}
+          {}
           <DetailSection title="System Information">
             <DetailRow
               label="Attendance ID"

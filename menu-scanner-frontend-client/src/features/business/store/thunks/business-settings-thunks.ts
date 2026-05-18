@@ -8,19 +8,15 @@ import {
 } from "../services/business-settings-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
 
-/**
- * Async thunk to fetch business settings
- * Fetches complete business settings using public endpoint (no auth required)
- * Uses public endpoint: /api/v1/public/business-settings/{businessId}
- */
+
 export const fetchBusinessSettingsThunk = createAsyncThunk(
   "businessSettings/fetch",
   async (_, { rejectWithValue }) => {
     try {
-      // Get business ID from localStorage
+
       const businessId = localStorage.getItem("businessId") || AppDefault.BUSINESS_ID;
 
-      // Use public endpoint (no auth required)
+
       const settings = await fetchBusinessSettingsByBusinessId(businessId);
       return settings;
     } catch (error) {
@@ -30,9 +26,7 @@ export const fetchBusinessSettingsThunk = createAsyncThunk(
   }
 );
 
-/**
- * Async thunk to update current business settings
- */
+
 export const updateBusinessSettingsThunk = createAsyncThunk(
   "businessSettings/updateCurrent",
   async (request: UpdateBusinessSettingsRequest, { rejectWithValue }) => {

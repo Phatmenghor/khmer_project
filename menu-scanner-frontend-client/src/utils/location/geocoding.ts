@@ -1,9 +1,5 @@
-// utils/geocoding/geocoding.ts
 
-/**
- * Complete Geocoding Utilities with Google Maps API
- * No external packages needed - uses native Fetch API
- */
+
 
 interface GeocodeResult {
   address: string;
@@ -30,9 +26,7 @@ interface GoogleMapsGeocodeResponse {
   status: string;
 }
 
-/**
- * Parse Google Maps geocoding response
- */
+
 const parseGoogleGeocodeResponse = (
   data: GoogleMapsGeocodeResponse,
 ): GeocodeResult | null => {
@@ -43,7 +37,7 @@ const parseGoogleGeocodeResponse = (
   const result = data.results[0];
   const components: GeocodeResult["components"] = {};
 
-  // Parse address components
+
   result.address_components.forEach((component) => {
     if (component.types.includes("route")) {
       components.street = component.long_name;
@@ -67,10 +61,7 @@ const parseGoogleGeocodeResponse = (
   };
 };
 
-/**
- * Convert latitude and longitude to address using Google Maps API
- * Uses NEXT_PUBLIC_GOOGLE_MAPS_API_KEY from .env
- */
+
 export const getAddressFromCoordinates = async (
   latitude: number,
   longitude: number,
@@ -107,9 +98,7 @@ export const getAddressFromCoordinates = async (
   }
 };
 
-/**
- * Get detailed address information
- */
+
 export const getDetailedAddressFromCoordinates = async (
   latitude: number,
   longitude: number,
@@ -139,9 +128,7 @@ export const getDetailedAddressFromCoordinates = async (
   }
 };
 
-/**
- * Format coordinates as fallback
- */
+
 export const formatCoordinates = (
   latitude: number,
   longitude: number,
@@ -149,9 +136,7 @@ export const formatCoordinates = (
   return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
 };
 
-/**
- * Generate Google Maps URL with customization
- */
+
 export const getGoogleMapsUrl = (
   latitude: number,
   longitude: number,
@@ -161,9 +146,7 @@ export const getGoogleMapsUrl = (
   return `https://www.google.com/maps?q=${latitude},${longitude}&z=${zoom}&t=${mapType}`;
 };
 
-/**
- * Generate Google Maps directions URL
- */
+
 export const getGoogleMapsDirectionsUrl = (
   fromLat: number,
   fromLng: number,
@@ -174,10 +157,7 @@ export const getGoogleMapsDirectionsUrl = (
   return `https://www.google.com/maps/dir/${fromLat},${fromLng}/${toLat},${toLng}/?travelmode=${travelMode}`;
 };
 
-/**
- * Generate static map image URL (requires API key)
- * Useful for preview without loading full map
- */
+
 export const getStaticMapImageUrl = (
   latitude: number,
   longitude: number,
@@ -194,17 +174,14 @@ export const getStaticMapImageUrl = (
   return `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=${zoom}&size=${width}x${height}&markers=color:red%7C${latitude},${longitude}&key=${apiKey}`;
 };
 
-/**
- * Calculate distance between two points (Haversine formula)
- * Returns distance in kilometers
- */
+
 export const calculateDistance = (
   lat1: number,
   lon1: number,
   lat2: number,
   lon2: number,
 ): number => {
-  const R = 6371; // Earth's radius in km
+  const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -217,16 +194,13 @@ export const calculateDistance = (
   return R * c;
 };
 
-/**
- * Batch fetch addresses for multiple coordinates
- * Concurrent requests with rate limiting
- */
+
 export const getAddressesFromCoordinates = async (
   coordinates: Array<{ id: string; latitude: number; longitude: number }>,
 ): Promise<Record<string, string>> => {
   const addressMap: Record<string, string> = {};
 
-  // Create promises for all coordinates
+
   const promises = coordinates.map(async (coord) => {
     const address = await getAddressFromCoordinates(
       coord.latitude,
@@ -246,9 +220,7 @@ export const getAddressesFromCoordinates = async (
   return addressMap;
 };
 
-/**
- * Get detailed addresses for multiple coordinates
- */
+
 export const getDetailedAddressesFromCoordinates = async (
   coordinates: Array<{ id: string; latitude: number; longitude: number }>,
 ): Promise<Record<string, GeocodeResult>> => {
@@ -275,9 +247,7 @@ export const getDetailedAddressesFromCoordinates = async (
   return detailedMap;
 };
 
-/**
- * Format address with custom template
- */
+
 export const formatAddressCustom = (
   components: GeocodeResult["components"],
   template: "short" | "medium" | "full" = "medium",
@@ -305,15 +275,12 @@ export const formatAddressCustom = (
   }
 };
 
-/**
- * Get Place Details from coordinates using Nearby Search
- * Can find nearby businesses, landmarks, etc.
- */
+
 export const getNearbyPlaces = async (
   latitude: number,
   longitude: number,
-  placeType: string = "hospital", // hospital, restaurant, police, etc.
-  radius: number = 1000, // in meters
+  placeType: string = "hospital",
+  radius: number = 1000,
 ): Promise<any[] | null> => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -340,9 +307,7 @@ export const getNearbyPlaces = async (
   }
 };
 
-/**
- * Time zone information from coordinates
- */
+
 export const getTimeZoneFromCoordinates = async (
   latitude: number,
   longitude: number,

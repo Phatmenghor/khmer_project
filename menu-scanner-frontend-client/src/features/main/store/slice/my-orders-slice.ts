@@ -26,7 +26,7 @@ interface MyOrdersState {
     statuses: string | null;
   };
   statusTabs: OrderStatusTab[];
-  loadedFilters: string; // Track what filters the orders were loaded with
+  loadedFilters: string;
 }
 
 const initialState: MyOrdersState = {
@@ -46,7 +46,7 @@ const initialState: MyOrdersState = {
     statuses: null,
   },
   statusTabs: [],
-  loadedFilters: "", // Initialize empty
+  loadedFilters: "",
 };
 
 const myOrdersSlice = createSlice({
@@ -78,7 +78,7 @@ const myOrdersSlice = createSlice({
     resetMyOrdersState: () => initialState,
   },
   extraReducers: (builder) => {
-    // Fetch Orders
+
     builder
       .addCase(fetchMyOrdersService.pending, (state) => {
         state.loading.list = true;
@@ -89,7 +89,7 @@ const myOrdersSlice = createSlice({
         const pageNo = action.payload.pageNo || 1;
         const pageSize = action.payload.pageSize || 15;
 
-        // Pagination behavior: replace orders on every page (not infinite scroll)
+
         state.orders = newOrders;
 
         state.loading.list = false;

@@ -22,10 +22,7 @@ export interface StockDeductionResponse {
   }[];
 }
 
-/**
- * Deduct stock for order items when order is confirmed or completed
- * Only deducts from items with 'PENDING' status in the database
- */
+
 export const deductOrderStock = async (
   request: StockDeductionRequest
 ): Promise<StockDeductionResponse> => {
@@ -42,16 +39,12 @@ export const deductOrderStock = async (
   }
 };
 
-/**
- * Check if stock management is enabled in business settings
- */
+
 export const checkStockManagementEnabled = (enableStock?: string): boolean => {
   return enableStock === "ENABLED";
 };
 
-/**
- * Format stock deduction items from order items
- */
+
 export const formatStockDeductionItems = (
   orderItems: any[]
 ): StockDeductionItem[] => {

@@ -45,7 +45,7 @@ export function TextField({
   min,
   max,
   step,
-  allowZero = true, // Default: 0 is valid
+  allowZero = true,
   pattern,
   onCustomChange,
 }: TextFieldProps) {
@@ -73,33 +73,33 @@ export function TextField({
               if (valueAsNumber && type === "number") {
                 const value = e.target.valueAsNumber;
 
-                // Handle empty input (NaN)
+
                 if (isNaN(value)) {
                   field.onChange(undefined);
                   return;
                 }
 
-                // Handle zero based on allowZero prop
+
                 if (value === 0 && !allowZero) {
                   field.onChange(undefined);
                   return;
                 }
 
-                // Valid number (including 0 if allowZero is true)
+
                 field.onChange(value);
               } else if (type === "number" && !valueAsNumber) {
-                // Return string representation for number inputs without valueAsNumber
+
                 const value = e.target.value;
                 field.onChange(value === "" ? undefined : value);
               } else {
-                // For non-number types
+
                 let value = e.target.value;
 
-                // Apply pattern filtering if provided
+
                 if (pattern) {
                   const regex = new RegExp(`^${pattern}*$`);
                   if (!regex.test(value)) {
-                    // If value doesn't match pattern, keep the last valid value
+
                     return;
                   }
                 }

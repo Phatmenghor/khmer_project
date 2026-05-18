@@ -52,28 +52,23 @@ export interface UpdateBusinessSettingsPayload {
   useBrands?: boolean;
 }
 
-/**
- * Custom hook for managing business settings
- * Handles fetching and updating business settings
- */
+
 export const useBusinessSettings = () => {
   const [businessSettings, setBusinessSettings] = useState<BusinessSettings | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Fetch business settings using public endpoint (no auth required)
-   */
+
   const fetchBusinessSettings = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // Get business ID from localStorage
+
       const businessId = localStorage.getItem("businessId") || "550cad56-cafd-4aba-baef-c4dcd53940d0";
 
-      // Use public endpoint (no auth required)
+
       const response = await fetch(`/api/v1/public/business-settings/${businessId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch business settings");
@@ -93,9 +88,7 @@ export const useBusinessSettings = () => {
     }
   }, []);
 
-  /**
-   * Update business settings
-   */
+
   const updateBusinessSettings = useCallback(
     async (payload: UpdateBusinessSettingsPayload): Promise<BusinessSettings> => {
       try {
@@ -130,9 +123,7 @@ export const useBusinessSettings = () => {
     []
   );
 
-  /**
-   * Reset error state
-   */
+
   const clearError = useCallback(() => {
     setError(null);
   }, []);

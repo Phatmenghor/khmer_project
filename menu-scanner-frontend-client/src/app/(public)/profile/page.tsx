@@ -41,7 +41,7 @@ import { PageContainer } from "@/components/shared/common/page-container";
 import { GENDER_OPTIONS } from "@/constants/form-options";
 import { ROUTES } from "@/constants/app-routes/routes";
 
-// Customer profile update schema
+
 const customerProfileSchema = z.object({
   profileImageUrl: z.string().optional(),
   firstName: z.string().min(1, "First name is required"),
@@ -95,14 +95,14 @@ export default function PublicProfilePage() {
     mode: "onChange",
   });
 
-  // Load profile on mount
+
   useEffect(() => {
     if (!userProfile && !isProfileLoading) {
       dispatch(getProfileService());
     }
   }, [dispatch, userProfile, isProfileLoading]);
 
-  // Update form when profile loads
+
   useEffect(() => {
     if (userProfile) {
       reset({
@@ -118,7 +118,7 @@ export default function PublicProfilePage() {
     }
   }, [userProfile, reset]);
 
-  // Clear errors when they appear
+
   useEffect(() => {
     if (reduxError) {
       showToast.error(reduxError);
@@ -157,7 +157,7 @@ export default function PublicProfilePage() {
 
       await dispatch(updateProfileService(payload)).unwrap();
 
-      // Reload profile
+
       await dispatch(getProfileService()).unwrap();
 
       showToast.success(Messages.profile.updated);
@@ -243,7 +243,7 @@ export default function PublicProfilePage() {
   return (
     <PageContainer className="min-h-screen flex flex-col">
       <div className="flex flex-1 flex-col gap-4 py-4">
-        {/* Page Header */}
+        {}
         <div className="w-full mb-2">
           <h1 className="text-3xl font-bold text-foreground">
             Customer Profile
@@ -257,7 +257,7 @@ export default function PublicProfilePage() {
           <Card className="mb-6 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5 shadow-md">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                {/* Profile Image - Camera Icon */}
+                {}
                 <div
                   className="relative group cursor-pointer"
                   onClick={() => setIsProfilePictureModalOpen(true)}
@@ -268,7 +268,7 @@ export default function PublicProfilePage() {
                       name={userProfile?.fullName}
                       size="xxl"
                     />
-                    {/* Camera Icon Overlay */}
+                    {}
                     <div className="absolute bottom-1 right-1 bg-primary rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
                       <Camera className="h-4 w-4 text-white" />
                     </div>
@@ -340,9 +340,9 @@ export default function PublicProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Navigation Tabs - Premium Clean Design */}
+          {}
           <div className="flex gap-0 mb-8 w-full relative group border border-primary/30 rounded-xl overflow-hidden">
-            {/* Background indicator */}
+            {}
             <div
               className={cn(
                 "absolute inset-y-0 h-full bg-primary/5 transition-all duration-500 ease-out",
@@ -350,10 +350,10 @@ export default function PublicProfilePage() {
               )}
             />
 
-            {/* Center divider line */}
+            {}
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20" />
 
-            {/* Profile Tab */}
+            {}
             <button
               onClick={() => setActiveSection("profile")}
               className={cn(
@@ -374,7 +374,7 @@ export default function PublicProfilePage() {
               <span>Profile</span>
             </button>
 
-            {/* Security Tab */}
+            {}
             <button
               onClick={() => setActiveSection("security")}
               className={cn(
@@ -395,11 +395,11 @@ export default function PublicProfilePage() {
             </button>
           </div>
 
-          {/* Profile Section */}
+          {}
           {activeSection === "profile" && (
             <form onSubmit={handleSubmit(onSubmit)} className="w-full">
               <div className="w-full space-y-6">
-                {/* Personal Information */}
+                {}
                 <Card>
                   <CardHeader>
                     <CardTitle>Personal Information</CardTitle>
@@ -507,10 +507,10 @@ export default function PublicProfilePage() {
             </form>
           )}
 
-          {/* Security Section */}
+          {}
           {activeSection === "security" && (
             <div className="space-y-4">
-              {/* Connected Accounts */}
+              {}
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">
                   Connected Accounts
@@ -518,7 +518,7 @@ export default function PublicProfilePage() {
                 <TelegramSyncCard socialSync={socialSync} />
               </div>
 
-              {/* Change Password */}
+              {}
               <Card>
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -543,7 +543,7 @@ export default function PublicProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Delete Account */}
+              {}
               <Card className="border-destructive/50">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -570,13 +570,13 @@ export default function PublicProfilePage() {
             </div>
           )}
 
-          {/* Change Password Modal */}
+          {}
           <ChangePasswordModal
             isOpen={isChangePasswordModalOpen}
             onClose={() => setIsChangePasswordModalOpen(false)}
           />
 
-          {/* Delete Account Confirmation */}
+          {}
           <DeleteConfirmationModal
             isOpen={isDeleteDialogOpen}
             onClose={() => setIsDeleteDialogOpen(false)}
@@ -590,7 +590,7 @@ export default function PublicProfilePage() {
             confirmationText="DELETE"
           />
 
-          {/* Profile Picture Modal */}
+          {}
           <ProfilePictureModal
             isOpen={isProfilePictureModalOpen}
             onClose={() => setIsProfilePictureModalOpen(false)}

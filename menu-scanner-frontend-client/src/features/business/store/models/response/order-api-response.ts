@@ -1,6 +1,5 @@
-/**
- * Order API Response Models - Simplified without audit trail snapshots
- */
+
+
 
 export interface OrderItemApiResponse {
   id: string;
@@ -16,18 +15,18 @@ export interface OrderItemApiResponse {
   };
 
   quantity: number;
-  currentPrice: number;  // Base price before promotion
-  finalPrice: number;    // Price after discount
+  currentPrice: number;
+  finalPrice: number;
   totalPrice: number;
 
-  // Promotion details snapshot
-  hasPromotion: boolean;
-  promotionType?: 'PERCENTAGE' | 'FIXED_AMOUNT';  // Only present if hasPromotion=true
-  promotionValue?: number;                         // Only present if hasPromotion=true
-  promotionFromDate?: string;                      // Only present if hasPromotion=true
-  promotionToDate?: string;                        // Only present if hasPromotion=true
 
-  // Customizations
+  hasPromotion: boolean;
+  promotionType?: 'PERCENTAGE' | 'FIXED_AMOUNT';
+  promotionValue?: number;
+  promotionFromDate?: string;
+  promotionToDate?: string;
+
+
   customizations: CustomizationDetail[];
   customizationTotal: number;
 }
@@ -38,7 +37,7 @@ export interface CustomizationDetail {
   priceAdjustment: number;
 }
 
-// Pricing summary
+
 export interface OrderPricingApiResponse {
   totalItems: number;
   subtotal: number;
@@ -58,17 +57,17 @@ export interface OrderApiResponse {
   orderStatus: string;
   orderFrom: 'CUSTOMER' | 'BUSINESS';
 
-  // Customer info
+
   customerId: string | null;
   customerName: string | null;
   customerPhone: string | null;
   customerEmail: string | null;
 
-  // Business info
+
   businessId: string;
   businessName: string;
 
-  // Delivery info
+
   deliveryAddress: {
     village: string;
     commune: string;
@@ -87,7 +86,7 @@ export interface OrderApiResponse {
     price: number;
   };
 
-  // Notes
+
   customerNote: string;
   businessNote: string;
 

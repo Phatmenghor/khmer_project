@@ -1,12 +1,5 @@
-/**
- * PromotionsSection Component
- * Features:
- * - Fixed 4-row grid layout across all screen sizes
- * - Responsive columns (2-6)
- * - Attractive gradient background with decorative blur effect
- * - View All button for additional promotions
- * - Skeleton loading placeholders
- */
+
+
 
 import React, { useState, useEffect } from "react";
 import { ProductCard } from "@/components/shared/card/product-card";
@@ -25,13 +18,10 @@ interface PromotionsSectionProps {
   title?: string;
 }
 
-/** Default section title for promotions */
+
 const DEFAULT_TITLE = "Hot Deals & Promotions";
 
-/**
- * Memoized component to prevent unnecessary re-renders
- * Only re-renders when props actually change (products, loading, error, title)
- */
+
 const PromotionsSectionComponent = ({
   products,
   loading,
@@ -40,25 +30,22 @@ const PromotionsSectionComponent = ({
 }: PromotionsSectionProps) => {
   const [limit, setLimit] = useState(24);
 
-  /**
-   * Calculate max products to display based on screen size
-   * Always shows 4 rows to maintain consistent home page layout
-   */
+
   useEffect(() => {
     const updateLimit = () => {
       const width = window.innerWidth;
 
-      // Calculate: columns × 4 rows
+
       if (width < 640) {
-        setLimit(8); // 2 cols × 4 rows (mobile)
+        setLimit(8);
       } else if (width < 768) {
-        setLimit(12); // 3 cols × 4 rows (small tablet)
+        setLimit(12);
       } else if (width < 1024) {
-        setLimit(16); // 4 cols × 4 rows (tablet)
+        setLimit(16);
       } else if (width < 1280) {
-        setLimit(20); // 5 cols × 4 rows (desktop)
+        setLimit(20);
       } else {
-        setLimit(24); // 6 cols × 4 rows (large desktop)
+        setLimit(24);
       }
     };
 
@@ -69,13 +56,10 @@ const PromotionsSectionComponent = ({
 
   const displayProducts = products?.slice(0, limit) || [];
 
-  /**
-   * Header Component - Reusable for both loading and content states
-   * Features: gradient background, decorative blur, responsive sizing
-   */
+
   const PromotionHeader = ({ showDecoration = false }) => (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 dark:from-red-950/20 dark:via-orange-950/20 dark:to-yellow-950/20 p-4 sm:p-6 md:p-8 mb-6 shadow-sm">
-      {/* Decorative blur effect - only on content view */}
+      {}
       {showDecoration && (
         <div className="absolute top-0 right-0 w-32 h-32 sm:w-64 sm:h-64 bg-gradient-to-br from-red-200/20 to-orange-200/20 dark:from-red-800/10 dark:to-orange-800/10 rounded-full blur-3xl" />
       )}
@@ -112,12 +96,12 @@ const PromotionsSectionComponent = ({
     return null;
   }
 
-  // Content state with products and decoration
+
   return (
     <SectionWrapper>
       <PromotionHeader showDecoration={true} />
 
-      {/* Responsive Product Grid: 2 cols (mobile) to 6 cols (desktop) */}
+      {}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
         {displayProducts.map((product) => (
           <ProductCard
@@ -127,14 +111,11 @@ const PromotionsSectionComponent = ({
         ))}
       </div>
 
-      {/* Always show "View More Promotions" button */}
+      {}
       <ViewAllButton href="/promotions" text="View More Promotions" />
     </SectionWrapper>
   );
 };
 
-/**
- * Export memoized component
- * Prevents re-renders when parent updates but props remain the same
- */
+
 export const PromotionsSection = React.memo(PromotionsSectionComponent);

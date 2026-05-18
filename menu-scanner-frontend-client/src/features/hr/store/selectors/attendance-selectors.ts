@@ -23,9 +23,7 @@ export const selectFilters = (state: RootState) => state.attendance.filters;
 export const selectOperations = (state: RootState) =>
   state.attendance.operations;
 
-/**
- * Select pagination metadata
- */
+
 export const selectPagination = createSelector([selectAttendance], (data) => ({
   currentPage: data?.pageNo || 1,
   totalPages: data?.totalPages || 1,

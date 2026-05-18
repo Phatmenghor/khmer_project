@@ -1,21 +1,16 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
-/**
- * Type-safe URL parameter management hook
- * Automatically handles encoding/decoding and type conversion
- */
+
 interface UseUrlParamsOptions {
-  shallow?: boolean; // Prevent page scroll on param update
+  shallow?: boolean;
 }
 
 export function useUrlParams(options: UseUrlParamsOptions = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  /**
-   * Get single param with type conversion
-   */
+
   const getParam = useCallback(
     (key: string, defaultValue?: string): string | null => {
       return searchParams.get(key) ?? defaultValue ?? null;
@@ -23,9 +18,7 @@ export function useUrlParams(options: UseUrlParamsOptions = {}) {
     [searchParams]
   );
 
-  /**
-   * Get all params as object
-   */
+
   const getAllParams = useCallback((): Record<string, string> => {
     const params: Record<string, string> = {};
     searchParams.forEach((value, key) => {
@@ -34,9 +27,7 @@ export function useUrlParams(options: UseUrlParamsOptions = {}) {
     return params;
   }, [searchParams]);
 
-  /**
-   * Set single param
-   */
+
   const setParam = useCallback(
     (key: string, value: string | null) => {
       const params = new URLSearchParams(searchParams);
@@ -51,9 +42,7 @@ export function useUrlParams(options: UseUrlParamsOptions = {}) {
     [searchParams, router]
   );
 
-  /**
-   * Set multiple params at once
-   */
+
   const setParams = useCallback(
     (updates: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams);
@@ -70,16 +59,12 @@ export function useUrlParams(options: UseUrlParamsOptions = {}) {
     [searchParams, router]
   );
 
-  /**
-   * Clear all params
-   */
+
   const clearParams = useCallback(() => {
     router.push("");
   }, [router]);
 
-  /**
-   * Check if param exists
-   */
+
   const hasParam = useCallback(
     (key: string): boolean => {
       return searchParams.has(key);
@@ -87,9 +72,7 @@ export function useUrlParams(options: UseUrlParamsOptions = {}) {
     [searchParams]
   );
 
-  /**
-   * Remove single param
-   */
+
   const removeParam = useCallback(
     (key: string) => {
       setParam(key, null);
@@ -97,9 +80,7 @@ export function useUrlParams(options: UseUrlParamsOptions = {}) {
     [setParam]
   );
 
-  /**
-   * Remove multiple params
-   */
+
   const removeParams = useCallback(
     (keys: string[]) => {
       const updates: Record<string, null> = {};
@@ -123,9 +104,7 @@ export function useUrlParams(options: UseUrlParamsOptions = {}) {
   };
 }
 
-/**
- * Helper to convert URL params to typed object
- */
+
 export function useTypedUrlParams<T extends Record<string, any>>(
   schema: Record<string, (val: string | null) => any>
 ): Partial<T> & { update: (updates: Partial<T>) => void } {

@@ -1,6 +1,5 @@
-/**
- * POS Page - Thunks (Async Actions)
- */
+
+
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosClientWithAuth } from "@/utils/axios";
@@ -24,7 +23,7 @@ interface ProductsResponse {
   last: boolean;
 }
 
-// ─── Fetch Categories ───
+
 export const fetchPOSPageCategoriesService = createAsyncThunk(
   "posPage/fetchCategories",
   async (_, { rejectWithValue }) => {
@@ -45,7 +44,7 @@ export const fetchPOSPageCategoriesService = createAsyncThunk(
   }
 );
 
-// ─── Fetch Brands ───
+
 export const fetchPOSPageBrandsService = createAsyncThunk(
   "posPage/fetchBrands",
   async (_, { rejectWithValue }) => {
@@ -66,7 +65,7 @@ export const fetchPOSPageBrandsService = createAsyncThunk(
   }
 );
 
-// ─── Fetch Products ───
+
 export const fetchPOSPageProductsService = createAsyncThunk(
   "posPage/fetchProducts",
   async (params: FetchProductsParams, { rejectWithValue }) => {
@@ -91,7 +90,7 @@ export const fetchPOSPageProductsService = createAsyncThunk(
   }
 );
 
-// ─── Create Order ───
+
 interface CreateOrderParams {
   businessId: string;
   deliveryAddress: any;
@@ -124,15 +123,7 @@ export const createPOSPageOrderService = createAsyncThunk(
   }
 );
 
-// ─── POS Checkout (Admin Order Creation with Full Control) ───
-/**
- * Create order from POS with admin capabilities
- * - Can set custom prices (override product prices)
- * - Can set promotions for items
- * - Can set delivery and payment details
- * - Orders automatically marked as from POS source
- * - Admin can control auto-confirmation
- */
+
 export const createPOSCheckoutOrderService = createAsyncThunk(
   "posPage/createPOSCheckoutOrder",
   async (params: POSCheckoutRequest, { rejectWithValue }) => {

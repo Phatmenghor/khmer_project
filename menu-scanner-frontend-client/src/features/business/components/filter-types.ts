@@ -52,10 +52,7 @@ export type FilterConfig =
   | InputNumberFilterConfig
   | InputTextFilterConfig;
 
-/**
- * Filter Panel Configuration
- * Defines how filters are organized and displayed
- */
+
 export interface FilterPanelConfig {
   title: string;
   searchValue: string;

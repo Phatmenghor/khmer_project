@@ -43,7 +43,7 @@ const locationSlice = createSlice({
     resetLocationState: () => initialState,
   },
   extraReducers: (builder) => {
-    // Fetch all
+
     builder
       .addCase(fetchAllLocationsService.pending, (state) => {
         state.isLoading.fetch = true;
@@ -56,7 +56,7 @@ const locationSlice = createSlice({
         const pageNo = (action.meta.arg as any)?.pageNo || 1;
         const pageSize = (action.meta.arg as any)?.pageSize || state.pagination.pageSize;
 
-        // First page: replace, subsequent pages: append
+
         if (pageNo === 1) {
           state.locations = newLocations;
         } else {
@@ -73,7 +73,7 @@ const locationSlice = createSlice({
         state.error = (action.payload as string) || "Failed to fetch locations";
       });
 
-    // Create
+
     builder
       .addCase(createLocationService.pending, (state) => {
         state.isLoading.create = true;
@@ -84,7 +84,7 @@ const locationSlice = createSlice({
         state.isLoading.create = false;
         state.operations.isCreating = false;
         const newLocation = action.payload;
-        // If new location is primary, remove primary from others
+
         if (newLocation.isPrimary || newLocation.isDefault) {
           state.locations = state.locations.map((loc) => ({
             ...loc,
@@ -100,7 +100,7 @@ const locationSlice = createSlice({
         state.error = (action.payload as string) || "Failed to create location";
       });
 
-    // Update
+
     builder
       .addCase(updateLocationService.pending, (state) => {
         state.isLoading.update = true;
@@ -128,7 +128,7 @@ const locationSlice = createSlice({
         state.error = (action.payload as string) || "Failed to update location";
       });
 
-    // Delete
+
     builder
       .addCase(deleteLocationService.pending, (state) => {
         state.isLoading.delete = true;
@@ -149,7 +149,7 @@ const locationSlice = createSlice({
         state.error = (action.payload as string) || Messages.location.deleteFailed;
       });
 
-    // Fetch default
+
     builder
       .addCase(fetchDefaultLocationService.fulfilled, (state, action) => {
         state.defaultLocation = action.payload;

@@ -46,10 +46,3 @@ export const deleteOrderAdminService = createApiThunk<any, string>(
     return response.data.data;
   }
 );
-
-/**
- * NOTE: Order creation from POS uses createPOSCheckoutOrderService in pos-page-thunks.ts
- * This file only handles order management (fetch, update status, delete)
- * Both POS and customer orders use the same endpoints
- * Differentiation is done via the 'source' field in the response
- */

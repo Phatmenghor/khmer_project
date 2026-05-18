@@ -16,10 +16,7 @@ interface StockItemsTableOptions {
   handlers: StockItemsTableHandlers;
 }
 
-/**
- * Product Stock Items Table Columns - Display flattened product/size items
- * Each product or product-size is displayed as a separate row
- */
+
 export const stockItemsTableColumns = ({
   data,
   handlers,

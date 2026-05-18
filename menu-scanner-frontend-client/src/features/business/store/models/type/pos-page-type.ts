@@ -1,14 +1,12 @@
-/**
- * POS Page - Type Definitions
- * Simplified pricing without audit trail snapshots
- */
+
+
 
 import { ProductDetailResponseModel } from "../response/product-response";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { DeliveryOptionsResponseModel } from "@/features/master-data/store/models/response/delivery-options-response";
 
-// ─── Cart Item Customization ───
+
 export interface PosPageCartItemCustomization {
   id: string;
   productCustomizationId: string;
@@ -16,7 +14,7 @@ export interface PosPageCartItemCustomization {
   priceAdjustment: number;
 }
 
-// ─── Cart Item ───
+
 export interface PosPageCartItem {
   id: string;
   productId: string;
@@ -26,25 +24,25 @@ export interface PosPageCartItem {
   sizeName: string | null;
   quantity: number;
 
-  // SKU and barcode for store tracking
+
   sku?: string;
   barcode?: string;
 
-  // Customizations/Add-ons selected for this item
+
   customizations?: PosPageCartItemCustomization[];
 
-  // Pricing
+
   currentPrice: number;
   finalPrice: number;
   totalPrice: number;
 
-  // Promotion info
+
   hasPromotion?: boolean;
   promotionType?: string | null;
   promotionValue?: number | null;
 }
 
-// ─── Cart Pricing ───
+
 export interface CartPricingInfo {
   totalItems: number;
   totalQuantity: number;
@@ -55,13 +53,13 @@ export interface CartPricingInfo {
   finalTotal: number;
 }
 
-// ─── State ───
+
 export interface POSPageState {
-  // Payment & Delivery
+
   selectedDeliveryOption: DeliveryOptionsResponseModel | null;
   selectedPaymentOption: any;
 
-  // Products & Filters
+
   products: ProductDetailResponseModel[];
   productsLoading: boolean;
   productsError: string | null;
@@ -75,23 +73,23 @@ export interface POSPageState {
   productPage: number;
   hasMoreProducts: boolean;
 
-  // Cart
+
   cartItems: PosPageCartItem[];
   cartPricing: CartPricingInfo | null;
   showCart: boolean;
 
-  // Order
+
   customerNote: string;
   isSubmitting: boolean;
 
-  // Modals
+
   sizePickerProduct: ProductDetailResponseModel | null;
   editingCartItemId: string | null;
-  lastSelectedCustomizations: Record<string, string[]>; // productId -> customizationIds
+  lastSelectedCustomizations: Record<string, string[]>;
   successOrder: { orderNumber: string; total: number } | null;
   showOrderDetailsModal: boolean;
 
-  // UI
+
   brandOpen: boolean;
   promotionFilter: boolean | undefined;
   promotionOpen: boolean;

@@ -7,9 +7,7 @@ import {
   fetchSessionByIdService,
 } from "../thunks/session-thunks";
 
-/**
- * Initial state
- */
+
 const initialState: SessionManagementState = {
   data: null,
   selectedSession: null,
@@ -25,9 +23,7 @@ const initialState: SessionManagementState = {
   },
 };
 
-/**
- * Session slice
- */
+
 const sessionSlice = createSlice({
   name: "sessions",
   initialState,
@@ -83,7 +79,7 @@ const sessionSlice = createSlice({
         state.selectedSession = action.payload;
         state.operations.isFetchingDetail = false;
 
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (user) => user.id === action.payload.id,

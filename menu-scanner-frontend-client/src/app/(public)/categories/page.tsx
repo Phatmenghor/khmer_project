@@ -71,7 +71,7 @@ export default function CategoriesPage() {
           }
         />
 
-        {/* Initial Loading */}
+        {}
         {isInitialLoading && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
             {Array.from({ length: skeletonCount }).map((_, i) => (
@@ -80,7 +80,7 @@ export default function CategoriesPage() {
           </div>
         )}
 
-        {/* Empty State */}
+        {}
         {!isInitialLoading && categories.length === 0 && (
           <EmptyState
             icon={LayoutGrid}
@@ -90,7 +90,7 @@ export default function CategoriesPage() {
           />
         )}
 
-        {/* Categories Grid */}
+        {}
         {!isInitialLoading && categories.length > 0 && (
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
@@ -120,7 +120,7 @@ export default function CategoriesPage() {
               </div>
             )}
 
-            {/* Sentinel div — callback ref ensures observer connects after mount */}
+            {}
             {hasMore && !isLoadingMore && (
               <div ref={observerTarget} className="h-4" />
             )}

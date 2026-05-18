@@ -1,8 +1,6 @@
 import { z } from "zod";
 
-/**
- * Create Exchange Rate Schema
- */
+
 export const createExchangeRateSchema = z.object({
   usdToKhrRate: z.number().min(0.01, "USD To KHR rate must be greater than 0"),
   usdToCnyRate: z
@@ -19,9 +17,7 @@ export const createExchangeRateSchema = z.object({
   notes: z.string().optional(),
 });
 
-/**
- * Update Exchange Rate Schema
- */
+
 export const updateExchangeRateSchema = z.object({
   usdToKhrRate: z.number().min(0.01, "USD To KHR rate must be greater than 0"),
   usdToCnyRate: z

@@ -24,7 +24,7 @@ export function PageFormHeader({
   isCreate = true,
   className,
 }: PageFormHeaderProps) {
-  // Determine icon based on mode
+
   const Icon = isCreate ? Plus : Edit;
 
   return (
@@ -32,7 +32,7 @@ export function PageFormHeader({
       className={cn("px-6 pt-6 pb-4 border-b flex-shrink-0 bg-white rounded-lg", className)}
     >
       <div className="flex items-start gap-4">
-        {/* Avatar or Icon - Left side */}
+        {}
         {showAvatar ? (
           <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
         ) : (
@@ -41,7 +41,7 @@ export function PageFormHeader({
           </div>
         )}
 
-        {/* Header Content */}
+        {}
         <div className="flex flex-col gap-1.5 flex-1 min-w-0">
           <h1 className="text-xl font-semibold">{title}</h1>
           {description && (

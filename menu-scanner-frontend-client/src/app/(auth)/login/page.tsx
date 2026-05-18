@@ -97,7 +97,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex h-screen w-full">
-      {/* Left side — decorative image (desktop only) */}
+      {}
       <div className="hidden flex-1 relative lg:block">
         <Image
           src={appImages.CpBank}
@@ -109,7 +109,7 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* Right side — login form */}
+      {}
       <div className="flex flex-1 items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
         <Card className="w-full max-w-md border border-gray-200 shadow-2xl">
           <CardHeader className="space-y-1 pb-4 sm:pb-6">
@@ -155,7 +155,7 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            {/* Divider */}
+            {}
             <div className="relative my-5">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-gray-300" />

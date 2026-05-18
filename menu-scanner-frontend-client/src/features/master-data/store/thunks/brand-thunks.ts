@@ -1,7 +1,5 @@
-/**
- * Brand Management - Async Thunks
- * Redux thunks for Brand CRUD operations
- */
+
+
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
@@ -11,9 +9,7 @@ import {
 } from "../models/request/brand-request";
 import { CreateBrandData } from "../models/schema/brand-schema";
 
-/**
- * Fetch all brands
- */
+
 export const fetchAllBrandService = createApiThunk<any, AllBrandRequest>(
   "brands/fetchAll",
   async (params) => {
@@ -25,9 +21,7 @@ export const fetchAllBrandService = createApiThunk<any, AllBrandRequest>(
   }
 );
 
-/**
- * Fetch all brands with product count
- */
+
 export const fetchAllBrandWithProductCountService = createApiThunk<
   any,
   AllBrandRequest
@@ -39,9 +33,7 @@ export const fetchAllBrandWithProductCountService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Fetch brands by ID
- */
+
 export const fetchBrandByIdService = createApiThunk<any, string>(
   "brands/fetchById",
   async (brandId) => {
@@ -50,9 +42,7 @@ export const fetchBrandByIdService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Create brands
- */
+
 export const createBrandService = createApiThunk<any, CreateBrandData>(
   "brands/create",
   async (brandData) => {
@@ -64,9 +54,7 @@ export const createBrandService = createApiThunk<any, CreateBrandData>(
   }
 );
 
-/**
- * Update brands
- */
+
 export const updateBrandService = createApiThunk<any, UpdateBrandParams>(
   "brands/update",
   async ({ brandId, brandData }) => {
@@ -78,9 +66,7 @@ export const updateBrandService = createApiThunk<any, UpdateBrandParams>(
   }
 );
 
-/**
- * Delete brands
- */
+
 export const deleteBrandService = createApiThunk<any, string>(
   "brands/delete",
   async (brandId) => {
@@ -91,9 +77,7 @@ export const deleteBrandService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Toggle brand status
- */
+
 export const toggleBrandStatusService = createApiThunk<any, UpdateBrandParams>(
   "brands/toggleStatus",
   async ({ brandId, brandData }) => {

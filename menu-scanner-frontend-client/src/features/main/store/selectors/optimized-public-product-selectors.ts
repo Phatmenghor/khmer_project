@@ -1,27 +1,20 @@
 import { createSelector } from 'reselect';
 import { RootState } from '@/store';
 
-// Base selectors
+
 const selectPublicProductsState = (state: RootState) => state.publicProducts;
 const selectPublicProductsList = (state: RootState) => state.publicProducts.products;
 const selectProductPagination = (state: RootState) => state.publicProducts.pagination;
 const selectProductLoading = (state: RootState) => state.publicProducts.loading;
 const selectProductError = (state: RootState) => state.publicProducts.error;
 
-/**
- * MEMOIZED: Public product list with pagination info.
- * Only recalculates when products or pagination changes,
- * not when cart or other unrelated state changes.
- */
+
 export const selectProductListWithPagination = createSelector(
   [selectPublicProductsList, selectProductPagination],
   (products, pagination) => ({ products, pagination })
 );
 
-/**
- * MEMOIZED: Loading state for product list.
- * Prevents unnecessary re-renders of product containers when other loading states change.
- */
+
 export const selectProductListLoadingState = createSelector(
   [selectProductLoading],
   (loading) => ({
@@ -31,9 +24,7 @@ export const selectProductListLoadingState = createSelector(
   })
 );
 
-/**
- * MEMOIZED: Error state for product list.
- */
+
 export const selectProductErrorState = createSelector(
   [selectProductError],
   (error) => ({
@@ -42,11 +33,7 @@ export const selectProductErrorState = createSelector(
   })
 );
 
-/**
- * MEMOIZED: Find single product by ID.
- * Factory selector pattern - efficiently finds product without iterating all products
- * on every render.
- */
+
 export const selectProductById = createSelector(
   [
     (state: RootState) => state.publicProducts.products,
@@ -57,10 +44,7 @@ export const selectProductById = createSelector(
   }
 );
 
-/**
- * MEMOIZED: Check if product exists in the list.
- * Prevents ProductCard from triggering parent re-render checks.
- */
+
 export const selectIsProductInList = createSelector(
   [
     (state: RootState) => state.publicProducts.products,
@@ -71,27 +55,19 @@ export const selectIsProductInList = createSelector(
   }
 );
 
-/**
- * MEMOIZED: Get all product IDs for efficient lookups.
- */
+
 export const selectAllProductIds = createSelector(
   [selectPublicProductsList],
   (products) => products.map((p) => p.id)
 );
 
-/**
- * MEMOIZED: Get product count.
- * Prevents pagination controls from re-rendering on list changes.
- */
+
 export const selectProductCount = createSelector(
   [selectPublicProductsList],
   (products) => products.length
 );
 
-/**
- * MEMOIZED: Categories with product counts.
- * Useful for category filters showing (5), (10), etc.
- */
+
 export const selectCategoriesWithCounts = createSelector(
   [
     (state: RootState) => state.publicProducts.categories,
@@ -111,9 +87,7 @@ export const selectCategoriesWithCounts = createSelector(
   }
 );
 
-/**
- * MEMOIZED: Brands with product counts.
- */
+
 export const selectBrandsWithCounts = createSelector(
   [
     (state: RootState) => state.publicProducts.brands,
@@ -133,10 +107,7 @@ export const selectBrandsWithCounts = createSelector(
   }
 );
 
-/**
- * MEMOIZED: All data needed for product list page in one efficient call.
- * Components can subscribe to this single selector instead of multiple selectors.
- */
+
 export const selectProductListPageData = createSelector(
   [
     selectPublicProductsList,
@@ -163,9 +134,7 @@ export const selectProductListPageData = createSelector(
   })
 );
 
-/**
- * MEMOIZED: Check if any product is currently being loaded in detail view.
- */
+
 export const selectIsAnyProductLoading = createSelector(
   [selectProductLoading],
   (loading) => loading.detail || loading.list

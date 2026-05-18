@@ -31,7 +31,7 @@ export const exchangeRateTableColumns = ({
 }: TableOptions): TableColumn<ExchangeRateResponseModel>[] => {
   const { handleEditRate, handleViewRateDetail, handleDeleteRate } = handlers;
 
-  // Get total rates count
+
   const totalRatesCount = data?.content?.length || 0;
 
   return [

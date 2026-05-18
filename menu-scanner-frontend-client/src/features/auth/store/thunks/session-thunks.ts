@@ -1,15 +1,10 @@
-/**
- * Session Management Feature - Async Thunks
- * Redux thunks for session management operations
- */
+
+
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
 
-/**
- * Get all user sessions
- * For regular users to view their own sessions
- */
+
 export const getAllSessionsService = createApiThunk<any, void>(
   "sessions/getAll",
   async () => {
@@ -20,10 +15,7 @@ export const getAllSessionsService = createApiThunk<any, void>(
   },
 );
 
-/**
- * Get session by ID
- * View details of a specific session
- */
+
 export const getSessionByIdService = createApiThunk<
   UserSessionResponse,
   string
@@ -34,10 +26,7 @@ export const getSessionByIdService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Logout specific session
- * Terminate a single session by ID
- */
+
 export const logoutSessionService = createApiThunk<void, string>(
   "sessions/logoutSession",
   async (sessionId) => {
@@ -45,10 +34,7 @@ export const logoutSessionService = createApiThunk<void, string>(
   },
 );
 
-/**
- * Logout all other sessions
- * Terminate all sessions except current
- */
+
 export const logoutOtherSessionsService = createApiThunk<void, string>(
   "sessions/logoutOthers",
   async (currentSessionId) => {
@@ -58,10 +44,7 @@ export const logoutOtherSessionsService = createApiThunk<void, string>(
   },
 );
 
-/**
- * Logout all sessions
- * Terminate all sessions including current (logout everywhere)
- */
+
 export const logoutAllSessionsService = createApiThunk<void, void>(
   "sessions/logoutAll",
   async () => {
@@ -69,10 +52,7 @@ export const logoutAllSessionsService = createApiThunk<void, void>(
   },
 );
 
-/**
- * Admin: Get all sessions paginated
- * For admins to view all user sessions with filtering
- */
+
 export const adminGetSessionsService = createApiThunk<
   PaginatedSessionsResponse,
   SessionFilterRequest
@@ -84,10 +64,7 @@ export const adminGetSessionsService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Admin: Get session by ID
- * View details of any session
- */
+
 export const adminGetSessionByIdService = createApiThunk<
   AdminSessionResponse,
   string

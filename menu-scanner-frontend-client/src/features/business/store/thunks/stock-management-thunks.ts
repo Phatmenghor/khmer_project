@@ -80,11 +80,7 @@ export const deleteProductStockService = createAsyncThunk(
   }
 );
 
-/**
- * Get product stock items (products with sizes as flat list) with type-safe filtering
- * Easy field names and smart defaults (sortBy=totalStock, direction=DESC)
- * Supports filters: status, stockStatus, lowStockThreshold, hasSizes
- */
+
 export const getProductStockItemsService = createAsyncThunk(
   "stock-management/getProductStockItems",
   async (request: ProductStockItemsFilterRequest, { rejectWithValue }) => {
@@ -101,11 +97,7 @@ export const getProductStockItemsService = createAsyncThunk(
   }
 );
 
-/**
- * Get all product stock items without pagination
- * Useful for reports, exports, and bulk operations
- * Returns complete dataset for data analysis and bulk updates
- */
+
 export const getProductStockItemsAllService = createAsyncThunk(
   "stock-management/getProductStockItemsAll",
   async (request: Omit<ProductStockItemsFilterRequest, 'pageNo' | 'pageSize'>, { rejectWithValue }) => {

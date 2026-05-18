@@ -16,7 +16,7 @@ import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 
-// Dynamically import ProductFilters to avoid SSR hydration mismatch
+
 const ProductFilters = dynamic(
   () =>
     import("@/features/main/components/product/product-filters").then(
@@ -53,14 +53,14 @@ export function ProductListPage({
   const { dispatch, products, pagination, loading, loadedFilters } =
     usePublicProductState();
 
-  // Always start at top on page load/refresh - don't restore scroll
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, []);
 
   useScrollRestoration({
     enabled: true,
-    restoreOnMount: false, // Disable on mount to prevent restoring bottom scroll
+    restoreOnMount: false,
     customKey: scrollKey,
     restoreDelay: 150,
   });
@@ -74,7 +74,7 @@ export function ProductListPage({
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
 
-  // Memoize currentFilters to prevent effect re-runs on every render
+
   const currentFilters = useMemo(
     () =>
       JSON.stringify({
@@ -104,7 +104,7 @@ export function ProductListPage({
     ]
   );
 
-  // Dynamic page size based on screen width (like home page)
+
   const getPageSize = useCallback(() => {
     if (typeof window === "undefined") return 20;
     const width = window.innerWidth;
@@ -150,7 +150,7 @@ export function ProductListPage({
     ],
   );
 
-  // Handle load more - append mode (oldData + newData)
+
   const handleLoadMore = useCallback(() => {
     if (pagination.hasMore && !loading.list && products.length > 0) {
       const nextPage = pagination.currentPage + 1;
@@ -164,19 +164,19 @@ export function ProductListPage({
     loadProducts,
   ]);
 
-  // Trigger load more
+
   const handleLoadMoreWithScroll = useCallback(() => {
     handleLoadMore();
   }, [handleLoadMore]);
 
-  // Smart pagination with debounce (300ms) - same as home page
+
   const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
     handleLoadMoreWithScroll,
     pagination.hasMore && !loading.list,
     [pagination.hasMore, loading.list, handleLoadMoreWithScroll],
   );
 
-  // Initial filter load
+
   useEffect(() => {
     const hasProductsInStore = products.length > 0;
     const filtersMatch = loadedFilters === currentFilters;
@@ -185,9 +185,7 @@ export function ProductListPage({
       return;
     }
 
-    // Only load products if:
-    // 1. Filters changed (filtersMatch is false), OR
-    // 2. We need products AND we're not already loading
+
     if (!filtersMatch || (!hasProductsInStore && !loading.list)) {
       if (!filtersMatch && hasProductsInStore) {
         dispatch(clearProducts());
@@ -204,7 +202,7 @@ export function ProductListPage({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Optional hero section */}
+      {}
       {hero && (
         <div className="relative">
           <PageContainer className="max-w-8xl pt-3 max sm:pt-6 pb-0">
@@ -213,21 +211,21 @@ export function ProductListPage({
         </div>
       )}
 
-      {/* Products Section with home page styling */}
+      {}
       <div className="relative py-6 sm:py-10">
         <PageContainer className="max-w-8xl">
           <div className="flex gap-6 lg:gap-8 flex-col lg:flex-row">
-            {/* Filters - Single instance, responsive layout inside component */}
+            {}
             <ProductFilters
               totalResults={pagination.totalElements}
               basePath={basePath}
               lockedPromotion={lockedPromotion}
             />
 
-            {/* Main Product List */}
+            {}
             <div className="flex-1 min-w-0">
 
-              {/* Products Grid - with initial skeleton loading (like home page) */}
+              {}
               {isInitialLoad ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
                   {Array.from({ length: 12 }).map((_, i) => (
@@ -246,7 +244,7 @@ export function ProductListPage({
                     sectionKey={lockedPromotion ? "promotions" : "products"}
                   />
 
-                  {/* End of products state */}
+                  {}
                   {!pagination.hasMore &&
                     products.length > 0 &&
                     !loading.list && (
@@ -276,7 +274,7 @@ export function ProductListPage({
                     )}
                 </>
               ) : (
-                /* No Results */
+
                 <div className="text-center py-16">
                   <div className="flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4 mx-auto">
                     {lockedPromotion ? (

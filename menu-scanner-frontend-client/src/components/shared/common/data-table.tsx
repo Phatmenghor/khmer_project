@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PageSizeSelectField } from "@/components/shared/form-field/page-size-select-field";
 import { cn } from "@/lib/utils";
 
-// Constants
+
 const PAGINATION_ITEMS_THRESHOLD = 7;
 const PAGINATION_START_OFFSET = 2;
 const PAGINATION_WINDOW_SIZE = 4;
@@ -33,7 +33,7 @@ interface DataTableWithPaginationProps<T = any> {
   onRowClick?: (item: T) => void;
   getRowKey?: (item: T, index: number) => string | number;
 
-  // Pagination props
+
   currentPage: number;
   totalPages: number;
   totalElements?: number;
@@ -42,7 +42,7 @@ interface DataTableWithPaginationProps<T = any> {
   showPagination?: boolean;
   hideEllipsis?: boolean;
 
-  // Page size selector props
+
   pageSize?: number;
   onPageSizeChange?: (size: number) => void;
   pageSizeOptions?: number[];
@@ -101,7 +101,7 @@ export function DataTableWithPagination<T = any>({
     } else {
       items.push(1);
 
-      // Center current page with 2 pages on each side (5 total pages)
+
       let start = Math.max(PAGINATION_START_OFFSET, currentPage - 2);
       let end = Math.min(totalPages - 1, currentPage + 2);
 
@@ -191,7 +191,7 @@ export function DataTableWithPagination<T = any>({
 
   return (
     <div className="space-y-4">
-      {/* Data Table */}
+      {}
       <div className={`rounded-md border overflow-x-auto ${className}`}>
         <table
           className="text-sm"
@@ -280,10 +280,10 @@ export function DataTableWithPagination<T = any>({
         </table>
       </div>
 
-      {/* Pagination */}
+      {}
       {showPagination && (
         <div className="flex items-center justify-between gap-4 p-4 flex-wrap">
-          {/* Page Size Selector */}
+          {}
           {showPageSizeSelector && totalPages > 1 ? (
             <PageSizeSelectField
               pageSize={pageSize}
@@ -294,10 +294,10 @@ export function DataTableWithPagination<T = any>({
             <div />
           )}
 
-          {/* Page Navigation */}
+          {}
           {totalPages > 1 && (
             <div className="flex items-center gap-2">
-              {/* Previous Button */}
+              {}
               <button
                 onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -315,7 +315,7 @@ export function DataTableWithPagination<T = any>({
                 <span className="hidden sm:inline">Previous</span>
               </button>
 
-              {/* Page Numbers */}
+              {}
               <div className="flex items-center gap-1">
                 {getPaginationItems().map((item, index) => {
                   if (item === "ellipsis") {
@@ -349,7 +349,7 @@ export function DataTableWithPagination<T = any>({
                 })}
               </div>
 
-              {/* Next Button */}
+              {}
               <button
                 onClick={() =>
                   currentPage < totalPages && onPageChange(currentPage + 1)

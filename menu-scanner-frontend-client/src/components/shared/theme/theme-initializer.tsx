@@ -2,10 +2,7 @@
 
 import { useEffect } from "react";
 
-/**
- * ThemeInitializer - Applies cached theme colors on mount
- * Colors are loaded from localStorage or cookies from previous sessions
- */
+
 export function ThemeInitializer() {
   useEffect(() => {
     initializeTheme();
@@ -55,7 +52,7 @@ function initializeTheme() {
 
     applyThemeColorsSync(cachedColors.primaryColor);
   } catch (e) {
-    // Ignore errors
+
   }
 }
 
@@ -105,4 +102,3 @@ function applyThemeColorsSync(primaryColor?: string): void {
     }
   }
 }
-

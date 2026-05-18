@@ -41,7 +41,7 @@ import { useAppSelector } from "@/store";
 import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
 import { FilterPanelConfig } from "@/features/business/components/filter-types";
 
-// Sort field options for products page
+
 const SORT_BY_OPTIONS = [
   { value: "createdAt", label: "Created Date" },
   { value: "displayPrice", label: "Display Price" },
@@ -58,10 +58,10 @@ const SORT_DIRECTION_OPTIONS = [
 ];
 
 export default function ProductPage() {
-  // Clean up state when leaving admin area (performance optimization)
+
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     productState,
     productData,
@@ -73,14 +73,14 @@ export default function ProductPage() {
     dispatch,
   } = useProductState();
 
-  // Reset filters when entering this page (separate from other admin pages)
+
   useEffect(() => {
     dispatch(setPageNo(1));
     dispatch(setSearchFilter(""));
     dispatch(selectProductStatus(ProductStatus.ALL));
   }, []);
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -111,7 +111,7 @@ export default function ProductPage() {
     product: null as ProductDetailResponseModel | null,
   });
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -122,14 +122,14 @@ export default function ProductPage() {
   });
 
   useEffect(() => {
-    // Determine hasSize filter value
+
     let hasSize: boolean | undefined;
     if (sizeFilter === "true") {
       hasSize = true;
     } else if (sizeFilter === "false") {
       hasSize = false;
     }
-    // if ALL, hasSize remains undefined (no filter)
+
 
     dispatch(
       fetchAllProductAdminService({
@@ -158,7 +158,7 @@ export default function ProductPage() {
     sortDirection,
   ]);
 
-  // Event handlers
+
   const handleCreateBrand = () => {
     setModalState({
       isOpen: true,
@@ -197,7 +197,7 @@ export default function ProductPage() {
   };
 
   const handleStatusChange = (productId: string, status: string) => {
-    // Optimistic update - update local state immediately for instant UI feedback
+
     dispatch(
       updateProductOptimistic({
         id: productId,
@@ -205,7 +205,7 @@ export default function ProductPage() {
       })
     );
 
-    // Call API in background without blocking UI
+
     dispatch(
       updateProductService({
         productId,
@@ -264,7 +264,7 @@ export default function ProductPage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (productContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -279,12 +279,12 @@ export default function ProductPage() {
   const handleConfirmResetPromotion = async () => {
     if (!resetPromotionState.product?.id) return;
 
-    // Optimistic update - update state immediately
+
     dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
 
     closeResetPromotionModal();
 
-    // Call API in background without blocking UI
+
     dispatch(resetProductPromotionService(resetPromotionState.product.id))
       .then(() => {
         showToast.success(
@@ -351,7 +351,7 @@ export default function ProductPage() {
     setSortDirection(value);
   };
 
-  // Create filter configuration for CollapsibleFilterPanel
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Product Information",
     searchValue: filters.search,
@@ -425,7 +425,7 @@ export default function ProductPage() {
           essentialFilterIds={["size", "status"]}
         />
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <div className="overflow-x-auto max-w-full rounded-lg border">
           <DataTableWithPagination
           data={productContent}
@@ -444,7 +444,7 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <ProductModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -452,14 +452,14 @@ export default function ProductPage() {
         mode={modalState.mode}
       />
 
-      {/* Modals Product Detail */}
+      {}
       <ProductDetailModal
         productId={detailModalState.productId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete Product */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}
@@ -472,7 +472,7 @@ export default function ProductPage() {
         isSubmitting={operations.isDeleting}
       />
 
-      {/* Modals Reset Promotion */}
+      {}
       <ConfirmationModal
         isOpen={resetPromotionState.isOpen}
         onClose={closeResetPromotionModal}

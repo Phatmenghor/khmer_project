@@ -1,7 +1,5 @@
-/**
- * Business Settings Response Model
- * Response from /api/v1/business-settings/current
- */
+
+
 
 export type StockStatus = "ENABLED" | "DISABLED";
 
@@ -30,13 +28,13 @@ export interface BusinessSettingsResponse {
   enableStock: StockStatus;
   socialMedia: SocialMedia[];
   primaryColor?: string;
-  // Contact Information
+
   contactAddress?: string;
   contactPhone?: string;
   contactEmail?: string;
-  // Business Hours
+
   businessHours?: BusinessHours[];
-  // Feature Flags
+
   useCategories?: boolean;
   useSubcategories?: boolean;
   useBrands?: boolean;

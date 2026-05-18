@@ -33,6 +33,6 @@ export const selectPublicProductDetailError = (state: RootState) =>
 export const selectPublicProductScrollY = (state: RootState) =>
   state.publicProducts.scrollY;
 
-// Add new selector
+
 export const selectPublicProductLoadedFilters = (state: RootState) =>
   state.publicProducts.loadedFilters;

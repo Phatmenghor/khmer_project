@@ -1,6 +1,5 @@
-/**
- * Auth State Hook
- */
+
+
 
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -21,7 +20,7 @@ import {
 export const useAuthState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const isLoading = useAppSelector(selectIsLoading);
   const isProfileLoading = useAppSelector(selectIsProfileLoading);
   const error = useAppSelector(selectError);
@@ -36,25 +35,25 @@ export const useAuthState = () => {
   const accessToken = useAppSelector(selectAccessToken);
 
   return {
-    // Loading states
+
     isLoading,
     isProfileLoading,
     error,
 
-    // Auth state
+
     isAuthenticated,
     authReady,
     user,
     profile,
 
-    // User info
+
     fullName,
     email,
     profileImage,
     roles,
     accessToken,
 
-    // Dispatch
+
     dispatch,
   };
 };

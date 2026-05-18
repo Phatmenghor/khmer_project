@@ -1,7 +1,5 @@
-/**
- * Product Management - Async Thunks
- * Redux thunks for Product CRUD operations
- */
+
+
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
@@ -12,9 +10,7 @@ import {
 import { BulkPromotionRequest, BulkPromotionResponse } from "../models/request/promotion-request";
 import { CreateProductData } from "../models/schema/product-schema";
 
-/**
- * Fetch all Product admin
- */
+
 export const fetchAllProductAdminService = createApiThunk<
   any,
   AllProductRequest
@@ -26,9 +22,7 @@ export const fetchAllProductAdminService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Fetch all Product
- */
+
 export const fetchAllProductService = createApiThunk<any, AllProductRequest>(
   "products/fetchAll",
   async (params) => {
@@ -40,9 +34,7 @@ export const fetchAllProductService = createApiThunk<any, AllProductRequest>(
   }
 );
 
-/**
- * Fetch Product by ID
- */
+
 export const fetchProductByIdService = createApiThunk<any, string>(
   "products/fetchById",
   async (productId) => {
@@ -53,9 +45,7 @@ export const fetchProductByIdService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Create Product
- */
+
 export const createProductService = createApiThunk<any, CreateProductData>(
   "products/create",
   async (productData) => {
@@ -67,9 +57,7 @@ export const createProductService = createApiThunk<any, CreateProductData>(
   }
 );
 
-/**
- * Update Product
- */
+
 export const updateProductService = createApiThunk<any, UpdateProductParams>(
   "products/update",
   async ({ productId, productData }) => {
@@ -81,9 +69,7 @@ export const updateProductService = createApiThunk<any, UpdateProductParams>(
   }
 );
 
-/**
- * Delete Product
- */
+
 export const deleteProductService = createApiThunk<any, string>(
   "products/delete",
   async (bannerId) => {
@@ -94,9 +80,7 @@ export const deleteProductService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Reset Product Promotion
- */
+
 export const resetProductPromotionService = createApiThunk<any, string>(
   "products/resetPromotion",
   async (productId) => {
@@ -107,9 +91,7 @@ export const resetProductPromotionService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Reset All Business Promotions
- */
+
 export const resetAllPromotionsService = createApiThunk<
   { message: string; resetCount: number },
   void
@@ -123,9 +105,7 @@ export const resetAllPromotionsService = createApiThunk<
   }
 );
 
-/**
- * Reset Bulk Promotions
- */
+
 export const resetBulkPromotionsService = createApiThunk<
   { message: string; resetCount: number },
   string[]
@@ -140,9 +120,7 @@ export const resetBulkPromotionsService = createApiThunk<
   }
 );
 
-/**
- * Reset Selected Promotions with optional size mapping
- */
+
 export const resetSelectedPromotionsService = createApiThunk<
   { message: string; resetCount: number; productsReset: number; sizesReset: number },
   { productIds: string[]; productSizeMapping?: Record<string, string[]> }
@@ -157,9 +135,7 @@ export const resetSelectedPromotionsService = createApiThunk<
   }
 );
 
-/**
- * Create Bulk Promotions
- */
+
 export const createBulkPromotionsService = createApiThunk<
   BulkPromotionResponse,
   BulkPromotionRequest

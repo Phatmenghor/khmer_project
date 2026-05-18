@@ -1,7 +1,5 @@
-/**
- * User Management - Async Thunks
- * Redux thunks for user CRUD operations
- */
+
+
 
 import { Status } from "@/constants/status/status";
 import {
@@ -14,9 +12,7 @@ import { UserResponseModel } from "../models/response/users-response";
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
 
-/**
- * Fetch all users
- */
+
 export const fetchAllUsersService = createApiThunk<any, AllUserRequest>(
   "users/fetchAll",
   async (params) => {
@@ -28,9 +24,7 @@ export const fetchAllUsersService = createApiThunk<any, AllUserRequest>(
   }
 );
 
-/**
- * Fetch user by ID
- */
+
 export const fetchUserByIdService = createApiThunk<any, string>(
   "users/fetchById",
   async (userId) => {
@@ -39,9 +33,7 @@ export const fetchUserByIdService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Create user
- */
+
 export const createUserService = createApiThunk<any, CreateUserRequest>(
   "users/create",
   async (userData) => {
@@ -50,9 +42,7 @@ export const createUserService = createApiThunk<any, CreateUserRequest>(
   }
 );
 
-/**
- * Update user
- */
+
 export const updateUserService = createApiThunk<any, UpdateUserParams>(
   "users/update",
   async ({ userId, userData }) => {
@@ -64,9 +54,7 @@ export const updateUserService = createApiThunk<any, UpdateUserParams>(
   }
 );
 
-/**
- * Delete user
- */
+
 export const deleteUserService = createApiThunk<any, string>(
   "users/delete",
   async (userId) => {
@@ -77,9 +65,7 @@ export const deleteUserService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Toggle user status (Active/Inactive)
- */
+
 export const toggleUserStatusService = createApiThunk<any, UserResponseModel>(
   "users/toggleStatus",
   async (user) => {
@@ -97,9 +83,7 @@ export const toggleUserStatusService = createApiThunk<any, UserResponseModel>(
   }
 );
 
-/**
- * Admin change user password (Reset password)
- */
+
 export const adminChangePasswordService = createApiThunk<
   any,
   AdminChangePasswordRequest

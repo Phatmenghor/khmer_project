@@ -71,7 +71,7 @@ export function ComboboxSelectUser({
     lg: "h-10 text-base",
   };
 
-  // Helper function to remove duplicates by ID
+
   const removeDuplicates = (
     items: UserResponseModel[]
   ): UserResponseModel[] => {
@@ -105,7 +105,7 @@ export function ComboboxSelectUser({
         const newData = result.content;
         setData(removeDuplicates(newData));
       } else {
-        // Merge with existing data and remove duplicates
+
         setData((prev) => removeDuplicates([...prev, ...result.content]));
       }
 
@@ -164,13 +164,13 @@ export function ComboboxSelectUser({
               "w-full justify-between min-w-[150px] transition-all duration-200 border-input",
               sizeClasses[size],
               !dataSelect && "text-muted-foreground",
-              // Hover state
+
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              // Focus state
+
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
-              // Active/Open state
+
               open && "bg-primary/20 border-primary text-primary",
-              // Error state
+
               error && "border-red-500",
               disabled && "opacity-50 cursor-not-allowed"
             )}

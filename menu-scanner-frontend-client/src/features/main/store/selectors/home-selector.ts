@@ -1,13 +1,12 @@
-/**
- * home-selectors.ts
- */
+
+
 
 import { RootState } from "@/store";
 import { createSelector } from "@reduxjs/toolkit";
 
 export const selectHomeState = (state: RootState) => state.home;
 
-// Data
+
 export const selectHomeBanners = (state: RootState) => state.home.banners;
 export const selectHomeCategories = (state: RootState) => state.home.categories;
 export const selectHomePromotionProducts = (state: RootState) =>
@@ -16,7 +15,7 @@ export const selectHomeFeaturedProducts = (state: RootState) =>
   state.home.featuredProducts;
 export const selectHomeBrands = (state: RootState) => state.home.brands;
 
-// Sections
+
 export const selectSections = (state: RootState) => state.home.sections;
 export const selectBannersSection = (state: RootState) =>
   state.home.sections.banners;
@@ -29,14 +28,14 @@ export const selectFeaturedProductsSection = (state: RootState) =>
 export const selectBrandsSection = (state: RootState) =>
   state.home.sections.brands;
 
-// Pagination
+
 export const selectFeaturedPagination = (state: RootState) =>
   state.home.featuredPagination;
 
-// Simple scroll - just the number
+
 export const selectScrollY = (state: RootState) => state.home.scrollY;
 
-// Computed
+
 export const selectAllSectionsLoaded = createSelector(
   [selectSections],
   (sections) =>

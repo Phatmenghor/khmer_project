@@ -1,7 +1,5 @@
-/**
- * Product Management - Redux Slice
- * Manages Product state: data, loading, errors, filters, operations
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ProductManagementState } from "../models/type/product-type";
@@ -19,9 +17,7 @@ import {
 import { ProductStatus } from "@/constants/status/status";
 import { selectCategories } from "@/features/master-data/store/selectors/categories-selector";
 
-/**
- * Initial state
- */
+
 const initialState: ProductManagementState = {
   data: null,
   selectedProduct: null,
@@ -43,9 +39,7 @@ const initialState: ProductManagementState = {
   },
 };
 
-/**
- * Product slice
- */
+
 const productSlice = createSlice({
   name: "products",
   initialState,
@@ -80,9 +74,9 @@ const productSlice = createSlice({
       return initialState;
     },
 
-    // Bulk selection actions
+
     toggleProductSelection: (state, action: PayloadAction<string>) => {
-      // Toggle isSelected field for a specific product
+
       if (state.data) {
         state.data.content = state.data.content.map((product) =>
           product.id === action.payload
@@ -93,7 +87,7 @@ const productSlice = createSlice({
     },
 
     selectAllProducts: (state) => {
-      // Select all products on current page
+
       if (state.data) {
         state.data.content = state.data.content.map((product) => ({
           ...product,
@@ -103,7 +97,7 @@ const productSlice = createSlice({
     },
 
     deselectAllProducts: (state) => {
-      // Deselect all products on current page
+
       if (state.data) {
         state.data.content = state.data.content.map((product) => ({
           ...product,
@@ -113,7 +107,7 @@ const productSlice = createSlice({
     },
 
     clearProductSelections: (state) => {
-      // Clear all selections across all pages
+
       if (state.data) {
         state.data.content = state.data.content.map((product) => ({
           ...product,
@@ -123,7 +117,7 @@ const productSlice = createSlice({
     },
 
     updateProductOptimistic: (state, action: PayloadAction<any>) => {
-      // Update product in the list optimistically
+
       if (state.data) {
         state.data.content = state.data.content.map((product) =>
           product.id === action.payload.id ? { ...product, ...action.payload } : product
@@ -132,11 +126,11 @@ const productSlice = createSlice({
     },
 
     resetProductPromotionOptimistic: (state, action: PayloadAction<string>) => {
-      // Reset promotion fields for a product and all sizes optimistically
+
       if (state.data) {
         state.data.content = state.data.content.map((product) => {
           if (product.id === action.payload) {
-            // Reset product-level promotion
+
             const updated = {
               ...product,
               hasPromotion: false,
@@ -146,7 +140,7 @@ const productSlice = createSlice({
               displayOriginPrice: product.price,
             };
 
-            // Reset all size promotions and recalculate display prices
+
             if (updated.sizes && updated.sizes.length > 0) {
               updated.sizes = updated.sizes.map((size: any) => ({
                 ...size,
@@ -167,7 +161,7 @@ const productSlice = createSlice({
     },
 
     resetAllPromotionsOptimistic: (state) => {
-      // Reset ALL promotions optimistically
+
       if (state.data) {
         state.data.content = state.data.content.map((product) => {
           const updated = {
@@ -179,7 +173,7 @@ const productSlice = createSlice({
             displayOriginPrice: product.price,
           };
 
-          // Reset all size promotions
+
           if (updated.sizes && updated.sizes.length > 0) {
             updated.sizes = updated.sizes.map((size: any) => ({
               ...size,
@@ -198,7 +192,7 @@ const productSlice = createSlice({
     },
 
     resetTablePromotionsOptimistic: (state, action: PayloadAction<string[]>) => {
-      // Reset promotions for selected products optimistically
+
       if (state.data) {
         const selectedIds = new Set(action.payload);
         state.data.content = state.data.content.map((product) => {
@@ -212,7 +206,7 @@ const productSlice = createSlice({
               displayOriginPrice: product.price,
             };
 
-            // Reset all size promotions
+
             if (updated.sizes && updated.sizes.length > 0) {
               updated.sizes = updated.sizes.map((size: any) => ({
                 ...size,
@@ -243,7 +237,7 @@ const productSlice = createSlice({
         productSizeMapping?: Record<string, string[]>;
       }>,
     ) => {
-      // Update products and sizes optimistically after bulk promotion creation
+
       if (state.data) {
         const {
           productIds,
@@ -258,16 +252,16 @@ const productSlice = createSlice({
 
         state.data.content = state.data.content.map((product) => {
           if (selectedIds.has(product.id)) {
-            // Check if this product has specific size mappings
+
             const productSizeIds = productSizeMapping?.[product.id];
             const hasSizeMappings =
               productSizeIds && productSizeIds.length > 0;
 
-            // Update sizes if they exist
+
             let updatedSizes = product.sizes;
             if (product.sizes && product.sizes.length > 0) {
               updatedSizes = product.sizes.map((size: any) => {
-                // If size mapping exists, only update specified sizes; otherwise update all
+
                 const shouldUpdateSize =
                   !hasSizeMappings ||
                   (productSizeIds && productSizeIds.includes(size.id));
@@ -294,7 +288,7 @@ const productSlice = createSlice({
               });
             }
 
-            // Calculate display price for product level
+
             const discountAmount =
               promotionType === "PERCENTAGE"
                 ? (parseFloat(product.price) * promotionValue) / 100
@@ -332,7 +326,7 @@ const productSlice = createSlice({
         productSizeMapping?: Record<string, string[]>;
       }>,
     ) => {
-      // Reset promotions for selected products/sizes optimistically
+
       if (state.data) {
         const { productIds, productSizeMapping } = action.payload;
         const selectedIds = new Set(productIds);
@@ -344,7 +338,7 @@ const productSlice = createSlice({
             const productSizeIds = productSizeMapping?.[product.id];
             const shouldResetAll = !hasSizeMapping || !productSizeIds;
 
-            // Reset sizes if they exist
+
             let updatedSizes = product.sizes;
             if (product.sizes && product.sizes.length > 0) {
               updatedSizes = product.sizes.map((size: any) => {
@@ -367,7 +361,7 @@ const productSlice = createSlice({
               });
             }
 
-            // Reset product-level promotion only if all sizes are being reset
+
             if (shouldResetAll) {
               return {
                 ...product,
@@ -436,7 +430,7 @@ const productSlice = createSlice({
         state.selectedProduct = action.payload;
         state.operations.isFetchingDetail = false;
 
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (user) => user.id === action.payload.id
@@ -480,7 +474,7 @@ const productSlice = createSlice({
         state.selectedProduct = action.payload;
         state.operations.isUpdating = false;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((user) =>
             user.id === action.payload.id ? action.payload : user

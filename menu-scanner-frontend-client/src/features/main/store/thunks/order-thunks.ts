@@ -1,7 +1,5 @@
-/**
- * Order Management - Async Thunks
- * Redux thunks for Order CRUD operations
- */
+
+
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
@@ -19,7 +17,7 @@ export interface CheckoutPayload {
     imageUrl: string;
     price: number;
   };
-  // Customer details (from authenticated user)
+
   customerName?: string;
   customerPhone?: string;
   customerEmail?: string;
@@ -36,21 +34,21 @@ export interface CheckoutPayload {
       status: string;
       sku?: string;
       barcode?: string;
-      // Pricing
+
       currentPrice: number;
       finalPrice: number;
       hasPromotion: boolean;
       quantity: number;
-      // Pricing breakdown
+
       totalBeforeDiscount: number;
       discountAmount: number;
       totalPrice: number;
-      // Promotion details
+
       promotionType: string;
       promotionValue: number;
       promotionFromDate: string;
       promotionToDate: string;
-      // Customizations/Add-ons
+
       customizations?: Array<{
         productCustomizationId: string;
         name: string;
@@ -61,11 +59,11 @@ export interface CheckoutPayload {
     totalQuantity: number;
     subtotalBeforeDiscount: number;
     subtotal: number;
-    customizationTotal: number;  // Total cost of all customizations
+    customizationTotal: number;
     totalDiscount: number;
     finalTotal: number;
   };
-  // Pricing information with detailed breakdown
+
   pricing?: {
     subtotal: number;
     deliveryFee: number;
@@ -85,9 +83,7 @@ export interface CheckoutPayload {
   orderStatus?: OrderStatus;
 }
 
-/**
- * Create a new order from checkout
- */
+
 export const createOrderService = createApiThunk<OrderResponse, CheckoutPayload>(
   "order/create",
   async (payload) => {
@@ -99,9 +95,7 @@ export const createOrderService = createApiThunk<OrderResponse, CheckoutPayload>
   }
 );
 
-/**
- * Fetch order by ID
- */
+
 export const fetchOrderByIdService = createApiThunk<OrderResponse, string>(
   "order/fetchById",
   async (id) => {

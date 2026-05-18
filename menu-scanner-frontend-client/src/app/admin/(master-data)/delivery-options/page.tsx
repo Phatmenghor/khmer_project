@@ -36,10 +36,10 @@ import { selectGlobalPageSize } from "@/store/selectors/global-settings-selector
 import { useAppSelector } from "@/store";
 
 export default function DeliveryOptionsPage() {
-  // Clean up state when leaving admin area (performance optimization)
+
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     deliveryOptionsState,
     deliveryOptionsData,
@@ -51,7 +51,7 @@ export default function DeliveryOptionsPage() {
     dispatch,
   } = useDeliveryOptionsState();
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -68,7 +68,7 @@ export default function DeliveryOptionsPage() {
     deliveryOptions: null as DeliveryOptionsResponseModel | null,
   });
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -78,7 +78,7 @@ export default function DeliveryOptionsPage() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Fetch delivery options when filters change
+
   useEffect(() => {
     dispatch(
       fetchMyBusinessDeliveryOptionsService({
@@ -96,7 +96,7 @@ export default function DeliveryOptionsPage() {
     globalPageSize,
   ]);
 
-  // Event handlers
+
   const handleCreateDeliveryOptions = () => {
     setModalState({
       isOpen: true,
@@ -196,7 +196,7 @@ export default function DeliveryOptionsPage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (deliveryOptionsContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -253,7 +253,7 @@ export default function DeliveryOptionsPage() {
           </div>
         </CardHeaderSection>
 
-        {/* Data Table with Pagination */}
+        {}
         <DataTableWithPagination
           data={deliveryOptionsContent}
           columns={columns}
@@ -270,7 +270,7 @@ export default function DeliveryOptionsPage() {
         />
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <DeliveryOptionsModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -278,14 +278,14 @@ export default function DeliveryOptionsPage() {
         mode={modalState.mode}
       />
 
-      {/* Modals DeliveryOptions Detail */}
+      {}
       <DeliveryOptionsDetailModal
         deliveryOptions={detailModalState.deliveryOptions}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete name platform */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

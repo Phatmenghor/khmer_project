@@ -45,7 +45,7 @@ export default function RolesPage() {
     dispatch,
   } = useRolesState();
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -82,7 +82,7 @@ export default function RolesPage() {
     );
   }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
 
-  // Event handlers
+
   const handleCreate = () => {
     setModalState({
       isOpen: true,
@@ -203,7 +203,7 @@ export default function RolesPage() {
           onSearchChange={handleSearchChange}
         ></CardHeaderSection>
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <DataTableWithPagination
           data={rolesContent}
           columns={columns}
@@ -220,7 +220,7 @@ export default function RolesPage() {
         />
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <RoleModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -228,14 +228,14 @@ export default function RolesPage() {
         roleId={modalState.id}
       />
 
-      {/* Modals Role Detail */}
+      {}
       <RoleDetailModal
         roleId={detailModalState.id}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete Role */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

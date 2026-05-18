@@ -26,9 +26,7 @@ export const selectFilters = (state: RootState) => state.exchangeRate.filters;
 export const selectOperations = (state: RootState) =>
   state.exchangeRate.operations;
 
-/**
- * Select pagination metadata
- */
+
 export const selectPagination = createSelector(
   [selectExchangeRate],
   (data) => ({

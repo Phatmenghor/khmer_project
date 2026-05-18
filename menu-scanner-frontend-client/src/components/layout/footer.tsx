@@ -8,7 +8,7 @@ import { PageContainer } from "../shared/common/page-container";
 import { useAppSelector } from "@/store";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 
-// Type declaration for global cached business data
+
 declare global {
   interface Window {
     __cachedBusinessData?: {
@@ -23,11 +23,11 @@ declare global {
 export function Footer() {
   const businessSettings = useAppSelector(selectBusinessSettings);
 
-  // Use cached data initially for FAST load, then switch to Redux when available
+
   const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
   const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
 
-  // Initialize from cached data on mount (before Redux loads)
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.__cachedBusinessData) {
       setCachedBusinessName(window.__cachedBusinessData.businessName);
@@ -35,7 +35,7 @@ export function Footer() {
     }
   }, []);
 
-  // Use Redux data when available, fall back to cache, default to blank
+
   const businessName = businessSettings?.businessName || cachedBusinessName || "";
   const businessLogoUrl = businessSettings?.logoBusinessUrl || cachedLogoUrl || "";
   const contactAddress = businessSettings?.contactAddress || "";
@@ -47,9 +47,9 @@ export function Footer() {
   return (
     <footer className="bg-primary/90 text-white">
       <PageContainer>
-        {/* Main Footer Content */}
+        {}
         <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Section 1: Logo & Description */}
+          {}
           {businessName && (
             <div className="space-y-4">
               <div className="flex items-center gap-3 group">
@@ -84,7 +84,7 @@ export function Footer() {
             </div>
           )}
 
-          {/* Section 2: Contact Information */}
+          {}
           {(contactAddress || contactPhone || contactEmail) && (
             <div className="space-y-4">
               <h3 className="font-semibold text-white text-base">Contact Info</h3>
@@ -120,7 +120,7 @@ export function Footer() {
             </div>
           )}
 
-          {/* Section 3: Business Hours */}
+          {}
           {businessHours.length > 0 && (
             <div className="space-y-4">
               <h3 className="font-semibold text-white text-base">Business Hours</h3>
@@ -139,7 +139,7 @@ export function Footer() {
             </div>
           )}
 
-          {/* Section 4: Follow Us - From Business Settings */}
+          {}
           {socialMedia && socialMedia.length > 0 && (
             <div className="space-y-4">
               <h3 className="font-semibold text-white text-base">Follow Us</h3>
@@ -169,10 +169,10 @@ export function Footer() {
           )}
         </div>
 
-        {/* Footer Divider */}
+        {}
         <div className="border-t border-white/20 my-8"></div>
 
-        {/* Footer Bottom */}
+        {}
         <div className="py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           {businessName && (
             <p className="text-white text-sm">

@@ -22,9 +22,8 @@ export const selectError = (state: RootState) => state.leave.error;
 
 export const selectFilters = (state: RootState) => state.leave.filters;
 export const selectOperations = (state: RootState) => state.leave.operations;
-/**
- * Select pagination metadata
- */
+
+
 export const selectPagination = createSelector([selectLeave], (data) => ({
   currentPage: data?.pageNo || 1,
   totalPages: data?.totalPages || 1,

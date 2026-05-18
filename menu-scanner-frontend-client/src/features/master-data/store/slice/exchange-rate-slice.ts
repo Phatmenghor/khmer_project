@@ -1,7 +1,5 @@
-/**
- * ExchangeRate Management - Redux Slice
- * Manages ExchangeRate state: data, loading, errors, filters, operations
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ExchangeRateManagementState } from "../models/type/exchange-rate-type";
@@ -16,9 +14,7 @@ import {
   updateExchangeRateService,
 } from "../thunks/exchange-rate-thunks";
 
-/**
- * Initial state
- */
+
 const initialState: ExchangeRateManagementState = {
   data: null,
   selectedExchangeRate: null,
@@ -37,9 +33,7 @@ const initialState: ExchangeRateManagementState = {
   },
 };
 
-/**
- * ExchangeRate slice
- */
+
 const exchnageRateSlice = createSlice({
   name: "business-exchange-rates",
   initialState,
@@ -77,13 +71,13 @@ const exchnageRateSlice = createSlice({
       return initialState;
     },
 
-    // Optimistic update actions
+
     updateExchangeRateInList: (
       state,
       action: PayloadAction<ExchangeRateResponseModel>
     ) => {
       if (state.data?.content) {
-        // If updating to ACTIVE, deactivate all other rates
+
         if (action.payload.status === "ACTIVE") {
           state.data.content = state.data.content.map((rate) =>
             rate.id === action.payload.id
@@ -91,7 +85,7 @@ const exchnageRateSlice = createSlice({
               : { ...rate, status: "INACTIVE" as const }
           );
         } else if (action.payload.status === "INACTIVE") {
-          // If deactivating the only ACTIVE rate, activate the most recently created one
+
           const currentRate = state.data.content.find(
             (rate) => rate.id === action.payload.id
           );
@@ -101,24 +95,24 @@ const exchnageRateSlice = createSlice({
           ).length;
 
           if (isCurrentRateActive && activeRatesCount === 1) {
-            // Find the most recently created INACTIVE rate (sorted by createdAt desc)
+
             const inactiveRates = state.data.content
               .filter((rate) => rate.status === "INACTIVE" && rate.id !== action.payload.id)
               .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
             if (inactiveRates.length > 0) {
-              // Activate the most recent INACTIVE rate
+
               const rateToActivate = inactiveRates[0];
               state.data.content = state.data.content.map((rate) => {
                 if (rate.id === action.payload.id) {
-                  return action.payload; // Deactivate the current rate
+                  return action.payload;
                 } else if (rate.id === rateToActivate.id) {
-                  return { ...rate, status: "ACTIVE" as const }; // Activate the next one
+                  return { ...rate, status: "ACTIVE" as const };
                 }
                 return rate;
               });
             } else {
-              // No other inactive rates, just update the current one
+
               const index = state.data.content.findIndex(
                 (rate) => rate.id === action.payload.id
               );
@@ -127,7 +121,7 @@ const exchnageRateSlice = createSlice({
               }
             }
           } else {
-            // Not the only active rate or already inactive, just update the specific rate
+
             const index = state.data.content.findIndex(
               (rate) => rate.id === action.payload.id
             );
@@ -136,7 +130,7 @@ const exchnageRateSlice = createSlice({
             }
           }
         } else {
-          // For any other status updates, just update the specific rate
+
           const index = state.data.content.findIndex(
             (rate) => rate.id === action.payload.id
           );
@@ -200,7 +194,7 @@ const exchnageRateSlice = createSlice({
         state.selectedExchangeRate = action.payload;
         state.operations.isFetchingDetail = false;
 
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (user) => user.id === action.payload.id
@@ -244,7 +238,7 @@ const exchnageRateSlice = createSlice({
         state.selectedExchangeRate = action.payload;
         state.operations.isUpdating = false;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((user) =>
             user.id === action.payload.id ? action.payload : user
@@ -263,18 +257,18 @@ const exchnageRateSlice = createSlice({
       })
       .addCase(deleteExchangeRateService.fulfilled, (state, action) => {
         if (state.data) {
-          // Extract ID from payload (could be string or object)
+
           const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
           const deletedRate = state.data.content.find((rate) => rate.id === deletedId);
 
-          // If deleting an ACTIVE rate, activate the most recent INACTIVE rate
+
           if (deletedRate?.status === "ACTIVE") {
             const inactiveRates = state.data.content
               .filter((rate) => rate.status === "INACTIVE" && rate.id !== deletedId)
               .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
             if (inactiveRates.length > 0) {
-              // Activate the most recent INACTIVE rate
+
               const rateToActivate = inactiveRates[0];
               state.data.content = state.data.content.map((rate) =>
                 rate.id === rateToActivate.id ? { ...rate, status: "ACTIVE" as const } : rate
@@ -282,7 +276,7 @@ const exchnageRateSlice = createSlice({
             }
           }
 
-          // Remove the deleted rate
+
           state.data.content = state.data.content.filter(
             (rate) => rate.id !== deletedId
           );

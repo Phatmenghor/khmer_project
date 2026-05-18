@@ -124,7 +124,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
-        {/* Header */}
+        {}
         <DialogHeader className="text-left">
           <div>
             <DialogTitle className="text-2xl">{businessName}</DialogTitle>
@@ -136,7 +136,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
 
         <Separator />
 
-        {/* Body - Login Form */}
+        {}
         <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
           <TextField
             name="userIdentifier"
@@ -159,7 +159,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
             onTogglePassword={() => setShowPassword((v) => !v)}
           />
 
-          {/* Footer - Submit Button */}
+          {}
           <DialogFooter className="pt-2">
             <Button
               type="submit"

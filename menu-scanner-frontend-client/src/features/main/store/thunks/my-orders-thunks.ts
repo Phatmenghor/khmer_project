@@ -1,7 +1,5 @@
-/**
- * My Orders Management - Async Thunks
- * Redux thunks for fetching user's orders
- */
+
+
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
@@ -14,9 +12,7 @@ export interface FetchMyOrdersParams {
   search?: string;
 }
 
-/**
- * Fetch user's orders with filters
- */
+
 export const fetchMyOrdersService = createApiThunk<
   any,
   FetchMyOrdersParams
@@ -31,9 +27,7 @@ export const fetchMyOrdersService = createApiThunk<
   }
 );
 
-/**
- * Fetch order details by ID
- */
+
 export const fetchOrderDetailsService = createApiThunk<any, string>(
   "myOrders/fetchDetails",
   async (orderId) => {
@@ -44,9 +38,7 @@ export const fetchOrderDetailsService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Cancel order
- */
+
 export const cancelOrderService = createApiThunk<any, string>(
   "myOrders/cancel",
   async (orderId) => {

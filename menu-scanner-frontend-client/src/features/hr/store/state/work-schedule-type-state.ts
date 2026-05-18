@@ -13,7 +13,7 @@ import {
 export const useWorkScheduleTypeState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const workScheduleTypeState = useAppSelector(selectWorkScheduleTypeState);
   const workScheduleTypeData = useAppSelector(selectWorkScheduleType);
   const workScheduleTypeContent = useAppSelector(selectWorkScheduleTypeContent);

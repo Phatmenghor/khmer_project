@@ -49,7 +49,7 @@ import { selectGlobalPageSize } from "@/store/selectors/global-settings-selector
 import { useAppSelector } from "@/store";
 import { productPromotionTableColumns } from "@/features/business/table/product-promotion-table";
 
-// Sort field options for promotions page
+
 const SORT_BY_OPTIONS = [
   { value: "createdAt", label: "Created Date" },
   { value: "displayPrice", label: "Display Price" },
@@ -68,10 +68,10 @@ const SORT_DIRECTION_OPTIONS = [
 export default function ProductPromotionPage() {
   const router = useRouter();
 
-  // Clean up state when leaving admin area (performance optimization)
+
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     productState,
     productData,
@@ -83,14 +83,14 @@ export default function ProductPromotionPage() {
     dispatch,
   } = useProductState();
 
-  // Reset filters when entering this page (separate from other admin pages)
+
   useEffect(() => {
     dispatch(setPageNo(1));
     dispatch(setSearchFilter(""));
     dispatch(selectProductStatus(ProductStatus.ALL));
   }, []);
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -121,18 +121,18 @@ export default function ProductPromotionPage() {
     product: null as ProductDetailResponseModel | null,
   });
 
-  // ===== RESET ALL PROMOTIONS =====
+
   const [resetAllState, setResetAllState] = useState({
     isOpen: false,
   });
 
-  // ===== RESET TABLE PROMOTIONS (SELECTED) =====
+
   const [resetTableState, setResetTableState] = useState({
     isOpen: false,
     selectedProductIds: [] as string[],
   });
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -143,14 +143,14 @@ export default function ProductPromotionPage() {
   });
 
   useEffect(() => {
-    // Determine hasSize filter value
+
     let hasSize: boolean | undefined;
     if (sizeFilter === "true") {
       hasSize = true;
     } else if (sizeFilter === "false") {
       hasSize = false;
     }
-    // if ALL, hasSize remains undefined (no filter)
+
 
     dispatch(
       fetchAllProductAdminService({
@@ -180,7 +180,7 @@ export default function ProductPromotionPage() {
     sortDirection,
   ]);
 
-  // Event handlers
+
   const handleCreatePromotion = () => {
     router.push(ROUTES.ADMIN.BULK_PROMOTION_CREATION);
   };
@@ -215,7 +215,7 @@ export default function ProductPromotionPage() {
   };
 
   const handleStatusChange = (productId: string, status: string) => {
-    // Optimistic update - update local state immediately for instant UI feedback
+
     dispatch(
       updateProductOptimistic({
         id: productId,
@@ -223,7 +223,7 @@ export default function ProductPromotionPage() {
       })
     );
 
-    // Call API in background without blocking UI
+
     dispatch(
       updateProductService({
         productId,
@@ -329,7 +329,7 @@ export default function ProductPromotionPage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (productContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -372,12 +372,12 @@ export default function ProductPromotionPage() {
   const handleConfirmResetPromotion = async () => {
     if (!resetPromotionState.product?.id) return;
 
-    // Optimistic update - update state immediately
+
     dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
 
     closeResetPromotionModal();
 
-    // Call API in background without blocking UI
+
     try {
       await dispatch(resetProductPromotionService(resetPromotionState.product.id)).unwrap();
       showToast.success(
@@ -414,7 +414,7 @@ export default function ProductPromotionPage() {
     setSortDirection(value);
   };
 
-  // Create filter configuration for CollapsibleFilterPanel
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Product Promotions",
     searchValue: filters.search,
@@ -489,7 +489,7 @@ export default function ProductPromotionPage() {
           essentialFilterIds={["size", "status"]}
         />
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <div className="overflow-x-auto max-w-full rounded-lg border">
           <DataTableWithPagination
           data={productContent}
@@ -508,7 +508,7 @@ export default function ProductPromotionPage() {
         </div>
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <ProductModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -516,14 +516,14 @@ export default function ProductPromotionPage() {
         mode={modalState.mode}
       />
 
-      {/* Modals Product Detail */}
+      {}
       <ProductDetailModal
         productId={detailModalState.productId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete Product */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}
@@ -536,7 +536,7 @@ export default function ProductPromotionPage() {
         isSubmitting={operations.isDeleting}
       />
 
-      {/* Modals Reset Promotion */}
+      {}
       <ConfirmationModal
         isOpen={resetPromotionState.isOpen}
         onClose={closeResetPromotionModal}
@@ -551,7 +551,7 @@ export default function ProductPromotionPage() {
         isDangerous={false}
       />
 
-      {/* Reset All Promotions Modal */}
+      {}
       <ConfirmationModal
         isOpen={resetAllState.isOpen}
         onClose={closeResetAllModal}
@@ -566,7 +566,7 @@ export default function ProductPromotionPage() {
         isDangerous={true}
       />
 
-      {/* Reset Table Promotions Modal */}
+      {}
       <ConfirmationModal
         isOpen={resetTableState.isOpen}
         onClose={closeResetTableModal}

@@ -52,7 +52,7 @@ export default function CategoriesModal({
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
 
-  // Local state for image upload loading
+
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -85,14 +85,14 @@ export default function CategoriesModal({
   useEffect(() => {
     if (isOpen) {
       if (isCreate) {
-        // Reset form for create mode
+
         reset({
           name: "",
           imageUrl: "",
           status: Status.ACTIVE,
         });
       } else if (categories) {
-        // Populate form with categories data for edit mode
+
         reset({
           name: categories.name || "",
           imageUrl: categories.imageUrl || "",
@@ -102,7 +102,7 @@ export default function CategoriesModal({
     }
   }, [isOpen, categories, isCreate, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -113,7 +113,7 @@ export default function CategoriesModal({
     try {
       let finalImageUrl = data.imageUrl;
 
-      // Upload image if it's a base64 string
+
       if (finalImageUrl && isBase64Image(finalImageUrl)) {
         setIsUploadingImage(true);
         try {
@@ -186,7 +186,7 @@ export default function CategoriesModal({
           className="flex flex-col flex-1 overflow-hidden"
         >
           <FormBody>
-            {/* Display Redux errors */}
+            {}
             {reduxError && (
               <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
                 <p className="text-sm text-destructive font-medium">
@@ -195,7 +195,7 @@ export default function CategoriesModal({
               </div>
             )}
 
-            {/* Category Image Upload */}
+            {}
             <ClickableImageUpload
               label="Category Image"
               value={imageUrl}
@@ -207,7 +207,7 @@ export default function CategoriesModal({
               helperText="Square image works best (500x500)"
             />
 
-            {/* Category Name */}
+            {}
             <TextField
               control={control}
               name="name"
@@ -218,7 +218,7 @@ export default function CategoriesModal({
               error={errors.name}
             />
 
-            {/* Status */}
+            {}
             <SelectField
               control={control}
               name="status"

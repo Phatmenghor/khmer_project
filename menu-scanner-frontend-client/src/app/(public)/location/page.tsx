@@ -46,7 +46,7 @@ export default function LocationPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Calculate responsive skeleton count based on screen width
+
   const calculateSkeletonCount = useCallback(() => {
     const width = window.innerWidth;
     if (width < 768) setSkeletonCount(1);
@@ -54,14 +54,14 @@ export default function LocationPage() {
     else setSkeletonCount(3);
   }, []);
 
-  // Handle window resize for skeleton count
+
   useEffect(() => {
     calculateSkeletonCount();
     window.addEventListener("resize", calculateSkeletonCount);
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
 
-  // Calculate responsive page size
+
   const getPageSize = useMemo(() => {
     return () => {
       if (typeof window === "undefined") return 6;
@@ -77,7 +77,7 @@ export default function LocationPage() {
     locations.length === 0 &&
     !locationPagination.isInitialLoaded;
 
-  // Get user GPS coords on mount
+
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -90,7 +90,7 @@ export default function LocationPage() {
     );
   }, []);
 
-  // Initial fetch
+
   useEffect(() => {
     if (!locationPagination.isInitialLoaded && !isLoading.fetch) {
       const pageSize = getPageSize();
@@ -98,7 +98,7 @@ export default function LocationPage() {
     }
   }, [locationPagination.isInitialLoaded, isLoading.fetch, fetchAllWithPagination, getPageSize]);
 
-  // Load more handler
+
   const handleLoadMore = useCallback(() => {
     if (
       locationPagination.hasMore &&
@@ -118,14 +118,14 @@ export default function LocationPage() {
     getPageSize,
   ]);
 
-  // Smart pagination with debounce
+
   const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
     handleLoadMore,
     locationPagination.hasMore && !isLoading.fetch,
     [locationPagination.hasMore, isLoading.fetch, handleLoadMore]
   );
 
-  // Intersection observer for infinite scroll
+
   useEffect(() => {
     if (!locationPagination.hasMore || !sentinelRef.current) {
       if (observerRef.current) {
@@ -197,7 +197,7 @@ export default function LocationPage() {
     }
   };
 
-  // Loading skeleton
+
   if (isInitialLoading) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
@@ -211,13 +211,13 @@ export default function LocationPage() {
     );
   }
 
-  // Empty state
+
   if (locations.length === 0) {
     return (
       <>
         <LocationEmptyState onAdd={handleAddLocation} />
 
-        {/* Location Modal - must render even on empty state */}
+        {}
         <LocationModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
@@ -228,7 +228,7 @@ export default function LocationPage() {
     );
   }
 
-  // Locations grid with infinite scroll
+
   return (
     <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
       <PageHeader
@@ -249,7 +249,7 @@ export default function LocationPage() {
         }
       />
 
-      {/* Locations Grid */}
+      {}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {locations.map((location, index) => {
           const uniqueKey = `location-${location.id}-${index}`;
@@ -269,7 +269,7 @@ export default function LocationPage() {
         })}
       </div>
 
-      {/* Skeleton loaders ALWAYS show while hasMore: true */}
+      {}
       {locationPagination.hasMore && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
@@ -278,7 +278,7 @@ export default function LocationPage() {
             ))}
           </div>
 
-          {/* Loading spinner */}
+          {}
           <div className="flex flex-col items-center justify-center mt-6 py-6">
             <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
             <p className="text-xs sm:text-sm text-muted-foreground">
@@ -288,12 +288,12 @@ export default function LocationPage() {
         </>
       )}
 
-      {/* Sentinel element for scroll detection */}
+      {}
       {locationPagination.hasMore && !isLoading.fetch && (
         <div ref={sentinelRef} className="h-10 w-full mt-4" />
       )}
 
-      {/* End of locations message */}
+      {}
       {!locationPagination.hasMore && locations.length > 0 && (
         <div className="flex flex-col items-center justify-center mt-12 py-8 px-4">
           <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">

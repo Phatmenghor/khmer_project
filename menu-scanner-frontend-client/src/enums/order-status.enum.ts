@@ -1,4 +1,4 @@
-// Order Status Enum - matches backend OrderStatus enum
+
 export enum OrderStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
@@ -6,7 +6,7 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED',
 }
 
-// Display names and colors for UI
+
 export const OrderStatusConfig = {
   [OrderStatus.PENDING]: {
     label: 'Pending',

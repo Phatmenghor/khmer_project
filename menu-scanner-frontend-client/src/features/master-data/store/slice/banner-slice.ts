@@ -1,7 +1,5 @@
-/**
- * Banner Management - Redux Slice
- * Manages Banner state: data, loading, errors, filters, operations
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { BannerManagementState } from "../models/type/banner-type";
@@ -15,9 +13,7 @@ import {
   toggleBannerStatusService,
 } from "../thunks/banner-thunks";
 
-/**
- * Initial state
- */
+
 const initialState: BannerManagementState = {
   data: null,
   selectedBanner: null,
@@ -36,9 +32,7 @@ const initialState: BannerManagementState = {
   },
 };
 
-/**
- * Banner slice
- */
+
 const bannerSlice = createSlice({
   name: "banners",
   initialState,
@@ -99,7 +93,7 @@ const bannerSlice = createSlice({
         state.selectedBanner = action.payload;
         state.operations.isFetchingDetail = false;
 
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (user) => user.id === action.payload.id
@@ -143,7 +137,7 @@ const bannerSlice = createSlice({
         state.selectedBanner = action.payload;
         state.operations.isUpdating = false;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((user) =>
             user.id === action.payload.id ? action.payload : user
@@ -162,7 +156,7 @@ const bannerSlice = createSlice({
       })
       .addCase(deleteBannerService.fulfilled, (state, action) => {
         if (state.data) {
-          // Extract ID from payload (could be string or object)
+
           const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
           state.data.content = state.data.content.filter(
             (user) => user.id !== deletedId
@@ -190,7 +184,7 @@ const bannerSlice = createSlice({
       .addCase(toggleBannerStatusService.fulfilled, (state, action) => {
         state.operations.isUpdating = false;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((banner) =>
             banner.id === action.payload.id ? action.payload : banner

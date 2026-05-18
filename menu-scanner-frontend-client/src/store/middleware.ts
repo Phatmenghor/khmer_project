@@ -7,7 +7,7 @@ export const authLoggingMiddleware: Middleware =
   () => (next) => (action: UnknownAction) => {
     if (!enableLogging || !action?.type) return next(action);
     if (String(action.type).startsWith("auth/")) {
-      // Dev-only auth action trace (no sensitive data)
+
     }
     return next(action);
   };

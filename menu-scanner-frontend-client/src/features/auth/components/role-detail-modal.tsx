@@ -48,7 +48,7 @@ export function RoleDetailModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTitle className="sr-only">Role Details - {roleData.name}</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-semibold text-foreground">
@@ -60,10 +60,10 @@ export function RoleDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Role Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Role Information</CardTitle>
@@ -77,7 +77,7 @@ export function RoleDetailModal({
               </CardContent>
             </Card>
 
-            {/* System Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>System Information</CardTitle>

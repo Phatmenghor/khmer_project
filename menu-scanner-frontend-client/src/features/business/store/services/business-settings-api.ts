@@ -62,7 +62,7 @@ export const businessSettingsApi = {
     }
   },
 
-  // Generate a hash of settings for change detection
+
   generateSettingsHash: (settings: BusinessSettingsResponse): string => {
     const hashString = JSON.stringify({
       id: settings.id,
@@ -85,12 +85,12 @@ export const businessSettingsApi = {
       updatedAt: settings.updatedAt,
     });
 
-    // Simple hash function
+
     let hash = 0;
     for (let i = 0; i < hashString.length; i++) {
       const char = hashString.charCodeAt(i);
       hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32-bit integer
+      hash = hash & hash;
     }
     return Math.abs(hash).toString(36);
   },

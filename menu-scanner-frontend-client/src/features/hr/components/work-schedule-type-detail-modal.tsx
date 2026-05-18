@@ -59,7 +59,7 @@ export function WorkScheduleTypeDetailModal({
     >
       {workScheduleData ? (
         <div className="space-y-6">
-          {/* Work Schedule Information */}
+          {}
           <DetailSection title="Work Schedule Information">
             <DetailRow
               label="Work Schedule Name"
@@ -73,7 +73,7 @@ export function WorkScheduleTypeDetailModal({
             />
           </DetailSection>
 
-          {/* System Information */}
+          {}
           <DetailSection title="System Information">
             <DetailRow
               label="Work Schedule ID"

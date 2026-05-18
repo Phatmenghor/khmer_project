@@ -1,13 +1,10 @@
-﻿/**
- * Auth State Types
- */
+﻿
+
 
 import { UserAuthResponseModel } from "../response/auth-resposne";
 import { UserResponseModel } from "../response/users-response";
 
-/**
- * Auth State Interface
- */
+
 export interface AuthState {
   isAuthenticated: boolean;
   authReady: boolean;

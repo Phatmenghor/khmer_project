@@ -23,7 +23,7 @@ export default function DashboardLayout({
     setIsSidebarOpen(!isMobile);
   }, [pathname, isMobile]);
 
-  // Handle keyboard shortcut for fullscreen (F11)
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "F11") {
@@ -38,7 +38,7 @@ export default function DashboardLayout({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFullscreen]);
 
-  // Check if current page is POS (hide footer and use full screen)
+
   const isPosPage = pathname.includes("/pos");
 
   if (isFullscreen) {

@@ -51,10 +51,10 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
     },
   });
 
-  // Fetch products for selection and reset form when modal opens
+
   useEffect(() => {
     if (isOpen) {
-      // Reset form and selections
+
       form.reset({
         productIds: [],
         promotionType: undefined,
@@ -66,7 +66,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
       });
       setSelectedProductIds(new Set());
 
-      // Fetch products
+
       dispatch(
         fetchAllProductAdminService({
           search: "",
@@ -130,12 +130,12 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       showToast.success(result.message || "Bulk promotion created successfully!");
 
-      // Reset form and close modal
+
       form.reset();
       setSelectedProductIds(new Set());
       onClose();
 
-      // Refresh products list
+
       dispatch(
         fetchAllProductAdminService({
           search: "",
@@ -178,9 +178,9 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         <FormBody>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Main Grid Layout - 2 Columns */}
+            {}
             <div className="grid grid-cols-2 gap-6">
-              {/* Left Column - Product Selection */}
+              {}
               <div>
                 <Card className="h-full">
                   <CardHeader className="pb-3">
@@ -201,7 +201,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 </Card>
               </div>
 
-              {/* Right Column - Promotion Details */}
+              {}
               <div>
                 <Card className="h-full">
                   <CardHeader className="pb-3">
@@ -209,7 +209,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 gap-4 auto-rows-max">
-                      {/* Promotion Type */}
+                      {}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Promotion Type *</label>
                         <select
@@ -231,7 +231,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         )}
                       </div>
 
-                      {/* Promotion Value */}
+                      {}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">
                           {form.watch("promotionType") === "PERCENTAGE"
@@ -261,7 +261,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         )}
                       </div>
 
-                      {/* Date Range */}
+                      {}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">From Date *</label>
                         <input
@@ -292,7 +292,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         )}
                       </div>
 
-                      {/* Summary */}
+                      {}
                       {selectedProductIds.size > 0 && (
                         <Card className="bg-blue-50 border-blue-200 mt-2">
                           <CardContent className="pt-4">

@@ -127,16 +127,16 @@ function ComboboxSelectBrandPublicComponent({
     }
   };
 
-  // Initial fetch on mount (to show selected brand name)
+
   useEffect(() => {
     if (initialFetchRef.current || data.length > 0) return;
     initialFetchRef.current = true;
     fetchData(debouncedSearch, 1);
-  }, []); // Run only once on mount
+  }, []);
 
-  // Fetch when search changes (ONLY if dropdown is open)
+
   useEffect(() => {
-    if (!open) return; // Don't fetch if dropdown is closed
+    if (!open) return;
 
     setPage(1);
     setLastPage(false);
@@ -144,7 +144,7 @@ function ComboboxSelectBrandPublicComponent({
     fetchData(debouncedSearch, 1);
   }, [debouncedSearch, open]);
 
-  // Pagination: Load more when last item comes into view (ONLY if dropdown is open)
+
   useEffect(() => {
     if (!open || !inView || loadingRef.current || lastPageRef.current || data.length === 0) {
       return;

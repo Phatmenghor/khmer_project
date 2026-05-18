@@ -13,7 +13,7 @@ import {
 export const useAttendanceState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const attendanceState = useAppSelector(selectAttendanceState);
   const attendanceData = useAppSelector(selectAttendance);
   const attendanceContent = useAppSelector(selectAttendanceContent);

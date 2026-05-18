@@ -1,7 +1,5 @@
-/**
- * Auth API Models
- * API request/response models for authentication
- */
+
+
 
 export interface UserAuthResponseModel {
   accessToken: string;

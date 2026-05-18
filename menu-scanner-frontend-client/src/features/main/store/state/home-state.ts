@@ -1,6 +1,5 @@
-/**
- * home-state.ts
- */
+
+
 
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -35,7 +34,7 @@ export const useHomeState = () => {
     featuredProductsSection: useAppSelector(selectFeaturedProductsSection),
     brandsSection: useAppSelector(selectBrandsSection),
     featuredPagination: useAppSelector(selectFeaturedPagination),
-    scrollY: useAppSelector(selectScrollY), // Simple!
+    scrollY: useAppSelector(selectScrollY),
     allSectionsLoaded: useAppSelector(selectAllSectionsLoaded),
   };
 };

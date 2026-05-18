@@ -1,4 +1,4 @@
-// components/shared/dropdown/custom-dropdown-menu.tsx
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -23,8 +23,8 @@ interface CustomDropdownMenuProps {
   header?: React.ReactNode;
   align?: "left" | "right";
   className?: string;
-  openOnHover?: boolean; // New prop
-  hoverDelay?: number; // New prop - delay before opening on hover
+  openOnHover?: boolean;
+  hoverDelay?: number;
 }
 
 export function CustomDropdownMenu({
@@ -33,8 +33,8 @@ export function CustomDropdownMenu({
   header,
   align = "right",
   className,
-  openOnHover = false, // Default to false
-  hoverDelay = 200, // Default 200ms delay
+  openOnHover = false,
+  hoverDelay = 200,
 }: CustomDropdownMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -42,7 +42,7 @@ export function CustomDropdownMenu({
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Close dropdown when clicking outside
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -64,7 +64,7 @@ export function CustomDropdownMenu({
     };
   }, [isOpen]);
 
-  // Close on escape key
+
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -81,7 +81,7 @@ export function CustomDropdownMenu({
     };
   }, [isOpen]);
 
-  // Cleanup timeouts on unmount
+
   useEffect(() => {
     return () => {
       if (hoverTimeoutRef.current) {
@@ -98,17 +98,17 @@ export function CustomDropdownMenu({
     setIsOpen(false);
   };
 
-  // Hover handlers
+
   const handleMouseEnter = () => {
     if (!openOnHover) return;
 
-    // Clear any pending close timeout
+
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = null;
     }
 
-    // Set timeout to open
+
     hoverTimeoutRef.current = setTimeout(() => {
       setIsOpen(true);
     }, hoverDelay);
@@ -117,13 +117,13 @@ export function CustomDropdownMenu({
   const handleMouseLeave = () => {
     if (!openOnHover) return;
 
-    // Clear any pending open timeout
+
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
       hoverTimeoutRef.current = null;
     }
 
-    // Set timeout to close (longer delay)
+
     closeTimeoutRef.current = setTimeout(() => {
       setIsOpen(false);
     }, 300);
@@ -132,7 +132,7 @@ export function CustomDropdownMenu({
   const handleDropdownMouseEnter = () => {
     if (!openOnHover) return;
 
-    // Clear close timeout when mouse enters dropdown
+
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = null;
@@ -142,7 +142,7 @@ export function CustomDropdownMenu({
   const handleDropdownMouseLeave = () => {
     if (!openOnHover) return;
 
-    // Set timeout to close when mouse leaves dropdown
+
     closeTimeoutRef.current = setTimeout(() => {
       setIsOpen(false);
     }, 300);
@@ -150,20 +150,20 @@ export function CustomDropdownMenu({
 
   const handleClick = () => {
     if (openOnHover) {
-      // If hover mode, clicking should keep it open
+
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current);
       }
       setIsOpen(true);
     } else {
-      // If click mode, toggle
+
       setIsOpen(!isOpen);
     }
   };
 
   return (
     <div className="relative">
-      {/* Trigger */}
+      {}
       <div
         ref={triggerRef}
         onClick={handleClick}
@@ -174,7 +174,7 @@ export function CustomDropdownMenu({
         {trigger}
       </div>
 
-      {/* Dropdown Menu */}
+      {}
       {isOpen && (
         <div
           ref={dropdownRef}
@@ -187,7 +187,7 @@ export function CustomDropdownMenu({
             className
           )}
         >
-          {/* Header */}
+          {}
           {header && (
             <>
               <div className="p-3">{header}</div>
@@ -195,18 +195,18 @@ export function CustomDropdownMenu({
             </>
           )}
 
-          {/* Sections */}
+          {}
           <div className="py-2">
             {sections.map((section, sectionIndex) => (
               <div key={sectionIndex}>
-                {/* Section Label */}
+                {}
                 {section.label && (
                   <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     {section.label}
                   </div>
                 )}
 
-                {/* Section Items */}
+                {}
                 {section.items.map((item, itemIndex) => (
                   <div key={itemIndex}>
                     <button
@@ -233,12 +233,12 @@ export function CustomDropdownMenu({
                       </span>
                     </button>
 
-                    {/* Separator */}
+                    {}
                     {item.separator && <div className="my-1 h-px bg-border" />}
                   </div>
                 ))}
 
-                {/* Section Separator */}
+                {}
                 {sectionIndex < sections.length - 1 && (
                   <div className="my-1 h-px bg-border" />
                 )}

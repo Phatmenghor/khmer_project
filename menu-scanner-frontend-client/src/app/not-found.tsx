@@ -1,4 +1,4 @@
-// src/app/not-found.tsx
+
 "use client";
 
 import Link from "next/link";
@@ -12,13 +12,13 @@ export default function NotFoundPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
       <div className="text-center space-y-6 max-w-md">
-        {/* 404 Graphic */}
+        {}
         <div className="space-y-4">
           <div className="text-8xl font-bold text-primary/20">404</div>
           <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         </div>
 
-        {/* Error Message */}
+        {}
         <div className="space-y-3">
           <h1 className="text-3xl font-bold text-foreground">Page Not Found</h1>
           <p className="text-muted-foreground leading-relaxed">
@@ -27,7 +27,7 @@ export default function NotFoundPage() {
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {}
         <div className="flex flex-col sm:flex-row gap-3 pt-6">
           <Button
             onClick={() => router.back()}
@@ -48,7 +48,7 @@ export default function NotFoundPage() {
           </Button>
         </div>
 
-        {/* Additional Help */}
+        {}
         <div className="pt-8 border-t border-border/50">
           <p className="text-sm text-muted-foreground">
             Need help?{" "}

@@ -35,7 +35,7 @@ export function DeliveryOptionsDetailModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTitle className="sr-only">Delivery Options Details - {deliveryOptions.name}</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
+        {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-semibold text-foreground">
@@ -47,22 +47,22 @@ export function DeliveryOptionsDetailModal({
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
-            {/* Delivery Options Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>Delivery Options Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Labels Row - Top alignment */}
+                {}
                 <div className="flex flex-col md:flex-row gap-6">
-                  {/* Left label - Delivery Options Name */}
+                  {}
                   <div className="w-full md:w-1/2">
                     <p className="text-sm font-medium text-foreground">Delivery Options Details</p>
                   </div>
-                  {/* Right label - Delivery Options Image */}
+                  {}
                   {deliveryOptions.imageUrl && (
                     <div className="w-full md:w-1/2">
                       <p className="text-sm font-medium text-foreground">Delivery Options Image</p>
@@ -70,9 +70,9 @@ export function DeliveryOptionsDetailModal({
                   )}
                 </div>
 
-                {/* Content Row - Fields and Image */}
+                {}
                 <div className="flex flex-col md:flex-row gap-6">
-                  {/* Basic Info - Left Side (50%) */}
+                  {}
                   <div className="w-full md:w-1/2 space-y-4">
                     <p className="text-foreground font-medium">{deliveryOptions.name || "---"}</p>
                     <DisplayField
@@ -95,7 +95,7 @@ export function DeliveryOptionsDetailModal({
                     )}
                   </div>
 
-                  {/* Delivery Options Image - Right Side (50%) */}
+                  {}
                   {deliveryOptions.imageUrl && (
                     <div className="w-full md:w-1/2">
                       <div className="h-40 w-40 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
@@ -111,7 +111,7 @@ export function DeliveryOptionsDetailModal({
               </CardContent>
             </Card>
 
-            {/* System Information */}
+            {}
             <Card>
               <CardHeader>
                 <CardTitle>System Information</CardTitle>

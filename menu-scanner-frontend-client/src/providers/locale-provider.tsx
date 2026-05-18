@@ -12,20 +12,18 @@ interface LocaleProviderProps {
   initialLocale: Locale;
 }
 
-/**
- * Get stored locale from cookies or localStorage
- */
+
 function getStoredLocale(): Locale {
   if (typeof window === "undefined") return defaultLocale;
 
   try {
-    // Check localStorage first
+
     const stored = localStorage.getItem("locale");
     if (stored && locales.includes(stored as Locale)) {
       return stored as Locale;
     }
 
-    // Check cookies as fallback
+
     const cookieMatch = document.cookie.match(/locale=([^;]+)/);
     if (cookieMatch && locales.includes(cookieMatch[1] as Locale)) {
       return cookieMatch[1] as Locale;
@@ -36,9 +34,7 @@ function getStoredLocale(): Locale {
   return defaultLocale;
 }
 
-/**
- * Store locale in both cookie and localStorage
- */
+
 function storeLocale(locale: Locale) {
   if (typeof window === "undefined") return;
 
@@ -57,7 +53,7 @@ export function LocaleProvider({
   const [messages, setMessages] = useState(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check for stored locale on mount
+
   useEffect(() => {
     const storedLocale = getStoredLocale();
     if (storedLocale !== locale) {
@@ -65,9 +61,7 @@ export function LocaleProvider({
     }
   }, []);
 
-  /**
-   * Load messages for a specific locale
-   */
+
   const loadLocale = async (newLocale: Locale) => {
     if (newLocale === locale && messages) return;
 
@@ -78,7 +72,7 @@ export function LocaleProvider({
       setLocale(newLocale);
       storeLocale(newLocale);
     } catch (error) {
-      // Fallback to default locale
+
       if (newLocale !== defaultLocale) {
         loadLocale(defaultLocale);
       }

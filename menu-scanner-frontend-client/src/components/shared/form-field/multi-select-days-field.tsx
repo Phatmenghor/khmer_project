@@ -17,7 +17,7 @@ const DAYS_OF_WEEK = [
   { value: DayOfWeek.SUNDAY, label: "Sunday" },
 ] as const;
 
-// Default working days: Monday to Friday
+
 const DEFAULT_WORK_DAYS = [
   DayOfWeek.MONDAY,
   DayOfWeek.TUESDAY,
@@ -94,14 +94,14 @@ function MultiSelectDaysContent({
   className = "",
   defaultDays,
 }: MultiSelectDaysContentProps) {
-  // Local state to manage selected days - using DayOfWeek enum
+
   const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>(
     (Array.isArray(field.value) && field.value.length > 0
       ? field.value
       : defaultDays) || defaultDays,
   );
 
-  // Initialize with default days if field is empty
+
   useEffect(() => {
     const fieldValue = Array.isArray(field.value) ? field.value : [];
     if (fieldValue.length === 0) {
@@ -112,7 +112,7 @@ function MultiSelectDaysContent({
     }
   }, []);
 
-  // Sync local state with form when field value changes externally
+
   useEffect(() => {
     const fieldValue = Array.isArray(field.value) ? field.value : [];
     if (JSON.stringify(fieldValue) !== JSON.stringify(selectedDays)) {
@@ -120,7 +120,7 @@ function MultiSelectDaysContent({
     }
   }, [field.value]);
 
-  // Handle day selection/deselection
+
   const handleToggleDay = (day: DayOfWeek) => {
     if (disabled) return;
 

@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface PromotionSizeSelectionState {
-  // productId -> array of selected sizeIds (arrays are serializable)
+
   selectedSizes: Record<string, string[]>;
 }
 
@@ -13,7 +13,7 @@ export const promotionSizeSelectionSlice = createSlice({
   name: "promotionSizeSelection",
   initialState,
   reducers: {
-    // Toggle a size for a product
+
     toggleSizeForProduct: (
       state,
       action: PayloadAction<{ productId: string; sizeId: string }>
@@ -30,7 +30,7 @@ export const promotionSizeSelectionSlice = createSlice({
       }
     },
 
-    // Select all sizes for a product
+
     selectAllSizesForProduct: (
       state,
       action: PayloadAction<{ productId: string; sizeIds: string[] }>
@@ -39,13 +39,13 @@ export const promotionSizeSelectionSlice = createSlice({
       state.selectedSizes[productId] = [...sizeIds];
     },
 
-    // Clear all sizes for a product
+
     clearSizesForProduct: (state, action: PayloadAction<string>) => {
       const productId = action.payload;
       delete state.selectedSizes[productId];
     },
 
-    // Clear all size selections
+
     clearAllSizeSelections: (state) => {
       state.selectedSizes = {};
     },

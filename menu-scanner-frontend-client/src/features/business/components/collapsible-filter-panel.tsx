@@ -16,27 +16,10 @@ import { Badge } from "@/components/ui/badge";
 
 interface CollapsibleFilterPanelProps {
   config: FilterPanelConfig;
-  essentialFilterIds?: string[]; // Filters to show by default
+  essentialFilterIds?: string[];
 }
 
-/**
- * CollapsibleFilterPanel - Better UI for many filters
- * Shows essential filters by default, collapses optional filters
- *
- * Features:
- * - Cleaner UI with less clutter
- * - Toggle to show/hide advanced filters
- * - Shows count of active filters
- * - Mobile-friendly
- *
- * Usage:
- * ```tsx
- * <CollapsibleFilterPanel
- *   config={filterConfig}
- *   essentialFilterIds={['sortBy', 'sortDirection', 'search']}
- * />
- * ```
- */
+
 export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
   config,
   essentialFilterIds = [],
@@ -153,14 +136,14 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
     <div className="space-y-3">
       <Card>
         <CardContent className="py-3 sm:py-5 space-y-3">
-          {/* Title Section */}
+          {}
           <div className="flex items-center gap-2 mb-0">
             <h1 className="text-base sm:text-lg font-bold">{config.title}</h1>
           </div>
 
-          {/* Row 1: Search (left) + Filters & Add Button (right, grouped) */}
+          {}
           <div className="flex flex-wrap items-end gap-3">
-            {/* Search - Left side, h-10 same as filters */}
+            {}
             <div className="w-[300px] h-10">
               <div className="relative w-full h-full group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
@@ -174,9 +157,9 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               </div>
             </div>
 
-            {/* Right side: Filters + Add Button (grouped together, pushed right, scrollable) */}
+            {}
             <div className="flex flex-wrap items-end gap-3 ml-auto overflow-x-auto max-w-[calc(100vw-330px)] pb-2">
-              {/* Essential Filters - Right side */}
+              {}
               {essentialFilters.length > 0 && (
                 <div className="grid gap-3 flex-shrink-0"
                   style={{
@@ -187,7 +170,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                 </div>
               )}
 
-              {/* Add Button - Far right, h-10 same as filters */}
+              {}
               {config.buttonText && (
                 <Button
                   disabled={config.buttonDisabled}
@@ -204,7 +187,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
         </CardContent>
       </Card>
 
-      {/* Advanced Filters Section */}
+      {}
       {advancedFilters.length > 0 && (
         <div className="bg-primary/5 rounded-lg border border-primary/20 p-3">
           <button
@@ -226,7 +209,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             />
           </button>
 
-          {/* Advanced Filters Content - Responsive grid layout */}
+          {}
           {showAdvanced && (
             <div className="mt-3 pt-3 border-t border-primary/20">
               <div

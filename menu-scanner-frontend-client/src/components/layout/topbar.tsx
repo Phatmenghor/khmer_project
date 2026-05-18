@@ -31,7 +31,7 @@ interface TopBarProps {
   onFullscreenClick?: () => void;
 }
 
-// Convert pathname to breadcrumb segments
+
 function getBreadcrumbs(pathname: string) {
   const parts = pathname.split("/").filter(Boolean);
   const crumbs: { label: string; href: string }[] = [];
@@ -63,9 +63,9 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
   return (
     <>
       <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-5 shadow-md">
-        {/* Left: menu toggle + breadcrumbs */}
+        {}
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          {/* Mobile hamburger */}
+          {}
           <Button
             variant="ghost"
             size="icon"
@@ -76,7 +76,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             <Menu className="h-5 w-5" />
           </Button>
 
-          {/* Breadcrumb — hidden on small screens */}
+          {}
           <nav className="hidden md:flex items-center gap-2 text-sm min-w-0">
             {breadcrumbs.map((crumb, i) => (
               <div key={crumb.href} className="flex items-center gap-1 min-w-0">
@@ -99,15 +99,15 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             ))}
           </nav>
 
-          {/* Page title mobile */}
+          {}
           <span className="md:hidden font-semibold text-sm text-foreground truncate">
             {breadcrumbs[breadcrumbs.length - 1]?.label ?? "Dashboard"}
           </span>
         </div>
 
-        {/* Right: actions + user */}
+        {}
         <div className="flex items-center gap-2 shrink-0">
-          {/* Fullscreen toggle */}
+          {}
           {onFullscreenClick && (
             <Button
               variant="ghost"
@@ -120,7 +120,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             </Button>
           )}
 
-          {/* Profile Dropdown Menu */}
+          {}
           {profile && (
             <CustomDropdownMenu
               trigger={

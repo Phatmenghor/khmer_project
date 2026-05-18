@@ -34,21 +34,21 @@ import { useAppSelector } from "@/store";
 import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
 import { FilterPanelConfig } from "@/features/business/components/filter-types";
 
-// Filter options for stock status
+
 const STOCK_STATUS_FILTER = [
   { value: "ALL", label: "All Stock Status" },
   { value: "ENABLED", label: "Stock Enabled" },
   { value: "DISABLED", label: "Stock Disabled" },
 ];
 
-// Filter options for product with/without sizes
+
 const HAS_SIZES_FILTER = [
   { value: "ALL", label: "All Products" },
   { value: "WITH_SIZES", label: "Products with Sizes" },
   { value: "WITHOUT_SIZES", label: "Products without Sizes" },
 ];
 
-// Sort field options for easy selection
+
 const SORT_BY_OPTIONS = [
   { value: "totalStock", label: "Total Stock" },
   { value: "sku", label: "SKU" },
@@ -62,10 +62,10 @@ const SORT_DIRECTION_OPTIONS = [
 ];
 
 export default function StockItemsPage() {
-  // Clean up state when leaving admin area (performance optimization)
+
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     stockItemsState,
     stockItemsData,
@@ -76,7 +76,7 @@ export default function StockItemsPage() {
     dispatch,
   } = useStockItemsState();
 
-  // Local UI state for modals only
+
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
     productId: "",
@@ -92,7 +92,7 @@ export default function StockItemsPage() {
   const [stockStatusFilterUI, setStockStatusFilterUI] = useState("ALL");
   const [hasSizesFilterUI, setHasSizesFilterUI] = useState("ALL");
 
-  // Global page size from global settings
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -103,7 +103,7 @@ export default function StockItemsPage() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Fetch stock items when filters change
+
   useEffect(() => {
     const request = {
       pageNo: filters.pageNo,
@@ -131,7 +131,7 @@ export default function StockItemsPage() {
     globalPageSize,
   ]);
 
-  // Event handlers
+
   const handleViewItem = (item: ProductStockItemDto) => {
     setDetailModalState({
       isOpen: true,
@@ -232,7 +232,7 @@ export default function StockItemsPage() {
     dispatch(setLowStockThreshold(threshold));
   };
 
-  // Filter Configuration for CollapsibleFilterPanel
+
   const filterConfig: FilterPanelConfig = useMemo(
     () => ({
       title: "Stock Items (Products & Sizes)",
@@ -241,7 +241,7 @@ export default function StockItemsPage() {
       onSearchChange: handleSearchChange,
 
       filters: [
-        // Essential Filters (shown by default)
+
         {
           id: "sortBy",
           type: "select" as const,
@@ -259,7 +259,7 @@ export default function StockItemsPage() {
           onChange: handleSortDirectionChange,
         },
 
-        // Optional Filters (in collapsible section)
+
         {
           id: "brand",
           type: "combobox-brand" as const,
@@ -332,13 +332,13 @@ export default function StockItemsPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        {/* Collapsible Filter Panel - Clean UI with essential + optional filters */}
+        {}
         <CollapsibleFilterPanel
           config={filterConfig}
           essentialFilterIds={["sortBy", "sortDirection"]}
         />
 
-        {/* Data Table with Pagination */}
+        {}
         <DataTableWithPagination
           data={stockItemsContent}
           columns={columns}
@@ -355,14 +355,14 @@ export default function StockItemsPage() {
         />
       </div>
 
-      {/* Product Detail Modal */}
+      {}
       <ProductDetailModal
         productId={detailModalState.productId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Stock Management Modal */}
+      {}
       <StockItemManagementModal
         isOpen={stockManagementState.isOpen}
         onClose={closeStockManagementModal}

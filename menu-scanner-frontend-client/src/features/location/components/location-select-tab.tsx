@@ -20,21 +20,21 @@ import { ComboboxSelectCommune } from "@/components/shared/combobox/combobox_sel
 import { ComboboxSelectVillage } from "@/components/shared/combobox/combobox_select_village";
 
 interface LocationSelectTabProps {
-  // Selected values
+
   selectedProvince: ProvinceResponseModel | null;
   selectedDistrict: DistrictResponseModel | null;
   selectedCommune: CommuneResponseModel | null;
   selectedVillage: VillageResponseModel | null;
 
-  // Geocode state
+
   isGeocodingAddress: boolean;
   geocodedCoords: { lat: number; lng: number } | null;
   geocodeSuccess: boolean;
 
-  // Address preview text
+
   addressPreview: string | null;
 
-  // Handlers
+
   onProvinceChange: (province: ProvinceResponseModel | null) => void;
   onDistrictChange: (district: DistrictResponseModel | null) => void;
   onCommuneChange: (commune: CommuneResponseModel | null) => void;
@@ -59,10 +59,10 @@ export function LocationSelectTab({
 }: LocationSelectTabProps) {
   return (
     <div className="space-y-4">
-      {/* ── Hierarchy selectors ── */}
+      {}
       <div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Province */}
+          {}
           <div>
             <ComboboxSelectProvince
               dataSelect={selectedProvince}
@@ -72,7 +72,7 @@ export function LocationSelectTab({
             />
           </div>
 
-          {/* District */}
+          {}
           <div>
             <ComboboxSelectDistrict
               dataSelect={selectedDistrict}
@@ -82,7 +82,7 @@ export function LocationSelectTab({
             />
           </div>
 
-          {/* Commune — required */}
+          {}
           <div>
             <ComboboxSelectCommune
               dataSelect={selectedCommune}
@@ -93,7 +93,7 @@ export function LocationSelectTab({
             />
           </div>
 
-          {/* Village — optional */}
+          {}
           <div>
             <ComboboxSelectVillage
               dataSelect={selectedVillage}
@@ -105,7 +105,7 @@ export function LocationSelectTab({
         </div>
       </div>
 
-      {/* ── Address preview ── */}
+      {}
       {addressPreview && (
         <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3">
           <div className="flex items-start gap-3">
@@ -122,7 +122,7 @@ export function LocationSelectTab({
         </div>
       )}
 
-      {/* ── Get coordinates ── */}
+      {}
       <div className="space-y-2">
         <Button
           type="button"

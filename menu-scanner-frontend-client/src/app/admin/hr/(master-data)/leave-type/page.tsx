@@ -37,7 +37,7 @@ export default function LeaveTypePage() {
 
   const searchParams = useSearchParams();
 
-  // Redux state
+
   const {
     leaveTypeState,
     leaveTypeData,
@@ -49,7 +49,7 @@ export default function LeaveTypePage() {
     dispatch,
   } = useLeaveTypeState();
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -66,7 +66,7 @@ export default function LeaveTypePage() {
     leaveType: null as LeaveTypeResponseModel | null,
   });
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -75,7 +75,7 @@ export default function LeaveTypePage() {
     baseRoute: ROUTES.HR.LEAVE_TYPE,
   });
 
-  // Initialize URL and Redux state on mount
+
   useEffect(() => {
     const pageParam = searchParams.get("pageNo");
     const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
@@ -85,7 +85,7 @@ export default function LeaveTypePage() {
     }
   }, [searchParams, filters.pageNo, dispatch]);
 
-  // Fetch users when filters change
+
   useEffect(() => {
     dispatch(
       fetchAllLeaveTypesService({
@@ -96,7 +96,7 @@ export default function LeaveTypePage() {
     );
   }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
 
-  // Event handlers
+
   const handleCreate = () => {
     setModalState({
       isOpen: true,
@@ -173,7 +173,7 @@ export default function LeaveTypePage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (leaveTypeContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -224,7 +224,7 @@ export default function LeaveTypePage() {
           openModal={handleCreate}
         ></CardHeaderSection>
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <DataTableWithPagination
           data={leaveTypeContent}
           columns={columns}
@@ -241,7 +241,7 @@ export default function LeaveTypePage() {
         />
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <LeaveTypeModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -249,14 +249,14 @@ export default function LeaveTypePage() {
         mode={modalState.mode}
       />
 
-      {/* Modals Leave type Detail */}
+      {}
       <LeaveTypeDetailModal
         leaveTypeId={detailModalState.id}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete User */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

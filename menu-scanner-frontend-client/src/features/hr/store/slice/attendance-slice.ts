@@ -26,14 +26,12 @@ const initialState: AttendanceManagementState = {
   },
 };
 
-/**
- * Attendance slice
- */
+
 const attendanceSlice = createSlice({
   name: "attendance",
   initialState,
   reducers: {
-    // Filter actions
+
     setSearchFilter: (state, action: PayloadAction<string>) => {
       state.filters.search = action.payload;
       state.filters.pageNo = 1;
@@ -43,7 +41,7 @@ const attendanceSlice = createSlice({
       state.filters.pageNo = action.payload;
     },
 
-    // Utility actions
+
     clearError: (state) => {
       state.error = null;
     },
@@ -85,7 +83,7 @@ const attendanceSlice = createSlice({
       .addCase(fetchAttendanceByIdService.fulfilled, (state, action) => {
         state.operations.isFetchingDetail = false;
         state.selectedAttendance = action.payload;
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (user) => user.id === action.payload.id,
@@ -129,7 +127,7 @@ const attendanceSlice = createSlice({
         state.operations.isUpdating = false;
         state.selectedAttendance = action.payload;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((user) =>
             user.id === action.payload.id ? action.payload : user,

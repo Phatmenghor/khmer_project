@@ -1,8 +1,6 @@
 import { z } from "zod";
 
-/**
- * Validates ISO 8601 date strings and datetime-local formats
- */
+
 const dateTimeSchema = z
   .string()
   .min(1, "Date is required")
@@ -18,9 +16,7 @@ const dateTimeSchema = z
     { message: "Invalid date format" }
   );
 
-/**
- * Bulk Promotion Schema with validation
- */
+
 export const bulkPromotionSchema = z
   .object({
     productIds: z

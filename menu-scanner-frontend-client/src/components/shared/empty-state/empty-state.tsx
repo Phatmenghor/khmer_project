@@ -1,7 +1,5 @@
-/**
- * Empty State Component
- * Reusable component for displaying empty states across the application
- */
+
+
 
 "use client";
 
@@ -11,28 +9,28 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export interface EmptyStateProps {
-  /** Icon to display */
+
   icon?: LucideIcon;
-  /** Main title */
+
   title: string;
-  /** Description text */
+
   description?: string;
-  /** Primary action button */
+
   action?: {
     label: string;
     onClick: () => void;
     variant?: "default" | "outline" | "ghost";
   };
-  /** Secondary action button */
+
   secondaryAction?: {
     label: string;
     onClick: () => void;
   };
-  /** Custom icon/image element */
+
   customIcon?: React.ReactNode;
-  /** Additional className */
+
   className?: string;
-  /** Size variant */
+
   size?: "sm" | "md" | "lg";
 }
 
@@ -57,22 +55,7 @@ const sizeStyles = {
   },
 };
 
-/**
- * Empty State Component
- *
- * @example
- * ```tsx
- * <EmptyState
- *   icon={PackageOpen}
- *   title="No products found"
- *   description="Try adjusting your filters or search terms"
- *   action={{
- *     label: "Clear Filters",
- *     onClick: handleClearFilters
- *   }}
- * />
- * ```
- */
+
 export function EmptyState({
   icon: Icon,
   title,
@@ -93,26 +76,26 @@ export function EmptyState({
         className
       )}
     >
-      {/* Icon */}
+      {}
       {customIcon || (Icon && (
         <div className="mb-4 text-muted-foreground/50 animate-scale-in">
           <Icon className={styles.icon} strokeWidth={1.5} />
         </div>
       ))}
 
-      {/* Title */}
+      {}
       <h3 className={cn("font-semibold text-foreground mb-2", styles.title)}>
         {title}
       </h3>
 
-      {/* Description */}
+      {}
       {description && (
         <p className={cn("text-muted-foreground max-w-md mb-6", styles.description)}>
           {description}
         </p>
       )}
 
-      {/* Actions */}
+      {}
       {(action || secondaryAction) && (
         <div className="flex items-center gap-3">
           {action && (

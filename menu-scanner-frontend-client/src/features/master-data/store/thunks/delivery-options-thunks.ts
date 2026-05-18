@@ -1,7 +1,5 @@
-/**
- * DeliveryOptions Management - Async Thunks
- * Redux thunks for DeliveryOptions CRUD operations
- */
+
+
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
@@ -11,9 +9,7 @@ import {
 } from "../models/request/delivery-options-request";
 import { CreateDeliveryOptionsData } from "../models/schema/delivery-options-schema";
 
-/**
- * Fetch all DeliveryOptions from /api/v1/delivery-options/all
- */
+
 export const fetchAllDeliveryOptionsService = createApiThunk<
   any,
   AllDeliveryOptionsRequest
@@ -25,9 +21,7 @@ export const fetchAllDeliveryOptionsService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Fetch my business DeliveryOptions from /api/v1/delivery-options/my-business/all
- */
+
 export const fetchMyBusinessDeliveryOptionsService = createApiThunk<
   any,
   AllDeliveryOptionsRequest
@@ -39,9 +33,7 @@ export const fetchMyBusinessDeliveryOptionsService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Fetch DeliveryOptions by ID
- */
+
 export const fetchDeliveryOptionsByIdService = createApiThunk<any, string>(
   "delivery-options/fetchById",
   async (id) => {
@@ -52,9 +44,7 @@ export const fetchDeliveryOptionsByIdService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Create DeliveryOptions
- */
+
 export const createDeliveryOptionsService = createApiThunk<
   any,
   CreateDeliveryOptionsData
@@ -66,9 +56,7 @@ export const createDeliveryOptionsService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Update DeliveryOptions
- */
+
 export const updateDeliveryOptionsService = createApiThunk<
   any,
   UpdateDeliveryOptionsParams
@@ -80,9 +68,7 @@ export const updateDeliveryOptionsService = createApiThunk<
   return response.data.data;
 });
 
-/**
- * Delete DeliveryOptions
- */
+
 export const deleteDeliveryOptionsService = createApiThunk<any, string>(
   "delivery-options/delete",
   async (id) => {
@@ -93,9 +79,7 @@ export const deleteDeliveryOptionsService = createApiThunk<any, string>(
   }
 );
 
-/**
- * Toggle DeliveryOptions Status
- */
+
 export const toggleDeliveryOptionsStatusService = createApiThunk<any, any>(
   "delivery-options/toggleStatus",
   async (deliveryOptions) => {

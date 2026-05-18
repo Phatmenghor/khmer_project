@@ -1,4 +1,4 @@
-// src/app/error.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -25,7 +25,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-background via-background to-primary/5 overflow-hidden">
-      {/* Animated background elements with primary color */}
+      {}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-[800px] h-[800px] bg-primary/8 rounded-full blur-3xl animate-pulse" />
         <div className="absolute -bottom-40 -left-40 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -34,7 +34,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
         <div className="w-full max-w-7xl space-y-12">
-          {/* Error Icon with Animation */}
+          {}
           <div className="flex justify-center">
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/40 to-primary/20 rounded-full blur-3xl group-hover:blur-2xl transition-all duration-300 animate-pulse" />
@@ -47,7 +47,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
             </div>
           </div>
 
-          {/* Status Badge */}
+          {}
           <div className="flex justify-center">
             <Badge className="px-6 py-3 text-base font-bold gap-3 bg-primary/15 text-primary border-2 border-primary/40 hover:bg-primary/20 hover:border-primary/60 transition-all shadow-lg">
               <span className="w-3 h-3 rounded-full bg-primary animate-pulse" />
@@ -55,9 +55,9 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
             </Badge>
           </div>
 
-          {/* Main Content Card */}
+          {}
           <div className="space-y-8 bg-card/95 backdrop-blur-2xl border-2 border-primary/20 rounded-3xl lg:rounded-4xl p-8 sm:p-10 lg:p-16 shadow-2xl hover:shadow-primary/15 hover:border-primary/40 transition-all duration-300">
-            {/* Heading Section */}
+            {}
             <div className="space-y-6 text-center max-w-5xl mx-auto">
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent leading-tight">
                 Oops! Something Went Wrong
@@ -180,7 +180,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
             </div>
           </div>
 
-          {/* Footer Info with Status */}
+          {}
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <div className="w-3 h-3 rounded-full bg-primary/60 animate-pulse" />

@@ -56,19 +56,18 @@ export function SizeSelectionModal({
   const [isSaving, setIsSaving] = useState(false);
   const [clearingSize, setClearingSize] = useState<string | null>(null);
 
-  // Local pending quantities: key = sizeId (or "no_size"), value = quantity
+
   const [pendingQuantities, setPendingQuantities] = useState<
     Map<string, number>
   >(new Map());
 
-  // Track which sizes have been modified
+
   const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
 
-  // The product to display
+
   const displayProduct = fullProduct || product;
 
-  // Get quantity for a specific size - standardized naming
-  // Returns: quantity from Redux cart if available, otherwise from API quantityInCart
+
   const getQuantityForSize = useCallback(
     (sizeId: string | null) => {
       if (!displayProduct) return 0;
@@ -77,46 +76,45 @@ export function SizeSelectionModal({
           item.productId === displayProduct.id &&
           item.productSizeId === sizeId,
       );
-      // Use Redux cart state if available (this is the authoritative source during session)
+
       if (cartItem) return cartItem.quantity;
 
-      // Fallback to API response quantityInCart
+
       if (sizeId) {
         const size = displayProduct.sizes?.find((s) => s.id === sizeId);
         return getSizeQuantity(size);
       }
-      // For unsized products, use quantityInCart from product
+
       return displayProduct.quantityInCart || 0;
     },
     [cartItems, displayProduct],
   );
 
-  // Get display quantity - shows pending edits if any, otherwise actual quantity
-  // Standard naming: displayQuantity = UI quantity (includes pending edits)
+
   const getDisplayQuantity = useCallback(
     (sizeId: string | null) => {
       const key = sizeId || "no_size";
-      // If user made unsaved edits, show those (pendingQuantity)
+
       if (pendingQuantities.has(key)) {
         return pendingQuantities.get(key)!;
       }
-      // Otherwise show actual quantity from cart/API
+
       return getQuantityForSize(sizeId);
     },
     [pendingQuantities, getQuantityForSize],
   );
 
-  // Check if there are any unsaved changes
+
   const hasUnsavedChanges = modifiedSizes.size > 0;
 
-  // Current quantity for selected size
+
   const currentQuantity = selectedSize
     ? getDisplayQuantity(selectedSize.id)
     : displayProduct
       ? getDisplayQuantity(null)
       : 0;
 
-  // Initialize when modal opens
+
   useEffect(() => {
     if (open && product) {
       const needsFetch =
@@ -161,7 +159,7 @@ export function SizeSelectionModal({
     }
   }, [open, product, productDispatch]);
 
-  // Handle local quantity change (no API call)
+
   const handleQuantityChange = useCallback(
     (newQuantity: number) => {
       if (!displayProduct) return;
@@ -176,7 +174,7 @@ export function SizeSelectionModal({
         return next;
       });
 
-      // Track if this is actually different from cart
+
       setModifiedSizes((prev) => {
         const next = new Set(prev);
         if (newQuantity === currentQuantity) {
@@ -190,7 +188,7 @@ export function SizeSelectionModal({
     [displayProduct, selectedSize, getQuantityForSize],
   );
 
-  // Clear a specific size from cart - calls API immediately
+
   const handleClearSize = useCallback(
     async (sizeId: string | null) => {
       if (!displayProduct) return;
@@ -198,7 +196,7 @@ export function SizeSelectionModal({
       const key = sizeId || "no_size";
       const currentQty = getQuantityForSize(sizeId);
 
-      // If already 0 in cart and just pending, just reset the pending state
+
       if (currentQty === 0) {
         setPendingQuantities((prev) => {
           const next = new Map(prev);
@@ -213,7 +211,7 @@ export function SizeSelectionModal({
         return;
       }
 
-      // Optimistic local update with timestamp
+
       const ts = Date.now();
       dispatch(
         updateLocalCartItem({
@@ -224,7 +222,7 @@ export function SizeSelectionModal({
         }),
       );
 
-      // Clear any pending state for this size since we're syncing directly
+
       setPendingQuantities((prev) => {
         const next = new Map(prev);
         next.delete(key);
@@ -236,7 +234,7 @@ export function SizeSelectionModal({
         return next;
       });
 
-      // Call API immediately
+
       setClearingSize(key);
       try {
         await dispatch(
@@ -257,14 +255,14 @@ export function SizeSelectionModal({
     [displayProduct, dispatch, getQuantityForSize],
   );
 
-  // Discard all pending changes
+
   const handleDiscard = useCallback(() => {
     setPendingQuantities(new Map());
     setModifiedSizes(new Set());
     onOpenChange(false);
   }, [onOpenChange]);
 
-  // Save all pending changes to API
+
   const handleAddToCart = useCallback(async () => {
     if (!displayProduct || modifiedSizes.size === 0) return;
 
@@ -272,7 +270,7 @@ export function SizeSelectionModal({
 
     try {
       const promises: Promise<any>[] = [];
-      const ts = Date.now(); // Single timestamp for conflict resolution
+      const ts = Date.now();
 
       for (const key of modifiedSizes) {
         const sizeId = key === "no_size" ? null : key;
@@ -281,7 +279,7 @@ export function SizeSelectionModal({
 
         if (newQty === currentQuantity) continue;
 
-        // Optimistic local update
+
         if (currentQuantity === 0 && newQty > 0) {
           const size = displayProduct.sizes?.find((s) => s.id === sizeId);
           const itemFinalPrice =
@@ -322,7 +320,7 @@ export function SizeSelectionModal({
           );
         }
 
-        // API call
+
         if (newQty > 0) {
           promises.push(
             dispatch(
@@ -385,13 +383,13 @@ export function SizeSelectionModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full sm:max-w-[480px] p-0 overflow-hidden">
-        {/* Header */}
+        {}
         <DialogHeader className="p-4 pb-0">
           <DialogTitle className="text-lg font-bold">Choose Size</DialogTitle>
         </DialogHeader>
 
         <div className="p-4 pt-2">
-          {/* Loading State */}
+          {}
           {isLoadingDetail ? (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
@@ -401,7 +399,7 @@ export function SizeSelectionModal({
             </div>
           ) : (
             <>
-              {/* Product Info */}
+              {}
               <div className="flex gap-4 mb-4">
                 <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                   <Image
@@ -443,7 +441,7 @@ export function SizeSelectionModal({
                 </div>
               </div>
 
-              {/* Size Selection */}
+              {}
               {displayProduct?.hasSizes &&
                 displayProduct?.sizes &&
                 displayProduct.sizes.length > 0 && (
@@ -484,7 +482,7 @@ export function SizeSelectionModal({
                                 <Check className="h-2.5 w-2.5" />
                               </div>
                             )}
-                            {/* Show quantity badge */}
+                            {}
                             {sizeDisplayQty > 0 && (
                               <div
                                 className={cn(
@@ -502,7 +500,7 @@ export function SizeSelectionModal({
                   </div>
                 )}
 
-              {/* Quantity Selector + Clear button */}
+              {}
               <div className="mb-4">
                 <h4 className="font-semibold mb-2 text-sm">Quantity</h4>
                 <div className="flex items-center gap-2">
@@ -512,7 +510,7 @@ export function SizeSelectionModal({
                     min={0}
                     size="sm"
                   />
-                  {/* Clear button for selected size - calls API immediately */}
+                  {}
                   {(currentQuantity > 0 || getQuantityForSize(selectedSize?.id || null) > 0) && (
                     <CustomButton
                       variant="outline"
@@ -534,7 +532,7 @@ export function SizeSelectionModal({
                 </div>
               </div>
 
-              {/* Total */}
+              {}
               <div className="flex justify-between items-center py-3 border-t mb-4">
                 <span className="text-muted-foreground">Total</span>
                 <span className="text-xl font-bold text-primary">
@@ -542,7 +540,7 @@ export function SizeSelectionModal({
                 </span>
               </div>
 
-              {/* Action buttons: Discard & Add to Cart */}
+              {}
               <div className="flex gap-3">
                 <CustomButton
                   variant="outline"

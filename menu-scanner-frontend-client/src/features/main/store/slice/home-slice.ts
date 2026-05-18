@@ -1,9 +1,5 @@
-/**
- * home-slice.ts
- * Redux store for home page data and pagination
- * Handles: banners, categories, promotions, featured products, brands
- * Features: infinite scroll pagination, scroll position restoration, section loading states
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { BannerResponseModel } from "@/features/master-data/store/models/response/banner-response";
@@ -19,30 +15,30 @@ import {
   fetchHomeBrands,
 } from "../thunks/home-thunks";
 
-/** State for individual sections (loading, loaded, error) */
+
 interface SectionState {
   loading: boolean;
   loaded: boolean;
   error: string | null;
 }
 
-/** Pagination info for paginated sections (featured products) */
+
 interface PaginationState {
   currentPage: number;
   hasMore: boolean;
   totalPages: number;
 }
 
-/** Complete home page Redux state */
+
 interface HomePageState {
-  // Data
+
   banners: BannerResponseModel[];
   categories: CategoriesResponseModel[];
   promotionProducts: ProductDetailResponseModel[];
   featuredProducts: ProductDetailResponseModel[];
   brands: BrandResponseModel[];
 
-  // Section loading/error states
+
   sections: {
     banners: SectionState;
     categories: SectionState;
@@ -51,30 +47,30 @@ interface HomePageState {
     brands: SectionState;
   };
 
-  // Pagination for featured products (infinite scroll)
+
   featuredPagination: PaginationState;
 
-  // Page metadata
+
   initialLoadComplete: boolean;
   lastFetchTimestamp: number | null;
   scrollY: number;
 }
 
-/** Default section state - loading: false, loaded: false, error: null */
+
 const initialSectionState: SectionState = {
   loading: false,
   loaded: false,
   error: null,
 };
 
-/** Default pagination state - page 1, has more data */
+
 const initialPaginationState: PaginationState = {
   currentPage: 1,
   hasMore: true,
   totalPages: 1,
 };
 
-/** Initial home page state */
+
 const initialState: HomePageState = {
   banners: [],
   categories: [],
@@ -98,7 +94,7 @@ const homeSlice = createSlice({
   name: "home",
   initialState,
   reducers: {
-    // Simple action - just save the number
+
     setScrollY: (state, action: PayloadAction<number>) => {
       state.scrollY = action.payload;
     },
@@ -119,7 +115,7 @@ const homeSlice = createSlice({
     },
 
     forceRefresh: (state) => {
-      // Reset all data and states for full page refresh
+
       state.banners = [];
       state.categories = [];
       state.promotionProducts = [];
@@ -142,7 +138,7 @@ const homeSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    // Helper: Handle standard section loading (pending/rejected)
+
     const addSectionPending = (action: any, sectionKey: keyof HomePageState["sections"]) => {
       builder.addCase(action.pending, (state) => {
         state.sections[sectionKey].loading = true;
@@ -154,7 +150,7 @@ const homeSlice = createSlice({
       });
     };
 
-    // Banners
+
     addSectionPending(fetchHomeBanners, "banners");
     builder.addCase(fetchHomeBanners.fulfilled, (state, action) => {
       state.banners = action.payload || [];
@@ -162,7 +158,7 @@ const homeSlice = createSlice({
       state.sections.banners.loaded = true;
     });
 
-    // Categories
+
     addSectionPending(fetchHomeCategories, "categories");
     builder.addCase(fetchHomeCategories.fulfilled, (state, action) => {
       state.categories = action.payload.content || [];
@@ -170,7 +166,7 @@ const homeSlice = createSlice({
       state.sections.categories.loaded = true;
     });
 
-    // Promotion Products
+
     addSectionPending(fetchHomePromotionProducts, "promotionProducts");
     builder.addCase(fetchHomePromotionProducts.fulfilled, (state, action) => {
       state.promotionProducts = action.payload.content || [];
@@ -178,16 +174,15 @@ const homeSlice = createSlice({
       state.sections.promotionProducts.loaded = true;
     });
 
-    // Featured Products (Paginated with infinite scroll)
+
     addSectionPending(fetchHomeFeaturedProducts, "featuredProducts");
     builder.addCase(fetchHomeFeaturedProducts.fulfilled, (state, action) => {
       const newProducts = action.payload.content || [];
 
-      // Append new products to existing (Facebook-style infinite scroll)
-      // Backend handles pagination, no deduplication needed
+
       state.featuredProducts = [...state.featuredProducts, ...newProducts];
 
-      // Update pagination info
+
       state.featuredPagination.currentPage = action.payload.pageNo || 1;
       state.featuredPagination.totalPages = action.payload.totalPages || 1;
       state.featuredPagination.hasMore = !action.payload.last;
@@ -195,7 +190,7 @@ const homeSlice = createSlice({
       state.sections.featuredProducts.loaded = true;
     });
 
-    // Brands
+
     addSectionPending(fetchHomeBrands, "brands");
     builder.addCase(fetchHomeBrands.fulfilled, (state, action) => {
       state.brands = action.payload.content || [];

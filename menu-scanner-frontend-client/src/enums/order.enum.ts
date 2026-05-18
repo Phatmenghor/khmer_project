@@ -1,20 +1,12 @@
-/**
- * Order Enums - Frontend Type Definitions
- */
 
-/**
- * OrderFrom Enum - Identifies the source of the order
- * CUSTOMER: Order created from public checkout page
- * BUSINESS: Order created from admin/POS system
- */
+
+
 export enum OrderFromEnum {
-  CUSTOMER = 'CUSTOMER',  // From public checkout page
-  BUSINESS = 'BUSINESS',  // From admin/POS system
+  CUSTOMER = 'CUSTOMER',
+  BUSINESS = 'BUSINESS',
 }
 
-/**
- * Order Status Enum
- */
+
 export enum OrderStatusEnum {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
@@ -22,9 +14,7 @@ export enum OrderStatusEnum {
   CANCELLED = 'CANCELLED',
 }
 
-/**
- * Payment Method Enum
- */
+
 export enum PaymentMethodEnum {
   CASH = 'CASH',
   CARD = 'CARD',
@@ -33,9 +23,7 @@ export enum PaymentMethodEnum {
   WALLET = 'WALLET',
 }
 
-/**
- * Payment Status Enum
- */
+
 export enum PaymentStatusEnum {
   PENDING = 'PENDING',
   PAID = 'PAID',
@@ -44,37 +32,29 @@ export enum PaymentStatusEnum {
   CANCELLED = 'CANCELLED',
 }
 
-/**
- * Delivery Type Enum
- */
+
 export enum DeliveryTypeEnum {
-  STANDARD = 'STANDARD',    // Regular delivery 30-45 min
-  EXPRESS = 'EXPRESS',      // Fast delivery 15-20 min
-  DINE_IN = 'DINE_IN',      // Eat at restaurant
-  PICKUP = 'PICKUP',        // Customer picks up
+  STANDARD = 'STANDARD',
+  EXPRESS = 'EXPRESS',
+  DINE_IN = 'DINE_IN',
+  PICKUP = 'PICKUP',
 }
 
-/**
- * Promotion Type Enum
- */
+
 export enum PromotionTypeEnum {
-  PERCENTAGE = 'PERCENTAGE',  // Discount as percentage
-  FIXED = 'FIXED',            // Fixed amount discount
-  NONE = 'NONE',              // No promotion
+  PERCENTAGE = 'PERCENTAGE',
+  FIXED = 'FIXED',
+  NONE = 'NONE',
 }
 
-/**
- * Device Type Enum
- */
+
 export enum DeviceTypeEnum {
   MOBILE = 'MOBILE',
   DESKTOP = 'DESKTOP',
   TABLET = 'TABLET',
 }
 
-/**
- * OS Type Enum
- */
+
 export enum OSTypeEnum {
   IOS = 'iOS',
   ANDROID = 'Android',
@@ -83,9 +63,7 @@ export enum OSTypeEnum {
   LINUX = 'Linux',
 }
 
-/**
- * Order Status Display Labels
- */
+
 export const OrderStatusLabels: Record<OrderStatusEnum, string> = {
   [OrderStatusEnum.PENDING]: 'Pending',
   [OrderStatusEnum.CONFIRMED]: 'Confirmed',
@@ -93,9 +71,7 @@ export const OrderStatusLabels: Record<OrderStatusEnum, string> = {
   [OrderStatusEnum.CANCELLED]: 'Cancelled',
 };
 
-/**
- * Order Status Colors (for UI)
- */
+
 export const OrderStatusColors: Record<OrderStatusEnum, string> = {
   [OrderStatusEnum.PENDING]: 'yellow',
   [OrderStatusEnum.CONFIRMED]: 'blue',
@@ -103,17 +79,13 @@ export const OrderStatusColors: Record<OrderStatusEnum, string> = {
   [OrderStatusEnum.CANCELLED]: 'red',
 };
 
-/**
- * OrderFrom Display Labels
- */
+
 export const OrderFromLabels: Record<OrderFromEnum, string> = {
   [OrderFromEnum.CUSTOMER]: 'Customer (Checkout)',
   [OrderFromEnum.BUSINESS]: 'Business (Admin/POS)',
 };
 
-/**
- * Delivery Type Display Labels
- */
+
 export const DeliveryTypeLabels: Record<DeliveryTypeEnum, string> = {
   [DeliveryTypeEnum.STANDARD]: 'Standard Delivery',
   [DeliveryTypeEnum.EXPRESS]: 'Express Delivery',
@@ -121,48 +93,36 @@ export const DeliveryTypeLabels: Record<DeliveryTypeEnum, string> = {
   [DeliveryTypeEnum.PICKUP]: 'Pickup',
 };
 
-/**
- * Helper function to get OrderFrom display name
- */
+
 export const getOrderFromLabel = (orderFrom: OrderFromEnum | string): string => {
   const from = orderFrom as OrderFromEnum;
   return OrderFromLabels[from] || 'Unknown';
 };
 
-/**
- * Helper function to get Order Status display name
- */
+
 export const getOrderStatusLabel = (status: OrderStatusEnum | string): string => {
   const s = status as OrderStatusEnum;
   return OrderStatusLabels[s] || 'Unknown';
 };
 
-/**
- * Helper function to get Order Status color
- */
+
 export const getOrderStatusColor = (status: OrderStatusEnum | string): string => {
   const s = status as OrderStatusEnum;
   return OrderStatusColors[s] || 'default';
 };
 
-/**
- * Helper function to get Delivery Type display name
- */
+
 export const getDeliveryTypeLabel = (deliveryType: DeliveryTypeEnum | string): string => {
   const type = deliveryType as DeliveryTypeEnum;
   return DeliveryTypeLabels[type] || 'Unknown';
 };
 
-/**
- * Check if order is from customer
- */
+
 export const isCustomerOrder = (orderFrom: OrderFromEnum | string): boolean => {
   return (orderFrom as OrderFromEnum) === OrderFromEnum.CUSTOMER;
 };
 
-/**
- * Check if order is from business/POS
- */
+
 export const isBusinessOrder = (orderFrom: OrderFromEnum | string): boolean => {
   return (orderFrom as OrderFromEnum) === OrderFromEnum.BUSINESS;
 };

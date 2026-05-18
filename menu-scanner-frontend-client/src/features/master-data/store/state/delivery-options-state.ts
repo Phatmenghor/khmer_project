@@ -13,7 +13,7 @@ import {
 export const useDeliveryOptionsState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const deliveryOptionsState = useAppSelector(selectDeliveryOptionsState);
   const deliveryOptionsData = useAppSelector(selectDeliveryOptions);
   const deliveryOptionsContent = useAppSelector(selecDeliveryOptionsContent);

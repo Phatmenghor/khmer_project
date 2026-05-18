@@ -50,7 +50,7 @@ export default function BannerModal({
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
 
-  // Local state for image upload loading
+
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -81,14 +81,14 @@ export default function BannerModal({
   useEffect(() => {
     if (isOpen) {
       if (isCreate) {
-        // Reset form for create mode
+
         reset({
           imageUrl: "",
           description: "",
           status: Status.ACTIVE,
         });
       } else if (banner) {
-        // Populate form with banner data for edit mode
+
         reset({
           imageUrl: banner.imageUrl || "",
           description: banner.description || "",
@@ -98,7 +98,7 @@ export default function BannerModal({
     }
   }, [isOpen, banner, isCreate, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -109,7 +109,7 @@ export default function BannerModal({
     try {
       let finalImageUrl = data.imageUrl;
 
-      // Upload image if it's a base64 string with loading state
+
       if (finalImageUrl && isBase64Image(finalImageUrl)) {
         setIsUploadingImage(true);
         try {
@@ -176,7 +176,7 @@ export default function BannerModal({
           className="flex flex-col flex-1 overflow-hidden"
         >
             <FormBody>
-              {/* Display Redux errors */}
+              {}
               {reduxError && (
                 <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
                   <p className="text-sm text-destructive font-medium">
@@ -186,7 +186,7 @@ export default function BannerModal({
               )}
 
               <div className="space-y-6">
-                {/* Banner Image Section - Prominent display */}
+                {}
                 <div className="space-y-3">
                   <ClickableImageUpload
                     label="Banner Image"
@@ -199,13 +199,13 @@ export default function BannerModal({
                   />
                 </div>
 
-                {/* Divider */}
+                {}
                 <div className="border-t pt-6">
                   <h3 className="text-sm font-semibold text-foreground mb-4">
                     Banner Details
                   </h3>
 
-                  {/* Banner Description */}
+                  {}
                   <div className="grid grid-cols-1 gap-4 mb-4">
                     <TextAreaField
                       control={control}
@@ -218,7 +218,7 @@ export default function BannerModal({
                     />
                   </div>
 
-                  {/* Status Field */}
+                  {}
                   <div className="grid grid-cols-1 gap-4">
                     <SelectField
                       control={control}

@@ -1,7 +1,5 @@
-/**
- * DeliveryOptions Management - Redux Slice
- * Manages DeliveryOptions state: data, loading, errors, filters, operations
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { DeliveryOptionsManagementState } from "../models/type/delivery-options-type";
@@ -16,9 +14,7 @@ import {
   toggleDeliveryOptionsStatusService,
 } from "../thunks/delivery-options-thunks";
 
-/**
- * Initial state
- */
+
 const initialState: DeliveryOptionsManagementState = {
   data: null,
   selectedDeliveryOptions: null,
@@ -37,9 +33,7 @@ const initialState: DeliveryOptionsManagementState = {
   },
 };
 
-/**
- * DeliveryOptions slice
- */
+
 const deliveryOptionsSlice = createSlice({
   name: "delivery-options",
   initialState,
@@ -114,7 +108,7 @@ const deliveryOptionsSlice = createSlice({
         state.selectedDeliveryOptions = action.payload;
         state.operations.isFetchingDetail = false;
 
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (user) => user.id === action.payload.id
@@ -158,7 +152,7 @@ const deliveryOptionsSlice = createSlice({
         state.selectedDeliveryOptions = action.payload;
         state.operations.isUpdating = false;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((user) =>
             user.id === action.payload.id ? action.payload : user

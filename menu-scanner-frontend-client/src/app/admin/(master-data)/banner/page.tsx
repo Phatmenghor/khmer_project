@@ -36,10 +36,10 @@ import { selectGlobalPageSize } from "@/store/selectors/global-settings-selector
 import { useAppSelector } from "@/store";
 
 export default function BannerPage() {
-  // Clean up state when leaving admin area (performance optimization)
+
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     bannerState,
     bannerData,
@@ -51,7 +51,7 @@ export default function BannerPage() {
     dispatch,
   } = useBannerState();
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -68,7 +68,7 @@ export default function BannerPage() {
     banner: null as BannerResponseModel | null,
   });
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -95,7 +95,7 @@ export default function BannerPage() {
     globalPageSize,
   ]);
 
-  // Event handlers
+
   const handleCreateBanner = () => {
     setModalState({
       isOpen: true,
@@ -183,7 +183,7 @@ export default function BannerPage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (bannerContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -240,7 +240,7 @@ export default function BannerPage() {
           </div>
         </CardHeaderSection>
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <DataTableWithPagination
           data={bannerContent}
           columns={columns}
@@ -257,7 +257,7 @@ export default function BannerPage() {
         />
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <BannerModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -265,14 +265,14 @@ export default function BannerPage() {
         mode={modalState.mode}
       />
 
-      {/* Modals User Detail */}
+      {}
       <BannerDetailModal
         banner={detailModalState.banner}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete User */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

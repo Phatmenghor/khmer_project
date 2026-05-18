@@ -4,7 +4,7 @@ export enum Status {
   INACTIVE = "INACTIVE",
 }
 
-// Status configuration with descriptions and helper properties
+
 export const StatusConfig = {
   [Status.ACTIVE]: {
     label: "Active",
@@ -16,7 +16,7 @@ export const StatusConfig = {
   },
 };
 
-// Helper functions for Status enum
+
 export const getStatusLabel = (status: Status): string => {
   return StatusConfig[status]?.label || status;
 };
@@ -40,7 +40,7 @@ export enum AccountStatus {
   LOCKED = "LOCKED",
 }
 
-// Types
+
 export enum ModalMode {
   CREATE_MODE = "create",
   UPDATE_MODE = "update",
@@ -147,7 +147,7 @@ export enum ProductStatus {
   OUT_OF_STOCK = "OUT_OF_STOCK",
 }
 
-// ProductStatus configuration with labels
+
 export const ProductStatusConfig = {
   [ProductStatus.ACTIVE]: {
     label: "Active",
@@ -160,7 +160,7 @@ export const ProductStatusConfig = {
   },
 };
 
-// Helper function for ProductStatus enum
+
 export const getProductStatusLabel = (status: string): string => {
   return ProductStatusConfig[status as ProductStatus]?.label || status;
 };
@@ -170,7 +170,7 @@ export enum StockStatus {
   DISABLED = "DISABLED",
 }
 
-// StockStatus configuration with labels
+
 export const StockStatusConfig = {
   [StockStatus.ENABLED]: {
     label: "Enabled",
@@ -180,7 +180,7 @@ export const StockStatusConfig = {
   },
 };
 
-// Helper function for StockStatus enum
+
 export const getStockStatusLabel = (status: string): string => {
   return StockStatusConfig[status as StockStatus]?.label || status;
 };

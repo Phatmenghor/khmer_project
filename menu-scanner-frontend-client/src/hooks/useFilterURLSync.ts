@@ -1,7 +1,5 @@
-/**
- * useFilterURLSync Hook - SIMPLIFIED & FIXED
- * Syncs POS filters with URL query parameters
- */
+
+
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
@@ -43,7 +41,7 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
 
-  // Get ALL filter values from Redux
+
   const searchTerm = useAppSelector(selectSearchTerm);
   const promotionFilter = useAppSelector(selectPromotionFilter);
   const selectedCategory = useAppSelector(selectSelectedCategory);
@@ -52,9 +50,7 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
   const isInitializedRef = useRef(false);
   const urlUpdateTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // ─────────────────────────────────────────────────────────────
-  // STEP 1: Load from URL on mount
-  // ─────────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (!enabled || isInitializedRef.current) return;
 
@@ -65,7 +61,6 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
       const promotion = searchParams.get("promotion") === "true";
 
 
-      // Update Redux with URL values
       if (search) {
         dispatch(setSearchTerm(search));
       }
@@ -89,21 +84,19 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
     }
   }, []);
 
-  // ─────────────────────────────────────────────────────────────
-  // STEP 2: Save to URL when filters change
-  // ─────────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (!enabled || !isInitializedRef.current) return;
 
-    // Clear old timeout
+
     if (urlUpdateTimeoutRef.current) {
       clearTimeout(urlUpdateTimeoutRef.current);
     }
 
-    // Debounce the update
+
     urlUpdateTimeoutRef.current = setTimeout(() => {
       try {
-        // Build URL params from ALL filter sources
+
         const params = new URLSearchParams();
 
         if (searchTerm) {
@@ -122,15 +115,14 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
           params.set("promotion", "true");
         }
 
-        // Build new URL
+
         const queryString = params.toString();
         const newUrl = queryString ? `?${queryString}` : "";
 
-        // Check if URL actually changed
+
         const currentUrl = window.location.search;
         if (newUrl !== currentUrl) {
 
-          // Use window.history for more reliable navigation
           window.history.pushState(
             null,
             "",
@@ -168,9 +160,6 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
     onFiltersChanged,
   ]);
 
-  // ─────────────────────────────────────────────────────────────
-  // PUBLIC API
-  // ─────────────────────────────────────────────────────────────
 
   const getFiltersFromURL = useCallback((): FilterState => {
     return {

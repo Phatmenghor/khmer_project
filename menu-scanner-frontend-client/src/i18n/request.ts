@@ -1,4 +1,4 @@
-// src/i18n/request.ts
+
 import { getRequestConfig } from "next-intl/server";
 
 export const locales = ["en", "kh", "zh-CN"] as const;
@@ -6,10 +6,10 @@ export const defaultLocale = "en" as const;
 export type Locale = (typeof locales)[number];
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  // Try to get locale from request
+
   let locale = await requestLocale;
 
-  // Validate and fallback to default if invalid
+
   if (!locale || !locales.includes(locale as Locale)) {
     locale = defaultLocale;
   }
@@ -24,7 +24,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
     };
   } catch (error) {
 
-    // Fallback to default locale
     const fallbackMessages = (await import(`../messages/${defaultLocale}.json`))
       .default;
 

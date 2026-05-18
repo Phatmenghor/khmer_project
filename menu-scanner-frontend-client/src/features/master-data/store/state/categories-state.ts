@@ -13,7 +13,7 @@ import {
 export const useCategoriesState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const categoriesState = useAppSelector(selectCategoriesState);
   const categoriesData = useAppSelector(selectCategories);
   const categoriesContent = useAppSelector(selectCategoriesContent);

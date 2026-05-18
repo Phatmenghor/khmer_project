@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 
-// ─── Brand Filter Component ───
+
 interface POSFilterBrandProps {
   selectedBrand: BrandResponseModel | null;
   brands: BrandResponseModel[];
@@ -103,7 +103,7 @@ export function POSFilterBrand({
   );
 }
 
-// ─── Promotion Filter Component ───
+
 interface POSFilterPromotionProps {
   promotionFilter: boolean | undefined;
   promotionOpen: boolean;
@@ -174,7 +174,7 @@ export function POSFilterPromotion({
   );
 }
 
-// ─── Category Horizontal Scroll Component ───
+
 interface POSCategoryScrollProps {
   categories: CategoriesResponseModel[];
   selectedCategory: CategoriesResponseModel | null;
@@ -210,7 +210,7 @@ export function POSCategoryScroll({
 
   return (
     <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 h-10">
-      {/* Left Scroll Button */}
+      {}
       <Button
         variant="outline"
         size="icon"
@@ -221,10 +221,10 @@ export function POSCategoryScroll({
         <ChevronRight className="h-5 w-5 transform rotate-180" />
       </Button>
 
-      {/* Categories ScrollArea */}
+      {}
       <ScrollArea className="flex-1 h-10 overflow-hidden" ref={categoryScrollRef}>
         <div className="flex gap-3 px-2 h-10 items-center">
-          {/* All Categories Button */}
+          {}
           <button
             onClick={() => onCategoryChange(null)}
             className={cn(
@@ -237,7 +237,7 @@ export function POSCategoryScroll({
             All
           </button>
 
-          {/* Category Items */}
+          {}
           {categoriesLoading ? (
             <div className="flex items-center gap-2 px-3 h-10">
               <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
@@ -262,7 +262,7 @@ export function POSCategoryScroll({
         </div>
       </ScrollArea>
 
-      {/* Right Scroll Button */}
+      {}
       <Button
         variant="outline"
         size="icon"
@@ -276,7 +276,7 @@ export function POSCategoryScroll({
   );
 }
 
-// ─── Clear Filters Button Component ───
+
 interface POSClearFiltersButtonProps {
   isFiltered: boolean;
   onClear: () => void;

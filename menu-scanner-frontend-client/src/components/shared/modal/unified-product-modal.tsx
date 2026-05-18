@@ -25,9 +25,8 @@ interface UnifiedProductModalProps {
   product: ProductDetailResponseModel | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  // Callback when user confirms selection
-  // For public: should call API with (productId, sizeId, customizationIds, quantity)
-  // For POS: should update Redux with local changes
+
+
   onConfirm: (
     product: ProductDetailResponseModel,
     size: ProductSize | null,
@@ -35,8 +34,8 @@ interface UnifiedProductModalProps {
     quantity: number
   ) => Promise<void>;
   isLoading?: boolean;
-  mode?: "public" | "pos"; // "public" for API calls, "pos" for local storage
-  cartItemQuantities?: Map<string, number>; // Existing cart quantities for this product
+  mode?: "public" | "pos";
+  cartItemQuantities?: Map<string, number>;
 }
 
 export function UnifiedProductModal({
@@ -56,7 +55,7 @@ export function UnifiedProductModal({
   const hasSizes = product?.hasSizes && product.sizes && product.sizes.length > 0;
   const hasCustomizations = product?.customizations && product.customizations.length > 0;
 
-  // Get quantity for a specific size + customization combo
+
   const getQuantityForCombo = useCallback(
     (sizeId: string | null, customizationIds: Set<string>) => {
       if (!sizeId && !hasCustomizations) return 0;
@@ -67,14 +66,14 @@ export function UnifiedProductModal({
     [cartItemQuantities, hasCustomizations]
   );
 
-  // Initialize on modal open
+
   useEffect(() => {
     if (open && product) {
-      // Set first size if product has sizes
+
       if (hasSizes) {
         setSelectedSize(product.sizes![0]);
       } else if (hasCustomizations) {
-        // For products with only customizations, create a pseudo-size
+
         setSelectedSize({
           id: "__no_size__",
           name: "Default",
@@ -97,7 +96,7 @@ export function UnifiedProductModal({
     }
   }, [open, product, hasSizes, hasCustomizations]);
 
-  // Update quantity when size or customizations change
+
   useEffect(() => {
     if (!selectedSize) return;
 
@@ -105,15 +104,15 @@ export function UnifiedProductModal({
     const qtyForCombo = getQuantityForCombo(sizeId, selectedCustomizations);
 
     if (qtyForCombo > 0) {
-      // Combo exists in cart
+
       setQuantity(qtyForCombo);
     } else {
-      // New combo
+
       setQuantity(1);
     }
   }, [selectedSize?.id, selectedCustomizations, getQuantityForCombo]);
 
-  // Toggle customization
+
   const handleCustomizationToggle = useCallback(
     (customizationId: string) => {
       setSelectedCustomizations((prev) => {
@@ -129,7 +128,7 @@ export function UnifiedProductModal({
     []
   );
 
-  // Handle confirm/add to cart
+
   const handleConfirm = useCallback(async () => {
     if (!product || !selectedSize) {
       showToast.error(Messages.product.selectSize);
@@ -152,21 +151,21 @@ export function UnifiedProductModal({
     }
   }, [product, selectedSize, selectedCustomizations, quantity, onConfirm, onOpenChange]);
 
-  // Get current price
+
   const currentPrice = useMemo(() => {
     if (!selectedSize) return product?.price || 0;
     if (selectedSize.id === "__no_size__") return product?.price || 0;
     return selectedSize.price || 0;
   }, [selectedSize, product?.price]);
 
-  // Get final price (after promotion)
+
   const finalPrice = useMemo(() => {
     if (!selectedSize) return product?.displayPrice || product?.price || 0;
     if (selectedSize.id === "__no_size__") return product?.displayPrice || product?.price || 0;
     return selectedSize.finalPrice || selectedSize.price || 0;
   }, [selectedSize, product?.displayPrice, product?.price]);
 
-  // Check if has promotion
+
   const hasPromotion = useMemo(() => {
     if (!selectedSize) return product?.hasPromotion;
     if (selectedSize.id === "__no_size__") return product?.hasPromotion;
@@ -183,11 +182,11 @@ export function UnifiedProductModal({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Product Info */}
+          {}
           <div className="space-y-2">
             <h3 className="font-semibold text-base">{product.name}</h3>
 
-            {/* Prices */}
+            {}
             <div className="flex flex-col gap-1">
               <span className={cn("text-sm text-muted-foreground line-through", !hasPromotion && "invisible")}>
                 {formatCurrency(currentPrice)}
@@ -198,7 +197,7 @@ export function UnifiedProductModal({
             </div>
           </div>
 
-          {/* Sizes */}
+          {}
           {hasSizes && (
             <div className="space-y-2">
               <label className="text-sm font-semibold">Select Size</label>
@@ -222,7 +221,7 @@ export function UnifiedProductModal({
             </div>
           )}
 
-          {/* Customizations */}
+          {}
           {hasCustomizations && (
             <div className="space-y-3">
               <label className="text-sm font-semibold">Add-ons</label>
@@ -262,7 +261,7 @@ export function UnifiedProductModal({
             </div>
           )}
 
-          {/* Quantity */}
+          {}
           <div className="space-y-2">
             <label className="text-sm font-semibold">Quantity</label>
             <QuantitySelector
@@ -273,7 +272,7 @@ export function UnifiedProductModal({
             />
           </div>
 
-          {/* Total */}
+          {}
           <div className="bg-muted/50 p-3 rounded-lg space-y-1">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Unit Price:</span>
@@ -285,7 +284,7 @@ export function UnifiedProductModal({
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {}
           <div className="flex gap-2">
             <CustomButton
               variant="outline"

@@ -75,7 +75,7 @@ export default function BusinessProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section with Cover Image */}
+      {}
       <section className="relative h-[400px] bg-gradient-to-r from-orange-500 to-orange-600">
         {profile.coverImage && (
           <Image
@@ -88,11 +88,11 @@ export default function BusinessProfilePage() {
         )}
         <div className="absolute inset-0 bg-black/40" />
 
-        {/* Business Name & Logo */}
+        {}
         <div className="absolute inset-0 flex items-end">
           <div className="container mx-auto px-4 pb-8">
             <div className="flex flex-col md:flex-row items-start md:items-end gap-6">
-              {/* Logo */}
+              {}
               {profile.logo && (
                 <div className="relative w-32 h-32 rounded-2xl overflow-hidden border-4 border-white shadow-xl bg-white">
                   <Image
@@ -104,7 +104,7 @@ export default function BusinessProfilePage() {
                 </div>
               )}
 
-              {/* Business Info */}
+              {}
               <div className="flex-1 text-white">
                 <h1 className="text-4xl md:text-5xl font-bold mb-2">
                   {profile.businessName}
@@ -134,12 +134,12 @@ export default function BusinessProfilePage() {
         </div>
       </section>
 
-      {/* Main Content */}
+      {}
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Column */}
+          {}
           <div className="lg:col-span-2 space-y-8">
-            {/* About Section */}
+            {}
             <Card>
               <CardContent className="pt-6">
                 <h2 className="text-2xl font-bold mb-4">About Us</h2>
@@ -147,7 +147,7 @@ export default function BusinessProfilePage() {
                   {profile.description}
                 </p>
 
-                {/* Features */}
+                {}
                 {profile.features && profile.features.length > 0 && (
                   <div className="mt-6">
                     <h3 className="font-semibold mb-3">Features & Amenities</h3>
@@ -164,7 +164,7 @@ export default function BusinessProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Services Section */}
+            {}
             {profile.services && profile.services.length > 0 && (
               <Card>
                 <CardContent className="pt-6">
@@ -200,7 +200,7 @@ export default function BusinessProfilePage() {
               </Card>
             )}
 
-            {/* Gallery */}
+            {}
             {profile.gallery && profile.gallery.length > 0 && (
               <Card>
                 <CardContent className="pt-6">
@@ -231,7 +231,7 @@ export default function BusinessProfilePage() {
               </Card>
             )}
 
-            {/* Team Section */}
+            {}
             {profile.team && profile.team.length > 0 && (
               <Card>
                 <CardContent className="pt-6">
@@ -261,7 +261,7 @@ export default function BusinessProfilePage() {
               </Card>
             )}
 
-            {/* Customer Reviews Section - RATINGS ONLY */}
+            {}
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-6">
@@ -275,7 +275,7 @@ export default function BusinessProfilePage() {
                   </Button>
                 </div>
 
-                {/* Rating Summary - ONLY THIS IS SHOWN */}
+                {}
                 {profile.reviews && profile.reviews.length > 0 ? (
                   <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-lg p-8">
                     <div className="text-center mb-6">
@@ -299,7 +299,7 @@ export default function BusinessProfilePage() {
                       </p>
                     </div>
 
-                    {/* Rating Distribution - NO LABELS */}
+                    {}
                     <div className="space-y-2 max-w-md mx-auto">
                       {[5, 4, 3, 2, 1].map((rating) => (
                         <div key={rating} className="flex items-center gap-3">
@@ -339,7 +339,7 @@ export default function BusinessProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Stats */}
+            {}
             {profile.stats && (
               <Card>
                 <CardContent className="pt-6">
@@ -380,9 +380,9 @@ export default function BusinessProfilePage() {
             )}
           </div>
 
-          {/* Sidebar */}
+          {}
           <div className="space-y-6">
-            {/* Contact Card */}
+            {}
             <Card>
               <CardContent className="pt-6">
                 <h3 className="text-xl font-bold mb-4">Contact Us</h3>
@@ -444,7 +444,7 @@ export default function BusinessProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Business Hours */}
+            {}
             {profile.businessHours && profile.businessHours.length > 0 && (
               <Card>
                 <CardContent className="pt-6">
@@ -479,7 +479,7 @@ export default function BusinessProfilePage() {
               </Card>
             )}
 
-            {/* Social Media */}
+            {}
             {profile.socialMedia && (
               <Card>
                 <CardContent className="pt-6">
@@ -543,7 +543,7 @@ export default function BusinessProfilePage() {
         </div>
       </div>
 
-      {/* Review Submission Modal */}
+      {}
       <ReviewSubmissionModal
         isOpen={isReviewModalOpen}
         onClose={() => setIsReviewModalOpen(false)}

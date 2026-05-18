@@ -6,19 +6,16 @@ interface PageHeaderProps {
   title: string;
   subtitle?: string;
   icon?: LucideIcon;
-  /** Numeric count shown as a pill next to the title */
+
   count?: number;
-  /** Label after count, e.g. "items", "products" */
+
   countLabel?: string;
-  /** Optional content rendered on the right side (buttons, etc.) */
+
   actions?: React.ReactNode;
   className?: string;
 }
 
-/**
- * Sticky page-level header used consistently across all public pages.
- * Sticks below the Navbar (top-16) with a frosted backdrop.
- */
+
 export function PageHeader({
   title,
   subtitle,

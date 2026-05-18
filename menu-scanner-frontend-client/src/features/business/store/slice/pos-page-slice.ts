@@ -1,7 +1,5 @@
-/**
- * POS Page - Redux Slice
- * State management for pos/page.tsx
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { POSPageState, PosPageCartItem, OrderPricingWithAuditTrail } from "../models/type/pos-page-type";
@@ -51,7 +49,7 @@ const posPageSlice = createSlice({
   name: "posPage",
   initialState,
   reducers: {
-    // ─── Payment & Delivery ───
+
     setSelectedDeliveryOption: (state, action: PayloadAction<DeliveryOptionsResponseModel | null>) => {
       state.selectedDeliveryOption = action.payload;
     },
@@ -59,7 +57,7 @@ const posPageSlice = createSlice({
       state.selectedPaymentOption = action.payload;
     },
 
-    // ─── Products & Filters ───
+
     setProducts: (state, action: PayloadAction<ProductDetailResponseModel[]>) => {
       state.products = action.payload;
     },
@@ -100,7 +98,7 @@ const posPageSlice = createSlice({
       state.hasMoreProducts = action.payload;
     },
 
-    // ─── Cart ───
+
     setCartItems: (state, action: PayloadAction<PosPageCartItem[]>) => {
       state.cartItems = action.payload;
     },
@@ -127,7 +125,7 @@ const posPageSlice = createSlice({
       state.showCart = action.payload;
     },
 
-    // ─── Order ───
+
     setCustomerNote: (state, action: PayloadAction<string>) => {
       state.customerNote = action.payload;
     },
@@ -135,7 +133,7 @@ const posPageSlice = createSlice({
       state.isSubmitting = action.payload;
     },
 
-    // ─── Modals ───
+
     setSizePickerProduct: (state, action: PayloadAction<ProductDetailResponseModel | null>) => {
       state.sizePickerProduct = action.payload;
     },
@@ -155,7 +153,7 @@ const posPageSlice = createSlice({
       state.showOrderDetailsModal = action.payload;
     },
 
-    // ─── UI ───
+
     setBrandOpen: (state, action: PayloadAction<boolean>) => {
       state.brandOpen = action.payload;
     },
@@ -166,17 +164,17 @@ const posPageSlice = createSlice({
       state.promotionOpen = action.payload;
     },
 
-    // ─── Persistence ───
+
     loadPersistedFilters: (state, action: PayloadAction<POSFilterState>) => {
       const filters = action.payload;
       state.searchTerm = filters.search;
       state.promotionFilter = filters.hasPromotion ? true : undefined;
-      // Category and Brand will be loaded separately via their IDs
-      // since we store IDs but Redux holds the full objects
+
+
     },
     loadPersistedCart: (state, action: PayloadAction<PosPageCartItem[]>) => {
       state.cartItems = action.payload;
-      // Restore last selected customizations from loaded cart items
+
       const customsByProduct: Record<string, string[]> = {};
       action.payload.forEach((item) => {
         if (item.customizations && item.customizations.length > 0) {
@@ -186,7 +184,7 @@ const posPageSlice = createSlice({
       state.lastSelectedCustomizations = customsByProduct;
     },
 
-    // ─── Reset ───
+
     resetPOSPageState: () => initialState,
   },
 
@@ -234,7 +232,7 @@ const posPageSlice = createSlice({
       .addCase(fetchPOSPageProductsService.rejected, (state, action) => {
         state.productsLoading = false;
         state.productsError = action.payload as string || "Failed to load products";
-        // Stop infinite scroll on error
+
         state.hasMoreProducts = false;
       });
 

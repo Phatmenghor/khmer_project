@@ -108,7 +108,7 @@ export function ComboboxSelectCommune({
     }
   };
 
-  // Reset and refetch when districtCode or debouncedSearch changes
+
   useEffect(() => {
     setPage(1);
     setLastPage(false);

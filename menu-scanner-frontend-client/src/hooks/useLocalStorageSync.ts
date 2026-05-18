@@ -1,8 +1,5 @@
-/**
- * useLocalStorageSync Hook
- * Syncs Redux state with localStorage
- * Automatically saves/loads cart data
- */
+
+
 
 import { useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -11,45 +8,24 @@ import { selectCartItems } from "@/features/business/store/selectors/pos-page-se
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 
 interface UseLocalStorageSyncOptions {
-  /**
-   * localStorage key name
-   * @default "pos:cart"
-   */
+
+
   storageKey?: string;
 
-  /**
-   * Debounce time before saving (ms)
-   * @default 1000
-   */
+
   debounceMs?: number;
 
-  /**
-   * Enable/disable sync
-   * @default true
-   */
+
   enabled?: boolean;
 
-  /**
-   * Callback when cart loaded
-   */
+
   onCartLoaded?: (items: PosPageCartItem[]) => void;
 
-  /**
-   * Callback when cart saved
-   */
+
   onCartSaved?: (items: PosPageCartItem[]) => void;
 }
 
-/**
- * Hook that syncs Redux cart state with localStorage
- *
- * Features:
- * - Auto-load cart from localStorage on mount
- * - Auto-save cart to localStorage on changes
- * - Debounced saves (prevent excessive writes)
- * - Error handling & validation
- * - Development logging
- */
+
 export function useLocalStorageSync(
   options: UseLocalStorageSyncOptions = {}
 ) {
@@ -64,13 +40,11 @@ export function useLocalStorageSync(
   const dispatch = useAppDispatch();
   const cartItems = useAppSelector(selectCartItems);
 
-  // Track initialization and debouncing
+
   const isInitializedRef = useRef(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // ─────────────────────────────────────────────────────────────
-  // LOAD from localStorage on mount (ONCE ONLY)
-  // ─────────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (!enabled || isInitializedRef.current) return;
 
@@ -82,9 +56,9 @@ export function useLocalStorageSync(
       if (saved) {
         const parsedCart = JSON.parse(saved) as PosPageCartItem[];
 
-        // Validate cart data
+
         if (Array.isArray(parsedCart) && parsedCart.length > 0) {
-          // Check if items have required fields
+
           const isValid = parsedCart.every(
             (item) =>
               item.id &&
@@ -106,23 +80,21 @@ export function useLocalStorageSync(
         }
       }
     } catch (error) {
-      // Don't crash, just skip loading
+
     }
   }, [enabled, storageKey, dispatch, onCartLoaded]);
 
-  // ─────────────────────────────────────────────────────────────
-  // SAVE to localStorage when cart changes (DEBOUNCED)
-  // ─────────────────────────────────────────────────────────────
+
   useEffect(() => {
-    // Don't save if not initialized or disabled
+
     if (!enabled || !isInitializedRef.current) return;
 
-    // Clear previous timeout
+
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    // Debounce the save
+
     saveTimeoutRef.current = setTimeout(() => {
       try {
         if (cartItems.length > 0) {
@@ -133,15 +105,15 @@ export function useLocalStorageSync(
             onCartSaved(cartItems);
           }
         } else {
-          // Clear if cart is empty
+
           localStorage.removeItem(storageKey);
         }
       } catch (error) {
-        // QuotaExceededError - storage full, skip silently
+
       }
     }, debounceMs);
 
-    // Cleanup
+
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
@@ -149,13 +121,7 @@ export function useLocalStorageSync(
     };
   }, [cartItems, enabled, storageKey, debounceMs, onCartSaved]);
 
-  // ─────────────────────────────────────────────────────────────
-  // PUBLIC API
-  // ─────────────────────────────────────────────────────────────
 
-  /**
-   * Manually clear cart from localStorage
-   */
   const clearCart = () => {
     try {
       localStorage.removeItem(storageKey);
@@ -163,9 +129,7 @@ export function useLocalStorageSync(
     }
   };
 
-  /**
-   * Manually save cart immediately (bypass debounce)
-   */
+
   const saveNow = () => {
     try {
       if (cartItems.length > 0) {
@@ -175,9 +139,7 @@ export function useLocalStorageSync(
     }
   };
 
-  /**
-   * Get storage size info
-   */
+
   const getStorageInfo = () => {
     try {
       const saved = localStorage.getItem(storageKey);
@@ -197,9 +159,7 @@ export function useLocalStorageSync(
     }
   };
 
-  /**
-   * Export cart to JSON (for backup/sharing)
-   */
+
   const exportCart = () => {
     return {
       items: cartItems,
@@ -222,10 +182,7 @@ export function useLocalStorageSync(
   };
 }
 
-/**
- * Simple version with minimal options
- * Use this if you want minimal setup
- */
+
 export function useSimpleLocalStorageSync() {
   return useLocalStorageSync({
     storageKey: "pos:cart",

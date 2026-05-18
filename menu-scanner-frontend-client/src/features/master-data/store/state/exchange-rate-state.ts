@@ -14,7 +14,7 @@ import {
 export const useExchangeRateState = () => {
   const dispatch = useAppDispatch();
 
-  // Redux selectors
+
   const exchangeRateState = useAppSelector(selectExchangeRateState);
   const exchangeRateData = useAppSelector(selectExchangeRate);
   const exchangeRateContent = useAppSelector(selectExchangeRateContent);

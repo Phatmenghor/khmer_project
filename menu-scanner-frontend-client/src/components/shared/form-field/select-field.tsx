@@ -38,7 +38,7 @@ export function SelectField<T extends FieldValues = any>({
         control={control}
         name={name}
         render={({ field }) => {
-          // Handle array values (for roles field)
+
           const currentValue = Array.isArray(field.value)
             ? field.value[0] ?? ""
             : field.value ?? "";
@@ -55,15 +55,15 @@ export function SelectField<T extends FieldValues = any>({
                   disabled={disabled || loading}
                   className={cn(
                     "w-full justify-between h-10 px-3 transition-all duration-200 border-input",
-                    // Hover state
+
                     "hover:bg-primary/10 hover:border-primary hover:text-primary",
-                    // Focus state
+
                     "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
-                    // Active/Open state
+
                     open && "bg-primary/20 border-primary text-primary",
-                    // Error state
+
                     error && "border-red-500 focus:border-red-500",
-                    // Disabled state
+
                     disabled || loading ? "opacity-50 cursor-not-allowed" : ""
                   )}
                 >

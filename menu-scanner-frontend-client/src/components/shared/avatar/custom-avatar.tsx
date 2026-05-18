@@ -29,7 +29,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const justOpenedRef = useRef(false);
 
-  // Avatar sizes (square)
+
   const avatarSizes = {
     sm: { avatar: "h-8 w-8", indicator: "w-2 h-2" },
     md: { avatar: "h-10 w-10", indicator: "w-3 h-3" },
@@ -38,7 +38,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
     xxl: { avatar: "h-20 w-20", indicator: "w-5 h-5" },
   };
 
-  // Banner sizes (rectangular - good for table display)
+
   const bannerSizes = {
     sm: "h-8",
     md: "h-12",
@@ -48,7 +48,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
 
   const fallbackText = name?.charAt(0)?.toUpperCase() || "B";
 
-  // Image preview handlers - only active if enableImagePreview is true
+
   const handleMouseEnter = () => {
     if (!imageUrl || !enableImagePreview) return;
 
@@ -85,7 +85,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
     }
   };
 
-  // Render banner variant
+
   if (variant === "banner") {
     const content = (
       <div
@@ -119,7 +119,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
       </div>
     );
 
-    // If preview is disabled, just return the content without Dialog wrapper
+
     if (!enableImagePreview) {
       return content;
     }
@@ -172,7 +172,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
     );
   }
 
-  // Render avatar variant (original)
+
   const avatarContent = (
     <div
       onMouseEnter={handleMouseEnter}
@@ -194,7 +194,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
     </div>
   );
 
-  // If preview is disabled, just return the avatar without Dialog wrapper
+
   if (!enableImagePreview) {
     return avatarContent;
   }

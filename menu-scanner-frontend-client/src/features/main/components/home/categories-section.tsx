@@ -1,11 +1,5 @@
-/**
- * CategoriesSection Component
- * Features:
- * - Fixed 2-row grid layout across all screen sizes
- * - Responsive columns (2-6)
- * - Browse categories for quick navigation
- * - Skeleton loading placeholders
- */
+
+
 
 import React, { useState, useEffect } from "react";
 import { CategoryCard } from "@/components/shared/card/category-card";
@@ -24,14 +18,11 @@ interface CategoriesSectionProps {
   title?: string;
 }
 
-/** Default section title for categories */
+
 const DEFAULT_TITLE = "Shop by Category";
 const DEFAULT_SUBTITLE = "Browse products by category";
 
-/**
- * Memoized component to prevent unnecessary re-renders
- * Only re-renders when props actually change (categories, loading, error, title)
- */
+
 const CategoriesSectionComponent = ({
   categories,
   loading,
@@ -40,25 +31,22 @@ const CategoriesSectionComponent = ({
 }: CategoriesSectionProps) => {
   const [limit, setLimit] = useState(12);
 
-  /**
-   * Calculate max categories to display based on screen size
-   * Always shows 2 rows to maintain consistent home page layout
-   */
+
   useEffect(() => {
     const updateLimit = () => {
       const width = window.innerWidth;
 
-      // Calculate: columns × 2 rows
+
       if (width < 640) {
-        setLimit(4); // 2 cols × 2 rows (mobile)
+        setLimit(4);
       } else if (width < 768) {
-        setLimit(6); // 3 cols × 2 rows (small tablet)
+        setLimit(6);
       } else if (width < 1024) {
-        setLimit(8); // 4 cols × 2 rows (tablet)
+        setLimit(8);
       } else if (width < 1280) {
-        setLimit(10); // 5 cols × 2 rows (desktop)
+        setLimit(10);
       } else {
-        setLimit(12); // 6 cols × 2 rows (large desktop)
+        setLimit(12);
       }
     };
 
@@ -69,7 +57,7 @@ const CategoriesSectionComponent = ({
 
   const displayCategories = categories?.slice(0, limit) || [];
 
-  // Loading state - show skeleton placeholders
+
   if (loading) {
     return (
       <SectionWrapper>
@@ -82,14 +70,14 @@ const CategoriesSectionComponent = ({
     );
   }
 
-  // Error or empty state - don't show section
+
   if (error || !displayCategories || displayCategories.length === 0) {
     if (error) {
     }
     return null;
   }
 
-  // Content state with categories
+
   return (
     <SectionWrapper>
       <SectionHeader
@@ -97,7 +85,7 @@ const CategoriesSectionComponent = ({
         subtitle={DEFAULT_SUBTITLE}
       />
 
-      {/* Responsive Category Grid: 2 cols (mobile) to 6 cols (desktop) */}
+      {}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
         {displayCategories.map((category) => (
           <CategoryCard
@@ -107,14 +95,11 @@ const CategoriesSectionComponent = ({
         ))}
       </div>
 
-      {/* Show "View All" button - always display for categories */}
+      {}
       <ViewAllButton href="/categories" text="View All Categories" />
     </SectionWrapper>
   );
 };
 
-/**
- * Export memoized component
- * Prevents re-renders when parent updates but props remain the same
- */
+
 export const CategoriesSection = React.memo(CategoriesSectionComponent);

@@ -48,7 +48,7 @@ export const BulkPromotionProductTable: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Select All Checkbox */}
+      {}
       <div className="flex items-center gap-3 pb-3 border-b">
         <Checkbox
           checked={allSelected}
@@ -61,7 +61,7 @@ export const BulkPromotionProductTable: React.FC<Props> = ({
         </label>
       </div>
 
-      {/* Products List */}
+      {}
       <div className="space-y-2 max-h-96 overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
@@ -98,7 +98,7 @@ export const BulkPromotionProductTable: React.FC<Props> = ({
         )}
       </div>
 
-      {/* Pagination */}
+      {}
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-3 border-t">
           <Button

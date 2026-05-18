@@ -23,10 +23,10 @@ export interface CartItemCardProps {
   hasPromotion?: boolean;
   promotionType?: string | null;
   promotionValue?: number | null;
-  // Handlers
+
   onQuantityChange: (quantity: number) => void;
   onRemove: () => void;
-  // Options
+
   showLink?: boolean;
   showControls?: boolean;
 }
@@ -51,7 +51,7 @@ export function CartItemCard({
 }: CartItemCardProps) {
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 relative group">
-      {/* Delete Button - Top Right */}
+      {}
       <CustomButton
         size="icon"
         variant="outline"
@@ -63,7 +63,7 @@ export function CartItemCard({
       </CustomButton>
 
       <div className="flex gap-4">
-        {/* Product Image */}
+        {}
         <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
           {showLink ? (
             <Link href={`/products/${productId}`}>
@@ -83,7 +83,7 @@ export function CartItemCard({
             />
           )}
 
-          {/* Promotion Badge - Top Left Corner */}
+          {}
           {hasPromotion && (
             <div className="absolute top-1 left-1 z-10 pointer-events-none">
               <Badge variant="destructive" className="text-[9px] font-bold px-1.5 py-0.5 shadow-md">
@@ -95,14 +95,14 @@ export function CartItemCard({
           )}
         </div>
 
-        {/* Product Details */}
+        {}
         <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
-          {/* Name */}
+          {}
           <h3 className="font-semibold text-sm leading-tight text-slate-900 line-clamp-1 mb-2">
             {productName}
           </h3>
 
-          {/* Size Badge */}
+          {}
           {sizeName && (
             <div className="mb-2">
               <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
@@ -111,10 +111,10 @@ export function CartItemCard({
             </div>
           )}
 
-          {/* Price & Quantity Controls */}
+          {}
           {showControls && (
             <div className="flex items-center justify-between gap-3">
-              {/* Price */}
+              {}
               <div className="flex items-baseline gap-2">
                 <span className="font-bold text-base text-slate-900">
                   {formatCurrency(finalPrice)}
@@ -126,9 +126,9 @@ export function CartItemCard({
                 )}
               </div>
 
-              {/* Quantity Controls */}
+              {}
               <div className="flex items-center gap-1">
-                {/* Minus Button */}
+                {}
                 <CustomButton
                   size="icon"
                   variant="outline"
@@ -145,12 +145,12 @@ export function CartItemCard({
                   <Minus className="h-3 w-3" />
                 </CustomButton>
 
-                {/* Quantity Display */}
+                {}
                 <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
                   {quantity}
                 </div>
 
-                {/* Plus Button */}
+                {}
                 <CustomButton
                   size="icon"
                   variant="outline"

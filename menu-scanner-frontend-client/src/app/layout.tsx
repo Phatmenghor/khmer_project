@@ -12,7 +12,7 @@ import { defaultLocale, type Locale } from "@/i18n/request";
 import { buildMetadata } from "@/utils/metadata/metadata-builder";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
-// Type declaration for global cached business data
+
 declare global {
   interface Window {
     __cachedBusinessData?: {

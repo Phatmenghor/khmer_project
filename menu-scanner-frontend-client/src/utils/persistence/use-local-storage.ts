@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 
-/**
- * Type-safe localStorage hook with serialization
- * Handles JSON stringify/parse automatically
- */
+
 interface UseLocalStorageOptions {
-  sync?: boolean; // Sync across browser tabs
+  sync?: boolean;
   validateBeforeLoad?: (value: any) => boolean;
 }
 
@@ -16,11 +13,11 @@ export function useLocalStorage<T>(
 ) {
   const { sync = true, validateBeforeLoad } = options;
 
-  // State to store our value
+
   const [storedValue, setStoredValue] = useState<T>(initialValue);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Read from localStorage when component mounts
+
   useEffect(() => {
     try {
       const item = window.localStorage.getItem(key);
@@ -39,7 +36,7 @@ export function useLocalStorage<T>(
     }
   }, [key, initialValue, validateBeforeLoad]);
 
-  // Set value in localStorage and state
+
   const setValue = useCallback(
     (value: T | ((val: T) => T)) => {
       try {
@@ -53,7 +50,7 @@ export function useLocalStorage<T>(
     [key, storedValue]
   );
 
-  // Update value in localStorage and state
+
   const updateValue = useCallback(
     (updates: Partial<T>) => {
       setValue((prev) => ({ ...prev, ...updates }));
@@ -61,7 +58,7 @@ export function useLocalStorage<T>(
     [setValue]
   );
 
-  // Remove from localStorage
+
   const removeValue = useCallback(() => {
     try {
       window.localStorage.removeItem(key);
@@ -70,7 +67,7 @@ export function useLocalStorage<T>(
     }
   }, [key, initialValue]);
 
-  // Listen for storage changes in other tabs
+
   useEffect(() => {
     if (!sync) return;
 
@@ -99,9 +96,7 @@ export function useLocalStorage<T>(
   };
 }
 
-/**
- * Hook for managing structured localStorage data with expiration
- */
+
 interface CachedValue<T> {
   data: T;
   timestamp: number;
@@ -155,9 +150,7 @@ export function useLocalStorageWithExpiry<T>(
   };
 }
 
-/**
- * Hook for batch localStorage operations
- */
+
 export function useLocalStorageBatch(prefix: string = "") {
   const getKey = (name: string) => (prefix ? `${prefix}:${name}` : name);
 

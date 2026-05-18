@@ -33,7 +33,6 @@ export interface AllLocationResponseModel extends BasePagination {
   content: LocationResponseModel[];
 }
 
-// ----- Public hierarchy models -----
 
 export interface ProvinceResponseModel {
   id: string;

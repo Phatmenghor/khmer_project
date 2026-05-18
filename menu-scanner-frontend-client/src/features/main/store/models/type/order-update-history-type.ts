@@ -1,7 +1,5 @@
-/**
- * Order Update History Types
- * Track all modifications made to orders (especially from POS)
- */
+
+
 
 export type UpdateFieldType = 'PRICE' | 'QUANTITY' | 'PROMOTION' | 'ITEM_REMOVED' | 'ITEM_ADDED';
 
@@ -9,7 +7,7 @@ export interface OrderItemUpdateChange {
   field: UpdateFieldType;
   beforeValue: unknown;
   afterValue: unknown;
-  description: string; // Human readable: "Price changed from 5000 to 5500"
+  description: string;
 }
 
 export interface OrderItemUpdateHistoryResponse {
@@ -29,7 +27,7 @@ export interface OrderItemUpdateHistoryResponse {
     businessId?: string;
   };
   updatedAt: string;
-  reason?: string; // Optional reason for the change
+  reason?: string;
 }
 
 export interface OrderUpdateHistoryResponse {

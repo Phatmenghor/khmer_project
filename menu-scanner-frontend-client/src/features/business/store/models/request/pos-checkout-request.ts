@@ -1,32 +1,29 @@
-/**
- * POS Checkout Request Models
- * Simplified request DTOs without audit trail snapshots
- */
 
-// Item in the cart — simplified without before/after
+
+
 export interface POSCheckoutItemRequest {
   productId: string;
   productSizeId?: string | null;
   quantity: number;
 
-  // Display fields
+
   productName?: string;
   productImageUrl?: string;
   sizeName?: string | null;
   status?: string;
 
-  // Customizations/Add-ons - full details (only productCustomizationId, no duplicate)
+
   customizations?: Array<{
     productCustomizationId: string;
     name: string;
     priceAdjustment: number;
   }>;
 
-  // Pricing - final price only
+
   finalPrice?: number;
   totalPrice?: number;
 
-  // SKU and barcode
+
   sku?: string;
   barcode?: string;
 }
@@ -38,7 +35,7 @@ export interface DeliveryOptionRequest {
   price: number;
 }
 
-// Cart summary — simplified
+
 export interface CartSummary {
   businessId: string;
   businessName?: string;
@@ -50,20 +47,20 @@ export interface CartSummary {
   finalTotal: number;
 }
 
-// Order-level pricing — complete breakdown
+
 export interface PricingInfo {
-  // Base pricing
+
   subtotal: number;
   customizationTotal: number;
   deliveryFee: number;
-  // Tax breakdown - for proper tax tracking and audit trail
+
   taxPercentage: number;
   taxAmount: number;
-  // Optional: order-level discount (applied after tax)
+
   discountAmount: number;
   discountType?: "fixed" | "percentage" | null;
   discountReason?: string | null;
-  // Final total
+
   finalTotal: number;
 }
 
@@ -72,7 +69,7 @@ export interface PaymentInfo {
   paymentStatus?: string;
 }
 
-// Top-level checkout request — matches backend POSCheckoutRequest exactly
+
 export interface POSCheckoutRequest {
   businessId: string;
   customerId?: string;
@@ -84,7 +81,7 @@ export interface POSCheckoutRequest {
   deliveryOption: DeliveryOptionRequest;
   cart: CartSummary;
 
-  // Order-level pricing with before/after audit trail
+
   pricing: PricingInfo;
 
   payment: PaymentInfo;
@@ -97,18 +94,18 @@ export interface POSCheckoutRequest {
 export interface POSCheckoutResponse {
   id: string;
   orderNumber: string;
-  // Pricing breakdown
+
   subtotal: number;
   customizationTotal?: number;
   deliveryFee: number;
-  // Tax fields - must be present in response
+
   taxPercentage: number;
   taxAmount: number;
-  // Discount
+
   discountAmount: number;
-  // Final total
+
   totalAmount: number;
-  // Order metadata
+
   orderStatus: string;
   source: string;
   paymentMethod: string;

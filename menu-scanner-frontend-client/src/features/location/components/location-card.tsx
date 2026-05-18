@@ -24,7 +24,7 @@ interface LocationCardProps {
   onSetPrimary: (location: LocationResponseModel) => void;
 }
 
-// Label → theme colours
+
 const LABEL_THEME: Record<string, { bg: string; text: string; accent: string; iconBg: string }> = {
   home:      { bg: "bg-blue-50 dark:bg-blue-950/20",      text: "text-blue-600 dark:text-blue-400",    accent: "bg-blue-500",    iconBg: "bg-blue-100 dark:bg-blue-900/40"    },
   house:     { bg: "bg-blue-50 dark:bg-blue-950/20",      text: "text-blue-600 dark:text-blue-400",    accent: "bg-blue-500",    iconBg: "bg-blue-100 dark:bg-blue-900/40"    },
@@ -60,7 +60,7 @@ export function LocationCard({
   const theme = getLabelTheme(location.label);
   const hasCoordinates = location.hasCoordinates && location.latitude && location.longitude;
 
-  // Google Maps URL
+
   const googleMapsUrl = hasCoordinates
     ? `https://www.google.com/maps/search/${location.latitude},${location.longitude}`
     : null;
@@ -80,7 +80,7 @@ export function LocationCard({
           : "border-border"
       )}
     >
-      {/* Left accent strip */}
+      {}
       <div
         className={cn(
           "absolute left-0 top-0 bottom-0 w-1 rounded-l-xl",
@@ -93,9 +93,9 @@ export function LocationCard({
       />
 
       <div className="pl-4 pr-3 py-4">
-        {/* Main row: icon + label + isDefault + actions */}
+        {}
         <div className="flex items-start gap-3">
-          {/* Icon bubble */}
+          {}
           <div
             className={cn(
               "p-2 rounded-lg shrink-0 mt-0.5",
@@ -109,9 +109,9 @@ export function LocationCard({
             <LabelIcon className="h-4 w-4" />
           </div>
 
-          {/* Content */}
+          {}
           <div className="flex-1 min-w-0">
-            {/* Label row */}
+            {}
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <span
                 className={cn(
@@ -131,7 +131,7 @@ export function LocationCard({
               )}
             </div>
 
-            {/* Full Address - Clickable if has coordinates */}
+            {}
             <button
               onClick={handleViewMap}
               disabled={!hasCoordinates}
@@ -150,7 +150,7 @@ export function LocationCard({
 
           </div>
 
-          {/* Action buttons */}
+          {}
           <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
             {!isPrimary && (
               <Button

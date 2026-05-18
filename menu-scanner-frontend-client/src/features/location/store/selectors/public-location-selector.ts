@@ -1,7 +1,7 @@
 import { RootState } from "@/store";
 import { createSelector } from "@reduxjs/toolkit";
 
-// Stable empty array — avoids creating new references on every selector call
+
 const EMPTY: never[] = [];
 
 export const selectPublicLocationState = (state: RootState) =>

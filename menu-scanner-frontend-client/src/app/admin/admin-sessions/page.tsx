@@ -60,7 +60,7 @@ export default function AdminSessionsPage() {
     useState<AdminSessionResponse | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  // Filter state
+
   const [filters, setFilters] = useState<SessionFilterRequest>({
     search: "",
     pageNo: 1,
@@ -72,20 +72,20 @@ export default function AdminSessionsPage() {
     deviceTypes: [],
   });
 
-  // Debounced search
+
   const [searchValue, setSearchValue] = useState("");
 
-  // Load sessions
+
   const loadSessions = useCallback(() => {
     dispatch(adminGetSessionsService(filters));
   }, [dispatch, filters]);
 
-  // Initial load
+
   useEffect(() => {
     loadSessions();
   }, [loadSessions]);
 
-  // Debounce search
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setFilters((prev) => ({ ...prev, search: searchValue, pageNo: 1 }));
@@ -93,7 +93,7 @@ export default function AdminSessionsPage() {
     return () => clearTimeout(timer);
   }, [searchValue]);
 
-  // Get device icon
+
   const getDeviceIcon = (deviceType: DeviceType) => {
     switch (deviceType) {
       case "MOBILE":
@@ -107,7 +107,7 @@ export default function AdminSessionsPage() {
     }
   };
 
-  // Get status badge
+
   const getStatusBadge = (status: SessionStatus) => {
     switch (status) {
       case "ACTIVE":
@@ -136,12 +136,12 @@ export default function AdminSessionsPage() {
     }
   };
 
-  // Handle page change
+
   const handlePageChange = (newPage: number) => {
     setFilters((prev) => ({ ...prev, pageNo: newPage }));
   };
 
-  // Handle status filter change
+
   const handleStatusFilter = (status: string) => {
     if (status === "ALL") {
       setFilters((prev) => ({ ...prev, statuses: [], pageNo: 1 }));
@@ -154,7 +154,7 @@ export default function AdminSessionsPage() {
     }
   };
 
-  // Handle device type filter change
+
   const handleDeviceTypeFilter = (deviceType: string) => {
     if (deviceType === "ALL") {
       setFilters((prev) => ({ ...prev, deviceTypes: [], pageNo: 1 }));
@@ -167,13 +167,13 @@ export default function AdminSessionsPage() {
     }
   };
 
-  // View session details
+
   const handleViewSession = (session: AdminSessionResponse) => {
     setSelectedSession(session);
     setIsDetailModalOpen(true);
   };
 
-  // Pagination info
+
   const totalPages = adminSessions?.totalPages || 1;
   const currentPage = adminSessions?.pageNo || 1;
   const totalElements = adminSessions?.totalElements || 0;
@@ -185,7 +185,7 @@ export default function AdminSessionsPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-6">
-        {/* Header */}
+        {}
         <div className="flex flex-wrap gap-3 items-start justify-between mb-4 sm:mb-6">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-foreground">
@@ -208,11 +208,11 @@ export default function AdminSessionsPage() {
           </Button>
         </div>
 
-        {/* Filters */}
+        {}
         <Card className="mb-6">
           <CardContent className="p-4">
             <div className="flex flex-wrap gap-4 items-center">
-              {/* Search */}
+              {}
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -225,7 +225,7 @@ export default function AdminSessionsPage() {
                 </div>
               </div>
 
-              {/* Status Filter */}
+              {}
               <Select
                 value={filters.statuses?.[0] || "ALL"}
                 onValueChange={handleStatusFilter}
@@ -241,7 +241,7 @@ export default function AdminSessionsPage() {
                 </SelectContent>
               </Select>
 
-              {/* Device Type Filter */}
+              {}
               <Select
                 value={filters.deviceTypes?.[0] || "ALL"}
                 onValueChange={handleDeviceTypeFilter}
@@ -258,7 +258,7 @@ export default function AdminSessionsPage() {
                 </SelectContent>
               </Select>
 
-              {/* Page Size Selector */}
+              {}
               <PageSizeSelectField
                 pageSize={filters.pageSize}
                 pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
@@ -274,7 +274,7 @@ export default function AdminSessionsPage() {
           </CardContent>
         </Card>
 
-        {/* Error Display */}
+        {}
         {error && (
           <Card className="mb-4 border-destructive">
             <CardContent className="p-4">
@@ -283,7 +283,7 @@ export default function AdminSessionsPage() {
           </Card>
         )}
 
-        {/* Sessions Table */}
+        {}
         <Card>
           <CardContent className="p-0 overflow-x-auto">
             <Table>
@@ -387,7 +387,7 @@ export default function AdminSessionsPage() {
           </CardContent>
         </Card>
 
-        {/* Pagination */}
+        {}
         {adminSessions && adminSessions.totalPages > 1 && (
           <div className="flex items-center justify-between mt-4 gap-2 flex-wrap">
             <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
@@ -420,7 +420,7 @@ export default function AdminSessionsPage() {
         )}
       </div>
 
-      {/* Admin Session Detail Modal */}
+      {}
       <AdminSessionDetailModal
         session={selectedSession}
         isOpen={isDetailModalOpen}

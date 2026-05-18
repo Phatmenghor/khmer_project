@@ -1,7 +1,5 @@
-/**
- * Scroll Restoration Wrapper Component
- * Wraps page content and automatically handles scroll restoration
- */
+
+
 
 "use client";
 
@@ -17,15 +15,7 @@ export interface ScrollRestorationWrapperProps
   className?: string;
 }
 
-/**
- * Wrapper component for automatic scroll restoration
- * Usage:
- * ```tsx
- * <ScrollRestorationWrapper>
- *   <YourPageContent />
- * </ScrollRestorationWrapper>
- * ```
- */
+
 export function ScrollRestorationWrapper({
   children,
   className,

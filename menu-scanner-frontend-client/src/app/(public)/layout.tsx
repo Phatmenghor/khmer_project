@@ -27,7 +27,7 @@ export default function PublicLayout({
     loading: favoriteLoading,
   } = useFavoriteState();
 
-  // Load cart and favorites when user is authenticated
+
   useEffect(() => {
     if (isAuthenticated) {
       if (!cartLoaded && !cartLoading.fetch) {
@@ -51,17 +51,17 @@ export default function PublicLayout({
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
-      {/* Extra bottom padding on mobile so content clears the fixed bottom nav */}
+      {}
       <main className="flex-1 pb-16 sm:pb-0">
         <Suspense>{children}</Suspense>
       </main>
 
-      {/* Footer — hidden on mobile (replaced by bottom nav) */}
+      {}
       <div className="hidden sm:block">
         <Footer />
       </div>
 
-      {/* Native-style bottom tab bar — mobile only */}
+      {}
       <BottomNav />
     </div>
   );

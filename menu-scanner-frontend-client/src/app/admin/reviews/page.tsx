@@ -101,7 +101,7 @@ export default function AdminReviewsPage() {
 
   return (
     <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl">
-      {/* Header */}
+      {}
       <div className="mb-4 sm:mb-8">
         <h1 className="text-xl sm:text-3xl font-bold">Customer Reviews</h1>
         <p className="text-sm text-gray-600 mt-1">
@@ -109,7 +109,7 @@ export default function AdminReviewsPage() {
         </p>
       </div>
 
-      {/* Stats */}
+      {}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-8">
         <Card>
           <CardContent className="pt-6">
@@ -168,7 +168,7 @@ export default function AdminReviewsPage() {
         </Card>
       </div>
 
-      {/* Filters */}
+      {}
       <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
         <Button
           variant={filterStatus === "all" ? "default" : "outline"}
@@ -194,14 +194,14 @@ export default function AdminReviewsPage() {
         </Button>
       </div>
 
-      {/* Reviews List */}
+      {}
       <div className="space-y-4">
         {filteredReviews.length > 0 ? (
           filteredReviews.map((review) => (
             <Card key={review.id}>
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
-                  {/* Customer Photo */}
+                  {}
                   {review.customerPhoto && (
                     <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                       <Image
@@ -214,7 +214,7 @@ export default function AdminReviewsPage() {
                   )}
 
                   <div className="flex-1">
-                    {/* Header */}
+                    {}
                     <div className="flex items-start justify-between gap-4 mb-3">
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
@@ -240,7 +240,7 @@ export default function AdminReviewsPage() {
                           )}
                         </div>
 
-                        {/* Contact Info */}
+                        {}
                         <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
                           {review.customerEmail && (
                             <div className="flex items-center gap-1">
@@ -257,7 +257,7 @@ export default function AdminReviewsPage() {
                         </div>
                       </div>
 
-                      {/* Actions */}
+                      {}
                       {!review.isApproved && (
                         <div className="flex gap-2">
                           <Button
@@ -281,7 +281,7 @@ export default function AdminReviewsPage() {
                       )}
                     </div>
 
-                    {/* Rating */}
+                    {}
                     <div className="flex items-center gap-2 mb-3">
                       <div className="flex">
                         {[...Array(review.rating)].map((_, i) => (
@@ -296,19 +296,19 @@ export default function AdminReviewsPage() {
                       </span>
                     </div>
 
-                    {/* Review Title */}
+                    {}
                     {review.title && (
                       <h4 className="font-semibold text-lg mb-2">
                         {review.title}
                       </h4>
                     )}
 
-                    {/* Review Comment */}
+                    {}
                     <p className="text-gray-700 leading-relaxed mb-3">
                       {review.comment}
                     </p>
 
-                    {/* Additional Details */}
+                    {}
                     <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
                       {review.visitDate && (
                         <div className="flex items-center gap-1">
@@ -327,7 +327,7 @@ export default function AdminReviewsPage() {
                       )}
                     </div>
 
-                    {/* Review Photos */}
+                    {}
                     {review.photos && review.photos.length > 0 && (
                       <div className="flex gap-2 mb-4">
                         {review.photos.map((photo, index) => (
@@ -346,7 +346,7 @@ export default function AdminReviewsPage() {
                       </div>
                     )}
 
-                    {/* Business Response */}
+                    {}
                     {review.businessResponse ? (
                       <div className="border-l-4 border-orange-500 pl-4 bg-orange-50 p-4 rounded">
                         <div className="flex items-center gap-2 mb-2">

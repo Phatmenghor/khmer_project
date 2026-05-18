@@ -72,7 +72,7 @@ export default function PendingOrdersAdminPage() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Set default PENDING status filter on mount
+
   useEffect(() => {
     if (!filters.orderStatus || filters.orderStatus === "ALL") {
       dispatch(setOrderStatusFilter("PENDING"));

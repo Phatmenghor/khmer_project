@@ -41,7 +41,7 @@ export function ConfirmationModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset state when dialog opens/closes
+
   useEffect(() => {
     if (isOpen) {
       setError(null);
@@ -95,7 +95,7 @@ export function ConfirmationModal({
             </Alert>
           )}
 
-          {/* Error Alert */}
+          {}
           {error && (
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />

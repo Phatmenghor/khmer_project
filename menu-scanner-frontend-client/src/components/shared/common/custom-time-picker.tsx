@@ -39,7 +39,7 @@ export function CustomTimePicker({
   const [selectedMinute, setSelectedMinute] = useState<string>("00");
   const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">("AM");
 
-  // Initialize time from value prop (HH:mm or HH:mm:ss format)
+
   useEffect(() => {
     if (value) {
       const timeParts = value.split(":");
@@ -47,7 +47,7 @@ export function CustomTimePicker({
         const hour24 = parseInt(timeParts[0]);
         const minute = timeParts[1];
 
-        // Convert to 12-hour format
+
         const period = hour24 >= 12 ? "PM" : "AM";
         const hour12 = hour24 % 12 || 12;
 
@@ -58,7 +58,7 @@ export function CustomTimePicker({
     }
   }, [value]);
 
-  // Convert 12-hour + AM/PM to 24-hour format
+
   const convertTo24Hour = (hour12: string, period: "AM" | "PM"): string => {
     let hour24 = parseInt(hour12);
     if (period === "PM" && hour24 !== 12) {
@@ -69,25 +69,25 @@ export function CustomTimePicker({
     return String(hour24).padStart(2, "0");
   };
 
-  // Format time for display
+
   const formatTimeDisplay = (hour: string, minute: string, period: "AM" | "PM"): string => {
     return `${hour}:${minute} ${period}`;
   };
 
-  // Format time for form submission (HH:mm in 24-hour)
+
   const formatTimeForForm = (): string => {
     const hour24 = convertTo24Hour(selectedHour, selectedPeriod);
     return `${hour24}:${selectedMinute}`;
   };
 
-  // Handle apply time
+
   const applyTime = () => {
     const formattedTime = formatTimeForForm();
     onChange(formattedTime);
     setIsOpen(false);
   };
 
-  // Clear selection
+
   const clearSelection = () => {
     setSelectedHour("09");
     setSelectedMinute("00");
@@ -95,12 +95,12 @@ export function CustomTimePicker({
     onChange("");
   };
 
-  // Generate hour options (1-12)
+
   const hours = Array.from({ length: 12 }, (_, i) =>
     String(i + 1).padStart(2, "0")
   );
 
-  // Generate minute options (00-59)
+
   const minutes = Array.from({ length: 60 }, (_, i) =>
     String(i).padStart(2, "0")
   );
@@ -153,7 +153,7 @@ export function CustomTimePicker({
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-[90vw] sm:w-80 md:w-96 lg:w-full p-0 max-w-96" align="start">
-        {/* Header */}
+        {}
         <div className="p-3 border-b bg-muted/30 flex items-center justify-between">
           <span className="text-sm font-medium">Select Time</span>
           <button
@@ -165,9 +165,9 @@ export function CustomTimePicker({
           </button>
         </div>
 
-        {/* Time Picker */}
+        {}
         <div className="p-3 sm:p-4 space-y-4">
-          {/* Hour and Minute Selectors */}
+          {}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
             <div className="flex flex-col gap-2 flex-1 sm:flex-none">
               <label className="text-xs font-medium text-muted-foreground">Hour</label>
@@ -225,7 +225,7 @@ export function CustomTimePicker({
             </div>
           </div>
 
-          {/* Preview */}
+          {}
           <div className="p-3 bg-muted rounded-lg text-center">
             <span className="text-xs text-muted-foreground">Selected Time: </span>
             <div className="text-lg font-bold text-primary">
@@ -234,7 +234,7 @@ export function CustomTimePicker({
           </div>
         </div>
 
-        {/* Footer */}
+        {}
         <div className="p-2 sm:p-3 border-t bg-muted/30 flex gap-2">
           <Button
             variant="outline"

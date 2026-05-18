@@ -1,7 +1,5 @@
-/**
- * Brand Management - Redux Slice
- * Manages Brand state: data, loading, errors, filters, operations
- */
+
+
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { BrandManagementState } from "../models/type/brand-type";
@@ -16,9 +14,7 @@ import {
   toggleBrandStatusService,
 } from "../thunks/brand-thunks";
 
-/**
- * Initial state
- */
+
 const initialState: BrandManagementState = {
   data: null,
   selectedBrand: null,
@@ -37,9 +33,7 @@ const initialState: BrandManagementState = {
   },
 };
 
-/**
- * Brand slice
- */
+
 const brandSlice = createSlice({
   name: "brands",
   initialState,
@@ -114,7 +108,7 @@ const brandSlice = createSlice({
         state.selectedBrand = action.payload;
         state.operations.isFetchingDetail = false;
 
-        // Also update in list if exists (for consistency)
+
         if (state.data?.content) {
           const index = state.data.content.findIndex(
             (user) => user.id === action.payload.id
@@ -158,7 +152,7 @@ const brandSlice = createSlice({
         state.selectedBrand = action.payload;
         state.operations.isUpdating = false;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((user) =>
             user.id === action.payload.id ? action.payload : user
@@ -177,7 +171,7 @@ const brandSlice = createSlice({
       })
       .addCase(deleteBrandService.fulfilled, (state, action) => {
         if (state.data) {
-          // Extract ID from payload (could be string or object)
+
           const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
           state.data.content = state.data.content.filter(
             (user) => user.id !== deletedId
@@ -204,7 +198,7 @@ const brandSlice = createSlice({
       .addCase(toggleBrandStatusService.fulfilled, (state, action) => {
         state.selectedBrand = action.payload;
 
-        // Update in list
+
         if (state.data) {
           state.data.content = state.data.content.map((brand) =>
             brand.id === action.payload.id ? action.payload : brand

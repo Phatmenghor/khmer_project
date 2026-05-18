@@ -14,16 +14,7 @@ interface CategoryCardProps {
   className?: string;
 }
 
-/**
- * CategoryCard - Reusable category card component for ecommerce
- * Features:
- * - Clean, modern design optimized for ecommerce
- * - Smooth hover animations
- * - Image loading states with skeleton
- * - Responsive sizing
- * - Product count badge
- * - Accessible with proper ARIA labels
- */
+
 export function CategoryCard({ category, className }: CategoryCardProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -41,7 +32,7 @@ export function CategoryCard({ category, className }: CategoryCardProps) {
         )}
       >
         <CardContent className="p-4 sm:p-5 flex flex-col items-center justify-center gap-3">
-          {/* Icon/Image Container - Clean and centered */}
+          {}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
             {!imageError && category.imageUrl ? (
               <>
@@ -68,14 +59,14 @@ export function CategoryCard({ category, className }: CategoryCardProps) {
             )}
           </div>
 
-          {/* Category Name - Clean typography */}
+          {}
           <div className="text-center w-full">
             <h3 className="font-semibold text-sm sm:text-base line-clamp-2 text-foreground group-hover:text-primary transition-colors leading-snug">
               {category.name}
             </h3>
           </div>
 
-          {/* Product Count Badge - Cleaner design */}
+          {}
           {category.activeProducts > 0 && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground group-hover:text-primary/80 transition-colors">
               <ShoppingBag className="h-3 w-3" />

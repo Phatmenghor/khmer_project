@@ -90,7 +90,7 @@ export default function BrandPage() {
     globalPageSize,
   ]);
 
-  // Event handlers
+
   const handleCreateBrand = () => {
     setModalState({
       isOpen: true,
@@ -186,7 +186,7 @@ export default function BrandPage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (brandContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -243,7 +243,7 @@ export default function BrandPage() {
           </div>
         </CardHeaderSection>
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <DataTableWithPagination
           data={brandContent}
           columns={columns}
@@ -260,7 +260,7 @@ export default function BrandPage() {
         />
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <BrandModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -268,14 +268,14 @@ export default function BrandPage() {
         mode={modalState.mode}
       />
 
-      {/* Modals Brand Detail */}
+      {}
       <BrandDetailModal
         brand={detailModalState.brand}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
       />
 
-      {/* Modals Delete Brand */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

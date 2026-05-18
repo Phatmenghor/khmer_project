@@ -37,36 +37,33 @@ import {
   VillageFilterRequest,
 } from "../models/request/location-request";
 
-/**
- * Custom state hook for the public location hierarchy.
- * Exposes province → district → commune → village cascading state and actions.
- */
+
 export const usePublicLocationState = () => {
   const dispatch = useAppDispatch();
 
   return {
-    // ── Raw data ───────────────────────────────────────────────────────
+
     provinces: useAppSelector(selectProvinces),
     districts: useAppSelector(selectDistricts),
     communes: useAppSelector(selectCommunes),
     villages: useAppSelector(selectVillages),
 
-    // ── Dropdown options ───────────────────────────────────────────────
+
     provinceOptions: useAppSelector(selectProvinceOptions),
     districtOptions: useAppSelector(selectDistrictOptions),
     communeOptions: useAppSelector(selectCommuneOptions),
     villageOptions: useAppSelector(selectVillageOptions),
 
-    // ── Selected hierarchy ─────────────────────────────────────────────
+
     selectedProvince: useAppSelector(selectSelectedProvince),
     selectedDistrict: useAppSelector(selectSelectedDistrict),
     selectedCommune: useAppSelector(selectSelectedCommune),
 
-    // ── Loading / Error ────────────────────────────────────────────────
+
     loading: useAppSelector(selectPublicLocationLoading),
     error: useAppSelector(selectPublicLocationError),
 
-    // ── Actions ────────────────────────────────────────────────────────
+
     fetchProvinces: () => dispatch(fetchProvincesService()),
     fetchDistricts: (params: DistrictFilterRequest) =>
       dispatch(fetchDistrictsService(params)),
@@ -83,7 +80,7 @@ export const usePublicLocationState = () => {
       dispatch(setSelectedCommune(commune)),
     reset: () => dispatch(resetPublicLocation()),
 
-    // ── Raw dispatch ──────────────────────────────────────────────────
+
     dispatch,
   };
 };

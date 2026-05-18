@@ -5,7 +5,7 @@ interface UsePaginationOptions {
   baseRoute: string;
   totalPages?: number;
   onPageChange?: (page: number) => void;
-  // When provided, syncs the URL pageNo into Redux on mount/change (removes boilerplate useEffect from every page)
+
   syncPageToRedux?: (page: number) => void;
 }
 
@@ -31,7 +31,7 @@ export function usePagination({
     return isNaN(parsed) || parsed < 1 ? 1 : parsed;
   }, [searchParams]);
 
-  // Sync URL pageNo → Redux whenever URL changes (replaces repeated useEffect in every page)
+
   useEffect(() => {
     if (syncPageToRedux) {
       syncPageToRedux(currentPage);

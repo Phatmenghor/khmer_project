@@ -12,7 +12,7 @@ interface ClientProvidersProps {
   children: ReactNode;
 }
 
-// Theme provider component
+
 function ThemeInitializer() {
   useBusinessTheme();
   return null;
@@ -41,8 +41,7 @@ export function ClientProviders({ children }: ClientProvidersProps) {
     </Provider>
   );
 
-  // Disable StrictMode in development to avoid double-mounting
-  // (it's still useful for production debugging if needed)
+
   return isProduction ? (
     <StrictMode>{content}</StrictMode>
   ) : (

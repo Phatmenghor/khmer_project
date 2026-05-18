@@ -83,61 +83,59 @@ export default function ProductDetailPage() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  // ── Pending qty state for sized products (modal-like flow, no immediate API) ──
+
   const [pendingQuantities, setPendingQuantities] = useState<Map<string, number>>(new Map());
   const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
   const [clearingSize, setClearingSize] = useState<string | null>(null);
 
-  // ── Favorite sync ──
+
   const isFavoritedFromStore = favLoaded && product
     ? favoriteItems.some((item) => item.id === product.id)
     : product?.isFavorited ?? false;
   const [isFavorited, setIsFavorited] = useState(false);
   useEffect(() => { setIsFavorited(isFavoritedFromStore); }, [isFavoritedFromStore]);
 
-  // Get quantity for a size - standardized naming
-  // Returns: quantity from Redux cart if available, otherwise from API quantityInCart
+
   const getQuantityForSize = useCallback(
     (sizeId: string | null) => {
       if (!product) return 0;
       const cartItem = cartItems.find(
         (item) => item.productId === product.id && item.productSizeId === sizeId
       );
-      // Use Redux cart state if available (authoritative during session)
+
       if (cartItem) return cartItem.quantity;
 
-      // Fallback to API response quantityInCart
+
       if (sizeId) {
         const size = product.sizes?.find((s) => s.id === sizeId);
         return getSizeQuantity(size);
       }
-      // For unsized products
+
       return product.quantityInCart || 0;
     },
     [cartItems, product]
   );
 
-  // Get display quantity - shows pending edits if any, otherwise actual quantity
-  // Standard naming: displayQuantity = UI quantity (includes pending/unsaved edits)
+
   const getDisplayQuantity = useCallback(
     (sizeId: string | null) => {
       const key = sizeId || "no_size";
-      // If user made unsaved edits, show those (pendingQuantity)
+
       if (pendingQuantities.has(key)) return pendingQuantities.get(key)!;
-      // Otherwise show actual quantity from cart/API
+
       return getQuantityForSize(sizeId);
     },
     [pendingQuantities, getQuantityForSize]
   );
 
-  // Reset pending state when product changes
+
   useEffect(() => {
     setPendingQuantities(new Map());
     setModifiedSizes(new Set());
   }, [product?.id]);
 
-  // Build image list
+
   const allImages = product
     ? [
         { id: "main", imageUrl: sanitizeImageUrl(product.mainImageUrl, appImages.NoImage) },
@@ -148,7 +146,7 @@ export default function ProductDetailPage() {
       ]
     : [];
 
-  // Guard against double-fetch
+
   const fetchedIdRef = useRef<string | null>(null);
   useEffect(() => {
     if (!productId || fetchedIdRef.current === productId) return;
@@ -157,7 +155,7 @@ export default function ProductDetailPage() {
     dispatch(fetchPublicProductById(productId));
   }, [productId, dispatch]);
 
-  // Sync image + size when product loads
+
   useEffect(() => {
     if (!product) return;
     setSelectedImage(sanitizeImageUrl(product.mainImageUrl, appImages.NoImage));
@@ -166,7 +164,7 @@ export default function ProductDetailPage() {
     setSelectedSize(product.hasSizes && product.sizes?.length ? product.sizes[0] : null);
   }, [product?.id]);
 
-  // Fetch similar products
+
   const fetchedSimilarRef = useRef<string | null>(null);
   useEffect(() => {
     if (!product?.id || fetchedSimilarRef.current === product.id) return;
@@ -214,7 +212,7 @@ export default function ProductDetailPage() {
     return Math.round(((orig - getDisplayPrice()) / orig) * 100);
   })();
 
-  // ── Pending qty handlers (sized products) ──────────────────────────────
+
   const handlePendingQtyChange = useCallback(
     (sizeId: string | null, newQty: number) => {
       if (!isAuthenticated) { setShowLoginModal(true); return; }
@@ -267,7 +265,7 @@ export default function ProductDetailPage() {
     setIsSaving(true);
     try {
       const promises: Promise<any>[] = [];
-      const ts = Date.now(); // Single timestamp for conflict resolution
+      const ts = Date.now();
       for (const key of modifiedSizes) {
         const sizeId = key === "no_size" ? null : key;
         const newQty = pendingQuantities.get(key) ?? getQuantityForSize(sizeId);
@@ -309,18 +307,18 @@ export default function ProductDetailPage() {
   const handleToggleFavorite = () => {
     if (!product) return;
     if (!isAuthenticated) { setShowLoginModal(true); return; }
-    // Update UI instantly (optimistic) - no await!
+
     setIsFavorited((prev) => !prev);
     setIsTogglingFavorite(true);
-    // Fire API in background - don't block UI
+
     favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited }))
       .unwrap()
       .then(() => {
-        // Success - state already updated optimistically
+
         setIsTogglingFavorite(false);
       })
       .catch((err: unknown) => {
-        // Rollback on failure
+
         setIsFavorited((prev) => !prev);
         setIsTogglingFavorite(false);
         showToast.error(err?.message || Messages.favorites.updateFailed);
@@ -329,7 +327,7 @@ export default function ProductDetailPage() {
 
   const handleShare = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: product?.name || "Product", url: window.location.href }); } catch { /* cancelled */ }
+      try { await navigator.share({ title: product?.name || "Product", url: window.location.href }); } catch {  }
     } else {
       navigator.clipboard.writeText(window.location.href);
       showToast.success(Messages.clipboard.linkCopied);
@@ -351,7 +349,7 @@ export default function ProductDetailPage() {
     <div className="min-h-screen bg-background">
       <PageContainer className="min-h-screen flex flex-col py-4 sm:py-6">
 
-        {/* Back */}
+        {}
         <CustomButton
           variant="ghost"
           size="sm"
@@ -362,13 +360,13 @@ export default function ProductDetailPage() {
           Back
         </CustomButton>
 
-        {/* ── Main grid — 45 image / 55 info ── */}
+        {}
         <div className="grid grid-cols-1 lg:grid-cols-[9fr_11fr] gap-8 lg:gap-10 mb-16">
 
-          {/* ──── LEFT: Image Gallery (40%) ──── */}
+          {}
           <div className="space-y-3">
 
-            {/* Main image */}
+            {}
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted group shadow-sm">
               {!imageLoaded && <Skeleton className="absolute inset-0 rounded-2xl" />}
               <Image
@@ -382,14 +380,14 @@ export default function ProductDetailPage() {
                 priority
               />
 
-              {/* Discount badge */}
+              {}
               {hasDiscount && discountPercent > 0 && (
                 <Badge variant="destructive" className="absolute top-3 left-3 text-sm font-bold px-3 py-1.5 shadow">
                   -{discountPercent}%
                 </Badge>
               )}
 
-              {/* Zoom icon */}
+              {}
               <button
                 onClick={() => openLightbox(currentImageIndex)}
                 className="absolute bottom-3 right-3 bg-background/75 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow cursor-zoom-in hover:bg-background"
@@ -397,7 +395,7 @@ export default function ProductDetailPage() {
                 <ZoomIn className="h-4 w-4 text-foreground/70" />
               </button>
 
-              {/* Prev / Next */}
+              {}
               {allImages.length > 1 && (
                 <>
                   <button
@@ -415,7 +413,7 @@ export default function ProductDetailPage() {
                 </>
               )}
 
-              {/* Counter */}
+              {}
               {allImages.length > 1 && (
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow">
                   {currentImageIndex + 1} / {allImages.length}
@@ -423,7 +421,7 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {/* Thumbnails */}
+            {}
             {allImages.length > 1 && (
               <div className="flex gap-2.5 overflow-x-auto pb-1">
                 {allImages.map((img, i) => (
@@ -444,10 +442,10 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* ──── RIGHT: Product Info (60%) ──── */}
+          {}
           <div className="flex flex-col gap-4">
 
-            {/* Badges */}
+            {}
             <div className="flex flex-wrap items-center gap-2">
               {product.categoryName && (
                 <Badge variant="secondary" className="gap-1 text-xs">
@@ -464,12 +462,12 @@ export default function ProductDetailPage() {
               </Badge>
             </div>
 
-            {/* Title */}
+            {}
             <h1 className="text-2xl sm:text-3xl font-bold leading-snug tracking-tight">
               {product.name}
             </h1>
 
-            {/* Price */}
+            {}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <span className="text-3xl sm:text-4xl font-bold text-primary leading-none">
                 {formatCurrency(getDisplayPrice())}
@@ -486,14 +484,14 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {/* Description */}
+            {}
             {product.description && (
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                 {product.description}
               </p>
             )}
 
-            {/* ── Cart section — unified style for sized and non-sized ── */}
+            {}
             {(() => {
               const sizeId: string | null = product.hasSizes ? (selectedSize?.id ?? null) : null;
               const displayQty = getDisplayQuantity(sizeId);
@@ -502,7 +500,7 @@ export default function ProductDetailPage() {
               const clearKey = sizeId || "no_size";
               const showQtySection = !product.hasSizes || !!selectedSize;
 
-              // Totals across ALL sizes (or just the single non-sized item)
+
               const totalCartQtyAllSizes = product.hasSizes
                 ? (product.sizes?.reduce((sum, s) => sum + getQuantityForSize(s.id), 0) ?? 0)
                 : getQuantityForSize(null);
@@ -522,7 +520,7 @@ export default function ProductDetailPage() {
               return (
                 <div className="space-y-3">
 
-                  {/* Size buttons — sized products only */}
+                  {}
                   {product.hasSizes && product.sizes && product.sizes.length > 0 && (
                     <>
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -569,7 +567,7 @@ export default function ProductDetailPage() {
                     </>
                   )}
 
-                  {/* Qty + Clear + Add to Cart — same for all products */}
+                  {}
                   {showQtySection && (() => {
                     const key = sizeId || "no_size";
                     const isPending = modifiedSizes.has(key) && displayQty !== cartQty;
@@ -599,13 +597,13 @@ export default function ProductDetailPage() {
                           </CustomButton>
                         )}
                         <div className="flex-1" />
-                        {/* "In Cart" status — always visible when anything is in cart, no icon */}
+                        {}
                         {totalCartQtyAllSizes > 0 && (
                           <div className="h-8 shrink-0 flex items-center px-3 text-sm font-medium rounded-md border border-border text-muted-foreground">
                             {`In Cart · ${formatCurrency(totalCartValueAllSizes)}`}
                           </div>
                         )}
-                        {/* Action button — shown when there are pending changes OR nothing in cart */}
+                        {}
                         {(modifiedSizes.size > 0 || totalCartQtyAllSizes === 0) && (
                           <CustomButton
                             size="sm"
@@ -620,7 +618,7 @@ export default function ProductDetailPage() {
                         )}
                       </div>
 
-                      {/* Total — sum of ALL sizes × their pending/cart quantities */}
+                      {}
                       <div className="flex justify-between items-center py-3 border-t">
                         <span className="text-sm text-muted-foreground">Total</span>
                         <div className="flex items-center gap-2">
@@ -642,7 +640,7 @@ export default function ProductDetailPage() {
               );
             })()}
 
-            {/* Wishlist + Share */}
+            {}
             <div className="grid grid-cols-2 gap-3">
               <CustomButton
                 size="lg"
@@ -665,7 +663,7 @@ export default function ProductDetailPage() {
               </CustomButton>
             </div>
 
-            {/* Stats */}
+            {}
             <div className="flex items-center gap-6 pt-4 border-t text-muted-foreground">
               <div className="flex items-center gap-1.5 text-sm">
                 <Eye className="h-4 w-4" />
@@ -685,7 +683,7 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        {/* ── You May Also Like ── */}
+        {}
         {similarProducts.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-5">
@@ -703,7 +701,7 @@ export default function ProductDetailPage() {
         )}
       </PageContainer>
 
-      {/* ── Image Lightbox ── */}
+      {}
       {lightboxOpen && (
         <div
           className="fixed inset-0 z-[200] bg-black/95 flex flex-col items-center justify-between"
@@ -717,7 +715,7 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="relative flex-1 w-full flex items-center justify-center px-14" onClick={(e) => e.stopPropagation()}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {}
             <img
               key={`lightbox-${lightboxIndex}`}
               src={allImages[lightboxIndex]?.imageUrl || appImages.NoImage}
@@ -746,7 +744,7 @@ export default function ProductDetailPage() {
                   i === lightboxIndex ? "ring-2 ring-white scale-110" : "opacity-40 hover:opacity-80"
                 )}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {}
                 <img src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)} alt={`${i + 1}`} className="w-full h-full object-cover" />
               </button>
             ))}
@@ -759,7 +757,7 @@ export default function ProductDetailPage() {
   );
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────
+
 function ProductDetailSkeleton() {
   return (
     <PageContainer className="py-6">

@@ -52,7 +52,7 @@ export function ComboboxSelectScheduleType({
   const [scheduleTypes, setScheduleTypes] = useState<ScheduleType[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch schedule types when combobox opens
+
   useEffect(() => {
     if (!open || scheduleTypes.length > 0) return;
 
@@ -81,17 +81,17 @@ export function ComboboxSelectScheduleType({
     setOpen(false);
   };
 
-  // Filter schedule types based on search term
+
   const filteredScheduleTypes = scheduleTypes.filter((type) =>
     type.enumName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Find the selected schedule type to display
+
   const selectedScheduleType = scheduleTypes.find(
     (type) => type.enumName === value,
   );
 
-  // FIX: Display value even before data loads (for edit mode)
+
   const displayValue = selectedScheduleType
     ? selectedScheduleType.enumName
     : value || placeholder;

@@ -47,7 +47,7 @@ import { DayOfWeek } from "@/types/business-profile";
 import { WorkScheduleTypeFormData } from "../store/models/schema/work-schedule-type.schema";
 import { Loading } from "@/components/shared/common/loading";
 
-// Default working days: Monday to Friday
+
 const DEFAULT_WORK_DAYS: DayOfWeek[] = [
   DayOfWeek.MONDAY,
   DayOfWeek.TUESDAY,
@@ -78,7 +78,7 @@ export default function WorkScheduleModal({
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
 
-  // State for combobox selections
+
   const [selectedUser, setSelectedUser] = useState<UserResponseModel | null>(
     null,
   );
@@ -109,7 +109,7 @@ export default function WorkScheduleModal({
     mode: "onChange",
   });
 
-  // Fetch data in edit mode
+
   useEffect(() => {
     const fetchScheduleData = async () => {
       if (!workScheduleId || !isOpen || isCreate) return;
@@ -122,12 +122,12 @@ export default function WorkScheduleModal({
         if (fetchWorkScheduleByIdService.fulfilled.match(resultAction)) {
           const data = resultAction.payload;
 
-          // Set the selected user
+
           if (data.userInfo) {
             setSelectedUser(data.userInfo as UserResponseModel);
           }
 
-          // Set the selected schedule type
+
           if (data.scheduleTypeEnum) {
             setSelectedScheduleType(data.scheduleTypeEnum);
           }
@@ -152,7 +152,7 @@ export default function WorkScheduleModal({
     fetchScheduleData();
   }, [workScheduleId, isOpen, isCreate, dispatch, reset, currentUser?.userId]);
 
-  // Reset form for create mode
+
   useEffect(() => {
     if (isOpen && isCreate) {
       setSelectedUser(null);
@@ -171,7 +171,7 @@ export default function WorkScheduleModal({
     }
   }, [isOpen, isCreate, reset, currentUser?.userId]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -270,7 +270,7 @@ export default function WorkScheduleModal({
                 </div>
               )}
 
-              {/* User Selection */}
+              {}
               <ComboboxSelectUser
                 dataSelect={selectedUser}
                 onChangeSelected={(user) => {
@@ -286,7 +286,7 @@ export default function WorkScheduleModal({
                 error={errors.userId?.message}
               />
 
-              {/* Schedule Name */}
+              {}
               <TextField
                 control={control}
                 name="name"
@@ -297,7 +297,7 @@ export default function WorkScheduleModal({
                 error={errors.name}
               />
 
-              {/* Schedule Type */}
+              {}
               <ComboboxSelectScheduleType
                 value={selectedScheduleType}
                 onValueChange={(value) => {
@@ -314,7 +314,7 @@ export default function WorkScheduleModal({
                 error={errors.scheduleTypeEnum?.message}
               />
 
-              {/* Work Days */}
+              {}
               <MultiSelectDaysField
                 control={control}
                 name="workDays"
@@ -325,10 +325,10 @@ export default function WorkScheduleModal({
                 defaultDays={DEFAULT_WORK_DAYS}
               />
 
-              {/* Time Section - Required Fields */}
+              {}
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Start Time */}
+                  {}
                   <TimePickerField
                     control={control}
                     name="startTime"
@@ -339,7 +339,7 @@ export default function WorkScheduleModal({
                     error={errors.startTime}
                   />
 
-                  {/* End Time */}
+                  {}
                   <TimePickerField
                     control={control}
                     name="endTime"
@@ -351,13 +351,13 @@ export default function WorkScheduleModal({
                   />
                 </div>
 
-                {/* Break Times - Optional Fields */}
+                {}
                 <div className="border-t pt-4">
                   <h3 className="text-sm font-medium text-gray-600 mb-3">
                     Break Times (Optional)
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Break Start Time */}
+                    {}
                     <TimePickerField
                       control={control}
                       name="breakStartTime"
@@ -367,7 +367,7 @@ export default function WorkScheduleModal({
                       error={errors.breakStartTime}
                     />
 
-                    {/* Break End Time */}
+                    {}
                     <TimePickerField
                       control={control}
                       name="breakEndTime"

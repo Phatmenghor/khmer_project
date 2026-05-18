@@ -16,7 +16,6 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
     const businessId = AppDefault.BUSINESS_ID;
 
 
-
     const response = await axiosClientWithAuth.post("/api/v1/cart", {
       ...requestData,
       businessId,
@@ -24,14 +23,14 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
       signal,
     });
 
-    // DEBUG: Log response
+
     let responseData = response.data.data;
 
 
     if (!isCorrect) {
     }
 
-    // Transform response to ensure frontend compatibility
+
     if (responseData?.items) {
       responseData.items = responseData.items.map((item: any) => ({
         ...item,
@@ -59,7 +58,7 @@ export const updateCartItem = createApiThunk<
   });
   let responseData = response.data.data;
 
-  // Transform response to ensure frontend compatibility
+
   if (responseData?.items) {
     responseData.items = responseData.items.map((item: any) => ({
       ...item,
@@ -84,7 +83,7 @@ export const fetchCart = createApiThunk<CartResponseModel, void>(
     );
     let responseData = response.data.data;
 
-    // Transform response to ensure frontend compatibility
+
     if (responseData?.items) {
       responseData.items = responseData.items.map((item: any) => ({
         ...item,

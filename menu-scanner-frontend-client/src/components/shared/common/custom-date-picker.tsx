@@ -63,7 +63,7 @@ export function CustomDateTimePicker({
   const [selectedMinute, setSelectedMinute] = useState<string>("00");
   const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">("PM");
 
-  // Initialize selected date and time from value prop
+
   useEffect(() => {
     if (value) {
       const date = new Date(value);
@@ -83,7 +83,7 @@ export function CustomDateTimePicker({
     }
   }, [value, mode]);
 
-  // Format date for display
+
   const formatDate = (date: Date): string => {
     const dateStr = date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -105,7 +105,7 @@ export function CustomDateTimePicker({
     return dateStr;
   };
 
-  // Format date for form submission - use ISO 8601 format for consistency
+
   const formatDateForForm = (date: Date): string => {
     if (mode === "datetime") {
       return date.toISOString();
@@ -116,7 +116,7 @@ export function CustomDateTimePicker({
     return `${year}-${month}-${day}`;
   };
 
-  // Handle date selection
+
   const handleDateSelect = (day: number) => {
     const newDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
 
@@ -133,7 +133,7 @@ export function CustomDateTimePicker({
     }
   };
 
-  // Handle time change
+
   const handleTimeChange = () => {
     if (!selectedDate) return;
 
@@ -153,7 +153,7 @@ export function CustomDateTimePicker({
     onChange(formatDateForForm(newDate));
   };
 
-  // Apply datetime selection
+
   const applyDateTime = () => {
     if (selectedDate && mode === "datetime") {
       handleTimeChange();
@@ -161,20 +161,20 @@ export function CustomDateTimePicker({
     }
   };
 
-  // Handle month change
+
   const handleMonthChange = (month: string) => {
     const monthIndex = MONTHS.indexOf(month as typeof MONTHS[number]);
     const newDate = new Date(viewDate.getFullYear(), monthIndex, 1);
     setViewDate(newDate);
   };
 
-  // Handle year change
+
   const handleYearChange = (year: string) => {
     const newDate = new Date(parseInt(year), viewDate.getMonth(), 1);
     setViewDate(newDate);
   };
 
-  // Navigate months
+
   const navigateMonth = (direction: "prev" | "next") => {
     const newDate = new Date(viewDate);
     if (direction === "prev") {
@@ -185,7 +185,7 @@ export function CustomDateTimePicker({
     setViewDate(newDate);
   };
 
-  // Generate calendar days
+
   const generateCalendarDays = () => {
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
@@ -214,7 +214,7 @@ export function CustomDateTimePicker({
     return days;
   };
 
-  // Generate year options
+
   const generateYearOptions = () => {
     const currentYear = new Date().getFullYear();
     const years = [];
@@ -224,7 +224,7 @@ export function CustomDateTimePicker({
     return years;
   };
 
-  // Generate hour/minute options
+
   const hours = Array.from({ length: 12 }, (_, i) =>
     String(i + 1).padStart(2, "0")
   );
@@ -232,7 +232,7 @@ export function CustomDateTimePicker({
     String(i).padStart(2, "0")
   );
 
-  // Clear selection
+
   const clearSelection = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
@@ -252,13 +252,13 @@ export function CustomDateTimePicker({
           className={cn(
             "w-full justify-start text-left font-normal h-10 px-3 text-sm transition-all duration-200 border-input",
             !selectedDate && "text-muted-foreground",
-            // Hover state
+
             "hover:bg-primary/10 hover:border-primary hover:text-primary",
-            // Focus state
+
             "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
-            // Active/Open state
+
             isOpen && "bg-primary/20 border-primary text-primary",
-            // Error state
+
             error && "border-red-500 focus:border-red-500",
             disabled && "opacity-50 cursor-not-allowed",
             className
@@ -292,7 +292,7 @@ export function CustomDateTimePicker({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-72 p-0" align="start">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between p-3 border-b bg-muted/30">
           <div className="flex items-center gap-2">
             <Button
@@ -358,7 +358,7 @@ export function CustomDateTimePicker({
           </Button>
         </div>
 
-        {/* Calendar Grid */}
+        {}
         <div className="p-3">
           <div className="grid grid-cols-7 gap-1 mb-2">
             {DAYS.map((day, index) => (
@@ -396,7 +396,7 @@ export function CustomDateTimePicker({
           </div>
         </div>
 
-        {/* Time Picker (only for datetime mode) */}
+        {}
         {mode === "datetime" && (
           <div className="p-3 border-t">
             <div className="flex items-center justify-center gap-2">
@@ -442,7 +442,7 @@ export function CustomDateTimePicker({
           </div>
         )}
 
-        {/* Footer */}
+        {}
         <div className="p-3 border-t bg-muted/30 flex gap-2">
           <Button
             variant="outline"

@@ -7,7 +7,7 @@ interface GlobalSettingsState {
   pageSize: number;
 }
 
-// Load initial state from localStorage
+
 const loadInitialState = (): GlobalSettingsState => {
   if (typeof window !== "undefined") {
     try {
@@ -34,7 +34,7 @@ const globalSettingsSlice = createSlice({
   reducers: {
     setGlobalPageSize: (state, action: PayloadAction<number>) => {
       state.pageSize = action.payload;
-      // Sync to localStorage
+
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -46,7 +46,7 @@ const globalSettingsSlice = createSlice({
       const resetState = {
         pageSize: AppDefault.PAGE_SIZE,
       };
-      // Clear localStorage
+
       if (typeof window !== "undefined") {
         try {
           localStorage.removeItem(STORAGE_KEY);

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
-// Type declaration for global cached business data
+
 declare global {
   interface Window {
     __cachedBusinessData?: {
@@ -44,16 +44,16 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
   const { profile, isProfileLoading, dispatch } = useAuthState();
 
-  // Get business settings from Redux (loaded by useBusinessTheme)
+
   const businessSettings = useAppSelector(selectBusinessSettings);
   const reduxBusinessName = useAppSelector(selectBusinessName);
   const reduxLogoUrl = useAppSelector(selectBusinessLogo);
 
-  // Use cached data initially for FAST load, then switch to Redux when available
+
   const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
   const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
 
-  // Initialize from cached data on mount (before Redux loads)
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.__cachedBusinessData) {
       setCachedBusinessName(window.__cachedBusinessData.businessName);
@@ -61,7 +61,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
     }
   }, []);
 
-  // Use Redux data when available, fall back to cache
+
   const businessName = reduxBusinessName || cachedBusinessName;
   const logoUrl = reduxLogoUrl || cachedLogoUrl;
 
@@ -80,8 +80,8 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
     if (!profile && !isProfileLoading) {
       dispatch(getProfileService());
     }
-    // Business settings are loaded by useBusinessTheme hook in client-provider
-    // No need to fetch here - just use Redux selectors
+
+
   }, [profile, isProfileLoading, dispatch]);
 
   const toggleSection = (section: string) => {
@@ -106,13 +106,13 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
         const isActive = route.href ? pathname === route.href : false;
 
         if (hasSubItems) {
-          // Filter out Subcategories if useSubcategories is false
+
           const filteredItems =
             route.title === "Master Data" && businessSettings?.useSubcategories === false
               ? route.items!.filter((item) => item.title !== "Subcategories")
               : route.items!;
 
-          // Skip rendering if no items left after filtering
+
           if (route.title === "Master Data" && filteredItems.length === 0) {
             return null;
           }

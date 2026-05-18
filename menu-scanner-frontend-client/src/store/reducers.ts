@@ -1,7 +1,5 @@
-/**
- * Store Reducers Configuration
- * Centralized configuration for all Redux reducers
- */
+
+
 
 import authReducer from "@/features/auth/store/slice/auth-slice";
 import roleSlice from "@/features/auth/store/slice/role-slice";
@@ -42,21 +40,18 @@ import globalSettingsReducer from "./slices/global-settings-slice";
 import locationReducer from "@/features/location/store/slice/location-slice";
 import publicLocationReducer from "@/features/location/store/slice/public-location-slice";
 
-/**
- * Root reducer configuration
- * Add new feature reducers here
- */
+
 export const reducers = {
-  // Global Settings
+
   globalSettings: globalSettingsReducer,
 
-  // Auth
+
   auth: authReducer,
   users: usersReducer,
   roles: roleSlice,
   sessions: sessionReducer,
 
-  // Master Data (Admin)
+
   banner: bannerReducer,
   brand: brandReducer,
   categories: categoriesReducer,
@@ -64,7 +59,7 @@ export const reducers = {
   deliveryOptions: deliveryOptionsReducer,
   paymentOptions: paymentOptionsReducer,
 
-  // Business
+
   businessSettings: businessSettingsReducer,
   products: productReducer,
   stocks: stockReducer,
@@ -75,14 +70,14 @@ export const reducers = {
   bulkPromotion: bulkPromotionReducer,
   promotionSizeSelection: promotionSizeSelectionReducer,
 
-  // HR
+
   workScheduleType: workScheduleTypeReducer,
   leaveType: leaveTypeReducer,
   leave: leaveReducer,
   attendance: attendanceReducer,
   workSchedule: workScheduleReducer,
 
-  // Main/Public
+
   home: homeReducer,
   publicProducts: publicProductReducer,
   publicBrands: publicBrandsReducer,
@@ -92,7 +87,7 @@ export const reducers = {
   favorites: favoritesReducer,
   cart: cartReducer,
 
-  // Location
+
   location: locationReducer,
   publicLocation: publicLocationReducer,
 };

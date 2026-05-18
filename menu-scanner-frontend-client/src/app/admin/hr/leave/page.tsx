@@ -35,7 +35,7 @@ import { useAppSelector } from "@/store";
 export default function LeaveTypePage() {
   useAdminCleanup(resetState);
 
-  // Redux state
+
   const {
     leaveState,
     leaveData,
@@ -47,7 +47,7 @@ export default function LeaveTypePage() {
     dispatch,
   } = useLeaveState();
 
-  // Local UI state for modals only
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     mode: ModalMode.CREATE_MODE,
@@ -70,7 +70,7 @@ export default function LeaveTypePage() {
     action: "APPROVED" as "APPROVED" | "REJECTED",
   });
 
-  // Global page size from global settings (synced across all admin pages)
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -80,7 +80,7 @@ export default function LeaveTypePage() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-  // Fetch users when filters change
+
   useEffect(() => {
     dispatch(
       fetchAllLeaveService({
@@ -91,7 +91,7 @@ export default function LeaveTypePage() {
     );
   }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
 
-  // Event handlers
+
   const handleCreate = () => {
     setModalState({
       isOpen: true,
@@ -168,8 +168,8 @@ export default function LeaveTypePage() {
   };
 
   const handlePageSizeChange = (size: number) => {
-    dispatch(setGlobalPageSize(size)); // Update global settings (syncs to all pages)
-    dispatch(setPageNo(1)); // Reset to first page
+    dispatch(setGlobalPageSize(size));
+    dispatch(setPageNo(1));
   };
 
   const handleDelete = async () => {
@@ -184,7 +184,7 @@ export default function LeaveTypePage() {
 
       closeDeleteModal();
 
-      // Navigate to previous page if this was the last item
+
       if (leaveContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -223,7 +223,7 @@ export default function LeaveTypePage() {
       leaveId: "",
       action: "APPROVED",
     });
-    // No need to refresh - Redux store updates automatically from approveLeaveService
+
   };
 
   return (
@@ -244,7 +244,7 @@ export default function LeaveTypePage() {
           openModal={handleCreate}
         ></CardHeaderSection>
 
-        {/* Data Table with Your Custom Pagination */}
+        {}
         <DataTableWithPagination
           data={leaveContent}
           columns={columns}
@@ -261,7 +261,7 @@ export default function LeaveTypePage() {
         />
       </div>
 
-      {/* Modals Add/Edit */}
+      {}
       <LeaveModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -271,7 +271,7 @@ export default function LeaveTypePage() {
         onReject={handleRejectItem}
       />
 
-      {/* Modals Leave Detail */}
+      {}
       <LeaveDetailModal
         leaveId={detailModalState.id}
         isOpen={detailModalState.isOpen}
@@ -281,7 +281,7 @@ export default function LeaveTypePage() {
         onEdit={handleEditItem}
       />
 
-      {/* Modals Approve/Reject Leave */}
+      {}
       <ApproveRejectLeaveModal
         isOpen={approveRejectState.isOpen}
         onClose={closeApproveRejectModal}
@@ -289,7 +289,7 @@ export default function LeaveTypePage() {
         action={approveRejectState.action}
       />
 
-      {/* Modals Delete User */}
+      {}
       <DeleteConfirmationModal
         isOpen={deleteState.isOpen}
         onClose={closeDeleteModal}

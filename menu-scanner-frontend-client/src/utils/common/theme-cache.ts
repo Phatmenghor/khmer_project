@@ -1,9 +1,5 @@
-/**
- * Theme color caching utilities
- * Stores business colors in BOTH localStorage (for instant sync access) and cookies (for persistence)
- * localStorage: Fast synchronous access before React renders (prevents flash)
- * cookie: Persistent storage across tabs/sessions
- */
+
+
 
 export interface ThemeCacheData {
   primaryColor: string;
@@ -13,9 +9,7 @@ export interface ThemeCacheData {
   timestamp: number;
 }
 
-/**
- * Get cookie value by name
- */
+
 function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null;
   try {
@@ -34,22 +28,16 @@ function getCookie(name: string): string | null {
   }
 }
 
-/**
- * Set cookie with business ID as part of name
- * Cookie name: theme_colors_[businessId]
- */
+
 function setCookie(name: string, value: string, days: number = 30): void {
   if (typeof document === "undefined") return;
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  // Match auth token cookie pattern with SameSite attribute
+
   document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
 }
 
-/**
- * Get localStorage item for theme colors
- * localStorage key: theme_colors_[businessId]
- */
+
 function getLocalStorageColors(businessId: string): ThemeCacheData | null {
   if (typeof window === "undefined" || !window.localStorage) return null;
   try {
@@ -62,10 +50,7 @@ function getLocalStorageColors(businessId: string): ThemeCacheData | null {
   }
 }
 
-/**
- * Set localStorage item for theme colors
- * Fast synchronous storage for instant access before React renders
- */
+
 function setLocalStorageColors(businessId: string, data: ThemeCacheData): void {
   if (typeof window === "undefined" || !window.localStorage) return;
   try {
@@ -75,17 +60,14 @@ function setLocalStorageColors(businessId: string, data: ThemeCacheData): void {
   }
 }
 
-/**
- * Get cached theme colors for a specific business
- * Tries localStorage first (fast), then falls back to cookies
- */
+
 export function getCachedThemeColors(businessId: string): ThemeCacheData | null {
   try {
-    // Try localStorage first (synchronous, fastest)
+
     const localStorageData = getLocalStorageColors(businessId);
     if (localStorageData) return localStorageData;
 
-    // Fall back to cookie
+
     const cookieName = `theme_colors_${businessId}`;
     const cookieValue = getCookie(cookieName);
     if (!cookieValue) return null;
@@ -95,13 +77,7 @@ export function getCachedThemeColors(businessId: string): ThemeCacheData | null 
   }
 }
 
-/**
- * Save business settings to BOTH localStorage (instant) and cookie (persistent)
- * This ensures:
- * 1. Instant access via localStorage for sync script to prevent flash
- * 2. Persistent storage via cookie for cross-tab/session persistence
- * 3. All business data cached: colors, name, logo, tax for fast display
- */
+
 export function cacheThemeColors(
   businessId: string,
   colors: {
@@ -120,10 +96,10 @@ export function cacheThemeColors(
       timestamp: Date.now(),
     };
 
-    // Save to localStorage (instant synchronous access)
+
     setLocalStorageColors(businessId, cacheData);
 
-    // Save to cookie (persistent across sessions)
+
     const cookieName = `theme_colors_${businessId}`;
     setCookie(cookieName, JSON.stringify(cacheData), 30);
 
@@ -131,9 +107,7 @@ export function cacheThemeColors(
   }
 }
 
-/**
- * Apply theme colors to DOM as CSS variables
- */
+
 export function applyThemeColors(primaryColor?: string): void {
   const hexToHsl = (hex: string): string => {
     if (!hex) return "";
@@ -181,9 +155,7 @@ export function applyThemeColors(primaryColor?: string): void {
   }
 }
 
-/**
- * Get cached business info (name, logo, tax)
- */
+
 export function getCachedBusinessInfo(businessId: string): {
   businessName?: string
   logoBusinessUrl?: string
@@ -198,10 +170,7 @@ export function getCachedBusinessInfo(businessId: string): {
   };
 }
 
-/**
- * Check if cached data differs from current data
- * Compares primary color, business name, logo, and tax percentage
- */
+
 export function hasThemeChanged(
   cached: ThemeCacheData | null,
   current: {

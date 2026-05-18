@@ -63,7 +63,7 @@ import {
   EMPLOYMENT_TYPE_OPTIONS,
 } from "@/constants/form-options";
 
-// Profile update schema
+
 import {
   updateUserSchema,
   UserFormData,
@@ -122,10 +122,10 @@ export default function AdminProfilePage() {
     mode: "onChange",
   });
 
-  // Type assertion for control to fix TypeScript compatibility
+
   const typedControl = control as any;
 
-  // Field arrays
+
   const {
     fields: addressFields,
     append: appendAddress,
@@ -162,14 +162,14 @@ export default function AdminProfilePage() {
     name: "educations",
   });
 
-  // Load profile on mount (only if not already loaded or loading)
+
   useEffect(() => {
     if (!userProfile && !isProfileLoading) {
       dispatch(getProfileService());
     }
   }, [dispatch, userProfile, isProfileLoading]);
 
-  // Update form when profile loads
+
   useEffect(() => {
     if (userProfile) {
       reset({
@@ -209,7 +209,7 @@ export default function AdminProfilePage() {
     }
   }, [userProfile, reset]);
 
-  // Clear errors when they appear
+
   useEffect(() => {
     if (reduxError) {
       showToast.error(reduxError);
@@ -221,7 +221,7 @@ export default function AdminProfilePage() {
     try {
       setIsUploadingImage(true);
 
-      // Process profile image URL
+
       let profileImageUrl = data.profileImageUrl;
       if (profileImageUrl && isBase64Image(profileImageUrl)) {
         try {
@@ -233,7 +233,7 @@ export default function AdminProfilePage() {
         }
       }
 
-      // Process document file URLs
+
       const processedDocuments = await Promise.all(
         (data.documents || []).map(async (doc) => {
           let fileUrl = doc.fileUrl;
@@ -244,7 +244,7 @@ export default function AdminProfilePage() {
               return null;
             }
           }
-          // Only include documents with a fileUrl
+
           if (!fileUrl) {
             return null;
           }
@@ -259,7 +259,7 @@ export default function AdminProfilePage() {
 
       const validDocuments = processedDocuments.filter((doc) => doc !== null);
 
-      // Process education certificate URLs
+
       const processedEducations = await Promise.all(
         (data.educations || []).map(async (edu) => {
           let certificateUrl = edu.certificateUrl;
@@ -270,7 +270,7 @@ export default function AdminProfilePage() {
               return null;
             }
           }
-          // Only include educations with a certificateUrl
+
           if (!certificateUrl) {
             return null;
           }
@@ -293,38 +293,36 @@ export default function AdminProfilePage() {
 
       setIsUploadingImage(false);
 
-      // Build clean payload for backend - only include fields that have actual values
-      // Backend expects specific enum formats and proper structure
+
       const payload: any = {};
 
-      // Required fields - always include
+
       if (data.firstName) payload.firstName = data.firstName;
       if (data.lastName) payload.lastName = data.lastName;
       if (data.phoneNumber) payload.phoneNumber = data.phoneNumber;
       if (data.email) payload.email = data.email;
 
-      // Personal information - optional but include if present
+
       if (data.nickname) payload.nickname = data.nickname;
-      if (data.gender) payload.gender = data.gender; // Backend expects: MALE, FEMALE, OTHER
-      if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth; // Format: YYYY-MM-DD
+      if (data.gender) payload.gender = data.gender;
+      if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth;
       if (profileImageUrl) payload.profileImageUrl = profileImageUrl;
 
-      // Employment information - optional but include if present
+
       if (data.employeeId) payload.employeeId = data.employeeId;
       if (data.position) payload.position = data.position;
       if (data.department) payload.department = data.department;
-      if (data.employmentType) payload.employmentType = data.employmentType; // Backend expects: FULL_TIME, PART_TIME, CONTRACT
-      if (data.joinDate) payload.joinDate = data.joinDate; // Format: YYYY-MM-DD
-      if (data.leaveDate) payload.leaveDate = data.leaveDate; // Format: YYYY-MM-DD
+      if (data.employmentType) payload.employmentType = data.employmentType;
+      if (data.joinDate) payload.joinDate = data.joinDate;
+      if (data.leaveDate) payload.leaveDate = data.leaveDate;
       if (data.shift) payload.shift = data.shift;
       if (data.remark) payload.remark = data.remark;
 
-      // Array fields - only include non-empty arrays to avoid unwanted deletions
-      // Empty array = delete all related records, so only send if we have data
+
       if (addressFields.length > 0 && data.addresses && data.addresses.length > 0) {
         payload.addresses = data.addresses.map((addr: any) => ({
           id: addr.id || undefined,
-          addressType: addr.addressType, // Backend expects: CURRENT, PLACE_OF_BIRTH, PERMANENT
+          addressType: addr.addressType,
           houseNo: addr.houseNo,
           street: addr.street,
           village: addr.village,
@@ -347,7 +345,7 @@ export default function AdminProfilePage() {
       if (validDocuments.length > 0) {
         payload.documents = validDocuments.map((doc: any) => ({
           id: doc.id || undefined,
-          type: doc.type, // Backend expects: ID_CARD, PASSPORT, DRIVER_LICENSE
+          type: doc.type,
           number: doc.number,
           fileUrl: doc.fileUrl,
         }));
@@ -356,7 +354,7 @@ export default function AdminProfilePage() {
       if (validEducations.length > 0) {
         payload.educations = validEducations.map((edu: any) => ({
           id: edu.id || undefined,
-          level: edu.level, // Backend expects: PRESCHOOL, PRIMARY, SECONDARY, TERTIARY, VOCATIONAL
+          level: edu.level,
           schoolName: edu.schoolName,
           fieldOfStudy: edu.fieldOfStudy,
           startYear: edu.startYear,
@@ -368,7 +366,7 @@ export default function AdminProfilePage() {
 
       const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
 
-      // Reload profile data to ensure we have the latest from server
+
       const freshProfile = await dispatch(getProfileService()).unwrap();
 
       showToast.success(Messages.profile.updated);
@@ -383,7 +381,7 @@ export default function AdminProfilePage() {
     try {
       setIsUploadingImage(true);
 
-      // First upload the base64 image to CDN/storage
+
       let profileImageUrl = imageData;
       if (isBase64Image(profileImageUrl)) {
         try {
@@ -395,25 +393,25 @@ export default function AdminProfilePage() {
         }
       }
 
-      // Update form with the CDN URL
+
       setValue("profileImageUrl", profileImageUrl, {
         shouldDirty: true,
       });
 
-      // Send only the URL to API
+
       const payload = {
         profileImageUrl,
       };
 
       const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
 
-      // Reload profile to ensure we have the latest from server
+
       const freshProfile = await dispatch(getProfileService()).unwrap();
 
       showToast.success(Messages.profile.pictureUpdated);
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || Messages.profile.pictureUpdateFailed);
-      // Reset the form value on error
+
       if (userProfile?.profileImageUrl) {
         setValue("profileImageUrl", userProfile.profileImageUrl);
       }
@@ -486,11 +484,11 @@ export default function AdminProfilePage() {
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
-        {/* Profile Header */}
+        {}
         <Card className="mb-6 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5 shadow-md">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              {/* Profile Image - Camera Icon */}
+              {}
               <div
                 className="relative group cursor-pointer"
                 onClick={() => setIsProfilePictureModalOpen(true)}
@@ -501,7 +499,7 @@ export default function AdminProfilePage() {
                     name={userProfile?.fullName}
                     size="xxl"
                   />
-                  {/* Camera Icon Overlay - Auto show on hover */}
+                  {}
                   <div className="absolute bottom-1 right-1 bg-primary rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
                     <Camera className="h-4 w-4 text-white" />
                   </div>
@@ -573,9 +571,9 @@ export default function AdminProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Navigation Tabs - Premium Clean Design */}
+        {}
         <div className="flex gap-0 mb-8 w-full relative group border border-primary/30 rounded-xl overflow-hidden">
-          {/* Background indicator */}
+          {}
           <div
             className={cn(
               "absolute inset-y-0 h-full bg-primary/5 transition-all duration-500 ease-out",
@@ -583,10 +581,10 @@ export default function AdminProfilePage() {
             )}
           />
 
-          {/* Center divider line */}
+          {}
           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20" />
 
-          {/* Profile Tab */}
+          {}
           <button
             onClick={() => setActiveSection("profile")}
             className={cn(
@@ -605,7 +603,7 @@ export default function AdminProfilePage() {
             <span>Profile</span>
           </button>
 
-          {/* Security Tab */}
+          {}
           <button
             onClick={() => setActiveSection("security")}
             className={cn(
@@ -624,11 +622,11 @@ export default function AdminProfilePage() {
           </button>
         </div>
 
-        {/* Profile Section */}
+        {}
         {activeSection === "profile" && (
           <form onSubmit={handleSubmit(onSubmit)} className="w-full">
             <div className="w-full space-y-6">
-              {/* Personal Information */}
+              {}
               <Card>
                 <CardHeader>
                   <CardTitle>Personal Information</CardTitle>
@@ -750,7 +748,7 @@ export default function AdminProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Business Information */}
+              {}
               {userProfile?.businessId && (
                 <Card>
                   <CardHeader>
@@ -773,7 +771,7 @@ export default function AdminProfilePage() {
                 </Card>
               )}
 
-              {/* Employment Information */}
+              {}
               <Card>
                 <CardHeader>
                   <CardTitle>Employment Information</CardTitle>
@@ -863,7 +861,7 @@ export default function AdminProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Addresses */}
+              {}
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -1020,7 +1018,7 @@ export default function AdminProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Emergency Contacts */}
+              {}
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -1115,7 +1113,7 @@ export default function AdminProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Documents */}
+              {}
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -1245,7 +1243,7 @@ export default function AdminProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Education */}
+              {}
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -1437,7 +1435,7 @@ export default function AdminProfilePage() {
                 </CardContent>
               </Card>
 
-              {/* Remarks */}
+              {}
               <Card>
                 <CardHeader>
                   <CardTitle>Additional Information</CardTitle>
@@ -1461,10 +1459,10 @@ export default function AdminProfilePage() {
           </form>
         )}
 
-        {/* Security Section */}
+        {}
         {activeSection === "security" && (
           <div className="w-full space-y-4">
-            {/* Connected Accounts */}
+            {}
             <div>
               <h3 className="text-sm font-medium text-primary mb-3 flex items-center gap-2 font-semibold">
                 <Link2 className="h-4 w-4" />
@@ -1473,7 +1471,7 @@ export default function AdminProfilePage() {
               <TelegramSyncCard socialSync={socialSync} />
             </div>
 
-            {/* Active Sessions */}
+            {}
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -1496,7 +1494,7 @@ export default function AdminProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Change Password */}
+            {}
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -1519,7 +1517,7 @@ export default function AdminProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Delete Account */}
+            {}
             <Card className="border-destructive/50 bg-destructive/5">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -1544,7 +1542,7 @@ export default function AdminProfilePage() {
           </div>
         )}
 
-      {/* Profile Picture Modal */}
+      {}
       <ProfilePictureModal
         isOpen={isProfilePictureModalOpen}
         onClose={() => setIsProfilePictureModalOpen(false)}
@@ -1561,7 +1559,7 @@ export default function AdminProfilePage() {
 
             await dispatch(updateProfileService(payload)).unwrap();
 
-            // Reload profile to ensure we have the latest from server
+
             const freshProfile = await dispatch(getProfileService()).unwrap();
 
             showToast.success(Messages.profile.pictureRemoved);
@@ -1575,13 +1573,13 @@ export default function AdminProfilePage() {
         isLoading={isUploadingImage}
       />
 
-      {/* Change Password Modal */}
+      {}
       <ChangePasswordModal
         isOpen={isChangePasswordModalOpen}
         onClose={() => setIsChangePasswordModalOpen(false)}
       />
 
-      {/* Delete Account Confirmation */}
+      {}
       <DeleteConfirmationModal
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}

@@ -147,7 +147,7 @@ export function ComboboxSelectLocation({
     setOpen(false);
   };
 
-  // Show add button if no default and no addresses
+
   if (!hasDefault && data.length === 0 && !loading) {
     return (
       <div className="space-y-1.5 w-full">

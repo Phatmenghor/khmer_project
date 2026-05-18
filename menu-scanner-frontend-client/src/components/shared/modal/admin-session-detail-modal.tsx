@@ -45,7 +45,7 @@ export function AdminSessionDetailModal({
 }: AdminSessionDetailModalProps) {
   if (!session) return null;
 
-  // Get device icon based on device type
+
   const getDeviceIcon = (deviceType: DeviceType) => {
     switch (deviceType) {
       case "MOBILE":
@@ -59,7 +59,7 @@ export function AdminSessionDetailModal({
     }
   };
 
-  // Get status badge
+
   const getStatusBadge = (status: SessionStatus) => {
     switch (status) {
       case "ACTIVE":
@@ -88,7 +88,7 @@ export function AdminSessionDetailModal({
     }
   };
 
-  // Format duration
+
   const formatDuration = (minutes: number) => {
     if (minutes < 60) return `${minutes} minutes`;
     const hours = Math.floor(minutes / 60);
@@ -111,7 +111,7 @@ export function AdminSessionDetailModal({
         </DialogHeader>
 
         <div className="space-y-4 max-h-[70vh] overflow-y-auto">
-          {/* User Information */}
+          {}
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <User className="h-4 w-4" />
@@ -138,7 +138,7 @@ export function AdminSessionDetailModal({
 
           <Separator />
 
-          {/* Device Header */}
+          {}
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full flex items-center justify-center bg-gray-100 text-gray-600">
               {getDeviceIcon(session.deviceType)}
@@ -158,7 +158,7 @@ export function AdminSessionDetailModal({
 
           <Separator />
 
-          {/* Device Information */}
+          {}
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-muted-foreground">
               Device Information
@@ -188,7 +188,7 @@ export function AdminSessionDetailModal({
 
           <Separator />
 
-          {/* Location Information */}
+          {}
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-muted-foreground">
               Location
@@ -208,7 +208,7 @@ export function AdminSessionDetailModal({
 
           <Separator />
 
-          {/* Session Timing */}
+          {}
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-muted-foreground">
               Session Timing
@@ -249,7 +249,7 @@ export function AdminSessionDetailModal({
             />
           </div>
 
-          {/* Logout Information (if logged out) */}
+          {}
           {session.loggedOutAt && (
             <>
               <Separator />
@@ -289,7 +289,7 @@ export function AdminSessionDetailModal({
   );
 }
 
-// Helper component for detail rows
+
 function DetailRow({
   icon,
   label,

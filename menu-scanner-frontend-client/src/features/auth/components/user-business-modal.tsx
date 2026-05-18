@@ -98,7 +98,7 @@ export default function UserBusinessModal({
   const rolesContent = useAppSelector(selectRoleContent);
   const { isCreating, isUpdating } = operations;
 
-  // Build role options from fetched data
+
   const roleOptions = rolesContent.map((role) => ({
     value: role.name,
     label: formatEnumValue(role.name),
@@ -147,10 +147,10 @@ export default function UserBusinessModal({
     mode: "onChange",
   });
 
-  // Cast control to any for compatibility with field components
+
   const control = formControl as any;
 
-  // Field arrays for complex data
+
   const {
     fields: addressFields,
     append: appendAddress,
@@ -190,7 +190,7 @@ export default function UserBusinessModal({
   const userIdentifier = watch("userIdentifier");
   const email = watch("email");
 
-  // Fetch roles for the dropdown
+
   useEffect(() => {
     if (isOpen) {
       dispatch(
@@ -205,7 +205,7 @@ export default function UserBusinessModal({
     }
   }, [isOpen, dispatch]);
 
-  // Fetch user data for edit mode
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (!userId || !isOpen || isCreate) return;
@@ -256,7 +256,7 @@ export default function UserBusinessModal({
     fetchUserData();
   }, [userId, isOpen, isCreate, reset, dispatch]);
 
-  // Reset form for create mode
+
   useEffect(() => {
     if (isOpen && isCreate) {
       reset({
@@ -291,7 +291,7 @@ export default function UserBusinessModal({
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens
+
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -302,7 +302,7 @@ export default function UserBusinessModal({
     try {
       setIsUploadingImage(true);
 
-      // Process profile image URL
+
       let profileImageUrl = data.profileImageUrl;
       if (profileImageUrl && isBase64Image(profileImageUrl)) {
         try {
@@ -314,7 +314,7 @@ export default function UserBusinessModal({
         }
       }
 
-      // Process document file URLs
+
       const processedDocuments = await Promise.all(
         (data.documents || []).map(async (doc) => {
           let fileUrl = doc.fileUrl;
@@ -336,7 +336,7 @@ export default function UserBusinessModal({
 
       const validDocuments = processedDocuments.filter((doc) => doc !== null);
 
-      // Process education certificate URLs
+
       const processedEducations = await Promise.all(
         (data.educations || []).map(async (edu) => {
           let certificateUrl = edu.certificateUrl;
@@ -512,7 +512,7 @@ export default function UserBusinessModal({
               )}
 
               <div className="space-y-6">
-                {/* Account Credentials & Roles - CREATE MODE */}
+                {}
                 {isCreate && (
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">
@@ -583,13 +583,13 @@ export default function UserBusinessModal({
                 )}
 
 
-                {/* Personal Information */}
+                {}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">
                     Personal Information <span className="text-red-500">*</span>
                   </h3>
                   <div className="space-y-4">
-                    {/* User Role and Account Status - EDIT MODE ONLY (Top) */}
+                    {}
                     {!isCreate && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <SelectField
@@ -622,7 +622,7 @@ export default function UserBusinessModal({
                       </div>
                     )}
 
-                    {/* Personal Details Grid */}
+                    {}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <TextField
                         control={control}
@@ -681,7 +681,7 @@ export default function UserBusinessModal({
                       />
                     </div>
 
-                    {/* Profile Image Upload */}
+                    {}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <ClickableImageUpload
                         label="Profile Image"
@@ -697,7 +697,7 @@ export default function UserBusinessModal({
                   </div>
                 </div>
 
-                {/* Employment Information */}
+                {}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">
                     Employment Information
@@ -771,7 +771,7 @@ export default function UserBusinessModal({
                   </div>
                 </div>
 
-                {/* Addresses */}
+                {}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -925,7 +925,7 @@ export default function UserBusinessModal({
                   )}
                 </div>
 
-                {/* Emergency Contacts */}
+                {}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1025,7 +1025,7 @@ export default function UserBusinessModal({
                   )}
                 </div>
 
-                {/* Documents */}
+                {}
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -1125,7 +1125,7 @@ export default function UserBusinessModal({
                   </CardContent>
                 </Card>
 
-                {/* Education */}
+                {}
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -1279,7 +1279,7 @@ export default function UserBusinessModal({
                   </CardContent>
                 </Card>
 
-                {/* Additional Notes */}
+                {}
                 <div className="space-y-4">
                   <TextareaField
                     control={control}

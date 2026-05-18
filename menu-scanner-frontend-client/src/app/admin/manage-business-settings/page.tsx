@@ -43,10 +43,7 @@ import {
   hasThemeChanged,
 } from "@/utils/common/theme-cache";
 
-/**
- * Convert API response to form data
- * Handles type conversions between API response and form data
- */
+
 function convertResponseToFormData(
   response: BusinessSettingsResponse
 ): BusinessSettingsFormData {
@@ -92,7 +89,7 @@ export default function BusinessSettingsPage() {
     },
   });
 
-  // On mount: apply cached colors instantly, then fetch fresh data from API
+
   useEffect(() => {
     if (reduxBusinessSettings?.businessId) {
       const cachedColors = getCachedThemeColors(reduxBusinessSettings.businessId);
@@ -103,7 +100,7 @@ export default function BusinessSettingsPage() {
     fetchBusinessSettings();
   }, []);
 
-  // Sync form whenever Redux store updates (after fetch or after save)
+
   useEffect(() => {
     if (!reduxBusinessSettings) return;
     const formData = convertResponseToFormData(reduxBusinessSettings);
@@ -117,19 +114,18 @@ export default function BusinessSettingsPage() {
 
       const action = await dispatch(fetchBusinessSettingsThunk());
 
-      // Check if the action was fulfilled and has a payload
+
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const data = action.payload as BusinessSettingsResponse;
         const businessId = data.businessId;
 
-        // Store business ID in localStorage
+
         localStorage.setItem("businessId", businessId);
 
         const formData = convertResponseToFormData(data);
         form.reset(formData);
 
-        // STEP 2: Fetch fresh data from API
-        // STEP 3: Compare API data with cache
+
         const cachedData = getCachedThemeColors(businessId);
         const apiData = {
           primaryColor: data.primaryColor || "",
@@ -138,14 +134,14 @@ export default function BusinessSettingsPage() {
           taxPercentage: data.taxPercentage,
         };
 
-        // STEP 4: Update cache only if data changed
+
         if (hasThemeChanged(cachedData, apiData)) {
           cacheThemeColors(businessId, apiData);
 
-          // Apply new colors from API
+
           applyThemeColors(data.primaryColor);
         } else {
-          // Still apply colors even if cache is up to date
+
           applyThemeColors(data.primaryColor);
         }
       } else {
@@ -158,9 +154,9 @@ export default function BusinessSettingsPage() {
     }
   };
 
-  // Handle business logo selection (store base64, upload on Save)
+
   const handleLogoSelect = (imageData: string) => {
-    // Just store the base64 in the form, don't upload yet
+
     form.setValue("logoBusinessUrl", imageData, {
       shouldDirty: true,
     });
@@ -172,7 +168,7 @@ export default function BusinessSettingsPage() {
     try {
       setIsSaving(true);
 
-      // Upload logo if it's base64 (follows profile pattern)
+
       let logoBusinessUrl = data.logoBusinessUrl;
       if (isBase64Image(logoBusinessUrl)) {
         try {
@@ -183,7 +179,7 @@ export default function BusinessSettingsPage() {
         }
       }
 
-      // Upload social media icons if they're base64
+
       const uploadedSocialMedia = await Promise.all(
         (data.socialMedia || []).map(async (social) => {
           let imageUrl = social.imageUrl;
@@ -202,7 +198,7 @@ export default function BusinessSettingsPage() {
         })
       );
 
-      // Create payload with the uploaded URLs
+
       const payload = {
         businessName: data.businessName,
         taxPercentage: data.taxPercentage
@@ -222,14 +218,14 @@ export default function BusinessSettingsPage() {
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
 
-      // Check if the action was fulfilled and has a payload
+
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const result = action.payload as BusinessSettingsResponse;
 
-        // Store business ID in localStorage for theme initializer
+
         localStorage.setItem("businessId", result.businessId);
 
-        // Cache business data (colors + name + logo + tax) for instant load on next page refresh
+
         const businessData = {
           primaryColor: result.primaryColor || "",
           businessName: result.businessName,
@@ -238,12 +234,12 @@ export default function BusinessSettingsPage() {
         };
         cacheThemeColors(result.businessId, businessData);
 
-        // Apply colors in real-time without refresh
+
         if (result.primaryColor) {
           applyThemeColors(result.primaryColor);
         }
 
-        // Sync form immediately with saved response so all fields (including Select) reflect the latest value
+
         form.reset(convertResponseToFormData(result));
 
         showToast.success(Messages.business.settingsUpdated);
@@ -268,7 +264,7 @@ export default function BusinessSettingsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 py-6">
-      {/* Header */}
+      {}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">Business Settings</h1>
         <p className="text-muted-foreground">
@@ -277,14 +273,14 @@ export default function BusinessSettingsPage() {
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Basic Settings */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle>Basic Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Business Name */}
+              {}
               <div className="space-y-2">
                 <Label htmlFor="businessName">Business Name</Label>
                 <Input
@@ -297,7 +293,7 @@ export default function BusinessSettingsPage() {
                 </p>
               </div>
 
-              {/* Tax Percentage */}
+              {}
               <div className="space-y-2">
                 <Label htmlFor="taxPercentage">Tax Percentage</Label>
                 <div className="relative">
@@ -320,7 +316,7 @@ export default function BusinessSettingsPage() {
                 </p>
               </div>
 
-              {/* Stock Status */}
+              {}
               <div className="space-y-2">
                 <Label htmlFor="enableStock">Stock Management</Label>
                 <Select
@@ -356,7 +352,7 @@ export default function BusinessSettingsPage() {
               </div>
             </div>
 
-            {/* Business Logo Upload */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <ClickableImageUpload
@@ -374,13 +370,13 @@ export default function BusinessSettingsPage() {
                   Logo will be uploaded when you click Save Changes
                 </p>
               </div>
-              {/* Right column - empty for now, can be used for future additions */}
+              {}
               <div />
             </div>
           </CardContent>
         </Card>
 
-        {/* Brand Colors */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle>Brand Colors</CardTitle>
@@ -390,7 +386,7 @@ export default function BusinessSettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Primary Color */}
+              {}
               <div className="space-y-2">
                 <Label>Primary Color</Label>
                 <div className="flex gap-3">
@@ -417,7 +413,7 @@ export default function BusinessSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Feature Configuration */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle>Feature Configuration</CardTitle>
@@ -427,7 +423,7 @@ export default function BusinessSettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Categories Toggle */}
+              {}
               <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -466,7 +462,7 @@ export default function BusinessSettingsPage() {
                 </Button>
               </div>
 
-              {/* Brands Toggle */}
+              {}
               <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -508,14 +504,14 @@ export default function BusinessSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Contact Information */}
+        {}
         <Card>
           <CardHeader>
             <CardTitle>Contact Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Contact Address */}
+              {}
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="contactAddress">Contact Address</Label>
                 <Input
@@ -528,7 +524,7 @@ export default function BusinessSettingsPage() {
                 </p>
               </div>
 
-              {/* Contact Phone */}
+              {}
               <div className="space-y-2">
                 <Label htmlFor="contactPhone">Contact Phone</Label>
                 <Input
@@ -541,7 +537,7 @@ export default function BusinessSettingsPage() {
                 </p>
               </div>
 
-              {/* Contact Email */}
+              {}
               <div className="space-y-2">
                 <Label htmlFor="contactEmail">Contact Email</Label>
                 <Input
@@ -558,7 +554,7 @@ export default function BusinessSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Business Hours */}
+        {}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -684,7 +680,7 @@ export default function BusinessSettingsPage() {
           )}
         </div>
 
-        {/* Social Media Accounts */}
+        {}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -732,9 +728,9 @@ export default function BusinessSettingsPage() {
                     >
                       <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                          {/* Left Column: Platform Name and Profile Link */}
+                          {}
                           <div className="space-y-4 flex flex-col justify-between">
-                            {/* Platform Name */}
+                            {}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium">
                                 Platform Name
@@ -753,7 +749,7 @@ export default function BusinessSettingsPage() {
                               />
                             </div>
 
-                            {/* Profile Link */}
+                            {}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium">
                                 Profile Link
@@ -773,7 +769,7 @@ export default function BusinessSettingsPage() {
                             </div>
                           </div>
 
-                          {/* Right Column: Platform Icon/Logo Upload */}
+                          {}
                           <div>
                             <ClickableImageUpload
                               label="Platform Icon"
@@ -822,7 +818,7 @@ export default function BusinessSettingsPage() {
           )}
         </div>
 
-        {/* Action Buttons */}
+        {}
         <div className="flex gap-3 justify-end pt-4 border-t">
           <Button
             type="button"

@@ -57,9 +57,7 @@ import {
 } from "../store/models/response/location-response";
 import { LocationSelectTab } from "./location-select-tab";
 
-// ---------------------------------------------------------------------------
-// Google Maps script loader
-// ---------------------------------------------------------------------------
+
 let gmapLoadPromise: Promise<void> | null = null;
 
 export function loadGoogleMapsScript(): Promise<void> {
@@ -88,7 +86,7 @@ export function loadGoogleMapsScript(): Promise<void> {
   return gmapLoadPromise;
 }
 
-// ---------------------------------------------------------------------------
+
 type SelectionMode = "map" | "select";
 
 interface LocationModalProps {
@@ -98,9 +96,7 @@ interface LocationModalProps {
   initialCoords?: { lat: number; lng: number } | null;
 }
 
-// ---------------------------------------------------------------------------
-// Center pin
-// ---------------------------------------------------------------------------
+
 function CenterPin({ size = "h-9 w-9", isDragging }: { size?: string; isDragging: boolean }) {
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full pointer-events-none z-10">
@@ -112,9 +108,7 @@ function CenterPin({ size = "h-9 w-9", isDragging }: { size?: string; isDragging
   );
 }
 
-// ---------------------------------------------------------------------------
-// Multi-image upload
-// ---------------------------------------------------------------------------
+
 interface MultiImageUploadProps {
   images: { imageUrl: string }[];
   onAdd: (url: string) => void;
@@ -182,11 +176,9 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
   );
 }
 
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
+
 export default function LocationModal({ isOpen, onClose, editData, initialCoords }: LocationModalProps) {
-  // DEBUG: Log modal state
+
   useEffect(() => {
   }, [isOpen, editData]);
 
@@ -203,7 +195,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   const [selectionMode, setSelectionMode] = useState<SelectionMode>("map");
 
-  // Map refs
+
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const fullscreenMapContainerRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
@@ -249,7 +241,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     return parts.length > 0 ? parts.join(", ") : null;
   }, [watch("houseNumber"), watch("streetNumber"), watch("village"), watch("commune"), watch("district"), watch("province")]);
 
-  // Reset on open
+
   useEffect(() => {
     if (!isOpen) return;
     if (editData) {
@@ -268,13 +260,13 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     clearError();
   }, [isOpen, editData, reset, clearError]);
 
-  // Load Google Maps as soon as modal opens
+
   useEffect(() => {
     if (!isOpen) {
       setIsMapReady(false);
       setIsFullScreen(false);
       setMapError(null);
-      // Clean up map refs when modal closes
+
       googleMapRef.current = null;
       geocoderRef.current = null;
       fullscreenAutocompleteRef.current = null;
@@ -386,11 +378,11 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
     if (isFullScreen && fullscreenMapContainerRef.current) {
       setIsFullScreenMapReady(false);
-      // Get current center and zoom from modal map
+
       const center = map.getCenter();
       const zoom = map.getZoom();
 
-      // Reinitialize map in fullscreen container
+
       const fullscreenMap = new google.maps.Map(fullscreenMapContainerRef.current, {
         center: center || { lat: 11.5564, lng: 104.9282 },
         zoom: zoom || 15,
@@ -401,7 +393,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         gestureHandling: "greedy",
       });
 
-      // Add same listeners to fullscreen map
+
       fullscreenMap.addListener("dragstart", () => setIsDragging(true));
       fullscreenMap.addListener("dragend", () => {
         const c = fullscreenMap.getCenter();
@@ -417,7 +409,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
       fullscreenMapRef.current = fullscreenMap;
 
-      // Trigger resize and setup autocomplete after DOM is ready
+
       const t = setTimeout(() => {
         google.maps.event.trigger(fullscreenMap, "resize");
         if (center) fullscreenMap.setCenter(center);
@@ -430,18 +422,18 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       return () => clearTimeout(t);
     } else if (!isFullScreen) {
       setIsFullScreenMapReady(false);
-      // Clean up fullscreen map when exiting
+
       fullscreenMapRef.current = null;
 
-      // Reinitialize modal map with current coordinates from form
+
       const t = setTimeout(() => {
         if (mapContainerRef.current) {
-          // Clear the container
+
           mapContainerRef.current.innerHTML = "";
-          // Get current coordinates from form or fullscreen map
+
           const currentLat = latitude || map.getCenter()?.lat() || 11.5564;
           const currentLng = longitude || map.getCenter()?.lng() || 104.9282;
-          // Reinitialize the map
+
           googleMapRef.current = null;
           initMap(mapContainerRef.current, currentLat, currentLng);
         }
@@ -450,7 +442,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     }
   }, [isFullScreen, isMapReady, setupAutocomplete, reverseGeocode]);
 
-  // Handle tab switching - trigger resize when switching to map mode
+
   useEffect(() => {
     if (selectionMode === "map" && googleMapRef.current) {
       const t = setTimeout(() => {
@@ -534,7 +526,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   const onSubmit = async (data: LocationFormData) => {
     try {
-      // Upload location images if they're base64
+
       const processedImages = await Promise.all(
         (data.locationImages ?? []).map(async (img) => {
           let imageUrl = img.imageUrl;
@@ -579,13 +571,11 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Fullscreen map overlay
-  // ---------------------------------------------------------------------------
+
   if (isFullScreen) {
     return (
       <div className="fixed inset-0 z-[201] flex flex-col bg-white">
-        {/* Toolbar */}
+        {}
         <div className="flex items-center justify-between px-4 py-3 border-b bg-background shrink-0 gap-3 shadow-sm">
           <div className="flex items-center gap-3 min-w-0">
             <div className="p-2 rounded-lg bg-primary/10 shrink-0">
@@ -613,7 +603,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
           </div>
         </div>
 
-        {/* Search bar */}
+        {}
         <div className="px-4 py-3 border-b bg-background/95 backdrop-blur shrink-0">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -621,7 +611,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
           </div>
         </div>
 
-        {/* Map container */}
+        {}
         <div className="flex-1 relative bg-gray-100">
           {!isFullScreenMapReady && (
             <div className="absolute inset-0 flex items-center justify-center bg-muted/80 z-10">
@@ -633,7 +623,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
           )}
           <CenterPin isDragging={isDragging} size="h-10 w-10" />
           <div ref={fullscreenMapContainerRef} className="w-full h-full bg-white" />
-          {/* Address display */}
+          {}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/95 backdrop-blur-sm border rounded-xl px-6 py-4 shadow-lg w-[90%] max-w-2xl">
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
@@ -655,9 +645,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Main modal render
-  // ---------------------------------------------------------------------------
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
@@ -673,14 +661,14 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
           <FormBody contentClassName="space-y-5">
-            {/* Error banner */}
+            {}
             {reduxError && (
               <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive font-medium">
                 {reduxError}
               </div>
             )}
 
-            {/* Mode selector tabs */}
+            {}
             <div className="flex border-b -mx-6 px-6">
               {(["map", "select"] as SelectionMode[]).map((mode) => (
                 <button
@@ -699,7 +687,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
               ))}
             </div>
 
-            {/* Map section */}
+            {}
             <div className={cn(selectionMode !== "map" && "hidden")}>
               <div className="space-y-3">
                 <div className="relative h-64 rounded-lg overflow-hidden border bg-muted">
@@ -745,7 +733,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
               </div>
             </div>
 
-            {/* Location selector tab */}
+            {}
             {selectionMode === "select" && (
               <LocationSelectTab
                 selectedProvince={selectedProvince}
@@ -764,7 +752,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
               />
             )}
 
-            {/* Address details section */}
+            {}
             <div className="space-y-4 pt-3 border-t">
               <TextField control={control} name="label" label="Label" placeholder="e.g., Home, Office, Shop" required disabled={isSubmitting} error={errors.label} />
 
@@ -783,7 +771,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
               <TextareaField control={control} name="note" label="Notes" placeholder="Delivery instructions…" rows={2} disabled={isSubmitting} error={errors.note} />
 
-              {/* Primary location toggle */}
+              {}
               <button
                 type="button"
                 onClick={() => setValue("isPrimary", !isPrimaryValue, { shouldDirty: true })}
@@ -807,7 +795,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
                 {isPrimaryValue && <CheckCircle2 className="h-4 w-4 text-amber-500 shrink-0" />}
               </button>
 
-              {/* Location images */}
+              {}
               <MultiImageUpload
                 images={imageFields.map((f) => ({ imageUrl: (f as any).imageUrl }))}
                 onAdd={(url) => appendImage({ imageUrl: url })}

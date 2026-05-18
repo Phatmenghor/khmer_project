@@ -21,7 +21,7 @@ export const fetchDefaultAddressService = createApiThunk<
     );
     return response.data.data;
   },
-  { logError: false } // Don't log 404 - it's expected if no default exists
+  { logError: false }
 );
 
 export const fetchAllLocationsService = createApiThunk<

@@ -58,7 +58,7 @@ export function WorkScheduleDetailModal({
     >
       {workScheduleData ? (
         <div className="space-y-6">
-          {/* Work Schedule Information */}
+          {}
           <DetailSection title="Schedule Information">
             <DetailRow
               label="Schedule Name"
@@ -94,7 +94,7 @@ export function WorkScheduleDetailModal({
             />
           </DetailSection>
 
-          {/* Time Information */}
+          {}
           <DetailSection title="Time Information">
             <DetailRow
               label="Start Time"
@@ -118,7 +118,7 @@ export function WorkScheduleDetailModal({
             />
           </DetailSection>
 
-          {/* User Information */}
+          {}
           {workScheduleData?.userInfo && (
             <DetailSection title="Assigned User">
               <DetailRow
@@ -139,7 +139,7 @@ export function WorkScheduleDetailModal({
             </DetailSection>
           )}
 
-          {/* System Information */}
+          {}
           <DetailSection title="System Information">
             <DetailRow
               label="Work Schedule ID"

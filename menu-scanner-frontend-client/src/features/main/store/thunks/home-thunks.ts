@@ -1,7 +1,5 @@
-/**
- * home-thunks.ts
- * All API calls specific to home page with pagination support
- */
+
+
 
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { Status } from "@/constants/status/status";
@@ -46,14 +44,14 @@ export const fetchHomePromotionProducts = createApiThunk<
       statuses: [Status.ACTIVE],
       businessId: AppDefault.BUSINESS_ID,
       pageNo: request?.pageNo || 1,
-      pageSize: request?.pageSize || 20, // Paginate to avoid timeout on large datasets
+      pageSize: request?.pageSize || 20,
       ...request,
     },
   );
   return response.data.data;
 });
 
-// Paginated Featured Products
+
 export const fetchHomeFeaturedProducts = createApiThunk<
   any,
   { pageNo: number; pageSize: number }

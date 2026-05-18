@@ -22,38 +22,36 @@ function POSProductCardComponent({
   onAddClick,
   onQuantityChange,
 }: POSProductCardProps) {
-  // Safely get product ID - must have valid ID to lookup quantity
+
   const productId = product?.id;
 
-  // Get quantity from Redux using memoized selector
-  // This ensures card only re-renders when THIS product's quantity changes.
-  // Returns 0 if productId is missing (should not happen but safe fallback).
+
   const quantity = useSelector((state: RootState) =>
     selectPOSProductQuantity(state, productId || "")
   );
   const handleIncrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // For products with sizes or customizations, open modal
+
     const hasCustomizations = product.customizations && product.customizations.length > 0;
     if (product.hasSizes || hasCustomizations) {
       onAddClick(product);
       return;
     }
-    // For simple products (no sizes, no customizations), directly increment
+
     onQuantityChange(product.id, 1);
   }, [product, onAddClick, onQuantityChange]);
 
   const handleDecrement = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // For products with sizes or customizations, open modal
+
     const hasCustomizations = product.customizations && product.customizations.length > 0;
     if (product.hasSizes || hasCustomizations) {
       onAddClick(product);
       return;
     }
-    // For simple products (no sizes, no customizations), directly decrement
+
     onQuantityChange(product.id, -1);
   }, [product, onAddClick, onQuantityChange]);
 
@@ -69,7 +67,7 @@ function POSProductCardComponent({
         isOutOfStock && "opacity-60"
       )}
     >
-      {/* Image Container */}
+      {}
       <div className={cn("relative aspect-square overflow-hidden bg-muted/30")}>
         {product.mainImageUrl ? (
           <img
@@ -84,14 +82,14 @@ function POSProductCardComponent({
           </div>
         )}
 
-        {/* Out of Stock Overlay */}
+        {}
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center pointer-events-none">
             <Badge variant="secondary" className="text-xs font-semibold px-3 py-1">Out of Stock</Badge>
           </div>
         )}
 
-        {/* Promotion Badge - Top Left */}
+        {}
         {product.hasPromotion && (
           <div className="absolute top-2 left-2 z-10 pointer-events-none">
             <Badge variant="destructive" className="text-xs font-bold px-2 py-0.5 shadow-md">
@@ -102,7 +100,7 @@ function POSProductCardComponent({
           </div>
         )}
 
-        {/* Sizes/Customizations Badge - Bottom Left */}
+        {}
         {(product.hasSizes || (product.customizations && product.customizations.length > 0)) && (
           <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
             <Badge variant="secondary" className="text-xs font-medium px-1.5 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
@@ -121,7 +119,7 @@ function POSProductCardComponent({
           </div>
         )}
 
-        {/* Quantity Badge - Top Right */}
+        {}
         {quantity > 0 && (
           <div className="absolute -top-4 -right-4 z-20 w-6 h-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shadow-md">
             {quantity}
@@ -129,15 +127,15 @@ function POSProductCardComponent({
         )}
       </div>
 
-      {/* Content */}
+      {}
       <div className="p-3 flex flex-col flex-1">
-        {/* Product Name */}
+        {}
         <h3 className="font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
           {product.name}
         </h3>
 
         <div className="mt-auto">
-          {/* Prices */}
+          {}
           <div className="flex flex-col mb-2.5">
             <span className={cn("text-xs text-muted-foreground line-through", !product.hasPromotion && "invisible")}>
               {formatCurrency(product.displayOriginPrice)}
@@ -147,7 +145,7 @@ function POSProductCardComponent({
             </span>
           </div>
 
-          {/* Add/Cart Controls */}
+          {}
           {quantity > 0 ? (
             <div className="flex items-center gap-1.5 w-full">
               <CustomButton

@@ -1,20 +1,9 @@
-/**
- * Navbar Component
- * Features:
- * - Responsive design (mobile, tablet, desktop)
- * - Mobile search overlay with expandable input
- * - Dynamic business logo and name from Redux or cache
- * - Shopping cart and favorites with badge counters
- * - User authentication dropdown menu
- * - Real-time search with debouncing
- * - URL parameter synchronization
- * - Smooth animations and transitions
- * - Fast load from cached business data
- */
+
+
 
 "use client";
 
-// Type declaration for global cached business data
+
 declare global {
   interface Window {
     __cachedBusinessData?: {
@@ -68,7 +57,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/app-routes/routes";
 
-/** Main navigation links */
+
 const navigationLinks = [
   { name: "Home", href: "/" },
   { name: "Products", href: "/products" },
@@ -99,11 +88,11 @@ export function Navbar() {
   const reduxBusinessName = useSelector(selectBusinessName);
   const reduxBusinessLogoUrl = useSelector(selectBusinessLogo);
 
-  // Use cached data initially for FAST load, then switch to Redux when available
+
   const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
   const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
 
-  // Initialize from cached data on mount (before Redux loads)
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.__cachedBusinessData) {
       setCachedBusinessName(window.__cachedBusinessData.businessName);
@@ -111,17 +100,14 @@ export function Navbar() {
     }
   }, []);
 
-  // Use Redux data when available, fall back to cache, default to blank
+
   const businessName = reduxBusinessName || cachedBusinessName || "";
   const businessLogoUrl = reduxBusinessLogoUrl || cachedLogoUrl || "";
 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
   const prevFavoriteCount = useRef(favoriteItemCount);
 
-  /**
-   * Animate heart icon when favorite count changes
-   * Shows slide-down animation for 300ms
-   */
+
   useEffect(() => {
     if (
       prevFavoriteCount.current !== favoriteItemCount &&
@@ -134,17 +120,14 @@ export function Navbar() {
     prevFavoriteCount.current = favoriteItemCount;
   }, [favoriteItemCount]);
 
-  /**
-   * Auto-focus mobile search input when search overlay opens
-   * Improves mobile UX for quick search
-   */
+
   useEffect(() => {
     if (mobileSearchOpen) {
       setTimeout(() => mobileSearchRef.current?.focus(), 50);
     }
   }, [mobileSearchOpen]);
 
-  // Auto-close drawer on desktop (lg+)
+
   useEffect(() => {
     const handleResize = () => {
       if (typeof window !== "undefined" && window.innerWidth >= 1024) {
@@ -157,76 +140,53 @@ export function Navbar() {
   }, []);
 
 
-  /**
-   * Navigate to home and clear products cache
-   * Don't clear search here - it triggers API calls
-   * Search will be cleared by pathname change effect
-   */
   const handleNavigateToHome = () => {
-    navigatingRef.current = true; // Flag that we're navigating
-    setMobileSearchOpen(false); // Close mobile search overlay
-    dispatch(clearProducts()); // Clear product search results
-    router.push("/"); // Navigate to home (search cleared in effect below)
+    navigatingRef.current = true;
+    setMobileSearchOpen(false);
+    dispatch(clearProducts());
+    router.push("/");
   };
 
-  /**
-   * Switch from login modal to register modal
-   * Close login and open register
-   */
+
   const handleSwitchToRegister = () => {
     setIsLoginModalOpen(false);
     setIsRegisterModalOpen(true);
   };
 
-  /**
-   * Switch from register modal to login modal
-   * Close register and open login
-   */
+
   const handleSwitchToLogin = () => {
     setIsRegisterModalOpen(false);
     setIsLoginModalOpen(true);
   };
 
-  /**
-   * Navigate to another page and clear search
-   * Used for Products, Promotions, Categories, Brands links
-   */
+
   const handleNavigateToPage = (href: string) => {
-    navigatingRef.current = true; // Flag that we're navigating (prevent search effect interference)
-    setMobileSearchOpen(false); // Close mobile search overlay
-    setSearchQuery(""); // Clear search input immediately
-    dispatch(clearProducts()); // Clear product search results
-    router.push(href); // Navigate to page
+    navigatingRef.current = true;
+    setMobileSearchOpen(false);
+    setSearchQuery("");
+    dispatch(clearProducts());
+    router.push(href);
   };
 
-  // Debounce search query to reduce URL updates (500ms delay)
+
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  /**
-   * Restore search query from URL on mount
-   * Allows users to refresh with search query intact
-   */
+
   useEffect(() => {
     const urlSearchQuery = new URLSearchParams(window.location.search).get("q");
     if (urlSearchQuery) setSearchQuery(urlSearchQuery);
   }, []);
 
-  /**
-   * Sync search query to URL as user types (with debounce)
-   * - Empty query: removes from URL
-   * - Search on home page: redirect to /products with search
-   * - Search on other page: search within current page
-   * - Skip if user is navigating (to prevent interference)
-   */
+
   useEffect(() => {
-    // Skip if we're in the middle of navigation
+
     if (navigatingRef.current) {
-      navigatingRef.current = false; // Reset flag
+      navigatingRef.current = false;
       return;
     }
 
     if (!debouncedSearchQuery.trim()) {
-      // Clear search from URL (only if not on home page)
+
       if (pathname !== "/") {
         const currentParams = new URLSearchParams(window.location.search);
         if (currentParams.has("q")) {
@@ -240,24 +200,19 @@ export function Navbar() {
       return;
     }
 
-    // Don't redirect if user just cleared search (searchQuery is empty but debouncedSearchQuery still has value)
-    // This prevents redirect loop when clicking Home from products with search
+
     if (pathname === "/" && searchQuery === "") {
       return;
     }
 
-    // Add/update search in URL
+
     const params = new URLSearchParams(window.location.search);
     const searchRoute = pathname === "/" ? "/products" : pathname;
     params.set("q", debouncedSearchQuery.trim());
     router.push(`${searchRoute}?${params.toString()}`);
   }, [debouncedSearchQuery, pathname, searchQuery, router]);
 
-  /**
-   * Handle search form submission
-   * - Triggered by Enter key
-   * - Closes mobile search overlay after search
-   */
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -347,7 +302,7 @@ export function Navbar() {
     <>
       <nav className="sticky top-0 z-50 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm flex items-center">
         <PageContainer className="max-w-8xl w-full">
-          {/* ── Mobile/Tablet: Search overlay (when clicking search icon) ── */}
+          {}
           {mobileSearchOpen ? (
             <form
               onSubmit={handleSearchSubmit}
@@ -375,10 +330,10 @@ export function Navbar() {
               </Button>
             </form>
           ) : (
-            /* ── Mobile/Tablet: Same layout as desktop but with burger menu instead of logo ── */
+
             <div className="lg:hidden flex items-center justify-between w-full h-14 gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                {/* Burger menu button replaces logo on mobile/tablet */}
+                {}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -389,7 +344,7 @@ export function Navbar() {
                   <Menu className="h-5 w-5" />
                 </Button>
 
-                {/* Business name + subtitle (like desktop) */}
+                {}
                 {businessName && (
                   <button onClick={handleNavigateToHome} className="flex flex-col gap-0.5 group min-w-0">
                     <span className="text-foreground font-bold text-sm leading-tight line-clamp-1">
@@ -402,9 +357,9 @@ export function Navbar() {
                 )}
               </div>
 
-              {/* Right side buttons - always visible */}
+              {}
               <div className="flex items-center gap-1">
-                {/* Search icon on mobile/tablet, hidden on desktop (lg+) */}
+                {}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -482,16 +437,16 @@ export function Navbar() {
             </div>
           )}
 
-          {/* ── Mobile/Tablet: Modern side drawer menu (<lg) ── */}
+          {}
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetContent side="left" className="w-4/5 sm:w-96 p-0 flex flex-col">
-              {/* Hidden title for accessibility (screen readers only) */}
+              {}
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
 
-              {/* Modern drawer header with logo and business info */}
+              {}
               <div className="border-b border-border/60 px-6 py-4 mt-0 bg-gradient-to-br from-primary/5 to-transparent">
                 <div className="flex items-start gap-3">
-                  {/* Logo */}
+                  {}
                   {businessLogoUrl && (
                     <div className="relative shrink-0">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
@@ -507,7 +462,7 @@ export function Navbar() {
                     </div>
                   )}
 
-                  {/* Business name and subtitle */}
+                  {}
                   <div className="flex-1 min-w-0 pt-1">
                     <h2 className="text-foreground font-bold text-sm leading-tight line-clamp-1">
                       {businessName}
@@ -520,7 +475,7 @@ export function Navbar() {
               </div>
 
               <div className="flex flex-col h-full overflow-y-auto">
-                {/* Navigation menu */}
+                {}
                 <nav className="flex flex-col py-2">
                   {navigationLinks.map((link, index) => {
                     const active =
@@ -528,7 +483,7 @@ export function Navbar() {
                       (link.href === "/products" &&
                         pathname.startsWith("/products"));
 
-                    // Special handler for Home link
+
                     if (link.name === "Home") {
                       return (
                         <button
@@ -552,7 +507,7 @@ export function Navbar() {
                       );
                     }
 
-                    // Other links
+
                     return (
                       <button
                         key={link.name}
@@ -576,10 +531,10 @@ export function Navbar() {
                   })}
                 </nav>
 
-                {/* Divider */}
+                {}
                 <div className="my-2 mx-4 border-t border-border/40" />
 
-                {/* User section at bottom */}
+                {}
                 {isAuthenticated ? (
                   <div className="px-4 py-4 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent">
                     <div className="flex items-center gap-3 mb-4 p-2 rounded-lg bg-background/50">
@@ -639,7 +594,7 @@ export function Navbar() {
             </SheetContent>
           </Sheet>
 
-          {/* ── Desktop top bar (≥lg) ── */}
+          {}
           <div className="hidden lg:flex h-full w-full items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               {businessName && (
@@ -678,7 +633,7 @@ export function Navbar() {
                     (link.href === "/products" &&
                       pathname.startsWith("/products"));
 
-                  // Special handler for Home link
+
                   if (link.name === "Home") {
                     return (
                       <Button
@@ -696,7 +651,7 @@ export function Navbar() {
                     );
                   }
 
-                  // Special handler for other navigation links to clear search
+
                   return (
                     <Button
                       key={link.name}
@@ -715,7 +670,7 @@ export function Navbar() {
               </div>
             </div>
 
-            {/* Search bar - only on desktop (lg+) */}
+            {}
             <form
               onSubmit={handleSearchSubmit}
               className="hidden lg:flex flex-1 max-w-xl"
@@ -732,7 +687,7 @@ export function Navbar() {
               </div>
             </form>
 
-            {/* Action buttons - only on desktop (lg+) */}
+            {}
             <div className="hidden lg:flex items-center gap-2">
               <CustomButton
                 variant="ghost"

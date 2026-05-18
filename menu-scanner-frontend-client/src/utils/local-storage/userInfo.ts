@@ -1,12 +1,12 @@
-// utils/local-storage/userInfo.ts
+
 import { getCookie, setCookie, deleteCookie } from "cookies-next";
 import { COOKIE_KEYS } from "@/constants/cookie-keys";
 
-// Native browser cookie API (works reliably on client-side)
+
 function setNativeCookie(name: string, value: string): void {
   if (typeof window === "undefined") return;
   const expires = new Date();
-  expires.setFullYear(expires.getFullYear() + 1); // 1 year expiry
+  expires.setFullYear(expires.getFullYear() + 1);
   document.cookie = `${name}=${encodeURIComponent(value)}; path=/; expires=${expires.toUTCString()}`;
 }
 
@@ -46,7 +46,6 @@ export function clearUserInfo(): void {
   deleteCookie(USER_INFO_KEY);
 }
 
-// ─── Admin (BUSINESS_USER) userInfo helpers ──────────────────────────────────
 
 export function storeAdminUserInfo(userInfo: any): void {
   if (typeof window === "undefined") return;
