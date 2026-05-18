@@ -95,41 +95,19 @@ public class AuditLogServiceImpl implements AuditLogService {
             log.debug("Session not available for audit logging");
         }
 
-        AuditLogCreateHelper helper = buildAuditLogHelper(
-                userId, userIdentifier, userType, httpMethod, endpoint, ipAddress,
-                userAgent, requestParams, statusCode, responseTimeMs, errorMessage,
-                sessionId, requestBody);
-
-        saveAuditLogAsync(helper);
-    }
-
-    private AuditLogCreateHelper buildAuditLogHelper(UUID userId, String userIdentifier, String userType,
-                                                      String httpMethod, String endpoint, String ipAddress,
-                                                      String userAgent, String requestParams, int statusCode,
-                                                      long responseTimeMs, String errorMessage, String sessionId,
-                                                      String requestBody) {
-        // Truncate request/response bodies if needed
+        // Truncate request body if needed
         String truncatedRequestBody = null;
         if (requestBody != null && !requestBody.isEmpty()) {
             truncatedRequestBody = requestBody.length() > 10000 ?
                 requestBody.substring(0, 10000) + "... [truncated]" : requestBody;
         }
 
-        return AuditLogCreateHelper.builder()
-                .userId(userId)
-                .userIdentifier(userIdentifier)
-                .userType(userType)
-                .httpMethod(httpMethod)
-                .endpoint(endpoint)
-                .ipAddress(ipAddress)
-                .userAgent(userAgent)
-                .requestParams(requestParams)
-                .requestBody(truncatedRequestBody)
-                .statusCode(statusCode)
-                .responseTimeMs(responseTimeMs)
-                .errorMessage(errorMessage)
-                .sessionId(sessionId)
-                .build();
+        AuditLogCreateHelper helper = auditLogMapper.buildAuditLogHelper(
+                userId, userIdentifier, userType, httpMethod, endpoint, ipAddress,
+                userAgent, requestParams, truncatedRequestBody,
+                statusCode, responseTimeMs, errorMessage, sessionId);
+
+        saveAuditLogAsync(helper);
     }
 
     @Async
