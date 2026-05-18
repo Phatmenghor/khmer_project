@@ -16,14 +16,8 @@ import java.util.UUID;
 @Repository
 public interface PaymentOptionRepository extends JpaRepository<PaymentOption, UUID> {
 
-    /**
-     * Find all payment options by business ID
-     */
     List<PaymentOption> findByBusinessIdAndIsDeletedFalse(UUID businessId);
 
-    /**
-     * Find all active payment options by business ID
-     */
     @Query("""
         SELECT p FROM PaymentOption p
         WHERE p.businessId = :businessId
@@ -33,14 +27,8 @@ public interface PaymentOptionRepository extends JpaRepository<PaymentOption, UU
     """)
     List<PaymentOption> findActiveByBusinessId(@Param("businessId") UUID businessId);
 
-    /**
-     * Find a specific payment option by ID and business ID
-     */
     Optional<PaymentOption> findByIdAndBusinessIdAndIsDeletedFalse(UUID id, UUID businessId);
 
-    /**
-     * Find payment option by name and business ID
-     */
     @Query("""
         SELECT p FROM PaymentOption p
         WHERE p.businessId = :businessId
@@ -52,9 +40,6 @@ public interface PaymentOptionRepository extends JpaRepository<PaymentOption, UU
             @Param("name") String name
     );
 
-    /**
-     * Search payment options with pagination
-     */
     @Query("""
         SELECT p FROM PaymentOption p
         WHERE p.businessId = :businessId
@@ -70,9 +55,6 @@ public interface PaymentOptionRepository extends JpaRepository<PaymentOption, UU
             Pageable pageable
     );
 
-    /**
-     * Get all payment options for a business with pagination and filters
-     */
     @Query("""
         SELECT p FROM PaymentOption p
         WHERE p.businessId = :businessId
@@ -88,9 +70,6 @@ public interface PaymentOptionRepository extends JpaRepository<PaymentOption, UU
             Pageable pageable
     );
 
-    /**
-     * Get all active payment options (public - no pagination)
-     */
     @Query("""
         SELECT p FROM PaymentOption p
         WHERE p.status = 'ACTIVE'
@@ -99,3 +78,4 @@ public interface PaymentOptionRepository extends JpaRepository<PaymentOption, UU
     """)
     List<PaymentOption> findAllActive();
 }
+

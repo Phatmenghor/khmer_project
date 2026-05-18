@@ -16,11 +16,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Full order update request - allows admins to modify all order details
- * Mirrors POSCheckoutRequest structure for consistency
- * Supports complete order modifications with pricing adjustments and item updates
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -79,3 +74,4 @@ public class OrderUpdateRequest {
         private String paymentStatus;  // PAID, UNPAID, etc.
     }
 }
+

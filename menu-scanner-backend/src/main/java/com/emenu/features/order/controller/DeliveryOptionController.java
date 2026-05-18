@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -27,79 +26,56 @@ public class DeliveryOptionController {
     private final DeliveryOptionService deliveryOptionService;
     private final SecurityUtils securityUtils;
 
-    /**
-     * Create new delivery option
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<DeliveryOptionResponse>> createDeliveryOption(
             @Valid @RequestBody DeliveryOptionCreateRequest request) {
-        log.info("Creating delivery option: {}", request.getName());
+        log.info("Endpoint: create-delivery-option - delivery option creation: name={}", request.getName());
         DeliveryOptionResponse deliveryOption = deliveryOptionService.createDeliveryOption(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Delivery option created successfully", deliveryOption));
     }
 
-    /**
-     * Get all delivery options with filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<DeliveryOptionResponse>>> getAllDeliveryOptions(
             @Valid @RequestBody DeliveryOptionFilterRequest filter) {
-        log.info("Getting all delivery options with filters");
+        log.info("Endpoint: search-delivery-options - delivery options retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<DeliveryOptionResponse> deliveryOptions =
                 deliveryOptionService.getAllDeliveryOptions(filter);
         return ResponseEntity.ok(ApiResponse.success("Delivery options retrieved successfully", deliveryOptions));
     }
 
-    /**
-     * Get my business delivery options with filtering
-     * If businessId is provided in filter, use it; otherwise use current user's business
-     */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<DeliveryOptionResponse>>> getMyBusinessDeliveryOptions(
             @Valid @RequestBody DeliveryOptionFilterRequest filter) {
-        log.info("Getting delivery options for current user's business");
-
-        // Use businessId from filter if provided, otherwise use current user's business
+        log.info("Endpoint: my-delivery-options - my delivery options retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         if (filter.getBusinessId() == null) {
             UUID businessId = securityUtils.getCurrentUser().getBusinessId();
             filter.setBusinessId(businessId);
         }
-
         PaginationResponse<DeliveryOptionResponse> deliveryOptions =
                 deliveryOptionService.getAllDeliveryOptions(filter);
-
         return ResponseEntity.ok(ApiResponse.success("Business delivery options retrieved successfully", deliveryOptions));
     }
 
-    /**
-     * Get delivery option by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<DeliveryOptionResponse>> getDeliveryOptionById(@PathVariable UUID id) {
-        log.info("Getting delivery option by ID: {}", id);
+        log.info("Endpoint: get-delivery-option - delivery option retrieval: id={}", id);
         DeliveryOptionResponse deliveryOption = deliveryOptionService.getDeliveryOptionById(id);
         return ResponseEntity.ok(ApiResponse.success("Delivery option retrieved successfully", deliveryOption));
     }
 
-    /**
-     * Update delivery option
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DeliveryOptionResponse>> updateDeliveryOption(
             @PathVariable UUID id,
             @Valid @RequestBody DeliveryOptionUpdateRequest request) {
-        log.info("Updating delivery option: {}", id);
+        log.info("Endpoint: update-delivery-option - delivery option update: id={}", id);
         DeliveryOptionResponse deliveryOption = deliveryOptionService.updateDeliveryOption(id, request);
         return ResponseEntity.ok(ApiResponse.success("Delivery option updated successfully", deliveryOption));
     }
 
-    /**
-     * Delete delivery option
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<DeliveryOptionResponse>> deleteDeliveryOption(@PathVariable UUID id) {
-        log.info("Deleting delivery option: {}", id);
+        log.info("Endpoint: delete-delivery-option - delivery option deletion: id={}", id);
         DeliveryOptionResponse deliveryOption = deliveryOptionService.deleteDeliveryOption(id);
         return ResponseEntity.ok(ApiResponse.success("Delivery option deleted successfully", deliveryOption));
     }

@@ -30,27 +30,19 @@ public class CategoryController {
     private final ProductConditionalService productConditionalService;
     private final SecurityUtils securityUtils;
 
-    /**
-     * Create new category (uses current user's business from token)
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(@Valid @RequestBody CategoryCreateRequest request) {
-        log.info("Creating category: {}", request.getName());
+        log.info("Endpoint: create-category - category creation: name={}", request.getName());
         CategoryResponse category = categoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Category created successfully", category));
     }
 
-    /**
-     * Get all categories with filtering - respects business settings (useCategories flag)
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
-        log.info("Getting all categories - BusinessId: {}", filter.getBusinessId());
+        log.info("Endpoint: search-categories - categories retrieval: page={}, size={}, business_id={}", filter.getPageNo(), filter.getPageSize(), filter.getBusinessId());
 
-        // Check if business uses categories
         if (filter.getBusinessId() != null && !productConditionalService.businessUsesCategories(filter.getBusinessId())) {
-            log.info("Business {} does not use categories - returning empty list", filter.getBusinessId());
             PaginationResponse<CategoryResponse> emptyResponse = new PaginationResponse<>();
             emptyResponse.setContent(Collections.emptyList());
             emptyResponse.setTotalElements(0L);
@@ -62,19 +54,14 @@ public class CategoryController {
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
     }
 
-    /**
-     * Get all categories with filtering - respects business settings (useCategories flag)
-     */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getMyBusinessAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
-        log.info("Getting my categories for current user's business");
+        log.info("Endpoint: search-my-categories - my categories retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
 
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         filter.setBusinessId(businessId);
 
-        // Check if business uses categories
         if (!productConditionalService.businessUsesCategories(businessId)) {
-            log.info("Business {} does not use categories - returning empty list", businessId);
             PaginationResponse<CategoryResponse> emptyResponse = new PaginationResponse<>();
             emptyResponse.setContent(Collections.emptyList());
             emptyResponse.setTotalElements(0L);
@@ -86,49 +73,36 @@ public class CategoryController {
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
     }
 
-    /**
-     * Get all categories with product count (for admin page) - extracts businessId from token
-     * Includes total product count for each category
-     */
     @PostMapping("/my-business/product/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryWithProductCountResponse>>> getMyBusinessCategoriesWithProductCount(@Valid @RequestBody CategoryFilterRequest filter) {
-        log.info("Getting my business categories with product count");
+        log.info("Endpoint: search-my-categories-count - my categories with count retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
 
-            UUID businessId = securityUtils.getCurrentUserBusinessId();
-            filter.setBusinessId(businessId);
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        filter.setBusinessId(businessId);
 
         PaginationResponse<CategoryWithProductCountResponse> categories = categoryService.getCategoriesWithProductCount(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories with product count retrieved successfully", categories));
     }
 
-    /**
-     * Get category by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable UUID id) {
-        log.info("Getting category by ID: {}", id);
+        log.info("Endpoint: get-category - category detail: id={}", id);
         CategoryResponse category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(ApiResponse.success("Category retrieved successfully", category));
     }
 
-    /**
-     * Update category
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(
             @PathVariable UUID id,
             @Valid @RequestBody CategoryUpdateRequest request) {
-        log.info("Updating category: {}", id);
+        log.info("Endpoint: update-category - category update: id={}", id);
         CategoryResponse category = categoryService.updateCategory(id, request);
         return ResponseEntity.ok(ApiResponse.success("Category updated successfully", category));
     }
 
-    /**
-     * Delete category
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<CategoryResponse>> deleteCategory(@PathVariable UUID id) {
-        log.info("Deleting category: {}", id);
+        log.info("Endpoint: delete-category - category deletion: id={}", id);
         CategoryResponse category = categoryService.deleteCategory(id);
         return ResponseEntity.ok(ApiResponse.success("Category deleted successfully", category));
     }

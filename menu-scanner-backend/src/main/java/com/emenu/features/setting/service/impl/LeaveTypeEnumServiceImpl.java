@@ -35,9 +35,6 @@ public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
 
     @Override
     public LeaveTypeEnumResponse create(LeaveTypeEnumCreateRequest request) {
-        log.info("Creating leave type enum: {}", request.getEnumName());
-
-        // Check if enum already exists for this business
         boolean exists = repository.findByBusinessIdAndEnumNameAndIsDeletedFalse(
                 request.getBusinessId(), request.getEnumName()).isPresent();
 
@@ -48,7 +45,7 @@ public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
 
         final LeaveTypeEnum enumRecord = mapper.toEntity(request);
         LeaveTypeEnum savedEnum = repository.save(enumRecord);
-        log.info("Leave type enum created: {}", savedEnum.getId());
+        log.info("Leave type created successfully: id={}, name={}", savedEnum.getId(), savedEnum.getEnumName());
 
         return mapper.toResponse(savedEnum);
     }
@@ -109,13 +106,10 @@ public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
 
     @Override
     public LeaveTypeEnumResponse update(UUID id, LeaveTypeEnumUpdateRequest request) {
-        log.info("Updating leave type enum: {}", id);
-
         final LeaveTypeEnum enumRecord = repository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave type enum not found"));
 
         if (request.getEnumName() != null) {
-            // Check if new name already exists for this business
             final UUID businessId = enumRecord.getBusinessId();
             final String enumName = request.getEnumName();
 
@@ -132,21 +126,19 @@ public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
 
         mapper.updateEntity(request, enumRecord);
         LeaveTypeEnum updatedEnum = repository.save(enumRecord);
-        log.info("Leave type enum updated: {}", id);
+        log.info("Leave type updated successfully: id={}", id);
 
         return mapper.toResponse(updatedEnum);
     }
 
     @Override
     public LeaveTypeEnumResponse delete(UUID id) {
-        log.info("Deleting leave type enum: {}", id);
-
         LeaveTypeEnum enumRecord = repository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Leave type enum not found"));
 
         enumRecord.softDelete();
         enumRecord = repository.save(enumRecord);
-        log.info("Leave type enum deleted: {}", id);
+        log.info("Leave type deleted successfully: id={}", id);
         return mapper.toResponse(enumRecord);
     }
 }

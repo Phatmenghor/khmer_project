@@ -34,58 +34,39 @@ public class VillageServiceImpl implements VillageService {
     @Override
     @Transactional
     public VillageResponse createVillage(VillageRequest request) {
-        log.info("Creating village: {}", request.getVillageCode());
-        
-        if (!communeRepository.existsByCommuneCodeAndIsDeletedFalse(request.getCommuneCode())) {
-            throw new ValidationException("Commune code does not exist: " + request.getCommuneCode());
-        }
-        
-        if (villageRepository.existsByVillageCodeAndIsDeletedFalse(request.getVillageCode())) {
-            throw new ValidationException("Village code already exists");
-        }
-        
+        validateCommuneExists(request.getCommuneCode());
+        validateVillageCodeNotDuplicate(request.getVillageCode());
+
         Village village = villageMapper.toEntity(request);
         Village savedVillage = villageRepository.save(village);
-        
-        // Fetch with full hierarchy loaded
-        Village villageWithRelations = villageRepository
-            .findByIdAndIsDeletedFalse(savedVillage.getId())
-            .orElseThrow(() -> new RuntimeException("Village not found"));
-        
-        // Map to response WITHIN transaction
+
+        Village villageWithRelations = findVillageById(savedVillage.getId());
         VillageResponse response = villageMapper.toResponse(villageWithRelations);
-        
-        log.info("Village created: {} with full hierarchy loaded", 
-                 villageWithRelations.getVillageCode());
-        
+
+        log.info("Village created successfully: id={}, code={}", savedVillage.getId(), villageWithRelations.getVillageCode());
         return response;
     }
 
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<VillageResponse> getAllVillages(VillageFilterRequest request) {
-        log.info("Getting all villages with filters");
-        
         Pageable pageable = PaginationUtils.createPageable(
             request.getPageNo(), request.getPageSize(),
             request.getSortBy(), request.getSortDirection()
         );
-        
+
         Page<Village> villagePage = villageRepository.searchVillages(
             request.getCommuneCode(), request.getDistrictCode(),
             request.getProvinceCode(), request.getSearch(), pageable
         );
 
-        // Map WITHIN transaction
         return villageMapper.toPaginationResponse(villagePage, paginationMapper);
     }
 
     @Override
     @Transactional(readOnly = true)
     public VillageResponse getVillageById(UUID id) {
-        Village village = villageRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Village not found"));
-        return villageMapper.toResponse(village);
+        return villageMapper.toResponse(findVillageById(id));
     }
 
     @Override
@@ -115,37 +96,44 @@ public class VillageServiceImpl implements VillageService {
     @Override
     @Transactional
     public VillageResponse updateVillage(UUID id, VillageRequest request) {
-        log.info("Updating village: {}", id);
-        
-        Village village = villageRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Village not found"));
-        
-        if (request.getCommuneCode() != null && 
+        Village village = findVillageById(id);
+
+        if (request.getCommuneCode() != null &&
             !request.getCommuneCode().equals(village.getCommuneCode())) {
-            if (!communeRepository.existsByCommuneCodeAndIsDeletedFalse(request.getCommuneCode())) {
-                throw new ValidationException("Commune code does not exist: " + request.getCommuneCode());
-            }
+            validateCommuneExists(request.getCommuneCode());
         }
-        
+
         villageMapper.updateEntity(request, village);
         villageRepository.save(village);
-        
-        // Fetch updated village with full hierarchy
-        Village updatedVillage = villageRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Village not found"));
-        
-        log.info("Village updated: {}", updatedVillage.getVillageCode());
+
+        Village updatedVillage = findVillageById(id);
+        log.info("Village updated successfully: id={}, code={}", id, updatedVillage.getVillageCode());
         return villageMapper.toResponse(updatedVillage);
     }
 
     @Override
     @Transactional
     public void deleteVillage(UUID id) {
-        Village village = villageRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Village not found"));
-        
+        Village village = findVillageById(id);
         village.softDelete();
         villageRepository.save(village);
-        log.info("Village deleted: {}", village.getVillageCode());
+        log.info("Village deleted successfully: id={}, code={}", id, village.getVillageCode());
+    }
+
+    private Village findVillageById(UUID id) {
+        return villageRepository.findByIdAndIsDeletedFalse(id)
+            .orElseThrow(() -> new RuntimeException("Village not found"));
+    }
+
+    private void validateCommuneExists(String communeCode) {
+        if (!communeRepository.existsByCommuneCodeAndIsDeletedFalse(communeCode)) {
+            throw new ValidationException("Commune code does not exist: " + communeCode);
+        }
+    }
+
+    private void validateVillageCodeNotDuplicate(String villageCode) {
+        if (villageRepository.existsByVillageCodeAndIsDeletedFalse(villageCode)) {
+            throw new ValidationException("Village code already exists");
+        }
     }
 }

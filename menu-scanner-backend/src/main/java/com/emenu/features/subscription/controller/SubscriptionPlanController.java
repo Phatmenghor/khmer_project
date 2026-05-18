@@ -24,56 +24,41 @@ public class SubscriptionPlanController {
 
     private final SubscriptionPlanService subscriptionPlanService;
 
-    /**
-     * Get all subscription plans with filtering and pagination
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<SubscriptionPlanResponse>>> getAllPlans(
             @Valid @RequestBody SubscriptionPlanFilterRequest filter) {
-        log.info("Getting subscription plans with filter - Search: {}", filter.getSearch());
+        log.info("Endpoint: search-subscription-plans - subscription plans retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<SubscriptionPlanResponse> plans = subscriptionPlanService.getAllPlans(filter);
         return ResponseEntity.ok(ApiResponse.success("Subscription plans retrieved successfully", plans));
     }
 
-    /**
-     * Get subscription plan by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SubscriptionPlanResponse>> getPlanById(@PathVariable UUID id) {
-        log.info("Getting subscription plan by ID: {}", id);
+        log.info("Endpoint: get-subscription-plan - subscription plan retrieval: id={}", id);
         SubscriptionPlanResponse plan = subscriptionPlanService.getPlanById(id);
         return ResponseEntity.ok(ApiResponse.success("Subscription plan retrieved successfully", plan));
     }
 
-    /**
-     * Create new subscription plan
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<SubscriptionPlanResponse>> createPlan(@Valid @RequestBody SubscriptionPlanCreateRequest request) {
-        log.info("Creating subscription plan: {}", request.getName());
+        log.info("Endpoint: create-subscription-plan - subscription plan creation: name={}", request.getName());
         SubscriptionPlanResponse plan = subscriptionPlanService.createPlan(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Subscription plan created successfully", plan));
     }
 
-    /**
-     * Update subscription plan (unified update endpoint)
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<SubscriptionPlanResponse>> updatePlan(
             @PathVariable UUID id,
             @Valid @RequestBody SubscriptionPlanUpdateRequest request) {
-        log.info("Updating subscription plan: {}", id);
+        log.info("Endpoint: update-subscription-plan - subscription plan update: id={}", id);
         SubscriptionPlanResponse plan = subscriptionPlanService.updatePlan(id, request);
         return ResponseEntity.ok(ApiResponse.success("Subscription plan updated successfully", plan));
     }
 
-    /**
-     * Delete subscription plan
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deletePlan(@PathVariable UUID id) {
-        log.info("Deleting subscription plan: {}", id);
+        log.info("Endpoint: delete-subscription-plan - subscription plan deletion: id={}", id);
         subscriptionPlanService.deletePlan(id);
         return ResponseEntity.ok(ApiResponse.success("Subscription plan deleted successfully", null));
     }

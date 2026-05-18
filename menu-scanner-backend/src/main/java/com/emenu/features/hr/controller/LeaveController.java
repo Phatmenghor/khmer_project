@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -29,70 +28,52 @@ public class LeaveController {
     private final LeaveService service;
     private final SecurityUtils securityUtils;
 
-    /**
-     * Creates a new leave request
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<LeaveResponse>> create(@Valid @RequestBody LeaveCreateRequest request) {
-        log.info("Creating leave request");
+        log.info("Endpoint: apply-leave - leave application: type={}", request.getLeaveTypeEnum());
         User currentUser = securityUtils.getCurrentUser();
         LeaveResponse response = service.create(request, currentUser.getId(), currentUser.getBusinessId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Leave request created", response));
     }
 
-    /**
-     * Retrieves a leave request by its ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<LeaveResponse>> getById(@PathVariable UUID id) {
-        log.info("Get leave request: {}", id);
+        log.info("Endpoint: get-leave - leave detail: id={}", id);
         LeaveResponse response = service.getById(id);
         return ResponseEntity.ok(ApiResponse.success("Leave request retrieved", response));
     }
 
-    /**
-     * Retrieves all leave requests with pagination and filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<LeaveResponse>>> getAll(
             @Valid @RequestBody LeaveFilterRequest filter) {
-        log.info("Get all leave requests");
+        log.info("Endpoint: search-leave - leave retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<LeaveResponse> response = service.getAll(filter);
         return ResponseEntity.ok(ApiResponse.success("Leave requests retrieved", response));
     }
 
-    /**
-     * Updates a leave request
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<LeaveResponse>> update(
             @PathVariable UUID id,
             @Valid @RequestBody LeaveUpdateRequest request) {
-        log.info("Update leave request: {}", id);
+        log.info("Endpoint: update-leave - leave update: id={}", id);
         LeaveResponse response = service.update(id, request);
         return ResponseEntity.ok(ApiResponse.success("Leave request updated", response));
     }
 
-    /**
-     * Approves or rejects a leave request
-     */
     @PostMapping("/{id}/approve")
     public ResponseEntity<ApiResponse<LeaveResponse>> approve(
             @PathVariable UUID id,
             @Valid @RequestBody LeaveApprovalRequest request) {
-        log.info("Processing leave request: {} with status: {}", id, request.getStatus());
+        log.info("Endpoint: approve-leave - leave approval: id={}, status={}", id, request.getStatus());
         UUID actionBy = securityUtils.getCurrentUserId();
         LeaveResponse response = service.approve(id, request, actionBy);
         return ResponseEntity.ok(ApiResponse.success("Leave request processed", response));
     }
 
-    /**
-     * Deletes a leave request
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<LeaveResponse>> delete(@PathVariable UUID id) {
-        log.info("Delete leave request: {}", id);
+        log.info("Endpoint: delete-leave - leave deletion: id={}", id);
         LeaveResponse response = service.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Leave request deleted", response));
     }

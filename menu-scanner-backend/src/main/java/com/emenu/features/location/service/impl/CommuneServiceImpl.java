@@ -34,62 +34,39 @@ public class CommuneServiceImpl implements CommuneService {
     @Override
     @Transactional
     public CommuneResponse createCommune(CommuneRequest request) {
-        log.info("Creating commune: {}", request.getCommuneCode());
-        
-        if (!districtRepository.existsByDistrictCodeAndIsDeletedFalse(request.getDistrictCode())) {
-            throw new ValidationException("District code does not exist: " + request.getDistrictCode());
-        }
-        
-        if (communeRepository.existsByCommuneCodeAndIsDeletedFalse(request.getCommuneCode())) {
-            throw new ValidationException("Commune code already exists");
-        }
-        
+        validateDistrictExists(request.getDistrictCode());
+        validateCommuneCodeNotDuplicate(request.getCommuneCode());
+
         Commune commune = communeMapper.toEntity(request);
         Commune savedCommune = communeRepository.save(commune);
-        
-        // Fetch with full hierarchy loaded
-        Commune communeWithRelations = communeRepository
-            .findByIdAndIsDeletedFalse(savedCommune.getId())
-            .orElseThrow(() -> new RuntimeException("Commune not found"));
-        
-        // Map to response WITHIN transaction
+
+        Commune communeWithRelations = findCommuneById(savedCommune.getId());
         CommuneResponse response = communeMapper.toResponse(communeWithRelations);
-        
-        log.info("Commune created: {} with district: {} and province: {}", 
-                 communeWithRelations.getCommuneCode(),
-                 communeWithRelations.getDistrict() != null ? 
-                 communeWithRelations.getDistrict().getDistrictCode() : "null",
-                 communeWithRelations.getDistrict() != null && 
-                 communeWithRelations.getDistrict().getProvince() != null ? 
-                 communeWithRelations.getDistrict().getProvince().getProvinceCode() : "null");
-        
+
+        log.info("Commune created successfully: id={}, code={}", savedCommune.getId(), communeWithRelations.getCommuneCode());
         return response;
     }
 
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<CommuneResponse> getAllCommunes(CommuneFilterRequest request) {
-        log.info("Getting all communes with filters");
-        
         Pageable pageable = PaginationUtils.createPageable(
             request.getPageNo(), request.getPageSize(),
             request.getSortBy(), request.getSortDirection()
         );
-        
+
         Page<Commune> communePage = communeRepository.searchCommunes(
             request.getDistrictCode(), request.getProvinceCode(),
             request.getSearch(), pageable
         );
 
-        // Map WITHIN transaction
         return communeMapper.toPaginationResponse(communePage, paginationMapper);
     }
 
     @Override
     @Transactional(readOnly = true)
     public CommuneResponse getCommuneById(UUID id) {
-        Commune commune = communeRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Commune not found"));
+        Commune commune = findCommuneById(id);
         return communeMapper.toResponse(commune);
     }
 
@@ -120,38 +97,44 @@ public class CommuneServiceImpl implements CommuneService {
     @Override
     @Transactional
     public CommuneResponse updateCommune(UUID id, CommuneRequest request) {
-        log.info("Updating commune: {}", id);
-        
-        Commune commune = communeRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Commune not found"));
-        
-        if (request.getDistrictCode() != null && 
+        Commune commune = findCommuneById(id);
+
+        if (request.getDistrictCode() != null &&
             !request.getDistrictCode().equals(commune.getDistrictCode())) {
-            if (!districtRepository.existsByDistrictCodeAndIsDeletedFalse(request.getDistrictCode())) {
-                throw new ValidationException("District code does not exist: " + request.getDistrictCode());
-            }
+            validateDistrictExists(request.getDistrictCode());
         }
-        
+
         communeMapper.updateEntity(request, commune);
         communeRepository.save(commune);
-        
-        // Fetch updated commune with full hierarchy
-        Commune updatedCommune = communeRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Commune not found"));
-        
-        log.info("Commune updated: {}", updatedCommune.getCommuneCode());
+
+        Commune updatedCommune = findCommuneById(id);
+        log.info("Commune updated successfully: id={}, code={}", id, updatedCommune.getCommuneCode());
         return communeMapper.toResponse(updatedCommune);
     }
 
     @Override
     @Transactional
     public void deleteCommune(UUID id) {
-        Commune commune = communeRepository.findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new RuntimeException("Commune not found"));
-        
+        Commune commune = findCommuneById(id);
         commune.softDelete();
         communeRepository.save(commune);
-        log.info("Commune deleted: {}", commune.getCommuneCode());
+        log.info("Commune deleted successfully: id={}, code={}", id, commune.getCommuneCode());
     }
 
+    private Commune findCommuneById(UUID id) {
+        return communeRepository.findByIdAndIsDeletedFalse(id)
+            .orElseThrow(() -> new RuntimeException("Commune not found"));
+    }
+
+    private void validateDistrictExists(String districtCode) {
+        if (!districtRepository.existsByDistrictCodeAndIsDeletedFalse(districtCode)) {
+            throw new ValidationException("District code does not exist: " + districtCode);
+        }
+    }
+
+    private void validateCommuneCodeNotDuplicate(String communeCode) {
+        if (communeRepository.existsByCommuneCodeAndIsDeletedFalse(communeCode)) {
+            throw new ValidationException("Commune code already exists");
+        }
+    }
 }

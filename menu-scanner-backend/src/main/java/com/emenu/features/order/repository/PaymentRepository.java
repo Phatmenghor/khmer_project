@@ -18,14 +18,8 @@ import java.util.UUID;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
-    /**
-     * Finds a non-deleted payment by ID
-     */
     Optional<Payment> findByIdAndIsDeletedFalse(UUID id);
 
-    /**
-     * Finds a payment by ID with business, plan, and subscription details eagerly fetched
-     */
     @Query("""
                 SELECT p FROM Payment p
                 LEFT JOIN FETCH p.business
@@ -35,9 +29,6 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
             """)
     Optional<Payment> findByIdWithRelationships(@Param("id") UUID id);
 
-    /**
-     * Searches payments with filters for business, plan, payment methods, statuses, date range, and text search
-     */
     @Query("""
                 SELECT p FROM Payment p
                 LEFT JOIN p.business b
@@ -66,15 +57,9 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
             Pageable pageable
     );
 
-    /**
-     * Finds all non-deleted payments by subscription ID
-     */
     @Query("SELECT p FROM Payment p WHERE p.subscriptionId = :subscriptionId AND p.isDeleted = false")
     List<Payment> findBySubscriptionIdAndIsDeletedFalse(@Param("subscriptionId") UUID subscriptionId);
 
-    /**
-     * Finds non-deleted payments by subscription ID and status
-     */
     @Query("""
                 SELECT p FROM Payment p
                 WHERE p.subscriptionId = :subscriptionId

@@ -335,10 +335,6 @@ public class ProductStockServiceImpl implements ProductStockService {
                 .build();
     }
 
-    /**
-     * Convert camelCase field names to snake_case for database queries.
-     * Maps user-friendly field names to actual database column names.
-     */
     private String convertSortFieldName(String camelCase) {
         if (camelCase == null || camelCase.isBlank()) {
             return "total_stock";  // Default sort field
@@ -359,3 +355,4 @@ public class ProductStockServiceImpl implements ProductStockService {
         };
     }
 }
+

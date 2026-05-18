@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,87 +23,63 @@ public class ProvinceController {
 
     private final ProvinceService provinceService;
 
-    /**
-     * Retrieves all provinces with pagination and filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProvinceResponse>>> getAllProvinces(
             @Valid @RequestBody ProvinceFilterRequest request) {
-        log.info("Get all provinces");
+        log.info("Endpoint: search-provinces - provinces retrieval: page={}, size={}", request.getPageNo(), request.getPageSize());
         PaginationResponse<ProvinceResponse> response = provinceService.getAllProvinces(request);
         return ResponseEntity.ok(ApiResponse.success("Provinces retrieved", response));
     }
 
-    /**
-     * Retrieves a province by its ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProvinceResponse>> getProvinceById(@PathVariable UUID id) {
-        log.info("Get province by id: {}", id);
+        log.info("Endpoint: get-province - province detail: id={}", id);
         ProvinceResponse response = provinceService.getProvinceById(id);
         return ResponseEntity.ok(ApiResponse.success("Province retrieved", response));
     }
 
-    /**
-     * Retrieves a province by its code
-     */
     @GetMapping("/code/{code}")
     public ResponseEntity<ApiResponse<ProvinceResponse>> getProvinceByCode(@PathVariable String code) {
-        log.info("Get province by code: {}", code);
+        log.info("Endpoint: get-province-by-code - province detail: code={}", code);
         ProvinceResponse response = provinceService.getProvinceByCode(code);
         return ResponseEntity.ok(ApiResponse.success("Province retrieved", response));
     }
 
-    /**
-     * Retrieves a province by its English name
-     */
     @GetMapping("/name-en/{nameEn}")
     public ResponseEntity<ApiResponse<ProvinceResponse>> getProvinceByNameEn(@PathVariable String nameEn) {
-        log.info("Get province by EN name: {}", nameEn);
+        log.info("Endpoint: get-province-by-name-en - province detail: nameEn={}", nameEn);
         ProvinceResponse response = provinceService.getProvinceByNameEn(nameEn);
         return ResponseEntity.ok(ApiResponse.success("Province retrieved", response));
     }
 
-    /**
-     * Retrieves a province by its Khmer name
-     */
     @GetMapping("/name-kh/{nameKh}")
     public ResponseEntity<ApiResponse<ProvinceResponse>> getProvinceByNameKh(@PathVariable String nameKh) {
-        log.info("Get province by KH name: {}", nameKh);
+        log.info("Endpoint: get-province-by-name-kh - province detail: nameKh={}", nameKh);
         ProvinceResponse response = provinceService.getProvinceByNameKh(nameKh);
         return ResponseEntity.ok(ApiResponse.success("Province retrieved", response));
     }
 
-    /**
-     * Creates a new province
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<ProvinceResponse>> createProvince(
             @Valid @RequestBody ProvinceRequest request) {
-        log.info("Create province: {}", request.getProvinceCode());
+        log.info("Endpoint: create-province - province creation: code={}", request.getProvinceCode());
         ProvinceResponse response = provinceService.createProvince(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Province created", response));
     }
 
-    /**
-     * Updates an existing province
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProvinceResponse>> updateProvince(
             @PathVariable UUID id,
             @Valid @RequestBody ProvinceRequest request) {
-        log.info("Update province: {}", id);
+        log.info("Endpoint: update-province - province update: id={}", id);
         ProvinceResponse response = provinceService.updateProvince(id, request);
         return ResponseEntity.ok(ApiResponse.success("Province updated", response));
     }
 
-    /**
-     * Deletes a province by its ID
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProvince(@PathVariable UUID id) {
-        log.info("Delete province: {}", id);
+        log.info("Endpoint: delete-province - province deletion: id={}", id);
         provinceService.deleteProvince(id);
         return ResponseEntity.ok(ApiResponse.success("Province deleted", null));
     }

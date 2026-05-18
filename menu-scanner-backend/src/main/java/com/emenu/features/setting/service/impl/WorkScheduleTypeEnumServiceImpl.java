@@ -35,9 +35,6 @@ public class WorkScheduleTypeEnumServiceImpl implements WorkScheduleTypeEnumServ
 
     @Override
     public WorkScheduleTypeEnumResponse create(WorkScheduleTypeEnumCreateRequest request) {
-        log.info("Creating work schedule type enum: {}", request.getEnumName());
-
-        // Check if enum already exists for this business
         boolean exists = repository.findByBusinessIdAndEnumNameAndIsDeletedFalse(
                 request.getBusinessId(), request.getEnumName()).isPresent();
 
@@ -48,7 +45,7 @@ public class WorkScheduleTypeEnumServiceImpl implements WorkScheduleTypeEnumServ
 
         final WorkScheduleTypeEnum enumRecord = mapper.toEntity(request);
         WorkScheduleTypeEnum savedEnum = repository.save(enumRecord);
-        log.info("Work schedule type enum created: {}", savedEnum.getId());
+        log.info("Work schedule type created successfully: id={}, name={}", savedEnum.getId(), savedEnum.getEnumName());
 
         return mapper.toResponse(savedEnum);
     }
@@ -109,13 +106,10 @@ public class WorkScheduleTypeEnumServiceImpl implements WorkScheduleTypeEnumServ
 
     @Override
     public WorkScheduleTypeEnumResponse update(UUID id, WorkScheduleTypeEnumUpdateRequest request) {
-        log.info("Updating work schedule type enum: {}", id);
-
         final WorkScheduleTypeEnum enumRecord = repository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Work schedule type enum not found"));
 
         if (request.getEnumName() != null) {
-            // Check if new name already exists for this business
             final UUID businessId = enumRecord.getBusinessId();
             final String enumName = request.getEnumName();
 
@@ -132,21 +126,19 @@ public class WorkScheduleTypeEnumServiceImpl implements WorkScheduleTypeEnumServ
 
         mapper.updateEntity(request, enumRecord);
         WorkScheduleTypeEnum updatedEnum = repository.save(enumRecord);
-        log.info("Work schedule type enum updated: {}", id);
+        log.info("Work schedule type updated successfully: id={}", id);
 
         return mapper.toResponse(updatedEnum);
     }
 
     @Override
     public WorkScheduleTypeEnumResponse delete(UUID id) {
-        log.info("Deleting work schedule type enum: {}", id);
-
         WorkScheduleTypeEnum enumRecord = repository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Work schedule type enum not found"));
 
         enumRecord.softDelete();
         enumRecord = repository.save(enumRecord);
-        log.info("Work schedule type enum deleted: {}", id);
+        log.info("Work schedule type deleted successfully: id={}", id);
         return mapper.toResponse(enumRecord);
     }
 }

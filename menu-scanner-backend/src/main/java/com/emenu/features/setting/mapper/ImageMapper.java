@@ -19,7 +19,6 @@ public interface ImageMapper {
     @Mapping(source = "base64", target = "data")
     ImageEntity toEntity(ImageUploadRequest request);
 
-    // Custom implementation for toDto to include imageUrl
     default ImageDto toDto(ImageEntity image) {
         if (image == null) {
             return null;
@@ -39,7 +38,6 @@ public interface ImageMapper {
         }
 
         String base64Data = image.getData();
-// Remove prefix if it exists (like "data:image/png;base64,")
         if (base64Data.contains(",")) {
             base64Data = base64Data.substring(base64Data.indexOf(",") + 1);
         }

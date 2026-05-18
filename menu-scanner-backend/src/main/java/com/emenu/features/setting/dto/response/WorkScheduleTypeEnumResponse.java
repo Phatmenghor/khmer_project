@@ -10,6 +10,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WorkScheduleTypeEnumResponse extends BaseAuditResponse {
+    private UUID id;
     private UUID businessId;
     private String enumName;
     private String description;

@@ -1,6 +1,5 @@
 package com.emenu.features.main.controller;
 
-import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.ProductFilterDto;
 import com.emenu.features.main.dto.request.ProductCreateDto;
 import com.emenu.features.main.dto.request.BulkPromotionCreateDto;
@@ -21,9 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 import java.util.UUID;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -38,58 +35,39 @@ public class ProductController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductListDto>>> getAllProducts(
             @Valid @RequestBody ProductFilterDto filter) {
+        log.info("Endpoint: search-products - products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
 
-        long startTime = System.currentTimeMillis();
-        log.info("GET /api/v1/products/all - Page: {}, Size: {}, Filters: BusinessId={}, CategoryId={}, BrandId={}",
-                filter.getPageNo(), filter.getPageSize(), filter.getBusinessId(), filter.getCategoryId(), filter.getBrandId());
+        UUID businessId = filter.getBusinessId();
 
-        try {
-            UUID businessId = filter.getBusinessId();
-
-            // Check category filter - return empty if categories not enabled
-            if (businessId != null && filter.getCategoryId() != null && !productConditionalService.businessUsesCategories(businessId)) {
-                log.info("Business {} does not use categories - returning empty product list", businessId);
-                PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
-                emptyResponse.setContent(new java.util.ArrayList<>());
-                emptyResponse.setTotalElements(0L);
-                emptyResponse.setTotalPages(0);
-                return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", emptyResponse));
-            }
-
-            // Check brand filter - return empty if brands not enabled
-            if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
-                log.info("Business {} does not use brands - returning empty product list", businessId);
-                PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
-                emptyResponse.setContent(new java.util.ArrayList<>());
-                emptyResponse.setTotalElements(0L);
-                emptyResponse.setTotalPages(0);
-                return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", emptyResponse));
-            }
-
-            PaginationResponse<ProductListDto> products = productService.getAllProducts(filter);
-            long duration = System.currentTimeMillis() - startTime;
-            log.info("GET /api/v1/products/all succeeded in {}ms - Retrieved {} products, Total: {}",
-                    duration, products.getContent().size(), products.getTotalElements());
-
-            return ResponseEntity.ok(ApiResponse.success(
-                String.format("Found %d products", products.getTotalElements()),
-                products
-            ));
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("GET /api/v1/products/all failed after {}ms - Error: {}", duration, e.getMessage(), e);
-            throw e;
+        if (businessId != null && filter.getCategoryId() != null && !productConditionalService.businessUsesCategories(businessId)) {
+            PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
+            emptyResponse.setContent(new java.util.ArrayList<>());
+            emptyResponse.setTotalElements(0L);
+            emptyResponse.setTotalPages(0);
+            return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", emptyResponse));
         }
+
+        if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
+            PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
+            emptyResponse.setContent(new java.util.ArrayList<>());
+            emptyResponse.setTotalElements(0L);
+            emptyResponse.setTotalPages(0);
+            return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", emptyResponse));
+        }
+
+        PaginationResponse<ProductListDto> products = productService.getAllProducts(filter);
+
+        return ResponseEntity.ok(ApiResponse.success(
+            String.format("Found %d products", products.getTotalElements()),
+            products
+        ));
     }
 
     @PostMapping("/admin/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductAdmin(
             @Valid @RequestBody ProductFilterDto filter) {
-
-        log.info("Get products by admin - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
-
+        log.info("Endpoint: search-admin-products - admin products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdmin(filter);
-
         return ResponseEntity.ok(ApiResponse.success(
                 String.format("Found %d products", products.getTotalElements()),
                 products
@@ -99,11 +77,8 @@ public class ProductController {
     @PostMapping("/admin/pos/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductAdminPos(
             @Valid @RequestBody ProductFilterDto filter) {
-
-        log.info("Get products by admin for POS - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
-
+        log.info("Endpoint: search-pos-products - pos products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdminPos(filter);
-
         return ResponseEntity.ok(ApiResponse.success(
                 String.format("Found %d products", products.getTotalElements()),
                 products
@@ -113,12 +88,10 @@ public class ProductController {
     @PostMapping("/admin/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductBusiness(
             @Valid @RequestBody ProductFilterDto filter) {
-
-        log.info("Get products by business user - Page: {}, Size: {}", filter.getPageNo(), filter.getPageSize());
+        log.info("Endpoint: search-my-business-products - my business products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         filter.setBusinessId(businessId);
         PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdmin(filter);
-
         return ResponseEntity.ok(ApiResponse.success(
                 String.format("Found %d products", products.getTotalElements()),
                 products
@@ -128,192 +101,86 @@ public class ProductController {
     @PostMapping("/admin/stock/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ProductDetailDto>>> getAllProductAdminStock(
             @Valid @RequestBody ProductFilterDto filter) {
-
-        long startTime = System.currentTimeMillis();
-        log.info("GET /api/v1/products/admin/stock/all - Page: {}, Size: {}, Filters: Search='{}', Status={}, HasSize={}, StockStatuses={}, HasPromotion={}, BrandId={}, CategoryId={}",
-                filter.getPageNo(), filter.getPageSize(), filter.getSearch(), filter.getStatuses(),
-                filter.getHasSize(), filter.getStockStatuses(), filter.getHasPromotion(), filter.getBrandId(), filter.getCategoryId());
-
-        try {
-            PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdminStock(filter);
-            long duration = System.currentTimeMillis() - startTime;
-            log.info("GET /api/v1/products/admin/stock/all succeeded in {}ms - Retrieved {} products (Page {} of {}), Total Elements: {}",
-                    duration, products.getContent().size(), products.getPageNo(), products.getTotalPages(), products.getTotalElements());
-
-            return ResponseEntity.ok(ApiResponse.success(
-                    String.format("Found %d products with stock information (Page %d of %d)",
-                        products.getTotalElements(), products.getPageNo(), products.getTotalPages()),
-                    products
-            ));
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("GET /api/v1/products/admin/stock/all failed after {}ms - Error: {}", duration, e.getMessage(), e);
-            throw e;
-        }
+        log.info("Endpoint: search-stock-products - stock products retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
+        PaginationResponse<ProductDetailDto> products = productService.getAllProductsAdminStock(filter);
+        return ResponseEntity.ok(ApiResponse.success(
+                String.format("Found %d products with stock information (Page %d of %d)",
+                    products.getTotalElements(), products.getPageNo(), products.getTotalPages()),
+                products
+        ));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> getProductById(@PathVariable UUID id) {
-        long startTime = System.currentTimeMillis();
-        log.debug("GET /api/v1/products/{} - Product detail request", id);
-
-        try {
-            ProductDetailDto product = productService.getProductById(id);
-            long duration = System.currentTimeMillis() - startTime;
-
-            log.info("GET /api/v1/products/{} succeeded in {}ms - Product: Name='{}', HasSizes={}, Status={}",
-                id, duration, product.getName(), product.getHasSizes(), product.getStatus());
-            return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", product));
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("GET /api/v1/products/{} failed after {}ms - Error: {}", id, duration, e.getMessage());
-            throw e;
-        }
+        log.info("Endpoint: get-product - product detail: id={}", id);
+        ProductDetailDto product = productService.getProductById(id);
+        return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", product));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductDetailDto>> createProduct(
             @Valid @RequestBody ProductCreateDto request) {
-
-        long startTime = System.currentTimeMillis();
-        log.info("POST /api/v1/products - Create product request - Name: '{}', Price: {}, HasSizes: {}, HasImages: {}, HasCustomizations: {}",
-            request.getName(), request.getPrice(),
-            request.getSizes() != null && !request.getSizes().isEmpty(),
-            request.getImages() != null && !request.getImages().isEmpty(),
-            request.getCustomizations() != null && !request.getCustomizations().isEmpty());
-
-        try {
-            ProductDetailDto product = productService.createProduct(request);
-            long duration = System.currentTimeMillis() - startTime;
-
-            log.info("POST /api/v1/products succeeded in {}ms - Created product ID: {}, Name: '{}'",
-                duration, product.getId(), product.getName());
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.success("Product created successfully", product));
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("POST /api/v1/products failed after {}ms - Name: '{}', Error: {}",
-                duration, request.getName(), e.getMessage(), e);
-            throw e;
-        }
+        log.info("Endpoint: create-product - product creation: name={}", request.getName());
+        ProductDetailDto product = productService.createProduct(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Product created successfully", product));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> updateProduct(
             @PathVariable UUID id,
             @Valid @RequestBody ProductUpdateDto request) {
-
-        long startTime = System.currentTimeMillis();
-        log.info("PUT /api/v1/products/{} - Update product request - Name: '{}', Status: {}, HasImages: {}, HasSizes: {}, HasCustomizations: {}",
-            id, request.getName(), request.getStatus(),
-            request.getImages() != null && !request.getImages().isEmpty(),
-            request.getSizes() != null && !request.getSizes().isEmpty(),
-            request.getCustomizations() != null && !request.getCustomizations().isEmpty());
-
-        try {
-            ProductDetailDto product = productService.updateProduct(id, request);
-            long duration = System.currentTimeMillis() - startTime;
-
-            log.info("PUT /api/v1/products/{} succeeded in {}ms - Updated product: Name: '{}', Status: {}",
-                id, duration, product.getName(), product.getStatus());
-            return ResponseEntity.ok(ApiResponse.success("Product updated successfully", product));
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("PUT /api/v1/products/{} failed after {}ms - Error: {}", id, duration, e.getMessage(), e);
-            throw e;
-        }
+        log.info("Endpoint: update-product - product update: id={}", id);
+        ProductDetailDto product = productService.updateProduct(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Product updated successfully", product));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductDetailDto>> deleteProduct(@PathVariable UUID id) {
-        long startTime = System.currentTimeMillis();
-        log.info("DELETE /api/v1/products/{} - Delete product request", id);
-
-        try {
-            ProductDetailDto product = productService.deleteProduct(id);
-            long duration = System.currentTimeMillis() - startTime;
-
-            log.info("DELETE /api/v1/products/{} succeeded in {}ms - Deleted product: Name: '{}', Status: {}",
-                id, duration, product.getName(), product.getStatus());
-            return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", product));
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("DELETE /api/v1/products/{} failed after {}ms - Error: {}", id, duration, e.getMessage(), e);
-            throw e;
-        }
+        log.info("Endpoint: delete-product - product deletion: id={}", id);
+        ProductDetailDto product = productService.deleteProduct(id);
+        return ResponseEntity.ok(ApiResponse.success("Product deleted successfully", product));
     }
 
     @PutMapping("/{id}/reset-promotion")
     public ResponseEntity<ApiResponse<ProductDetailDto>> resetProductPromotion(@PathVariable UUID id) {
-        log.debug("Product promotion reset request - ID: {}", id);
-
+        log.info("Endpoint: reset-promotion - product promotion reset: id={}", id);
         ProductDetailDto product = productService.resetProductPromotion(id);
-
-        log.info("Product promotion reset successfully - ID: {}, Name: '{}'", product.getId(), product.getName());
         return ResponseEntity.ok(ApiResponse.success("Product promotion reset successfully", product));
     }
 
     @PutMapping("/reset-all-promotions")
     public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> resetAllPromotions() {
-        log.info("Reset all promotions for current business");
-
+        log.info("Endpoint: reset-all-promotions - all promotions reset: none={}", "none");
         java.util.Map<String, Object> result = productService.resetAllPromotions();
-
         return ResponseEntity.ok(ApiResponse.success("All promotions reset successfully", result));
     }
 
     @PutMapping("/reset-selected-promotions")
     public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> resetSelectedPromotions(
             @Valid @RequestBody ResetSelectedPromotionsDto request) {
-        long startTime = System.currentTimeMillis();
-        boolean hasSizeMapping = request.getProductSizeMapping() != null &&
-                !request.getProductSizeMapping().isEmpty();
-
-        log.info("PUT /api/v1/products/reset-selected-promotions - Reset promotions for {} products, Has size mapping: {}",
-                request.getProductIds().size(), hasSizeMapping);
-
-        try {
-            java.util.Map<String, Object> result = productService.resetSelectedPromotions(request);
-            long duration = System.currentTimeMillis() - startTime;
-
-            log.info("PUT /api/v1/products/reset-selected-promotions succeeded in {}ms - Products: {}, Sizes: {}",
-                    duration, result.get("productsReset"), result.get("sizesReset"));
-
-            return ResponseEntity.ok(ApiResponse.success("Selected promotions reset successfully", result));
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("PUT /api/v1/products/reset-selected-promotions failed after {}ms - Error: {}",
-                    duration, e.getMessage(), e);
-            throw e;
-        }
+        log.info("Endpoint: reset-selected-promotions - selected promotions reset: products={}", request.getProductIds().size());
+        java.util.Map<String, Object> result = productService.resetSelectedPromotions(request);
+        return ResponseEntity.ok(ApiResponse.success("Selected promotions reset successfully", result));
     }
 
     @PostMapping("/bulk-create-promotions")
     public ResponseEntity<ApiResponse<BulkPromotionResultDto>> createBulkPromotions(
             @Valid @RequestBody BulkPromotionCreateDto request) {
-        log.debug("Bulk promotion create request - Products: {}, Type: {}, Value: {}, Has Size Mapping: {}",
-            request.getProductIds().size(), request.getPromotionType(), request.getPromotionValue(),
-            request.getProductSizeMapping() != null && !request.getProductSizeMapping().isEmpty());
-
+        log.info("Endpoint: create-bulk-promotions - bulk promotions creation: type={}", request.getPromotionType());
         BulkPromotionResultDto result = productService.createBulkPromotions(request);
-
-        log.info("Bulk promotion creation completed - Success: {}, Failed: {}, Total: {}",
-            result.getSuccessCount(), result.getFailedCount(), result.getSuccessCount() + result.getFailedCount());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Bulk promotion creation completed", result));
     }
 
     @PostMapping("/admin/sync-promotions")
     public ResponseEntity<ApiResponse<String>> syncExpiredPromotions() {
-        log.info("Manual sync: clearing expired promotion display fields");
-
+        log.info("Endpoint: sync-promotions - promotions sync: none={}", "none");
         int[] result = productService.syncExpiredPromotions();
         String message = String.format(
             "Sync complete. Updated %d products without sizes, %d products with sizes. Total: %d",
             result[0], result[1], result[0] + result[1]
         );
-
-        log.info(message);
         return ResponseEntity.ok(ApiResponse.success(message, null));
     }
 }

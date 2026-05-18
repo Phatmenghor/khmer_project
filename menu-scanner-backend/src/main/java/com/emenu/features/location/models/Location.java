@@ -29,34 +29,34 @@ public class Location extends BaseUUIDEntity {
     private User user;
 
     @Column(name = "label")
-    private String label; // Ex: Home, Office, Shop
+    private String label;
 
     @Column(name = "village")
-    private String village; // Ex: Phum Svay Dangkum
+    private String village;
 
     @Column(name = "commune")
-    private String commune; // Ex: Sangkat Svay Dangkum
+    private String commune;
 
     @Column(name = "district", nullable = false)
-    private String district; // Ex: Krong Siem Reap
+    private String district;
 
     @Column(name = "province", nullable = false)
-    private String province; // Ex: Siem Reap
+    private String province;
 
     @Column(name = "country")
     private String country;
 
     @Column(name = "street_number")
-    private String streetNumber; // Ex: Street 63 or "St. 271"
+    private String streetNumber;
 
     @Column(name = "house_number")
-    private String houseNumber; // Ex: "House No. 12B"
+    private String houseNumber;
 
     @Column(name = "note", columnDefinition = "TEXT")
-    private String note; // Optional note: "Leave with security"
+    private String note;
 
     @Column(name = "latitude", precision = 10, scale = 6)
-    private BigDecimal latitude; // For Google Maps
+    private BigDecimal latitude;
 
     @Column(name = "longitude", precision = 10, scale = 6)
     private BigDecimal longitude;
@@ -68,7 +68,6 @@ public class Location extends BaseUUIDEntity {
     @OrderBy("createdAt ASC")
     private List<LocationImage> locationImages = new ArrayList<>();
 
-    // Business Methods
     public void setAsDefault() {
         this.isDefault = true;
     }
@@ -79,14 +78,12 @@ public class Location extends BaseUUIDEntity {
 
     public String getFullAddress() {
         StringBuilder address = new StringBuilder();
-        
         if (houseNumber != null) address.append(houseNumber).append(", ");
         if (streetNumber != null) address.append(streetNumber).append(", ");
         if (village != null) address.append(village).append(", ");
         if (commune != null) address.append(commune).append(", ");
         address.append(district).append(", ");
         address.append(province);
-        
         return address.toString();
     }
 

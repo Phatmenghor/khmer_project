@@ -54,8 +54,6 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<SubscriptionPlanResponse> getAllPlans(SubscriptionPlanFilterRequest filter) {
-        log.debug("Getting subscription plans with filter Search: {}", filter.getSearch());
-
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
@@ -76,8 +74,6 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     @Override
     @Transactional(readOnly = true)
     public SubscriptionPlanResponse getPlanById(UUID planId) {
-        log.debug("Getting subscription plan by ID: {}", planId);
-
         SubscriptionPlan plan = planRepository.findByIdAndIsDeletedFalse(planId)
                 .orElseThrow(() -> new RuntimeException("Subscription plan not found with ID: " + planId));
 
@@ -132,7 +128,6 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     @Transactional(readOnly = true)
     private boolean isPlanInUse(UUID planId) {
         long subscriptionCount = subscriptionRepository.countByPlan(planId);
-        log.debug("Plan {} has {} subscriptions", planId, subscriptionCount);
         return subscriptionCount > 0;
     }
 }

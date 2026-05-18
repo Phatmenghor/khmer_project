@@ -21,10 +21,6 @@ import java.util.UUID;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecificationExecutor<Order> {
 
-    /**
-     * Finds a non-deleted order by ID with items, products, sizes, business, customer, and delivery snapshots eagerly fetched
-     * NOTE: statusHistory is loaded lazily to avoid MultipleBagFetchException with multiple collections
-     */
     @Query("SELECT o FROM Order o " +
            "LEFT JOIN FETCH o.items oi " +
            "LEFT JOIN FETCH oi.product p " +
@@ -36,49 +32,26 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
            "WHERE o.id = :id AND o.isDeleted = false")
     Optional<Order> findByIdWithDetails(@Param("id") UUID id);
 
-    /**
-     * Finds status history for an order with changed by user eagerly fetched
-     */
     @Query("SELECT h FROM OrderStatusHistory h " +
            "LEFT JOIN FETCH h.changedByUser " +
            "WHERE h.orderId = :orderId " +
            "ORDER BY h.createdAt ASC")
     List<OrderStatusHistory> findStatusHistoryByOrderId(@Param("orderId") UUID orderId);
 
-    /**
-     * Finds all non-deleted orders by customer ID, ordered by creation date descending
-     */
     @Query("SELECT o FROM Order o WHERE o.customerId = :customerId AND o.isDeleted = false ORDER BY o.createdAt DESC")
     List<Order> findByCustomerIdOrderByCreatedAtDesc(@Param("customerId") UUID customerId);
 
-    /**
-     * Finds all non-deleted orders by business ID, ordered by creation date descending
-     */
     @Query("SELECT o FROM Order o WHERE o.businessId = :businessId AND o.isDeleted = false ORDER BY o.createdAt DESC")
     List<Order> findByBusinessIdOrderByCreatedAtDesc(@Param("businessId") UUID businessId);
 
-    /**
-     * Finds non-deleted orders by business ID and order status, ordered by creation date descending
-     */
     @Query("SELECT o FROM Order o WHERE o.businessId = :businessId AND o.orderStatus = :orderStatus AND o.isDeleted = false ORDER BY o.createdAt DESC")
     List<Order> findByBusinessIdAndOrderStatusOrderByCreatedAtDesc(@Param("businessId") UUID businessId, @Param("orderStatus") OrderStatus orderStatus);
 
-    /**
-     * Checks if an order exists with the given order number
-     */
     boolean existsByOrderNumber(String orderNumber);
 
-    /**
-     * Counts non-deleted orders by business ID and order status
-     */
     @Query("SELECT COUNT(o) FROM Order o WHERE o.businessId = :businessId AND o.orderStatus = :orderStatus AND o.isDeleted = false")
     long countByBusinessIdAndOrderStatus(@Param("businessId") UUID businessId, @Param("orderStatus") OrderStatus orderStatus);
 
-    /**
-     * Finds paginated non-deleted orders by customer ID with eager loading of related entities
-     * Uses JOIN FETCH to prevent N+1 query problem
-     * NOTE: statusHistory is loaded separately to avoid MultipleBagFetchException
-     */
     @Query("SELECT DISTINCT o FROM Order o " +
            "LEFT JOIN FETCH o.business b " +
            "LEFT JOIN FETCH o.customer c " +
@@ -89,3 +62,4 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
     Page<Order> findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(@Param("customerId") UUID customerId, Pageable pageable);
 
 }
+

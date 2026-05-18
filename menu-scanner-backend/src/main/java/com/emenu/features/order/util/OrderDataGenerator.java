@@ -3,10 +3,6 @@ package com.emenu.features.order.util;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Complete Order Data Generator - All fields populated, no nulls
- * Supports CUSTOMER orders (from checkout) and BUSINESS orders (from admin)
- */
 public class OrderDataGenerator {
 
     public enum OrderSource {
@@ -328,3 +324,4 @@ public class OrderDataGenerator {
         }
     }
 }
+

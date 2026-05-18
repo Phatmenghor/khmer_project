@@ -11,10 +11,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Item in POS checkout with complete before/after audit trail
- * Captures: before snapshot → after snapshot with detailed metadata
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -59,3 +55,4 @@ public class POSCheckoutItemRequest {
     }
 
 }
+

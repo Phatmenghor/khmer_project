@@ -5,7 +5,6 @@ import com.emenu.features.location.dto.request.DistrictRequest;
 import com.emenu.features.location.dto.response.DistrictResponse;
 import com.emenu.shared.dto.PaginationResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface DistrictService {

@@ -24,63 +24,45 @@ public class ExchangeRateController {
 
     private final ExchangeRateService exchangeRateService;
 
-    /**
-     * Create new system exchange rate (deactivates previous active rate)
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<ExchangeRateResponse>> createExchangeRate(@Valid @RequestBody ExchangeRateCreateRequest request) {
-        log.info("Creating system exchange rate: {}", request.getUsdToKhrRate());
+        log.info("Endpoint: create-exchange-rate - exchange rate creation: rate={}", request.getUsdToKhrRate());
         ExchangeRateResponse exchangeRate = exchangeRateService.createExchangeRate(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Exchange rate created successfully", exchangeRate));
     }
 
-    /**
-     * Get all exchange rates with filtering and pagination
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<ExchangeRateResponse>>> getAllExchangeRates(@Valid @RequestBody ExchangeRateFilterRequest filter) {
-        log.info("Getting all exchange rates with filter");
+        log.info("Endpoint: search-exchange-rates - exchange rates retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<ExchangeRateResponse> exchangeRates = exchangeRateService.getAllExchangeRates(filter);
         return ResponseEntity.ok(ApiResponse.success("Exchange rates retrieved successfully", exchangeRates));
     }
 
-    /**
-     * Get exchange rate by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ExchangeRateResponse>> getExchangeRateById(@PathVariable UUID id) {
-        log.info("Getting exchange rate by ID: {}", id);
+        log.info("Endpoint: get-exchange-rate - exchange rate retrieval: id={}", id);
         ExchangeRateResponse exchangeRate = exchangeRateService.getExchangeRateById(id);
         return ResponseEntity.ok(ApiResponse.success("Exchange rate retrieved successfully", exchangeRate));
     }
 
-    /**
-     * Update exchange rate
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ExchangeRateResponse>> updateExchangeRate(@PathVariable UUID id, @Valid @RequestBody ExchangeRateUpdateRequest request) {
-        log.info("Updating exchange rate: {}", id);
+        log.info("Endpoint: update-exchange-rate - exchange rate update: id={}", id);
         ExchangeRateResponse exchangeRate = exchangeRateService.updateExchangeRate(id, request);
         return ResponseEntity.ok(ApiResponse.success("Exchange rate updated successfully", exchangeRate));
     }
 
-    /**
-     * Delete exchange rate
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<ExchangeRateResponse>> deleteExchangeRate(@PathVariable UUID id) {
-        log.info("Deleting exchange rate: {}", id);
+        log.info("Endpoint: delete-exchange-rate - exchange rate deletion: id={}", id);
         ExchangeRateResponse exchangeRate = exchangeRateService.deleteExchangeRate(id);
         return ResponseEntity.ok(ApiResponse.success("Exchange rate deleted successfully", exchangeRate));
     }
 
-    /**
-     * Get current active exchange rate
-     */
     @GetMapping("/current")
     public ResponseEntity<ApiResponse<ExchangeRateResponse>> getCurrentActiveRate() {
-        log.info("Getting current active exchange rate");
+        log.info("Endpoint: get-current-exchange-rate - current exchange rate retrieval");
         ExchangeRateResponse exchangeRate = exchangeRateService.getCurrentActiveRate();
         return ResponseEntity.ok(ApiResponse.success("Current exchange rate retrieved successfully", exchangeRate));
     }

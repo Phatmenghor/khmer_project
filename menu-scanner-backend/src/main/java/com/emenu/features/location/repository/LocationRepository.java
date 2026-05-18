@@ -17,39 +17,16 @@ import java.util.UUID;
 @Repository
 public interface LocationRepository extends JpaRepository<Location, UUID> {
 
-    /**
-     * Finds all non-deleted addresses for a user, ordered by default status and creation date
-     */
     List<Location> findByUserIdAndIsDeletedFalseOrderByIsDefaultDescCreatedAtDesc(UUID userId);
 
-    /**
-     * Finds the default non-deleted address for a user
-     */
     Optional<Location> findByUserIdAndIsDefaultTrueAndIsDeletedFalse(UUID userId);
 
-    /**
-     * Clears the default flag for all non-deleted addresses belonging to a user
-     */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Location ca SET ca.isDefault = false WHERE ca.userId = :userId AND ca.isDeleted = false")
     void clearDefaultForUser(@Param("userId") UUID userId);
 
-    /**
-     * Finds a non-deleted customer address by ID
-     */
     Optional<Location> findByIdAndIsDeletedFalse(UUID id);
 
-    /**
-     * Finds a non-deleted customer address by ID with user details eagerly fetched
-     */
-    @Query("SELECT ca FROM Location ca " +
-           "LEFT JOIN FETCH ca.user " +
-           "WHERE ca.id = :id AND ca.isDeleted = false")
-    Optional<Location> findByIdWithUser(@Param("id") UUID id);
-
-    /**
-     * Find all customer addresses with dynamic filtering, ordered by default status then creation date
-     */
     @Query("SELECT ca FROM Location ca " +
            "WHERE ca.isDeleted = false " +
            "AND (:userId IS NULL OR ca.userId = :userId) " +

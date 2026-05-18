@@ -16,70 +16,37 @@ import java.util.UUID;
 @Repository
 public interface BusinessExchangeRateRepository extends JpaRepository<BusinessExchangeRate, UUID> {
 
-    /**
-     * Finds a non-deleted business exchange rate by ID
-     */
     Optional<BusinessExchangeRate> findByIdAndIsDeletedFalse(UUID id);
 
-    /**
-     * Finds the active exchange rate for a business
-     */
     @Query("SELECT ber FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")
     Optional<BusinessExchangeRate> findActiveRateByBusinessId(@Param("businessId") UUID businessId);
 
-    /**
-     * Finds all non-deleted exchange rates for a business, ordered by creation date descending
-     */
     @Query("SELECT ber FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.isDeleted = false ORDER BY ber.createdAt DESC")
     List<BusinessExchangeRate> findAllByBusinessId(@Param("businessId") UUID businessId);
 
-    /**
-     * Checks if a business has any non-deleted exchange rate
-     */
     @Query("SELECT COUNT(ber) > 0 FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.isDeleted = false")
     boolean existsByBusinessId(@Param("businessId") UUID businessId);
 
-    /**
-     * Checks if a business has an active exchange rate
-     */
     @Query("SELECT COUNT(ber) > 0 FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")
     boolean hasActiveRate(@Param("businessId") UUID businessId);
 
-    /**
-     * Deactivates all active exchange rates for a business
-     */
     @Modifying
     @Query("UPDATE BusinessExchangeRate ber SET ber.status = 'INACTIVE' WHERE ber.businessId = :businessId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")
     int deactivateAllRatesForBusiness(@Param("businessId") UUID businessId);
 
-    /**
-     * Deactivates all active exchange rates for a business EXCEPT the specified rate ID
-     */
     @Modifying
     @Query("UPDATE BusinessExchangeRate ber SET ber.status = 'INACTIVE' WHERE ber.businessId = :businessId AND ber.id != :excludeId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")
     int deactivateAllRatesForBusinessExcept(@Param("businessId") UUID businessId, @Param("excludeId") UUID excludeId);
 
-    /**
-     * Counts active exchange rates for a business
-     */
     @Query("SELECT COUNT(ber) FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.status = 'ACTIVE' AND ber.isDeleted = false")
     long countActiveRates(@Param("businessId") UUID businessId);
 
-    /**
-     * Finds all active exchange rates across all businesses, ordered by creation date descending
-     */
     @Query("SELECT ber FROM BusinessExchangeRate ber WHERE ber.status = 'ACTIVE' AND ber.isDeleted = false ORDER BY ber.createdAt DESC")
     List<BusinessExchangeRate> findAllActiveRates();
 
-    /**
-     * Finds the most recently created inactive exchange rate for a business
-     */
     @Query("SELECT ber FROM BusinessExchangeRate ber WHERE ber.businessId = :businessId AND ber.status = 'INACTIVE' AND ber.isDeleted = false ORDER BY ber.createdAt DESC LIMIT 1")
     Optional<BusinessExchangeRate> findMostRecentInactiveRateByBusinessId(@Param("businessId") UUID businessId);
 
-    /**
-     * Find all business exchange rates with dynamic filtering
-     */
     @Query("SELECT ber FROM BusinessExchangeRate ber " +
            "LEFT JOIN ber.business b " +
            "WHERE ber.isDeleted = false " +

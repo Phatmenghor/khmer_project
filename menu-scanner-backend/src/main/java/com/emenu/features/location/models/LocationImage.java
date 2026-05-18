@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "location_images")
 @Data
@@ -22,5 +20,5 @@ public class LocationImage extends BaseUUIDEntity {
     private Location location;
 
     @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
-    private String imageUrl; // Store image URLs (file paths or URLs)
+    private String imageUrl;
 }

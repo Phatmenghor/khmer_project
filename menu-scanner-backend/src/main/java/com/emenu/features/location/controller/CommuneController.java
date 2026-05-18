@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,87 +23,63 @@ public class CommuneController {
 
     private final CommuneService communeService;
 
-    /**
-     * Retrieves all communes with pagination and filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<CommuneResponse>>> getAllCommunes(
             @Valid @RequestBody CommuneFilterRequest request) {
-        log.info("Get all communes");
+        log.info("Endpoint: search-communes - communes retrieval: page={}, size={}", request.getPageNo(), request.getPageSize());
         PaginationResponse<CommuneResponse> response = communeService.getAllCommunes(request);
         return ResponseEntity.ok(ApiResponse.success("Communes retrieved", response));
     }
 
-    /**
-     * Retrieves a commune by its ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<CommuneResponse>> getCommuneById(@PathVariable UUID id) {
-        log.info("Get commune by id: {}", id);
+        log.info("Endpoint: get-commune - commune detail: id={}", id);
         CommuneResponse response = communeService.getCommuneById(id);
         return ResponseEntity.ok(ApiResponse.success("Commune retrieved", response));
     }
 
-    /**
-     * Retrieves a commune by its code
-     */
     @GetMapping("/code/{code}")
     public ResponseEntity<ApiResponse<CommuneResponse>> getCommuneByCode(@PathVariable String code) {
-        log.info("Get commune by code: {}", code);
+        log.info("Endpoint: get-commune-by-code - commune detail: code={}", code);
         CommuneResponse response = communeService.getCommuneByCode(code);
         return ResponseEntity.ok(ApiResponse.success("Commune retrieved", response));
     }
 
-    /**
-     * Retrieves a commune by its English name
-     */
     @GetMapping("/name-en/{nameEn}")
     public ResponseEntity<ApiResponse<CommuneResponse>> getCommuneByNameEn(@PathVariable String nameEn) {
-        log.info("Get commune by EN name: {}", nameEn);
+        log.info("Endpoint: get-commune-by-name-en - commune detail: nameEn={}", nameEn);
         CommuneResponse response = communeService.getCommuneByNameEn(nameEn);
         return ResponseEntity.ok(ApiResponse.success("Commune retrieved", response));
     }
 
-    /**
-     * Retrieves a commune by its Khmer name
-     */
     @GetMapping("/name-kh/{nameKh}")
     public ResponseEntity<ApiResponse<CommuneResponse>> getCommuneByNameKh(@PathVariable String nameKh) {
-        log.info("Get commune by KH name: {}", nameKh);
+        log.info("Endpoint: get-commune-by-name-kh - commune detail: nameKh={}", nameKh);
         CommuneResponse response = communeService.getCommuneByNameKh(nameKh);
         return ResponseEntity.ok(ApiResponse.success("Commune retrieved", response));
     }
 
-    /**
-     * Creates a new commune
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<CommuneResponse>> createCommune(
             @Valid @RequestBody CommuneRequest request) {
-        log.info("Create commune: {}", request.getCommuneCode());
+        log.info("Endpoint: create-commune - commune creation: code={}", request.getCommuneCode());
         CommuneResponse response = communeService.createCommune(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Commune created", response));
     }
 
-    /**
-     * Updates an existing commune
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CommuneResponse>> updateCommune(
             @PathVariable UUID id,
             @Valid @RequestBody CommuneRequest request) {
-        log.info("Update commune: {}", id);
+        log.info("Endpoint: update-commune - commune update: id={}", id);
         CommuneResponse response = communeService.updateCommune(id, request);
         return ResponseEntity.ok(ApiResponse.success("Commune updated", response));
     }
 
-    /**
-     * Deletes a commune by its ID
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCommune(@PathVariable UUID id) {
-        log.info("Delete commune: {}", id);
+        log.info("Endpoint: delete-commune - commune deletion: id={}", id);
         communeService.deleteCommune(id);
         return ResponseEntity.ok(ApiResponse.success("Commune deleted", null));
     }

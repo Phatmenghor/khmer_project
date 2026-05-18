@@ -79,15 +79,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProductListDto> getAllProducts(ProductFilterDto filter) {
-        log.debug("Starting getAllProducts - Filter: BusinessId={}, CategoryId={}, BrandId={}, Search={}",
-                filter.getBusinessId(), filter.getCategoryId(), filter.getBrandId(), filter.getSearch());
-
-        long startTime = System.currentTimeMillis();
         Optional<User> currentUser = securityUtils.getCurrentUserOptional();
 
         if (currentUser.isPresent() && currentUser.get().isBusinessUser() && filter.getBusinessId() == null) {
             filter.setBusinessId(currentUser.get().getBusinessId());
-            log.debug("Set BusinessId from current user: {}", currentUser.get().getBusinessId());
         }
 
         Pageable pageable = PaginationUtils.createPageable(
@@ -96,9 +91,6 @@ public class ProductServiceImpl implements ProductService {
                 filter.getSortBy(),
                 filter.getSortDirection()
         );
-        log.debug("Pagination configured - Page: {}, Size: {}, SortBy: {}, Direction: {}",
-                filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
-
         Page<Product> productPage = productRepository.findAllWithFilters(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
@@ -118,7 +110,6 @@ public class ProductServiceImpl implements ProductService {
                 productPage.getTotalElements(), productPage.getNumber(), productPage.getSize());
 
         if (productPage.getContent().isEmpty()) {
-            log.debug("No products found for filters");
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
 
@@ -160,10 +151,7 @@ public class ProductServiceImpl implements ProductService {
                 dto.setQuantity(0);
             });
         }
-
-        long duration = System.currentTimeMillis() - startTime;
-        log.info("getAllProducts completed in {}ms - Returned {} products out of {}",
-                duration, dtoList.size(), productPage.getTotalElements());
+        log.info("Products retrieved successfully: count={}", dtoList.size());
 
         return paginationMapper.toPaginationResponse(productPage, dtoList);
     }
@@ -171,15 +159,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductListDto> getAllDataProducts(ProductFilterDto filter) {
-        log.debug("Starting getAllDataProducts - Filter: BusinessId={}, CategoryId={}, BrandId={}, Search={}",
-                filter.getBusinessId(), filter.getCategoryId(), filter.getBrandId(), filter.getSearch());
-
-        long startTime = System.currentTimeMillis();
         Optional<User> currentUser = securityUtils.getCurrentUserOptional();
 
         if (currentUser.isPresent() && currentUser.get().isBusinessUser() && filter.getBusinessId() == null) {
             filter.setBusinessId(currentUser.get().getBusinessId());
-            log.debug("Set BusinessId from current user: {}", currentUser.get().getBusinessId());
         }
 
         List<Product> products = productRepository.findAllWithFilters(
@@ -202,7 +185,6 @@ public class ProductServiceImpl implements ProductService {
         List<ProductListDto> dtoList = productMapper.toListDtos(products);
 
         if (products.isEmpty()) {
-            log.debug("No products found for filters");
             return dtoList;
         }
 
@@ -237,10 +219,7 @@ public class ProductServiceImpl implements ProductService {
                 dto.setQuantity(0);
             });
         }
-
-        long duration = System.currentTimeMillis() - startTime;
-        log.info("getAllDataProducts completed in {}ms - Returned {} products",
-                duration, dtoList.size());
+        log.info("Products retrieved successfully: count={}", dtoList.size());
 
         return dtoList;
     }
@@ -351,11 +330,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<ProductDetailDto> getAllProductsAdminStock(ProductFilterDto filter) {
-        log.debug("Starting getAllProductsAdminStock - Filter: BusinessId={}, Statuses={}, HasSize={}, StockStatuses={}, HasPromotion={}, Search={}",
-                filter.getBusinessId(), filter.getStatuses(), filter.getHasSize(), filter.getStockStatuses(), filter.getHasPromotion(), filter.getSearch());
-
-        long startTime = System.currentTimeMillis();
-
         // Auto-set business ID for business users if not provided
         Optional<User> currentUser = securityUtils.getCurrentUserOptional();
         if (currentUser.isPresent() && currentUser.get().isBusinessUser() && filter.getBusinessId() == null) {
@@ -386,7 +360,6 @@ public class ProductServiceImpl implements ProductService {
         );
 
         if (productPage.getContent().isEmpty()) {
-            log.debug("No products found for stock query");
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
         }
 
@@ -404,10 +377,7 @@ public class ProductServiceImpl implements ProductService {
         // Enrich with stock information
         enrichTotalStockForDetails(dtoList, productPage.getContent());
         enrichProductSizesStock(dtoList);
-
-        long duration = System.currentTimeMillis() - startTime;
-        log.info("getAllProductsAdminStock completed in {}ms - Retrieved {} products with stock info",
-                duration, dtoList.size());
+        log.info("Products with stock retrieved successfully: count={}", dtoList.size());
 
         return paginationMapper.toPaginationResponse(productPage, dtoList);
     }
@@ -415,47 +385,30 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public ProductDetailDto getProductById(UUID id) {
-        log.debug("Starting getProductById - ID: {}", id);
-        long startTime = System.currentTimeMillis();
-
         try {
             Product product = productRepository.findByIdWithAllDetails(id)
                     .orElseThrow(() -> {
                         log.error("Product not found - ID: {}", id);
                         return new NotFoundException("Product not found: " + id);
                     });
-
-            log.debug("Product found - Name: '{}', BusinessId: {}", product.getName(), product.getBusinessId());
-
             Optional<User> currentUser = securityUtils.getCurrentUserOptional();
             if (currentUser.isPresent() && currentUser.get().isBusinessUser()) {
                 validateBusinessAccess(product, currentUser.get());
-                log.debug("Business access validated for user: {}", currentUser.get().getUserIdentifier());
             }
 
             // Initialize images and customizations for detail view (avoids MultipleBagFetchException by loading separately)
             Hibernate.initialize(product.getImages());
-            log.debug("Product images initialized - Count: {}", product.getImages().size());
-
             Hibernate.initialize(product.getCustomizations());
-            log.debug("Product customizations initialized - Count: {}", product.getCustomizations().size());
-
             // Recalculate display fields from current sizes (fixes stale DB values)
 
             ProductDetailDto dto = productMapper.toDetailDto(product);
             enrichTotalStockForDetail(dto, product.getId());
-            log.debug("Product detail DTO created with enriched stock");
-
             populateUserFieldsForDetail(dto, currentUser, product);
-
-            long duration = System.currentTimeMillis() - startTime;
-            log.info("getProductById completed in {}ms - ID: {}, Name: '{}'",
-                    duration, id, product.getName());
+            log.info("Product retrieved successfully: id={}, name={}", id, product.getName());
 
             return dto;
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("getProductById failed after {}ms - ID: {}, Error: {}", duration, id, e.getMessage());
+            log.error("Failed to retrieve product: id={}, error={}", id, e.getMessage());
             throw e;
         }
     }
@@ -463,45 +416,27 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductDetailDto getProductByIdPublic(UUID id) {
-        log.debug("Starting getProductByIdPublic - ID: {}", id);
-        long startTime = System.currentTimeMillis();
-
         try {
             Product product = productRepository.findByIdWithAllDetails(id)
                     .orElseThrow(() -> {
                         log.error("Product not found (public access) - ID: {}", id);
                         return new NotFoundException("Product not found: " + id);
                     });
-
-            log.debug("Product found for public access - Name: '{}', Views: {}", product.getName(), product.getViewCount());
-
             productRepository.incrementViewCount(id);
-            log.debug("View count incremented for product - ID: {}", id);
-
             // Initialize images and customizations for detail view (avoids MultipleBagFetchException by loading separately)
             Hibernate.initialize(product.getImages());
-            log.debug("Product images initialized - Count: {}", product.getImages().size());
-
             Hibernate.initialize(product.getCustomizations());
-            log.debug("Product customizations initialized - Count: {}", product.getCustomizations().size());
-
             // Recalculate display fields from current sizes (fixes stale DB values)
 
             ProductDetailDto dto = productMapper.toDetailDto(product);
             enrichTotalStockForDetail(dto, product.getId());
-            log.debug("Product detail DTO created with enriched stock");
-
             Optional<User> currentUser = securityUtils.getCurrentUserOptional();
             populateUserFieldsForDetail(dto, currentUser, product);
-
-            long duration = System.currentTimeMillis() - startTime;
-            log.info("getProductByIdPublic completed in {}ms - ID: {}, Name: '{}'",
-                    duration, id, product.getName());
+            log.info("Public product retrieved successfully: id={}, name={}", id, product.getName());
 
             return dto;
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("getProductByIdPublic failed after {}ms - ID: {}, Error: {}", duration, id, e.getMessage());
+            log.error("Failed to retrieve public product: id={}, error={}", id, e.getMessage());
             throw e;
         }
     }
@@ -540,8 +475,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductDetailDto resetProductPromotion(UUID id) {
-        log.debug("Starting product promotion reset: ID={}", id);
-
         try {
             // Load product only to validate existence and business ownership
             Product product = productRepository.findByIdAndIsDeletedFalse(id)
@@ -552,8 +485,6 @@ public class ProductServiceImpl implements ProductService {
 
             // Reset sizes via native SQL (clearAutomatically evicts L1 cache)
             int sizesReset = productSizeRepository.resetPromotionsByProductId(id);
-            log.debug("Promotion reset for {} sizes in product: {}", sizesReset, id);
-
             // Reset product via native SQL (handles display_price for with/without sizes,
             // clearAutomatically evicts L1 cache so getProductById reads fresh DB data)
             productRepository.resetProductPromotionById(id);
@@ -570,8 +501,6 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public Map<String, Object> resetAllPromotions() {
         log.info("Starting reset all promotions for business");
-        long startTime = System.currentTimeMillis();
-
         try {
             User currentUser = securityUtils.getCurrentUser();
             validateUserBusinessAssociation(currentUser);
@@ -593,23 +522,17 @@ public class ProductServiceImpl implements ProductService {
             log.info("Reset promotions for {} products with sizes via SQL", productsWithSizes);
 
             int totalProductsReset = productsWithoutSizes + productsWithSizes;
-            long duration = System.currentTimeMillis() - startTime;
-
-            log.info("Reset all promotions completed in {}ms - Products: {}, Sizes: {}, Total: {}",
-                duration, totalProductsReset, sizesReset, totalProductsReset + sizesReset);
+            log.info("All promotions reset successfully: products={}, sizes={}", totalProductsReset, sizesReset);
 
             Map<String, Object> response = new HashMap<>();
-            response.put("message", String.format("Successfully reset promotions for %d products and %d sizes in %dms",
-                totalProductsReset, sizesReset, duration));
+            response.put("message", String.format("Successfully reset promotions for %d products and %d sizes", totalProductsReset, sizesReset));
             response.put("resetCount", totalProductsReset + sizesReset);
             response.put("productsReset", totalProductsReset);
             response.put("sizesReset", sizesReset);
-            response.put("durationMs", duration);
-
+            
             return response;
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("Reset all promotions failed after {}ms - Error: {}", duration, e.getMessage(), e);
+            log.error("Failed to reset all promotions: error={}", e.getMessage(), e);
             throw e;
         }
     }
@@ -618,8 +541,6 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public Map<String, Object> resetSelectedPromotions(ResetSelectedPromotionsDto request) {
         log.info("Starting reset promotions for {} selected products", request.getProductIds().size());
-        long startTime = System.currentTimeMillis();
-
         try {
             if (request.getProductIds() == null || request.getProductIds().isEmpty()) {
                 throw new ValidationException("No products selected");
@@ -631,8 +552,6 @@ public class ProductServiceImpl implements ProductService {
 
             // Validate all products belong to current user's business
             List<Product> products = productRepository.findAllById(request.getProductIds());
-            log.debug("Fetched {} products for reset", products.size());
-
             int productsValidated = 0;
             for (Product product : products) {
                 if (!product.getBusinessId().equals(businessId)) {
@@ -640,8 +559,6 @@ public class ProductServiceImpl implements ProductService {
                 }
                 productsValidated++;
             }
-            log.debug("Validated {} products for business: {}", productsValidated, businessId);
-
             int sizesReset = 0;
             int productsReset = 0;
 
@@ -651,7 +568,6 @@ public class ProductServiceImpl implements ProductService {
 
             if (hasSizeMapping) {
                 // Reset only specific sizes for selected products
-                log.debug("Resetting promotions for specific sizes in selected products");
                 for (Map.Entry<UUID, List<UUID>> entry : sizeMapping.entrySet()) {
                     UUID productId = entry.getKey();
                     List<UUID> sizeIds = entry.getValue();
@@ -666,37 +582,26 @@ public class ProductServiceImpl implements ProductService {
                             }
                         }
                         productSizeRepository.saveAll(sizes);
-                        log.debug("Reset promotions for {} sizes in product {}", sizesReset, productId);
                     }
                 }
             } else {
                 // Reset all promotions for selected products
-                log.debug("Resetting all promotions for selected products");
                 sizesReset = productSizeRepository.resetPromotionsBulkForProductSizes(request.getProductIds());
-                log.debug("Reset promotions for {} product sizes", sizesReset);
             }
 
             // Reset product-level promotions
             productsReset = productRepository.resetPromotionsBulk(request.getProductIds());
-            log.debug("Reset promotions for {} products", productsReset);
-
-            long duration = System.currentTimeMillis() - startTime;
-
             Map<String, Object> response = new HashMap<>();
-            response.put("message", String.format("Successfully reset promotions for %d products and %d sizes in %dms",
-                productsReset, sizesReset, duration));
+            response.put("message", String.format("Successfully reset promotions for %d products and %d sizes", productsReset, sizesReset));
             response.put("resetCount", productsReset + sizesReset);
             response.put("productsReset", productsReset);
             response.put("sizesReset", sizesReset);
-            response.put("durationMs", duration);
-
-            log.info("Reset selected promotions completed in {}ms - Products: {}, Sizes: {}, Total: {}",
-                duration, productsReset, sizesReset, productsReset + sizesReset);
+            
+            log.info("Selected promotions reset successfully: products={}, sizes={}", productsReset, sizesReset);
 
             return response;
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("Reset selected promotions failed after {}ms - Error: {}", duration, e.getMessage(), e);
+            log.error("Failed to reset selected promotions: error={}", e.getMessage(), e);
             throw e;
         }
     }
@@ -706,19 +611,13 @@ public class ProductServiceImpl implements ProductService {
     public BulkPromotionResultDto createBulkPromotions(BulkPromotionCreateDto request) {
         log.info("Starting bulk promotion creation for {} products, Type: {}, Value: {}",
             request.getProductIds().size(), request.getPromotionType(), request.getPromotionValue());
-        long startTime = System.currentTimeMillis();
-
         User currentUser = securityUtils.getCurrentUser();
         validateUserBusinessAssociation(currentUser);
-        log.debug("Bulk promotion - Current user: {}, Business: {}", currentUser.getUserIdentifier(), currentUser.getBusinessId());
-
         List<UUID> failedProductIds = new ArrayList<>();
         int successCount = 0;
 
         // Fetch all requested products
         List<Product> products = productRepository.findAllById(request.getProductIds());
-        log.debug("Fetched {} products from database", products.size());
-
         for (Product product : products) {
             try {
                 // Verify business ownership
@@ -734,20 +633,14 @@ public class ProductServiceImpl implements ProductService {
                 product.setPromotionValue(request.getPromotionValue());
                 product.setPromotionFromDate(request.getPromotionFromDate());
                 product.setPromotionToDate(request.getPromotionToDate());
-                log.debug("Promotion set on product: {}, Type: {}, Value: {}",
-                    product.getId(), request.getPromotionType(), request.getPromotionValue());
-
                 // Apply promotion to sizes if product has sizes
                 if (product.getHasSizes()) {
                     List<ProductSize> sizes = productSizeRepository.findByProductId(product.getId());
-                    log.debug("Product has {} sizes, applying promotion selectively", sizes.size());
-
                     // Check if there's a specific size mapping for this product
                     List<UUID> specifiedSizeIds = null;
                     if (request.getProductSizeMapping() != null &&
                         request.getProductSizeMapping().containsKey(product.getId())) {
                         specifiedSizeIds = request.getProductSizeMapping().get(product.getId());
-                        log.debug("Size mapping specified for product: {}, Sizes: {}", product.getId(), specifiedSizeIds.size());
                     }
 
                     int appliedSizes = 0;
@@ -776,27 +669,19 @@ public class ProductServiceImpl implements ProductService {
                         }
                     }
                     productSizeRepository.saveAll(sizes);
-                    log.debug("Bulk promotion applied to {} sizes, cleared {} sizes for product: {}",
-                        appliedSizes, clearedSizes, product.getId());
-
                     // Sync display fields from sizes
                 } else {
                     // Initialize display fields for product without sizes
-                    log.debug("Display fields initialized for product without sizes: {}", product.getId());
                 }
 
                 productRepository.save(product);
                 successCount++;
-                log.debug("Bulk promotion successfully applied to product: {}", product.getId());
             } catch (Exception e) {
                 log.error("Failed to apply bulk promotion to product: {}, Error: {}", product.getId(), e.getMessage(), e);
                 failedProductIds.add(product.getId());
             }
         }
-
-        long duration = System.currentTimeMillis() - startTime;
-        log.info("Bulk promotion creation completed in {}ms - Success: {}, Failed: {}, Total: {}",
-            duration, successCount, failedProductIds.size(), request.getProductIds().size());
+        log.info("Bulk promotion created successfully: success={}, failed={}", successCount, failedProductIds.size());
 
         return BulkPromotionResultDto.builder()
                 .successCount(successCount)
@@ -825,72 +710,49 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDetailDto createProduct(ProductCreateDto request) {
-        log.debug("Starting product creation with name: '{}', has sizes: {}", request.getName(), request.getSizes() != null && !request.getSizes().isEmpty());
-        long startTime = System.currentTimeMillis();
-
         try {
             User currentUser = securityUtils.getCurrentUser();
-            log.debug("Current user: {}, Business: {}", currentUser.getUserIdentifier(), currentUser.getBusinessId());
             validateUserBusinessAssociation(currentUser);
 
             Product product = productMapper.toEntity(request);
             productMapper.setBusinessFields(product, currentUser.getBusinessId());
             syncDenormalizedNames(product);
-            log.debug("Product entity mapped and initialized: {}", product.getName());
-
             Product savedProduct = productRepository.save(product);
             log.info("Product created successfully: ID={}, Name='{}', Business={}", savedProduct.getId(), savedProduct.getName(), savedProduct.getBusinessId());
 
             handleProductImages(savedProduct, request.getImages());
-            log.debug("Product images handled: {} images", request.getImages() != null ? request.getImages().size() : 0);
-
             if (request.getSizes() != null && !request.getSizes().isEmpty()) {
-                log.debug("Handling product sizes: {} sizes", request.getSizes().size());
                 handleProductSizes(savedProduct, request.getSizes());
 
                 List<ProductSize> sizes = productSizeRepository.findByProductId(savedProduct.getId());
                 savedProduct.setSizes(sizes);
                 savedProduct = productRepository.save(savedProduct);
-                log.debug("Product with {} sizes saved successfully", sizes.size());
             }
 
             handleProductCustomizationsOnCreate(savedProduct, request.getCustomizations());
-            log.debug("Product customizations handled: {} customizations", request.getCustomizations() != null ? request.getCustomizations().size() : 0);
-
-            long duration = System.currentTimeMillis() - startTime;
-            log.info("Product creation completed successfully in {}ms: {}", duration, savedProduct.getId());
+            log.info("Product created successfully: id={}", savedProduct.getId());
             return getProductById(savedProduct.getId());
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("Product creation failed after {}ms - Name: '{}', Error: {}", duration, request.getName(), e.getMessage(), e);
+            log.error("Failed to create product: name={}, error={}", request.getName(), e.getMessage(), e);
             throw e;
         }
     }
 
     @Override
     public ProductDetailDto updateProduct(UUID id, ProductUpdateDto request) {
-        log.debug("Starting product update: ID={}", id);
-        long startTime = System.currentTimeMillis();
-
         try {
             Product product = productRepository.findByIdAndIsDeletedFalse(id)
                     .orElseThrow(() -> new NotFoundException("Product not found: " + id));
-            log.debug("Product found: Name='{}', Current business={}", product.getName(), product.getBusinessId());
-
             User currentUser = securityUtils.getCurrentUser();
             validateBusinessOwnership(product, currentUser);
 
             productMapper.updateEntity(request, product);
-            log.debug("Product entity updated with request data");
-
             // Update stock status if provided
             if (request.getStockStatus() != null) {
                 product.setStockStatus(request.getStockStatus());
-                log.debug("Product stock status updated: {}", request.getStockStatus());
             }
 
             if (!product.getHasSizes()) {
-                log.debug("Display fields initialized for product without sizes");
             }
 
             // Sync denormalized names in case category/brand changed
@@ -900,47 +762,30 @@ public class ProductServiceImpl implements ProductService {
             log.info("Product saved: ID={}, Name='{}'", updatedProduct.getId(), updatedProduct.getName());
 
             updateProductImages(updatedProduct, request.getImages());
-            log.debug("Product images updated: {} images", request.getImages() != null ? request.getImages().size() : 0);
-
             boolean sizesChanged = updateProductSizes(updatedProduct, request.getSizes());
-            log.debug("Product sizes update check completed, changed: {}", sizesChanged);
-
             if (sizesChanged) {
                 List<ProductSize> sizes = productSizeRepository.findByProductId(updatedProduct.getId());
                 updatedProduct.setSizes(sizes);
                 updatedProduct = productRepository.save(updatedProduct);
-                log.debug("Product with {} sizes saved after size changes", sizes.size());
             }
 
             updateProductCustomizations(updatedProduct, request.getCustomizations());
-            log.debug("Product customizations updated: {} customizations", request.getCustomizations() != null ? request.getCustomizations().size() : 0);
-
-            long duration = System.currentTimeMillis() - startTime;
-            log.info("Product updated successfully in {}ms: ID={}", duration, id);
+            log.info("Product updated successfully: id={}", id);
             return getProductById(updatedProduct.getId());
         } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("Product update failed after {}ms - ID: {}, Error: {}", duration, id, e.getMessage(), e);
+            log.error("Failed to update product: id={}, error={}", id, e.getMessage(), e);
             throw e;
         }
     }
 
     @Override
     public ProductDetailDto deleteProduct(UUID id) {
-        log.debug("Starting product deletion: ID={}", id);
-
         try {
             Product product = productRepository.findByIdAndIsDeletedFalse(id)
                     .orElseThrow(() -> new NotFoundException("Product not found: " + id));
-            log.debug("Product found for deletion: Name='{}', Business={}", product.getName(), product.getBusinessId());
-
             User currentUser = securityUtils.getCurrentUser();
             validateBusinessOwnership(product, currentUser);
-            log.debug("Business ownership validation passed for user: {}", currentUser.getUserIdentifier());
-
             product.softDelete();
-            log.debug("Product marked for soft delete: {}", id);
-
             Product deletedProduct = productRepository.save(product);
             log.info("Product deleted successfully (soft delete): ID={}, Name='{}', Business={}", deletedProduct.getId(), deletedProduct.getName(), deletedProduct.getBusinessId());
 
@@ -1068,7 +913,6 @@ public class ProductServiceImpl implements ProductService {
             customizations.add(customization);
         }
         productCustomizationRepository.saveAll(customizations);
-        log.debug("Created {} new customizations for product {}", customizations.size(), product.getId());
     }
 
     private void updateProductCustomizations(Product product, List<ProductCustomizationUpdateDto> customizationDtos) {
@@ -1120,8 +964,6 @@ public class ProductServiceImpl implements ProductService {
         if (!newCustomizations.isEmpty()) {
             productCustomizationRepository.saveAll(newCustomizations);
         }
-
-        log.debug("Updated product customizations: {} deleted/updated, {} created", idsToKeep.size(), newCustomizations.size());
     }
 
     private void validateUserBusinessAssociation(User user) {
@@ -1223,3 +1065,4 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 }
+

@@ -11,11 +11,8 @@ import java.util.UUID;
 
 public interface LocationService {
     LocationResponse createAddress(LocationCreateRequest request);
-    
     PaginationResponse<LocationResponse> getAllAddresses(LocationFilterRequest filter);
-    
     List<LocationResponse> getMyAddressesList();
-
     LocationResponse getAddressById(UUID id);
     LocationResponse updateAddress(UUID id, LocationUpdateRequest request);
     LocationResponse deleteAddress(UUID id);

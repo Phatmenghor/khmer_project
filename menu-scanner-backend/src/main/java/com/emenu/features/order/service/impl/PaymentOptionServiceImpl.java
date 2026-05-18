@@ -133,9 +133,6 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
                 .build();
     }
 
-    /**
-     * Map PaymentOption entity to response DTO
-     */
     private PaymentOptionResponse mapToResponse(PaymentOption option) {
         return PaymentOptionResponse.builder()
                 .id(option.getId())
@@ -148,3 +145,4 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
                 .build();
     }
 }
+

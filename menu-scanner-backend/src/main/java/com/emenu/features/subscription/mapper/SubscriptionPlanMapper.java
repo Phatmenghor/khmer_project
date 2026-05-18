@@ -33,8 +33,4 @@ if (plan.getSubscriptions() != null) {
     response.setActiveSubscriptionsCount(0L);
 }
     }
-
-    default PaginationResponse<SubscriptionPlanResponse> toPaginationResponse(Page<SubscriptionPlan> planPage, PaginationMapper paginationMapper) {
-return paginationMapper.toPaginationResponse(planPage, this::toResponseList);
-    }
 }

@@ -23,5 +23,5 @@ public class ImageEntity extends BaseUUIDEntity {
     
     @Lob
     @Column(name = "data", columnDefinition = "TEXT")
-    private String data; // Base64 encoded string
+    private String data;
 }

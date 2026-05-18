@@ -39,14 +39,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponse createCategory(CategoryCreateRequest request) {
-        log.info("Creating category: {}", request.getName());
-
         User currentUser = securityUtils.getCurrentUser();
         if (currentUser.getBusinessId() == null) {
             throw new ValidationException("User is not associated with any business");
         }
 
-        // Check if category name already exists for this business
         if (categoryRepository.existsByNameAndBusinessIdAndIsDeletedFalse(
                 request.getName(), currentUser.getBusinessId())) {
             throw new ValidationException("Category name already exists in your business");
@@ -57,8 +54,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category savedCategory = categoryRepository.save(category);
 
-        log.info("Category created successfully: {} for business: {}",
-                savedCategory.getName(), currentUser.getBusinessId());
+        log.info("Category created successfully: id={}, name={}", savedCategory.getId(), savedCategory.getName());
         return categoryMapper.toResponse(savedCategory);
     }
 
@@ -92,32 +88,25 @@ public class CategoryServiceImpl implements CategoryService {
                 pageable
         );
 
-        // Get all category IDs from the page
         List<UUID> categoryIds = categoryPage.getContent().stream()
                 .map(Category::getId)
                 .toList();
 
-        // Fetch all product counts (total and active) in a single query (batch query - optimized)
         List<Object[]> productCountData = categoryRepository.countTotalAndActiveProductsForCategories(categoryIds);
 
-        // Build maps from category ID to product counts
         java.util.Map<UUID, Long> totalProductCountMap = new java.util.HashMap<>();
         java.util.Map<UUID, Long> activeProductCountMap = new java.util.HashMap<>();
         for (Object[] data : productCountData) {
             UUID categoryId = (UUID) data[0];
-            Long totalCount = ((Number) data[1]).longValue();
-            Long activeCount = ((Number) data[2]).longValue();
-            totalProductCountMap.put(categoryId, totalCount);
-            activeProductCountMap.put(categoryId, activeCount);
+            totalProductCountMap.put(categoryId, ((Number) data[1]).longValue());
+            activeProductCountMap.put(categoryId, ((Number) data[2]).longValue());
         }
 
-        // Map categories to response with product counts
         List<CategoryWithProductCountResponse> responses = categoryPage.getContent().stream()
                 .map(category -> {
                     CategoryWithProductCountResponse response = new CategoryWithProductCountResponse();
                     CategoryResponse baseResponse = categoryMapper.toResponse(category);
 
-                    // Copy base response fields
                     response.setId(baseResponse.getId());
                     response.setCreatedAt(baseResponse.getCreatedAt());
                     response.setUpdatedAt(baseResponse.getUpdatedAt());
@@ -129,11 +118,8 @@ public class CategoryServiceImpl implements CategoryService {
                     response.setImageUrl(baseResponse.getImageUrl());
                     response.setStatus(baseResponse.getStatus());
 
-                    // Get product counts from maps (optimized - no N+1 query)
-                    long totalProductCount = totalProductCountMap.getOrDefault(category.getId(), 0L);
-                    long activeProductCount = activeProductCountMap.getOrDefault(category.getId(), 0L);
-                    response.setTotalProducts(totalProductCount);
-                    response.setActiveProducts(activeProductCount);
+                    response.setTotalProducts(totalProductCountMap.getOrDefault(category.getId(), 0L));
+                    response.setActiveProducts(activeProductCountMap.getOrDefault(category.getId(), 0L));
 
                     return response;
                 })
@@ -176,7 +162,6 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse updateCategory(UUID id, CategoryUpdateRequest request) {
         Category category = findCategoryById(id);
 
-        // Check if new name already exists (if name is being changed)
         if (request.getName() != null && !request.getName().equals(category.getName())) {
             if (categoryRepository.existsByNameAndBusinessIdAndIsDeletedFalse(
                     request.getName(), category.getBusinessId())) {
@@ -187,7 +172,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryMapper.updateEntity(request, category);
         Category updatedCategory = categoryRepository.save(category);
 
-        log.info("Category updated successfully: {}", id);
+        log.info("Category updated successfully: id={}", id);
         return categoryMapper.toResponse(updatedCategory);
     }
 
@@ -198,11 +183,10 @@ public class CategoryServiceImpl implements CategoryService {
         category.softDelete();
         category = categoryRepository.save(category);
 
-        log.info("Category deleted successfully: {}", id);
+        log.info("Category deleted successfully: id={}", id);
         return categoryMapper.toResponse(category);
     }
 
-    // Private helper methods
     private Category findCategoryById(UUID id) {
         return categoryRepository.findByIdWithBusiness(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));

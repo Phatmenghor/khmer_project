@@ -27,37 +27,26 @@ public class BannerController {
     private final BannerService bannerService;
     private final SecurityUtils securityUtils;
 
-    /**
-     * Create new banner
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<BannerResponse>> createBanner(@Valid @RequestBody BannerCreateRequest request) {
-        log.info("Creating banner for current user's business");
+        log.info("Endpoint: create-banner - banner creation: image={}", request.getImageUrl());
         BannerResponse banner = bannerService.createBanner(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Banner created successfully", banner));
     }
 
-    /**
-     * Get all banners with filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BannerResponse>>> getAllBanners(@Valid @RequestBody BannerFilterRequest filter) {
-        log.info("Getting all banners for current user's business");
+        log.info("Endpoint: search-banners - banners retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<BannerResponse> banners = bannerService.getAllBanners(filter);
         return ResponseEntity.ok(ApiResponse.success("Banners retrieved successfully", banners));
     }
 
-    /**
-     * Get all banners with filtering
-     * If businessId is provided in filter, use it; otherwise use current user's business
-     */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BannerResponse>>> getMyBusinessAllBanners(@Valid @RequestBody BannerFilterRequest filter) {
-        log.info("Getting my banners for current user's business");
+        log.info("Endpoint: search-my-banners - my banners retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         User currentUser = securityUtils.getCurrentUser();
 
-        // Use businessId from filter if provided, otherwise use current user's business
         if (filter.getBusinessId() == null) {
             filter.setBusinessId(currentUser.getBusinessId());
         }
@@ -66,34 +55,25 @@ public class BannerController {
         return ResponseEntity.ok(ApiResponse.success("Banners retrieved successfully", banners));
     }
 
-    /**
-     * Get banner by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BannerResponse>> getBannerById(@PathVariable UUID id) {
-        log.info("Getting banner by ID: {}", id);
+        log.info("Endpoint: get-banner - banner detail: id={}", id);
         BannerResponse banner = bannerService.getBannerById(id);
         return ResponseEntity.ok(ApiResponse.success("Banner retrieved successfully", banner));
     }
 
-    /**
-     * Update banner
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<BannerResponse>> updateBanner(
             @PathVariable UUID id,
             @Valid @RequestBody BannerUpdateRequest request) {
-        log.info("Updating banner: {}", id);
+        log.info("Endpoint: update-banner - banner update: id={}", id);
         BannerResponse banner = bannerService.updateBanner(id, request);
         return ResponseEntity.ok(ApiResponse.success("Banner updated successfully", banner));
     }
 
-    /**
-     * Delete banner
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<BannerResponse>> deleteBanner(@PathVariable UUID id) {
-        log.info("Deleting banner: {}", id);
+        log.info("Endpoint: delete-banner - banner deletion: id={}", id);
         BannerResponse banner = bannerService.deleteBanner(id);
         return ResponseEntity.ok(ApiResponse.success("Banner deleted successfully", banner));
     }

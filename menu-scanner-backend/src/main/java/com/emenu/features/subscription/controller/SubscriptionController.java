@@ -28,80 +28,59 @@ public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
 
-    /**
-     * Get all subscriptions with filtering and pagination
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<SubscriptionResponse>>> getAllSubscriptions(
             @Valid @RequestBody SubscriptionFilterRequest filter) {
-        log.info("Getting subscriptions with filter");
+        log.info("Endpoint: search-subscriptions - subscriptions retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<SubscriptionResponse> subscriptions = subscriptionService.getSubscriptions(filter);
         return ResponseEntity.ok(ApiResponse.success("Subscriptions retrieved successfully", subscriptions));
     }
 
-    /**
-     * Get current user's business subscriptions
-     */
     @PostMapping("/my-business")
     public ResponseEntity<ApiResponse<PaginationResponse<SubscriptionResponse>>> getMyBusinessSubscriptions(
             @Valid @RequestBody SubscriptionFilterRequest filter) {
-        log.info("Getting current user's business subscriptions");
+        log.info("Endpoint: my-subscriptions - my subscriptions retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<SubscriptionResponse> subscriptions = subscriptionService.getCurrentUserBusinessSubscriptions(filter);
         return ResponseEntity.ok(ApiResponse.success("Business subscriptions retrieved successfully", subscriptions));
     }
 
-    /**
-     * Create new subscription
-     */
     @PostMapping
     public ResponseEntity<ApiResponse<SubscriptionResponse>> createSubscription(@Valid @RequestBody SubscriptionCreateRequest request) {
-        log.info("Creating subscription for business: {}", request.getBusinessId());
+        log.info("Endpoint: create-subscription - subscription creation: business_id={}", request.getBusinessId());
         SubscriptionResponse subscription = subscriptionService.createSubscription(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Subscription created successfully", subscription));
     }
 
-    /**
-     * Get subscription by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<SubscriptionResponse>> getSubscriptionById(@PathVariable UUID id) {
-        log.info("Getting subscription by ID: {}", id);
+        log.info("Endpoint: get-subscription - subscription retrieval: id={}", id);
         SubscriptionResponse subscription = subscriptionService.getSubscriptionById(id);
         return ResponseEntity.ok(ApiResponse.success("Subscription retrieved successfully", subscription));
     }
 
-    /**
-     * Update subscription
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<SubscriptionResponse>> updateSubscription(
             @PathVariable UUID id,
             @Valid @RequestBody SubscriptionUpdateRequest request) {
-        log.info("Updating subscription: {}", id);
+        log.info("Endpoint: update-subscription - subscription update: id={}", id);
         SubscriptionResponse subscription = subscriptionService.updateSubscription(id, request);
         return ResponseEntity.ok(ApiResponse.success("Subscription updated successfully", subscription));
     }
 
-    /**
-     * Delete subscription (now returns SubscriptionResponse)
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<SubscriptionResponse>> deleteSubscription(@PathVariable UUID id) {
-        log.info("Deleting subscription: {}", id);
+        log.info("Endpoint: delete-subscription - subscription deletion: id={}", id);
         SubscriptionResponse subscription = subscriptionService.deleteSubscription(id);
         return ResponseEntity.ok(ApiResponse.success("Subscription deleted successfully", subscription));
     }
 
-    /**
-     * Renew subscription (now uses request body)
-     */
     @PostMapping("/{id}/renew")
     public ResponseEntity<ApiResponse<SubscriptionRenewalResponse>> renewSubscription(
             @PathVariable UUID id,
             @Valid @RequestBody SubscriptionRenewRequest request) {
 
-        log.info("Renewing subscription: {} with payment creation: {}", id, request.shouldCreatePayment());
+        log.info("Endpoint: renew-subscription - subscription renewal: subscription_id={}", id);
 
         SubscriptionResponse subscription = subscriptionService.renewSubscription(id, request);
 
@@ -121,16 +100,12 @@ public class SubscriptionController {
         return ResponseEntity.ok(ApiResponse.success(message, response));
     }
 
-
-    /**
-     * Cancel subscription (now uses request body and handles payments automatically)
-     */
     @PostMapping("/{id}/cancel")
     public ResponseEntity<ApiResponse<SubscriptionCancellationResponse>> cancelSubscription(
             @PathVariable UUID id,
             @Valid @RequestBody SubscriptionCancelRequest request) {
 
-        log.info("Cancelling subscription: {} with refund amount: {}", id, request.getRefundAmount());
+        log.info("Endpoint: cancel-subscription - subscription cancellation: subscription_id={}", id);
 
         // Call enhanced service method
         SubscriptionResponse subscription = subscriptionService.cancelSubscription(id, request);
@@ -152,5 +127,4 @@ public class SubscriptionController {
 
         return ResponseEntity.ok(ApiResponse.success(message, response));
     }
-
 }

@@ -52,8 +52,4 @@ if (subscription.getPlan() != null) {
 response.setPaymentStatus(subscription.getPaymentStatus());
 response.setPaymentAmount(subscription.getPaymentAmount().doubleValue());
     }
-
-    default PaginationResponse<SubscriptionResponse> toPaginationResponse(Page<Subscription> subscriptionPage, PaginationMapper paginationMapper) {
-return paginationMapper.toPaginationResponse(subscriptionPage, this::toResponseList);
-    }
 }

@@ -97,24 +97,18 @@ public class OrderServiceImpl implements OrderService {
         User currentUser = securityUtils.getCurrentUser();
 
         try {
-            log.debug("[STEP 1/6] Creating base order...");
             Order order = createBaseOrder(request, currentUser.getId());
 
             // Set order status - default to PENDING if not specified
             OrderStatus status = request.getOrderStatus() != null ? request.getOrderStatus() : OrderStatus.PENDING;
-            log.debug("[STEP 2/6] Setting order status: {}", status);
             order.setOrderStatus(status);
-
-            log.debug("[STEP 3/6] Saving base order...");
             Order savedOrder = orderRepository.save(order);
             log.info("[ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
 
             // Create delivery address snapshot from addressId
-            log.debug("[STEP 3.1/6] Creating delivery address snapshot...");
             OrderDeliveryAddress deliveryAddress = createDeliveryAddressSnapshot(savedOrder.getId(), request.getAddressId());
             if (deliveryAddress != null) {
                 orderDeliveryAddressRepository.save(deliveryAddress);
-                log.debug("[DELIVERY ADDRESS SNAPSHOT] Created for order: {}", savedOrder.getId());
             }
 
             // Set customer details
@@ -139,14 +133,11 @@ public class OrderServiceImpl implements OrderService {
                 deliveryOption.setImageUrl(request.getDeliveryOption().getImageUrl());
                 deliveryOption.setPrice(request.getDeliveryOption().getPrice());
                 orderDeliveryOptionRepository.save(deliveryOption);
-                log.debug("[DELIVERY OPTION SNAPSHOT] Created for order: {}", savedOrder.getId());
-
                 // Update delivery fee in order
                 savedOrder.setDeliveryFee(request.getDeliveryOption().getPrice());
             }
 
             // Create initial order status history to track when order was created
-            log.debug("[STEP 3.5/6] Creating initial status history...");
             createInitialOrderStatusHistory(savedOrder, currentUser.getId());
 
             // Create order items from cart summary with customizations
@@ -159,14 +150,9 @@ public class OrderServiceImpl implements OrderService {
 
             // Apply pricing information if provided
             if (request.getPricing() != null) {
-                log.debug("[PRICING INFO] Applying pricing details from request...");
                 applyPricingToOrder(savedOrder, request.getPricing());
             }
-
-            log.debug("[STEP 5/7] Creating payment record...");
             createPaymentRecord(savedOrder);
-
-            log.debug("[STEP 6/7] Clearing cart...");
             clearCartAfterOrder(currentUser.getId(), request.getBusinessId());
 
             log.info("[CHECKOUT SUCCESS] Order created successfully: {} - Fetching full response...", savedOrder.getOrderNumber());
@@ -185,7 +171,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<OrderResponse> getCustomerOrderHistory(OrderFilterRequest filter) {
-        long startTime = System.currentTimeMillis();
         User currentUser = securityUtils.getCurrentUser();
         filter.setBusinessId(null);  // Clear any business filter for customer orders
 
@@ -195,23 +180,13 @@ public class OrderServiceImpl implements OrderService {
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
-
-        log.debug("[DB QUERY] Executing paginated query with eager loading of business and customer...");
         Page<Order> page = orderRepository.findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(currentUser.getId(), pageable);
-        log.debug("[DB QUERY COMPLETE] Retrieved {} orders from database", page.getNumberOfElements());
-
         // Eagerly load statusHistory for all orders to prevent lazy loading during mapping
-        log.debug("[LOADING STATUS HISTORY] Loading status history for {} orders...", page.getNumberOfElements());
         page.getContent().forEach(order -> {
             List<OrderStatusHistory> statusHistory = orderRepository.findStatusHistoryByOrderId(order.getId());
             order.setStatusHistory(statusHistory);
-            log.debug("   - Order {}: {} status history records", order.getOrderNumber(), statusHistory.size());
         });
-
-        log.debug("[MAPPING] Converting {} orders to response DTOs...", page.getNumberOfElements());
         PaginationResponse<OrderResponse> response = orderMapper.toPaginationResponse(page, paginationMapper);
-
-        long duration = System.currentTimeMillis() - startTime;
         log.info("[CUSTOMER ORDER HISTORY COMPLETE] Retrieved {} orders in {} ms | Total: {} | Page: {}/{}",
                 page.getNumberOfElements(), duration, page.getTotalElements(),
                 page.getNumber() + 1, page.getTotalPages());
@@ -236,7 +211,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<OrderResponse> getAllOrders(OrderFilterRequest filter) {
-        long startTime = System.currentTimeMillis();
         User currentUser = securityUtils.getCurrentUser();
 
         log.info("[GET ALL ORDERS] Starting retrieval | User: {}",
@@ -245,22 +219,12 @@ public class OrderServiceImpl implements OrderService {
         // If user is a business user and no businessId filter is provided, restrict to their business
         if (currentUser.isBusinessUser() && filter.getBusinessId() == null) {
             filter.setBusinessId(currentUser.getBusinessId());
-            log.debug("[AUTO-FILTER] Business user detected - auto-filtering to business: {}", currentUser.getBusinessId());
         }
-
-        log.debug("[FILTER PARAMETERS] BusinessId: {}, OrderStatus: {}, PaymentMethod: {}, PaymentStatus: {}",
-                filter.getBusinessId(), filter.getOrderStatus(), filter.getPaymentMethod(), filter.getPaymentStatus());
-
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
-        log.debug("[PAGINATION] PageNo: {}, PageSize: {}, SortBy: {}, Direction: {}",
-                filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
-
         // Apply filters: businessId, orderStatus, paymentMethod, paymentStatus, date range
-        log.debug("[DB QUERY START] Executing filtered query with eager loading...");
         if (filter.getStartDate() != null || filter.getEndDate() != null) {
-            log.debug("[DATE RANGE FILTER] From: {}, To: {}", filter.getStartDate(), filter.getEndDate());
         }
         long queryStartTime = System.currentTimeMillis();
         LocalDateTime startDate = null;
@@ -295,22 +259,15 @@ public class OrderServiceImpl implements OrderService {
                 page.getNumberOfElements(), queryDuration, page.getTotalElements(), page.getTotalPages());
 
         // Eagerly load statusHistory for all orders to prevent lazy loading during mapping
-        log.debug("[LOADING STATUS HISTORY] Loading status history for {} orders...", page.getNumberOfElements());
         int historyCount = 0;
         for (Order order : page.getContent()) {
             List<OrderStatusHistory> statusHistory = orderRepository.findStatusHistoryByOrderId(order.getId());
             order.setStatusHistory(statusHistory);
             historyCount += statusHistory.size();
-            log.debug("   - Order {}: {} status history records", order.getOrderNumber(), statusHistory.size());
         }
-        log.debug("[STATUS HISTORY LOADED] Total history records: {}", historyCount);
-
-        log.debug("[MAPPING] Converting {} orders to response DTOs...", page.getNumberOfElements());
         long mappingStartTime = System.currentTimeMillis();
         PaginationResponse<OrderResponse> response = orderMapper.toPaginationResponse(page, paginationMapper);
         long mappingDuration = System.currentTimeMillis() - mappingStartTime;
-        log.debug("[MAPPING COMPLETE] Conversion took {} ms", mappingDuration);
-
         long totalDuration = System.currentTimeMillis() - startTime;
         log.info("[GET ALL ORDERS COMPLETE] Total time: {} ms | Orders: {} | Total records: {} | Pages: {}/{}",
                 totalDuration, page.getNumberOfElements(), page.getTotalElements(),
@@ -554,22 +511,13 @@ public class OrderServiceImpl implements OrderService {
 
         com.emenu.features.order.dto.response.CartSummaryResponse cartResponse =
                 (com.emenu.features.order.dto.response.CartSummaryResponse) cartSummary;
-
-        log.debug("[CART SUMMARY] Processing {} items for order: {}", cartResponse.getItems().size(), orderId);
-
         BigDecimal subtotal = cartResponse.getSubtotal() != null ? cartResponse.getSubtotal() : BigDecimal.ZERO;
         BigDecimal discountAmount = cartResponse.getTotalDiscount() != null ? cartResponse.getTotalDiscount() : BigDecimal.ZERO;
-
-        log.debug("[PRICING] Subtotal: {}, Discount: {}", subtotal, discountAmount);
-
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> {
                     log.error("[ERROR] Order not found: {}", orderId);
                     return new NotFoundException("Order not found: " + orderId);
                 });
-
-        log.debug("[ORDER LOADED] Order ID: {}, Items List: {}", orderId, order.getItems() != null ? "initialized" : "null");
-
         int itemCount = 0;
         for (var item : cartResponse.getItems()) {
             itemCount++;
@@ -579,9 +527,6 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new NotFoundException("Product not found: " + item.getProductId()));
 
             BigDecimal finalPrice = item.getFinalPrice();
-            log.debug("[ITEM {}] Product: {} (ID: {}), Qty: {}, Price: {}",
-                itemCount, item.getProductName(), item.getProductId(), item.getQuantity(), finalPrice);
-
             OrderItemCreateHelper helper = OrderItemCreateHelper.builder()
                     .orderId(orderId)
                     .productId(item.getProductId())
@@ -602,8 +547,6 @@ public class OrderServiceImpl implements OrderService {
 
             orderItem.setOrder(order);
             order.getItems().add(orderItem);
-
-            log.debug("[ITEM ADDED] Item {} added to order, total items now: {}", itemCount, order.getItems().size());
         }
 
         order.setSubtotal(subtotal);
@@ -636,8 +579,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void createOrderItemsFromCartSummaryWithCustomizations(UUID orderId, CartSummaryRequest cartSummary) {
-        log.debug("[CART SUMMARY] Processing {} items with customizations for order: {}", cartSummary.getItems().size(), orderId);
-
         BigDecimal subtotal = cartSummary.getSubtotal() != null ? cartSummary.getSubtotal() : BigDecimal.ZERO;
         BigDecimal customizationTotal = cartSummary.getCustomizationTotal() != null ? cartSummary.getCustomizationTotal() : BigDecimal.ZERO;
         BigDecimal discountAmount = cartSummary.getTotalDiscount() != null ? cartSummary.getTotalDiscount() : BigDecimal.ZERO;
@@ -690,9 +631,6 @@ public class OrderServiceImpl implements OrderService {
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                         .multiply(new BigDecimal(item.getQuantity()));
                     orderItem.setCustomizationTotal(itemCustomizationTotal);
-
-                    log.debug("[CUSTOMIZATIONS] Item {} has {} customizations, total: {}",
-                        item.getProductId(), item.getCustomizations().size(), itemCustomizationTotal);
                 } catch (Exception e) {
                     log.warn("Failed to serialize customizations for item {}: {}", item.getProductId(), e.getMessage());
                     orderItem.setCustomizationTotal(BigDecimal.ZERO);
@@ -703,10 +641,6 @@ public class OrderServiceImpl implements OrderService {
 
             orderItem.setHadChangeFromPOS(false);
             order.getItems().add(orderItem);
-
-            log.debug("[ITEM {}] Added: {} (qty: {}, price: {}, customization: {})",
-                itemCount, item.getProductName(), item.getQuantity(), item.getFinalPrice(),
-                orderItem.getCustomizationTotal());
         }
 
         order.setSubtotal(subtotal);
@@ -728,61 +662,46 @@ public class OrderServiceImpl implements OrderService {
 
     private void applyPricingToOrder(Order order, OrderCreateRequest.PricingInfo pricingInfo) {
         if (pricingInfo == null) return;
-
-        log.debug("[PRICING] Applying pricing details to order: {}", order.getId());
-
         // Apply subtotal
         if (pricingInfo.getSubtotal() != null) {
             order.setSubtotal(pricingInfo.getSubtotal());
-            log.debug("   - Subtotal: {}", pricingInfo.getSubtotal());
         }
 
         // Apply delivery fee
         if (pricingInfo.getDeliveryFee() != null) {
             order.setDeliveryFee(pricingInfo.getDeliveryFee());
-            log.debug("   - Delivery Fee: {}", pricingInfo.getDeliveryFee());
         }
 
         // Apply tax information
         if (pricingInfo.getTaxPercentage() != null) {
             order.setTaxPercentage(pricingInfo.getTaxPercentage());
-            log.debug("   - Tax Percentage: {}%", pricingInfo.getTaxPercentage());
         }
         if (pricingInfo.getTaxAmount() != null) {
             order.setTaxAmount(pricingInfo.getTaxAmount());
-            log.debug("   - Tax Amount: {}", pricingInfo.getTaxAmount());
         }
 
         // Apply discount information
         if (pricingInfo.getDiscountAmount() != null) {
             order.setDiscountAmount(pricingInfo.getDiscountAmount());
-            log.debug("   - Discount Amount: {}", pricingInfo.getDiscountAmount());
         }
         if (pricingInfo.getDiscountType() != null) {
             order.setDiscountType(pricingInfo.getDiscountType());
-            log.debug("   - Discount Type: {}", pricingInfo.getDiscountType());
         }
         if (pricingInfo.getDiscountReason() != null) {
             order.setDiscountReason(pricingInfo.getDiscountReason());
-            log.debug("   - Discount Reason: {}", pricingInfo.getDiscountReason());
         }
 
         // Apply final total
         if (pricingInfo.getFinalTotal() != null) {
             order.setTotalAmount(pricingInfo.getFinalTotal());
-            log.debug("   - Final Total: {}", pricingInfo.getFinalTotal());
         }
 
         // Save order with updated pricing
         orderRepository.save(order);
-        log.debug("[PRICING APPLIED] Order {} updated with pricing details", order.getId());
     }
 
     private void applyPOSPricingToOrder(Order order, POSCheckoutRequest.PricingInfo pricingInfo) {
         if (pricingInfo == null) return;
-
-        log.debug("[POS PRICING] Applying POS pricing details to order: {}", order.getId());
-
         if (pricingInfo.getSubtotal() != null) {
             order.setSubtotal(pricingInfo.getSubtotal());
         }
@@ -809,7 +728,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         orderRepository.save(order);
-        log.debug("[POS PRICING APPLIED] Order {} updated with POS pricing details", order.getId());
     }
 
     private void createPaymentRecord(Order order) {
@@ -858,8 +776,6 @@ public class OrderServiceImpl implements OrderService {
             history.setNote("Order created from checkout");
 
             orderStatusHistoryRepository.save(history);
-            log.debug("[STATUS HISTORY] Created initial status history for order: {} with status: {} by user: {}",
-                order.getOrderNumber(), order.getOrderStatus(), changedByName);
         } catch (Exception e) {
             log.warn("[STATUS HISTORY] Failed to create initial status history: {}", e.getMessage());
             // Don't throw exception - order creation should not fail if history creation fails
@@ -877,7 +793,6 @@ public class OrderServiceImpl implements OrderService {
         User currentUser = securityUtils.getCurrentUser();
 
         try {
-            log.debug("[STEP 1/6] Creating base order...");
             Order order = new Order();
             order.setBusinessId(request.getBusinessId());
             order.setCustomerId(request.getCustomerId());
@@ -905,7 +820,6 @@ public class OrderServiceImpl implements OrderService {
             }
 
             // Apply pricing information BEFORE saving (required for NOT NULL constraints)
-            log.debug("[PRICING] Applying POS pricing details before initial save...");
             if (request.getPricing() != null) {
                 if (request.getPricing().getSubtotal() != null) {
                     order.setSubtotal(request.getPricing().getSubtotal());
@@ -932,8 +846,6 @@ public class OrderServiceImpl implements OrderService {
                     order.setTotalAmount(request.getPricing().getFinalTotal());
                 }
             }
-
-            log.debug("[STEP 2/6] Saving order...");
             Order savedOrder = orderRepository.save(order);
             log.info("[ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
 
@@ -946,13 +858,10 @@ public class OrderServiceImpl implements OrderService {
                 deliveryOption.setImageUrl(request.getDeliveryOption().getImageUrl());
                 deliveryOption.setPrice(request.getDeliveryOption().getPrice());
                 orderDeliveryOptionRepository.save(deliveryOption);
-                log.debug("[DELIVERY OPTION SNAPSHOT] Created for POS order: {}", savedOrder.getId());
-
                 savedOrder.setDeliveryFee(request.getDeliveryOption().getPrice());
             }
 
             // Create initial order status history
-            log.debug("[STEP 3/6] Creating initial status history...");
             createInitialOrderStatusHistory(savedOrder, currentUser != null ? currentUser.getId() : UUID.randomUUID());
 
             // Create order items with customizations
@@ -962,17 +871,10 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 throw new ValidationException("Order must contain at least one item");
             }
-
-            log.debug("[STEP 5/6] Creating payment record...");
             createPaymentRecord(savedOrder);
-
-            log.debug("[STEP 6/6] Deducting stock for POS order...");
             // CRITICAL FIX: Reload order from database to get the items that were just created
             Order orderWithItems = orderRepository.findById(savedOrder.getId())
                 .orElseThrow(() -> new NotFoundException("Order not found after item creation"));
-            log.debug("[ORDER RELOADED] Order {} reloaded with {} items", orderWithItems.getOrderNumber(),
-                orderWithItems.getItems() != null ? orderWithItems.getItems().size() : 0);
-
             deductStockForOrder(orderWithItems);
 
             log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
@@ -1005,13 +907,8 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    /**
-     * Deduct stock via FIFO for each item in the order.
-     * Called when order status changes to CONFIRMED.
-     */
     private void deductStockForOrder(Order order) {
         if (order.getItems() == null || order.getItems().isEmpty()) {
-            log.debug("[STOCK DEDUCTION] Order {} has no items, skipping stock deduction", order.getOrderNumber());
             return;
         }
 
@@ -1034,9 +931,6 @@ public class OrderServiceImpl implements OrderService {
                     order.getOrderNumber(), item.getProductId());
                 continue;
             }
-
-            log.debug("[STOCK DEDUCTION ITEM] Order: {}, Product ID: {}, Product Name: {}, Size ID: {}, Quantity: {}",
-                order.getOrderNumber(), item.getProductId(), item.getProductName(), item.getProductSizeId(), item.getQuantity());
             try {
                 stockService.deductStockFIFO(
                     order.getBusinessId(),
@@ -1057,10 +951,6 @@ public class OrderServiceImpl implements OrderService {
         log.info("[STOCK DEDUCTION COMPLETE] Order: {}, All items processed", order.getOrderNumber());
     }
 
-    /**
-     * Create delivery address snapshot by fetching location from database
-     * Stores complete address details + location images for order history preservation
-     */
     private OrderDeliveryAddress createDeliveryAddressSnapshot(UUID orderId, UUID addressId) {
         try {
             // Fetch location from database
@@ -1090,7 +980,6 @@ public class OrderServiceImpl implements OrderService {
                         .map(img -> img.getImageUrl())
                         .collect(java.util.stream.Collectors.toList());
                 deliveryAddress.setLocationImages(imageUrls);
-                log.debug("[LOCATION IMAGES SNAPSHOT] Stored {} images for order history", imageUrls.size());
             }
 
             return deliveryAddress;
@@ -1103,3 +992,5 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 }
+
+

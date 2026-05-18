@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Helper DTO for creating AttendanceCheckIn via MapStruct
- */
 @Data
 @Builder
 @NoArgsConstructor

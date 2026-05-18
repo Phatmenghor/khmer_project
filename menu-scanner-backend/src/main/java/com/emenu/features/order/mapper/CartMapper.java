@@ -102,10 +102,6 @@ public interface CartMapper {
         }
     }
 
-    default PaginationResponse<CartResponse> toPaginationResponse(Page<Cart> cartPage, PaginationMapper paginationMapper) {
-return paginationMapper.toPaginationResponse(cartPage, this::toResponseList);
-    }
-
     @Mapping(source = "business.name", target = "businessName")
     @Mapping(target = "totalItems", expression = "java(cart.getTotalItems())")
     @Mapping(target = "subtotalBeforeDiscount", expression = "java(calculateSubtotalBeforeDiscount(cart))")
@@ -126,9 +122,6 @@ return paginationMapper.toPaginationResponse(cartPage, this::toResponseList);
         }
     }
 
-    /**
-     * Calculate cart subtotal before any discounts by summing items at original price (currentPrice * quantity)
-     */
     default BigDecimal calculateSubtotalBeforeDiscount(Cart cart) {
         if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {
             return BigDecimal.ZERO;
@@ -144,10 +137,9 @@ return paginationMapper.toPaginationResponse(cartPage, this::toResponseList);
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /**
-     * Create a new cart from helper DTO - pure MapStruct mapping
-     */
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "businessId", target = "businessId")
     Cart createFromHelper(CartCreateHelper helper);
 }
+
+

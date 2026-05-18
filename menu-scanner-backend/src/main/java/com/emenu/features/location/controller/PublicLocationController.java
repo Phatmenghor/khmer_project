@@ -28,53 +28,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 public class PublicLocationController {
+
     private final ProvinceService provinceService;
     private final DistrictService districtService;
     private final CommuneService communeService;
     private final VillageService villageService;
 
-    /**
-     * Retrieves all provinces with pagination and filtering
-     */
     @PostMapping("/all-province")
     public ResponseEntity<ApiResponse<PaginationResponse<ProvinceResponse>>> getAllProvinces(
             @Valid @RequestBody ProvinceFilterRequest request) {
-        log.info("Get all provinces");
+        log.info("Endpoint: public-search-provinces - provinces retrieval: page={}, size={}", request.getPageNo(), request.getPageSize());
         PaginationResponse<ProvinceResponse> response = provinceService.getAllProvinces(request);
         return ResponseEntity.ok(ApiResponse.success("Provinces retrieved", response));
     }
 
-    /**
-     * Retrieves all districts with pagination and filtering
-     */
     @PostMapping("/all-district")
     public ResponseEntity<ApiResponse<PaginationResponse<DistrictResponse>>> getAllDistricts(
             @Valid @RequestBody DistrictFilterRequest request) {
-        log.info("Get all districts");
+        log.info("Endpoint: public-search-districts - districts retrieval: page={}, size={}", request.getPageNo(), request.getPageSize());
         PaginationResponse<DistrictResponse> response = districtService.getAllDistricts(request);
         return ResponseEntity.ok(ApiResponse.success("Districts retrieved", response));
     }
 
-    /**
-     * Retrieves all communes with pagination and filtering
-     */
     @PostMapping("/all-commune")
     public ResponseEntity<ApiResponse<PaginationResponse<CommuneResponse>>> getAllCommunes(
             @Valid @RequestBody CommuneFilterRequest request) {
-        log.info("Get all communes");
+        log.info("Endpoint: public-search-communes - communes retrieval: page={}, size={}", request.getPageNo(), request.getPageSize());
         PaginationResponse<CommuneResponse> response = communeService.getAllCommunes(request);
         return ResponseEntity.ok(ApiResponse.success("Communes retrieved", response));
     }
 
-    /**
-     * Retrieves all villages with pagination and filtering
-     */
     @PostMapping("/all-village")
     public ResponseEntity<ApiResponse<PaginationResponse<VillageResponse>>> getAllVillages(
             @Valid @RequestBody VillageFilterRequest request) {
-        log.info("Get all villages");
+        log.info("Endpoint: public-search-villages - villages retrieval: page={}, size={}", request.getPageNo(), request.getPageSize());
         PaginationResponse<VillageResponse> response = villageService.getAllVillages(request);
         return ResponseEntity.ok(ApiResponse.success("Villages retrieved", response));
     }
-
 }

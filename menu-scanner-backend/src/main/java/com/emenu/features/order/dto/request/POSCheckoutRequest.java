@@ -10,11 +10,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-/**
- * POS Checkout Request - Simplified to match OrderCreateRequest structure
- * Used by staff/admin to create orders at point of sale
- * Same structure as public checkout but includes customerId and optional customerAddress for walk-up orders
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -81,3 +76,4 @@ public class POSCheckoutRequest {
         private String paymentStatus;
     }
 }
+

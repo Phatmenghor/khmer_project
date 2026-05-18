@@ -10,9 +10,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Clean DTO for order delivery address snapshot - includes location reference and image snapshots
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -33,3 +30,4 @@ public class OrderDeliveryAddressDto {
     private UUID locationId;  // Reference to original Location entity
     private List<String> locationImages;  // Snapshot of location images at order time
 }
+

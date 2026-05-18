@@ -24,54 +24,39 @@ public class OrderPaymentController {
     private final OrderPaymentService paymentService;
     private final SecurityUtils securityUtils;
 
-    /**
-     * Get all payments with filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<OrderPaymentResponse>>> getAllPayments(@Valid @RequestBody OrderPaymentFilterRequest filter) {
-        log.info("Getting all business payments with filters");
+        log.info("Endpoint: search-order-payments - order payments retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         PaginationResponse<OrderPaymentResponse> payments = paymentService.getAllPayments(filter);
         return ResponseEntity.ok(ApiResponse.success("Payments retrieved successfully", payments));
     }
 
-    /**
-     * Get my business payments
-     */
     @PostMapping("/my-business/all")
     public ResponseEntity<ApiResponse<PaginationResponse<OrderPaymentResponse>>> getMyBusinessPayments(@Valid @RequestBody OrderPaymentFilterRequest filter) {
-        log.info("Getting payments for current user's business");
+        log.info("Endpoint: my-order-payments - my order payments retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         User currentUser = securityUtils.getCurrentUser();
         filter.setBusinessId(currentUser.getBusinessId());
         PaginationResponse<OrderPaymentResponse> payments = paymentService.getAllPayments(filter);
         return ResponseEntity.ok(ApiResponse.success("Business payments retrieved successfully", payments));
     }
 
-    /**
-     * Get payment by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderPaymentResponse>> getPaymentById(@PathVariable UUID id) {
-        log.info("Getting payment by ID: {}", id);
+        log.info("Endpoint: get-order-payment - order payment retrieval: id={}", id);
         OrderPaymentResponse payment = paymentService.getPaymentById(id);
         return ResponseEntity.ok(ApiResponse.success("Payment retrieved successfully", payment));
     }
 
-    /**
-     * Get payment by order ID
-     */
     @GetMapping("/order/{orderId}")
     public ResponseEntity<ApiResponse<OrderPaymentResponse>> getPaymentByOrderId(@PathVariable UUID orderId) {
-        log.info("Getting payment for order: {}", orderId);
+        log.info("Endpoint: get-order-payment-by-order - order payment retrieval by order: order_id={}", orderId);
         OrderPaymentResponse payment = paymentService.getPaymentByOrderId(orderId);
         return ResponseEntity.ok(ApiResponse.success("Payment retrieved successfully", payment));
     }
 
-    /**
-     * Get cash payments only
-     */
     @PostMapping("/cash/all")
     public ResponseEntity<ApiResponse<PaginationResponse<OrderPaymentResponse>>> getCashPayments(@Valid @RequestBody OrderPaymentFilterRequest filter) {
-        log.info("Getting cash payments");
+        log.info("Endpoint: search-cash-order-payments - cash order payments retrieval: page={}, size={}", filter.getPageNo(), filter.getPageSize());
         filter.setPaymentMethod(com.emenu.enums.payment.PaymentMethod.CASH);
         PaginationResponse<OrderPaymentResponse> payments = paymentService.getAllPayments(filter);
         return ResponseEntity.ok(ApiResponse.success("Cash payments retrieved successfully", payments));

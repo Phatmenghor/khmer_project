@@ -6,11 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Complete Sales Preview DTO for product stock items listing
- * Represents a product or product-size with aggregated stock information
- * Includes pricing, promotions, inventory details, and product information
- */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -70,3 +65,4 @@ public class ProductStockItemDto {
 
     private LocalDateTime updatedAt;
 }
+

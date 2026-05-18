@@ -22,12 +22,9 @@ import java.util.List;
 public class PublicBannerController {
     private final BannerService bannerService;
 
-    /**
-     * Get all public banners with filtering
-     */
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<List<BannerResponse>>> getMyBusinessAllBanners(@Valid @RequestBody BannerAllFilterRequest filter) {
-        log.info("Getting my banners for current user's business");
+        log.info("Endpoint: public-search-banners - public banners retrieval: business_id={}", filter.getBusinessId());
         List<BannerResponse> banners = bannerService.getAllItemBanners(filter);
         return ResponseEntity.ok(ApiResponse.success("Banners retrieved successfully", banners));
     }

@@ -83,52 +83,30 @@ public class StockServiceImpl implements StockService {
         return mapToDto(movement);
     }
 
-    /**
-     * Deduct stock using FIFO - oldest batch first.
-     */
     public void deductStockFIFO(UUID businessId, UUID productId, UUID sizeId, Integer quantity, UUID orderId, String reason) {
         log.info("[FIFO DEDUCTION START] Product ID: {}, Size ID: {}, Quantity to deduct: {}, Order: {}",
             productId, sizeId, quantity, orderId);
 
         List<ProductStock> batches = productStockRepository.findActiveBatchesFIFO(productId, sizeId, businessId);
-        log.debug("[FIFO BATCHES] Found {} active batches for product {}", batches.size(), productId);
-
         int remaining = quantity;
         int batchIndex = 0;
 
         for (ProductStock batch : batches) {
             batchIndex++;
             if (remaining <= 0) {
-                log.debug("[FIFO COMPLETE] All units deducted, stopping batch processing");
                 break;
             }
-
-            log.debug("[FIFO BATCH {}] Product ID: {}, Batch ID: {}, On-hand: {}, DateIn: {}, Price: {}",
-                batchIndex, batch.getProductId(), batch.getId(), batch.getQuantityOnHand(), batch.getDateIn(), batch.getPriceIn());
-
             int deduct = Math.min(remaining, batch.getQuantityOnHand());
             int previousQty = batch.getQuantityOnHand();
             int newQty = previousQty - deduct;
-
-            log.debug("[FIFO DEDUCT] Product: {}, Deducting {} from batch {} (was {} now {})",
-                productId, deduct, batch.getId(), previousQty, newQty);
-
             batch.setQuantityOnHand(newQty);
             batch.setDateOut(LocalDateTime.now());
             productStockRepository.save(batch);
-
-            log.debug("[FIFO SAVED] Product: {}, Batch {} updated in database, remaining to deduct: {}",
-                productId, batch.getId(), remaining - deduct);
-
             createStockMovement(
                 businessId, batch.getId(), "STOCK_OUT",
                 -deduct, previousQty, newQty,
                 "ORDER", orderId, reason, getCurrentUserId(), orderId, batch.getPriceIn()
             );
-
-            log.debug("[FIFO MOVEMENT] Product: {}, Stock movement record created for {} units, cost impact: {}",
-                productId, deduct, batch.getPriceIn().multiply(java.math.BigDecimal.valueOf(-deduct)));
-
             remaining -= deduct;
             log.info("[FIFO DEDUCTED] Product ID: {}, {} units from batch {}, {} units remaining to deduct",
                 productId, deduct, batch.getId(), remaining);
@@ -235,9 +213,6 @@ public class StockServiceImpl implements StockService {
         String referenceType, UUID referenceId, String notes,
         UUID initiatedBy, UUID orderId, BigDecimal unitPrice
     ) {
-        log.debug("[MOVEMENT CREATE] Type: {}, ProductStock: {}, Change: {}, Previous: {}, New: {}",
-            movementType, productStockId, quantityChange, previousQuantity, newQuantity);
-
         StockMovement movement = new StockMovement();
         movement.setBusinessId(businessId);
         movement.setProductStockId(productStockId);
@@ -254,13 +229,7 @@ public class StockServiceImpl implements StockService {
 
         BigDecimal costImpact = calculateCostImpact(quantityChange, unitPrice);
         movement.setCostImpact(costImpact);
-
-        log.debug("[MOVEMENT COST] Unit Price: {}, Quantity: {}, Cost Impact: {}",
-            unitPrice, quantityChange, costImpact);
-
         StockMovement saved = stockMovementRepository.save(movement);
-        log.debug("[MOVEMENT SAVED] Movement ID: {} saved to database", saved.getId());
-
         return saved;
     }
 
@@ -303,3 +272,5 @@ public class StockServiceImpl implements StockService {
         return dto;
     }
 }
+
+

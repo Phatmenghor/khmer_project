@@ -26,9 +26,6 @@ public interface OrderPaymentMapper {
 
     List<OrderPaymentResponse> toResponseList(List<OrderPayment> payments);
 
-    /**
-     * Create OrderPayment from helper DTO - pure MapStruct mapping
-     */
     @Mapping(source = "referenceNumber", target = "paymentReference")
     OrderPayment createFromHelper(OrderPaymentCreateHelper helper);
 
@@ -41,8 +38,5 @@ public interface OrderPaymentMapper {
         if (payment.getOrder() == null) return null;
         return payment.getOrder().getCustomerContact();
     }
-
-    default PaginationResponse<OrderPaymentResponse> toPaginationResponse(Page<OrderPayment> paymentPage, PaginationMapper paginationMapper) {
-        return paginationMapper.toPaginationResponse(paymentPage, this::toResponseList);
-    }
 }
+

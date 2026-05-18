@@ -14,26 +14,14 @@ import java.util.UUID;
 @Repository
 public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, UUID> {
 
-    /**
-     * Finds a non-deleted exchange rate by ID
-     */
     Optional<ExchangeRate> findByIdAndIsDeletedFalse(UUID id);
 
-    /**
-     * Finds the current active exchange rate (only one should be active at a time)
-     */
     @Query("SELECT er FROM ExchangeRate er WHERE er.isActive = true AND er.isDeleted = false")
     Optional<ExchangeRate> findActiveRate();
 
-    /**
-     * Counts active exchange rates
-     */
     @Query("SELECT COUNT(er) FROM ExchangeRate er WHERE er.isActive = true AND er.isDeleted = false")
     long countActiveRates();
 
-    /**
-     * Find all exchange rates with dynamic filtering
-     */
     @Query("SELECT er FROM ExchangeRate er " +
            "WHERE er.isDeleted = false " +
            "AND (:isActive IS NULL OR er.isActive = :isActive) " +
