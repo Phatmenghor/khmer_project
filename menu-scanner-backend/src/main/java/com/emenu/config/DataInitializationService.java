@@ -4,6 +4,8 @@ import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.UserType;
 import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.models.UserProfile;
+import com.emenu.features.auth.models.UserEmployment;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -161,14 +163,14 @@ public class DataInitializationService {
 
                 admin = userRepository.save(admin);
 
-                com.emenu.features.auth.models.UserProfile profile = new com.emenu.features.auth.models.UserProfile();
+                UserProfile profile = new UserProfile();
                 profile.setUser(admin);
                 profile.setEmail(defaultAdminEmail);
                 profile.setFirstName("Platform");
                 profile.setLastName("Administrator");
                 admin.setProfile(profile);
 
-                com.emenu.features.auth.models.UserEmployment employment = new com.emenu.features.auth.models.UserEmployment();
+                UserEmployment employment = new UserEmployment();
                 employment.setUser(admin);
                 employment.setPosition("Platform Owner");
                 admin.setEmployment(employment);
