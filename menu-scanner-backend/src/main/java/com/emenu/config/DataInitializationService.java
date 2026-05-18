@@ -85,7 +85,6 @@ public class DataInitializationService {
         try {
             log.info("🔄 Ensuring system roles exist...");
 
-            // System roles with their user types
             record RoleConfig(String name, UserType userType) {}
             RoleConfig[] systemRoles = {
                     new RoleConfig("PLATFORM_OWNER", UserType.PLATFORM_USER),
@@ -95,7 +94,9 @@ public class DataInitializationService {
             int createdCount = 0;
 
             for (RoleConfig roleConfig : systemRoles) {
-                if (roleRepository.findByNameAndIsDeletedFalse(roleConfig.name()).isEmpty()) {
+                List<Role> existingRoles = roleRepository.findAllByNameAndIsDeletedFalse(roleConfig.name());
+
+                if (existingRoles.isEmpty()) {
                     Role role = new Role();
                     role.setName(roleConfig.name());
                     role.setDescription("System role: " + roleConfig.name());
@@ -104,6 +105,13 @@ public class DataInitializationService {
                     roleRepository.save(role);
                     createdCount++;
                     log.info("✅ Created system role: {} for user type: {}", roleConfig.name(), roleConfig.userType());
+                } else if (existingRoles.size() > 1) {
+                    log.warn("⚠️ Found duplicate roles for: {}. Keeping first, removing duplicates...", roleConfig.name());
+                    Role firstRole = existingRoles.get(0);
+                    for (int i = 1; i < existingRoles.size(); i++) {
+                        roleRepository.delete(existingRoles.get(i));
+                    }
+                    log.info("✅ Cleaned up duplicate roles for: {}", roleConfig.name());
                 }
             }
 
