@@ -27,6 +27,5 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private List<BusinessHoursResponse> businessHours;
 
     private Boolean useCategories;
-    private Boolean useSubcategories;
     private Boolean useBrands;
 }

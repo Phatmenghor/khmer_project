@@ -20,11 +20,6 @@ public class ProductConditionalService {
         return settings != null && (settings.getUseCategories() == null || settings.getUseCategories());
     }
 
-    public boolean businessUsesSubcategories(UUID businessId) {
-        BusinessSettingResponse settings = businessSettingService.getBusinessSettingByBusinessId(businessId);
-        return settings != null && (settings.getUseSubcategories() != null && settings.getUseSubcategories());
-    }
-
     public boolean businessUsesBrands(UUID businessId) {
         BusinessSettingResponse settings = businessSettingService.getBusinessSettingByBusinessId(businessId);
         return settings != null && (settings.getUseBrands() != null && settings.getUseBrands());

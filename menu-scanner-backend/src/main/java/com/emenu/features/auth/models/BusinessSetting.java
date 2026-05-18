@@ -70,9 +70,6 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "use_categories", nullable = false)
     private Boolean useCategories = true;
 
-    @Column(name = "use_subcategories", nullable = false)
-    private Boolean useSubcategories = false;
-
     @Column(name = "use_brands", nullable = false)
     private Boolean useBrands = false;
 }
