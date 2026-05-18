@@ -87,7 +87,7 @@ export default function SizeStockPage() {
 
   // Stock management state (to detect when stock is created)
   const stockManagementSuccessMessage = useAppSelector(
-    (state: any) => state.stockManagement?.successMessage
+    (state: { stockManagement?: { successMessage?: string } }) => state.stockManagement?.successMessage
   );
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -212,7 +212,7 @@ export default function SizeStockPage() {
               `Stock status updated to ${newStatus === "ENABLED" ? "Enabled" : "Disabled"}`
             );
           })
-          .catch((error: any) => {
+          .catch((error: unknown) => {
             // Revert optimistic update if API fails
             dispatch(
               revertStockStatusOptimistic({

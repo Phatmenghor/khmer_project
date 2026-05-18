@@ -212,8 +212,8 @@ export default function ProductPage() {
       })
     ).then(() => {
       showToast.success(`Product status updated to ${status}`);
-    }).catch((error: any) => {
-      showToast.error(error?.message || "Failed to update product status");
+    }).catch((error: unknown) => {
+      showToast.error((error as { message?: string })?.message || "Failed to update product status");
     });
   };
 
@@ -269,8 +269,8 @@ export default function ProductPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete product");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete product");
     }
   };
 
@@ -290,8 +290,8 @@ export default function ProductPage() {
           `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
         );
       })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to reset promotion");
+      .catch((error: unknown) => {
+        showToast.error((error as { message?: string })?.message || "Failed to reset promotion");
       });
   };
 

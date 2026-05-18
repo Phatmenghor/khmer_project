@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useCallback, useRef, useMemo, useState } from "react";
+import { useEffect, useCallback, useRef, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MapPin, Plus, CheckCircle2, Loader2 } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
@@ -33,16 +33,13 @@ export default function LocationPage() {
   const colors = useAppSelector(selectBusinessColors);
   const primaryColor = colors.primary;
 
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] =
-    React.useState<LocationResponseModel | null>(null);
-  const [deletingLocation, setDeleteingLocation] =
-    React.useState<LocationResponseModel | null>(null);
-  const [settingPrimaryId, setSettingPrimaryId] = React.useState<string | null>(null);
-  const [currentCoords, setCurrentCoords] = React.useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
+    useState<LocationResponseModel | null>(null);
+  const [deletingLocation, setDeletingLocation] =
+    useState<LocationResponseModel | null>(null);
+  const [settingPrimaryId, setSettingPrimaryId] = useState<string | null>(null);
+  const [currentCoords, setCurrentCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [skeletonCount, setSkeletonCount] = useState(3);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -157,7 +154,6 @@ export default function LocationPage() {
     };
   }, [locationPagination.hasMore, debouncedLoadMore]);
 
-  // Handlers
   const handleAddLocation = useCallback(() => {
     setEditingLocation(null);
     setIsModalOpen(true);
@@ -178,9 +174,9 @@ export default function LocationPage() {
     try {
       await remove(deletingLocation.id).unwrap();
       showToast.success("Location deleted successfully");
-      setDeleteingLocation(null);
-    } catch (error: any) {
-      showToast.error(error?.message || "Failed to delete location");
+      setDeletingLocation(null);
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete location");
     }
   };
 
@@ -193,8 +189,8 @@ export default function LocationPage() {
         await update({ locationId, locationData: updatedLocation }).unwrap();
         showToast.success("Location set as primary");
       }
-    } catch (error: any) {
-      showToast.error(error?.message || "Failed to set primary location");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to set primary location");
     } finally {
       setSettingPrimaryId(null);
     }
@@ -262,7 +258,7 @@ export default function LocationPage() {
             location={location}
             isPrimary={primaryLocation?.id === location.id}
             onEdit={() => handleEditLocation(location)}
-            onDelete={() => setDeleteingLocation(location)}
+            onDelete={() => setDeletingLocation(location)}
             onSetPrimary={() => handleSetPrimary(location.id)}
             isSettingPrimary={settingPrimaryId === location.id}
             currentCoords={currentCoords}
@@ -276,7 +272,7 @@ export default function LocationPage() {
       {locationPagination.hasMore && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-            {Array.from({ length: skeletonCount }).map((i) => (
+            {Array.from({ length: skeletonCount }).map((_, i) => (
               <Skeleton key={i} className="h-48 rounded-2xl" />
             ))}
           </div>
@@ -322,7 +318,7 @@ export default function LocationPage() {
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={!!deletingLocation}
-        onClose={() => setDeleteingLocation(null)}
+        onClose={() => setDeletingLocation(null)}
         onDelete={handleDeleteLocation}
         title="Delete Location"
         description="Are you sure you want to delete this location? This action cannot be undone."

@@ -115,7 +115,7 @@ export default function CheckoutPage() {
             selectedAddressId: defaultAddr.id,
           }));
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         // "No default address found" is expected - don't log as error
         const isExpectedError =
           error?.response?.status === 404 ||
@@ -318,18 +318,18 @@ export default function CheckoutPage() {
       // Call API endpoint to create order
       const orderResult: OrderResponse = await dispatch(createOrderService(checkoutPayload)).unwrap();
 
-      showToast.success("✅ Order placed successfully! Redirecting...");
+      showToast.success("Order placed successfully! Redirecting...");
 
       // Redirect to customer orders page
       setTimeout(() => {
         router.push("/orders");
       }, 1500);
-    } catch (error: any) {
+    } catch (error: unknown) {
 
       // Show user-friendly error message
       const errorMessage =
         error?.response?.data?.message ||
-        error?.message ||
+        (error as { message?: string })?.message ||
         "Failed to complete checkout. Please try again.";
 
       showToast.error(errorMessage);
@@ -669,7 +669,7 @@ export default function CheckoutPage() {
 
                 {discountAmount > 0 && (
                   <p className="text-xs text-red-600 dark:text-red-400 text-center font-semibold bg-red-50/50 dark:bg-red-950/30 p-2 rounded-lg">
-                    💰 You save {formatCurrency(discountAmount)}
+                    You save {formatCurrency(discountAmount)}
                   </p>
                 )}
               </div>

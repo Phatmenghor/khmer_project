@@ -142,7 +142,7 @@ export function ProfilePictureModal({
 
           {selectedImage && selectedImage !== currentImageUrl && (
             <p className="text-sm text-blue-600 font-medium">
-              ✓ New image selected
+              New image selected
             </p>
           )}
         </div>

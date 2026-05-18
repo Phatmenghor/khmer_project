@@ -171,8 +171,8 @@ export default function AttendancePage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete attendance");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete attendance");
     }
   };
 

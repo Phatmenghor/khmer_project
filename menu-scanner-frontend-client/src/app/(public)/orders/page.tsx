@@ -207,9 +207,9 @@ export default function OrdersPage() {
 
       // Reload orders to reflect the cancellation
       loadOrders(currentPage);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage =
-        error?.message || "Failed to cancel order. Please try again.";
+        (error as { message?: string })?.message || "Failed to cancel order. Please try again.";
       showToast.error(errorMessage);
       throw error; // Re-throw to let the modal handle it
     } finally {

@@ -163,7 +163,7 @@ export default function BusinessSettingsPage() {
     form.setValue("logoBusinessUrl", imageData, {
       shouldDirty: true,
     });
-    showToast.success("✓ Logo selected - click Save Changes to upload");
+    showToast.success("Logo selected - click Save Changes to upload");
   };
 
 

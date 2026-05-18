@@ -138,8 +138,8 @@ export default function PaymentOptionsPage() {
         }),
       ).unwrap();
       showToast.success("Payment option status updated");
-    } catch (error: any) {
-      showToast.error(error || "Failed to update payment option status");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to update payment option status");
     }
   };
 
@@ -211,8 +211,8 @@ export default function PaymentOptionsPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete Payment option");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete Payment option");
     }
   };
 

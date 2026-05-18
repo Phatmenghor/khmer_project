@@ -372,8 +372,8 @@ export default function AdminProfilePage() {
 
       showToast.success("Profile updated successfully");
       setIsEditing(false);
-    } catch (error: any) {
-      showToast.error(error || "Failed to update profile");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to update profile");
       setIsUploadingImage(false);
     }
   };
@@ -410,8 +410,8 @@ export default function AdminProfilePage() {
       const freshProfile = await dispatch(getProfileService()).unwrap();
 
       showToast.success("Profile picture updated successfully");
-    } catch (error: any) {
-      showToast.error(error || "Failed to update profile picture");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to update profile picture");
       // Reset the form value on error
       if (userProfile?.profileImageUrl) {
         setValue("profileImageUrl", userProfile.profileImageUrl);
@@ -473,8 +473,8 @@ export default function AdminProfilePage() {
       setTimeout(() => {
         router.replace(ROUTES.AUTH.LOGIN);
       }, 100);
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete account");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete account");
     }
   };
 
@@ -1565,8 +1565,8 @@ export default function AdminProfilePage() {
 
             showToast.success("Profile picture removed successfully");
             setIsProfilePictureModalOpen(false);
-          } catch (error: any) {
-            showToast.error(error || "Failed to remove profile picture");
+          } catch (error: unknown) {
+            showToast.error((error as { message?: string })?.message || "Failed to remove profile picture");
           } finally {
             setIsUploadingImage(false);
           }

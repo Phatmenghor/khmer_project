@@ -163,8 +163,8 @@ export default function UserBusinessPage() {
     try {
       await dispatch(toggleUserStatusService(user)).unwrap();
       showToast.success("User business status updated successfully");
-    } catch (error: any) {
-      showToast.error(error || "Failed to update user business status");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to update user business status");
     }
   };
 
@@ -208,8 +208,8 @@ export default function UserBusinessPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete user business");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete user business");
     }
   };
 

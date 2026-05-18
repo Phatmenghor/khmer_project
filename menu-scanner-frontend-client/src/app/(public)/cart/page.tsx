@@ -302,7 +302,7 @@ export default function CartPage() {
                   </div>
                   {discountAmount > 0 && (
                     <div className="text-xs text-red-600 dark:text-red-400 text-right pt-2 border-t border-primary/10">
-                      💰 You save <span className="font-bold">{formatCurrency(discountAmount)}</span>
+                      You save <span className="font-bold">{formatCurrency(discountAmount)}</span>
                     </div>
                   )}
                 </div>

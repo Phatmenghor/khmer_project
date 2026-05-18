@@ -246,8 +246,8 @@ export default function ProductDetailPage() {
       try {
         await cartDispatch(updateCartItem({ productId: product.id, productSizeId: sizeId, quantity: 0 })).unwrap();
         showToast.success("Removed from cart");
-      } catch (err: any) {
-        showToast.error(err?.message || "Failed to remove");
+      } catch (err: unknown) {
+        showToast.error((err as { message?: string })?.message || "Failed to remove");
       } finally {
         setClearingSize(null);
       }
@@ -298,8 +298,8 @@ export default function ProductDetailPage() {
       showToast.success("Cart updated");
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
-    } catch (err: any) {
-      showToast.error(err?.message || "Failed to update cart");
+    } catch (err: unknown) {
+      showToast.error((err as { message?: string })?.message || "Failed to update cart");
     } finally {
       setIsSaving(false);
     }
@@ -318,7 +318,7 @@ export default function ProductDetailPage() {
         // Success - state already updated optimistically
         setIsTogglingFavorite(false);
       })
-      .catch((err: any) => {
+      .catch((err: unknown) => {
         // Rollback on failure
         setIsFavorited((prev) => !prev);
         setIsTogglingFavorite(false);

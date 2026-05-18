@@ -128,8 +128,8 @@ export default function FavoritesPage() {
       .then(() => {
         showToast.success("Removed from favorites");
       })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to remove from favorites");
+      .catch((error: unknown) => {
+        showToast.error((error as { message?: string })?.message || "Failed to remove from favorites");
       });
   };
 
@@ -139,8 +139,8 @@ export default function FavoritesPage() {
       .then(() => {
         showToast.success("All favorites cleared");
       })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to clear favorites");
+      .catch((error: unknown) => {
+        showToast.error((error as { message?: string })?.message || "Failed to clear favorites");
       });
   };
 
@@ -153,8 +153,8 @@ export default function FavoritesPage() {
       .then(() => {
         showToast.success("Moved to cart");
       })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to move to cart");
+      .catch((error: unknown) => {
+        showToast.error((error as { message?: string })?.message || "Failed to move to cart");
       });
   };
 

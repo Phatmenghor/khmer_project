@@ -39,14 +39,14 @@ export default function LoginPage() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      userIdentifier: "phatmenghor20@gmail.com",
-      password: "88889999",
+      userIdentifier: "",
+      password: "",
     },
   });
 
-  async function onSubmit(values: FormData) {
+  async function handleLoginSubmit(values: FormData) {
     try {
-      const result = await dispatch(
+      await dispatch(
         loginService({
           userIdentifier: values.userIdentifier,
           password: values.password,
@@ -55,11 +55,12 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      showToast.success("✓ Welcome to admin dashboard!");
+      showToast.success("Welcome to admin dashboard!");
 
       router.replace(ROUTES.ADMIN.DASHBOARD);
-    } catch (err: any) {
-      showToast.error(err?.message || error || "Login failed");
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      showToast.error(e?.message || error || "Login failed");
     }
   }
 
@@ -81,9 +82,10 @@ export default function LoginPage() {
       );
 
       router.replace(ROUTES.ADMIN.DASHBOARD);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const e = err as { message?: string };
       showToast.error(
-        err?.message || err || "Telegram login failed. Please try again.",
+        e?.message || "Telegram login failed. Please try again.",
       );
     } finally {
       setIsTelegramLoading(false);
@@ -119,7 +121,7 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(handleLoginSubmit)} className="space-y-4">
               <TextField
                 name="userIdentifier"
                 label="Email or Username"

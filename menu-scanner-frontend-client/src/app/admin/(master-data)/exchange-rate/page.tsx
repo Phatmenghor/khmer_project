@@ -194,8 +194,8 @@ export default function ExchangeRatePage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete Exchange Rate");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete Exchange Rate");
     }
   };
 

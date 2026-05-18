@@ -141,8 +141,8 @@ export default function SessionPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete session");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete session");
     }
   };
 

@@ -430,8 +430,8 @@ export default function BulkPromotionPage() {
           `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
         );
       })
-      .catch((error: any) => {
-        showToast.error(error?.message || "Failed to reset promotion");
+      .catch((error: unknown) => {
+        showToast.error((error as { message?: string })?.message || "Failed to reset promotion");
       });
   };
 
@@ -566,8 +566,7 @@ export default function BulkPromotionPage() {
         }
       });
 
-      // ✅ OPTIMISTIC UPDATE: Update local state immediately
-      dispatch(
+            dispatch(
         createBulkPromotionsOptimistic({
           productIds: selectedIds,
           promotionType: data.promotionType,
@@ -581,8 +580,7 @@ export default function BulkPromotionPage() {
         }),
       );
 
-      // ✅ BACKGROUND API CALL: Make API request in background
-      const result = await dispatch(
+            const result = await dispatch(
         createBulkPromotionsService({
           productIds: selectedIds,
           promotionType: data.promotionType,
@@ -695,8 +693,7 @@ export default function BulkPromotionPage() {
         }
       });
 
-      // ✅ OPTIMISTIC UPDATE: Clear promotions immediately
-      dispatch(
+            dispatch(
         resetSelectedPromotionsOptimistic({
           productIds: selectedIds,
           productSizeMapping:
@@ -708,8 +705,7 @@ export default function BulkPromotionPage() {
 
       showToast.success("Clearing promotions... (updating in background)");
 
-      // ✅ BACKGROUND API CALL
-      await dispatch(
+            await dispatch(
         resetSelectedPromotionsService({
           productIds: selectedIds,
           productSizeMapping:

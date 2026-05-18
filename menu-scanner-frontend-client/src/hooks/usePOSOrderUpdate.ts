@@ -25,8 +25,7 @@ export function usePOSOrderUpdate() {
   });
 
   const showDeprecatedWarning = useCallback(() => {
-      'usePOSOrderUpdate is deprecated. Use updateOrderAdminService for status updates or usePOSCheckout for creating orders.'
-    );
+    return;
   }, []);
 
   return {

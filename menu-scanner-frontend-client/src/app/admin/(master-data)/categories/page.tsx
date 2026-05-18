@@ -138,8 +138,8 @@ export default function CategoriesPage() {
     try {
       dispatch(toggleCategoriesStatusService(category));
       showToast.success("Category status updated successfully");
-    } catch (error: any) {
-      showToast.error(error || "Failed to update category status");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to update category status");
     }
   };
 
@@ -200,8 +200,8 @@ export default function CategoriesPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete categories");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete categories");
     }
   };
 

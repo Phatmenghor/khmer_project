@@ -1,16 +1,5 @@
 "use client";
 
-/**
- * Home Page Component
- *
- * Features:
- * - Multiple sections: banners, categories, promotions, featured products
- * - Infinite scroll pagination for featured products with smart debounce
- * - Responsive grid layouts
- * - Scroll position restoration
- * - Performance optimized: lazy section loading, memoization, debounced pagination
- */
-
 import React, { useEffect, useCallback, useMemo } from "react";
 
 import {
@@ -45,29 +34,19 @@ export default function HomePage() {
     featuredPagination,
   } = useHomeState();
 
-  // Smart scroll: Keep position on navigation, reset on browser refresh
   useScrollRestoration({
     enabled: true,
     restoreOnMount: true,
     customKey: "home",
   });
 
-  /**
-   * Calculate responsive page size based on screen width
-   * Adjusts API request size to match device capabilities:
-   * - Large desktop (≥ 1280px): 36 items (6 cols × 6 rows)
-   * - Tablet (≥ 768px): 20 items (4-5 cols)
-   * - Mobile (< 768px): 15 items (2-3 cols)
-   *
-   * Memoized to prevent recreation on every render
-   */
   const getPageSize = useMemo(() => {
     return () => {
       if (typeof window === "undefined") return 20;
       const width = window.innerWidth;
-      if (width >= 1280) return 36; // Large desktop
-      if (width >= 768) return 20;  // Tablet
-      return 15;                     // Mobile
+      if (width >= 1280) return 36;
+      if (width >= 768) return 20;
+      return 15;
     };
   }, []);
 
@@ -76,7 +55,6 @@ export default function HomePage() {
     featuredProducts.length === 0 &&
     !featuredProductsSection.loaded;
 
-  // Initial data load
   useEffect(() => {
     const loadData = async () => {
       const promises = [];
@@ -115,22 +93,7 @@ export default function HomePage() {
     promotionProductsSection.loaded,
     featuredProductsSection.loaded,
   ]);
-
-  /**
-   * Load more featured products callback
-   *
-   * Design:
-   * - Memoized to prevent unnecessary observer re-initialization
-   * - Only depends on dispatch (thunk dispatch is stable)
-   * - All condition checks happen inside callback for latest values
-   * - Calculates pageSize dynamically to match current screen size
-   *
-   * Note: We intentionally don't include pagination/loading in dependencies
-   * because those are checked inside the callback. This prevents observer
-   * from being re-created on every pagination update.
-   */
   const handleLoadMoreFeatured = useCallback(() => {
-    // Check current state inside callback to get latest values
     if (
       featuredPagination.hasMore &&
       !featuredProductsSection.loading &&

@@ -56,7 +56,7 @@ export default function BusinessProfileEditorPage() {
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: Record<string, unknown>) => {
     showToast.success("Business profile updated successfully!");
     // TODO: API call to save profile
   };
@@ -102,7 +102,7 @@ export default function BusinessProfileEditorPage() {
       {/* Status Badge */}
       <div className="mb-6">
         <Badge variant={profile.isPublished ? "default" : "secondary"}>
-          {profile.isPublished ? "✓ Published" : "Draft"}
+          {profile.isPublished ? "Published" : "Draft"}
         </Badge>
       </div>
 

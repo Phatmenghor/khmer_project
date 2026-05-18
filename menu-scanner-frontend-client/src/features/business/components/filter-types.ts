@@ -1,8 +1,3 @@
-/**
- * Filter Configuration Types
- * Define all filter types and configurations for dynamic filter panels
- */
-
 
 export interface FilterOption {
   value: string;
@@ -24,16 +19,19 @@ export interface SelectFilterConfig extends BaseFilterConfig {
   options: FilterOption[];
 }
 
-export interface ComboboxBrandFilterConfig extends BaseFilterConfig {
+export interface ComboboxBrandFilterConfig extends Omit<BaseFilterConfig, 'value' | 'onChange'> {
   type: 'combobox-brand';
+  value: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onChange: (value: any) => void;
   showAllOption?: boolean;
 }
 
-export interface ComboboxCategoriesFilterConfig extends BaseFilterConfig {
+export interface ComboboxCategoriesFilterConfig extends Omit<BaseFilterConfig, 'value' | 'onChange'> {
   type: 'combobox-categories';
-  showAllOption?: boolean;
-}
-
+  value: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onChange: (value: any) => void;
   showAllOption?: boolean;
 }
 

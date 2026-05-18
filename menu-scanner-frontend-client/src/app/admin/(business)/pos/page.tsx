@@ -593,7 +593,7 @@ export default function PosPage() {
   // ─── Handle Order-Level Discount ───
   const handleDiscountApply = (discount: Exclude<OrderDiscountType, null>) => {
     setOrderDiscount(discount);
-    showToast.success(`✅ Discount applied: Before: $${discount.beforeTotal.toFixed(2)} → After: $${discount.afterTotal.toFixed(2)} (Saved: $${discount.discountAmount.toFixed(2)})`);
+    showToast.success(`Discount applied: saved $${discount.discountAmount.toFixed(2)}`);
   };
 
   // ─── Submit Order ───
@@ -691,10 +691,10 @@ export default function PosPage() {
         dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));
         setOrderDiscount(null);
-        showToast.success("✅ POS Order created successfully!");
+        showToast.success("Order created successfully");
       }
-    } catch (error: any) {
-      showToast.error(error?.message || "❌ Failed to create POS order");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "❌ Failed to create POS order");
     } finally {
       dispatch(setIsSubmitting(false));
     }

@@ -161,8 +161,8 @@ export default function PublicProfilePage() {
 
       showToast.success("Profile updated successfully");
       setIsEditing(false);
-    } catch (error: any) {
-      showToast.error(error || "Failed to update profile");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to update profile");
     } finally {
       setIsUploadingImage(false);
     }
@@ -211,8 +211,8 @@ export default function PublicProfilePage() {
       await dispatch(getProfileService()).unwrap();
 
       showToast.success("Profile picture updated successfully");
-    } catch (error: any) {
-      showToast.error(error || "Failed to update profile picture");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to update profile picture");
     } finally {
       setIsUploadingImage(false);
       setIsProfilePictureModalOpen(false);
@@ -230,8 +230,8 @@ export default function PublicProfilePage() {
       setTimeout(() => {
         router.replace(ROUTES.AUTH.LOGIN);
       }, 100);
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete account");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete account");
     }
   };
 

@@ -131,8 +131,8 @@ export default function BrandPage() {
         })
       ).unwrap();
       showToast.success("Brand status updated successfully");
-    } catch (error: any) {
-      showToast.error(error || "Failed to update brand status");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to update brand status");
     }
   };
 
@@ -191,8 +191,8 @@ export default function BrandPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete brand");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete brand");
     }
   };
 

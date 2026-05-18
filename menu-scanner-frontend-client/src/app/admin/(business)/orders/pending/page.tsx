@@ -80,7 +80,7 @@ export default function PendingOrdersAdminPage() {
   }, []);
 
   useEffect(() => {
-    const requestParams: any = {
+    const requestParams: Record<string, unknown> = {
       search: debouncedSearch,
       pageNo: filters.pageNo,
       pageSize: globalPageSize,
@@ -160,8 +160,8 @@ export default function PendingOrdersAdminPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete order");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete order");
     }
   };
 

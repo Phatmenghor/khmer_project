@@ -130,8 +130,8 @@ export default function BannerPage() {
     try {
       await dispatch(toggleBannerStatusService(banner)).unwrap();
       showToast.success("Banner status updated successfully");
-    } catch (error: any) {
-      showToast.error(error || "Failed to update banner status");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to update banner status");
     }
   };
 
@@ -188,8 +188,8 @@ export default function BannerPage() {
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
-    } catch (error: any) {
-      showToast.error(error || "Failed to delete user business");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to delete user business");
     }
   };
 

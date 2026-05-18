@@ -190,7 +190,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
               <div className="w-3 h-3 rounded-full bg-primary/60 animate-pulse" />
             </div>
             <p className="text-sm lg:text-base text-muted-foreground/70 leading-relaxed font-medium max-w-3xl mx-auto">
-              ✓ Your session data has been securely saved • ✓ Error auto-logged to support system • ✓ You can safely refresh or try again
+              Your session data has been securely saved • Error auto-logged to support system • You can safely refresh or try again
             </p>
           </div>
         </div>

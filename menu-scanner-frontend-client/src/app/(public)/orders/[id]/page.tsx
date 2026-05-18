@@ -144,10 +144,10 @@ export default function OrderDetailPage() {
           statusTimeline: sortedStatuses,
           loading: false,
         }));
-      } catch (error: any) {
+      } catch (error: unknown) {
         setState((prev) => ({
           ...prev,
-          error: error?.message || "Failed to load order details",
+          error: (error as { message?: string })?.message || "Failed to load order details",
           loading: false,
         }));
       }
@@ -213,8 +213,8 @@ export default function OrderDetailPage() {
         cancelling: false,
       }));
       setShowCancelConfirm(false);
-    } catch (error: any) {
-      showToast.error(error?.message || "Failed to cancel order");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to cancel order");
       setState((prev) => ({ ...prev, cancelling: false }));
     }
   };
