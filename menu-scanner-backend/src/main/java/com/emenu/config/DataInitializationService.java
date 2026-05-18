@@ -96,9 +96,9 @@ public class DataInitializationService {
             int createdCount = 0;
 
             for (RoleConfig roleConfig : systemRoles) {
-                List<Role> existingRoles = roleRepository.findAllByNameAndIsDeletedFalse(roleConfig.name());
+                var existingRole = roleRepository.findByNameAndIsDeletedFalse(roleConfig.name());
 
-                if (existingRoles.isEmpty()) {
+                if (existingRole.isEmpty()) {
                     Role role = new Role();
                     role.setName(roleConfig.name());
                     role.setDescription("System role: " + roleConfig.name());
@@ -107,29 +107,8 @@ public class DataInitializationService {
                     roleRepository.save(role);
                     createdCount++;
                     log.info("✅ Created system role: {} for user type: {}", roleConfig.name(), roleConfig.userType());
-                } else if (existingRoles.size() > 1) {
-                    log.warn("⚠️ Found {} duplicate roles for: {}. Consolidating to first role...", existingRoles.size(), roleConfig.name());
-                    Role firstRole = existingRoles.get(0);
-
-                    for (int i = 1; i < existingRoles.size(); i++) {
-                        Role duplicateRole = existingRoles.get(i);
-
-                        List<User> usersWithDuplicate = userRepository.findAll().stream()
-                                .filter(user -> user.getRoles().contains(duplicateRole))
-                                .toList();
-
-                        for (User user : usersWithDuplicate) {
-                            user.getRoles().remove(duplicateRole);
-                            if (!user.getRoles().contains(firstRole)) {
-                                user.getRoles().add(firstRole);
-                            }
-                            userRepository.save(user);
-                        }
-
-                        roleRepository.delete(duplicateRole);
-                        log.info("✅ Removed duplicate role: {} - reassigned {} users", duplicateRole.getId(), usersWithDuplicate.size());
-                    }
-                    log.info("✅ Cleaned up duplicate roles for: {}", roleConfig.name());
+                } else {
+                    log.info("ℹ️ System role already exists: {}", roleConfig.name());
                 }
             }
 
