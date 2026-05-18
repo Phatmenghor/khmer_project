@@ -4,6 +4,7 @@ import com.emenu.exception.custom.*;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.constants.ErrorCodes;
 import com.emenu.shared.dto.ApiResponse;
+import com.emenu.shared.dto.ErrorResponse;
 import com.emenu.shared.logging.RequestIdUtils;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -559,6 +560,21 @@ public class GlobalExceptionHandler {
             case ErrorCodes.PHONE_ALREADY_EXISTS -> "Please use a different phone number or update your existing account";
             default -> "Please check your input and try again";
         };
+    }
+
+    private ErrorResponse createErrorResponse(String errorCode, String errorType, String message,
+                                             Integer statusCode, HttpServletRequest request) {
+        return ErrorResponse.builder()
+                .requestId(RequestIdUtils.getCurrentRequestId())
+                .errorCode(errorCode)
+                .errorType(errorType)
+                .message(message)
+                .statusCode(statusCode)
+                .path(request.getRequestURI())
+                .method(request.getMethod())
+                .timestamp(LocalDateTime.now())
+                .supportContact("support@emenu-platform.com")
+                .build();
     }
 
     private Map<String, Object> createErrorDetails(String errorCode, HttpServletRequest request) {
