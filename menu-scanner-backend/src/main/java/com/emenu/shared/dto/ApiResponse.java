@@ -21,6 +21,8 @@ public class ApiResponse<T> {
     private String requestId;
     private LocalDateTime timestamp;
     private String code;
+    private String path;
+    private String method;
 
     public ApiResponse(String status, String message, T data) {
         this.status = status;

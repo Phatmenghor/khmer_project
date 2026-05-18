@@ -53,12 +53,8 @@ public class GlobalExceptionHandler {
             BadCredentialsException ex, HttpServletRequest request) {
         log.warn("Authentication failed - Invalid credentials from IP: {}", getClientIP(request));
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.INVALID_CREDENTIALS, request);
-        errorDetails.put("field", "credentials");
-        errorDetails.put("suggestion", "Please verify your email and password");
-
-        ApiResponse<Object> response = new ApiResponse<>("error",
-                "Invalid email or password", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("Invalid email or password",
+            ErrorCodes.INVALID_CREDENTIALS, request);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
@@ -67,9 +63,8 @@ public class GlobalExceptionHandler {
             AuthenticationException ex, HttpServletRequest request) {
         log.warn("Authentication failed: {} from IP: {}", ex.getMessage(), getClientIP(request));
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.INVALID_CREDENTIALS, request);
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            "Authentication failed. Please check your credentials.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("Authentication failed. Please check your credentials.",
+            ErrorCodes.INVALID_CREDENTIALS, request);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
@@ -79,12 +74,8 @@ public class GlobalExceptionHandler {
             AccountLockedException ex, HttpServletRequest request) {
         log.warn("Login blocked - Account locked: {}", ex.getMessage());
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.ACCOUNT_LOCKED, request);
-        errorDetails.put("accountStatus", "LOCKED");
-        errorDetails.put("supportContact", "support@emenu-platform.com");
-        errorDetails.put("action", "Contact support to unlock your account");
-
-        ApiResponse<Object> response = new ApiResponse<>("error", ex.getMessage(), errorDetails);
+        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(),
+            ErrorCodes.ACCOUNT_LOCKED, request);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -93,12 +84,8 @@ public class GlobalExceptionHandler {
             AccountEndWorkException ex, HttpServletRequest request) {
         log.warn("Login blocked - Account ended: {}", ex.getMessage());
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.ACCOUNT_DISABLED, request);
-        errorDetails.put("accountStatus", "END_WORK");
-        errorDetails.put("supportContact", "support@emenu-platform.com");
-        errorDetails.put("action", "This account has been marked as end of work");
-
-        ApiResponse<Object> response = new ApiResponse<>("error", ex.getMessage(), errorDetails);
+        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(),
+            ErrorCodes.ACCOUNT_DISABLED, request);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -107,12 +94,8 @@ public class GlobalExceptionHandler {
             DisabledException ex, HttpServletRequest request) {
         log.warn("Login blocked - Account disabled: {}", ex.getMessage());
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.ACCOUNT_DISABLED, request);
-        errorDetails.put("accountStatus", "DISABLED");
-        errorDetails.put("supportContact", "support@emenu-platform.com");
-
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            "Your account has been disabled. Please contact support.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("Your account has been disabled. Please contact support.",
+            ErrorCodes.ACCOUNT_DISABLED, request);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -121,11 +104,8 @@ public class GlobalExceptionHandler {
             LockedException ex, HttpServletRequest request) {
         log.warn("Login blocked - Account locked by Spring Security: {}", ex.getMessage());
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.ACCOUNT_LOCKED, request);
-        errorDetails.put("supportContact", "support@emenu-platform.com");
-        
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            "Your account has been locked. Please contact support.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("Your account has been locked. Please contact support.",
+            ErrorCodes.ACCOUNT_LOCKED, request);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -134,11 +114,8 @@ public class GlobalExceptionHandler {
             AccessDeniedException ex, HttpServletRequest request) {
         log.warn("Access denied for request to {}: {}", request.getRequestURI(), ex.getMessage());
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.INSUFFICIENT_PERMISSIONS, request);
-        errorDetails.put("requiredAction", "Ensure you have the necessary permissions");
-        
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            "Access denied. You don't have permission to perform this action.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("Access denied. You don't have permission to perform this action.",
+            ErrorCodes.INSUFFICIENT_PERMISSIONS, request);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
@@ -177,17 +154,17 @@ public class GlobalExceptionHandler {
 
         log.warn("Validation failed for request to {}: {} field errors", request.getRequestURI(), fieldErrors.size());
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.VALIDATION_ERROR, request);
-        errorDetails.put("fieldErrors", fieldErrors);
-        errorDetails.put("missingFields", missingFields);
-        errorDetails.put("invalidFields", invalidFields);
-        errorDetails.put("totalErrors", fieldErrors.size());
-
         String message = String.format("Validation failed for %d field(s). Required fields: %s",
                 fieldErrors.size(),
                 missingFields.isEmpty() ? "none" : String.join(", ", missingFields));
 
-        ApiResponse<Object> response = new ApiResponse<>("error", message, errorDetails);
+        ApiResponse<Object> response = buildErrorResponse(message, ErrorCodes.VALIDATION_ERROR, request);
+        response.setData(Map.of(
+            "fieldErrors", fieldErrors,
+            "missingFields", missingFields,
+            "invalidFields", invalidFields,
+            "totalErrors", fieldErrors.size()
+        ));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -202,11 +179,9 @@ public class GlobalExceptionHandler {
 
         log.warn("Constraint violation for request to {}: {}", request.getRequestURI(), violations);
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.VALIDATION_ERROR, request);
-        errorDetails.put("violations", violations);
-
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            "Data validation failed. Please check the constraints.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("Data validation failed. Please check the constraints.",
+            ErrorCodes.VALIDATION_ERROR, request);
+        response.setData(violations);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -215,28 +190,29 @@ public class GlobalExceptionHandler {
         log.error("Runtime exception in request to {}: {}", request.getRequestURI(), ex.getMessage(), ex);
 
         String message = "An unexpected error occurred while processing your request.";
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.INTERNAL_SERVER_ERROR, request);
+        String errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
+        Map<String, Object> errorData = new HashMap<>();
 
         if (ex.getMessage() != null) {
             String exMessage = ex.getMessage().toLowerCase();
             if (exMessage.contains("subdomain")) {
                 if (exMessage.contains("already taken") || exMessage.contains("not available")) {
                     message = "The subdomain you chose is not available. Please select a different subdomain.";
-                    errorDetails.put("field", "subdomain");
-                    errorDetails.put("type", "duplicate");
+                    errorData.put("field", "subdomain");
+                    errorData.put("type", "duplicate");
                 } else if (exMessage.contains("invalid") || exMessage.contains("format")) {
                     message = "Invalid subdomain format. Please use only lowercase letters, numbers, and hyphens.";
-                    errorDetails.put("field", "subdomain");
-                    errorDetails.put("type", "format");
+                    errorData.put("field", "subdomain");
+                    errorData.put("type", "format");
                 }
             } else if (exMessage.contains("business name")) {
                 message = "The business name you chose is not available. Please select a different name.";
-                errorDetails.put("field", "businessName");
-                errorDetails.put("type", "duplicate");
+                errorData.put("field", "businessName");
+                errorData.put("type", "duplicate");
             } else if (exMessage.contains("email")) {
                 message = "The email address is already in use. Please use a different email.";
-                errorDetails.put("field", "email");
-                errorDetails.put("type", "duplicate");
+                errorData.put("field", "email");
+                errorData.put("type", "duplicate");
             } else if (exMessage.contains("timeout")) {
                 message = "The request timed out. Please try again.";
             } else if (exMessage.contains("connection")) {
@@ -246,8 +222,11 @@ public class GlobalExceptionHandler {
             }
         }
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResponse<>("error", message, errorDetails));
+        ApiResponse<Object> response = buildErrorResponse(message, errorCode, request);
+        if (!errorData.isEmpty()) {
+            response.setData(errorData);
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     @ExceptionHandler(ValidationException.class)
@@ -255,45 +234,47 @@ public class GlobalExceptionHandler {
             ValidationException ex, HttpServletRequest request) {
         log.warn("Business validation error: {}", ex.getMessage());
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.VALIDATION_ERROR, request);
-
         String message = ex.getMessage();
+        Map<String, Object> errorData = new HashMap<>();
 
         // Extract specific field information from error message
         if (message.toLowerCase().contains("email")) {
-            errorDetails.put("field", "email");
+            errorData.put("field", "email");
             if (message.contains("already registered") || message.contains("already taken")) {
-                errorDetails.put("type", "duplicate");
+                errorData.put("type", "duplicate");
             } else if (message.contains("format") || message.contains("invalid")) {
-                errorDetails.put("type", "format");
+                errorData.put("type", "format");
             }
         } else if (message.toLowerCase().contains("phone")) {
-            errorDetails.put("field", "phoneNumber");
-            errorDetails.put("type", "format");
-            errorDetails.put("example", "070 411260");
+            errorData.put("field", "phoneNumber");
+            errorData.put("type", "format");
+            errorData.put("example", "070 411260");
         } else if (message.toLowerCase().contains("subdomain")) {
-            errorDetails.put("field", "subdomain");
+            errorData.put("field", "subdomain");
             if (message.contains("already taken") || message.contains("not available")) {
-                errorDetails.put("type", "duplicate");
-                errorDetails.put("suggestion", "Please choose a different subdomain name");
+                errorData.put("type", "duplicate");
+                errorData.put("suggestion", "Please choose a different subdomain name");
             } else if (message.contains("reserved")) {
-                errorDetails.put("type", "reserved");
-                errorDetails.put("suggestion", "This subdomain is reserved. Please choose a different name");
+                errorData.put("type", "reserved");
+                errorData.put("suggestion", "This subdomain is reserved. Please choose a different name");
             } else if (message.contains("format") || message.contains("invalid")) {
-                errorDetails.put("type", "format");
-                errorDetails.put("suggestion", "Use only lowercase letters, numbers, and hyphens (3-63 characters)");
+                errorData.put("type", "format");
+                errorData.put("suggestion", "Use only lowercase letters, numbers, and hyphens (3-63 characters)");
             }
         } else if (message.toLowerCase().contains("business name")) {
-            errorDetails.put("field", "businessName");
-            errorDetails.put("type", "duplicate");
-            errorDetails.put("suggestion", "Please choose a different business name");
+            errorData.put("field", "businessName");
+            errorData.put("type", "duplicate");
+            errorData.put("suggestion", "Please choose a different business name");
         } else if (message.toLowerCase().contains("user identifier")) {
-            errorDetails.put("field", "userIdentifier");
-            errorDetails.put("type", "duplicate");
-            errorDetails.put("suggestion", "Please choose a different user identifier");
+            errorData.put("field", "userIdentifier");
+            errorData.put("type", "duplicate");
+            errorData.put("suggestion", "Please choose a different user identifier");
         }
 
-        ApiResponse<Object> response = new ApiResponse<>("error", message, errorDetails);
+        ApiResponse<Object> response = buildErrorResponse(message, ErrorCodes.VALIDATION_ERROR, request);
+        if (!errorData.isEmpty()) {
+            response.setData(errorData);
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -306,8 +287,7 @@ public class GlobalExceptionHandler {
             UserNotFoundException ex, HttpServletRequest request) {
         log.warn("User not found: {}", ex.getMessage());
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.USER_NOT_FOUND, request);
-        ApiResponse<Object> response = new ApiResponse<>("error", ex.getMessage(), errorDetails);
+        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(), ErrorCodes.USER_NOT_FOUND, request);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -316,8 +296,7 @@ public class GlobalExceptionHandler {
             NotFoundException ex, HttpServletRequest request) {
         log.warn("Resource not found: {}", ex.getMessage());
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.USER_NOT_FOUND, request);
-        ApiResponse<Object> response = new ApiResponse<>("error", ex.getMessage(), errorDetails);
+        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(), ErrorCodes.USER_NOT_FOUND, request);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -326,12 +305,12 @@ public class GlobalExceptionHandler {
             NoHandlerFoundException ex, HttpServletRequest request) {
         log.warn("No handler found for {} {}", ex.getHttpMethod(), ex.getRequestURL());
 
-        Map<String, Object> errorDetails = createErrorDetails("ENDPOINT_NOT_FOUND", request);
-        errorDetails.put("method", ex.getHttpMethod());
-        errorDetails.put("availableEndpoints", "Check API documentation for available endpoints");
-
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            "The requested endpoint was not found.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("The requested endpoint was not found.",
+            "ENDPOINT_NOT_FOUND", request);
+        response.setData(Map.of(
+            "method", ex.getHttpMethod(),
+            "availableEndpoints", "Check API documentation for available endpoints"
+        ));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
@@ -344,13 +323,12 @@ public class GlobalExceptionHandler {
             HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
         log.warn("Method not supported: {} for {}", ex.getMethod(), request.getRequestURI());
 
-        Map<String, Object> errorDetails = createErrorDetails("METHOD_NOT_SUPPORTED", request);
-        errorDetails.put("supportedMethods", ex.getSupportedHttpMethods());
-        errorDetails.put("requestedMethod", ex.getMethod());
-
-        ApiResponse<Object> response = new ApiResponse<>("error",
-                String.format("HTTP method '%s' is not supported for this endpoint", ex.getMethod()),
-                errorDetails);
+        String message = String.format("HTTP method '%s' is not supported for this endpoint", ex.getMethod());
+        ApiResponse<Object> response = buildErrorResponse(message, "METHOD_NOT_SUPPORTED", request);
+        response.setData(Map.of(
+            "supportedMethods", ex.getSupportedHttpMethods(),
+            "requestedMethod", ex.getMethod()
+        ));
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(response);
     }
 
@@ -359,11 +337,9 @@ public class GlobalExceptionHandler {
             HttpMessageNotReadableException ex, HttpServletRequest request) {
         log.warn("Invalid JSON request body: {}", ex.getMessage());
 
-        Map<String, Object> errorDetails = createErrorDetails("INVALID_REQUEST_BODY", request);
-        errorDetails.put("hint", "Please check your JSON format and data types");
-
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            "Invalid request body. Please check your JSON format.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("Invalid request body. Please check your JSON format.",
+            "INVALID_REQUEST_BODY", request);
+        response.setData(Map.of("hint", "Please check your JSON format and data types"));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -372,14 +348,13 @@ public class GlobalExceptionHandler {
             MissingServletRequestParameterException ex, HttpServletRequest request) {
         log.warn("Missing required parameter: {}", ex.getParameterName());
 
-        Map<String, Object> errorDetails = createErrorDetails("MISSING_PARAMETER", request);
-        errorDetails.put("field", ex.getParameterName());
-        errorDetails.put("parameterType", ex.getParameterType());
-        errorDetails.put("missingFields", List.of(ex.getParameterName()));
-
-        ApiResponse<Object> response = new ApiResponse<>("error",
-                String.format("Required parameter '%s' is missing", ex.getParameterName()),
-                errorDetails);
+        String message = String.format("Required parameter '%s' is missing", ex.getParameterName());
+        ApiResponse<Object> response = buildErrorResponse(message, "MISSING_PARAMETER", request);
+        response.setData(Map.of(
+            "field", ex.getParameterName(),
+            "parameterType", ex.getParameterType(),
+            "missingFields", List.of(ex.getParameterName())
+        ));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -388,16 +363,15 @@ public class GlobalExceptionHandler {
             MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
         log.warn("Type mismatch for parameter: {}", ex.getName());
 
-        Map<String, Object> errorDetails = createErrorDetails("TYPE_MISMATCH", request);
-        errorDetails.put("parameterName", ex.getName());
-        errorDetails.put("expectedType", ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "Unknown");
-        errorDetails.put("providedValue", ex.getValue());
-
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            String.format("Invalid value for parameter '%s'. Expected %s.", 
-                ex.getName(), 
-                ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "different type"), 
-            errorDetails);
+        String message = String.format("Invalid value for parameter '%s'. Expected %s.",
+            ex.getName(),
+            ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "different type");
+        ApiResponse<Object> response = buildErrorResponse(message, "TYPE_MISMATCH", request);
+        response.setData(Map.of(
+            "parameterName", ex.getName(),
+            "expectedType", ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "Unknown",
+            "providedValue", ex.getValue()
+        ));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -410,9 +384,8 @@ public class GlobalExceptionHandler {
             OptimisticLockException ex, HttpServletRequest request) {
         log.warn("Optimistic lock conflict for request to {}: {}", request.getRequestURI(), ex.getMessage());
 
-        Map<String, Object> errorDetails = createErrorDetails("CONFLICT", request);
-        ApiResponse<Object> response = new ApiResponse<>("error",
-                "The data was modified by another request. Please try again.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("The data was modified by another request. Please try again.",
+            "CONFLICT", request);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
@@ -422,7 +395,7 @@ public class GlobalExceptionHandler {
 
         String message = "Data validation failed";
         String errorCode = ErrorCodes.VALIDATION_ERROR;
-        Map<String, Object> errorDetails = createErrorDetails(errorCode, request);
+        Map<String, Object> errorData = new HashMap<>();
 
         String exceptionMessage = ex.getMessage() != null ? ex.getMessage().toLowerCase() : "";
         String rootCauseMessage = ex.getRootCause() != null ? ex.getRootCause().getMessage().toLowerCase() : "";
@@ -432,54 +405,55 @@ public class GlobalExceptionHandler {
         if (containsPattern(fullMessage, new String[]{"email", "unique.*email", "users_email"})) {
             message = "Email address is already registered. Please use a different email or sign in if you already have an account.";
             errorCode = ErrorCodes.EMAIL_ALREADY_EXISTS;
-            errorDetails.put("field", "email");
-            errorDetails.put("type", "duplicate");
-            errorDetails.put("constraint", "UNIQUE_EMAIL");
+            errorData.put("field", "email");
+            errorData.put("type", "duplicate");
+            errorData.put("constraint", "UNIQUE_EMAIL");
         } else if (containsPattern(fullMessage, new String[]{"phone", "unique.*phone", "users_phone_number"})) {
             message = "Phone number is already registered. Please use a different phone number.";
             errorCode = ErrorCodes.PHONE_ALREADY_EXISTS;
-            errorDetails.put("field", "phoneNumber");
-            errorDetails.put("type", "duplicate");
-            errorDetails.put("constraint", "UNIQUE_PHONE");
+            errorData.put("field", "phoneNumber");
+            errorData.put("type", "duplicate");
+            errorData.put("constraint", "UNIQUE_PHONE");
         } else if (containsPattern(fullMessage, new String[]{"business.*email", "businesses_email"})) {
             message = "Business email is already registered. Please use a different email for your business.";
             errorCode = ErrorCodes.EMAIL_ALREADY_EXISTS;
-            errorDetails.put("field", "businessEmail");
-            errorDetails.put("type", "duplicate");
-            errorDetails.put("constraint", "UNIQUE_BUSINESS_EMAIL");
+            errorData.put("field", "businessEmail");
+            errorData.put("type", "duplicate");
+            errorData.put("constraint", "UNIQUE_BUSINESS_EMAIL");
         } else if (containsPattern(fullMessage, new String[]{"subdomain", "unique.*subdomain", "subdomains_subdomain"})) {
             message = "Subdomain is already taken. Please choose a different subdomain name.";
-            errorDetails.put("field", "subdomain");
-            errorDetails.put("type", "duplicate");
-            errorDetails.put("constraint", "UNIQUE_SUBDOMAIN");
-            errorDetails.put("suggestion", "Try adding numbers or modify the name (e.g., myrestaurant2, myrestaurant-kh)");
+            errorData.put("field", "subdomain");
+            errorData.put("type", "duplicate");
+            errorData.put("constraint", "UNIQUE_SUBDOMAIN");
+            errorData.put("suggestion", "Try adding numbers or modify the name (e.g., myrestaurant2, myrestaurant-kh)");
         } else if (containsPattern(fullMessage, new String[]{"business.*name", "businesses_name"})) {
             message = "Business name is already registered. Please choose a different business name.";
-            errorDetails.put("field", "businessName");
-            errorDetails.put("type", "duplicate");
-            errorDetails.put("constraint", "UNIQUE_BUSINESS_NAME");
+            errorData.put("field", "businessName");
+            errorData.put("type", "duplicate");
+            errorData.put("constraint", "UNIQUE_BUSINESS_NAME");
         } else if (containsPattern(fullMessage, new String[]{"user_identifier", "users_user_identifier"})) {
             message = "User identifier is already taken. Please choose a different identifier.";
-            errorDetails.put("field", "userIdentifier");
-            errorDetails.put("type", "duplicate");
-            errorDetails.put("constraint", "UNIQUE_USER_IDENTIFIER");
+            errorData.put("field", "userIdentifier");
+            errorData.put("type", "duplicate");
+            errorData.put("constraint", "UNIQUE_USER_IDENTIFIER");
         } else if (fullMessage.contains("foreign key")) {
             message = "Referenced data does not exist. Please check your input and try again.";
-            errorDetails.put("constraint", "FOREIGN_KEY");
-            errorDetails.put("type", "reference");
+            errorData.put("constraint", "FOREIGN_KEY");
+            errorData.put("type", "reference");
         } else if (fullMessage.contains("not null")) {
             message = "Required field is missing. Please provide all mandatory information.";
-            errorDetails.put("constraint", "NOT_NULL");
-            errorDetails.put("type", "required");
+            errorData.put("constraint", "NOT_NULL");
+            errorData.put("type", "required");
         } else {
             message = "Data constraint violation. Please check your input and try again.";
-            errorDetails.put("constraint", "UNKNOWN");
-            errorDetails.put("type", "validation");
+            errorData.put("constraint", "UNKNOWN");
+            errorData.put("type", "validation");
         }
 
         log.warn("Data integrity violation: {} - Parsed message: {}", fullMessage, message);
 
-        ApiResponse<Object> response = new ApiResponse<>("error", message, errorDetails);
+        ApiResponse<Object> response = buildErrorResponse(message, errorCode, request);
+        response.setData(errorData);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
@@ -488,9 +462,8 @@ public class GlobalExceptionHandler {
             DataAccessException ex, HttpServletRequest request) {
         log.error("Database access error in request to {}: {}", request.getRequestURI(), ex.getMessage(), ex);
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.DATABASE_ERROR, request);
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            "Database operation failed. Please try again.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("Database operation failed. Please try again.",
+            ErrorCodes.DATABASE_ERROR, request);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
@@ -499,11 +472,9 @@ public class GlobalExceptionHandler {
             SQLException ex, HttpServletRequest request) {
         log.error("SQL error in request to {}: {}", request.getRequestURI(), ex.getMessage(), ex);
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.DATABASE_ERROR, request);
-        errorDetails.put("sqlState", ex.getSQLState());
-        
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            "Database query failed. Please try again.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("Database query failed. Please try again.",
+            ErrorCodes.DATABASE_ERROR, request);
+        response.setData(Map.of("sqlState", ex.getSQLState()));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
@@ -516,8 +487,7 @@ public class GlobalExceptionHandler {
             CustomException ex, HttpServletRequest request) {
         log.error("Custom exception occurred: {} - Path: {}", ex.getMessage(), request.getRequestURI());
 
-        Map<String, Object> errorDetails = createErrorDetails(ex.getErrorCode(), request);
-        ApiResponse<Object> response = new ApiResponse<>("error", ex.getMessage(), errorDetails);
+        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(), ex.getErrorCode(), request);
         return ResponseEntity.status(ex.getHttpStatus()).body(response);
     }
 
@@ -529,15 +499,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleGenericException(
             Exception ex, HttpServletRequest request) {
         String traceId = UUID.randomUUID().toString();
-        log.error("Unexpected exception in request to {} [TraceId: {}]: {}", 
+        log.error("Unexpected exception in request to {} [TraceId: {}]: {}",
             request.getRequestURI(), traceId, ex.getMessage(), ex);
 
-        Map<String, Object> errorDetails = createErrorDetails(ErrorCodes.INTERNAL_SERVER_ERROR, request);
-        errorDetails.put("traceId", traceId);
-        errorDetails.put("supportMessage", "Please contact support with the trace ID if the problem persists");
-
-        ApiResponse<Object> response = new ApiResponse<>("error", 
-            "An unexpected error occurred. Our team has been notified.", errorDetails);
+        ApiResponse<Object> response = buildErrorResponse("An unexpected error occurred. Our team has been notified.",
+            ErrorCodes.INTERNAL_SERVER_ERROR, request);
+        response.setData(Map.of(
+            "traceId", traceId,
+            "supportMessage", "Please contact support with the trace ID if the problem persists"
+        ));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
@@ -562,11 +532,16 @@ public class GlobalExceptionHandler {
         };
     }
 
-    private Map<String, Object> createErrorDetails(String errorCode, HttpServletRequest request) {
-        Map<String, Object> errorDetails = new HashMap<>();
-        errorDetails.put("path", request.getRequestURI());
-        errorDetails.put("method", request.getMethod());
-        return errorDetails;
+    private ApiResponse<Object> buildErrorResponse(String message, String code, HttpServletRequest request) {
+        ApiResponse<Object> response = new ApiResponse<>();
+        response.setStatus("error");
+        response.setMessage(message);
+        response.setCode(code);
+        response.setRequestId(RequestIdUtils.getCurrentRequestId());
+        response.setTimestamp(LocalDateTime.now());
+        response.setPath(request.getRequestURI());
+        response.setMethod(request.getMethod());
+        return response;
     }
 
     private String getClientIP(HttpServletRequest request) {
