@@ -10,6 +10,7 @@ import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.FilterUtils;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class BusinessServiceImpl implements BusinessService {
 
     private final BusinessRepository businessRepository;
     private final BusinessMapper businessMapper;
+    private final PaginationMapper paginationMapper;
 
     @Override
     public BusinessResponse createBusiness(BusinessCreateRequest request) {
@@ -67,7 +69,12 @@ public class BusinessServiceImpl implements BusinessService {
         );
 
         log.info("Businesses fetched successfully: count={}, page={}/{}", businessPage.getNumberOfElements(), businessPage.getNumber() + 1, businessPage.getTotalPages());
-        return businessMapper.toPaginationResponse(businessPage);
+
+        List<BusinessResponse> content = businessPage.getContent().stream()
+                .map(businessMapper::toResponse)
+                .toList();
+
+        return paginationMapper.toPaginationResponse(businessPage, content);
     }
 
     @Override

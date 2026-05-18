@@ -6,11 +6,9 @@ import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.order.models.Payment;
 import com.emenu.features.subscription.models.Subscription;
-import com.emenu.shared.dto.PaginationResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -62,33 +60,4 @@ public interface BusinessOwnerMapper {
     BusinessOwnerDetailResponse toDetailResponse(User owner);
 
     List<BusinessOwnerDetailResponse> toDetailResponseList(List<User> owners);
-
-    default PaginationResponse<BusinessOwnerDetailResponse> toPaginationResponse(Page<User> page) {
-        List<BusinessOwnerDetailResponse> content = toDetailResponseList(page.getContent());
-        return PaginationResponse.<BusinessOwnerDetailResponse>builder()
-                .content(content)
-                .pageNo(page.getNumber() + 1)
-                .pageSize(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .first(page.isFirst())
-                .last(page.isLast())
-                .hasNext(page.hasNext())
-                .hasPrevious(page.hasPrevious())
-                .build();
-    }
-
-    default PaginationResponse<BusinessOwnerDetailResponse> toPaginationResponseWithContent(Page<User> page, List<BusinessOwnerDetailResponse> enrichedContent) {
-        return PaginationResponse.<BusinessOwnerDetailResponse>builder()
-                .content(enrichedContent)
-                .pageNo(page.getNumber() + 1)
-                .pageSize(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .first(page.isFirst())
-                .last(page.isLast())
-                .hasNext(page.hasNext())
-                .hasPrevious(page.hasPrevious())
-                .build();
-    }
 }

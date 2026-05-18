@@ -17,6 +17,7 @@ import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.service.RoleService;
 import com.emenu.shared.constants.AuthConstants;
 import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.EnumUtils;
 import com.emenu.shared.utils.FilterUtils;
@@ -42,6 +43,7 @@ public class RoleServiceImpl implements RoleService {
     private final BusinessRepository businessRepository;
     private final RoleMapper roleMapper;
     private final ResponseBuilderMapper responseBuilderMapper;
+    private final PaginationMapper paginationMapper;
 
     @Override
     public RoleResponse createRole(RoleCreateRequest request) {
@@ -102,12 +104,23 @@ public class RoleServiceImpl implements RoleService {
 
         log.info("Roles fetched successfully: count={}, page={}/{}", rolesPage.getNumberOfElements(), rolesPage.getNumber() + 1, rolesPage.getTotalPages());
 
-        if (includeAll) {
+        List<RoleResponse> content = rolesPage.getContent().stream()
+                .map(roleMapper::toResponse)
+                .toList();
+
+        if (includeAll && rolesPage.getNumber() == 0) {
             RoleResponse allRolesResponse = buildAllRolesResponse(request.getBusinessId());
-            return roleMapper.toPaginationResponseWithAllRoles(rolesPage, allRolesResponse, rolesPage.getNumber() == 0);
+            content = new ArrayList<>(content);
+            ((ArrayList<RoleResponse>) content).add(0, allRolesResponse);
         }
 
-        return roleMapper.toPaginationResponse(rolesPage);
+        PaginationResponse<RoleResponse> response = paginationMapper.toPaginationResponse(rolesPage, content);
+
+        if (includeAll && rolesPage.getNumber() == 0) {
+            response.setTotalElements(response.getTotalElements() + 1);
+        }
+
+        return response;
     }
 
     private RoleResponse buildAllRolesResponse(UUID businessId) {

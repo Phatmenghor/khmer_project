@@ -7,6 +7,8 @@ import com.emenu.features.auth.dto.update.BusinessSettingUpdateRequest;
 import com.emenu.features.auth.models.BusinessSetting;
 import org.mapstruct.*;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = { SocialMediaMapper.class, BusinessHoursMapper.class })
 public interface BusinessSettingMapper {
 
@@ -40,4 +42,6 @@ public interface BusinessSettingMapper {
             businessSetting.setTaxPercentage(BusinessConstants.DEFAULT_TAX_PERCENTAGE);
         }
     }
+
+    List<BusinessSettingResponse> toResponseList(List<BusinessSetting> businessSettings);
 }

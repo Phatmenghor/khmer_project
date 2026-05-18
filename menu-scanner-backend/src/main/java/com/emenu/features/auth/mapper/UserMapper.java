@@ -5,9 +5,7 @@ import com.emenu.features.auth.dto.request.UserCreateRequest;
 import com.emenu.features.auth.dto.response.*;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
 import com.emenu.features.auth.models.*;
-import com.emenu.shared.dto.PaginationResponse;
 import org.mapstruct.*;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -146,20 +144,5 @@ public interface UserMapper {
     @Named("rolesToEnums")
     default List<String> rolesToEnums(List<Role> roles) {
         return rolesToStrings(roles);
-    }
-
-    default PaginationResponse<UserResponse> toPaginationResponse(Page<User> page) {
-        List<UserResponse> content = toResponseList(page.getContent());
-        return PaginationResponse.<UserResponse>builder()
-                .content(content)
-                .pageNo(page.getNumber() + 1)
-                .pageSize(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .first(page.isFirst())
-                .last(page.isLast())
-                .hasNext(page.hasNext())
-                .hasPrevious(page.hasPrevious())
-                .build();
     }
 }

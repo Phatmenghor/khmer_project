@@ -31,6 +31,7 @@ import com.emenu.features.subscription.models.SubscriptionPlan;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +63,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private final PasswordEncoder passwordEncoder;
     private final BusinessOwnerMapper mapper;
     private final UserValidationService userValidationService;
+    private final PaginationMapper paginationMapper;
 
     @Override
     public BusinessOwnerCreateResponse createBusinessOwner(BusinessOwnerCreateRequest creationRequestData) {
@@ -141,7 +143,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         log.info("Business owners fetched successfully: count={}, page={}/{}, total={}",
                 enrichedResponses.size(), ownerPage.getNumber() + 1, ownerPage.getTotalPages(), ownerPage.getTotalElements());
 
-        return mapper.toPaginationResponseWithContent(ownerPage, enrichedResponses);
+        return paginationMapper.toPaginationResponse(ownerPage, enrichedResponses);
     }
 
     @Override
