@@ -42,14 +42,6 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
         log.info("Endpoint: search-categories - categories retrieval: page={}, size={}, business_id={}", filter.getPageNo(), filter.getPageSize(), filter.getBusinessId());
 
-        if (filter.getBusinessId() != null && !productConditionalService.businessUsesCategories(filter.getBusinessId())) {
-            PaginationResponse<CategoryResponse> emptyResponse = new PaginationResponse<>();
-            emptyResponse.setContent(Collections.emptyList());
-            emptyResponse.setTotalElements(0L);
-            emptyResponse.setTotalPages(0);
-            return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", emptyResponse));
-        }
-
         PaginationResponse<CategoryResponse> categories = categoryService.getAllCategories(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
     }
@@ -60,14 +52,6 @@ public class CategoryController {
 
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         filter.setBusinessId(businessId);
-
-        if (!productConditionalService.businessUsesCategories(businessId)) {
-            PaginationResponse<CategoryResponse> emptyResponse = new PaginationResponse<>();
-            emptyResponse.setContent(Collections.emptyList());
-            emptyResponse.setTotalElements(0L);
-            emptyResponse.setTotalPages(0);
-            return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", emptyResponse));
-        }
 
         PaginationResponse<CategoryResponse> categories = categoryService.getAllCategories(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));

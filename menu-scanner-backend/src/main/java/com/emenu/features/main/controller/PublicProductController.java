@@ -33,14 +33,6 @@ public class PublicProductController {
 
         UUID businessId = filter.getBusinessId();
 
-        if (businessId != null && filter.getCategoryId() != null && !productConditionalService.businessUsesCategories(businessId)) {
-            PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
-            emptyResponse.setContent(new ArrayList<>());
-            emptyResponse.setTotalElements(0L);
-            emptyResponse.setTotalPages(0);
-            return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", emptyResponse));
-        }
-
         if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
             PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
             emptyResponse.setContent(new ArrayList<>());
@@ -63,10 +55,6 @@ public class PublicProductController {
         log.info("Endpoint: public-search-all-products - public all products retrieval: business_id={}", filter.getBusinessId());
 
         UUID businessId = filter.getBusinessId();
-
-        if (businessId != null && filter.getCategoryId() != null && !productConditionalService.businessUsesCategories(businessId)) {
-            return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", new ArrayList<>()));
-        }
 
         if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
             return ResponseEntity.ok(ApiResponse.success("Brands are not enabled for this business", new ArrayList<>()));

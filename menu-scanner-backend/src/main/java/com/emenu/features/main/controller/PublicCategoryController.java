@@ -31,14 +31,6 @@ public class PublicCategoryController {
     public ResponseEntity<ApiResponse<PaginationResponse<CategoryResponse>>> getAllCategories(@Valid @RequestBody CategoryFilterRequest filter) {
         log.info("Endpoint: public-search-categories - public categories retrieval: page={}, size={}, business_id={}", filter.getPageNo(), filter.getPageSize(), filter.getBusinessId());
 
-        if (filter.getBusinessId() != null && !productConditionalService.businessUsesCategories(filter.getBusinessId())) {
-            PaginationResponse<CategoryResponse> emptyResponse = new PaginationResponse<>();
-            emptyResponse.setContent(Collections.emptyList());
-            emptyResponse.setTotalElements(0L);
-            emptyResponse.setTotalPages(0);
-            return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", emptyResponse));
-        }
-
         PaginationResponse<CategoryResponse> categories = categoryService.getAllCategories(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", categories));
     }
@@ -46,10 +38,6 @@ public class PublicCategoryController {
     @PostMapping("/all-data")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllDataCategories(@Valid @RequestBody CategoryAllFilterRequest filter) {
         log.info("Endpoint: public-search-all-categories - public all categories retrieval: business_id={}", filter.getBusinessId());
-
-        if (filter.getBusinessId() != null && !productConditionalService.businessUsesCategories(filter.getBusinessId())) {
-            return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", Collections.emptyList()));
-        }
 
         List<CategoryResponse> categories = categoryService.getAllItemCategories(filter);
         return ResponseEntity.ok(ApiResponse.success("Categories all retrieved successfully", categories));

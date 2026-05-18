@@ -39,14 +39,6 @@ public class ProductController {
 
         UUID businessId = filter.getBusinessId();
 
-        if (businessId != null && filter.getCategoryId() != null && !productConditionalService.businessUsesCategories(businessId)) {
-            PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
-            emptyResponse.setContent(new java.util.ArrayList<>());
-            emptyResponse.setTotalElements(0L);
-            emptyResponse.setTotalPages(0);
-            return ResponseEntity.ok(ApiResponse.success("Categories are not enabled for this business", emptyResponse));
-        }
-
         if (businessId != null && filter.getBrandId() != null && !productConditionalService.businessUsesBrands(businessId)) {
             PaginationResponse<ProductListDto> emptyResponse = new PaginationResponse<>();
             emptyResponse.setContent(new java.util.ArrayList<>());
