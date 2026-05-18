@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import Image from "next/image";
 import {
@@ -50,14 +51,14 @@ export default function AdminReviewsPage() {
         review.id === reviewId ? { ...review, isApproved: true } : review
       )
     );
-    showToast.success("Review approved successfully");
+    showToast.success(Messages.reviews.approved);
     // TODO: API call to approve review
   };
 
   const handleReject = (reviewId: string) => {
     if (confirm("Are you sure you want to reject this review?")) {
       setReviews((prev) => prev.filter((review) => review.id !== reviewId));
-      showToast.success("Review rejected");
+      showToast.success(Messages.reviews.rejected);
       // TODO: API call to reject/delete review
     }
   };
@@ -65,7 +66,7 @@ export default function AdminReviewsPage() {
   const handleRespond = (reviewId: string) => {
     const message = responseText[reviewId];
     if (!message || !message.trim()) {
-      showToast.error("Please enter a response");
+      showToast.error(Messages.reviews.enterResponse);
       return;
     }
 
@@ -84,7 +85,7 @@ export default function AdminReviewsPage() {
       )
     );
     setResponseText((prev) => ({ ...prev, [reviewId]: "" }));
-    showToast.success("Response added successfully");
+    showToast.success(Messages.reviews.responseSaved);
     // TODO: API call to save response
   };
 

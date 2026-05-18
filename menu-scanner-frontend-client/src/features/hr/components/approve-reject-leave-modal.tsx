@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -77,7 +78,7 @@ export default function ApproveRejectLeaveModal({
 
   const onSubmit = async (data: ApproveRejectFormData) => {
     if (!leaveId) {
-      showToast.error("Leave ID is required");
+      showToast.error(Messages.hr.leaveIdRequired);
       return;
     }
 

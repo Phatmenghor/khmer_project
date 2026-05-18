@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useState, useMemo } from "react";
 import { OrderStatus } from "@/enums/order-status.enum";
 import { OrderFromEnum } from "@/enums/order.enum";
@@ -228,22 +229,22 @@ export default function CheckoutPage() {
 
   const handleCheckout = async () => {
     if (!canCheckout) {
-      showToast.error("Please complete all required fields");
+      showToast.error(Messages.validation.requiredFields);
       return;
     }
 
     if (!selectedAddress) {
-      showToast.error("Please select a delivery address");
+      showToast.error(Messages.delivery.selectAddress);
       return;
     }
 
     if (!selectedDeliveryOption) {
-      showToast.error("Please select a delivery option");
+      showToast.error(Messages.delivery.selectOption);
       return;
     }
 
     if (!selectedPaymentOption) {
-      showToast.error("Please select a payment method");
+      showToast.error(Messages.payment.selectMethod);
       return;
     }
 
@@ -318,7 +319,7 @@ export default function CheckoutPage() {
       // Call API endpoint to create order
       const orderResult: OrderResponse = await dispatch(createOrderService(checkoutPayload)).unwrap();
 
-      showToast.success("Order placed successfully! Redirecting...");
+      showToast.success(Messages.orders.placed);
 
       // Redirect to customer orders page
       setTimeout(() => {
@@ -422,7 +423,7 @@ export default function CheckoutPage() {
                 }}
                 placeholder="Select your delivery address..."
                 hasDefault={!!defaultAddress}
-                error={!checkoutState.selectedAddressId ? "Please select a delivery address" : ""}
+                error={!checkoutState.selectedAddressId ? Messages.delivery.selectAddress : ""}
                 label=""
               />
             </div>

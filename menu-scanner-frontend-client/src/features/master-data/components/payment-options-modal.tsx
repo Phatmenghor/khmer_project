@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -106,7 +107,7 @@ export default function PaymentOptionsModal({
     try {
       if (isCreate) {
         await dispatch(createPaymentOptionService(data)).unwrap();
-        showToast.success("Payment option created successfully");
+        showToast.success(Messages.payment.created);
         handleClose();
       } else if (paymentOption?.id) {
         await dispatch(
@@ -115,11 +116,11 @@ export default function PaymentOptionsModal({
             payload: data,
           })
         ).unwrap();
-        showToast.success("Payment option updated successfully");
+        showToast.success(Messages.payment.updated);
         handleClose();
       }
     } catch (error: any) {
-      showToast.error(error || "Failed to save payment option");
+      showToast.error(error || Messages.payment.saveFailed);
     }
   };
 

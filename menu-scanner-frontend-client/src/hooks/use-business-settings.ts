@@ -1,3 +1,4 @@
+import { Messages } from "@/constants/messages";
 import { useState, useCallback } from "react";
 
 export interface SocialMedia {
@@ -110,7 +111,7 @@ export const useBusinessSettings = () => {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to update business settings");
+          throw new Error(Messages.business.settingsUpdateFailed);
         }
 
         const result = await response.json();

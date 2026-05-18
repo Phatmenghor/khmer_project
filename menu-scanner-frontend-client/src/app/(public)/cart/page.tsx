@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -158,7 +159,7 @@ export default function CartPage() {
 
   const handleClearCart = async () => {
     await dispatch(clearCart()).unwrap();
-    showToast.success("Cart cleared");
+    showToast.success(Messages.cart.cleared);
   };
 
   const handleCheckout = () => {

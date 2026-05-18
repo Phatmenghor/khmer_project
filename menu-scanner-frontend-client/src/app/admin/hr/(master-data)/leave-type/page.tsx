@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
@@ -179,7 +180,7 @@ export default function LeaveTypePage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete leave type");
+      showToast.error((error as { message?: string })?.message || Messages.hr.leaveTypeDeleteFailed);
     }
   };
 

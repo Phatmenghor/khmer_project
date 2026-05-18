@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -307,7 +308,7 @@ export default function UserBusinessModal({
         try {
           profileImageUrl = await uploadImage(profileImageUrl);
         } catch (error) {
-          showToast.error("Failed to upload profile image");
+          showToast.error(Messages.profile.imageUploadFailed);
           setIsUploadingImage(false);
           return;
         }

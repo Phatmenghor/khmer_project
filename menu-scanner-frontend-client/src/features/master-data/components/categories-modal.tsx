@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -135,7 +136,7 @@ export default function CategoriesModal({
 
       if (isCreate) {
         await dispatch(createCategoriesService(payload)).unwrap();
-        showToast.success("Category created successfully");
+        showToast.success(Messages.category.created);
         handleClose();
       } else {
         if (!categories?.id) return;
@@ -145,7 +146,7 @@ export default function CategoriesModal({
             categoriesData: payload,
           }),
         ).unwrap();
-        showToast.success("Category updated successfully");
+        showToast.success(Messages.category.updated);
         handleClose();
       }
     } catch (error: any) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -114,7 +115,7 @@ export default function BannerModal({
         try {
           finalImageUrl = await uploadImage(finalImageUrl);
         } catch (uploadError) {
-          showToast.error("Failed to upload banner image. Please try again.");
+          showToast.error(Messages.banner.imageUploadFailed);
           return;
         } finally {
           setIsUploadingImage(false);
@@ -129,14 +130,14 @@ export default function BannerModal({
 
       if (isCreate) {
         await dispatch(createBannerService(payload)).unwrap();
-        showToast.success("Banner created successfully");
+        showToast.success(Messages.banner.created);
         handleClose();
       } else {
         if (!banner?.id) return;
         await dispatch(
           updateBannerService({ id: banner.id, payload }),
         ).unwrap();
-        showToast.success("Banner updated successfully");
+        showToast.success(Messages.banner.updated);
         handleClose();
       }
     } catch (error: any) {

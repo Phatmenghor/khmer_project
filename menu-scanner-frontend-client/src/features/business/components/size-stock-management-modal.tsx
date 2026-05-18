@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
@@ -150,13 +151,13 @@ export function SizeStockManagementModal({
 
     const quantity = Number(data.quantityOnHand);
     if (isNaN(quantity) || quantity < 0) {
-      showToast.error("Quantity must be greater than or equal to 0");
+      showToast.error(Messages.product.invalidQuantity);
       return;
     }
 
     const price = parseFloat(data.priceIn || "");
     if (isNaN(price) || price <= 0) {
-      showToast.error("Price must be a valid number greater than 0");
+      showToast.error(Messages.product.invalidPrice);
       return;
     }
 
@@ -220,13 +221,13 @@ export function SizeStockManagementModal({
 
     const quantity = Number(data.quantityOnHand);
     if (isNaN(quantity) || quantity < 0) {
-      showToast.error("Quantity must be greater than or equal to 0");
+      showToast.error(Messages.product.invalidQuantity);
       return;
     }
 
     const price = parseFloat(data.priceIn || "");
     if (isNaN(price) || price <= 0) {
-      showToast.error("Price must be a valid number greater than 0");
+      showToast.error(Messages.product.invalidPrice);
       return;
     }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -175,7 +176,7 @@ export default function OrdersPage() {
   const handleCancelOrder = (order: Order) => {
     // Only allow canceling PENDING orders
     if (order.orderStatus !== "PENDING") {
-      showToast.error("Only pending orders can be cancelled");
+      showToast.error(Messages.orders.pendingOnly);
       return;
     }
 
@@ -200,7 +201,7 @@ export default function OrdersPage() {
       // Call the cancel order service from Redux
       await reduxDispatch(cancelOrderService(orderId)).unwrap();
 
-      showToast.success("Order cancelled successfully");
+      showToast.success(Messages.orders.cancelled);
 
       // Close the modal
       setCancelModalState({ isOpen: false, orderId: "", orderNumber: "" });

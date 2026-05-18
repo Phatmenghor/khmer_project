@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Check, Package, X, Trash2, Loader2 } from "lucide-react";
 import { buildCustomizationMapKey } from "@/utils/common/customization-utils";
@@ -131,7 +132,7 @@ export function UnifiedProductModal({
   // Handle confirm/add to cart
   const handleConfirm = useCallback(async () => {
     if (!product || !selectedSize) {
-      showToast.error("Please select a size");
+      showToast.error(Messages.product.selectSize);
       return;
     }
 
@@ -143,7 +144,7 @@ export function UnifiedProductModal({
       await onConfirm(product, selectedSize, customizationIds, quantity);
 
       onOpenChange(false);
-      showToast.success("Updated successfully");
+      showToast.success(Messages.orders.updated);
     } catch (error: any) {
       showToast.error(error?.message || "Failed to update");
     } finally {

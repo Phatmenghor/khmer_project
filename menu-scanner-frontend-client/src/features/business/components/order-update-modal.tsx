@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -175,7 +176,7 @@ export function OrderUpdateModal({
           );
         }
       } else {
-        showToast.success("✅ Order updated successfully!");
+        showToast.success(Messages.orders.updated);
       }
 
       if (onOrderUpdated) {
@@ -183,7 +184,7 @@ export function OrderUpdateModal({
       }
       handleClose();
     } catch (error: any) {
-      showToast.error(error || "Error updating order");
+      showToast.error(error || Messages.upload.orderError);
     } finally {
       setIsSaving(false);
     }

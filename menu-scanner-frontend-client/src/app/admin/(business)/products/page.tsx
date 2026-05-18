@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -213,7 +214,7 @@ export default function ProductPage() {
     ).then(() => {
       showToast.success(`Product status updated to ${status}`);
     }).catch((error: unknown) => {
-      showToast.error((error as { message?: string })?.message || "Failed to update product status");
+      showToast.error((error as { message?: string })?.message || Messages.product.statusUpdateFailed);
     });
   };
 
@@ -270,7 +271,7 @@ export default function ProductPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete product");
+      showToast.error((error as { message?: string })?.message || Messages.product.deleteFailed);
     }
   };
 
@@ -291,7 +292,7 @@ export default function ProductPage() {
         );
       })
       .catch((error: unknown) => {
-        showToast.error((error as { message?: string })?.message || "Failed to reset promotion");
+        showToast.error((error as { message?: string })?.message || Messages.promotions.resetFailed);
       });
   };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -77,7 +78,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
 
       await dispatch(changePasswordService(payload)).unwrap();
 
-      showToast.success("Password changed successfully");
+      showToast.success(Messages.auth.passwordChanged);
       handleClose();
     } catch (error: any) {
       showToast.error(error || "Failed to change password");

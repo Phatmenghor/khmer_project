@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState, useEffect } from "react";
 import { Loader2, Edit, Plus, Minus } from "lucide-react";
 import Image from "next/image";
@@ -96,7 +97,7 @@ export function POSEditCartItemModal({
     // Validate quantity is at least 1
     const qty = parseInt(newQuantity);
     if (qty < 1) {
-      showToast.error("Quantity must be at least 1");
+      showToast.error(Messages.product.minQuantity);
       return;
     }
 
@@ -125,7 +126,7 @@ export function POSEditCartItemModal({
       onSave(editData);
       onOpenChange(false);
     } catch (error) {
-      showToast.error("Error saving changes. Please try again.");
+      showToast.error(Messages.validation.saveFailed);
     } finally {
       setIsSaving(false);
     }

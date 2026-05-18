@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useSelector } from "react-redux";
 import Image from "next/image";
@@ -288,7 +289,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
 
     // Show removal message when reaching 0
     if (newQty === 0) {
-      showToast.success("Removed from cart");
+      showToast.success(Messages.cart.removed);
     }
 
     // Queue API call with debounce
@@ -314,7 +315,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       .catch((error: any) => {
         // Rollback on failure only
         setIsFavorited((prev) => !prev);
-        showToast.error(error?.message || "Failed to update favorites");
+        showToast.error(error?.message || Messages.favorites.updateFailed);
       });
   };
 

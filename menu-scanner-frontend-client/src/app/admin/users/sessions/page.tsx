@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -142,7 +143,7 @@ export default function SessionPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete session");
+      showToast.error((error as { message?: string })?.message || Messages.users.sessionDeleteFailed);
     }
   };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -162,9 +163,9 @@ export default function UserBusinessPage() {
     if (!user?.id) return;
     try {
       await dispatch(toggleUserStatusService(user)).unwrap();
-      showToast.success("User business status updated successfully");
+      showToast.success(Messages.users.statusUpdated);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update user business status");
+      showToast.error((error as { message?: string })?.message || Messages.users.statusUpdateFailed);
     }
   };
 
@@ -209,7 +210,7 @@ export default function UserBusinessPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete user business");
+      showToast.error((error as { message?: string })?.message || Messages.users.deleteFailed);
     }
   };
 

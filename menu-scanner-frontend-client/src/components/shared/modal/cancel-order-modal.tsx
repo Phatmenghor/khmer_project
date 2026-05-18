@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -73,7 +74,7 @@ export function CancelOrderModal({
       handleClose();
     } catch (err: any) {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to cancel order";
+        err instanceof Error ? err.message : Messages.orders.cancelFailed;
       setError(errorMessage);
       setIsSubmitting(false);
     }

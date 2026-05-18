@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import {
   Dialog,
@@ -67,7 +68,7 @@ export default function ResetPasswordModal({
         })
       ).unwrap();
 
-      showToast.success("Password reset successfully");
+      showToast.success(Messages.auth.passwordReset);
 
       handleClose();
     } catch (error: any) {

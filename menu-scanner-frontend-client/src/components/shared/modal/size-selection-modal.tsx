@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Check, Loader2, ShoppingCart, X, Trash2 } from "lucide-react";
@@ -135,7 +136,7 @@ export function SizeSelectionModal({
             }
           })
           .catch(() => {
-            showToast.error("Failed to load product details");
+            showToast.error(Messages.product.loadDetailsFailed);
           })
           .finally(() => {
             setIsLoadingDetail(false);
@@ -246,7 +247,7 @@ export function SizeSelectionModal({
             optimisticTimestamp: ts,
           }),
         ).unwrap();
-        showToast.success("Removed from cart");
+        showToast.success(Messages.cart.removed);
       } catch (error: any) {
         showToast.error(error?.message || "Failed to remove from cart");
       } finally {
@@ -348,13 +349,13 @@ export function SizeSelectionModal({
       }
 
       await Promise.all(promises);
-      showToast.success("Cart updated");
+      showToast.success(Messages.cart.updated);
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
       onOpenChange(false);
       onSuccess?.();
     } catch (error: any) {
-      showToast.error(error?.message || "Failed to update cart");
+      showToast.error(error?.message || Messages.cart.updateFailed);
     } finally {
       setIsSaving(false);
     }

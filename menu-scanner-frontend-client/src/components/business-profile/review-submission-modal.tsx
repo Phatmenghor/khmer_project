@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { X, Star } from "lucide-react";
@@ -39,7 +40,7 @@ export function ReviewSubmissionModal({
 
   const onFormSubmit = (data: any) => {
     if (rating === 0) {
-      showToast.error("Please select a rating");
+      showToast.error(Messages.reviews.selectRating);
       return;
     }
 

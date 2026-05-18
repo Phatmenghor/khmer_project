@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -130,9 +131,9 @@ export default function BrandPage() {
           brandData: { ...brand, status: newStatus },
         })
       ).unwrap();
-      showToast.success("Brand status updated successfully");
+      showToast.success(Messages.brand.statusUpdated);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update brand status");
+      showToast.error((error as { message?: string })?.message || Messages.brand.statusUpdateFailed);
     }
   };
 
@@ -192,7 +193,7 @@ export default function BrandPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete brand");
+      showToast.error((error as { message?: string })?.message || Messages.brand.deleteFailed);
     }
   };
 

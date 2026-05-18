@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -231,7 +232,7 @@ export default function ProductPromotionPage() {
     ).then(() => {
       showToast.success(`Product status updated to ${status}`);
     }).catch((error: unknown) => {
-      showToast.error((error as { message?: string })?.message || "Failed to update product status");
+      showToast.error((error as { message?: string })?.message || Messages.product.statusUpdateFailed);
     });
   };
 
@@ -248,16 +249,16 @@ export default function ProductPromotionPage() {
     closeResetAllModal();
     try {
       await dispatch(resetAllPromotionsService()).unwrap();
-      showToast.success("All promotions reset successfully");
+      showToast.success(Messages.promotions.allReset);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || error || "Failed to reset all promotions");
+      showToast.error((error as { message?: string })?.message || error || Messages.promotions.allResetFailed);
     }
   };
 
   const handleResetTablePromotions = () => {
     const selectedIds = productContent?.filter((p) => p.isSelected).map((p) => p.id) || [];
     if (selectedIds.length === 0) {
-      showToast.error("Please select at least one product to reset");
+      showToast.error(Messages.product.selectAtLeastOneToReset);
       return;
     }
     setResetTableState({
@@ -335,7 +336,7 @@ export default function ProductPromotionPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete product");
+      showToast.error((error as { message?: string })?.message || Messages.product.deleteFailed);
     }
   };
 
@@ -383,7 +384,7 @@ export default function ProductPromotionPage() {
         `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
       );
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || error || "Failed to reset promotion");
+      showToast.error((error as { message?: string })?.message || error || Messages.promotions.resetFailed);
     }
   };
 

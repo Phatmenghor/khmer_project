@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import Image from "next/image";
 import z from "zod";
@@ -55,12 +56,12 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      showToast.success("Welcome to admin dashboard!");
+      showToast.success(Messages.auth.loginSuccess);
 
       router.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      showToast.error(e?.message || error || "Login failed");
+      showToast.error(e?.message || error || Messages.auth.loginFailed);
     }
   }
 
@@ -77,15 +78,15 @@ export default function LoginPage() {
 
       showToast.success(
         result?.isNewUser
-          ? "Welcome! Your account has been created successfully."
-          : "Welcome back!",
+          ? Messages.auth.accountCreated
+          : Messages.auth.welcomeBack,
       );
 
       router.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: unknown) {
       const e = err as { message?: string };
       showToast.error(
-        e?.message || "Telegram login failed. Please try again.",
+        e?.message || Messages.auth.telegramFailed,
       );
     } finally {
       setIsTelegramLoading(false);

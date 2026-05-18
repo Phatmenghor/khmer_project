@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -111,7 +112,7 @@ export const BulkPromotionModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   const onSubmit = async (data: BulkPromotionFormData) => {
     if (selectedProductIds.size === 0) {
-      showToast.error("Please select at least one product");
+      showToast.error(Messages.product.selectAtLeastOne);
       return;
     }
 

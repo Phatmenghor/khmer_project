@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Trash2, LogIn, CheckCircle2, Loader2 } from "lucide-react";
@@ -126,10 +127,10 @@ export default function FavoritesPage() {
     dispatch(toggleFavorite({ productId, isFavorited: true }))
       .unwrap()
       .then(() => {
-        showToast.success("Removed from favorites");
+        showToast.success(Messages.favorites.removed);
       })
       .catch((error: unknown) => {
-        showToast.error((error as { message?: string })?.message || "Failed to remove from favorites");
+        showToast.error((error as { message?: string })?.message || Messages.favorites.removeFailed);
       });
   };
 
@@ -137,10 +138,10 @@ export default function FavoritesPage() {
     dispatch(clearAllFavorites())
       .unwrap()
       .then(() => {
-        showToast.success("All favorites cleared");
+        showToast.success(Messages.favorites.allCleared);
       })
       .catch((error: unknown) => {
-        showToast.error((error as { message?: string })?.message || "Failed to clear favorites");
+        showToast.error((error as { message?: string })?.message || Messages.favorites.clearFailed);
       });
   };
 
@@ -151,10 +152,10 @@ export default function FavoritesPage() {
         return dispatch(toggleFavorite({ productId, isFavorited: true })).unwrap();
       })
       .then(() => {
-        showToast.success("Moved to cart");
+        showToast.success(Messages.cart.movedToCart);
       })
       .catch((error: unknown) => {
-        showToast.error((error as { message?: string })?.message || "Failed to move to cart");
+        showToast.error((error as { message?: string })?.message || Messages.cart.moveToCartFailed);
       });
   };
 

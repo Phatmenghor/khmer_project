@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -245,7 +246,7 @@ export default function ProductDetailPage() {
       setClearingSize(key);
       try {
         await cartDispatch(updateCartItem({ productId: product.id, productSizeId: sizeId, quantity: 0 })).unwrap();
-        showToast.success("Removed from cart");
+        showToast.success(Messages.cart.removed);
       } catch (err: unknown) {
         showToast.error((err as { message?: string })?.message || "Failed to remove");
       } finally {
@@ -295,11 +296,11 @@ export default function ProductDetailPage() {
         }
       }
       await Promise.all(promises);
-      showToast.success("Cart updated");
+      showToast.success(Messages.cart.updated);
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
     } catch (err: unknown) {
-      showToast.error((err as { message?: string })?.message || "Failed to update cart");
+      showToast.error((err as { message?: string })?.message || Messages.cart.updateFailed);
     } finally {
       setIsSaving(false);
     }
@@ -322,7 +323,7 @@ export default function ProductDetailPage() {
         // Rollback on failure
         setIsFavorited((prev) => !prev);
         setIsTogglingFavorite(false);
-        showToast.error(err?.message || "Failed to update favorites");
+        showToast.error(err?.message || Messages.favorites.updateFailed);
       });
   };
 
@@ -331,7 +332,7 @@ export default function ProductDetailPage() {
       try { await navigator.share({ title: product?.name || "Product", url: window.location.href }); } catch { /* cancelled */ }
     } else {
       navigator.clipboard.writeText(window.location.href);
-      showToast.success("Link copied to clipboard");
+      showToast.success(Messages.clipboard.linkCopied);
     }
   };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useState } from "react";
 import { OrderStatus, getOrderStatusLabel, getOrderStatusColor } from "@/enums/order-status.enum";
 import { useParams, useRouter } from "next/navigation";
@@ -160,7 +161,7 @@ export default function OrderDetailPage() {
     if (state.order) {
       navigator.clipboard.writeText(state.order.orderNumber);
       setCopied(true);
-      showToast.success("Order number copied to clipboard");
+      showToast.success(Messages.orders.numberCopied);
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -186,7 +187,7 @@ export default function OrderDetailPage() {
       }
     } else {
       navigator.clipboard.writeText(shareUrl);
-      showToast.success("Order link copied to clipboard");
+      showToast.success(Messages.orders.linkCopied);
     }
   };
 
@@ -198,7 +199,7 @@ export default function OrderDetailPage() {
     try {
       setState((prev) => ({ ...prev, cancelling: true }));
       await dispatch(cancelOrderService(orderId)).unwrap();
-      showToast.success("Order cancelled successfully");
+      showToast.success(Messages.orders.cancelled);
       setState((prev) => ({
         ...prev,
         order: prev.order
@@ -214,7 +215,7 @@ export default function OrderDetailPage() {
       }));
       setShowCancelConfirm(false);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to cancel order");
+      showToast.error((error as { message?: string })?.message || Messages.orders.cancelFailed);
       setState((prev) => ({ ...prev, cancelling: false }));
     }
   };

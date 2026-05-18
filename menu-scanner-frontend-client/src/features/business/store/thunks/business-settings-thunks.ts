@@ -1,3 +1,4 @@
+import { Messages } from "@/constants/messages";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   fetchBusinessSettingsByBusinessId,
@@ -39,7 +40,7 @@ export const updateBusinessSettingsThunk = createAsyncThunk(
       const settings = await updateCurrentBusinessSettings(request);
       return settings;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to update business settings";
+      const errorMessage = error instanceof Error ? error.message : Messages.business.settingsUpdateFailed;
       return rejectWithValue(errorMessage);
     }
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useRef, useEffect, useCallback } from "react";
 import { AppDispatch } from "@/store";
 import {
@@ -126,7 +127,7 @@ export function useCartDebounce(dispatch: AppDispatch) {
         .unwrap()
         .then(() => {
           if (quantity === 0) {
-            showToast.success("Removed from cart");
+            showToast.success(Messages.cart.removed);
           }
         })
         .catch((error: any) => {
@@ -134,7 +135,7 @@ export function useCartDebounce(dispatch: AppDispatch) {
           if (isAbortError(error)) {
             return;
           }
-          showToast.error(error?.message || "Failed to update cart");
+          showToast.error(error?.message || Messages.cart.updateFailed);
         })
         .finally(() => {
           // Clean up

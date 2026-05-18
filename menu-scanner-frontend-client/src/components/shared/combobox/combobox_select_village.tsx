@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -142,7 +143,7 @@ export function ComboboxSelectVillage({
 
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen && !communeCode) {
-      showToast.info("Please select a commune first");
+      showToast.info(Messages.location.selectCommune);
       return;
     }
     setOpen(newOpen);

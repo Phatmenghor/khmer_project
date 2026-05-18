@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -91,7 +92,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
       ).unwrap();
 
       if (result) {
-        showToast.success("Welcome! Your account has been created successfully.");
+        showToast.success(Messages.auth.accountCreated);
         onOpenChange(false);
         registerForm.reset();
         window.location.reload();
@@ -109,7 +110,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
       ).unwrap();
 
       if (result?.userType === "BUSINESS_USER") {
-        showToast.error("❌ Business accounts must use the Admin Login page");
+        showToast.error(Messages.auth.loginBlocked);
         const { clearAllTokens, clearAdminTokens } = await import("@/utils/local-storage/token");
         const { clearUserInfo, clearAdminUserInfo } = await import("@/utils/local-storage/userInfo");
         clearAllTokens();
@@ -122,13 +123,13 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
 
       if (result) {
         showToast.success(
-          result.isNewUser ? "Welcome! Your account has been created." : "Welcome back!",
+          result.isNewUser ? "Welcome! Your account has been created." : Messages.auth.welcomeBack,
         );
         onOpenChange(false);
         window.location.reload();
       }
     } catch (err: any) {
-      showToast.error(err || "Telegram login failed. Please try again.");
+      showToast.error(err || Messages.auth.telegramFailed);
     } finally {
       setIsTelegramLoading(false);
     }

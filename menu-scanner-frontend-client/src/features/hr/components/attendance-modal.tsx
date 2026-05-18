@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -109,10 +110,10 @@ export default function AttendanceModal({
         }),
       ).unwrap();
 
-      showToast.success("Attendance updated successfully");
+      showToast.success(Messages.hr.attendanceUpdated);
       handleClose();
     } catch (error: any) {
-      showToast.error(error?.message || "Failed to update attendance");
+      showToast.error(error?.message || Messages.hr.attendanceUpdateFailed);
     }
   };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -129,9 +130,9 @@ export default function BannerPage() {
     if (!banner?.id) return;
     try {
       await dispatch(toggleBannerStatusService(banner)).unwrap();
-      showToast.success("Banner status updated successfully");
+      showToast.success(Messages.banner.statusUpdated);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update banner status");
+      showToast.error((error as { message?: string })?.message || Messages.banner.statusUpdateFailed);
     }
   };
 
@@ -178,7 +179,7 @@ export default function BannerPage() {
     try {
       await dispatch(deleteBannerService(deleteState.banner.id)).unwrap();
 
-      showToast.success("Banner deleted successfully");
+      showToast.success(Messages.banner.deleted);
 
       closeDeleteModal();
 
@@ -189,7 +190,7 @@ export default function BannerPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete user business");
+      showToast.error((error as { message?: string })?.message || Messages.users.deleteFailed);
     }
   };
 

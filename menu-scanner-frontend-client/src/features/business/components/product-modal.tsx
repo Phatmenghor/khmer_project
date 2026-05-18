@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -232,7 +233,7 @@ export default function ProductModal({
         showToast.error(`${failedImages.length} image(s) failed to upload`);
       }
     } catch (error) {
-      showToast.error("Failed to process images");
+      showToast.error(Messages.product.imagesFailed);
     } finally {
       setIsProcessingImages(false);
       event.target.value = "";
@@ -359,7 +360,7 @@ export default function ProductModal({
         try {
           finalMainImageUrl = await uploadImage(finalMainImageUrl);
         } catch (uploadError) {
-          showToast.error("Failed to upload main image");
+          showToast.error(Messages.product.mainImageFailed);
           setIsUploadingImage(false);
           return;
         }
@@ -451,7 +452,7 @@ export default function ProductModal({
 
       if (isCreate) {
         await dispatch(createProductService(payload as any)).unwrap();
-        showToast.success("Product created successfully");
+        showToast.success(Messages.product.created);
         handleClose();
       } else {
         await dispatch(
@@ -460,7 +461,7 @@ export default function ProductModal({
             productData: payload as any,
           }),
         ).unwrap();
-        showToast.success("Product updated successfully");
+        showToast.success(Messages.product.updated);
         handleClose();
       }
     } catch (error: any) {

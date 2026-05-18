@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -136,7 +137,7 @@ export default function PublicProfilePage() {
         try {
           profileImageUrl = await uploadImage(profileImageUrl);
         } catch (error) {
-          showToast.error("Failed to upload profile picture");
+          showToast.error(Messages.profile.pictureUploadFailed);
           setIsUploadingImage(false);
           return;
         }
@@ -159,10 +160,10 @@ export default function PublicProfilePage() {
       // Reload profile
       await dispatch(getProfileService()).unwrap();
 
-      showToast.success("Profile updated successfully");
+      showToast.success(Messages.profile.updated);
       setIsEditing(false);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update profile");
+      showToast.error((error as { message?: string })?.message || Messages.profile.updateFailed);
     } finally {
       setIsUploadingImage(false);
     }
@@ -193,7 +194,7 @@ export default function PublicProfilePage() {
         try {
           profileImageUrl = await uploadImage(profileImageUrl);
         } catch (error) {
-          showToast.error("Failed to upload image");
+          showToast.error(Messages.upload.imageFailed);
           setIsUploadingImage(false);
           return;
         }
@@ -210,9 +211,9 @@ export default function PublicProfilePage() {
       await dispatch(updateProfileService(payload)).unwrap();
       await dispatch(getProfileService()).unwrap();
 
-      showToast.success("Profile picture updated successfully");
+      showToast.success(Messages.profile.pictureUpdated);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update profile picture");
+      showToast.error((error as { message?: string })?.message || Messages.profile.pictureUpdateFailed);
     } finally {
       setIsUploadingImage(false);
       setIsProfilePictureModalOpen(false);
@@ -222,7 +223,7 @@ export default function PublicProfilePage() {
   const handleDeleteAccount = async () => {
     try {
       await dispatch(deleteAccountService()).unwrap();
-      showToast.success("Account deleted successfully");
+      showToast.success(Messages.auth.accountDeleted);
 
       clearToken();
       clearUserInfo();
@@ -231,7 +232,7 @@ export default function PublicProfilePage() {
         router.replace(ROUTES.AUTH.LOGIN);
       }, 100);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete account");
+      showToast.error((error as { message?: string })?.message || Messages.auth.deleteAccountFailed);
     }
   };
 

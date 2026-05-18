@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, {
   useEffect,
   useCallback,
@@ -462,7 +463,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   }, [selectionMode]);
 
   const handleMyLocation = useCallback(() => {
-    if (!navigator.geolocation) { showToast.error("Geolocation not supported"); return; }
+    if (!navigator.geolocation) { showToast.error(Messages.location.geolocationUnsupported); return; }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const map = googleMapRef.current;
@@ -477,7 +478,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
           geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 200);
         }
       },
-      () => showToast.error("Unable to get your location")
+      () => showToast.error(Messages.location.geolocationFailed)
     );
   }, [reverseGeocode]);
 
@@ -514,7 +515,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   const handleGetCoordinates = useCallback(async () => {
     const parts = [watch("houseNumber"), watch("streetNumber"), watch("village"), watch("commune"), watch("district"), watch("province")].filter(Boolean);
-    if (!parts.length) { showToast.error("Please select at least a province"); return; }
+    if (!parts.length) { showToast.error(Messages.location.selectAtLeastProvince); return; }
     setIsGeocodingAddress(true); setGeocodeSuccess(false);
     try {
       await loadGoogleMapsScript();
@@ -525,10 +526,10 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
           const lat = loc.lat(); const lng = loc.lng();
           setValue("latitude", lat, { shouldDirty: true }); setValue("longitude", lng, { shouldDirty: true });
           setGeocodedCoords({ lat, lng }); setGeocodeSuccess(true);
-          showToast.success("Coordinates found");
-        } else { showToast.error("Could not resolve coordinates"); }
+          showToast.success(Messages.location.coordinatesFound);
+        } else { showToast.error(Messages.location.coordinatesFailed); }
       });
-    } catch (err: any) { setIsGeocodingAddress(false); showToast.error(err?.message ?? "Failed to geocode"); }
+    } catch (err: any) { setIsGeocodingAddress(false); showToast.error(err?.message ?? Messages.location.geocodeFailed); }
   }, [watch, setValue]);
 
   const onSubmit = async (data: LocationFormData) => {
@@ -558,8 +559,8 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         country: data.country || "", note: data.note || "",
         isPrimary: data.isPrimary, locationImages: validImages,
       };
-      if (isCreate) { await create(payload).unwrap(); showToast.success("Location created"); }
-      else { await update({ locationId: editData!.id, locationData: payload }).unwrap(); showToast.success("Location updated"); }
+      if (isCreate) { await create(payload).unwrap(); showToast.success(Messages.location.created); }
+      else { await update({ locationId: editData!.id, locationData: payload }).unwrap(); showToast.success(Messages.location.updated); }
       handleClose();
     } catch (error: any) { showToast.error(error?.message ?? `Failed to ${isCreate ? "create" : "update"} location`); }
   };

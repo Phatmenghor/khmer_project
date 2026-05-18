@@ -1,4 +1,6 @@
 "use client";
+
+import { Messages } from "@/constants/messages";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { Check, Package, X, Trash2 } from "lucide-react";
@@ -391,7 +393,7 @@ export function SizePickerModal({
         const qtyForCombo = getQuantityForSize(sizeId, customs);
         if (qtyForCombo === 0) {
           // Trying to create new combo without setting quantity
-          showToast.error("Please set quantity greater than 0 to add customizations");
+          showToast.error(Messages.cart.setQuantity);
           return;
         }
       }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -112,7 +113,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
         try {
           finalImageUrl = await uploadImage(finalImageUrl);
         } catch (uploadError) {
-          showToast.error("Failed to upload brand image. Please try again.");
+          showToast.error(Messages.brand.imageUploadFailed);
           return;
         } finally {
           setIsUploadingImage(false);
@@ -128,14 +129,14 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
 
       if (isCreate) {
         await dispatch(createBrandService(payload)).unwrap();
-        showToast.success("Brand created successfully");
+        showToast.success(Messages.brand.created);
         handleClose();
       } else {
         if (!brand?.id) return;
         await dispatch(
           updateBrandService({ brandId: brand.id, brandData: payload }),
         ).unwrap();
-        showToast.success("Brand updated successfully");
+        showToast.success(Messages.brand.updated);
         handleClose();
       }
     } catch (error: any) {

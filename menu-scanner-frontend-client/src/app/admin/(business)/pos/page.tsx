@@ -1,4 +1,6 @@
 "use client";
+
+import { Messages } from "@/constants/messages";
 import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Search,
@@ -586,7 +588,7 @@ export default function PosPage() {
     };
 
     dispatch(updateCartItem(updatedItem));
-    showToast.success("Item updated successfully");
+    showToast.success(Messages.cart.itemUpdated);
     setEditingItemForPrice(null);
   }, [dispatch, editingItemForPrice]);
 
@@ -599,12 +601,12 @@ export default function PosPage() {
   // ─── Submit Order ───
   const handleSubmitOrder = async () => {
     if (cartItems.length === 0) {
-      showToast.error("Please add items to cart");
+      showToast.error(Messages.cart.emptyCart);
       return;
     }
 
     if (!selectedDeliveryOption) {
-      showToast.error("Please select a delivery option");
+      showToast.error(Messages.delivery.selectOption);
       return;
     }
 
@@ -691,10 +693,10 @@ export default function PosPage() {
         dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));
         setOrderDiscount(null);
-        showToast.success("Order created successfully");
+        showToast.success(Messages.orders.created);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "❌ Failed to create POS order");
+      showToast.error((error as { message?: string })?.message || Messages.orders.createFailed);
     } finally {
       dispatch(setIsSubmitting(false));
     }

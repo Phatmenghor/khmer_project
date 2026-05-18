@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -226,7 +227,7 @@ export default function AdminProfilePage() {
         try {
           profileImageUrl = await uploadImage(profileImageUrl);
         } catch (error) {
-          showToast.error("Failed to upload profile image");
+          showToast.error(Messages.profile.imageUploadFailed);
           setIsUploadingImage(false);
           return;
         }
@@ -370,10 +371,10 @@ export default function AdminProfilePage() {
       // Reload profile data to ensure we have the latest from server
       const freshProfile = await dispatch(getProfileService()).unwrap();
 
-      showToast.success("Profile updated successfully");
+      showToast.success(Messages.profile.updated);
       setIsEditing(false);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update profile");
+      showToast.error((error as { message?: string })?.message || Messages.profile.updateFailed);
       setIsUploadingImage(false);
     }
   };
@@ -388,7 +389,7 @@ export default function AdminProfilePage() {
         try {
           profileImageUrl = await uploadImage(profileImageUrl);
         } catch (error) {
-          showToast.error("Failed to upload image");
+          showToast.error(Messages.upload.imageFailed);
           setIsUploadingImage(false);
           return;
         }
@@ -409,9 +410,9 @@ export default function AdminProfilePage() {
       // Reload profile to ensure we have the latest from server
       const freshProfile = await dispatch(getProfileService()).unwrap();
 
-      showToast.success("Profile picture updated successfully");
+      showToast.success(Messages.profile.pictureUpdated);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update profile picture");
+      showToast.error((error as { message?: string })?.message || Messages.profile.pictureUpdateFailed);
       // Reset the form value on error
       if (userProfile?.profileImageUrl) {
         setValue("profileImageUrl", userProfile.profileImageUrl);
@@ -465,7 +466,7 @@ export default function AdminProfilePage() {
   const handleDeleteAccount = async () => {
     try {
       await dispatch(deleteAccountService()).unwrap();
-      showToast.success("Account deleted successfully");
+      showToast.success(Messages.auth.accountDeleted);
 
       clearToken();
       clearUserInfo();
@@ -474,7 +475,7 @@ export default function AdminProfilePage() {
         router.replace(ROUTES.AUTH.LOGIN);
       }, 100);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete account");
+      showToast.error((error as { message?: string })?.message || Messages.auth.deleteAccountFailed);
     }
   };
 
@@ -1563,7 +1564,7 @@ export default function AdminProfilePage() {
             // Reload profile to ensure we have the latest from server
             const freshProfile = await dispatch(getProfileService()).unwrap();
 
-            showToast.success("Profile picture removed successfully");
+            showToast.success(Messages.profile.pictureRemoved);
             setIsProfilePictureModalOpen(false);
           } catch (error: unknown) {
             showToast.error((error as { message?: string })?.message || "Failed to remove profile picture");

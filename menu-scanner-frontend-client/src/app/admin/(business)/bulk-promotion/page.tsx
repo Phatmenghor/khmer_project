@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -362,7 +363,7 @@ export default function BulkPromotionPage() {
     dispatch(clearAllSizeSelections());
     clearSelections();
     clearSizeSelections();
-    showToast.success("All selections cleared");
+    showToast.success(Messages.promotions.allSelectionsCleared);
   };
 
   // Get selected product IDs as array
@@ -431,7 +432,7 @@ export default function BulkPromotionPage() {
         );
       })
       .catch((error: unknown) => {
-        showToast.error((error as { message?: string })?.message || "Failed to reset promotion");
+        showToast.error((error as { message?: string })?.message || Messages.promotions.resetFailed);
       });
   };
 
@@ -551,7 +552,7 @@ export default function BulkPromotionPage() {
   // Handle form submission
   const onSubmit = async (data: BulkPromotionFormData) => {
     if (selectedIds.length === 0) {
-      showToast.error("Please select at least one product");
+      showToast.error(Messages.product.selectAtLeastOne);
       return;
     }
 
@@ -640,7 +641,7 @@ export default function BulkPromotionPage() {
     try {
       setIsResetting(true);
       await dispatch(resetAllPromotionsService()).unwrap();
-      showToast.success("All promotions have been reset successfully!");
+      showToast.success(Messages.promotions.allResetFull);
       setShowResetModal(false);
       // Clear size selections as well
       dispatch(clearAllSizeSelections());
@@ -674,7 +675,7 @@ export default function BulkPromotionPage() {
   // Handle clear selected promotions - shows confirmation modal
   const handleClearSelectedPromotionsClick = () => {
     if (selectedIds.length === 0) {
-      showToast.error("Please select at least one product");
+      showToast.error(Messages.product.selectAtLeastOne);
       return;
     }
     setShowClearSelectedModal(true);
@@ -703,7 +704,7 @@ export default function BulkPromotionPage() {
         }),
       );
 
-      showToast.success("Clearing promotions... (updating in background)");
+      showToast.success(Messages.promotions.clearingBackground);
 
             await dispatch(
         resetSelectedPromotionsService({
@@ -715,7 +716,7 @@ export default function BulkPromotionPage() {
         }),
       ).unwrap();
 
-      showToast.success("Promotions cleared successfully!");
+      showToast.success(Messages.promotions.cleared);
       // Clear selections after successful reset
       dispatch(clearSelectedProducts());
       dispatch(clearAllSizeSelections());

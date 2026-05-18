@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -137,9 +138,9 @@ export default function PaymentOptionsPage() {
           },
         }),
       ).unwrap();
-      showToast.success("Payment option status updated");
+      showToast.success(Messages.payment.statusUpdated);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update payment option status");
+      showToast.error((error as { message?: string })?.message || Messages.payment.statusUpdateFailed);
     }
   };
 
@@ -212,7 +213,7 @@ export default function PaymentOptionsPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete Payment option");
+      showToast.error((error as { message?: string })?.message || Messages.payment.deleteFailed);
     }
   };
 

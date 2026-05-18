@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Check, Loader2, ShoppingCart, X, Package } from "lucide-react";
 import {
@@ -113,7 +114,7 @@ export function ProductCustomizationModal({
     if (!product) return;
 
     if (product.hasSizes && !selectedSize) {
-      showToast.error("Please select a size");
+      showToast.error(Messages.product.selectSize);
       return;
     }
 
@@ -129,7 +130,7 @@ export function ProductCustomizationModal({
 
       // Close modal on success
       onOpenChange(false);
-      showToast.success("Added to cart");
+      showToast.success(Messages.cart.added);
     } catch (error: any) {
       showToast.error(error?.message || "Failed to add to cart");
     } finally {

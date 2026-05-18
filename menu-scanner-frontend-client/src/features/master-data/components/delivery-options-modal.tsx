@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -144,14 +145,14 @@ export default function DeliveryOptionsModal({
 
       if (isCreate) {
         await dispatch(createDeliveryOptionsService(payload)).unwrap();
-        showToast.success("Delivery options created successfully");
+        showToast.success(Messages.delivery.created);
         handleClose();
       } else {
         if (deliveryOptions?.id) {
           await dispatch(
             updateDeliveryOptionsService({ id: deliveryOptions.id, payload }),
           ).unwrap();
-          showToast.success("Delivery options updated successfully");
+          showToast.success(Messages.delivery.updated);
           handleClose();
         }
       }

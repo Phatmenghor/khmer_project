@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useCallback, useRef, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MapPin, Plus, CheckCircle2, Loader2 } from "lucide-react";
@@ -173,10 +174,10 @@ export default function LocationPage() {
     if (!deletingLocation) return;
     try {
       await remove(deletingLocation.id).unwrap();
-      showToast.success("Location deleted successfully");
+      showToast.success(Messages.location.deleted);
       setDeletingLocation(null);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete location");
+      showToast.error((error as { message?: string })?.message || Messages.location.deleteFailed);
     }
   };
 
@@ -187,10 +188,10 @@ export default function LocationPage() {
       if (location) {
         const updatedLocation = { ...location, isPrimary: true };
         await update({ locationId, locationData: updatedLocation }).unwrap();
-        showToast.success("Location set as primary");
+        showToast.success(Messages.location.setPrimary);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to set primary location");
+      showToast.error((error as { message?: string })?.message || Messages.location.setPrimaryFailed);
     } finally {
       setSettingPrimaryId(null);
     }

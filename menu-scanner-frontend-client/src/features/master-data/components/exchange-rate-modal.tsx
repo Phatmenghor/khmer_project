@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import React, { useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -125,7 +126,7 @@ export default function ExchangeRateModal({
 
       if (isCreate) {
         // Optimistic update: close modal immediately
-        showToast.success("Exchange rate created successfully");
+        showToast.success(Messages.exchangeRate.created);
         handleClose();
 
         // Make API call in background (fire and forget with error handling)
@@ -159,7 +160,7 @@ export default function ExchangeRateModal({
           dispatch(updateExchangeRateInList(updatedRate));
         }
 
-        showToast.success("Exchange rate updated successfully");
+        showToast.success(Messages.exchangeRate.updated);
         handleClose();
 
         // Make API call in background (fire and forget with error handling)

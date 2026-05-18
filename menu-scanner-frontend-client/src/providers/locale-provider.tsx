@@ -1,5 +1,7 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
+
 import { ReactNode, useEffect, useState } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { locales, defaultLocale, type Locale } from "@/i18n/request";

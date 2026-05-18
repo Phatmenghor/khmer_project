@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -136,9 +137,9 @@ export default function DeliveryOptionsPage() {
     if (!deliveryOption?.id) return;
     try {
       dispatch(toggleDeliveryOptionsStatusService(deliveryOption));
-      showToast.success("Delivery option status updated successfully");
+      showToast.success(Messages.delivery.statusUpdated);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update delivery option status");
+      showToast.error((error as { message?: string })?.message || Messages.delivery.statusUpdateFailed);
     }
   };
 
@@ -202,7 +203,7 @@ export default function DeliveryOptionsPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete Delivery options");
+      showToast.error((error as { message?: string })?.message || Messages.delivery.deleteFailed);
     }
   };
 

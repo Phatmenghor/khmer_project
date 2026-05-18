@@ -1,3 +1,4 @@
+import { Messages } from "@/constants/messages";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 import { AllFavoriteResponseModel } from "../models/response/favorite-response";
@@ -159,7 +160,7 @@ const favoriteSlice = createSlice({
       .addCase(clearAllFavorites.rejected, (state, action) => {
         state.loading.clearAll = false;
         state.error =
-          (action.payload as string) || "Failed to clear favorites";
+          (action.payload as string) || Messages.favorites.clearFailed;
       });
   },
 });

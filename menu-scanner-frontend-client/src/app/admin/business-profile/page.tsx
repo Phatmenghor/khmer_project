@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
@@ -57,7 +58,7 @@ export default function BusinessProfileEditorPage() {
   });
 
   const onSubmit = (data: Record<string, unknown>) => {
-    showToast.success("Business profile updated successfully!");
+    showToast.success(Messages.business.profileUpdated);
     // TODO: API call to save profile
   };
 

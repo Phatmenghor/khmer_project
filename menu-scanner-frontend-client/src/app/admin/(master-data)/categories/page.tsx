@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -137,9 +138,9 @@ export default function CategoriesPage() {
     if (!category?.id) return;
     try {
       dispatch(toggleCategoriesStatusService(category));
-      showToast.success("Category status updated successfully");
+      showToast.success(Messages.category.statusUpdated);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to update category status");
+      showToast.error((error as { message?: string })?.message || Messages.category.statusUpdateFailed);
     }
   };
 
@@ -201,7 +202,7 @@ export default function CategoriesPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete categories");
+      showToast.error((error as { message?: string })?.message || Messages.category.deleteFailed);
     }
   };
 

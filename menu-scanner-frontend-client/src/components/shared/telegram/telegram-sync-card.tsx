@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,7 +70,7 @@ export function TelegramSyncCard({
           userType,
         })
       ).unwrap();
-      showToast.success("Telegram account connected successfully!");
+      showToast.success(Messages.auth.telegramConnected);
       onSyncSuccess?.(result);
     } catch (err: any) {
       showToast.error(err || "Failed to connect Telegram account.");
@@ -81,7 +82,7 @@ export function TelegramSyncCard({
   const handleTelegramUnsync = async () => {
     try {
       const result = await dispatch(unsyncSocialAccountService("TELEGRAM")).unwrap();
-      showToast.success("Telegram account disconnected successfully.");
+      showToast.success(Messages.auth.telegramDisconnected);
       onUnsyncSuccess?.(result);
     } catch (err: any) {
       showToast.error(err || "Failed to disconnect Telegram account.");

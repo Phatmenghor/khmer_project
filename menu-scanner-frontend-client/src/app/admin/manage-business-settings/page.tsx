@@ -1,5 +1,6 @@
 "use client";
 
+import { Messages } from "@/constants/messages";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -148,10 +149,10 @@ export default function BusinessSettingsPage() {
           applyThemeColors(data.primaryColor);
         }
       } else {
-        showToast.error("Failed to load business settings");
+        showToast.error(Messages.business.settingsLoadFailed);
       }
     } catch (error) {
-      showToast.error("Failed to load business settings");
+      showToast.error(Messages.business.settingsLoadFailed);
     } finally {
       setIsLoading(false);
     }
@@ -163,7 +164,7 @@ export default function BusinessSettingsPage() {
     form.setValue("logoBusinessUrl", imageData, {
       shouldDirty: true,
     });
-    showToast.success("Logo selected - click Save Changes to upload");
+    showToast.success(Messages.business.logoSelected);
   };
 
 
@@ -177,7 +178,7 @@ export default function BusinessSettingsPage() {
         try {
           logoBusinessUrl = await uploadImage(logoBusinessUrl);
         } catch (error) {
-          showToast.error("Failed to upload logo");
+          showToast.error(Messages.business.logoUploadFailed);
           return;
         }
       }
@@ -245,13 +246,13 @@ export default function BusinessSettingsPage() {
         // Sync form immediately with saved response so all fields (including Select) reflect the latest value
         form.reset(convertResponseToFormData(result));
 
-        showToast.success("Business settings updated successfully");
+        showToast.success(Messages.business.settingsUpdated);
       } else {
-        showToast.error("Failed to update business settings");
+        showToast.error(Messages.business.settingsUpdateFailed);
         return;
       }
     } catch (error) {
-      showToast.error("Failed to update business settings");
+      showToast.error(Messages.business.settingsUpdateFailed);
     } finally {
       setIsSaving(false);
     }

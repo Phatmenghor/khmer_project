@@ -1,3 +1,4 @@
+import { Messages } from "@/constants/messages";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { LocationState } from "../models/type/location-type";
 import {
@@ -145,7 +146,7 @@ const locationSlice = createSlice({
       .addCase(deleteLocationService.rejected, (state, action) => {
         state.isLoading.delete = false;
         state.operations.isDeleting = false;
-        state.error = (action.payload as string) || "Failed to delete location";
+        state.error = (action.payload as string) || Messages.location.deleteFailed;
       });
 
     // Fetch default
