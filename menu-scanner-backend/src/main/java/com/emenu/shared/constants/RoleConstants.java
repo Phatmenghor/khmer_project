@@ -1,13 +1,8 @@
 package com.emenu.shared.constants;
 
-/**
- * Constants for role names used throughout the application.
- * Use these constants instead of hardcoded strings to avoid typos and ensure consistency.
- */
 public final class RoleConstants {
 
     private RoleConstants() {
-        // Prevent instantiation
     }
 
     // Platform Roles (Global)
@@ -32,9 +27,6 @@ public final class RoleConstants {
     public static final String GUEST = "GUEST";
     public static final String ANONYMOUS = "ANONYMOUS";
 
-    /**
-     * Get all platform role names
-     */
     public static String[] getAllPlatformRoles() {
         return new String[]{
             PLATFORM_OWNER,
@@ -45,9 +37,6 @@ public final class RoleConstants {
         };
     }
 
-    /**
-     * Get all business role names
-     */
     public static String[] getAllBusinessRoles() {
         return new String[]{
             BUSINESS_OWNER,
@@ -58,9 +47,6 @@ public final class RoleConstants {
         };
     }
 
-    /**
-     * Get all customer role names
-     */
     public static String[] getAllCustomerRoles() {
         return new String[]{
             CUSTOMER,

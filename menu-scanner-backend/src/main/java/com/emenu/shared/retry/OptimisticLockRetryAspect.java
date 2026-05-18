@@ -11,14 +11,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
-/**
- * AOP aspect that retries methods annotated with {@link RetryOnOptimisticLock}
- * when an optimistic locking exception is thrown.
- *
- * <p>Ordered with {@link Ordered#LOWEST_PRECEDENCE - 1} so it wraps around the
- * {@code @Transactional} proxy. This means each retry starts a brand-new
- * transaction with a fresh persistence context.</p>
- */
 @Aspect
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 1)
@@ -45,8 +37,6 @@ public class OptimisticLockRetryAspect {
                         methodName, attempt + 1, maxRetries);
             }
         }
-
-        // Should never reach here
         return joinPoint.proceed();
     }
 }

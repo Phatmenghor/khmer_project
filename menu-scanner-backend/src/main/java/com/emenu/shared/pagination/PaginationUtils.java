@@ -25,10 +25,6 @@ public class PaginationUtils {
         }
     }
 
-    /**
-     * Normalize page number from 1-indexed (user-facing) to 0-indexed (Spring Data).
-     * @return Spring Data page number (0-indexed)
-     */
     private static int normalizePageNumber(Integer pageNo) {
         if (pageNo == null || pageNo <= 0) {
             return DEFAULT_PAGE_NUMBER;
@@ -36,17 +32,10 @@ public class PaginationUtils {
         return pageNo - 1;
     }
 
-    /**
-     * Normalize page size with default and validation.
-     */
     private static int normalizePageSize(Integer pageSize) {
         return (pageSize == null) ? DEFAULT_PAGE_SIZE : pageSize;
     }
 
-    /**
-     * Create pageable with pagination for JPQL queries.
-     * @return Pageable for JPQL queries
-     */
     public static Pageable createPageable(Integer pageNo, Integer pageSize, String sortBy, String sortDirection) {
         int normalizedPageNo = normalizePageNumber(pageNo);
         int normalizedPageSize = normalizePageSize(pageSize);
@@ -62,10 +51,6 @@ public class PaginationUtils {
         return PageRequest.of(normalizedPageNo, normalizedPageSize, Sort.by(direction, sortBy));
     }
 
-    /**
-     * Create pageable with pagination only (no sort).
-     * @return Pageable with default sort (descending by createdAt)
-     */
     public static Pageable createPageable(Integer pageNo, Integer pageSize) {
         int normalizedPageNo = normalizePageNumber(pageNo);
         int normalizedPageSize = normalizePageSize(pageSize);
@@ -75,10 +60,6 @@ public class PaginationUtils {
         return PageRequest.of(normalizedPageNo, normalizedPageSize);
     }
 
-    /**
-     * Create pageable with pagination for Native SQL queries.
-     * @return Pageable with snake_case column names for native queries
-     */
     public static Pageable createPageableForNativeQuery(Integer pageNo, Integer pageSize, String sortBy, String sortDirection) {
         int normalizedPageNo = normalizePageNumber(pageNo);
         int normalizedPageSize = normalizePageSize(pageSize);
@@ -97,9 +78,6 @@ public class PaginationUtils {
         return PageRequest.of(normalizedPageNo, normalizedPageSize, Sort.by(direction, snakeCaseSortBy));
     }
 
-    /**
-     * Create Sort only (no pagination).
-     */
     public static Sort createSort(String sortBy, String sortDirection) {
         sortBy = (sortBy == null || sortBy.isEmpty()) ? "createdAt" : sortBy;
         Sort.Direction direction = Sort.Direction.DESC;
@@ -109,9 +87,6 @@ public class PaginationUtils {
         return Sort.by(direction, sortBy);
     }
 
-    /**
-     * Convert camelCase entity property names to snake_case database column names.
-     */
     private static String convertToSnakeCase(String camelCase) {
         if (camelCase == null || camelCase.isEmpty()) {
             return "created_at";
