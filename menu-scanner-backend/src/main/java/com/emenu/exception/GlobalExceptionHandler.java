@@ -562,27 +562,8 @@ public class GlobalExceptionHandler {
         };
     }
 
-    private ErrorResponse createErrorResponse(String errorCode, String errorType, String message,
-                                             Integer statusCode, HttpServletRequest request) {
-        return ErrorResponse.builder()
-                .requestId(RequestIdUtils.getCurrentRequestId())
-                .errorCode(errorCode)
-                .errorType(errorType)
-                .message(message)
-                .statusCode(statusCode)
-                .path(request.getRequestURI())
-                .method(request.getMethod())
-                .timestamp(LocalDateTime.now())
-                .supportContact("support@emenu-platform.com")
-                .build();
-    }
-
     private Map<String, Object> createErrorDetails(String errorCode, HttpServletRequest request) {
         Map<String, Object> errorDetails = new HashMap<>();
-        String requestId = RequestIdUtils.getCurrentRequestId();
-        errorDetails.put("requestId", requestId);
-        errorDetails.put("errorCode", errorCode);
-        errorDetails.put("timestamp", LocalDateTime.now());
         errorDetails.put("path", request.getRequestURI());
         errorDetails.put("method", request.getMethod());
         return errorDetails;
