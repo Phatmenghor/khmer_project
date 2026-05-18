@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateUserCreationRequest(UserCreateRequest req) {
-        if (userRepository.existsByUserIdentifierAndIsDeletedFalse(req.getUserIdentifier())) {
+        if (userRepository.findByUserIdentifierAndIsDeletedFalse(req.getUserIdentifier()).isPresent()) {
             log.warn("User creation failed - duplicate identifier: identifier={}", req.getUserIdentifier());
             throw new ValidationException("User identifier already exists");
         }

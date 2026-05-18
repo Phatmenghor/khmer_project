@@ -95,7 +95,7 @@ public class DataInitializationService {
             int createdCount = 0;
 
             for (RoleConfig roleConfig : systemRoles) {
-                if (!roleRepository.existsByNameAndIsDeletedFalse(roleConfig.name())) {
+                if (roleRepository.findByNameAndIsDeletedFalse(roleConfig.name()).isEmpty()) {
                     Role role = new Role();
                     role.setName(roleConfig.name());
                     role.setDescription("System role: " + roleConfig.name());
@@ -140,7 +140,7 @@ public class DataInitializationService {
         try {
             String adminUserIdentifier = defaultAdminEmail;
 
-            if (!userRepository.existsByUserIdentifierAndIsDeletedFalse(adminUserIdentifier)) {
+            if (userRepository.findByUserIdentifierAndIsDeletedFalse(adminUserIdentifier).isEmpty()) {
                 User admin = new User();
                 admin.setUserIdentifier(adminUserIdentifier);
                 admin.setPassword(passwordEncoder.encode(defaultAdminPassword));

@@ -52,6 +52,7 @@ public abstract class OrderItemMapper {
         return info;
     }
 
+    @SuppressWarnings("unchecked")
     protected List<OrderItemResponse.CustomizationDetail> mapCustomizations(OrderItem orderItem) {
         if (orderItem.getCustomizations() == null || orderItem.getCustomizations().isEmpty()) {
             return List.of();

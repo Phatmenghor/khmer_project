@@ -44,5 +44,11 @@ public interface SocialSyncResponseMapper {
     @Mapping(target = "success", constant = "true")
     @Mapping(target = "message", expression = "java(provider.getDisplayName() + \" account unsynced successfully\")")
     @Mapping(target = "provider", source = "provider.providerKey")
+    @Mapping(target = "syncedAt", ignore = true)
+    @Mapping(target = "telegramId", ignore = true)
+    @Mapping(target = "telegramUsername", ignore = true)
+    @Mapping(target = "telegramFirstName", ignore = true)
+    @Mapping(target = "telegramLastName", ignore = true)
+    @Mapping(target = "telegramPhotoUrl", ignore = true)
     SocialSyncResponse toUnsyncResponse(SocialAuthProvider provider);
 }

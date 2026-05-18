@@ -30,6 +30,13 @@ public interface UserNestedEntitiesMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "deletedBy", ignore = true)
+    @Mapping(target = "auditorAware", ignore = true)
     void updateAddress(AddressRequest request, @MappingTarget UserAddress address);
 
     default UserEmergencyContact createContact(EmergencyContactRequest request, User user) {
@@ -44,6 +51,13 @@ public interface UserNestedEntitiesMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "deletedBy", ignore = true)
+    @Mapping(target = "auditorAware", ignore = true)
     void updateContact(EmergencyContactRequest request, @MappingTarget UserEmergencyContact contact);
 
     default UserDocument createDocument(DocumentRequest request, User user) {
@@ -58,6 +72,13 @@ public interface UserNestedEntitiesMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "deletedBy", ignore = true)
+    @Mapping(target = "auditorAware", ignore = true)
     void updateDocument(DocumentRequest request, @MappingTarget UserDocument document);
 
     default UserEducation createEducation(EducationRequest request, User user) {
@@ -72,5 +93,12 @@ public interface UserNestedEntitiesMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "isDeleted", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "deletedBy", ignore = true)
+    @Mapping(target = "auditorAware", ignore = true)
     void updateEducation(EducationRequest request, @MappingTarget UserEducation education);
 }
