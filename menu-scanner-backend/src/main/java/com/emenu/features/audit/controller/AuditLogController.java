@@ -22,19 +22,20 @@ public class AuditLogController {
 
     @PostMapping("/get-all")
     public ResponseEntity<PaginationResponse<AuditLogResponseDTO>> searchAuditLogs(@RequestBody AuditLogFilterDTO filter) {
-        log.debug("Searching audit logs with filter: {}", filter);
+        log.info("Endpoint: search-audit-logs - audit logs retrieval request: page={}, size={}, userId={}, userType={}",
+            filter.getPageNo(), filter.getPageSize(), filter.getUserId(), filter.getUserType());
         return ResponseEntity.ok(auditLogService.searchAuditLogs(filter));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AuditLogResponseDTO> getAuditLogById(@PathVariable UUID id) {
-        log.debug("Getting audit log by id: {}", id);
+        log.info("Endpoint: get-audit-log-by-id - audit log retrieval request: id={}", id);
         return ResponseEntity.ok(auditLogService.getAuditLogById(id));
     }
 
     @GetMapping("/stats")
     public ResponseEntity<AuditStatsResponseDTO> getAuditStats() {
-        log.debug("Getting audit statistics");
+        log.info("Endpoint: get-audit-stats - audit statistics retrieval request");
         return ResponseEntity.ok(auditLogService.getAuditStats());
     }
 }

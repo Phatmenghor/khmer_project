@@ -12,24 +12,12 @@ import java.util.UUID;
 
 public interface AuditLogService {
 
-    /**
-     * Search audit logs with filters and pagination
-     */
     PaginationResponse<AuditLogResponseDTO> searchAuditLogs(AuditLogFilterDTO filter);
 
-    /**
-     * Log an access request with request/response bodies
-     */
     void logAccessWithBodies(HttpServletRequest request, int statusCode, long responseTimeMs,
                             String errorMessage, String requestBody);
 
-    /**
-     * Get audit statistics
-     */
     AuditStatsResponseDTO getAuditStats();
 
-    /**
-     * Get a single audit log by ID
-     */
     AuditLogResponseDTO getAuditLogById(UUID id);
 }

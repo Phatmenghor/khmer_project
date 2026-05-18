@@ -26,7 +26,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +44,9 @@ public class AuditLogServiceImpl implements AuditLogService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<AuditLogResponseDTO> searchAuditLogs(AuditLogFilterDTO filter) {
+        log.info("Audit logs search initiated: pageNo={}, pageSize={}, userId={}, userType={}",
+            filter.getPageNo(), filter.getPageSize(), filter.getUserId(), filter.getUserType());
+
         Sort sort = Sort.by(Sort.Direction.fromString(filter.getSortDirection()), filter.getSortBy());
         Pageable pageable = PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(), sort);
 
@@ -57,6 +62,8 @@ public class AuditLogServiceImpl implements AuditLogService {
                 .map(auditLogMapper::toResponseDTO)
                 .collect(Collectors.toList());
 
+        log.info("Audit logs search completed: totalElements={}, totalPages={}, currentPage={}",
+            page.getTotalElements(), page.getTotalPages(), filter.getPageNo());
         return paginationMapper.toPaginationResponse(page, content);
     }
 
@@ -67,17 +74,15 @@ public class AuditLogServiceImpl implements AuditLogService {
         String userIdentifier = "anonymous";
         String userType = "ANONYMOUS";
 
-        // Try to get user info from security context (must be done synchronously)
         try {
             userId = securityUtils.getCurrentUserId();
             userIdentifier = securityUtils.getCurrentUserIdentifier();
             UserType type = securityUtils.getCurrentUserType();
             userType = type != null ? type.name() : "ANONYMOUS";
         } catch (Exception e) {
-            // User not authenticated - use defaults set above
+            log.debug("User authentication context not available, using anonymous defaults");
         }
 
-        // Extract request data synchronously (before request is recycled)
         String httpMethod = request.getMethod();
         String endpoint = request.getRequestURI();
         String ipAddress = ClientIpUtils.getClientIp(request);
@@ -87,16 +92,14 @@ public class AuditLogServiceImpl implements AuditLogService {
         try {
             sessionId = request.getSession(false) != null ? request.getSession().getId() : null;
         } catch (Exception e) {
-            // Session may not be available
+            log.debug("Session not available for audit logging");
         }
 
-        // Build the helper DTO with all extracted data
-        final AuditLogCreateHelper helper = buildAuditLogHelper(
+        AuditLogCreateHelper helper = buildAuditLogHelper(
                 userId, userIdentifier, userType, httpMethod, endpoint, ipAddress,
                 userAgent, requestParams, statusCode, responseTimeMs, errorMessage,
                 sessionId, requestBody);
 
-        // Now save asynchronously - all data is already extracted
         saveAuditLogAsync(helper);
     }
 
@@ -135,14 +138,18 @@ public class AuditLogServiceImpl implements AuditLogService {
         try {
             AuditLog auditLog = auditLogMapper.createFromHelper(helper);
             auditLogRepository.save(auditLog);
+            log.info("Audit log saved successfully: endpoint={}, userIdentifier={}, statusCode={}, responseTime={}ms",
+                helper.getEndpoint(), helper.getUserIdentifier(), helper.getStatusCode(), helper.getResponseTimeMs());
         } catch (Exception e) {
-            log.error("Failed to save audit log: {}", e.getMessage(), e);
+            log.error("Failed to save audit log: endpoint={}, error={}", helper.getEndpoint(), e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
     public AuditStatsResponseDTO getAuditStats() {
+        log.info("Audit statistics retrieval initiated");
+
         LocalDateTime last24Hours = LocalDateTime.now().minusHours(24);
         LocalDateTime last7Days = LocalDateTime.now().minusDays(7);
 
@@ -157,14 +164,21 @@ public class AuditLogServiceImpl implements AuditLogService {
         stats.setLast24Hours(last24HoursCount);
         stats.setLast7Days(last7DaysCount);
 
+        log.info("Audit statistics retrieved: totalLogs={}, last24Hours={}, last7Days={}",
+            totalLogs, last24HoursCount, last7DaysCount);
         return stats;
     }
 
     @Override
     @Transactional(readOnly = true)
     public AuditLogResponseDTO getAuditLogById(UUID id) {
+        log.info("Audit log retrieval initiated: id={}", id);
+
         AuditLog auditLog = auditLogRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Audit log not found with id: " + id));
+
+        log.info("Audit log retrieved successfully: id={}, endpoint={}, userIdentifier={}",
+            id, auditLog.getEndpoint(), auditLog.getUserIdentifier());
         return auditLogMapper.toResponseDTO(auditLog);
     }
 

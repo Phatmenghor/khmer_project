@@ -16,10 +16,6 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Filter to log all HTTP requests and responses for audit purposes.
- * This filter runs BEFORE authentication, so it logs both authenticated and anonymous requests.
- */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
 @RequiredArgsConstructor
@@ -31,15 +27,12 @@ public class AuditLogFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                    FilterChain filterChain) throws ServletException, IOException {
-
-        // Skip logging for static resources and health checks
         String uri = request.getRequestURI();
         if (shouldSkipLogging(uri)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Wrap request and response to cache content for logging
         ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
 
@@ -55,7 +48,6 @@ public class AuditLogFilter extends OncePerRequestFilter {
             long responseTimeMs = System.currentTimeMillis() - startTime;
             int statusCode = wrappedResponse.getStatus();
 
-            // Extract error message if present
             String errorMessage = null;
             if (exception != null) {
                 errorMessage = exception.getMessage();
@@ -63,15 +55,11 @@ public class AuditLogFilter extends OncePerRequestFilter {
                 errorMessage = "HTTP " + statusCode + " error";
             }
 
-            // Extract request and response bodies for POST/PUT/PATCH requests
             String requestBody = null;
-            String responseBody = null;
-
             if (shouldLogBodies(request.getMethod())) {
                 requestBody = getContentAsString(wrappedRequest.getContentAsByteArray());
             }
 
-            // Log the request asynchronously
             try {
                 auditLogService.logAccessWithBodies(
                     wrappedRequest,
@@ -81,16 +69,14 @@ public class AuditLogFilter extends OncePerRequestFilter {
                     requestBody
                 );
             } catch (Exception e) {
-                log.error("Failed to log audit entry: {}", e.getMessage());
+                log.error("Failed to log audit entry: endpoint={}, error={}", uri, e.getMessage());
             }
 
-            // Copy response body to actual response
             wrappedResponse.copyBodyToResponse();
         }
     }
 
     private boolean shouldSkipLogging(String uri) {
-        // Skip logging for these paths to reduce noise
         return uri.startsWith("/api/images/") ||
                uri.startsWith("/swagger-ui/") ||
                uri.startsWith("/v3/api-docs") ||
@@ -105,7 +91,6 @@ public class AuditLogFilter extends OncePerRequestFilter {
     }
 
     private boolean shouldLogBodies(String httpMethod) {
-        // Only log request/response bodies for data modification methods
         return "POST".equalsIgnoreCase(httpMethod) ||
                "PUT".equalsIgnoreCase(httpMethod) ||
                "PATCH".equalsIgnoreCase(httpMethod) ||

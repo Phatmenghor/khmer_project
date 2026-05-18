@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-/**
- * Helper DTO for creating AuditLog via MapStruct
- */
 @Data
 @Builder
 @NoArgsConstructor
