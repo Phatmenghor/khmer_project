@@ -23,6 +23,7 @@ import com.emenu.features.auth.service.AuthService;
 import com.emenu.features.auth.service.RefreshTokenService;
 import com.emenu.features.auth.service.UserSessionService;
 import com.emenu.features.auth.service.UserValidationService;
+import com.emenu.security.ClientContextUtils;
 import com.emenu.security.SecurityUtils;
 import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.security.jwt.TokenBlacklistService;
@@ -34,8 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.UUID;
@@ -54,6 +53,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JWTGenerator jwtGenerator;
     private final SecurityUtils securityUtils;
+    private final ClientContextUtils clientContextUtils;
     private final TokenBlacklistService tokenBlacklistService;
     private final RefreshTokenService refreshTokenService;
     private final UserSessionService userSessionService;
@@ -87,11 +87,11 @@ public class AuthServiceImpl implements AuthService {
                 userEntity.getUserType().name()
         );
 
-        String clientIpAddress = getClientIpAddress();
-        String clientDeviceInfo = getDeviceInfo();
+        String clientIpAddress = clientContextUtils.getClientIpAddress();
+        String clientDeviceInfo = clientContextUtils.getDeviceInfo();
         RefreshToken refreshTokenEntity = refreshTokenService.createRefreshToken(userEntity, clientIpAddress, clientDeviceInfo);
 
-        HttpServletRequest httpRequest = getHttpServletRequest();
+        HttpServletRequest httpRequest = clientContextUtils.getHttpServletRequest();
         if (httpRequest != null) {
             userSessionService.createSession(userEntity, refreshTokenEntity, httpRequest);
         }
@@ -291,38 +291,6 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toResponse(savedUserEntity);
     }
 
-    private HttpServletRequest getHttpServletRequest() {
-        try {
-            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-            if (requestAttributes != null) {
-                return requestAttributes.getRequest();
-            }
-        } catch (Exception e) {
-            log.warn("Failed to retrieve HTTP request: error={}", e.getMessage());
-        }
-        return null;
-    }
-
-    private String getClientIpAddress() {
-        HttpServletRequest httpRequest = getHttpServletRequest();
-        if (httpRequest != null) {
-            String xForwardedForHeader = httpRequest.getHeader("X-Forwarded-For");
-            if (xForwardedForHeader != null && !xForwardedForHeader.isEmpty()) {
-                return xForwardedForHeader.split(",")[0].trim();
-            }
-            return httpRequest.getRemoteAddr();
-        }
-        return AuthConstants.UNKNOWN_IP;
-    }
-
-    private String getDeviceInfo() {
-        HttpServletRequest httpRequest = getHttpServletRequest();
-        if (httpRequest != null) {
-            return httpRequest.getHeader("User-Agent");
-        }
-        return AuthConstants.UNKNOWN_DEVICE;
-    }
-
     @Override
     public RefreshTokenResponse refreshToken(RefreshTokenRequest refreshTokenRequestData) {
         String refreshTokenString = refreshTokenRequestData.getRefreshToken();
@@ -365,11 +333,11 @@ public class AuthServiceImpl implements AuthService {
                 userEntity.getUserType().name()
         );
 
-        String clientIpAddress = getClientIpAddress();
-        String clientDeviceInfo = getDeviceInfo();
+        String clientIpAddress = clientContextUtils.getClientIpAddress();
+        String clientDeviceInfo = clientContextUtils.getDeviceInfo();
         RefreshToken newRefreshTokenEntity = refreshTokenService.createRefreshToken(userEntity, clientIpAddress, clientDeviceInfo);
 
-        HttpServletRequest httpRequest = getHttpServletRequest();
+        HttpServletRequest httpRequest = clientContextUtils.getHttpServletRequest();
         if (httpRequest != null) {
             userSessionService.createSession(userEntity, newRefreshTokenEntity, httpRequest);
         }
