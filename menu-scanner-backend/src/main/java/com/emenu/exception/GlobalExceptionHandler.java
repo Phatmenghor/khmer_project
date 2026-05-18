@@ -4,6 +4,7 @@ import com.emenu.exception.custom.*;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.constants.ErrorCodes;
 import com.emenu.shared.dto.ApiResponse;
+import com.emenu.shared.logging.RequestIdUtils;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -562,11 +563,12 @@ public class GlobalExceptionHandler {
 
     private Map<String, Object> createErrorDetails(String errorCode, HttpServletRequest request) {
         Map<String, Object> errorDetails = new HashMap<>();
+        String requestId = RequestIdUtils.getCurrentRequestId();
+        errorDetails.put("requestId", requestId);
         errorDetails.put("errorCode", errorCode);
         errorDetails.put("timestamp", LocalDateTime.now());
         errorDetails.put("path", request.getRequestURI());
         errorDetails.put("method", request.getMethod());
-        errorDetails.put("traceId", UUID.randomUUID().toString());
         return errorDetails;
     }
 
