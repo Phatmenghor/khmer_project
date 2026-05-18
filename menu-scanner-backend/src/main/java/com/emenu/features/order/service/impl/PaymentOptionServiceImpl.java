@@ -9,12 +9,11 @@ import com.emenu.features.order.models.PaymentOption;
 import com.emenu.features.order.repository.PaymentOptionRepository;
 import com.emenu.features.order.service.PaymentOptionService;
 import com.emenu.shared.dto.PaginationResponse;
+import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,11 +106,11 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
             PaymentOptionFilterRequest filter) {
         log.info("Getting payment options for business: {} with filters", businessId);
 
-        Sort.Direction direction = Sort.Direction.fromString(filter.getSortDirection());
-        Pageable pageable = PageRequest.of(
-                filter.getPageNo() - 1,
+        Pageable pageable = PaginationUtils.createPageable(
+                filter.getPageNo(),
                 filter.getPageSize(),
-                Sort.by(direction, filter.getSortBy())
+                filter.getSortBy(),
+                filter.getSortDirection()
         );
 
         Page<PaymentOption> page = paymentOptionRepository.findAllByBusinessIdWithFilters(

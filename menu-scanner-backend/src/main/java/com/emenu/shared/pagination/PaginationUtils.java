@@ -63,6 +63,19 @@ public class PaginationUtils {
     }
 
     /**
+     * Create pageable with pagination only (no sort).
+     * @return Pageable with default sort (descending by createdAt)
+     */
+    public static Pageable createPageable(Integer pageNo, Integer pageSize) {
+        int normalizedPageNo = normalizePageNumber(pageNo);
+        int normalizedPageSize = normalizePageSize(pageSize);
+
+        validatePagination(normalizedPageNo, normalizedPageSize);
+
+        return PageRequest.of(normalizedPageNo, normalizedPageSize);
+    }
+
+    /**
      * Create pageable with pagination for Native SQL queries.
      * @return Pageable with snake_case column names for native queries
      */

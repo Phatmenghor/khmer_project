@@ -14,7 +14,6 @@ import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -209,10 +208,7 @@ public class StockServiceImpl implements StockService {
             throw new ValidationException("Business ID is required");
         }
 
-        int pageNo = (request.getPageNo() == null || request.getPageNo() <= 0) ? 0 : request.getPageNo() - 1;
-        int pageSize = (request.getPageSize() == null) ? 15 : request.getPageSize();
-        PaginationUtils.validatePagination(pageNo, pageSize);
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Pageable pageable = PaginationUtils.createPageable(request.getPageNo(), request.getPageSize());
 
         Page<StockMovement> movementPage = stockMovementRepository.findWithFilters(
             request.getBusinessId(),

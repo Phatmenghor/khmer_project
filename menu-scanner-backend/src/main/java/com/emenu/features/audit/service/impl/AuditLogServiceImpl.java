@@ -13,14 +13,13 @@ import com.emenu.features.audit.service.AuditLogService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
+import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.ClientIpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,8 +46,7 @@ public class AuditLogServiceImpl implements AuditLogService {
         log.info("Audit logs search initiated: pageNo={}, pageSize={}, userId={}, userType={}",
             filter.getPageNo(), filter.getPageSize(), filter.getUserId(), filter.getUserType());
 
-        Sort sort = Sort.by(Sort.Direction.fromString(filter.getSortDirection()), filter.getSortBy());
-        Pageable pageable = PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(), sort);
+        Pageable pageable = PaginationUtils.createPageable(filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
 
         Page<AuditLog> page = auditLogRepository.findAllWithFilters(
                 filter.getUserId(),
