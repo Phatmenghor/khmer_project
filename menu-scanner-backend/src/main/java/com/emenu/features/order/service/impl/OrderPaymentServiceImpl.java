@@ -60,7 +60,7 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
                 filter.getSearch(),
                 pageable
         );
-        return paymentMapper.toPaginationResponse(page, paginationMapper);
+        return paginationMapper.toPaginationResponse(page, paymentMapper.toResponseList(page.getContent()));
     }
 
     @Override

@@ -70,7 +70,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
                 pageable
         );
 
-        return planMapper.toPaginationResponse(planPage, paginationMapper);
+        return paginationMapper.toPaginationResponse(planPage, planMapper.toResponseList(planPage.getContent()));
     }
 
     @Override

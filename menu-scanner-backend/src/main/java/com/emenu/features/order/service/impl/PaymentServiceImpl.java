@@ -82,7 +82,7 @@ public class PaymentServiceImpl implements PaymentService {
                 filter.getSearch(),
                 pageable
         );
-        return paymentMapper.toPaginationResponse(paymentPage, paginationMapper);
+        return paginationMapper.toPaginationResponse(paymentPage, paymentMapper.toResponseList(paymentPage.getContent()));
     }
 
     @Override

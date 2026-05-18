@@ -209,7 +209,7 @@ public class OrderServiceImpl implements OrderService {
         });
 
         log.debug("[MAPPING] Converting {} orders to response DTOs...", page.getNumberOfElements());
-        PaginationResponse<OrderResponse> response = orderMapper.toPaginationResponse(page, paginationMapper);
+        PaginationResponse<OrderResponse> response = paginationMapper.toPaginationResponse(page, orderMapper.toResponseList(page.getContent()));
 
         long duration = System.currentTimeMillis() - startTime;
         log.info("[CUSTOMER ORDER HISTORY COMPLETE] Retrieved {} orders in {} ms | Total: {} | Page: {}/{}",
@@ -307,7 +307,7 @@ public class OrderServiceImpl implements OrderService {
 
         log.debug("[MAPPING] Converting {} orders to response DTOs...", page.getNumberOfElements());
         long mappingStartTime = System.currentTimeMillis();
-        PaginationResponse<OrderResponse> response = orderMapper.toPaginationResponse(page, paginationMapper);
+        PaginationResponse<OrderResponse> response = paginationMapper.toPaginationResponse(page, orderMapper.toResponseList(page.getContent()));
         long mappingDuration = System.currentTimeMillis() - mappingStartTime;
         log.debug("[MAPPING COMPLETE] Conversion took {} ms", mappingDuration);
 

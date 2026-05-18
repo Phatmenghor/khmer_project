@@ -80,7 +80,7 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
                 filter.getMaxPrice(),
                 pageable
         );
-        return deliveryOptionMapper.toPaginationResponse(deliveryOptionPage, paginationMapper);
+        return paginationMapper.toPaginationResponse(deliveryOptionPage, deliveryOptionMapper.toResponseList(deliveryOptionPage.getContent()));
     }
 
     @Override

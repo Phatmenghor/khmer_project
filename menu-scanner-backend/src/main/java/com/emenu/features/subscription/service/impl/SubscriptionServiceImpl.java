@@ -98,7 +98,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 pageable
         );
 
-        return subscriptionMapper.toPaginationResponse(subscriptionPage, paginationMapper);
+        return paginationMapper.toPaginationResponse(subscriptionPage, subscriptionMapper.toResponseList(subscriptionPage.getContent()));
     }
 
     @Override

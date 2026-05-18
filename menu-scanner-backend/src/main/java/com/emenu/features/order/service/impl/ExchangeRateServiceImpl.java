@@ -60,7 +60,7 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
                 filter.getSearch(),
                 pageable
         );
-        return exchangeRateMapper.toPaginationResponse(page, paginationMapper);
+        return paginationMapper.toPaginationResponse(page, exchangeRateMapper.toResponseList(page.getContent()));
     }
 
     @Override
