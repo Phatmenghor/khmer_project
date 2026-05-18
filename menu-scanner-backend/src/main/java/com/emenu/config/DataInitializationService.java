@@ -96,19 +96,26 @@ public class DataInitializationService {
             int createdCount = 0;
 
             for (RoleConfig roleConfig : systemRoles) {
-                var existingRole = roleRepository.findByNameAndIsDeletedFalse(roleConfig.name());
-
-                if (existingRole.isEmpty()) {
-                    Role role = new Role();
-                    role.setName(roleConfig.name());
-                    role.setDescription("System role: " + roleConfig.name());
-                    role.setBusinessId(null);
-                    role.setUserType(roleConfig.userType());
-                    roleRepository.save(role);
-                    createdCount++;
-                    log.info("✅ Created system role: {} for user type: {}", roleConfig.name(), roleConfig.userType());
-                } else {
-                    log.info("ℹ️ System role already exists: {}", roleConfig.name());
+                try {
+                    var existingRole = roleRepository.findByNameAndIsDeletedFalse(roleConfig.name());
+                    if (existingRole.isEmpty()) {
+                        Role role = new Role();
+                        role.setName(roleConfig.name());
+                        role.setDescription("System role: " + roleConfig.name());
+                        role.setBusinessId(null);
+                        role.setUserType(roleConfig.userType());
+                        roleRepository.save(role);
+                        createdCount++;
+                        log.info("✅ Created system role: {} for user type: {}", roleConfig.name(), roleConfig.userType());
+                    } else {
+                        log.info("ℹ️ System role already exists: {}", roleConfig.name());
+                    }
+                } catch (Exception e) {
+                    if (e.getMessage() != null && e.getMessage().contains("did not return a unique result")) {
+                        log.warn("⚠️ Found duplicate role: {}. System will use first available.", roleConfig.name());
+                    } else {
+                        throw e;
+                    }
                 }
             }
 
