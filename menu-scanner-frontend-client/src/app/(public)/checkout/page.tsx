@@ -6,20 +6,7 @@ import { OrderStatus } from "@/enums/order-status.enum";
 import { OrderFromEnum } from "@/enums/order.enum";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import {
-  ChevronLeft,
-  MapPin,
-  CreditCard,
-  MessageSquare,
-  Lock,
-  Loader2,
-  Plus,
-  Minus,
-  Trash2,
-  AlertCircle,
-  Check,
-  Truck,
-} from "lucide-react";
+import { MapPin, CreditCard, MessageSquare, Lock, Loader2, AlertCircle, Check, Truck } from "lucide-react";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useLocationState } from "@/features/location/store/state/location-state";
@@ -96,11 +83,9 @@ export default function CheckoutPage() {
     isProcessing: false,
   });
 
-
   useEffect(() => {
     setMounted(true);
   }, []);
-
 
   useEffect(() => {
     if (!mounted || !authReady || !isAuthenticated) return;
@@ -133,7 +118,6 @@ export default function CheckoutPage() {
     fetchDefaults();
   }, [mounted, authReady, isAuthenticated, dispatch]);
 
-
   useEffect(() => {
     if (deliveryOptions && deliveryOptions.length > 0 && !checkoutState.selectedDeliveryOptionId) {
       setCheckoutState((prev) => ({
@@ -142,7 +126,6 @@ export default function CheckoutPage() {
       }));
     }
   }, [deliveryOptions, checkoutState.selectedDeliveryOptionId]);
-
 
   useEffect(() => {
     if (!mounted) return;
@@ -161,7 +144,6 @@ export default function CheckoutPage() {
     fetchPaymentOptions();
   }, [mounted, dispatch]);
 
-
   useEffect(() => {
     if (paymentOptions && paymentOptions.length > 0 && !checkoutState.selectedPaymentOptionId) {
       setCheckoutState((prev) => ({
@@ -170,7 +152,6 @@ export default function CheckoutPage() {
       }));
     }
   }, [paymentOptions, checkoutState.selectedPaymentOptionId]);
-
 
   useEffect(() => {
     if (profile && mounted && authReady) {
@@ -252,7 +233,6 @@ export default function CheckoutPage() {
 
     try {
 
-
       const checkoutPayload: CheckoutPayload = {
         businessId: AppDefault.BUSINESS_ID,
         addressId: selectedAddress?.id,
@@ -315,11 +295,9 @@ export default function CheckoutPage() {
         orderFrom: OrderFromEnum.CUSTOMER,
       };
 
-
       const orderResult: OrderResponse = await dispatch(createOrderService(checkoutPayload)).unwrap();
 
       showToast.success(Messages.orders.placed);
-
 
       setTimeout(() => {
         router.push("/orders");
@@ -336,7 +314,6 @@ export default function CheckoutPage() {
       setCheckoutState((prev) => ({ ...prev, isProcessing: false }));
     }
   };
-
 
   if (!mounted || !authReady) {
     return <CheckoutPageSkeleton />;

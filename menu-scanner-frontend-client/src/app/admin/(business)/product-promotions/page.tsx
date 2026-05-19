@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
@@ -49,7 +49,6 @@ import { selectGlobalPageSize } from "@/store/selectors/global-settings-selector
 import { useAppSelector } from "@/store";
 import { productPromotionTableColumns } from "@/features/business/table/product-promotion-table";
 
-
 const SORT_BY_OPTIONS = [
   { value: "createdAt", label: "Created Date" },
   { value: "displayPrice", label: "Display Price" },
@@ -68,9 +67,7 @@ const SORT_DIRECTION_OPTIONS = [
 export default function ProductPromotionPage() {
   const router = useRouter();
 
-
   useAdminCleanup(resetState);
-
 
   const {
     productState,
@@ -83,13 +80,11 @@ export default function ProductPromotionPage() {
     dispatch,
   } = useProductState();
 
-
   useEffect(() => {
     dispatch(setPageNo(1));
     dispatch(setSearchFilter(""));
     dispatch(selectProductStatus(ProductStatus.ALL));
   }, []);
-
 
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -121,17 +116,14 @@ export default function ProductPromotionPage() {
     product: null as ProductDetailResponseModel | null,
   });
 
-
   const [resetAllState, setResetAllState] = useState({
     isOpen: false,
   });
-
 
   const [resetTableState, setResetTableState] = useState({
     isOpen: false,
     selectedProductIds: [] as string[],
   });
-
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
@@ -150,7 +142,6 @@ export default function ProductPromotionPage() {
     } else if (sizeFilter === "false") {
       hasSize = false;
     }
-
 
     dispatch(
       fetchAllProductAdminService({
@@ -179,7 +170,6 @@ export default function ProductPromotionPage() {
     sortBy,
     sortDirection,
   ]);
-
 
   const handleCreatePromotion = () => {
     router.push(ROUTES.ADMIN.BULK_PROMOTION_CREATION);
@@ -222,7 +212,6 @@ export default function ProductPromotionPage() {
         status,
       })
     );
-
 
     dispatch(
       updateProductService({
@@ -329,7 +318,6 @@ export default function ProductPromotionPage() {
 
       closeDeleteModal();
 
-
       if (productContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -372,11 +360,9 @@ export default function ProductPromotionPage() {
   const handleConfirmResetPromotion = async () => {
     if (!resetPromotionState.product?.id) return;
 
-
     dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
 
     closeResetPromotionModal();
-
 
     try {
       await dispatch(resetProductPromotionService(resetPromotionState.product.id)).unwrap();
@@ -413,7 +399,6 @@ export default function ProductPromotionPage() {
   const handleSortDirectionChange = (value: string) => {
     setSortDirection(value);
   };
-
 
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Product Promotions",

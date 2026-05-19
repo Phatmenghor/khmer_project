@@ -29,22 +29,7 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ArrowLeft,
-  Heart,
-  ShoppingCart,
-  Share2,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  Store,
-  Tag,
-  Eye,
-  ZoomIn,
-  X,
-  Check,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, Heart, Share2, ChevronLeft, ChevronRight, Loader2, Store, Tag, Eye, ZoomIn, X, Check, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { sanitizeImageUrl } from "@/utils/common/common";
 import { appImages } from "@/constants/app-resource/icons/app-images";
@@ -83,19 +68,16 @@ export default function ProductDetailPage() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
-
   const [pendingQuantities, setPendingQuantities] = useState<Map<string, number>>(new Map());
   const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
   const [clearingSize, setClearingSize] = useState<string | null>(null);
-
 
   const isFavoritedFromStore = favLoaded && product
     ? favoriteItems.some((item) => item.id === product.id)
     : product?.isFavorited ?? false;
   const [isFavorited, setIsFavorited] = useState(false);
   useEffect(() => { setIsFavorited(isFavoritedFromStore); }, [isFavoritedFromStore]);
-
 
   const getQuantityForSize = useCallback(
     (sizeId: string | null) => {
@@ -106,7 +88,6 @@ export default function ProductDetailPage() {
 
       if (cartItem) return cartItem.quantity;
 
-
       if (sizeId) {
         const size = product.sizes?.find((s) => s.id === sizeId);
         return getSizeQuantity(size);
@@ -116,7 +97,6 @@ export default function ProductDetailPage() {
     },
     [cartItems, product]
   );
-
 
   const getDisplayQuantity = useCallback(
     (sizeId: string | null) => {
@@ -129,12 +109,10 @@ export default function ProductDetailPage() {
     [pendingQuantities, getQuantityForSize]
   );
 
-
   useEffect(() => {
     setPendingQuantities(new Map());
     setModifiedSizes(new Set());
   }, [product?.id]);
-
 
   const allImages = product
     ? [
@@ -146,7 +124,6 @@ export default function ProductDetailPage() {
       ]
     : [];
 
-
   const fetchedIdRef = useRef<string | null>(null);
   useEffect(() => {
     if (!productId || fetchedIdRef.current === productId) return;
@@ -155,7 +132,6 @@ export default function ProductDetailPage() {
     dispatch(fetchPublicProductById(productId));
   }, [productId, dispatch]);
 
-
   useEffect(() => {
     if (!product) return;
     setSelectedImage(sanitizeImageUrl(product.mainImageUrl, appImages.NoImage));
@@ -163,7 +139,6 @@ export default function ProductDetailPage() {
     setImageLoaded(false);
     setSelectedSize(product.hasSizes && product.sizes?.length ? product.sizes[0] : null);
   }, [product?.id]);
-
 
   const fetchedSimilarRef = useRef<string | null>(null);
   useEffect(() => {
@@ -211,7 +186,6 @@ export default function ProductDetailPage() {
     if (!orig) return 0;
     return Math.round(((orig - getDisplayPrice()) / orig) * 100);
   })();
-
 
   const handlePendingQtyChange = useCallback(
     (sizeId: string | null, newQty: number) => {
@@ -500,7 +474,6 @@ export default function ProductDetailPage() {
               const clearKey = sizeId || "no_size";
               const showQtySection = !product.hasSizes || !!selectedSize;
 
-
               const totalCartQtyAllSizes = product.hasSizes
                 ? (product.sizes?.reduce((sum, s) => sum + getQuantityForSize(s.id), 0) ?? 0)
                 : getQuantityForSize(null);
@@ -756,7 +729,6 @@ export default function ProductDetailPage() {
     </div>
   );
 }
-
 
 function ProductDetailSkeleton() {
   return (

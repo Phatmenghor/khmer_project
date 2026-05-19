@@ -3,7 +3,7 @@
 import { Messages } from "@/constants/messages";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { Check, Package, X, Trash2 } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
 import { buildCustomizationMapKey, getQuantityForCombo } from "@/utils/common/customization-utils";
 import {
   Dialog,
@@ -53,21 +53,15 @@ export function SizePickerModal({
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
 
-
   const [customizationsBySize, setCustomizationsBySize] = useState<Map<string, Set<string>>>(new Map());
-
 
   const [pendingQuantities, setPendingQuantities] = useState<Map<string, number>>(new Map());
 
-
   const [originalQuantities, setOriginalQuantities] = useState<Map<string, number>>(new Map());
-
 
   const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
 
-
   const hasUnsavedChanges = modifiedSizes.size > 0 || (selectedSize && (customizationsBySize.get(selectedSize.id)?.size ?? 0) > 0);
-
 
   const getQuantityForSize = useCallback(
     (sizeId: string, customizationIds?: Set<string>) => {
@@ -77,7 +71,6 @@ export function SizePickerModal({
     },
     [originalQuantities],
   );
-
 
   const getDisplayQuantity = useCallback(
     (sizeId: string) => {
@@ -91,11 +84,9 @@ export function SizePickerModal({
     [pendingQuantities, getQuantityForSize],
   );
 
-
   const currentQuantity = selectedSize
     ? getDisplayQuantity(selectedSize.id)
     : 0;
-
 
   const toggleCustomization = useCallback((customizationId: string) => {
     if (!selectedSize) return;
@@ -120,13 +111,11 @@ export function SizePickerModal({
     });
   }, [selectedSize]);
 
-
   useEffect(() => {
     if (!selectedSize) return;
 
     const sizeId = selectedSize.id;
     const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
-
 
     const qtyForCombo = getQuantityForSize(sizeId, selectedSizeCustoms);
 
@@ -145,15 +134,12 @@ export function SizePickerModal({
     }
   }, [selectedSize?.id, customizationsBySize]);
 
-
   useEffect(() => {
     if (!selectedSize || !product?.id) return;
-
 
     if (!product.customizations || product.customizations.length === 0) return;
 
     const sizeId = selectedSize.id;
-
 
     const cartItem = cartItems?.find(
       item => item.productId === product.id &&
@@ -180,7 +166,6 @@ export function SizePickerModal({
     }
   }, [selectedSize?.id, product?.id, product?.customizations?.length, cartItems]);
 
-
   useEffect(() => {
     if (!selectedSize || !initialCustomizations || initialCustomizations.length === 0) {
       return;
@@ -196,12 +181,10 @@ export function SizePickerModal({
     }
   }, [selectedSize, initialCustomizations, originalQuantities]);
 
-
   useEffect(() => {
     if (open && product) {
       const hasSizes = product.sizes && product.sizes.length > 0;
       const hasCustomizations = product.customizations && product.customizations.length > 0;
-
 
       let editingItem = null;
       if (isEditing && editingId) {
@@ -209,7 +192,6 @@ export function SizePickerModal({
       }
 
       if (hasSizes) {
-
 
         let selectedSizeForInit = product.sizes![0];
         if (editingItem && editingItem.productSizeId) {
@@ -224,7 +206,6 @@ export function SizePickerModal({
         setPendingQuantities(new Map());
         setModifiedSizes(new Set());
 
-
         const customsBySize = new Map<string, Set<string>>();
         if (initialCustomizations && initialCustomizations.length > 0) {
 
@@ -233,10 +214,8 @@ export function SizePickerModal({
         }
         setCustomizationsBySize(customsBySize);
 
-
         const origQties = new Map(initialQuantities || new Map());
         setOriginalQuantities(origQties);
-
 
         let sizeQty = 0;
         const selectedSizeId = selectedSizeForInit.id;
@@ -256,17 +235,14 @@ export function SizePickerModal({
         setPendingQuantities(new Map());
         setModifiedSizes(new Set([noSizeId]));
 
-
         const customsBySize = new Map<string, Set<string>>();
         if (initialCustomizations && initialCustomizations.length > 0) {
           customsBySize.set(noSizeId, new Set(initialCustomizations));
         }
         setCustomizationsBySize(customsBySize);
 
-
         const origQties = new Map(initialQuantities || new Map());
         setOriginalQuantities(origQties);
-
 
         let initialQty = 0;
         if (initialCustomizations && initialCustomizations.length > 0) {
@@ -288,7 +264,6 @@ export function SizePickerModal({
     }
   }, [open, product?.id, initialQuantities, initialCustomizations, isEditing, editingId, cartItems]);
 
-
   const handleQuantityChange = useCallback(
     (newQuantity: number) => {
       if (!selectedSize) return;
@@ -298,13 +273,11 @@ export function SizePickerModal({
       const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
       const originalQty = getQuantityForSize(sizeId, selectedSizeCustoms);
 
-
       setPendingQuantities((prev) => {
         const next = new Map(prev);
         next.set(sizeId, newQuantity);
         return next;
       });
-
 
       setModifiedSizes((prev) => {
         const next = new Set(prev);
@@ -318,12 +291,10 @@ export function SizePickerModal({
         return next;
       });
 
-
       setQuantity(newQuantity);
     },
     [selectedSize, getQuantityForSize, customizationsBySize],
   );
-
 
   const handleClearSize = useCallback(() => {
     if (!selectedSize) return;
@@ -331,20 +302,17 @@ export function SizePickerModal({
     const sizeId = selectedSize.id;
     const originalQty = getQuantityForSize(sizeId);
 
-
     setPendingQuantities((prev) => {
       const next = new Map(prev);
       next.set(sizeId, 0);
       return next;
     });
 
-
     setCustomizationsBySize((prev) => {
       const next = new Map(prev);
       next.delete(sizeId);
       return next;
     });
-
 
     setModifiedSizes((prev) => {
       const next = new Set(prev);
@@ -361,31 +329,25 @@ export function SizePickerModal({
     setQuantity(0);
   }, [selectedSize, getQuantityForSize]);
 
-
   const handleSelectSize = useCallback(() => {
     if (!product || !hasUnsavedChanges) {
       return;
     }
-
 
     const sizesToUpdate = new Set(modifiedSizes);
     customizationsBySize.forEach((_, sizeId) => {
       sizesToUpdate.add(sizeId);
     });
 
-
     for (const sizeId of sizesToUpdate) {
       const customs = customizationsBySize.get(sizeId) ?? new Set();
       const isModified = modifiedSizes.has(sizeId);
-
 
       if (isModified) {
         continue;
       }
 
-
       if (customs.size > 0) {
-
 
         const qtyForCombo = getQuantityForSize(sizeId, customs);
         if (qtyForCombo === 0) {
@@ -396,13 +358,10 @@ export function SizePickerModal({
       }
     }
 
-
     for (const sizeId of sizesToUpdate) {
       const qty = getDisplayQuantity(sizeId);
 
-
       if (qty > 0 || modifiedSizes.has(sizeId)) {
-
 
         let sizeCustomizations: string[];
         if (qty === 0 && isEditing) {
@@ -429,7 +388,6 @@ export function SizePickerModal({
 
           sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
         }
-
 
         if (sizeId === "__no_size__") {
           onSizeSelect(product, undefined, qty, sizeCustomizations);
@@ -459,13 +417,11 @@ export function SizePickerModal({
 
   const displayPrice = selectedSize?.finalPrice || product?.displayPrice || 0;
 
-
   const selectedSizeCustoms = selectedSize ? (customizationsBySize.get(selectedSize.id) ?? new Set()) : new Set();
   const customizationTotal = Array.from(selectedSizeCustoms).reduce((sum, customId) => {
     const custom = product?.customizations?.find((c) => c.id === customId);
     return sum + (custom?.priceAdjustment || 0);
   }, 0);
-
 
   const priceWithCustomizations = displayPrice + customizationTotal;
 

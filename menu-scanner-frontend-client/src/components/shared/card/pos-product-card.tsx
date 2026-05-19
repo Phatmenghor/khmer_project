@@ -2,7 +2,7 @@
 
 import { memo, useCallback } from "react";
 import { useSelector } from "react-redux";
-import { Heart, ShoppingCart, Plus, Minus, Ruler, Package } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Ruler, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
@@ -24,7 +24,6 @@ function POSProductCardComponent({
 }: POSProductCardProps) {
 
   const productId = product?.id;
-
 
   const quantity = useSelector((state: RootState) =>
     selectPOSProductQuantity(state, productId || "")

@@ -20,21 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Monitor,
-  Smartphone,
-  Tablet,
-  Globe,
-  Search,
-  RefreshCw,
-  Filter,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  CheckCircle2,
-  XCircle,
-  Eye,
-} from "lucide-react";
+import { Monitor, Smartphone, Tablet, Globe, Search, RefreshCw, ChevronLeft, ChevronRight, User, CheckCircle2, XCircle, Eye } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { adminGetSessionsService } from "@/features/auth/store/thunks/session-thunks";
 import { AdminSessionResponse } from "@/features/auth/store/models/response/session-response";
@@ -60,7 +46,6 @@ export default function AdminSessionsPage() {
     useState<AdminSessionResponse | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-
   const [filters, setFilters] = useState<SessionFilterRequest>({
     search: "",
     pageNo: 1,
@@ -72,19 +57,15 @@ export default function AdminSessionsPage() {
     deviceTypes: [],
   });
 
-
   const [searchValue, setSearchValue] = useState("");
-
 
   const loadSessions = useCallback(() => {
     dispatch(adminGetSessionsService(filters));
   }, [dispatch, filters]);
 
-
   useEffect(() => {
     loadSessions();
   }, [loadSessions]);
-
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -92,7 +73,6 @@ export default function AdminSessionsPage() {
     }, 500);
     return () => clearTimeout(timer);
   }, [searchValue]);
-
 
   const getDeviceIcon = (deviceType: DeviceType) => {
     switch (deviceType) {
@@ -106,7 +86,6 @@ export default function AdminSessionsPage() {
         return <Globe className="h-4 w-4" />;
     }
   };
-
 
   const getStatusBadge = (status: SessionStatus) => {
     switch (status) {
@@ -136,11 +115,9 @@ export default function AdminSessionsPage() {
     }
   };
 
-
   const handlePageChange = (newPage: number) => {
     setFilters((prev) => ({ ...prev, pageNo: newPage }));
   };
-
 
   const handleStatusFilter = (status: string) => {
     if (status === "ALL") {
@@ -154,7 +131,6 @@ export default function AdminSessionsPage() {
     }
   };
 
-
   const handleDeviceTypeFilter = (deviceType: string) => {
     if (deviceType === "ALL") {
       setFilters((prev) => ({ ...prev, deviceTypes: [], pageNo: 1 }));
@@ -167,12 +143,10 @@ export default function AdminSessionsPage() {
     }
   };
 
-
   const handleViewSession = (session: AdminSessionResponse) => {
     setSelectedSession(session);
     setIsDetailModalOpen(true);
   };
-
 
   const totalPages = adminSessions?.totalPages || 1;
   const currentPage = adminSessions?.pageNo || 1;

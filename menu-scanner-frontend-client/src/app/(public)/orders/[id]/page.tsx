@@ -4,28 +4,7 @@ import { Messages } from "@/constants/messages";
 import { useEffect, useState } from "react";
 import { OrderStatus, getOrderStatusLabel, getOrderStatusColor } from "@/enums/order-status.enum";
 import { useParams, useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  Copy,
-  Printer,
-  Share2,
-  Phone,
-  MapPin,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  Truck,
-  Package,
-  AlertCircle,
-  Loader2,
-  User,
-  Mail,
-  Home,
-  MessageSquare,
-  HelpCircle,
-  Check,
-  Zap,
-} from "lucide-react";
+import { ArrowLeft, Copy, Phone, MapPin, Clock, CheckCircle2, XCircle, Truck, Package, AlertCircle, Loader2, User, MessageSquare, Check, Zap } from "lucide-react";
 import { useAppDispatch } from "@/store";
 import {
   fetchOrderDetailsService,
@@ -83,7 +62,6 @@ const STATUS_COLORS: Record<
   },
 };
 
-
 interface StatusTimelineItem {
   id: string;
   name: string;
@@ -115,7 +93,6 @@ export default function OrderDetailPage() {
   const [copied, setCopied] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-
   useEffect(() => {
     if (!orderId) return;
 
@@ -123,9 +100,7 @@ export default function OrderDetailPage() {
       try {
         setState((prev) => ({ ...prev, loading: true, error: null }));
 
-
         const orderResult = await dispatch(fetchOrderDetailsService(orderId)).unwrap();
-
 
         const statusResult = await dispatch(
           fetchAllOrderStatusService({
@@ -135,7 +110,6 @@ export default function OrderDetailPage() {
             pageSize: 100,
           })
         ).unwrap();
-
 
         const sortedStatuses = statusResult.content || [];
 
@@ -714,7 +688,6 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
-
       {}
       {showCancelConfirm && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
@@ -755,7 +728,6 @@ export default function OrderDetailPage() {
     </PageContainer>
   );
 }
-
 
 function OrderDetailSkeleton() {
   return (

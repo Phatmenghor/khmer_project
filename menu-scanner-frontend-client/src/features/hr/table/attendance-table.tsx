@@ -1,6 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
-import { Edit, Eye, Trash, Check, X } from "lucide-react";
+import { Edit, Eye, Trash, Check } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import {

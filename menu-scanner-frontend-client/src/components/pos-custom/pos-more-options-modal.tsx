@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
-import { X, Loader2, ChevronRight, Percent, DollarSign, Settings2 } from "lucide-react";
-
+import { Loader2, ChevronRight, Percent, DollarSign, Settings2 } from "lucide-react";
 interface POSMoreOptionsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -42,7 +41,6 @@ export function POSMoreOptionsModal({
   const [discountReason, setDiscountReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
   const calculateDiscountAmount = (): number => {
     const value = parseFloat(discountValue) || 0;
     if (discountType === "fixed") {
@@ -55,7 +53,6 @@ export function POSMoreOptionsModal({
 
   const handleApply = () => {
     setIsSubmitting(true);
-
 
     if (showDiscount && discountValue && onDiscountApply) {
       const discountAmountValue = calculateDiscountAmount();

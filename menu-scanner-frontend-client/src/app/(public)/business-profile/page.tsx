@@ -2,25 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {
-  MapPin,
-  Phone,
-  Mail,
-  Clock,
-  Globe,
-  Facebook,
-  Instagram,
-  Twitter,
-  Linkedin,
-  Star,
-  Check,
-  ExternalLink,
-  MessageCircle,
-  ThumbsUp,
-  BadgeCheck,
-  Calendar,
-  MessageSquare,
-} from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Globe, Facebook, Instagram, Twitter, Linkedin, Star, Check, ExternalLink, MessageCircle, MessageSquare } from "lucide-react";
 import { demoBusinessProfile } from "@/data/business-profile-template";
 import { BusinessProfile, DayOfWeek, CustomerReview } from "@/types/business-profile";
 import { Card, CardContent } from "@/components/ui/card";

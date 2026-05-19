@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import { useState, useEffect } from "react";
-import { Loader2, Edit, Plus, Minus } from "lucide-react";
+import { Edit, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CustomButton } from "@/components/shared/button/custom-button";
@@ -80,7 +80,6 @@ export function POSEditCartItemModal({
   const [reason, setReason] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-
   useEffect(() => {
     if (open && item) {
       setNewPrice(item.currentPrice.toString());
@@ -93,7 +92,6 @@ export function POSEditCartItemModal({
 
   const handleSave = async () => {
     if (!item || !newPrice || !newQuantity) return;
-
 
     const qty = parseInt(newQuantity);
     if (qty < 1) {
@@ -134,23 +132,19 @@ export function POSEditCartItemModal({
 
   if (!item) return null;
 
-
   const parsedPrice = newPrice ? parseFloat(newPrice) : item.currentPrice;
   const parsedQuantity = newQuantity ? parseInt(newQuantity) : item.quantity;
 
   const calculatedFinalPrice = isNaN(parsedPrice) ? item.currentPrice : parsedPrice;
   const calculatedQuantity = isNaN(parsedQuantity) ? item.quantity : Math.max(1, parsedQuantity);
 
-
   const addonsTotal = item.customizations && item.customizations.length > 0
     ? item.customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0)
     : 0;
 
-
   const priceWithAddons = calculatedFinalPrice + addonsTotal;
 
   const calculatedTotal = priceWithAddons * calculatedQuantity;
-
 
   const isDirty = !item ? false : (
     reason.trim() !== "" ||

@@ -11,23 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Monitor,
-  Smartphone,
-  Tablet,
-  Globe,
-  MapPin,
-  Clock,
-  Calendar,
-  Timer,
-  Wifi,
-  CheckCircle2,
-  XCircle,
-  User,
-  Mail,
-  Shield,
-  LogOut,
-} from "lucide-react";
+import { Monitor, Smartphone, Tablet, Globe, MapPin, Clock, Calendar, Timer, Wifi, CheckCircle2, XCircle, User, Shield, LogOut } from "lucide-react";
 import { AdminSessionResponse } from "@/features/auth/store/models/response/session-response";
 import { DeviceType, SessionStatus } from "@/features/auth/store/models/request/session-request";
 import { format, formatDistanceToNow } from "date-fns";
@@ -45,7 +29,6 @@ export function AdminSessionDetailModal({
 }: AdminSessionDetailModalProps) {
   if (!session) return null;
 
-
   const getDeviceIcon = (deviceType: DeviceType) => {
     switch (deviceType) {
       case "MOBILE":
@@ -58,7 +41,6 @@ export function AdminSessionDetailModal({
         return <Globe className="h-6 w-6" />;
     }
   };
-
 
   const getStatusBadge = (status: SessionStatus) => {
     switch (status) {
@@ -87,7 +69,6 @@ export function AdminSessionDetailModal({
         return <Badge variant="outline">{status}</Badge>;
     }
   };
-
 
   const formatDuration = (minutes: number) => {
     if (minutes < 60) return `${minutes} minutes`;
@@ -288,7 +269,6 @@ export function AdminSessionDetailModal({
     </Dialog>
   );
 }
-
 
 function DetailRow({
   icon,

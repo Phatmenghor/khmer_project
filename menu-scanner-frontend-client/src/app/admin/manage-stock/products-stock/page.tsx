@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { Plus } from "lucide-react";
+
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
@@ -37,18 +37,15 @@ import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
 
-
 const STOCK_STATUS_FILTER = [
   { value: "ALL", label: "All Stock Status" },
   { value: "ENABLED", label: "Stock Enabled" },
   { value: "DISABLED", label: "Stock Disabled" },
 ];
 
-
 export default function ProductsStockPage() {
 
   useAdminCleanup(resetState);
-
 
   const {
     stockState,
@@ -60,7 +57,6 @@ export default function ProductsStockPage() {
     pagination,
     dispatch,
   } = useStockState();
-
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -79,12 +75,9 @@ export default function ProductsStockPage() {
     useState<CategoriesResponseModel | null>(null);
   const [stockStatusFilter, setStockStatusFilter] = useState("ALL");
 
-
   const stockStatusDebounceRefs = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
-
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-
 
   const stockManagementSuccessMessage = useAppSelector(
     (state: { stockManagement?: { successMessage?: string } }) => state.stockManagement?.successMessage
@@ -103,7 +96,6 @@ export default function ProductsStockPage() {
     if (stockStatusFilter === "ENABLED" || stockStatusFilter === "DISABLED") {
       stockStatuses = [stockStatusFilter];
     }
-
 
     let statuses: string[] | undefined;
     if (filters.status !== ProductStatus.ALL && filters.status) {
@@ -132,7 +124,6 @@ export default function ProductsStockPage() {
     stockStatusFilter,
   ]);
 
-
   useEffect(() => {
     if (stockManagementSuccessMessage) {
 
@@ -160,7 +151,6 @@ export default function ProductsStockPage() {
     }
   }, [stockManagementSuccessMessage]);
 
-
   const handleCreateStock = (product: ProductDetailResponseModel) => {
     setStockManagementState({
       isOpen: true,
@@ -179,7 +169,6 @@ export default function ProductsStockPage() {
     (product: ProductDetailResponseModel) => {
       if (!product.id) return;
 
-
       if (stockStatusDebounceRefs.current[product.id]) {
         clearTimeout(stockStatusDebounceRefs.current[product.id]);
       }
@@ -187,14 +176,12 @@ export default function ProductsStockPage() {
       const newStatus = product.stockStatus === "ENABLED" ? "DISABLED" : "ENABLED";
       const previousStatus = product.stockStatus as "ENABLED" | "DISABLED";
 
-
       dispatch(
         updateStockStatusOptimistic({
           productId: product.id,
           newStatus: newStatus as "ENABLED" | "DISABLED",
         })
       );
-
 
       stockStatusDebounceRefs.current[product.id] = setTimeout(() => {
         dispatch(
@@ -290,7 +277,6 @@ export default function ProductsStockPage() {
   const handleStockStatusChange = (value: string) => {
     setStockStatusFilter(value);
   };
-
 
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Product Stock Information",

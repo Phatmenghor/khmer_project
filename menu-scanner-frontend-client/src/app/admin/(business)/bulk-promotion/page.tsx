@@ -7,15 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  Check,
-  CheckSquare,
-  Square,
-  Trash2,
-  Search,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Trash2, Search, X } from "lucide-react";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { SubmitButton } from "@/components/shared/button/submit-button";
@@ -101,11 +93,9 @@ export default function BulkPromotionPage() {
   const selectedProductIdsFromRedux = useAppSelector(selectSelectedProductIds);
   const selectedSizesFromRedux = useAppSelector(selectPromotionSizeSelections);
 
-
   const selectedProductIds = useMemo(() => {
     return new Map(selectedProductIdsFromRedux.map((id) => [id, true]));
   }, [selectedProductIdsFromRedux]);
-
 
   const selectedSizes = useMemo(() => {
     const sizeMap = new Map<string, Set<string>>();
@@ -129,21 +119,17 @@ export default function BulkPromotionPage() {
   const [showResetModal, setShowResetModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
 
-
   const debouncedSearchQuery = useDebounce(searchQuery, 400);
-
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
     productId: "",
   });
 
-
   const [resetPromotionState, setResetPromotionState] = useState({
     isOpen: false,
     product: null as ProductDetailResponseModel | null,
   });
-
 
   const [showClearSelectedModal, setShowClearSelectedModal] = useState(false);
   const [isClearingSelected, setIsClearingSelected] = useState(false);
@@ -162,13 +148,11 @@ export default function BulkPromotionPage() {
     },
   });
 
-
   const { clearSelections } = useBulkPromotionStorageSync({
     storageKey: "bulk-promotion:selected-products",
     debounceMs: 1000,
     enabled: true,
   });
-
 
   const { clearSelections: clearSizeSelections } =
     useBulkPromotionSizesStorageSync({
@@ -176,7 +160,6 @@ export default function BulkPromotionPage() {
       debounceMs: 1000,
       enabled: true,
     });
-
 
   useEffect(() => {
     dispatch(
@@ -206,14 +189,11 @@ export default function BulkPromotionPage() {
     hasPromotionFilter,
   ]);
 
-
   const handleSelectProduct = useCallback(
     (productId: string) => {
       const isCurrentlySelected = selectedProductIds.has(productId);
 
-
       const product = productContent.find((p) => p.id === productId);
-
 
       dispatch(toggleSelectedProduct(productId));
 
@@ -234,7 +214,6 @@ export default function BulkPromotionPage() {
     [dispatch, selectedProductIds, productContent],
   );
 
-
   const handleSizeToggle = useCallback(
     (productId: string, sizeId: string) => {
 
@@ -242,17 +221,14 @@ export default function BulkPromotionPage() {
       const sizeIsCurrentlySelected =
         currentSizesForProduct && currentSizesForProduct.has(sizeId);
 
-
       const isProductSelected = selectedProductIds.has(productId);
 
       if (!sizeIsCurrentlySelected) {
-
 
         if (!isProductSelected) {
           dispatch(toggleSelectedProduct(productId));
         }
       } else {
-
 
         const remainingSizes = currentSizesForProduct
           ? new Set(
@@ -260,18 +236,15 @@ export default function BulkPromotionPage() {
             )
           : new Set();
 
-
         if (remainingSizes.size === 0 && isProductSelected) {
           dispatch(toggleSelectedProduct(productId));
         }
       }
 
-
       dispatch(toggleSizeForProduct({ productId, sizeId }));
     },
     [dispatch, selectedProductIds, selectedSizes],
   );
-
 
   const handleSelectAll = useCallback(
     (checked: boolean) => {
@@ -282,7 +255,6 @@ export default function BulkPromotionPage() {
           ...currentPageIds,
         ]);
         dispatch(setSelectedProducts(Array.from(combined)));
-
 
         productContent.forEach((product) => {
           if (
@@ -303,7 +275,6 @@ export default function BulkPromotionPage() {
         );
         dispatch(setSelectedProducts(filtered));
 
-
         productContent.forEach((product) => {
           if (pageIdsSet.has(product.id)) {
             dispatch(clearSizesForProduct(product.id));
@@ -314,15 +285,12 @@ export default function BulkPromotionPage() {
     [selectedProductIdsFromRedux, selectedProductIds, productContent, dispatch],
   );
 
-
   const allSelected =
     productContent.length > 0 &&
     productContent.every((p) => selectedProductIds.has(p.id));
 
-
   const someSelected =
     productContent.some((p) => selectedProductIds.has(p.id)) && !allSelected;
-
 
   const handleBrandChange = (brand: BrandResponseModel | null) => {
     setSelectedBrand(brand);
@@ -356,7 +324,6 @@ export default function BulkPromotionPage() {
     dispatch(setPageNo(1));
   };
 
-
   const handleClearAllSelections = () => {
     dispatch(clearSelectedProducts());
     dispatch(clearAllSizeSelections());
@@ -365,9 +332,7 @@ export default function BulkPromotionPage() {
     showToast.success(Messages.promotions.allSelectionsCleared);
   };
 
-
   const selectedIds = Array.from(selectedProductIds.keys());
-
 
   const handleViewDetails = useCallback(
     (product: ProductDetailResponseModel) => {
@@ -379,14 +344,12 @@ export default function BulkPromotionPage() {
     [],
   );
 
-
   const handleEditProduct = useCallback(
     (product: ProductDetailResponseModel) => {
 
     },
     [],
   );
-
 
   const handleResetPromotion = useCallback(
     (product: ProductDetailResponseModel) => {
@@ -398,14 +361,12 @@ export default function BulkPromotionPage() {
     [],
   );
 
-
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
       productId: "",
     });
   };
-
 
   const closeResetPromotionModal = () => {
     setResetPromotionState({
@@ -414,15 +375,12 @@ export default function BulkPromotionPage() {
     });
   };
 
-
   const handleConfirmResetPromotion = async () => {
     if (!resetPromotionState.product?.id) return;
-
 
     dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
 
     closeResetPromotionModal();
-
 
     dispatch(resetProductPromotionService(resetPromotionState.product.id))
       .then(() => {
@@ -435,15 +393,12 @@ export default function BulkPromotionPage() {
       });
   };
 
-
   useEffect(() => {
     form.setValue("productIds", selectedIds);
   }, [selectedIds, form]);
 
-
   const promotionType = form.watch("promotionType");
   const promotionValue = form.watch("promotionValue");
-
 
   const discountDisplay = useMemo(() => {
     if (!promotionType || !promotionValue) return null;
@@ -451,7 +406,6 @@ export default function BulkPromotionPage() {
       ? `${promotionValue}%`
       : `$${promotionValue}`;
   }, [promotionType, promotionValue]);
-
 
   const hasValidPromotionType = !!promotionType;
   const hasValidPromotionValue = promotionValue && promotionValue > 0;
@@ -467,7 +421,6 @@ export default function BulkPromotionPage() {
     hasValidPromotionValue &&
     hasValidDates &&
     hasSelectedProducts;
-
 
   const columns = useMemo<TableColumn<ProductDetailResponseModel>[]>(
     () =>
@@ -503,7 +456,6 @@ export default function BulkPromotionPage() {
     ],
   );
 
-
   const handlePageChange = (page: number) => {
     dispatch(setPageNo(page));
     dispatch(
@@ -524,7 +476,6 @@ export default function BulkPromotionPage() {
       }),
     );
   };
-
 
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
@@ -547,7 +498,6 @@ export default function BulkPromotionPage() {
       }),
     );
   };
-
 
   const onSubmit = async (data: BulkPromotionFormData) => {
     if (selectedIds.length === 0) {
@@ -602,7 +552,6 @@ export default function BulkPromotionPage() {
       dispatch(clearAllSizeSelections());
       clearSelections();
 
-
       form.reset({
         ...form.getValues(),
         productIds: [],
@@ -622,7 +571,6 @@ export default function BulkPromotionPage() {
     }
   };
 
-
   const handleApplyClick = async () => {
 
     const isValidForm = await form.trigger();
@@ -631,10 +579,8 @@ export default function BulkPromotionPage() {
       return;
     }
 
-
     await form.handleSubmit(onSubmit)();
   };
-
 
   const handleResetAllPromotions = async () => {
     try {
@@ -671,7 +617,6 @@ export default function BulkPromotionPage() {
     }
   };
 
-
   const handleClearSelectedPromotionsClick = () => {
     if (selectedIds.length === 0) {
       showToast.error(Messages.product.selectAtLeastOne);
@@ -679,7 +624,6 @@ export default function BulkPromotionPage() {
     }
     setShowClearSelectedModal(true);
   };
-
 
   const handleConfirmClearSelected = async () => {
     setIsClearingSelected(true);

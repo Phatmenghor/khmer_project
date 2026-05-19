@@ -14,14 +14,7 @@ import {
 } from "../store/selectors/attendance-selectors";
 import { fetchAttendanceByIdService } from "../store/thunks/attendance-thunks";
 import { clearSelectedAttendance } from "../store/slice/attendance-slice";
-import {
-  MapPin,
-  ExternalLink,
-  Loader2,
-  Navigation,
-  Map,
-  Info,
-} from "lucide-react";
+import { MapPin, ExternalLink, Loader2, Navigation, Info } from "lucide-react";
 import {
   calculateDistance,
   formatCoordinates,
@@ -62,7 +55,6 @@ export function AttendanceDetailModal({
   const [expandedCheckIn, setExpandedCheckIn] = useState<string | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
 
-
   useEffect(() => {
     const fetchAttendanceData = async () => {
       if (!attendanceId || !isOpen) return;
@@ -74,7 +66,6 @@ export function AttendanceDetailModal({
 
     fetchAttendanceData();
   }, [attendanceId, isOpen, dispatch]);
-
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -101,7 +92,6 @@ export function AttendanceDetailModal({
 
     fetchAddresses();
   }, [attendanceData?.checkIns]);
-
 
   useEffect(() => {
     if (!attendanceData?.checkIns || attendanceData.checkIns.length < 2) {

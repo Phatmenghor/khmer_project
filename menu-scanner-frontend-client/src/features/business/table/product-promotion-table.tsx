@@ -1,6 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Edit, Eye, Trash, RotateCcw, Zap } from "lucide-react";
+import { Edit, Eye, Trash, RotateCcw } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
@@ -36,7 +36,6 @@ interface ProductPromotionTableOptions {
   data: AllProductResponseModel | null;
   handlers: ProductTableHandlers;
 }
-
 
 function ProductImagePreview({
   product,
@@ -75,7 +74,6 @@ function ProductImagePreview({
   );
 }
 
-
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
   const { secondary } = useBusinessColors();
 
@@ -106,7 +104,6 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
     </div>
   );
 }
-
 
 export const productPromotionTableColumns = ({
   data,

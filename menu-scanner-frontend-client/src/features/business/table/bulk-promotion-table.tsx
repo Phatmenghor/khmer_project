@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { Badge } from "@/components/ui/badge";
-import { Check, Eye, Edit, RotateCcw } from "lucide-react";
+import { Eye, RotateCcw } from "lucide-react";
 import { ActionButton } from "@/components/shared/button/action-button";
 
 interface BulkPromotionTableOptions {
@@ -25,7 +25,6 @@ interface BulkPromotionTableOptions {
   onEditProduct?: (product: ProductDetailResponseModel) => void;
   onResetPromotion?: (product: ProductDetailResponseModel) => void;
 }
-
 
 function ProductImagePreview({
   product,

@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
@@ -41,7 +41,6 @@ import { useAppSelector } from "@/store";
 import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
 import { FilterPanelConfig } from "@/features/business/components/filter-types";
 
-
 const SORT_BY_OPTIONS = [
   { value: "createdAt", label: "Created Date" },
   { value: "displayPrice", label: "Display Price" },
@@ -61,7 +60,6 @@ export default function ProductPage() {
 
   useAdminCleanup(resetState);
 
-
   const {
     productState,
     productData,
@@ -73,13 +71,11 @@ export default function ProductPage() {
     dispatch,
   } = useProductState();
 
-
   useEffect(() => {
     dispatch(setPageNo(1));
     dispatch(setSearchFilter(""));
     dispatch(selectProductStatus(ProductStatus.ALL));
   }, []);
-
 
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -111,7 +107,6 @@ export default function ProductPage() {
     product: null as ProductDetailResponseModel | null,
   });
 
-
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -129,7 +124,6 @@ export default function ProductPage() {
     } else if (sizeFilter === "false") {
       hasSize = false;
     }
-
 
     dispatch(
       fetchAllProductAdminService({
@@ -157,7 +151,6 @@ export default function ProductPage() {
     sortBy,
     sortDirection,
   ]);
-
 
   const handleCreateBrand = () => {
     setModalState({
@@ -204,7 +197,6 @@ export default function ProductPage() {
         status,
       })
     );
-
 
     dispatch(
       updateProductService({
@@ -264,7 +256,6 @@ export default function ProductPage() {
 
       closeDeleteModal();
 
-
       if (productContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -275,15 +266,12 @@ export default function ProductPage() {
     }
   };
 
-
   const handleConfirmResetPromotion = async () => {
     if (!resetPromotionState.product?.id) return;
-
 
     dispatch(resetProductPromotionOptimistic(resetPromotionState.product.id));
 
     closeResetPromotionModal();
-
 
     dispatch(resetProductPromotionService(resetPromotionState.product.id))
       .then(() => {
@@ -350,7 +338,6 @@ export default function ProductPage() {
   const handleSortDirectionChange = (value: string) => {
     setSortDirection(value);
   };
-
 
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Product Information",
