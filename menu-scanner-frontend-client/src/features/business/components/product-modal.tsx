@@ -464,9 +464,9 @@ export default function ProductModal({
         showToast.success(Messages.product.updated);
         handleClose();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast.error(
-        error?.message || `Failed to ${isCreate ? "create" : "update"} product`,
+        (error as { message?: string })?.message || `Failed to ${isCreate ? "create" : "update"} product`,
       );
     }
   };

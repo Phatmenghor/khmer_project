@@ -277,8 +277,8 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       try {
         await loadGoogleMapsScript();
         if (!cancelled) setIsMapReady(true);
-      } catch (err: any) {
-        if (!cancelled) setMapError(err?.message ?? "Failed to load map");
+      } catch (err: unknown) {
+        if (!cancelled) setMapError((err as { message?: string })?.message ?? "Failed to load map");
       }
     })();
     return () => { cancelled = true; };
@@ -521,7 +521,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
           showToast.success(Messages.location.coordinatesFound);
         } else { showToast.error(Messages.location.coordinatesFailed); }
       });
-    } catch (err: any) { setIsGeocodingAddress(false); showToast.error(err?.message ?? Messages.location.geocodeFailed); }
+    } catch (err: unknown) { setIsGeocodingAddress(false); showToast.error((err as { message?: string })?.message ?? Messages.location.geocodeFailed); }
   }, [watch, setValue]);
 
   const onSubmit = async (data: LocationFormData) => {
@@ -554,7 +554,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       if (isCreate) { await create(payload).unwrap(); showToast.success(Messages.location.created); }
       else { await update({ locationId: editData!.id, locationData: payload }).unwrap(); showToast.success(Messages.location.updated); }
       handleClose();
-    } catch (error: any) { showToast.error(error?.message ?? `Failed to ${isCreate ? "create" : "update"} location`); }
+    } catch (error: unknown) { showToast.error((error as { message?: string })?.message ?? `Failed to ${isCreate ? "create" : "update"} location`); }
   };
 
   const handleClose = useCallback(() => {

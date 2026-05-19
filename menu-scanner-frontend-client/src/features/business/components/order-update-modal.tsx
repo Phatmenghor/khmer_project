@@ -163,11 +163,11 @@ export function OrderUpdateModal({
 
           if (stockResult.success) {
             showToast.success(
-              `✅ Order updated and stock deducted! ${stockResult.message}`
+              `Order updated and stock deducted! ${stockResult.message}`
             );
           } else {
             showToast.warning(
-              `✅ Order updated, but stock deduction had issues: ${stockResult.message}`
+              `Order updated, but stock deduction had issues: ${stockResult.message}`
             );
           }
         } catch (stockError: any) {
@@ -183,7 +183,7 @@ export function OrderUpdateModal({
         onOrderUpdated();
       }
       handleClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast.error(error || Messages.upload.orderError);
     } finally {
       setIsSaving(false);

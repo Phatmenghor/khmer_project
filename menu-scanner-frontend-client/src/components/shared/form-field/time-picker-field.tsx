@@ -8,7 +8,7 @@ import { CustomTimePicker } from "@/components/shared/common/custom-time-picker"
 interface TimePickerFieldProps {
   name: string;
   label: string;
-  control: any;
+  control: Control<FieldValues>;
   error?: FieldError;
   disabled?: boolean;
   required?: boolean;

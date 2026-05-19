@@ -15,7 +15,6 @@ export const createApiThunk = <ReturnType, ArgType = void>(
       try {
         const response = await apiCall(arg, signal);
 
-
         if (signal.aborted) {
           return rejectWithValue({ aborted: true, message: "Request superseded" });
         }
@@ -23,17 +22,14 @@ export const createApiThunk = <ReturnType, ArgType = void>(
         return options?.transformResponse
           ? options.transformResponse(response)
           : response;
-      } catch (error: any) {
+      } catch (error: unknown) {
 
         if (signal.aborted) {
           return rejectWithValue({ aborted: true, message: "Request superseded" });
         }
 
-
         if (options?.logError !== false) {
-          console.error(`Error in ${typePrefix}:`, error);
         }
-
 
         if (error?.response?.data?.message) {
           return rejectWithValue(error.response.data.message);

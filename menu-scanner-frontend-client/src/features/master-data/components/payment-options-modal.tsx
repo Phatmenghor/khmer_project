@@ -119,7 +119,7 @@ export default function PaymentOptionsModal({
         showToast.success(Messages.payment.updated);
         handleClose();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast.error(error || Messages.payment.saveFailed);
     }
   };

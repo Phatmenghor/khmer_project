@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { BannerResponseModel } from "@/features/master-data/store/models/response/banner-response";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,14 +31,14 @@ const BannerSectionComponent = ({
   loading,
   error,
 }: BannerSectionProps) => {
-  const [current, setCurrent] = React.useState(0);
-  const [carouselApi, setCarouselApi] = React.useState<any>();
-  const [loadedImages, setLoadedImages] = React.useState<Set<number>>(
+  const [current, setCurrent] = useState(0);
+  const [carouselApi, setCarouselApi] = useState<any>();
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(
     new Set(),
   );
 
 
-  const autoplayPlugin = React.useRef(
+  const autoplayPlugin = useRef(
     Autoplay({
       delay: 5000,
       stopOnInteraction: false,
@@ -47,7 +47,7 @@ const BannerSectionComponent = ({
     }),
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!carouselApi) return;
 
     setCurrent(carouselApi.selectedScrollSnap());

@@ -1,4 +1,4 @@
-export function convertEnumOrString(value: any): string {
+export function convertEnumOrString(value: unknown): string {
   if (!value) return "";
 
   const str = value.toString().trim();

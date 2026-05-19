@@ -205,7 +205,7 @@ export function usePOSSyncPersistence(
 }
 
 
-export function validatePOSCartItems(items: any[]): items is PosPageCartItem[] {
+export function validatePOSCartItems(items: unknown[]): items is PosPageCartItem[] {
   if (!Array.isArray(items)) return false;
   return items.every(
     (item) =>
@@ -218,7 +218,7 @@ export function validatePOSCartItems(items: any[]): items is PosPageCartItem[] {
 }
 
 
-export function sanitizePOSFilters(filters: any): POSFilterState {
+export function sanitizePOSFilters(filters: Record<string, unknown>): POSFilterState {
   return {
     search: typeof filters.search === "string" ? filters.search : "",
     categoryId:

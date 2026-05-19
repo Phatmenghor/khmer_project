@@ -29,7 +29,7 @@ export const fetchPublicBrands = createAsyncThunk<
       }
     );
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return rejectWithValue(
       error.response?.data?.message || "Failed to fetch brands"
     );

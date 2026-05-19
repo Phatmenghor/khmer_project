@@ -32,7 +32,7 @@ export const deductOrderStock = async (
     }>("/api/v1/inventory/deduct-order-stock", request);
 
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error(
       error.response?.data?.message || "Failed to deduct stock"
     );

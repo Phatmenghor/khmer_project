@@ -32,7 +32,7 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
 
 
     if (responseData?.items) {
-      responseData.items = responseData.items.map((item: any) => ({
+      responseData.items = responseData.items.map((item: Record<string, unknown>) => ({
         ...item,
         isAvailable: item.status === "ACTIVE" || item.status === "AVAILABLE"
       }));
@@ -60,7 +60,7 @@ export const updateCartItem = createApiThunk<
 
 
   if (responseData?.items) {
-    responseData.items = responseData.items.map((item: any) => ({
+    responseData.items = responseData.items.map((item: Record<string, unknown>) => ({
       ...item,
       hasPromotion: item.hasActivePromotion ?? item.hasPromotion ?? false,
       isAvailable: item.status === "ACTIVE" || item.status === "AVAILABLE"
@@ -85,7 +85,7 @@ export const fetchCart = createApiThunk<CartResponseModel, void>(
 
 
     if (responseData?.items) {
-      responseData.items = responseData.items.map((item: any) => ({
+      responseData.items = responseData.items.map((item: Record<string, unknown>) => ({
         ...item,
         isAvailable: item.status === "ACTIVE" || item.status === "AVAILABLE"
       }));

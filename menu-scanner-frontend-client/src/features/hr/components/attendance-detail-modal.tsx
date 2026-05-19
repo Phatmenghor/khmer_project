@@ -68,7 +68,7 @@ export function AttendanceDetailModal({
       if (!attendanceId || !isOpen) return;
       try {
         await dispatch(fetchAttendanceByIdService(attendanceId)).unwrap();
-      } catch (error: any) {
+      } catch (error: unknown) {
       }
     };
 

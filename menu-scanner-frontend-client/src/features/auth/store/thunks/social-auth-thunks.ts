@@ -119,7 +119,7 @@ export const logoutService = createApiThunk<void, void>(
   async () => {
     try {
       await axiosClientWithAuth.post("/api/v1/users/logout", {});
-    } catch (err: any) {
+    } catch (err: unknown) {
 
 
     }

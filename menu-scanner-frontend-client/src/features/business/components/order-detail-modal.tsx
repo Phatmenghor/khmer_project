@@ -195,7 +195,7 @@ export function OrderDetailModal({
 
                 {}
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                  <h4 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-3">💰 Pricing Breakdown</h4>
+                  <h4 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-3">Pricing Breakdown</h4>
                   <div className="space-y-3">
                     <div className="bg-white border border-amber-100 rounded p-3 space-y-2">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -322,7 +322,7 @@ export function OrderDetailModal({
                               </h4>
                               {item.hasPromotion && (
                                 <span className="inline-flex items-center gap-1 bg-transparent border border-red-500 text-red-600 px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">
-                                  🔥 {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
+                                  {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
                                 </span>
                               )}
                             </div>

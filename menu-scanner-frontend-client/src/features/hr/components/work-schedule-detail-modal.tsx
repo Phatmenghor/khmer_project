@@ -36,7 +36,7 @@ export function WorkScheduleDetailModal({
       if (!workScheduleId || !isOpen) return;
       try {
         await dispatch(fetchWorkScheduleByIdService(workScheduleId)).unwrap();
-      } catch (error: any) {
+      } catch (error: unknown) {
       }
     };
 

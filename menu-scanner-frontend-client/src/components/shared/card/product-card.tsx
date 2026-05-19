@@ -261,7 +261,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
 
     favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited }))
       .unwrap()
-      .catch((error: any) => {
+      .catch((error: unknown) => {
 
         setIsFavorited((prev) => !prev);
         showToast.error(error?.message || Messages.favorites.updateFailed);

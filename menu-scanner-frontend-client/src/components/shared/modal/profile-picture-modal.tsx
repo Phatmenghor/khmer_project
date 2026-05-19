@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,7 +36,7 @@ export function ProfilePictureModal({
   const [isRemoving, setIsRemoving] = useState(false);
 
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen) {
       setSelectedImage(currentImageUrl || "");
       setIsRemoving(false);

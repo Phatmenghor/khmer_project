@@ -71,7 +71,7 @@ export default function ResetPasswordModal({
       showToast.success(Messages.auth.passwordReset);
 
       handleClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error || "Reset failed. Please try again.");
     }
   };

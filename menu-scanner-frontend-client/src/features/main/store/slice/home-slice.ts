@@ -139,7 +139,7 @@ const homeSlice = createSlice({
 
   extraReducers: (builder) => {
 
-    const addSectionPending = (action: any, sectionKey: keyof HomePageState["sections"]) => {
+    const addSectionPending = (action: { type: string }, sectionKey: keyof HomePageState["sections"]) => {
       builder.addCase(action.pending, (state) => {
         state.sections[sectionKey].loading = true;
         state.sections[sectionKey].error = null;

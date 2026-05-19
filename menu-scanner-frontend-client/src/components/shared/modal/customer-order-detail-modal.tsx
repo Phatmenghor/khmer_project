@@ -48,11 +48,11 @@ export function CustomerOrderDetailModal({
         setState({ order: null, loading: true, error: null });
         const result = await dispatch(fetchOrderDetailsService(orderId)).unwrap();
         setState({ order: result, loading: false, error: null });
-      } catch (error: any) {
+      } catch (error: unknown) {
         setState({
           order: null,
           loading: false,
-          error: error?.message || "Failed to load order details",
+          error: (error as { message?: string })?.message || "Failed to load order details",
         });
       }
     };
@@ -216,7 +216,7 @@ export function CustomerOrderDetailModal({
 
                 {}
                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-3">
-                  <h4 className="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-3">💰 Pricing Breakdown</h4>
+                  <h4 className="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-3">Pricing Breakdown</h4>
                   <div className="space-y-3">
                     <div className="bg-white dark:bg-gray-950/30 border border-amber-100 dark:border-amber-900 rounded p-3 space-y-2">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
@@ -341,7 +341,7 @@ export function CustomerOrderDetailModal({
                                   </h4>
                                   {item.hasPromotion && (
                                     <span className="inline-flex items-center gap-1 bg-transparent border border-red-500 dark:border-red-400 text-red-600 dark:text-red-400 px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">
-                                      🔥 {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
+                                      {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
                                     </span>
                                   )}
                                 </div>

@@ -96,7 +96,7 @@ export default function ApproveRejectLeaveModal({
         `Leave request ${isApprove ? "approved" : "rejected"} successfully`,
       );
       handleClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast.error(
         error || `Failed to ${isApprove ? "approve" : "reject"} leave request`,
       );

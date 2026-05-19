@@ -10,8 +10,8 @@ import {
 interface PublicProductState {
   products: ProductDetailResponseModel[];
   selectedProduct: ProductDetailResponseModel | null;
-  categories: any[];
-  brands: any[];
+  categories: string[];
+  brands: string[];
   pagination: {
     currentPage: number;
     pageSize: number;

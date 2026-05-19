@@ -37,7 +37,7 @@ export function ProductDetailModal({
       if (!productId || !isOpen) return;
       try {
         await dispatch(fetchProductByIdService(productId)).unwrap();
-      } catch (error: any) {
+      } catch (error: unknown) {
       }
     };
 

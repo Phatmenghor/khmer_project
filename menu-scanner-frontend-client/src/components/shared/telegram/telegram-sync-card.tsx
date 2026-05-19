@@ -69,8 +69,8 @@ export function TelegramSyncCard({
       ).unwrap();
       showToast.success(Messages.auth.telegramConnected);
       onSyncSuccess?.(result);
-    } catch (err: any) {
-      showToast.error(err || "Failed to connect Telegram account.");
+    } catch (err: unknown) {
+      showToast.error((err as { message?: string })?.message || "Failed to connect Telegram account.");
     } finally {
       setIsConnecting(false);
     }
@@ -81,8 +81,8 @@ export function TelegramSyncCard({
       const result = await dispatch(unsyncSocialAccountService("TELEGRAM")).unwrap();
       showToast.success(Messages.auth.telegramDisconnected);
       onUnsyncSuccess?.(result);
-    } catch (err: any) {
-      showToast.error(err || "Failed to disconnect Telegram account.");
+    } catch (err: unknown) {
+      showToast.error((err as { message?: string })?.message || "Failed to disconnect Telegram account.");
     } finally {
       setIsConfirmDialogOpen(false);
     }

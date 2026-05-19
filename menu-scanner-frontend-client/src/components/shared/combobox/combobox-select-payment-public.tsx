@@ -27,7 +27,7 @@ interface PaymentOption {
   id: string;
   name: string;
   paymentOptionType: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface ComboboxSelectPaymentPublicProps {

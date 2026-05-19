@@ -131,8 +131,8 @@ export function ProductCustomizationModal({
 
       onOpenChange(false);
       showToast.success(Messages.cart.added);
-    } catch (error: any) {
-      showToast.error(error?.message || "Failed to add to cart");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to add to cart");
     } finally {
       setIsSaving(false);
     }

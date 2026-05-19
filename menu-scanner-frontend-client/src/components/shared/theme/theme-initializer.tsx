@@ -22,7 +22,7 @@ function initializeTheme() {
       if (localStorageValue) {
         cachedColors = JSON.parse(localStorageValue);
       }
-    } catch (e) {}
+    } catch {}
 
     if (!cachedColors) {
       const cookieName = 'theme_colors_' + businessId;

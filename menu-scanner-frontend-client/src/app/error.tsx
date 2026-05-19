@@ -74,8 +74,6 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
                 <span>Priority: High</span>
               </div>
             </div>
-
-            {/* Error Details Card (Development only) */}
             {process.env.NODE_ENV === "development" && (
               <div className="space-y-5 pt-8 lg:pt-12 border-t-2 border-primary/20">
                 <div className="flex items-center justify-between">
@@ -114,8 +112,6 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
                 )}
               </div>
             )}
-
-            {/* Action Buttons with Toggle Icons */}
             <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 pt-8 lg:pt-12">
               <Button
                 onClick={reset}
@@ -143,10 +139,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
                 Contact Support
               </Button>
             </div>
-
-            {/* Info Boxes Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6 pt-8 lg:pt-12 border-t-2 border-primary/20">
-              {/* Primary Info Box */}
               <div className="bg-gradient-to-br from-primary/15 to-primary/5 border-2 border-primary/30 hover:border-primary/60 rounded-2xl lg:rounded-3xl p-6 lg:p-8 space-y-4 transition-all hover:shadow-lg group">
                 <div className="flex gap-4 items-start">
                   <div className="flex-shrink-0 flex gap-2">
@@ -161,8 +154,6 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
                   </div>
                 </div>
               </div>
-
-              {/* Red Info Box for Support */}
               <div className="bg-gradient-to-br from-red-500/15 to-red-500/5 border-2 border-red-500/30 hover:border-red-500/60 rounded-2xl lg:rounded-3xl p-6 lg:p-8 space-y-4 transition-all hover:shadow-lg group">
                 <div className="flex gap-4 items-start">
                   <div className="flex-shrink-0 flex gap-2">

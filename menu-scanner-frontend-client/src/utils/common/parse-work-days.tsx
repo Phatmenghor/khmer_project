@@ -1,4 +1,4 @@
-export function formatWorkDays(value: any): string {
+export function formatWorkDays(value: unknown): string {
   if (!value) return "---";
 
   const dayNames = [

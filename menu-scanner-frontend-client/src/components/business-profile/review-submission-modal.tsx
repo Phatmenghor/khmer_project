@@ -52,13 +52,11 @@ export function ReviewSubmissionModal({
       createdAt: new Date().toISOString(),
     };
 
-
     onSubmit?.(review);
 
     showToast.success(
       "Thank you for your review! It will be published after approval."
     );
-
 
     reset();
     setRating(0);
@@ -90,8 +88,6 @@ export function ReviewSubmissionModal({
               {businessName}
             </h3>
           </div>
-
-          {/* Rating */}
           <div>
             <label className="block text-sm font-medium mb-3">
               Your Rating *
@@ -126,8 +122,6 @@ export function ReviewSubmissionModal({
               </p>
             )}
           </div>
-
-          {/* Your Name */}
           <div>
             <label className="block text-sm font-medium mb-2">
               Your Name *
@@ -146,8 +140,6 @@ export function ReviewSubmissionModal({
               </p>
             )}
           </div>
-
-          {/* Review Comment */}
           <div>
             <label className="block text-sm font-medium mb-2">
               Tell us about your experience *
@@ -177,16 +169,12 @@ export function ReviewSubmissionModal({
             )}
             <p className="text-gray-500 text-xs mt-1">Minimum 10 characters</p>
           </div>
-
-          {/* Privacy Notice */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-xs text-gray-600">
               Your review will be reviewed by the business owner before being
               published. Thank you for your feedback!
             </p>
           </div>
-
-          {/* Submit Button */}
           <div className="flex gap-3 pt-4">
             <Button
               type="button"

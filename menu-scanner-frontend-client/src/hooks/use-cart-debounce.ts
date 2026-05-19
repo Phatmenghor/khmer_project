@@ -100,7 +100,7 @@ export function useCartDebounce(dispatch: AppDispatch) {
             showToast.success(Messages.cart.removed);
           }
         })
-        .catch((error: any) => {
+        .catch((error: unknown) => {
 
           if (isAbortError(error)) {
             return;

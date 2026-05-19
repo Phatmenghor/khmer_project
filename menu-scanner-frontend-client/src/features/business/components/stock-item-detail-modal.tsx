@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -34,12 +34,12 @@ export function StockItemDetailModal({
   const productData = useAppSelector(selectSelectedProduct);
 
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchProductData = async () => {
       if (!item?.productId || !isOpen) return;
       try {
         await dispatch(fetchProductByIdService(item.productId)).unwrap();
-      } catch (error: any) {
+      } catch (error: unknown) {
       }
     };
 

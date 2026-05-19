@@ -9,7 +9,7 @@ import { Eye, EyeOff } from "lucide-react";
 interface PasswordFieldProps {
   name: string;
   label: string;
-  control: any;
+  control: Control<FieldValues>;
   error?: FieldError;
   disabled?: boolean;
   required?: boolean;

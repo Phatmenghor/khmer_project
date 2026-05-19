@@ -140,9 +140,9 @@ export default function BannerModal({
         showToast.success(Messages.banner.updated);
         handleClose();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast.error(
-        error?.message || `Failed to ${isCreate ? "create" : "update"} banner`,
+        (error as { message?: string })?.message || `Failed to ${isCreate ? "create" : "update"} banner`,
       );
     }
   };

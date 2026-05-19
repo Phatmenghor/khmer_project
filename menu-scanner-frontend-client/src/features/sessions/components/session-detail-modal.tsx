@@ -35,7 +35,7 @@ export function SessionsDetailModal({
       if (!sessionId || !isOpen) return;
       try {
         await dispatch(fetchSessionByIdService(sessionId)).unwrap();
-      } catch (error: any) {
+      } catch (error: unknown) {
       }
     };
 

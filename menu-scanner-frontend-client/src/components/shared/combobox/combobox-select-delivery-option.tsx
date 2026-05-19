@@ -29,7 +29,7 @@ interface DeliveryOption {
   name: string;
   description: string;
   price: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface ComboboxSelectDeliveryProps {

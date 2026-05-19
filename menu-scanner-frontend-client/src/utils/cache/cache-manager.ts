@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 
 export interface CacheEntry<T> {
@@ -166,11 +166,11 @@ export function useCache<T>(
   error: Error | null;
   refetch: () => Promise<void>;
 } {
-  const [data, setData] = React.useState<T | null>(() => cacheManager.get(key));
-  const [loading, setLoading] = React.useState(!data);
-  const [error, setError] = React.useState<Error | null>(null);
+  const [data, setData] = useState<T | null>(() => cacheManager.get(key));
+  const [loading, setLoading] = useState(!data);
+  const [error, setError] = useState<Error | null>(null);
 
-  const fetch = React.useCallback(async () => {
+  const fetch = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -184,7 +184,7 @@ export function useCache<T>(
     }
   }, [key, fetchFn, ttlMs]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const cached = cacheManager.get(key);
     if (cached) {
       setData(cached);

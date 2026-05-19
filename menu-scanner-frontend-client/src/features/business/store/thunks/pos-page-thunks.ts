@@ -36,7 +36,7 @@ export const fetchPOSPageCategoriesService = createAsyncThunk(
         status: "ACTIVE",
       });
       return response.data.data.content || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to load categories"
       );
@@ -57,7 +57,7 @@ export const fetchPOSPageBrandsService = createAsyncThunk(
         status: "ACTIVE",
       });
       return response.data.data.content || [];
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to load brands"
       );
@@ -82,7 +82,7 @@ export const fetchPOSPageProductsService = createAsyncThunk(
         status: "ACTIVE",
       });
       return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to load products"
       );
@@ -115,7 +115,7 @@ export const createPOSPageOrderService = createAsyncThunk(
         data: CreateOrderResponse;
       }>("/api/v1/orders/checkout", params);
       return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to create order"
       );
@@ -132,7 +132,7 @@ export const createPOSCheckoutOrderService = createAsyncThunk(
         data: POSCheckoutResponse;
       }>("/api/v1/orders/checkout-from-pos", params);
       return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to create POS order"
       );

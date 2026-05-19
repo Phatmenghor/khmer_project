@@ -112,8 +112,8 @@ export default function AttendanceModal({
 
       showToast.success(Messages.hr.attendanceUpdated);
       handleClose();
-    } catch (error: any) {
-      showToast.error(error?.message || Messages.hr.attendanceUpdateFailed);
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || Messages.hr.attendanceUpdateFailed);
     }
   };
 

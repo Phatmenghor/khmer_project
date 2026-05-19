@@ -17,7 +17,7 @@ export async function uploadImageService(
   try {
     const response = await axiosClientWithAuth.post(`/api/images`, data);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     return null;
   }
 }

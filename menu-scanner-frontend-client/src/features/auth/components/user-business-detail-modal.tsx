@@ -37,7 +37,7 @@ export function UserBusinessDetailModal({
 
       try {
         await dispatch(fetchUserByIdService(userId)).unwrap();
-      } catch (error: any) {
+      } catch (error: unknown) {
       }
     };
 

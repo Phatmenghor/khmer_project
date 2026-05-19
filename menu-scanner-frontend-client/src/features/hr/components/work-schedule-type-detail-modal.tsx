@@ -37,7 +37,7 @@ export function WorkScheduleTypeDetailModal({
         await dispatch(
           fetchWorkScheduleTypeByIdService(workScheduleId),
         ).unwrap();
-      } catch (error: any) {
+      } catch (error: unknown) {
       }
     };
 

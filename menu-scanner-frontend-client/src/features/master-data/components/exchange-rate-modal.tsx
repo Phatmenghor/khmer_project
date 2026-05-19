@@ -112,7 +112,7 @@ export default function ExchangeRateModal({
 
   const onSubmit = async (data: ExchangeRateFormData) => {
     try {
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         usdToKhrRate: data.usdToKhrRate,
         usdToCnyRate: data.usdToCnyRate,
         usdToVndRate: data.usdToVndRate,
@@ -132,7 +132,7 @@ export default function ExchangeRateModal({
 
         dispatch(createExchangeRateService(payload))
           .unwrap()
-          .catch((error: any) => {
+          .catch((error: unknown) => {
             showToast.error(
               error?.message || "Failed to create exchange rate"
             );
@@ -171,15 +171,15 @@ export default function ExchangeRateModal({
           }),
         )
           .unwrap()
-          .catch((error: any) => {
+          .catch((error: unknown) => {
             showToast.error(
               error?.message || "Failed to update exchange rate"
             );
           });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast.error(
-        error?.message ||
+        (error as { message?: string })?.message ||
           `Failed to ${isCreate ? "create" : "update"} exchange rate`,
       );
     }

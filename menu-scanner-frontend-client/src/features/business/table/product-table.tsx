@@ -68,7 +68,7 @@ function ProductImagePreview({
 }
 
 
-function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
+function SizesDisplay({ sizes }: { sizes: Record<string, unknown>[] | undefined }) {
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;
   }

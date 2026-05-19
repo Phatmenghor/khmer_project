@@ -20,7 +20,7 @@ export const createProductStockService = createAsyncThunk(
         data: ProductStockDto;
       }>("/api/v1/product-stock", request);
       return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to create stock"
       );
@@ -36,7 +36,7 @@ export const getProductStockHistoryService = createAsyncThunk(
         data: ProductStockListResponse;
       }>("/api/v1/product-stock/my-business/all", request);
       return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch stock history"
       );
@@ -58,7 +58,7 @@ export const updateProductStockService = createAsyncThunk(
         data: ProductStockDto;
       }>(`/api/v1/product-stock/${stockId}`, request);
       return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to update stock"
       );
@@ -72,7 +72,7 @@ export const deleteProductStockService = createAsyncThunk(
     try {
       await axiosClientWithAuth.delete(`/api/v1/product-stock/${stockId}`);
       return stockId;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete stock"
       );
@@ -89,7 +89,7 @@ export const getProductStockItemsService = createAsyncThunk(
         data: ProductStockItemsListResponse;
       }>("/api/v1/product-stock/items/my-business", request);
       return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch stock items"
       );
@@ -106,7 +106,7 @@ export const getProductStockItemsAllService = createAsyncThunk(
         data: ProductStockItemsListResponse;
       }>("/api/v1/product-stock/items/my-business/all", request);
       return response.data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch all stock items"
       );

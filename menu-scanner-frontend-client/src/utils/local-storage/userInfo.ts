@@ -17,7 +17,7 @@ function deleteNativeCookie(name: string): void {
 
 const USER_INFO_KEY = COOKIE_KEYS.USER_INFO;
 
-export function storeUserInfo(userInfo: any): void {
+export function storeUserInfo(userInfo: Record<string, unknown>): void {
   if (typeof window === "undefined") {
     return;
   }
@@ -47,7 +47,7 @@ export function clearUserInfo(): void {
 }
 
 
-export function storeAdminUserInfo(userInfo: any): void {
+export function storeAdminUserInfo(userInfo: Record<string, unknown>): void {
   if (typeof window === "undefined") return;
   setNativeCookie(COOKIE_KEYS.ADMIN_USER_INFO, JSON.stringify(userInfo));
 }

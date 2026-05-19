@@ -15,10 +15,8 @@ import {
   clearAdminTokens,
 } from "../local-storage/token";
 
-
 const getActiveToken = (): string | undefined => {
   if (typeof window === "undefined") return undefined;
-
 
   if (isAdminPath()) {
     return getAdminToken();
@@ -26,17 +24,14 @@ const getActiveToken = (): string | undefined => {
   return getToken();
 };
 
-
 const getActiveRefreshToken = (): string | undefined => {
   if (typeof window === "undefined") return undefined;
-
 
   if (isAdminPath()) {
     return getAdminRefreshToken();
   }
   return getRefreshToken();
 };
-
 
 const isAdminUser = (): boolean => {
   if (typeof window === "undefined") return false;
@@ -48,18 +43,15 @@ const isAdminUser = (): boolean => {
   return false;
 };
 
-
 const isAdminPath = (): boolean =>
   typeof window !== "undefined" &&
   window.location.pathname.startsWith("/admin");
 import { toast } from "sonner";
 
-
 type RequestMetadata = {
   startTime: number;
   requestId: string;
 };
-
 
 declare module "axios" {
   interface InternalAxiosRequestConfig {
@@ -68,14 +60,12 @@ declare module "axios" {
   }
 }
 
-
 let isRefreshing = false;
 
 let failedQueue: Array<{
   resolve: (value: unknown) => void;
   reject: (reason?: unknown) => void;
 }> = [];
-
 
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
@@ -88,10 +78,8 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
-
 const isBrowser = typeof window !== "undefined";
 const isDevelopment = process.env.NEXT_PUBLIC_NODE_ENV === "development";
-
 
 const colors = {
   green: isBrowser ? "color: #4caf50" : "\x1b[32m",
@@ -102,7 +90,6 @@ const colors = {
   cyan: isBrowser ? "color: #00bcd4" : "\x1b[36m",
   reset: isBrowser ? "" : "\x1b[0m",
 };
-
 
 const formatTimestamp = (): string => {
   const now = new Date();
@@ -118,11 +105,9 @@ const formatTimestamp = (): string => {
   );
 };
 
-
 const generateRequestId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
 };
-
 
 const logger = {
   log: (message: string, data?: unknown, requestId?: string): void => {
@@ -131,16 +116,7 @@ const logger = {
       const timestamp = formatTimestamp();
       const logId = requestId ? `[${requestId}] ` : "";
       if (isBrowser) {
-        console.log(
-          `%c${timestamp} ${logId}${message}`,
-          colors.blue,
-          data || ""
-        );
       } else {
-        console.log(
-          `${colors.blue}${timestamp} ${logId}${message}${colors.reset}`,
-          data || ""
-        );
       }
     }
   },
@@ -151,16 +127,7 @@ const logger = {
       const timestamp = formatTimestamp();
       const logId = requestId ? `[${requestId}] ` : "";
       if (isBrowser) {
-        console.log(
-          `%c${timestamp} ${logId}${message}`,
-          colors.green,
-          data || ""
-        );
       } else {
-        console.log(
-          `${colors.green}${timestamp} ${logId}${message}${colors.reset}`,
-          data || ""
-        );
       }
     }
   },
@@ -170,12 +137,6 @@ const logger = {
     const timestamp = formatTimestamp();
     const logId = requestId ? `[${requestId}] ` : "";
     if (isBrowser) {
-      console.log(`%c${timestamp} ${logId}${message}`, colors.red, data || "");
-    } else {
-      console.log(
-        `${colors.red}${timestamp} ${logId}${message}${colors.reset}`,
-        data || ""
-      );
     }
   },
 
@@ -184,19 +145,9 @@ const logger = {
     const timestamp = formatTimestamp();
     const logId = requestId ? `[${requestId}] ` : "";
     if (isBrowser) {
-      console.warn(
-        `%c${timestamp} ${logId}${message}`,
-        colors.yellow,
-        data || ""
-      );
     } else {
-      console.warn(
-        `${colors.yellow}${timestamp} ${logId}${message}${colors.reset}`,
-        data || ""
-      );
     }
   },
-
 
   requestBody: (
     method: string,
@@ -209,24 +160,7 @@ const logger = {
     const logId = requestId ? `[${requestId}] ` : "";
     const messagePrefix = `REQUEST BODY [${method.toUpperCase()}] ${url}:`;
 
-    if (isBrowser) {
-      console.group(`%c${timestamp} ${logId}${messagePrefix}`, colors.purple);
-
-
-      console.log("%cRequest payload:", colors.cyan, formatRequestData(data));
-
-      console.groupEnd();
-    } else {
-
-      console.log(
-        `${colors.purple}${timestamp} ${logId}${messagePrefix}${colors.reset}`
-      );
-      console.log(
-        `${colors.cyan}Request payload:${colors.reset}`,
-        formatRequestData(data)
-      );
-    }
-
+    if (isBrowser) {}
 
     addLogEntry({
       timestamp: timestamp,
@@ -237,7 +171,6 @@ const logger = {
     });
   },
 };
-
 
 const formatRequestData = (data: unknown): unknown => {
   if (!data) return undefined;
@@ -275,11 +208,9 @@ const formatRequestData = (data: unknown): unknown => {
         const totalKeys = keys.length;
         const previewKeys = keys.slice(0, 5);
 
-
         previewKeys.forEach((key) => {
           preview[key] = (data as Record<string, unknown>)[key];
         });
-
 
         const propertyTypes: Record<string, string> = {};
         keys.forEach((key) => {
@@ -313,7 +244,6 @@ const formatRequestData = (data: unknown): unknown => {
   }
 };
 
-
 const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
   const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -324,7 +254,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
     },
   });
 
-
   axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
 
@@ -334,10 +263,8 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         requestId,
       };
 
-
       config.headers = config.headers || {};
       config.headers["X-Request-ID"] = requestId;
-
 
       if (requiresAuth) {
         const token = getActiveToken();
@@ -352,7 +279,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           );
         }
       }
-
 
       logger.log(
         `Request: ${config.method?.toUpperCase()} ${config.url}`,
@@ -370,7 +296,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         requestId
       );
 
-
       if (config.data) {
 
         logger.requestBody(
@@ -379,7 +304,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           config.data,
           requestId
         );
-
 
         if (
           config.method &&
@@ -424,7 +348,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
     }
   );
 
-
   axiosInstance.interceptors.response.use(
     (response: AxiosResponse): AxiosResponse => {
 
@@ -433,10 +356,8 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         requestId: "unknown",
       };
 
-
       const endTime = Date.now();
       const duration = endTime - startTime;
-
 
       logger.success(
         `Response: ${response.config.method?.toUpperCase()} ${
@@ -451,12 +372,10 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         requestId
       );
 
-
       if (isDevelopment) {
         const dataSize = JSON.stringify(response.data).length;
         if (dataSize > 10000) {
           logger.log(`Response data (truncated):`, undefined, requestId);
-
 
           if (Array.isArray(response.data)) {
             logger.log(
@@ -496,7 +415,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       const err = error as AxiosError;
       const originalRequest = err.config;
 
-
       if (err.response?.status === 401 && originalRequest && !originalRequest._retry) {
 
         if (originalRequest.url?.includes("/api/v1/auth/refresh")) {
@@ -510,7 +428,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           }
 
           if (typeof window !== "undefined") {
-
 
             const isOnLoginPage = window.location.pathname.includes("/login");
             const isOnPublicHome = window.location.pathname === "/";
@@ -530,7 +447,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           return Promise.reject(error);
         }
 
-
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });
@@ -549,7 +465,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         originalRequest._retry = true;
         isRefreshing = true;
 
-
         const admin = isAdminUser();
         const refreshToken = getActiveRefreshToken();
 
@@ -562,7 +477,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           else clearAllTokens();
 
           if (typeof window !== "undefined") {
-
 
             const isOnLoginPage = window.location.pathname.includes("/login");
             const isOnPublicHome = window.location.pathname === "/";
@@ -592,7 +506,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
             response.data.data;
 
-
           if (admin) {
             storeAdminTokens(newAccessToken, newRefreshToken);
           } else {
@@ -616,7 +529,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
 
           if (typeof window !== "undefined") {
 
-
             const isOnLoginPage = window.location.pathname.includes("/login");
             const isOnPublicHome = window.location.pathname === "/";
 
@@ -638,9 +550,7 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         }
       }
 
-
       const requestId = err.config?.metadata?.requestId || "unknown";
-
 
       const is404ForExpectedEndpoint =
         err.response?.status === 404 &&
@@ -659,7 +569,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         logger.error(`API Error:`, errorDetails, requestId);
       }
 
-
       if (err.config?.data && !is404ForExpectedEndpoint) {
 
         logger.error(
@@ -667,7 +576,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
           formatRequestData(err.config.data),
           requestId
         );
-
 
         logger.requestBody(
           err.config.method || "unknown",
@@ -677,11 +585,9 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         );
       }
 
-
       if (err.response?.data && !is404ForExpectedEndpoint) {
         const errorResponseData = err.response.data;
         let formattedErrorData;
-
 
         if (
           typeof errorResponseData === "object" &&
@@ -694,7 +600,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
             (errorResponseData as { message?: string }).message ||
             (errorResponseData as { error?: string; message?: string }).error ||
             JSON.stringify(errorResponseData);
-
 
           const validationErrors =
             (errorResponseData as { errors?: unknown }).errors ||
@@ -721,7 +626,6 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
   return axiosInstance;
 };
 
-
 interface LogEntry {
   timestamp: string;
   requestId: string;
@@ -732,7 +636,6 @@ interface LogEntry {
 
 const memoryLogs: LogEntry[] = [];
 
-
 export function addLogEntry(entry: LogEntry): void {
 
   if (!entry.timestamp) {
@@ -741,16 +644,13 @@ export function addLogEntry(entry: LogEntry): void {
 
   memoryLogs.push(entry);
 
-
   if (memoryLogs.length > 200) {
     memoryLogs.shift();
   }
 }
 
-
 export function viewLogs(filter?: string): void {
   let logsToDisplay = memoryLogs;
-
 
   if (filter) {
     const lcFilter = filter.toLowerCase();
@@ -764,60 +664,23 @@ export function viewLogs(filter?: string): void {
       );
     });
   }
-
-  console.table(
-    logsToDisplay.map((log) => ({
-      timestamp: log.timestamp,
-      requestId: log.requestId,
-      level: log.level,
-      message: log.message,
-      duration:
-        log.data && typeof log.data === "object" && "duration" in log.data
-          ? (log.data as { duration?: string }).duration
-          : "N/A",
-    }))
-  );
-
-  console.log(
-    `Showing ${logsToDisplay.length} of ${memoryLogs.length} total logs.`
-  );
 }
-
 
 export function viewLogDetails(index: number): void {
-  if (index >= 0 && index < memoryLogs.length) {
-    console.log(`Log Details for entry #${index}:`, memoryLogs[index]);
-  } else {
-    console.log(`Invalid log index: ${index}`);
-  }
 }
-
 
 export function findLogsByRequestId(requestId: string): LogEntry[] {
   return memoryLogs.filter((log) => log.requestId === requestId);
 }
 
-
 export function findRequestBodyLogs(): LogEntry[] {
   return memoryLogs.filter((log) => log.level === "request-body");
 }
 
-
 export function viewRequestBodyLogs(): void {
-  const requestBodyLogs = findRequestBodyLogs();
-  console.log(`Found ${requestBodyLogs.length} request body logs:`);
-
-  requestBodyLogs.forEach((log, index) => {
-    console.group(`${index + 1}. ${log.message} [${log.requestId}]`);
-    console.log("Timestamp:", log.timestamp);
-    console.log("Body data:", log.data);
-    console.groupEnd();
-  });
 }
-
 
 export const axiosClientWithAuth = createAxiosInstance(true);
 export const axiosClient = createAxiosInstance(false);
-
 
 export { logger, formatRequestData };

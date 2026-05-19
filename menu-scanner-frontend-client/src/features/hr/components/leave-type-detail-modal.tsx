@@ -35,7 +35,7 @@ export function LeaveTypeDetailModal({
       if (!leaveTypeId || !isOpen) return;
       try {
         await dispatch(fetchLeaveTypeByIdService(leaveTypeId)).unwrap();
-      } catch (error: any) {
+      } catch (error: unknown) {
       }
     };
 

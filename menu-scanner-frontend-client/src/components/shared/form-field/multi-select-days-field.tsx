@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Controller, FieldError } from "react-hook-form";
+import { Controller, FieldError , ControllerRenderProps} from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { DayOfWeek } from "@/types/business-profile";
@@ -29,7 +29,7 @@ const DEFAULT_WORK_DAYS = [
 interface MultiSelectDaysFieldProps {
   name: string;
   label: string;
-  control: any;
+  control: Control<FieldValues>;
   error?: FieldError | any;
   disabled?: boolean;
   required?: boolean;
@@ -74,7 +74,7 @@ export function MultiSelectDaysField({
 }
 
 interface MultiSelectDaysContentProps {
-  field: any;
+  field: ControllerRenderProps<FieldValues>;
   label: string;
   hasError: boolean;
   errorMessage: string;

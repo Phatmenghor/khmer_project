@@ -97,8 +97,8 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
         registerForm.reset();
         window.location.reload();
       }
-    } catch (err: any) {
-      showToast.error(err || "Registration failed. Please try again.");
+    } catch (err: unknown) {
+      showToast.error((err as { message?: string })?.message || "Registration failed. Please try again.");
     }
   }
 
@@ -128,7 +128,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
         onOpenChange(false);
         window.location.reload();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast.error(err || Messages.auth.telegramFailed);
     } finally {
       setIsTelegramLoading(false);

@@ -256,7 +256,7 @@ export interface OrderSummary {
 }
 
 
-export const isValidOrder = (obj: any): obj is Order => {
+export const isValidOrder = (obj: unknown): obj is Order => {
   return (
     obj &&
     typeof obj === 'object' &&

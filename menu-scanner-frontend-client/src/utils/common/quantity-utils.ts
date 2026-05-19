@@ -1,12 +1,12 @@
 
 
 
-export function getProductQuantity(product: any): number {
+export function getProductQuantity(product: Record<string, unknown>): number {
   return product?.quantity ?? 0;
 }
 
 
-export function getSizeQuantity(size: any): number {
+export function getSizeQuantity(size: Record<string, unknown>): number {
   if (!size) return 0;
   const qty = size?.quantity;
   if (typeof qty === 'string') {

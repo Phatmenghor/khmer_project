@@ -8,7 +8,7 @@ import { locales, defaultLocale, type Locale } from "@/i18n/request";
 
 interface LocaleProviderProps {
   children: ReactNode;
-  initialMessages: any;
+  initialMessages: Record<string, unknown>;
   initialLocale: Locale;
 }
 

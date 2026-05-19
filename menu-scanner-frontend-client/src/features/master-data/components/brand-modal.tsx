@@ -139,9 +139,9 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
         showToast.success(Messages.brand.updated);
         handleClose();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast.error(
-        error?.message || `Failed to ${isCreate ? "create" : "update"} brand`,
+        (error as { message?: string })?.message || `Failed to ${isCreate ? "create" : "update"} brand`,
       );
     }
   };

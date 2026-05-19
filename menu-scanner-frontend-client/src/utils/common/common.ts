@@ -39,7 +39,7 @@ export function toRoman(num: number): string {
   return result;
 }
 
-export function formatValue(value: any) {
+export function formatValue(value: unknown) {
   return value === null || value === undefined || value === "" ? "---" : value;
 }
 

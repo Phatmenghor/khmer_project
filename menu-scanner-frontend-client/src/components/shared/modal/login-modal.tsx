@@ -83,8 +83,8 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
       onOpenChange(false);
       loginForm.reset();
       window.location.reload();
-    } catch (err: any) {
-      showToast.error(err || "Login failed. Please check your credentials.");
+    } catch (err: unknown) {
+      showToast.error((err as { message?: string })?.message || "Login failed. Please check your credentials.");
     }
   }
 
@@ -114,7 +114,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
         onOpenChange(false);
         window.location.reload();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showToast.error(err || Messages.auth.telegramFailed);
     } finally {
       setIsTelegramLoading(false);

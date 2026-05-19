@@ -221,9 +221,9 @@ export default function WorkScheduleModal({
         );
         handleClose();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToast.error(
-        error?.message ||
+        (error as { message?: string })?.message ||
           `Failed to ${isCreate ? "create" : "update"} work schedule`,
       );
     }

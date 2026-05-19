@@ -246,8 +246,8 @@ export function SizeSelectionModal({
           }),
         ).unwrap();
         showToast.success(Messages.cart.removed);
-      } catch (error: any) {
-        showToast.error(error?.message || "Failed to remove from cart");
+      } catch (error: unknown) {
+        showToast.error((error as { message?: string })?.message || "Failed to remove from cart");
       } finally {
         setClearingSize(null);
       }
@@ -352,8 +352,8 @@ export function SizeSelectionModal({
       setModifiedSizes(new Set());
       onOpenChange(false);
       onSuccess?.();
-    } catch (error: any) {
-      showToast.error(error?.message || Messages.cart.updateFailed);
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || Messages.cart.updateFailed);
     } finally {
       setIsSaving(false);
     }

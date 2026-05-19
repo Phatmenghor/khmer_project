@@ -44,7 +44,7 @@ export function LeaveDetailModal({
       if (!leaveId || !isOpen) return;
       try {
         await dispatch(fetchLeaveByIdService(leaveId)).unwrap();
-      } catch (error: any) {
+      } catch (error: unknown) {
       }
     };
 

@@ -46,7 +46,6 @@ export default function LocationPage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-
   const calculateSkeletonCount = useCallback(() => {
     const width = window.innerWidth;
     if (width < 768) setSkeletonCount(1);
@@ -54,13 +53,11 @@ export default function LocationPage() {
     else setSkeletonCount(3);
   }, []);
 
-
   useEffect(() => {
     calculateSkeletonCount();
     window.addEventListener("resize", calculateSkeletonCount);
     return () => window.removeEventListener("resize", calculateSkeletonCount);
   }, [calculateSkeletonCount]);
-
 
   const getPageSize = useMemo(() => {
     return () => {
@@ -77,7 +74,6 @@ export default function LocationPage() {
     locations.length === 0 &&
     !locationPagination.isInitialLoaded;
 
-
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -90,14 +86,12 @@ export default function LocationPage() {
     );
   }, []);
 
-
   useEffect(() => {
     if (!locationPagination.isInitialLoaded && !isLoading.fetch) {
       const pageSize = getPageSize();
       fetchAllWithPagination({ pageNo: 1, pageSize });
     }
   }, [locationPagination.isInitialLoaded, isLoading.fetch, fetchAllWithPagination, getPageSize]);
-
 
   const handleLoadMore = useCallback(() => {
     if (
@@ -118,13 +112,11 @@ export default function LocationPage() {
     getPageSize,
   ]);
 
-
   const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
     handleLoadMore,
     locationPagination.hasMore && !isLoading.fetch,
     [locationPagination.hasMore, isLoading.fetch, handleLoadMore]
   );
-
 
   useEffect(() => {
     if (!locationPagination.hasMore || !sentinelRef.current) {
@@ -197,7 +189,6 @@ export default function LocationPage() {
     }
   };
 
-
   if (isInitialLoading) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
@@ -210,7 +201,6 @@ export default function LocationPage() {
       </PageContainer>
     );
   }
-
 
   if (locations.length === 0) {
     return (
@@ -227,7 +217,6 @@ export default function LocationPage() {
       </>
     );
   }
-
 
   return (
     <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
@@ -307,16 +296,12 @@ export default function LocationPage() {
           </p>
         </div>
       )}
-
-      {/* Location Modal */}
       <LocationModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         editData={editingLocation}
         initialCoords={currentCoords}
       />
-
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={!!deletingLocation}
         onClose={() => setDeletingLocation(null)}

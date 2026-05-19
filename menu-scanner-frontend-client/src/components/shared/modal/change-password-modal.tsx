@@ -80,8 +80,8 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
 
       showToast.success(Messages.auth.passwordChanged);
       handleClose();
-    } catch (error: any) {
-      showToast.error(error || "Failed to change password");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to change password");
     }
   };
 

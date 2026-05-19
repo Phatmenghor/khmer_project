@@ -36,7 +36,7 @@ interface Location {
   note: string;
   latitude: number;
   longitude: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface ComboboxSelectLocationProps {

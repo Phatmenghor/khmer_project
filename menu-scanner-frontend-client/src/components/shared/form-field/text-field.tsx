@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 interface TextFieldProps {
   name: string;
   label: string;
-  control: any;
+  control: Control<FieldValues>;
   error?: FieldError;
   disabled?: boolean;
   required?: boolean;

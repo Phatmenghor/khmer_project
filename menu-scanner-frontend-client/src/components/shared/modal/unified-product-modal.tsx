@@ -144,8 +144,8 @@ export function UnifiedProductModal({
 
       onOpenChange(false);
       showToast.success(Messages.orders.updated);
-    } catch (error: any) {
-      showToast.error(error?.message || "Failed to update");
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to update");
     } finally {
       setIsSaving(false);
     }

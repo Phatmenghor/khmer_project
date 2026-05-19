@@ -72,7 +72,7 @@ export function CancelOrderModal({
 
       await onConfirm(payload);
       handleClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : Messages.orders.cancelFailed;
       setError(errorMessage);
