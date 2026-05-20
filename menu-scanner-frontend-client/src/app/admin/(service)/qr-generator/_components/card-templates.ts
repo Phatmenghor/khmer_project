@@ -13,12 +13,12 @@ export interface TemplateConfig {
 }
 
 export const CARD_TEMPLATES: TemplateConfig[] = [
-  { id: "bank-classic",  name: "Bank Classic",  gradientFrom: "#1a237e", gradientTo: "#283593", qrPrimaryColor: "#1a237e", isDark: true  },
-  { id: "aba-red",       name: "ABA Red",        gradientFrom: "#b71c1c", gradientTo: "#d32f2f", qrPrimaryColor: "#b71c1c", isDark: true  },
-  { id: "royal-purple",  name: "Royal Purple",   gradientFrom: "#4a148c", gradientTo: "#7b1fa2", qrPrimaryColor: "#4a148c", isDark: true  },
-  { id: "fresh-green",   name: "Fresh Green",    gradientFrom: "#1b5e20", gradientTo: "#2e7d32", qrPrimaryColor: "#1b5e20", isDark: true  },
-  { id: "dark-mode",     name: "Dark Mode",      gradientFrom: "#0f172a", gradientTo: "#1e293b", qrPrimaryColor: "#38bdf8", isDark: true  },
-  { id: "print-ready",   name: "Print Ready",    gradientFrom: "#ffffff", gradientTo: "#f1f5f9", qrPrimaryColor: "#000000", isDark: false },
+  { id: "bank-classic", name: "Bank Classic", gradientFrom: "#1a237e", gradientTo: "#283593", qrPrimaryColor: "#1a237e", isDark: true  },
+  { id: "aba-red",      name: "ABA Red",      gradientFrom: "#b71c1c", gradientTo: "#d32f2f", qrPrimaryColor: "#b71c1c", isDark: true  },
+  { id: "royal-purple", name: "Royal Purple", gradientFrom: "#4a148c", gradientTo: "#7b1fa2", qrPrimaryColor: "#4a148c", isDark: true  },
+  { id: "fresh-green",  name: "Fresh Green",  gradientFrom: "#1b5e20", gradientTo: "#2e7d32", qrPrimaryColor: "#1b5e20", isDark: true  },
+  { id: "dark-mode",    name: "Dark Mode",    gradientFrom: "#0f172a", gradientTo: "#1e293b", qrPrimaryColor: "#38bdf8", isDark: true  },
+  { id: "print-ready",  name: "Print Ready",  gradientFrom: "#ffffff", gradientTo: "#f1f5f9", qrPrimaryColor: "#000000", isDark: false },
 ];
 
 export function getTemplateConfig(id: CardTemplate): TemplateConfig {
@@ -44,32 +44,14 @@ function roundedRect(
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.quadraticCurveTo(x + w, y,     x + w, y + r);
   ctx.lineTo(x + w, y + h - r);
   ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
   ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.quadraticCurveTo(x, y + h,     x, y + h - r);
   ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.quadraticCurveTo(x, y,         x + r, y);
   ctx.closePath();
-}
-
-// Draw an image into a circle using cover (fills without letterboxing)
-function drawCircleCover(
-  ctx: CanvasRenderingContext2D,
-  img: HTMLImageElement,
-  cx: number, cy: number, radius: number,
-) {
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.clip();
-  const d     = radius * 2;
-  const scale = Math.max(d / img.naturalWidth, d / img.naturalHeight);
-  const w     = img.naturalWidth  * scale;
-  const h     = img.naturalHeight * scale;
-  ctx.drawImage(img, cx - w / 2, cy - h / 2, w, h);
-  ctx.restore();
 }
 
 function wrapText(
@@ -78,127 +60,103 @@ function wrapText(
 ): number {
   const words = text.split(" ");
   let line = "";
-  let currentY = y;
+  let cy = y;
   for (const word of words) {
     const test = line ? `${line} ${word}` : word;
     if (ctx.measureText(test).width > maxWidth && line) {
-      ctx.fillText(line, x, currentY);
+      ctx.fillText(line, x, cy);
       line = word;
-      currentY += lineHeight;
+      cy += lineHeight;
     } else {
       line = test;
     }
   }
-  if (line) ctx.fillText(line, x, currentY);
-  return currentY;
+  if (line) ctx.fillText(line, x, cy);
+  return cy;
 }
 
-// ── Canvas dimensions ─────────────────────────────────────────────────────────
+// ── Layout constants (900px wide canvas, mirroring the 320px HTML card × 2.8) ─
 
 const CARD_W   = 900;
-const HEADER_H = 400;   // gradient header height
-const FOOTER_H = 80;
+// Header heights chosen to match the HTML preview proportions at 2.8× scale
+const GRAD_HEADER_H = 310;   // gradient header (no logo — just badge + title + subtitle)
+const PRINT_HEADER_H = 200;  // print header (title + subtitle)
+const FOOTER_H = 90;
 
-// ── Draw: gradient card ───────────────────────────────────────────────────────
+// ── Gradient card ─────────────────────────────────────────────────────────────
 
 async function drawGradientCard(
   ctx: CanvasRenderingContext2D,
-  h: number,
+  totalH: number,
   qrImg: HTMLImageElement,
-  logoImg: HTMLImageElement | null,
   config: QRConfig,
   style: QRStyle,
   tpl: TemplateConfig,
 ) {
-  const from   = style.cardGradientFrom || tpl.gradientFrom;
-  const to     = style.cardGradientTo   || tpl.gradientTo;
-  const bgColor = style.backgroundColor || "#ffffff";
+  const from    = style.cardGradientFrom || tpl.gradientFrom;
+  const to      = style.cardGradientTo   || tpl.gradientTo;
+  const bgColor = style.backgroundColor  || "#ffffff";
 
-  // Card background
+  // ── White card background ──────────────────────────────────────────
   ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, CARD_W, h);
+  ctx.fillRect(0, 0, CARD_W, totalH);
 
-  // Gradient header
-  const grad = ctx.createLinearGradient(0, 0, CARD_W, HEADER_H);
+  // ── Gradient header ────────────────────────────────────────────────
+  const grad = ctx.createLinearGradient(0, 0, CARD_W, GRAD_HEADER_H);
   grad.addColorStop(0, from);
   grad.addColorStop(1, to);
   ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, CARD_W, HEADER_H);
+  ctx.fillRect(0, 0, CARD_W, GRAD_HEADER_H);
 
-  // Decorative circles (top-right corner)
+  // Decorative circles (top-right, matching HTML preview)
   ctx.save();
-  ctx.globalAlpha = 0.10;
+  ctx.globalAlpha = 0.08;
   ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.arc(CARD_W + 50, -50, 280, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(CARD_W - 80, 110, 130, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(CARD_W + 50, -50, 280, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(CARD_W - 60, 110, 130, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 
-  // ── Logo (top-left, circle, cover fill) ───────────────────────────
-  const LOGO_R  = 70;   // radius
-  const LOGO_CX = 100;
-  const LOGO_CY = 100;
-
-  if (logoImg) {
-    // Outer ring
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(LOGO_CX, LOGO_CY, LOGO_R + 6, 0, Math.PI * 2);
-    ctx.strokeStyle = "rgba(255,255,255,0.35)";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.restore();
-    drawCircleCover(ctx, logoImg, LOGO_CX, LOGO_CY, LOGO_R);
-  } else {
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(LOGO_CX, LOGO_CY, LOGO_R, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255,255,255,0.15)";
-    ctx.fill();
-    ctx.strokeStyle = "rgba(255,255,255,0.35)";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  // ── QR badge (top-right) ───────────────────────────────────────────
+  // ── QR badge (top-right) — same pill shape as HTML preview ────────
+  const BADGE_W = 130, BADGE_H = 50, BADGE_R = 25;
+  const BADGE_X = CARD_W - 80 - BADGE_W, BADGE_Y = 56;
   ctx.save();
-  roundedRect(ctx, CARD_W - 155, 48, 120, 52, 26);
-  ctx.fillStyle = "rgba(255,255,255,0.18)";
+  roundedRect(ctx, BADGE_X, BADGE_Y, BADGE_W, BADGE_H, BADGE_R);
+  ctx.fillStyle = "rgba(255,255,255,0.15)";
   ctx.fill();
   // Green dot
   ctx.beginPath();
-  ctx.arc(CARD_W - 127, 74, 8, 0, Math.PI * 2);
+  ctx.arc(BADGE_X + 24, BADGE_Y + BADGE_H / 2, 9, 0, Math.PI * 2);
   ctx.fillStyle = "#34d399";
   ctx.fill();
+  // "QR" text
   ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.font = "bold 28px Arial, sans-serif";
+  ctx.font = "bold 30px Arial, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("QR", CARD_W - 113, 83);
+  ctx.fillText("QR", BADGE_X + 42, BADGE_Y + BADGE_H / 2 + 11);
   ctx.restore();
 
-  // ── Title + subtitle ───────────────────────────────────────────────
-  const titleY = LOGO_CY + LOGO_R + 60;
+  // ── Title ──────────────────────────────────────────────────────────
+  const titleX = 80;
+  const titleY = 140;
   ctx.fillStyle = "#ffffff";
   ctx.textAlign = "left";
-  ctx.font = "bold 56px Arial, sans-serif";
-  const lastY = wrapText(ctx, config.cardTitle || "Your Business Name", 80, titleY, CARD_W - 160, 68);
+  ctx.font = "bold 60px Arial, sans-serif";
+  const lastTitleY = wrapText(ctx, config.cardTitle || "Your Business Name", titleX, titleY, CARD_W - 200, 74);
 
+  // ── Subtitle ───────────────────────────────────────────────────────
   ctx.fillStyle = "rgba(255,255,255,0.65)";
   ctx.font = "36px Arial, sans-serif";
-  ctx.fillText(config.cardSubtitle || "Scan to view our menu", 80, lastY + 60, CARD_W - 160);
+  ctx.fillText(config.cardSubtitle || "Scan to view our menu", titleX, lastTitleY + 56, CARD_W - 200);
 
-  // ── Wave transition (matches HTML preview wave) ────────────────────
+  // ── Wave transition (mirrors the CSS border-radius wave in HTML) ───
+  const WAVE_Y = GRAD_HEADER_H - 45;
   ctx.save();
   ctx.beginPath();
-  ctx.moveTo(0, HEADER_H - 50);
-  ctx.quadraticCurveTo(CARD_W * 0.25, HEADER_H + 40, CARD_W * 0.5, HEADER_H - 20);
-  ctx.quadraticCurveTo(CARD_W * 0.75, HEADER_H - 80, CARD_W, HEADER_H - 10);
-  ctx.lineTo(CARD_W, h);
-  ctx.lineTo(0, h);
+  ctx.moveTo(0, WAVE_Y + 10);
+  ctx.quadraticCurveTo(CARD_W * 0.25, WAVE_Y + 55, CARD_W * 0.5, WAVE_Y + 5);
+  ctx.quadraticCurveTo(CARD_W * 0.75, WAVE_Y - 45, CARD_W, WAVE_Y + 15);
+  ctx.lineTo(CARD_W, totalH);
+  ctx.lineTo(0, totalH);
   ctx.closePath();
   ctx.fillStyle = bgColor;
   ctx.fill();
@@ -207,130 +165,112 @@ async function drawGradientCard(
   // ── QR code ────────────────────────────────────────────────────────
   const QR   = qrImg.width;
   const QR_X = (CARD_W - QR) / 2;
-  const QR_Y = HEADER_H + 10;
+  const QR_Y = GRAD_HEADER_H + 20;
 
-  // Shadow box
+  // Shadow box (matches HTML: padding 10px, borderRadius 14px scaled)
   ctx.save();
   ctx.shadowColor   = "rgba(0,0,0,0.10)";
   ctx.shadowBlur    = 40;
-  ctx.shadowOffsetY = 10;
-  roundedRect(ctx, QR_X - 24, QR_Y - 24, QR + 48, QR + 48, 22);
-  ctx.fillStyle = style.backgroundColor || "#ffffff";
+  ctx.shadowOffsetY = 12;
+  roundedRect(ctx, QR_X - 28, QR_Y - 28, QR + 56, QR + 56, 28);
+  ctx.fillStyle = "#ffffff";
   ctx.fill();
   ctx.restore();
-
   ctx.drawImage(qrImg, QR_X, QR_Y, QR, QR);
 
-  // ── Scan text (customizable) ───────────────────────────────────────
-  const scanText = config.scanText || "SCAN QR CODE";
-  ctx.fillStyle = "#64748b";
-  ctx.font = "bold 32px Arial, sans-serif";
+  // ── Scan text (matches HTML: Scan icon · text · Scan icon) ─────────
+  const scanText = (config.scanText || "SCAN QR CODE").toUpperCase();
+  const TEXT_Y   = QR_Y + QR + 76;
+  ctx.fillStyle = "#6b7280";
+  ctx.font = "bold 30px Arial, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText(scanText.toUpperCase(), CARD_W / 2, QR_Y + QR + 70);
+  ctx.fillText(scanText, CARD_W / 2, TEXT_Y);
 
-  // ── Footer ─────────────────────────────────────────────────────────
-  const footerY = h - FOOTER_H;
-
-  // Footer tint strip
-  ctx.save();
+  // ── Footer (matches HTML footer) ───────────────────────────────────
+  const FOOT_Y = totalH - FOOTER_H;
   ctx.fillStyle = `${from}22`;
-  ctx.fillRect(0, footerY, CARD_W, FOOTER_H);
-  ctx.restore();
+  ctx.fillRect(0, FOOT_Y, CARD_W, FOOTER_H);
 
   // eMenu label
   ctx.fillStyle = "#64748b";
-  ctx.font = "26px Arial, sans-serif";
+  ctx.font = "28px Arial, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("eMenu", 80, footerY + FOOTER_H / 2 + 10);
+  ctx.fillText("eMenu", 80, FOOT_Y + FOOTER_H / 2 + 11);
 
-  // Dot row (matches HTML preview)
-  const dotX = CARD_W - 80;
-  const dotY = footerY + FOOTER_H / 2;
-  [0.25, 0.55, 0.85].forEach((op, i) => {
+  // Dot row (three dots, decreasing opacity, right side)
+  const dotBaseX = CARD_W - 80;
+  const dotY     = FOOT_Y + FOOTER_H / 2;
+  [0.85, 0.55, 0.25].forEach((op, i) => {
     ctx.save();
     ctx.globalAlpha = op;
     ctx.beginPath();
-    ctx.arc(dotX - i * 22, dotY, 7, 0, Math.PI * 2);
+    ctx.arc(dotBaseX - i * 24, dotY, 8, 0, Math.PI * 2);
     ctx.fillStyle = from;
     ctx.fill();
     ctx.restore();
   });
 }
 
-// ── Draw: print / B&W card ────────────────────────────────────────────────────
+// ── Print card ────────────────────────────────────────────────────────────────
 
 async function drawPrintCard(
   ctx: CanvasRenderingContext2D,
-  h: number,
+  totalH: number,
   qrImg: HTMLImageElement,
-  logoImg: HTMLImageElement | null,
   config: QRConfig,
 ) {
   // White background
   ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, CARD_W, h);
+  ctx.fillRect(0, 0, CARD_W, totalH);
 
   // Outer border
   ctx.save();
-  roundedRect(ctx, 20, 20, CARD_W - 40, h - 40, 22);
+  roundedRect(ctx, 20, 20, CARD_W - 40, totalH - 40, 22);
   ctx.strokeStyle = "#000000";
   ctx.lineWidth = 8;
   ctx.stroke();
   ctx.restore();
 
-  // Top stripe
+  // Top stripe (matches HTML h-2 top stripe)
   ctx.fillStyle = "#000000";
-  ctx.fillRect(20, 20, CARD_W - 40, 16);
+  ctx.fillRect(20, 20, CARD_W - 40, 18);
 
-  // ── Logo (centered circle, cover fill) ────────────────────────────
-  const LOGO_R  = 70;
-  const LOGO_CX = CARD_W / 2;
-  let logoBottom = 80;
-
-  if (logoImg) {
-    const LOGO_CY = 80 + LOGO_R;
-    // Border ring
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(LOGO_CX, LOGO_CY, LOGO_R + 5, 0, Math.PI * 2);
-    ctx.strokeStyle = "#000000";
-    ctx.lineWidth = 4;
-    ctx.stroke();
-    ctx.restore();
-    drawCircleCover(ctx, logoImg, LOGO_CX, LOGO_CY, LOGO_R);
-    logoBottom = LOGO_CY + LOGO_R + 30;
-  }
-
-  // Title
-  ctx.fillStyle = "#000000";
+  // ── Title + subtitle (centered, no logo) ──────────────────────────
   ctx.textAlign = "center";
-  ctx.font = "bold 56px Arial, sans-serif";
-  const lastY = wrapText(ctx, config.cardTitle || "Your Business Name", CARD_W / 2, logoBottom + 60, CARD_W - 120, 68);
 
-  // Subtitle
-  ctx.font = "32px Arial, sans-serif";
-  ctx.fillStyle = "#374151";
-  ctx.fillText(config.cardSubtitle || "Scan to view our menu", CARD_W / 2, lastY + 52, CARD_W - 120);
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 60px Arial, sans-serif";
+  const lastTitleY = wrapText(
+    ctx, config.cardTitle || "Your Business Name",
+    CARD_W / 2, 100, CARD_W - 140, 74,
+  );
 
-  // Dashed divider
+  ctx.fillStyle = "#6b7280";
+  ctx.font = "34px Arial, sans-serif";
+  ctx.fillText(
+    config.cardSubtitle || "Scan to view our menu",
+    CARD_W / 2, lastTitleY + 52, CARD_W - 140,
+  );
+
+  // Dashed divider (matches HTML border-dashed)
   ctx.save();
   ctx.beginPath();
-  ctx.moveTo(120, lastY + 80);
-  ctx.lineTo(CARD_W - 120, lastY + 80);
-  ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 2;
+  ctx.moveTo(120, lastTitleY + 82);
+  ctx.lineTo(CARD_W - 120, lastTitleY + 82);
+  ctx.strokeStyle = "rgba(0,0,0,0.25)";
+  ctx.lineWidth = 3;
   ctx.setLineDash([8, 8]);
   ctx.stroke();
   ctx.restore();
 
-  // QR code
+  // ── QR code ────────────────────────────────────────────────────────
   const QR  = qrImg.width;
   const QRX = (CARD_W - QR) / 2;
-  const QRY = lastY + 100;
+  const QRY = lastTitleY + 108;
 
-  // QR border box
+  // QR border box (matches HTML border-2 border-black rounded-xl)
   ctx.save();
-  roundedRect(ctx, QRX - 16, QRY - 16, QR + 32, QR + 32, 14);
+  roundedRect(ctx, QRX - 18, QRY - 18, QR + 36, QR + 36, 16);
   ctx.strokeStyle = "#000000";
   ctx.lineWidth = 4;
   ctx.stroke();
@@ -338,21 +278,16 @@ async function drawPrintCard(
 
   ctx.drawImage(qrImg, QRX, QRY, QR, QR);
 
-  // Scan text (customizable)
-  const scanText = config.scanText || "SCAN QR CODE";
+  // Scan text (matches HTML style: bold uppercase tracking-widest)
+  const scanText = (config.scanText || "SCAN QR CODE").toUpperCase();
   ctx.fillStyle = "#000000";
   ctx.font = "bold 32px Arial, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText(scanText.toUpperCase(), CARD_W / 2, QRY + QR + 65);
+  ctx.fillText(scanText, CARD_W / 2, QRY + QR + 68);
 
-  // Bottom brand line
-  ctx.fillStyle = "#9ca3af";
-  ctx.font = "24px Arial, sans-serif";
-  ctx.fillText("Powered by eMenu", CARD_W / 2, h - 50);
-
-  // Bottom stripe
+  // Bottom stripe (matches HTML h-1.5)
   ctx.fillStyle = "#000000";
-  ctx.fillRect(20, h - 34, CARD_W - 40, 14);
+  ctx.fillRect(20, totalH - 32, CARD_W - 40, 12);
 }
 
 // ── Public download function ──────────────────────────────────────────────────
@@ -366,8 +301,9 @@ export async function downloadQRCard(
   if (!url) throw new Error("No valid QR URL — fill in all required fields");
 
   const tpl = getTemplateConfig(style.template);
+  const isPrint = style.template === "print-ready";
 
-  // Build high-res QR image (480px, matches fixed preview QR)
+  // High-res QR — 480px matches the fixed download size
   const { default: QRCodeStyling } = await import("qr-code-styling");
 
   const qrForDownload = new QRCodeStyling({
@@ -390,24 +326,19 @@ export async function downloadQRCard(
   const qrImg = await loadImage(qrObjectUrl);
   URL.revokeObjectURL(qrObjectUrl);
 
-  // Load logo
-  let logoImg: HTMLImageElement | null = null;
-  if (style.logoDataUrl) {
-    logoImg = await loadImage(style.logoDataUrl);
-  }
-
-  // Canvas size
-  const CARD_H = HEADER_H + qrImg.height + 260 + FOOTER_H;
+  // Canvas height — header + QR + scan text + footer + breathing room
+  const HEADER_H = isPrint ? PRINT_HEADER_H : GRAD_HEADER_H;
+  const TOTAL_H  = HEADER_H + qrImg.height + 220 + FOOTER_H;
 
   const canvas  = document.createElement("canvas");
   canvas.width  = CARD_W;
-  canvas.height = CARD_H;
+  canvas.height = TOTAL_H;
   const ctx     = canvas.getContext("2d")!;
 
-  if (style.template === "print-ready") {
-    await drawPrintCard(ctx, CARD_H, qrImg, logoImg, config);
+  if (isPrint) {
+    await drawPrintCard(ctx, TOTAL_H, qrImg, config);
   } else {
-    await drawGradientCard(ctx, CARD_H, qrImg, logoImg, config, style, tpl);
+    await drawGradientCard(ctx, TOTAL_H, qrImg, config, style, tpl);
   }
 
   canvas.toBlob(

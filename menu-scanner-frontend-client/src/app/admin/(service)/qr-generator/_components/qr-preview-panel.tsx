@@ -45,8 +45,6 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
     [effectiveUrl, style],
   );
 
-  // containerRef div is ALWAYS at the same tree position — the QR canvas never
-  // detaches when template switches because there is no conditional around it.
   useEffect(() => {
     if (typeof window === "undefined" || !containerRef.current) return;
     let cancelled = false;
@@ -102,7 +100,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
 
       <CardContent className="flex flex-col items-center gap-5 flex-1">
 
-        {/* ── QR Card Preview ──────────────────────────────────────────────── */}
+        {/* ── QR Card ───────────────────────────────────────────────────── */}
         <div className="w-full flex justify-center">
           <div
             className="w-full overflow-hidden shadow-2xl"
@@ -115,29 +113,23 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             {/* TOP STRIPE — print only */}
             {isPrint && <div style={{ height: 8, background: "#000" }} />}
 
-            {/* ── HEADER ─────────────────────────────────────────────────── */}
+            {/* ── HEADER ─────────────────────────────────────────────── */}
             {isPrint ? (
+              /* Print: title + subtitle centered, no logo */
               <div style={{
                 background: "#fff",
                 padding: "20px 20px 14px",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
               }}>
-                {/* Logo circle — full cover */}
-                {style.logoDataUrl ? (
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", overflow: "hidden", flexShrink: 0 }}>
-                    <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  </div>
-                ) : (
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <QrCode style={{ width: 28, height: 28, color: "#000" }} />
-                  </div>
-                )}
-                <div style={{ textAlign: "center" }}>
-                  <p style={{ fontWeight: 700, fontSize: 14, color: "#000", lineHeight: 1.3, margin: 0 }}>{displayTitle}</p>
-                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 3 }}>{displaySubtitle}</p>
-                </div>
+                <p style={{ fontWeight: 700, fontSize: 15, color: "#000", lineHeight: 1.3, margin: 0, textAlign: "center" }}>
+                  {displayTitle}
+                </p>
+                <p style={{ fontSize: 11, color: "#6b7280", margin: 0, textAlign: "center" }}>
+                  {displaySubtitle}
+                </p>
               </div>
             ) : (
+              /* Gradient: QR badge top-right, title + subtitle, no logo */
               <div style={{
                 background: `linear-gradient(135deg, ${headerFrom}, ${headerTo})`,
                 padding: "16px 16px 32px",
@@ -145,36 +137,30 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 overflow: "hidden",
               }}>
                 {/* Decorative circles */}
-                <div style={{ position: "absolute", width: 140, height: 140, right: -30, top: -30, borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
-                <div style={{ position: "absolute", width: 70, height: 70, right: 10, top: 50, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
+                <div style={{ position: "absolute", width: 160, height: 160, right: -40, top: -40, borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
+                <div style={{ position: "absolute", width: 80, height: 80, right: 10, top: 60, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
 
-                {/* Top row: logo + QR badge */}
-                <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
-                  {style.logoDataUrl ? (
-                    /* Logo circle — full cover */
-                    <div style={{ width: 44, height: 44, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0 }}>
-                      <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    </div>
-                  ) : (
-                    <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)" }} />
-                    </div>
-                  )}
-                  <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "3px 10px", border: "1px solid rgba(255,255,255,0.2)" }}>
+                {/* QR badge — top right only */}
+                <div style={{ position: "relative", zIndex: 10, display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 12px", border: "1px solid rgba(255,255,255,0.2)" }}>
                     <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", display: "inline-block" }} />
                     <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 10, fontWeight: 600, letterSpacing: 1 }}>QR</span>
                   </div>
                 </div>
 
-                {/* Title block */}
+                {/* Title + subtitle */}
                 <div style={{ position: "relative", zIndex: 10 }}>
-                  <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1.3, margin: 0 }}>{displayTitle}</h2>
-                  <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 3, fontWeight: 300 }}>{displaySubtitle}</p>
+                  <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 16, lineHeight: 1.3, margin: 0 }}>
+                    {displayTitle}
+                  </h2>
+                  <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 4, fontWeight: 300, margin: "4px 0 0" }}>
+                    {displaySubtitle}
+                  </p>
                 </div>
               </div>
             )}
 
-            {/* ── SEPARATOR ──────────────────────────────────────────────── */}
+            {/* ── SEPARATOR ──────────────────────────────────────────── */}
             {isPrint ? (
               <div style={{ margin: "0 20px", borderTop: "2px dashed rgba(0,0,0,0.25)" }} />
             ) : (
@@ -187,7 +173,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
               }} />
             )}
 
-            {/* ── QR AREA — containerRef is ALWAYS here, never inside a conditional ── */}
+            {/* ── QR AREA — containerRef never moves in the tree ─────── */}
             <div style={{
               background: isPrint ? "#fff" : bgColor,
               padding: isPrint ? "12px 16px 18px" : "0 16px 16px",
@@ -202,7 +188,6 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 padding: isPrint ? 6 : 10,
                 background: "#fff",
               }}>
-                {/* This div never moves — QR canvas appended here once and stays */}
                 <div
                   ref={containerRef}
                   className={qrUrl ? "block" : "opacity-20 pointer-events-none"}
@@ -222,7 +207,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 )}
               </div>
 
-              {/* Scan text — customizable */}
+              {/* Scan text */}
               {isPrint ? (
                 <p style={{ fontSize: 10, fontWeight: 700, color: "#000", letterSpacing: 3, textTransform: "uppercase", margin: 0 }}>
                   {displayScanText}
@@ -238,7 +223,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
               )}
             </div>
 
-            {/* ── FOOTER — gradient templates only ───────────────────────── */}
+            {/* ── FOOTER — gradient only ──────────────────────────────── */}
             {!isPrint && (
               <div style={{
                 padding: "8px 16px",
@@ -264,7 +249,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
           </div>
         </div>
 
-        {/* ── URL display ─────────────────────────────────────────────────── */}
+        {/* ── URL display ──────────────────────────────────────────────── */}
         {qrUrl ? (
           <div className="w-full rounded-lg border bg-muted px-3 py-2.5 font-mono text-xs text-muted-foreground break-all leading-relaxed">
             {qrUrl}
@@ -275,11 +260,10 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
           </div>
         )}
 
-        {/* ── Action buttons ───────────────────────────────────────────────── */}
+        {/* ── Buttons ──────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center justify-center gap-2 w-full">
           <Button
-            variant="outline"
-            size="sm"
+            variant="outline" size="sm"
             onClick={handleCopyUrl}
             disabled={!qrUrl}
             className="flex items-center gap-1.5"
@@ -289,8 +273,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
           </Button>
 
           <Button
-            variant="default"
-            size="sm"
+            variant="default" size="sm"
             onClick={handleDownloadCard}
             disabled={!qrUrl || cardLoading}
             className="flex items-center gap-1.5"
