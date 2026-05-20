@@ -140,22 +140,20 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 <div style={{ position: "absolute", width: 160, height: 160, right: -40, top: -40, borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
                 <div style={{ position: "absolute", width: 80, height: 80, right: 10, top: 60, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
 
-                {/* QR badge — top right only */}
-                <div style={{ position: "relative", zIndex: 10, display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 12px", border: "1px solid rgba(255,255,255,0.2)" }}>
+                {/* Title+subtitle LEFT — QR badge RIGHT — same row */}
+                <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 16, lineHeight: 1.3, margin: 0 }}>
+                      {displayTitle}
+                    </h2>
+                    <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 4, fontWeight: 300, margin: "4px 0 0" }}>
+                      {displaySubtitle}
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 12px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
                     <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", display: "inline-block" }} />
                     <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 10, fontWeight: 600, letterSpacing: 1 }}>QR</span>
                   </div>
-                </div>
-
-                {/* Title + subtitle */}
-                <div style={{ position: "relative", zIndex: 10 }}>
-                  <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 16, lineHeight: 1.3, margin: 0 }}>
-                    {displayTitle}
-                  </h2>
-                  <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 4, fontWeight: 300, margin: "4px 0 0" }}>
-                    {displaySubtitle}
-                  </p>
                 </div>
               </div>
             )}

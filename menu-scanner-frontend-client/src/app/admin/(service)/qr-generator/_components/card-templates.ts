@@ -78,9 +78,9 @@ function wrapText(
 // ── Layout constants (900px wide canvas, mirroring the 320px HTML card × 2.8) ─
 
 const CARD_W   = 900;
-// Header heights chosen to match the HTML preview proportions at 2.8× scale
-const GRAD_HEADER_H = 310;   // gradient header (no logo — just badge + title + subtitle)
-const PRINT_HEADER_H = 200;  // print header (title + subtitle)
+// Header heights restored to original proportions — logo removed but height preserved
+const GRAD_HEADER_H  = 420;
+const PRINT_HEADER_H = 260;
 const FOOTER_H = 90;
 
 // ── Gradient card ─────────────────────────────────────────────────────────────
@@ -116,37 +116,46 @@ async function drawGradientCard(
   ctx.beginPath(); ctx.arc(CARD_W - 60, 110, 130, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 
-  // ── QR badge (top-right) — same pill shape as HTML preview ────────
-  const BADGE_W = 130, BADGE_H = 50, BADGE_R = 25;
-  const BADGE_X = CARD_W - 80 - BADGE_W, BADGE_Y = 56;
+  // ── Title + Subtitle (left) and QR badge (right) — same row ──────
+  // Font sizes scaled from preview: title 16px×2.8=45px, subtitle 11px×2.8=31px
+  const PAD      = 80;
+  const BADGE_W  = 130, BADGE_H = 48, BADGE_R = 24;
+  const BADGE_X  = CARD_W - PAD - BADGE_W;
+  const CONTENT_Y = 150; // vertical anchor for the row
+
+  // Title (left column, max-width stops before badge)
+  const maxTitleW = BADGE_X - PAD - 30;
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "left";
+  ctx.font = "bold 45px Arial, sans-serif";
+  const lastTitleY = wrapText(
+    ctx, config.cardTitle || "Your Business Name",
+    PAD, CONTENT_Y, maxTitleW, 56,
+  );
+
+  // Subtitle
+  ctx.fillStyle = "rgba(255,255,255,0.65)";
+  ctx.font = "31px Arial, sans-serif";
+  ctx.fillText(
+    config.cardSubtitle || "Scan to view our menu",
+    PAD, lastTitleY + 44, maxTitleW,
+  );
+
+  // QR badge — top-right, vertically aligned to CONTENT_Y
+  const BADGE_Y = CONTENT_Y - 10;
   ctx.save();
   roundedRect(ctx, BADGE_X, BADGE_Y, BADGE_W, BADGE_H, BADGE_R);
   ctx.fillStyle = "rgba(255,255,255,0.15)";
   ctx.fill();
-  // Green dot
   ctx.beginPath();
-  ctx.arc(BADGE_X + 24, BADGE_Y + BADGE_H / 2, 9, 0, Math.PI * 2);
+  ctx.arc(BADGE_X + 22, BADGE_Y + BADGE_H / 2, 8, 0, Math.PI * 2);
   ctx.fillStyle = "#34d399";
   ctx.fill();
-  // "QR" text
   ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.font = "bold 30px Arial, sans-serif";
+  ctx.font = "bold 28px Arial, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("QR", BADGE_X + 42, BADGE_Y + BADGE_H / 2 + 11);
+  ctx.fillText("QR", BADGE_X + 38, BADGE_Y + BADGE_H / 2 + 10);
   ctx.restore();
-
-  // ── Title ──────────────────────────────────────────────────────────
-  const titleX = 80;
-  const titleY = 140;
-  ctx.fillStyle = "#ffffff";
-  ctx.textAlign = "left";
-  ctx.font = "bold 60px Arial, sans-serif";
-  const lastTitleY = wrapText(ctx, config.cardTitle || "Your Business Name", titleX, titleY, CARD_W - 200, 74);
-
-  // ── Subtitle ───────────────────────────────────────────────────────
-  ctx.fillStyle = "rgba(255,255,255,0.65)";
-  ctx.font = "36px Arial, sans-serif";
-  ctx.fillText(config.cardSubtitle || "Scan to view our menu", titleX, lastTitleY + 56, CARD_W - 200);
 
   // ── Wave transition (mirrors the CSS border-radius wave in HTML) ───
   const WAVE_Y = GRAD_HEADER_H - 45;
@@ -239,17 +248,17 @@ async function drawPrintCard(
   ctx.textAlign = "center";
 
   ctx.fillStyle = "#000000";
-  ctx.font = "bold 60px Arial, sans-serif";
+  ctx.font = "bold 45px Arial, sans-serif";
   const lastTitleY = wrapText(
     ctx, config.cardTitle || "Your Business Name",
-    CARD_W / 2, 100, CARD_W - 140, 74,
+    CARD_W / 2, 100, CARD_W - 140, 56,
   );
 
   ctx.fillStyle = "#6b7280";
-  ctx.font = "34px Arial, sans-serif";
+  ctx.font = "31px Arial, sans-serif";
   ctx.fillText(
     config.cardSubtitle || "Scan to view our menu",
-    CARD_W / 2, lastTitleY + 52, CARD_W - 140,
+    CARD_W / 2, lastTitleY + 44, CARD_W - 140,
   );
 
   // Dashed divider (matches HTML border-dashed)
