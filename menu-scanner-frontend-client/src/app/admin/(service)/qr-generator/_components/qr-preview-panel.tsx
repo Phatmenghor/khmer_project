@@ -205,9 +205,11 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                       <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)", display: "block" }} />
                     </div>
                   )}
-                  <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0, whiteSpace: "nowrap" }}>
-                    <span style={{ display: "inline-block", width: 5, height: 5, borderRadius: "50%", background: "#34d399", verticalAlign: "middle", marginRight: 4, marginBottom: 1 }} />
-                    <span style={{ display: "inline-block", verticalAlign: "middle", color: "rgba(255,255,255,0.9)", fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", lineHeight: 1 }}>QR</span>
+                  <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0, lineHeight: 1, fontSize: 9 }}>
+                    <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginRight: 4 }}>
+                      <span style={{ display: "block", width: 5, height: 5, borderRadius: "50%", background: "#34d399" }} />
+                    </span>
+                    <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 1, color: "rgba(255,255,255,0.9)", fontSize: 9, fontWeight: 600, letterSpacing: "0.5px" }}>QR</span>
                   </div>
                 </div>
 
@@ -292,9 +294,11 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 background: `${headerFrom}20`,
                 display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
-                <div style={{ whiteSpace: "nowrap" }}>
-                  <span style={{ display: "inline-block", width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)", verticalAlign: "middle", marginRight: 5 }} />
-                  <span style={{ display: "inline-block", verticalAlign: "middle", fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: 1 }}>eMenu</span>
+                <div style={{ lineHeight: 1, fontSize: 10 }}>
+                  <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginRight: 5 }}>
+                    <span style={{ display: "block", width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)" }} />
+                  </span>
+                  <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 1, fontSize: 10, color: "#64748b", fontWeight: 500 }}>eMenu</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
                   {[0.25, 0.55, 0.85].map((op, i) => (
