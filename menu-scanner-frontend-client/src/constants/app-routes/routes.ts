@@ -6,6 +6,7 @@ import {
   LucideBriefcaseBusiness,
   ShoppingCart,
   Settings,
+  QrCode,
 } from "lucide-react";
 
 export const ROUTES = {
@@ -38,6 +39,7 @@ export const ROUTES = {
     ORDERS_PENDING: "/admin/orders/pending",
     POS: "/admin/pos",
     BUSINESS_SETTINGS: "/admin/manage-business-settings",
+    QR_GENERATOR: "/admin/qr-generator",
   },
 
   MANAGE_STOCK: {
@@ -162,6 +164,16 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "Size Stock",
         href: ROUTES.MANAGE_STOCK.SIZE_STOCK,
+      },
+    ],
+  },
+  {
+    title: "Services",
+    icon: QrCode,
+    items: [
+      {
+        title: "QR Generator",
+        href: ROUTES.ADMIN.QR_GENERATOR,
       },
     ],
   },
