@@ -8,7 +8,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { QR_TYPE_OPTIONS, type QRConfig, type QRType } from "./use-qr-generator";
@@ -18,121 +17,173 @@ interface QRInputPanelProps {
   onUpdate: (updates: Partial<QRConfig>) => void;
 }
 
+function FieldRow({
+  id,
+  label,
+  required,
+  children,
+  hint,
+}: {
+  id?: string;
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+  hint?: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="text-xs font-medium text-foreground">
+        {label}
+        {required && <span className="text-destructive ml-0.5">*</span>}
+      </Label>
+      {children}
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
 export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
-  const needsShopId = config.type !== "custom";
-  const needsTableNumber = config.type === "table";
-  const needsProductId = config.type === "product";
-  const isCustom = config.type === "custom";
+  const needsShopId    = config.type !== "custom";
+  const needsTable     = config.type === "table";
+  const needsProduct   = config.type === "product";
+  const isCustom       = config.type === "custom";
+
+  const selectedLabel =
+    QR_TYPE_OPTIONS.find((o) => o.value === config.type)?.label ?? "Select QR type";
 
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold">QR Configuration</CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-5">
-        <div className="space-y-2">
-          <Label className="text-xs font-medium text-foreground">QR Type</Label>
+        {/* ── QR Type ── */}
+        <FieldRow label="QR Type" required>
           <Select
             value={config.type}
             onValueChange={(val) => onUpdate({ type: val as QRType })}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select QR type" />
+              <span className="text-sm truncate">{selectedLabel}</span>
             </SelectTrigger>
             <SelectContent>
               {QR_TYPE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
-                  <div className="flex flex-col">
-                    <span className="font-medium text-sm">{option.label}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {option.description}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-medium text-sm whitespace-nowrap">
+                      {option.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      · {option.description}
                     </span>
                   </div>
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </FieldRow>
 
         <Separator />
 
+        {/* ── URL Fields ── */}
         <div className="space-y-4">
           {needsShopId && (
-            <div className="space-y-2">
-              <Label htmlFor="shopId" className="text-xs font-medium text-foreground">
-                Shop ID <span className="text-destructive">*</span>
-              </Label>
+            <FieldRow id="shopId" label="Shop ID" required>
               <Input
                 id="shopId"
                 placeholder="Enter shop ID"
                 value={config.shopId}
                 onChange={(e) => onUpdate({ shopId: e.target.value })}
               />
-            </div>
+            </FieldRow>
           )}
 
-          {needsTableNumber && (
-            <div className="space-y-2">
-              <Label htmlFor="tableNumber" className="text-xs font-medium text-foreground">
-                Table Number <span className="text-destructive">*</span>
-              </Label>
+          {needsTable && (
+            <FieldRow id="tableNumber" label="Table Number" required>
               <Input
                 id="tableNumber"
                 placeholder="e.g. 1, 2, A1"
                 value={config.tableNumber}
                 onChange={(e) => onUpdate({ tableNumber: e.target.value })}
               />
-            </div>
+            </FieldRow>
           )}
 
-          {needsProductId && (
-            <div className="space-y-2">
-              <Label htmlFor="productId" className="text-xs font-medium text-foreground">
-                Product ID <span className="text-destructive">*</span>
-              </Label>
+          {needsProduct && (
+            <FieldRow id="productId" label="Product ID" required>
               <Input
                 id="productId"
                 placeholder="Enter product ID"
                 value={config.productId}
                 onChange={(e) => onUpdate({ productId: e.target.value })}
               />
-            </div>
+            </FieldRow>
           )}
 
           {isCustom && (
-            <div className="space-y-2">
-              <Label htmlFor="customUrl" className="text-xs font-medium text-foreground">
-                Custom URL <span className="text-destructive">*</span>
-              </Label>
+            <FieldRow id="customUrl" label="Custom URL" required>
               <Input
                 id="customUrl"
                 type="url"
-                placeholder="https://example.com/your-page"
+                placeholder="https://example.com/page"
                 value={config.customUrl}
                 onChange={(e) => onUpdate({ customUrl: e.target.value })}
               />
-            </div>
+            </FieldRow>
           )}
 
           {!isCustom && (
             <>
               <Separator />
-              <div className="space-y-2">
-                <Label htmlFor="domain" className="text-xs font-medium text-foreground">
-                  Domain
-                </Label>
+              <FieldRow
+                id="domain"
+                label="Domain"
+                hint="Base domain used to build the QR URL"
+              >
                 <Input
                   id="domain"
                   placeholder="https://your-domain.com"
                   value={config.domain}
                   onChange={(e) => onUpdate({ domain: e.target.value })}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Base domain used to build the QR URL
-                </p>
-              </div>
+              </FieldRow>
             </>
           )}
+        </div>
+
+        <Separator />
+
+        {/* ── Card Display ── */}
+        <div className="space-y-4">
+          <p className="text-xs font-semibold text-foreground">Card Display</p>
+
+          <FieldRow
+            id="cardTitle"
+            label="Shop / Business Name"
+            required
+            hint="Shown at the top of the QR card"
+          >
+            <Input
+              id="cardTitle"
+              placeholder="e.g. Mega Store, My Restaurant"
+              value={config.cardTitle}
+              onChange={(e) => onUpdate({ cardTitle: e.target.value })}
+            />
+          </FieldRow>
+
+          <FieldRow
+            id="cardSubtitle"
+            label="Scan Instruction"
+            hint="Text shown below the QR code"
+          >
+            <Input
+              id="cardSubtitle"
+              placeholder="e.g. Scan to view our menu"
+              value={config.cardSubtitle}
+              onChange={(e) => onUpdate({ cardSubtitle: e.target.value })}
+            />
+          </FieldRow>
         </div>
       </CardContent>
     </Card>
