@@ -205,11 +205,10 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                       <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)", display: "block" }} />
                     </div>
                   )}
-                  <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0, lineHeight: 1, fontSize: 9 }}>
-                    <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginRight: 4 }}>
-                      <span style={{ display: "block", width: 5, height: 5, borderRadius: "50%", background: "#34d399" }} />
-                    </span>
-                    <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 1, color: "rgba(255,255,255,0.9)", fontSize: 9, fontWeight: 600, letterSpacing: "0.5px" }}>QR</span>
+                  {/* QR badge — fixed height, absolute dot, lineHeight = height */}
+                  <div style={{ position: "relative", height: 19, paddingLeft: 22, paddingRight: 10, background: "rgba(255,255,255,0.15)", borderRadius: 20, border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0, overflow: "hidden" }}>
+                    <div style={{ position: "absolute", left: 10, top: 7, width: 5, height: 5, borderRadius: "50%", background: "#34d399" }} />
+                    <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", color: "rgba(255,255,255,0.9)", lineHeight: "19px", whiteSpace: "nowrap" }}>QR</div>
                   </div>
                 </div>
 
@@ -294,11 +293,10 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 background: `${headerFrom}20`,
                 display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
-                <div style={{ lineHeight: 1, fontSize: 10 }}>
-                  <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginRight: 5 }}>
-                    <span style={{ display: "block", width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)" }} />
-                  </span>
-                  <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 1, fontSize: 10, color: "#64748b", fontWeight: 500 }}>eMenu</span>
+                {/* eMenu — fixed height, absolute icon, lineHeight = height */}
+                <div style={{ position: "relative", height: 14, paddingLeft: 19 }}>
+                  <div style={{ position: "absolute", left: 0, top: 0, width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)" }} />
+                  <div style={{ fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: "14px", whiteSpace: "nowrap" }}>eMenu</div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
                   {[0.25, 0.55, 0.85].map((op, i) => (
