@@ -141,14 +141,27 @@ export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
 
           <FieldRow
             id="cardSubtitle"
-            label="Scan Instruction"
-            hint="Text shown below the business name"
+            label="Subtitle"
+            hint="Shown below the business name"
           >
             <Input
               id="cardSubtitle"
               placeholder="e.g. Scan to view our menu"
               value={config.cardSubtitle}
               onChange={(e) => onUpdate({ cardSubtitle: e.target.value })}
+            />
+          </FieldRow>
+
+          <FieldRow
+            id="scanText"
+            label="Scan Button Text"
+            hint="Text shown below the QR code"
+          >
+            <Input
+              id="scanText"
+              placeholder="e.g. SCAN QR CODE"
+              value={config.scanText}
+              onChange={(e) => onUpdate({ scanText: e.target.value })}
             />
           </FieldRow>
         </div>

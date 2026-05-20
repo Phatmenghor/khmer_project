@@ -34,19 +34,19 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
       width:  PREVIEW_QR_SIZE,
       height: PREVIEW_QR_SIZE,
       data:   effectiveUrl,
-      image:  style.logoEnabled && style.logoDataUrl ? style.logoDataUrl : undefined,
-      qrOptions:           { errorCorrectionLevel: "H" as const },
-      dotsOptions:         { color: style.primaryColor, type: "rounded" as const },
+      image:  style.logoDataUrl ?? undefined,
+      qrOptions:            { errorCorrectionLevel: "H" as const },
+      dotsOptions:          { color: style.primaryColor, type: "rounded" as const },
       cornersSquareOptions: { type: "extra-rounded" as const, color: style.primaryColor },
-      cornersDotOptions:   { color: style.primaryColor },
-      backgroundOptions:   { color: style.backgroundColor },
+      cornersDotOptions:    { color: style.primaryColor },
+      backgroundOptions:    { color: style.backgroundColor },
       imageOptions: { crossOrigin: "anonymous", margin: 5, imageSize: 0.3, hideBackgroundDots: true },
     }),
     [effectiveUrl, style],
   );
 
-  // Keep QR instance synced; containerRef div is ALWAYS rendered at the same
-  // tree position so the canvas element is never detached on template switch.
+  // containerRef div is ALWAYS at the same tree position — the QR canvas never
+  // detaches when template switches because there is no conditional around it.
   useEffect(() => {
     if (typeof window === "undefined" || !containerRef.current) return;
     let cancelled = false;
@@ -92,6 +92,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
 
   const displayTitle    = config.cardTitle    || "Your Business Name";
   const displaySubtitle = config.cardSubtitle || "Scan to view our menu";
+  const displayScanText = config.scanText     || "SCAN QR CODE";
 
   return (
     <Card className="flex flex-col">
@@ -118,21 +119,22 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             {isPrint ? (
               <div style={{
                 background: "#fff",
-                padding: "16px 20px 12px",
+                padding: "20px 20px 14px",
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
               }}>
-                {style.logoEnabled && style.logoDataUrl ? (
-                  <div style={{ width: 52, height: 52, borderRadius: "50%", border: "2px solid #000", overflow: "hidden", background: "#fff", flexShrink: 0 }}>
-                    <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                {/* Logo circle — full cover */}
+                {style.logoDataUrl ? (
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", overflow: "hidden", flexShrink: 0 }}>
+                    <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </div>
                 ) : (
-                  <div style={{ width: 52, height: 52, borderRadius: "50%", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <QrCode style={{ width: 26, height: 26, color: "#000" }} />
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <QrCode style={{ width: 28, height: 28, color: "#000" }} />
                   </div>
                 )}
                 <div style={{ textAlign: "center" }}>
                   <p style={{ fontWeight: 700, fontSize: 14, color: "#000", lineHeight: 1.3, margin: 0 }}>{displayTitle}</p>
-                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>{displaySubtitle}</p>
+                  <p style={{ fontSize: 11, color: "#6b7280", marginTop: 3 }}>{displaySubtitle}</p>
                 </div>
               </div>
             ) : (
@@ -148,13 +150,14 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
 
                 {/* Top row: logo + QR badge */}
                 <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
-                  {style.logoEnabled && style.logoDataUrl ? (
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", overflow: "hidden", padding: 3, flexShrink: 0 }}>
-                      <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "contain", borderRadius: 8 }} />
+                  {style.logoDataUrl ? (
+                    /* Logo circle — full cover */
+                    <div style={{ width: 44, height: 44, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0 }}>
+                      <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     </div>
                   ) : (
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <QrCode style={{ width: 18, height: 18, color: "rgba(255,255,255,0.8)" }} />
+                    <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)" }} />
                     </div>
                   )}
                   <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "3px 10px", border: "1px solid rgba(255,255,255,0.2)" }}>
@@ -165,15 +168,15 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
 
                 {/* Title block */}
                 <div style={{ position: "relative", zIndex: 10 }}>
-                  <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 14, lineHeight: 1.3, margin: 0 }}>{displayTitle}</h2>
-                  <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 2, fontWeight: 300, margin: "2px 0 0" }}>{displaySubtitle}</p>
+                  <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1.3, margin: 0 }}>{displayTitle}</h2>
+                  <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 3, fontWeight: 300 }}>{displaySubtitle}</p>
                 </div>
               </div>
             )}
 
             {/* ── SEPARATOR ──────────────────────────────────────────────── */}
             {isPrint ? (
-              <div style={{ margin: "0 20px", borderTop: "2px dashed rgba(0,0,0,0.3)" }} />
+              <div style={{ margin: "0 20px", borderTop: "2px dashed rgba(0,0,0,0.25)" }} />
             ) : (
               <div style={{
                 height: 20,
@@ -184,10 +187,10 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
               }} />
             )}
 
-            {/* ── QR AREA — containerRef is ALWAYS at this fixed tree position ── */}
+            {/* ── QR AREA — containerRef is ALWAYS here, never inside a conditional ── */}
             <div style={{
               background: isPrint ? "#fff" : bgColor,
-              padding: isPrint ? "10px 16px 16px" : "0 16px 16px",
+              padding: isPrint ? "12px 16px 18px" : "0 16px 16px",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
               marginTop: isPrint ? 0 : -4,
             }}>
@@ -195,11 +198,11 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 position: "relative",
                 borderRadius: isPrint ? 10 : 14,
                 border: isPrint ? "2px solid #000" : "none",
-                boxShadow: isPrint ? "none" : "0 4px 16px rgba(0,0,0,0.1)",
+                boxShadow: isPrint ? "none" : "0 4px 20px rgba(0,0,0,0.1)",
                 padding: isPrint ? 6 : 10,
                 background: "#fff",
               }}>
-                {/* ↓ This div NEVER moves in the React tree — QR canvas appends here once */}
+                {/* This div never moves — QR canvas appended here once and stays */}
                 <div
                   ref={containerRef}
                   className={qrUrl ? "block" : "opacity-20 pointer-events-none"}
@@ -212,18 +215,24 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                     pointerEvents: "none",
                   }}>
                     <QrCode style={{ width: 36, height: 36, color: "#d1d5db" }} />
-                    <p style={{ fontSize: 10, color: "#9ca3af", textAlign: "center", margin: 0 }}>Enter fields to generate</p>
+                    <p style={{ fontSize: 10, color: "#9ca3af", textAlign: "center", margin: 0 }}>
+                      Enter fields to generate
+                    </p>
                   </div>
                 )}
               </div>
 
-              {/* Scan text */}
+              {/* Scan text — customizable */}
               {isPrint ? (
-                <p style={{ fontSize: 10, fontWeight: 700, color: "#000", letterSpacing: 3, textTransform: "uppercase", margin: 0 }}>Scan QR Code</p>
+                <p style={{ fontSize: 10, fontWeight: 700, color: "#000", letterSpacing: 3, textTransform: "uppercase", margin: 0 }}>
+                  {displayScanText}
+                </p>
               ) : (
                 <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#9ca3af" }}>
                   <Scan style={{ width: 12, height: 12 }} />
-                  <span style={{ fontSize: 10, fontWeight: 600, color: "#6b7280", letterSpacing: 3, textTransform: "uppercase" }}>Scan QR Code</span>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: "#6b7280", letterSpacing: 3, textTransform: "uppercase" }}>
+                    {displayScanText}
+                  </span>
                   <Scan style={{ width: 12, height: 12 }} />
                 </div>
               )}

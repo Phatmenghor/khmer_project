@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ImagePlus, X, Check } from "lucide-react";
@@ -55,7 +54,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
     if (file.size > 2 * 1024 * 1024)     { showToast.error("Image must be under 2MB");   return; }
 
     const reader = new FileReader();
-    reader.onload = (ev) => onUpdate({ logoDataUrl: ev.target?.result as string, logoEnabled: true });
+    reader.onload = (ev) => onUpdate({ logoDataUrl: ev.target?.result as string });
     reader.readAsDataURL(file);
 
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -96,7 +95,6 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                   }`}
                   title={tpl.name}
                 >
-                  {/* Swatch preview */}
                   <div
                     className="h-10 w-full"
                     style={
@@ -164,32 +162,31 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
 
         <Separator />
 
-        {/* ── Logo ────────────────────────────────────────────── */}
+        {/* ── Logo (required) ─────────────────────────────────── */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-foreground">Logo</p>
-            {style.logoDataUrl && (
-              <Switch
-                checked={style.logoEnabled}
-                onCheckedChange={(checked) => onUpdate({ logoEnabled: checked })}
-              />
-            )}
-          </div>
+          <p className="text-xs font-semibold text-foreground">
+            Logo <span className="text-destructive">*</span>
+          </p>
 
           {style.logoDataUrl ? (
             <div className="flex items-center gap-3 p-2 rounded-md border border-border bg-muted/40">
-              <div className="w-10 h-10 rounded-lg overflow-hidden border border-border flex-shrink-0 bg-white">
-                <img src={style.logoDataUrl} alt="Logo preview" className="w-full h-full object-contain" />
+              {/* Circular preview */}
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-border flex-shrink-0 bg-white">
+                <img
+                  src={style.logoDataUrl}
+                  alt="Logo preview"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-foreground truncate">Logo uploaded</p>
-                <p className="text-xs text-muted-foreground">{style.logoEnabled ? "Visible in QR" : "Hidden"}</p>
+                <p className="text-xs text-muted-foreground">Shown in QR card</p>
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7 flex-shrink-0 hover:text-destructive"
-                onClick={() => onUpdate({ logoDataUrl: null, logoEnabled: false })}
+                onClick={() => onUpdate({ logoDataUrl: null })}
               >
                 <X className="w-3.5 h-3.5" />
               </Button>
@@ -198,10 +195,10 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border py-5 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors duration-200 cursor-pointer"
+              className="w-full flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-destructive/40 py-5 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors duration-200 cursor-pointer"
             >
               <ImagePlus className="w-6 h-6" />
-              <span className="text-xs font-medium">Upload logo</span>
+              <span className="text-xs font-medium">Upload logo <span className="text-destructive">*</span></span>
               <span className="text-[11px] opacity-60">PNG, JPG up to 2MB</span>
             </button>
           )}

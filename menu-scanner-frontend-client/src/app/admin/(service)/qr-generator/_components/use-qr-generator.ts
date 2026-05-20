@@ -15,12 +15,12 @@ export interface QRConfig {
   domain: string;
   cardTitle: string;
   cardSubtitle: string;
+  scanText: string;
 }
 
 export interface QRStyle {
   primaryColor: string;
   backgroundColor: string;
-  logoEnabled: boolean;
   logoDataUrl: string | null;
   cardGradientFrom: string;
   cardGradientTo: string;
@@ -53,12 +53,12 @@ export const DEFAULT_CONFIG: QRConfig = {
   domain: "https://your-domain.com",
   cardTitle: "",
   cardSubtitle: "Scan to view our menu",
+  scanText: "SCAN QR CODE",
 };
 
 export const DEFAULT_STYLE: QRStyle = {
   primaryColor: "#1a237e",
   backgroundColor: "#ffffff",
-  logoEnabled: false,
   logoDataUrl: null,
   cardGradientFrom: "#1a237e",
   cardGradientTo: "#283593",
