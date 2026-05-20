@@ -176,11 +176,10 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 </p>
               </div>
             ) : (
-              /* Gradient: wave cap lives INSIDE header as absolute element —
-                 no sibling negative-margin tricks, no gap artifacts           */
+              /* Gradient: wave cap lives INSIDE header as absolute element */
               <div style={{
                 background: `linear-gradient(135deg, ${headerFrom}, ${headerTo})`,
-                padding: "16px 16px 36px",   // 36px bottom = content gap + wave height
+                padding: "12px 14px 30px",
                 position: "relative",
                 overflow: "hidden",
               }}>
@@ -222,7 +221,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             {/* ── QR AREA — containerRef never moves in the tree ─────── */}
             <div style={{
               background: isPrint ? "#fff" : bgColor,
-              padding: isPrint ? "10px 16px 16px" : "4px 16px 14px",
+              padding: isPrint ? "10px 16px 16px" : "0 12px 12px",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
             }}>
               <div style={{
@@ -230,7 +229,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 borderRadius: isPrint ? 10 : 14,
                 border: isPrint ? "2px solid #000" : "none",
                 boxShadow: isPrint ? "none" : "0 4px 20px rgba(0,0,0,0.1)",
-                padding: isPrint ? 6 : 10,
+                padding: isPrint ? 6 : 6,
                 background: "#fff",
               }}>
                 <div
@@ -254,11 +253,11 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
 
               {/* Scan text */}
               {isPrint ? (
-                <p style={{ fontSize: 10, fontWeight: 700, color: "#000", letterSpacing: 3, textTransform: "uppercase", margin: 0 }}>
+                <p style={{ width: "100%", textAlign: "center", fontSize: 10, fontWeight: 700, color: "#000", letterSpacing: 3, textTransform: "uppercase", margin: 0 }}>
                   {displayScanText}
                 </p>
               ) : (
-                <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#9ca3af" }}>
+                <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, color: "#9ca3af" }}>
                   <Scan style={{ width: 12, height: 12 }} />
                   <span style={{ fontSize: 10, fontWeight: 600, color: "#6b7280", letterSpacing: 3, textTransform: "uppercase" }}>
                     {displayScanText}
@@ -273,19 +272,12 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
               <div style={{
                 padding: "8px 16px",
                 background: `${headerFrom}20`,
-                display: "flex", alignItems: "center", justifyContent: "space-between",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <div style={{ width: 14, height: 14, borderRadius: 4, background: "rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <QrCode style={{ width: 9, height: 9 }} />
-                  </div>
-                  <span style={{ fontSize: 10, color: "#64748b", fontWeight: 500 }}>eMenu</span>
+                <div style={{ width: 14, height: 14, borderRadius: 4, background: "rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <QrCode style={{ width: 9, height: 9 }} />
                 </div>
-                <div style={{ display: "flex", gap: 3 }}>
-                  {[0.25, 0.55, 0.85].map((op, i) => (
-                    <span key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: headerFrom, opacity: op, display: "inline-block" }} />
-                  ))}
-                </div>
+                <span style={{ fontSize: 10, color: "#64748b", fontWeight: 500 }}>eMenu</span>
               </div>
             )}
 
