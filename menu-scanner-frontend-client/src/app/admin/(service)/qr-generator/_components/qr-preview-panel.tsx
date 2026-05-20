@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Copy, Check, Download, QrCode } from "lucide-react";
+import { Copy, Check, Download, QrCode, Scan } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
 import { generateQRUrl, type QRConfig, type QRStyle } from "./use-qr-generator";
 
@@ -205,9 +205,9 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                       <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)", display: "block" }} />
                     </div>
                   )}
-                  <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "3px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
-                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34d399", flexShrink: 0 }} />
-                    <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", lineHeight: 1 }}>QR</div>
+                  <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0, whiteSpace: "nowrap" }}>
+                    <span style={{ display: "inline-block", width: 5, height: 5, borderRadius: "50%", background: "#34d399", verticalAlign: "middle", marginRight: 4, marginBottom: 1 }} />
+                    <span style={{ display: "inline-block", verticalAlign: "middle", color: "rgba(255,255,255,0.9)", fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", lineHeight: 1 }}>QR</span>
                   </div>
                 </div>
 
@@ -271,13 +271,16 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                   {displayScanText}
                 </p>
               ) : (
-                <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                  {/* CSS corner bracket — no SVG baseline issues */}
-                  <div style={{ width: 10, height: 10, flexShrink: 0, borderTop: "1.5px solid #9ca3af", borderLeft: "1.5px solid #9ca3af" }} />
-                  <span style={{ fontSize: 10, fontWeight: 600, color: "#6b7280", letterSpacing: 3, textTransform: "uppercase", lineHeight: 1 }}>
+                <div style={{ width: "100%", textAlign: "center", lineHeight: 1 }}>
+                  <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginRight: 6 }}>
+                    <Scan style={{ width: 12, height: 12, display: "block", color: "#9ca3af" }} />
+                  </span>
+                  <span style={{ display: "inline-block", verticalAlign: "middle", fontSize: 10, fontWeight: 600, color: "#6b7280", letterSpacing: 3, textTransform: "uppercase", lineHeight: 1 }}>
                     {displayScanText}
                   </span>
-                  <div style={{ width: 10, height: 10, flexShrink: 0, borderTop: "1.5px solid #9ca3af", borderRight: "1.5px solid #9ca3af" }} />
+                  <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginLeft: 6 }}>
+                    <Scan style={{ width: 12, height: 12, display: "block", color: "#9ca3af" }} />
+                  </span>
                 </div>
               )}
             </div>
@@ -289,9 +292,9 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 background: `${headerFrom}20`,
                 display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <div style={{ width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)", flexShrink: 0 }} />
-                  <div style={{ fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: 1 }}>eMenu</div>
+                <div style={{ whiteSpace: "nowrap" }}>
+                  <span style={{ display: "inline-block", width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)", verticalAlign: "middle", marginRight: 5 }} />
+                  <span style={{ display: "inline-block", verticalAlign: "middle", fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: 1 }}>eMenu</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
                   {[0.25, 0.55, 0.85].map((op, i) => (
