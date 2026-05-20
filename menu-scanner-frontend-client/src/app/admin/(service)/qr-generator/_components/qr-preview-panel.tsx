@@ -63,33 +63,60 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
     return () => { cancelled = true; };
   }, [buildQROptions]);
 
-  // Screenshot the preview card element directly — guaranteed 100% match
+  // Screenshot the preview card element — html2canvas captures exactly what is shown.
+  // The QR code is a <canvas> drawn by qr-code-styling; html2canvas cannot re-process
+  // third-party canvases, so we extract it as a PNG data URL in `onclone` and replace
+  // it with an <img> before the screenshot pass runs.
   const handleDownloadCard = async () => {
-    if (!qrUrl) { showToast.error("Fill in all required fields first"); return; }
-    if (!cardRef.current)  { showToast.error("Preview not ready"); return; }
+    if (!qrUrl)           { showToast.error("Fill in all required fields first"); return; }
+    if (!cardRef.current) { showToast.error("Preview not ready"); return; }
     setCardLoading(true);
     try {
       const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 4,               // 4× → ~1280px wide, print-quality
+
+      const snapshot = await html2canvas(cardRef.current, {
+        scale: 3,               // 3× → ~960px wide, print-quality
         useCORS: true,
-        backgroundColor: null,  // preserve card bg / transparency
+        allowTaint: true,
+        backgroundColor: "#ffffff",
         logging: false,
+        onclone: (_doc, el) => {
+          // Convert every <canvas> inside the cloned card to an <img> so
+          // html2canvas doesn't try to re-process qr-code-styling's canvas.
+          el.querySelectorAll("canvas").forEach((c) => {
+            try {
+              const dataUrl = (c as HTMLCanvasElement).toDataURL("image/png");
+              const img = document.createElement("img");
+              img.src          = dataUrl;
+              img.style.width  = c.clientWidth  + "px";
+              img.style.height = c.clientHeight + "px";
+              img.style.display = "block";
+              c.parentNode?.replaceChild(img, c);
+            } catch {
+              // If the canvas is tainted leave it; html2canvas will handle it
+            }
+          });
+        },
       });
-      canvas.toBlob((blob) => {
-        if (!blob) { showToast.error("Failed to capture card"); return; }
-        const url = URL.createObjectURL(blob);
-        const a   = document.createElement("a");
-        a.href     = url;
-        a.download = `qr-card-${config.cardTitle || config.type}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast.success("Card downloaded!");
-      }, "image/png");
-    } catch {
-      showToast.error("Failed to download card");
+
+      await new Promise<void>((resolve, reject) => {
+        snapshot.toBlob((blob) => {
+          if (!blob) { reject(new Error("No blob produced")); return; }
+          const url = URL.createObjectURL(blob);
+          const a   = document.createElement("a");
+          a.href     = url;
+          a.download = `qr-card-${config.cardTitle || config.type}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast.success("Card downloaded!");
+          resolve();
+        }, "image/png");
+      });
+    } catch (err) {
+      console.error("[QR download]", err);
+      showToast.error("Failed to download card — please try again");
     } finally {
       setCardLoading(false);
     }
