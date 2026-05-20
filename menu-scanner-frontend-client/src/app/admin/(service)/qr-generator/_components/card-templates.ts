@@ -78,9 +78,11 @@ function wrapText(
 // ── Layout constants (900px wide canvas, mirroring the 320px HTML card × 2.8) ─
 
 const CARD_W   = 900;
-// Header heights restored to original proportions — logo removed but height preserved
-const GRAD_HEADER_H  = 420;
-const PRINT_HEADER_H = 260;
+// Scale = CARD_W / 320px preview width = 2.8125
+// Header heights derived from preview measurements × 2.8:
+//   gradient header content (~100px × 2.8 = 280px), print header (~74px × 2.8 = 207px)
+const GRAD_HEADER_H  = 280;
+const PRINT_HEADER_H = 210;
 const FOOTER_H = 90;
 
 // ── Gradient card ─────────────────────────────────────────────────────────────
@@ -97,84 +99,93 @@ async function drawGradientCard(
   const to      = style.cardGradientTo   || tpl.gradientTo;
   const bgColor = style.backgroundColor  || "#ffffff";
 
-  // ── White card background ──────────────────────────────────────────
+  // ── Background ────────────────────────────────────────────────────
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, CARD_W, totalH);
 
-  // ── Gradient header ────────────────────────────────────────────────
+  // ── Gradient header (135deg diagonal, matches CSS linear-gradient(135deg)) ──
   const grad = ctx.createLinearGradient(0, 0, CARD_W, GRAD_HEADER_H);
   grad.addColorStop(0, from);
   grad.addColorStop(1, to);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, CARD_W, GRAD_HEADER_H);
 
-  // Decorative circles (top-right, matching HTML preview)
+  // Decorative circles top-right (matches HTML: 160×160 right:-40 top:-40 opacity:0.08)
   ctx.save();
   ctx.globalAlpha = 0.08;
   ctx.fillStyle = "#ffffff";
-  ctx.beginPath(); ctx.arc(CARD_W + 50, -50, 280, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(CARD_W - 60, 110, 130, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(CARD_W - 112, -112, 448, 0, Math.PI * 2); ctx.fill(); // 160×2.8 = 448, right:-40×2.8=-112, top:-40×2.8=-112
+  ctx.globalAlpha = 0.06;
+  ctx.beginPath(); ctx.arc(CARD_W - 28, 168, 224, 0, Math.PI * 2); ctx.fill();   // 80×2.8=224, right:10×2.8=28, top:60×2.8=168
   ctx.restore();
 
-  // ── Title + Subtitle (left) and QR badge (right) — same row ──────
-  // Font sizes scaled from preview: title 16px×2.8=45px, subtitle 11px×2.8=31px
-  const PAD      = 80;
-  const BADGE_W  = 130, BADGE_H = 48, BADGE_R = 24;
-  const BADGE_X  = CARD_W - PAD - BADGE_W;
-  const CONTENT_Y = 150; // vertical anchor for the row
+  // ── Layout: PAD = 16px × 2.8 = 45px, CONTENT_Y baseline of first text ─────
+  const PAD       = 45;
+  // Badge: "4px 12px" padding → height≈(10+8)×2.8=50px, width≈68×2.8=190px
+  const BADGE_H   = 50;
+  const BADGE_W   = 190;
+  const BADGE_R   = 25;
+  const BADGE_X   = CARD_W - PAD - BADGE_W;
+  // Top padding 16px × 2.8 = 45px; add ascent of 45px font (~36px) → first baseline at 81px
+  const CONTENT_Y = 81;
 
-  // Title (left column, max-width stops before badge)
-  const maxTitleW = BADGE_X - PAD - 30;
+  // Title — left of badge, font 16px × 2.8 = 45px bold
+  const maxTitleW = BADGE_X - PAD - 16;
   ctx.fillStyle = "#ffffff";
   ctx.textAlign = "left";
   ctx.font = "bold 45px Arial, sans-serif";
-  const lastTitleY = wrapText(
-    ctx, config.cardTitle || "Your Business Name",
-    PAD, CONTENT_Y, maxTitleW, 56,
-  );
+  const lastTitleY = wrapText(ctx, config.cardTitle || "Your Business Name", PAD, CONTENT_Y, maxTitleW, 52);
 
-  // Subtitle
+  // Subtitle — 11px × 2.8 = 31px, 4px × 2.8 = 11px margin-top → baseline 11+26=37px below lastTitleY
   ctx.fillStyle = "rgba(255,255,255,0.65)";
   ctx.font = "31px Arial, sans-serif";
-  ctx.fillText(
-    config.cardSubtitle || "Scan to view our menu",
-    PAD, lastTitleY + 44, maxTitleW,
-  );
+  ctx.fillText(config.cardSubtitle || "Scan to view our menu", PAD, lastTitleY + 37, maxTitleW);
 
-  // QR badge — top-right, vertically aligned to CONTENT_Y
-  const BADGE_Y = CONTENT_Y - 10;
+  // QR badge — top-right, same top as title row (flex alignItems: flex-start)
+  const BADGE_Y = CONTENT_Y - 36; // align badge top with text visual top
   ctx.save();
   roundedRect(ctx, BADGE_X, BADGE_Y, BADGE_W, BADGE_H, BADGE_R);
   ctx.fillStyle = "rgba(255,255,255,0.15)";
   ctx.fill();
+  // Border (1px solid rgba(255,255,255,0.2))
+  ctx.strokeStyle = "rgba(255,255,255,0.20)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // Green dot (w-6 h-6 = 6px → 17px on canvas)
   ctx.beginPath();
-  ctx.arc(BADGE_X + 22, BADGE_Y + BADGE_H / 2, 8, 0, Math.PI * 2);
+  ctx.arc(BADGE_X + 28, BADGE_Y + BADGE_H / 2, 9, 0, Math.PI * 2);
   ctx.fillStyle = "#34d399";
   ctx.fill();
+  // "QR" text (10px × 2.8 = 28px, font-weight 600, letter-spacing 1)
   ctx.fillStyle = "rgba(255,255,255,0.9)";
-  ctx.font = "bold 28px Arial, sans-serif";
+  ctx.font = "600 28px Arial, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("QR", BADGE_X + 38, BADGE_Y + BADGE_H / 2 + 10);
+  ctx.fillText("QR", BADGE_X + 50, BADGE_Y + BADGE_H / 2 + 10);
   ctx.restore();
 
-  // ── Wave transition (mirrors the CSS border-radius wave in HTML) ───
-  const WAVE_Y = GRAD_HEADER_H - 45;
+  // ── Wave separator — simple rounded-top cap matching CSS "borderRadius: 1.5rem 1.5rem 0 0" ──
+  // HTML: height:20px marginTop:-16px → wave top = GRAD_HEADER_H - (16×2.8) = GRAD_HEADER_H - 45
+  // borderRadius 1.5rem = 24px × 2.8 = 67px
+  const WAVE_TOP = GRAD_HEADER_H - 45;
+  const WAVE_R   = 67;
   ctx.save();
   ctx.beginPath();
-  ctx.moveTo(0, WAVE_Y + 10);
-  ctx.quadraticCurveTo(CARD_W * 0.25, WAVE_Y + 55, CARD_W * 0.5, WAVE_Y + 5);
-  ctx.quadraticCurveTo(CARD_W * 0.75, WAVE_Y - 45, CARD_W, WAVE_Y + 15);
+  ctx.moveTo(WAVE_R, WAVE_TOP);
+  ctx.lineTo(CARD_W - WAVE_R, WAVE_TOP);
+  ctx.quadraticCurveTo(CARD_W, WAVE_TOP, CARD_W, WAVE_TOP + WAVE_R);
   ctx.lineTo(CARD_W, totalH);
   ctx.lineTo(0, totalH);
+  ctx.lineTo(0, WAVE_TOP + WAVE_R);
+  ctx.quadraticCurveTo(0, WAVE_TOP, WAVE_R, WAVE_TOP);
   ctx.closePath();
   ctx.fillStyle = bgColor;
   ctx.fill();
   ctx.restore();
 
-  // ── QR code ────────────────────────────────────────────────────────
+  // ── QR code (starts just below the wave top, matching HTML marginTop:-4) ───
   const QR   = qrImg.width;
   const QR_X = (CARD_W - QR) / 2;
-  const QR_Y = GRAD_HEADER_H + 20;
+  const QR_Y = WAVE_TOP + 30; // small gap inside white area
 
   // Shadow box (matches HTML: padding 10px, borderRadius 14px scaled)
   ctx.save();
