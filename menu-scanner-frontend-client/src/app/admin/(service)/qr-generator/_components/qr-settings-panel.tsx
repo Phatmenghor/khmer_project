@@ -129,29 +129,6 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
 
         <Separator />
 
-        {/* ── QR Size ─────────────────────────────────────────── */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs font-medium text-foreground">Download Size</Label>
-            <span className="text-xs text-muted-foreground font-mono tabular-nums">{style.size}px</span>
-          </div>
-          <input
-            type="range"
-            min={200}
-            max={600}
-            step={10}
-            value={style.size}
-            onChange={(e) => onUpdate({ size: parseInt(e.target.value) })}
-            className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-primary bg-secondary"
-          />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>200px</span>
-            <span>600px</span>
-          </div>
-        </div>
-
-        <Separator />
-
         {/* ── Colors ──────────────────────────────────────────── */}
         <div className="space-y-3">
           <p className="text-xs font-semibold text-foreground">QR Colors</p>

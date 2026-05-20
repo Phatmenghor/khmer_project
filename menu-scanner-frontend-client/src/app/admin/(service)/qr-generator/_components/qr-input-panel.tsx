@@ -43,11 +43,6 @@ function FieldRow({
 }
 
 export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
-  const needsShopId    = config.type !== "custom";
-  const needsTable     = config.type === "table";
-  const needsProduct   = config.type === "product";
-  const isCustom       = config.type === "custom";
-
   const selectedLabel =
     QR_TYPE_OPTIONS.find((o) => o.value === config.type)?.label ?? "Select QR type";
 
@@ -88,18 +83,16 @@ export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
 
         {/* ── URL Fields ── */}
         <div className="space-y-4">
-          {needsShopId && (
-            <FieldRow id="shopId" label="Shop ID" required>
-              <Input
-                id="shopId"
-                placeholder="Enter shop ID"
-                value={config.shopId}
-                onChange={(e) => onUpdate({ shopId: e.target.value })}
-              />
-            </FieldRow>
-          )}
+          <FieldRow id="shopId" label="Shop ID" required>
+            <Input
+              id="shopId"
+              placeholder="Enter shop ID"
+              value={config.shopId}
+              onChange={(e) => onUpdate({ shopId: e.target.value })}
+            />
+          </FieldRow>
 
-          {needsTable && (
+          {config.type === "table" && (
             <FieldRow id="tableNumber" label="Table Number" required>
               <Input
                 id="tableNumber"
@@ -110,46 +103,20 @@ export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
             </FieldRow>
           )}
 
-          {needsProduct && (
-            <FieldRow id="productId" label="Product ID" required>
-              <Input
-                id="productId"
-                placeholder="Enter product ID"
-                value={config.productId}
-                onChange={(e) => onUpdate({ productId: e.target.value })}
-              />
-            </FieldRow>
-          )}
+          <Separator />
 
-          {isCustom && (
-            <FieldRow id="customUrl" label="Custom URL" required>
-              <Input
-                id="customUrl"
-                type="url"
-                placeholder="https://example.com/page"
-                value={config.customUrl}
-                onChange={(e) => onUpdate({ customUrl: e.target.value })}
-              />
-            </FieldRow>
-          )}
-
-          {!isCustom && (
-            <>
-              <Separator />
-              <FieldRow
-                id="domain"
-                label="Domain"
-                hint="Base domain used to build the QR URL"
-              >
-                <Input
-                  id="domain"
-                  placeholder="https://your-domain.com"
-                  value={config.domain}
-                  onChange={(e) => onUpdate({ domain: e.target.value })}
-                />
-              </FieldRow>
-            </>
-          )}
+          <FieldRow
+            id="domain"
+            label="Domain"
+            hint="Base domain used to build the QR URL"
+          >
+            <Input
+              id="domain"
+              placeholder="https://your-domain.com"
+              value={config.domain}
+              onChange={(e) => onUpdate({ domain: e.target.value })}
+            />
+          </FieldRow>
         </div>
 
         <Separator />
@@ -175,7 +142,7 @@ export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
           <FieldRow
             id="cardSubtitle"
             label="Scan Instruction"
-            hint="Text shown below the QR code"
+            hint="Text shown below the business name"
           >
             <Input
               id="cardSubtitle"

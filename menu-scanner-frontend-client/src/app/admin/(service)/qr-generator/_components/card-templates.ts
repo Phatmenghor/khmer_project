@@ -380,7 +380,7 @@ export async function downloadQRCard(
 
   // Build a high-res QR image
   const { default: QRCodeStyling } = await import("qr-code-styling");
-  const downloadSize = Math.max(style.size, 400);
+  const downloadSize = 480;
 
   const qrForDownload = new QRCodeStyling({
     width: downloadSize,
