@@ -96,6 +96,27 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
               // If the canvas is tainted leave it; html2canvas will handle it
             }
           });
+
+          // Rewrite QR badge and eMenu with position:absolute + lineHeight so
+          // html2canvas centers them reliably (flex/inline-block vertical centering
+          // is inconsistent across html2canvas versions and browsers).
+          const badge = el.querySelector("[data-dl='qr-badge']") as HTMLElement | null;
+          if (badge) {
+            badge.style.cssText = "position:relative;height:19px;padding-left:22px;padding-right:10px;background:rgba(255,255,255,0.15);border-radius:20px;border:1px solid rgba(255,255,255,0.2);overflow:hidden;flex-shrink:0;";
+            badge.innerHTML = `
+              <div style="position:absolute;left:10px;top:7px;width:5px;height:5px;border-radius:50%;background:#34d399;"></div>
+              <div style="font-size:9px;font-weight:600;letter-spacing:0.5px;color:rgba(255,255,255,0.9);line-height:19px;white-space:nowrap;">QR</div>
+            `;
+          }
+
+          const emenu = el.querySelector("[data-dl='emenu']") as HTMLElement | null;
+          if (emenu) {
+            emenu.style.cssText = "position:relative;height:14px;padding-left:19px;";
+            emenu.innerHTML = `
+              <div style="position:absolute;left:0;top:0;width:14px;height:14px;border-radius:3px;background:rgba(0,0,0,0.18);"></div>
+              <div style="font-size:10px;color:#64748b;font-weight:500;line-height:14px;white-space:nowrap;">eMenu</div>
+            `;
+          }
         },
       });
 
@@ -205,10 +226,10 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                       <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)", display: "block" }} />
                     </div>
                   )}
-                  {/* QR badge — fixed height, absolute dot, lineHeight = height */}
-                  <div style={{ position: "relative", height: 19, paddingLeft: 22, paddingRight: 10, background: "rgba(255,255,255,0.15)", borderRadius: 20, border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0, overflow: "hidden" }}>
-                    <div style={{ position: "absolute", left: 10, top: 7, width: 5, height: 5, borderRadius: "50%", background: "#34d399" }} />
-                    <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", color: "rgba(255,255,255,0.9)", lineHeight: "19px", whiteSpace: "nowrap" }}>QR</div>
+                  {/* QR badge — flex for preview; onclone rewrites with position:absolute for download */}
+                  <div data-dl="qr-badge" style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "3px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
+                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34d399", flexShrink: 0 }} />
+                    <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", color: "rgba(255,255,255,0.9)", lineHeight: 1 }}>QR</span>
                   </div>
                 </div>
 
@@ -293,10 +314,10 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 background: `${headerFrom}20`,
                 display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
-                {/* eMenu — fixed height, absolute icon, lineHeight = height */}
-                <div style={{ position: "relative", height: 14, paddingLeft: 19 }}>
-                  <div style={{ position: "absolute", left: 0, top: 0, width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)" }} />
-                  <div style={{ fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: "14px", whiteSpace: "nowrap" }}>eMenu</div>
+                {/* eMenu — flex for preview; onclone rewrites for download */}
+                <div data-dl="emenu" style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <div style={{ width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)", flexShrink: 0 }} />
+                  <span style={{ fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: 1 }}>eMenu</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
                   {[0.25, 0.55, 0.85].map((op, i) => (
