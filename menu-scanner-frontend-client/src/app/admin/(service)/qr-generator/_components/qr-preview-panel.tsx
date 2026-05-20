@@ -97,25 +97,67 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             }
           });
 
-          // Rewrite QR badge and eMenu with position:absolute + lineHeight so
-          // html2canvas centers them reliably (flex/inline-block vertical centering
-          // is inconsistent across html2canvas versions and browsers).
+          // Draw QR badge and eMenu on Canvas 2D then embed as <img>.
+          // Canvas 2D textBaseline:"middle" gives pixel-perfect centering — no CSS quirks.
+          const S = 3; // match html2canvas scale
+
           const badge = el.querySelector("[data-dl='qr-badge']") as HTMLElement | null;
           if (badge) {
-            badge.style.cssText = "position:relative;height:19px;padding-left:22px;padding-right:10px;background:rgba(255,255,255,0.15);border-radius:20px;border:1px solid rgba(255,255,255,0.2);overflow:hidden;flex-shrink:0;";
-            badge.innerHTML = `
-              <div style="position:absolute;left:10px;top:7px;width:5px;height:5px;border-radius:50%;background:#34d399;"></div>
-              <div style="font-size:9px;font-weight:600;letter-spacing:0.5px;color:rgba(255,255,255,0.9);line-height:19px;white-space:nowrap;">QR</div>
-            `;
+            const W = 44, H = 20;
+            const bc = document.createElement("canvas");
+            bc.width = W * S; bc.height = H * S;
+            const bx = bc.getContext("2d")!;
+            bx.scale(S, S);
+            // pill bg
+            bx.beginPath();
+            bx.roundRect(0.5, 0.5, W - 1, H - 1, 10);
+            bx.fillStyle = "rgba(255,255,255,0.15)";
+            bx.fill();
+            bx.strokeStyle = "rgba(255,255,255,0.2)";
+            bx.lineWidth = 1;
+            bx.stroke();
+            // green dot
+            bx.beginPath();
+            bx.arc(11, H / 2, 2.5, 0, Math.PI * 2);
+            bx.fillStyle = "#34d399";
+            bx.fill();
+            // QR text
+            bx.fillStyle = "rgba(255,255,255,0.9)";
+            bx.font = "600 9px system-ui,-apple-system,sans-serif";
+            bx.textBaseline = "middle";
+            bx.fillText("QR", 18, H / 2);
+            const bimg = document.createElement("img");
+            bimg.src = bc.toDataURL();
+            bimg.style.cssText = `width:${W}px;height:${H}px;display:block;flex-shrink:0;`;
+            badge.replaceWith(bimg);
           }
 
           const emenu = el.querySelector("[data-dl='emenu']") as HTMLElement | null;
           if (emenu) {
-            emenu.style.cssText = "position:relative;height:14px;padding-left:19px;";
-            emenu.innerHTML = `
-              <div style="position:absolute;left:0;top:0;width:14px;height:14px;border-radius:3px;background:rgba(0,0,0,0.18);"></div>
-              <div style="font-size:10px;color:#64748b;font-weight:500;line-height:14px;white-space:nowrap;">eMenu</div>
-            `;
+            const label = "eMenu";
+            const tmpC = document.createElement("canvas");
+            const tmpX = tmpC.getContext("2d")!;
+            tmpX.font = "500 10px system-ui,-apple-system,sans-serif";
+            const tw = tmpX.measureText(label).width;
+            const W = Math.ceil(14 + 5 + tw) + 2, H = 14;
+            const ec = document.createElement("canvas");
+            ec.width = W * S; ec.height = H * S;
+            const ex = ec.getContext("2d")!;
+            ex.scale(S, S);
+            // icon square
+            ex.beginPath();
+            ex.roundRect(0, 0, 14, 14, 3);
+            ex.fillStyle = "rgba(0,0,0,0.18)";
+            ex.fill();
+            // eMenu text
+            ex.fillStyle = "#64748b";
+            ex.font = "500 10px system-ui,-apple-system,sans-serif";
+            ex.textBaseline = "middle";
+            ex.fillText(label, 19, H / 2);
+            const eimg = document.createElement("img");
+            eimg.src = ec.toDataURL();
+            eimg.style.cssText = `width:${W}px;height:${H}px;display:block;`;
+            emenu.replaceWith(eimg);
           }
         },
       });
