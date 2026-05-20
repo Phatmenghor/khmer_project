@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Copy, Check, Download, QrCode, Scan } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
 import { generateQRUrl, type QRConfig, type QRStyle } from "./use-qr-generator";
-import { downloadQRCard } from "./card-templates";
 
 interface QRPreviewPanelProps {
   config: QRConfig;
@@ -17,6 +16,7 @@ const PREVIEW_QR_SIZE = 220;
 
 export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
   const containerRef  = useRef<HTMLDivElement>(null);
+  const cardRef       = useRef<HTMLDivElement>(null);   // ← element we screenshot
   const qrInstanceRef = useRef<any>(null);
   const [copied, setCopied]           = useState(false);
   const [cardLoading, setCardLoading] = useState(false);
@@ -63,14 +63,33 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
     return () => { cancelled = true; };
   }, [buildQROptions]);
 
+  // Screenshot the preview card element directly — guaranteed 100% match
   const handleDownloadCard = async () => {
     if (!qrUrl) { showToast.error("Fill in all required fields first"); return; }
+    if (!cardRef.current)  { showToast.error("Preview not ready"); return; }
     setCardLoading(true);
     try {
-      await downloadQRCard(qrInstanceRef.current, config, style);
-      showToast.success("Card downloaded!");
-    } catch (err: unknown) {
-      showToast.error((err as { message?: string })?.message || "Failed to download card");
+      const { default: html2canvas } = await import("html2canvas");
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 4,               // 4× → ~1280px wide, print-quality
+        useCORS: true,
+        backgroundColor: null,  // preserve card bg / transparency
+        logging: false,
+      });
+      canvas.toBlob((blob) => {
+        if (!blob) { showToast.error("Failed to capture card"); return; }
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement("a");
+        a.href     = url;
+        a.download = `qr-card-${config.cardTitle || config.type}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast.success("Card downloaded!");
+      }, "image/png");
+    } catch {
+      showToast.error("Failed to download card");
     } finally {
       setCardLoading(false);
     }
@@ -100,9 +119,10 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
 
       <CardContent className="flex flex-col items-center gap-5 flex-1">
 
-        {/* ── QR Card ───────────────────────────────────────────────────── */}
+        {/* ── QR Card — ref for screenshot ─────────────────────────────── */}
         <div className="w-full flex justify-center">
           <div
+            ref={cardRef}
             className="w-full overflow-hidden shadow-2xl"
             style={{
               maxWidth: 320,
@@ -115,11 +135,11 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
 
             {/* ── HEADER ─────────────────────────────────────────────── */}
             {isPrint ? (
-              /* Print: title + subtitle centered, no logo */
+              /* Print: title + subtitle centered */
               <div style={{
                 background: "#fff",
-                padding: "20px 20px 14px",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                padding: "18px 20px 12px",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
               }}>
                 <p style={{ fontWeight: 700, fontSize: 15, color: "#000", lineHeight: 1.3, margin: 0, textAlign: "center" }}>
                   {displayTitle}
@@ -129,54 +149,54 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 </p>
               </div>
             ) : (
-              /* Gradient: QR badge top-right, title + subtitle, no logo */
+              /* Gradient: wave cap lives INSIDE header as absolute element —
+                 no sibling negative-margin tricks, no gap artifacts           */
               <div style={{
                 background: `linear-gradient(135deg, ${headerFrom}, ${headerTo})`,
-                padding: "16px 16px 32px",
+                padding: "16px 16px 36px",   // 36px bottom = content gap + wave height
                 position: "relative",
                 overflow: "hidden",
               }}>
                 {/* Decorative circles */}
                 <div style={{ position: "absolute", width: 160, height: 160, right: -40, top: -40, borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
-                <div style={{ position: "absolute", width: 80, height: 80, right: 10, top: 60, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
+                <div style={{ position: "absolute", width: 80,  height: 80,  right: 10,  top: 60,  borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
 
                 {/* Title+subtitle LEFT — QR badge RIGHT — same row */}
                 <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 16, lineHeight: 1.3, margin: 0 }}>
+                    <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1.3, margin: 0 }}>
                       {displayTitle}
                     </h2>
                     <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 4, fontWeight: 300, margin: "4px 0 0" }}>
                       {displaySubtitle}
                     </p>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 12px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", display: "inline-block" }} />
-                    <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 10, fontWeight: 600, letterSpacing: 1 }}>QR</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "3px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#34d399", display: "inline-block" }} />
+                    <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 9, fontWeight: 600, letterSpacing: "0.5px" }}>QR</span>
                   </div>
                 </div>
+
+                {/* White rounded cap — absolute at bottom of header, no sibling negative margins */}
+                <div style={{
+                  position: "absolute", bottom: 0, left: 0, right: 0,
+                  height: 20,
+                  background: bgColor,
+                  borderRadius: "1.25rem 1.25rem 0 0",
+                }} />
               </div>
             )}
 
-            {/* ── SEPARATOR ──────────────────────────────────────────── */}
-            {isPrint ? (
-              <div style={{ margin: "0 20px", borderTop: "2px dashed rgba(0,0,0,0.25)" }} />
-            ) : (
-              <div style={{
-                height: 20,
-                marginTop: -16,
-                background: bgColor,
-                borderRadius: "1.5rem 1.5rem 0 0",
-                boxShadow: "0 -4px 16px rgba(0,0,0,0.06)",
-              }} />
+            {/* Print dashed separator */}
+            {isPrint && (
+              <div style={{ margin: "0 20px", borderTop: "2px dashed rgba(0,0,0,0.2)" }} />
             )}
 
             {/* ── QR AREA — containerRef never moves in the tree ─────── */}
             <div style={{
               background: isPrint ? "#fff" : bgColor,
-              padding: isPrint ? "12px 16px 18px" : "0 16px 16px",
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
-              marginTop: isPrint ? 0 : -4,
+              padding: isPrint ? "10px 16px 16px" : "4px 16px 14px",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
             }}>
               <div style={{
                 position: "relative",
@@ -277,7 +297,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             className="flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" />
-            {cardLoading ? "Generating…" : "Download Card"}
+            {cardLoading ? "Capturing…" : "Download Card"}
           </Button>
         </div>
       </CardContent>
