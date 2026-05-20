@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Copy, Check, Download, QrCode, Scan } from "lucide-react";
+import { Copy, Check, Download, QrCode } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
 import { generateQRUrl, type QRConfig, type QRStyle } from "./use-qr-generator";
 
@@ -271,16 +271,13 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                   {displayScanText}
                 </p>
               ) : (
-                <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, color: "#9ca3af" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 12, height: 12, flexShrink: 0 }}>
-                    <Scan style={{ width: 12, height: 12, display: "block" }} />
-                  </div>
+                <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                  {/* CSS corner bracket — no SVG baseline issues */}
+                  <div style={{ width: 10, height: 10, flexShrink: 0, borderTop: "1.5px solid #9ca3af", borderLeft: "1.5px solid #9ca3af" }} />
                   <span style={{ fontSize: 10, fontWeight: 600, color: "#6b7280", letterSpacing: 3, textTransform: "uppercase", lineHeight: 1 }}>
                     {displayScanText}
                   </span>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 12, height: 12, flexShrink: 0 }}>
-                    <Scan style={{ width: 12, height: 12, display: "block" }} />
-                  </div>
+                  <div style={{ width: 10, height: 10, flexShrink: 0, borderTop: "1.5px solid #9ca3af", borderRight: "1.5px solid #9ca3af" }} />
                 </div>
               )}
             </div>
@@ -293,9 +290,8 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <div style={{ width: 14, height: 14, borderRadius: 4, background: "rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <QrCode style={{ width: 9, height: 9, display: "block" }} />
-                  </div>
+                  {/* CSS QR-like square — no SVG baseline issues */}
+                  <div style={{ width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)", flexShrink: 0 }} />
                   <span style={{ fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: 1 }}>eMenu</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
