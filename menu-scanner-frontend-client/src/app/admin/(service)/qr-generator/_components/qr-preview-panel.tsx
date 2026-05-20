@@ -153,7 +153,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             className="w-full overflow-hidden shadow-2xl"
             style={{
               maxWidth: 320,
-              borderRadius: isPrint ? 22 : 24,
+              borderRadius: 0,
               border: isPrint ? "3px solid #000" : "none",
             }}
           >
@@ -194,8 +194,8 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 <div style={{ position: "absolute", width: 160, height: 160, right: -40, top: -40, borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
                 <div style={{ position: "absolute", width: 80,  height: 80,  right: 10,  top: 60,  borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
 
-                {/* Top row: logo LEFT — QR badge RIGHT */}
-                <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
+                {/* Logo row — standalone at top */}
+                <div style={{ position: "relative", zIndex: 10, marginBottom: 8 }}>
                   {style.logoDataUrl ? (
                     <div style={{ width: 44, height: 44, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0 }}>
                       <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -205,16 +205,18 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                       <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)" }} />
                     </div>
                   )}
+                </div>
+
+                {/* Title LEFT — QR badge RIGHT — same row */}
+                <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1.3, margin: 0 }}>{displayTitle}</h2>
+                    <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 3, fontWeight: 300 }}>{displaySubtitle}</p>
+                  </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "3px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
                     <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#34d399", display: "inline-block" }} />
                     <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 9, fontWeight: 600, letterSpacing: "0.5px" }}>QR</span>
                   </div>
-                </div>
-
-                {/* Title + subtitle below logo row */}
-                <div style={{ position: "relative", zIndex: 10 }}>
-                  <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1.3, margin: 0 }}>{displayTitle}</h2>
-                  <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 3, fontWeight: 300 }}>{displaySubtitle}</p>
                 </div>
 
                 {/* White rounded cap — absolute at bottom of header */}
@@ -286,12 +288,19 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
               <div style={{
                 padding: "8px 16px",
                 background: `${headerFrom}20`,
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
-                <div style={{ width: 14, height: 14, borderRadius: 4, background: "rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <QrCode style={{ width: 9, height: 9 }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <div style={{ width: 14, height: 14, borderRadius: 4, background: "rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <QrCode style={{ width: 9, height: 9 }} />
+                  </div>
+                  <span style={{ fontSize: 10, color: "#64748b", fontWeight: 500 }}>eMenu</span>
                 </div>
-                <span style={{ fontSize: 10, color: "#64748b", fontWeight: 500 }}>eMenu</span>
+                <div style={{ display: "flex", gap: 3 }}>
+                  {[0.25, 0.55, 0.85].map((op, i) => (
+                    <span key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: headerFrom, opacity: op, display: "inline-block" }} />
+                  ))}
+                </div>
               </div>
             )}
 
