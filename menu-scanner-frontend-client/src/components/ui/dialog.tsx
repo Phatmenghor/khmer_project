@@ -47,6 +47,7 @@ const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
+      aria-describedby={undefined}
       className={cn(
 
         "fixed z-50 grid w-full bg-background shadow-lg duration-200",
