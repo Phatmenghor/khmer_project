@@ -9,10 +9,6 @@ const nextConfig = {
 
   allowedDevOrigins: ["e422-203-147-134-26.ngrok-free.app"],
 
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-
   trailingSlash: false,
 
   images: {

@@ -34,9 +34,7 @@ import { sessionTableColumns } from "@/features/sessions/table/session-table";
 import { SessionsDetailModal } from "@/features/sessions/components/session-detail-modal";
 
 export default function SessionPage() {
-
   useAdminCleanup(resetState);
-
 
   const {
     sessionState,
@@ -58,7 +56,6 @@ export default function SessionPage() {
     isOpen: false,
     session: null as SessionResponseModel | null,
   });
-
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
@@ -136,14 +133,16 @@ export default function SessionPage() {
 
       closeDeleteModal();
 
-
       if (sessionsContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || Messages.users.sessionDeleteFailed);
+      showToast.error(
+        (error as { message?: string })?.message ||
+          Messages.users.sessionDeleteFailed,
+      );
     }
   };
 
@@ -161,15 +160,10 @@ export default function SessionPage() {
     });
   };
 
-
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          breadcrumbs={[
-            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
-            { label: "Sessions", href: "" },
-          ]}
           title="Session Information"
           searchValue={filters.search}
           searchPlaceholder="Search session..."

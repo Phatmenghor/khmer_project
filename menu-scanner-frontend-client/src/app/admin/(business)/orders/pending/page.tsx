@@ -31,9 +31,7 @@ import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
 import { useDebounce } from "@/utils/debounce/debounce";
-import {
-  PAYMENT_STATUS_ADMIN_FILTER,
-} from "@/constants/status/filter-status";
+import { PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
 
 export default function PendingOrdersAdminPage() {
   useAdminCleanup(resetState);
@@ -71,7 +69,6 @@ export default function PendingOrdersAdminPage() {
     baseRoute: ROUTES.ADMIN.ORDERS,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
 
   useEffect(() => {
     if (!filters.orderStatus || filters.orderStatus === "ALL") {
@@ -119,7 +116,7 @@ export default function PendingOrdersAdminPage() {
       handleEditOrder,
       handleDeleteOrder,
     }),
-    []
+    [],
   );
 
   const columns = useMemo(
@@ -128,7 +125,7 @@ export default function PendingOrdersAdminPage() {
         data: orderData,
         handlers: tableHandlers,
       }),
-    [orderState, tableHandlers]
+    [orderState, tableHandlers],
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,7 +148,7 @@ export default function PendingOrdersAdminPage() {
     try {
       await dispatch(deleteOrderAdminService(deleteState.order.id)).unwrap();
       showToast.success(
-        `Order #${deleteState.order.orderNumber ?? ""} deleted successfully`
+        `Order #${deleteState.order.orderNumber ?? ""} deleted successfully`,
       );
       closeDeleteModal();
 
@@ -161,7 +158,9 @@ export default function PendingOrdersAdminPage() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || "Failed to delete order");
+      showToast.error(
+        (error as { message?: string })?.message || "Failed to delete order",
+      );
     }
   };
 
@@ -185,10 +184,6 @@ export default function PendingOrdersAdminPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          breadcrumbs={[
-            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
-            { label: "Pending Orders", href: "" },
-          ]}
           title="Pending Orders"
           searchValue={filters.search}
           searchPlaceholder="Search order..."
