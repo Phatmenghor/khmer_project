@@ -206,8 +206,8 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                     </div>
                   )}
                   <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "3px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
-                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#34d399", display: "block", flexShrink: 0 }} />
-                    <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", lineHeight: 1 }}>QR</span>
+                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34d399", flexShrink: 0 }} />
+                    <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", lineHeight: 1 }}>QR</div>
                   </div>
                 </div>
 
@@ -290,9 +290,8 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  {/* CSS QR-like square — no SVG baseline issues */}
                   <div style={{ width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)", flexShrink: 0 }} />
-                  <span style={{ fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: 1 }}>eMenu</span>
+                  <div style={{ fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: 1 }}>eMenu</div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
                   {[0.25, 0.55, 0.85].map((op, i) => (
