@@ -191,7 +191,7 @@ export default function StockItemsPage() {
     });
   };
 
-  const handleProductStatusChange = (status: string) => {
+  const handleProductStatusChange = (status: string | number | boolean | null | undefined) => {
     dispatch(setStatusFilter(status === "ALL" ? undefined : (status as "ACTIVE" | "INACTIVE")));
   };
 
@@ -203,13 +203,13 @@ export default function StockItemsPage() {
     setSelectedCategories(categories);
   };
 
-  const handleStockStatusChange = (value: string) => {
-    setStockStatusFilterUI(value);
+  const handleStockStatusChange = (value: string | number | boolean | null | undefined) => {
+    setStockStatusFilterUI(String(value ?? ""));
     dispatch(setStockStatusFilter(value === "ALL" ? undefined : (value as "ENABLED" | "DISABLED")));
   };
 
-  const handleHasSizesChange = (value: string) => {
-    setHasSizesFilterUI(value);
+  const handleHasSizesChange = (value: string | number | boolean | null | undefined) => {
+    setHasSizesFilterUI(String(value ?? ""));
     if (value === "ALL") {
       dispatch(setHasSizesFilter(undefined));
     } else if (value === "WITH_SIZES") {
@@ -219,16 +219,16 @@ export default function StockItemsPage() {
     }
   };
 
-  const handleSortByChange = (value: string) => {
+  const handleSortByChange = (value: string | number | boolean | null | undefined) => {
     dispatch(setSortBy(value as any));
   };
 
-  const handleSortDirectionChange = (value: string) => {
+  const handleSortDirectionChange = (value: string | number | boolean | null | undefined) => {
     dispatch(setSortDirection(value as "ASC" | "DESC"));
   };
 
-  const handleLowStockThresholdChange = (value: string) => {
-    const threshold = value ? parseInt(value) : undefined;
+  const handleLowStockThresholdChange = (value: string | number | boolean | null | undefined) => {
+    const threshold = value ? parseInt(String(value)) : undefined;
     dispatch(setLowStockThreshold(threshold));
   };
 

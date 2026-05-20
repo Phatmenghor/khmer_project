@@ -530,10 +530,7 @@ export default function BusinessProfilePage() {
         isOpen={isReviewModalOpen}
         onClose={() => setIsReviewModalOpen(false)}
         businessName={profile.businessName}
-        services={servicesList}
-        onSubmit={(review) => {
-          // TODO: API call to save review
-        }}
+        onSubmit={(review) => {}}
       />
     </div>
   );

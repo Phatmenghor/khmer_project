@@ -142,7 +142,7 @@ export function CustomerOrderDetailModal({
                     <DisplayField
                       label="Order Type"
                       value={
-                        orderData.orderFrom === "CUSTOMER"
+                        orderData.source === "PUBLIC"
                           ? "Customer (Public)"
                           : "Business (POS)"
                       }
@@ -192,19 +192,6 @@ export function CustomerOrderDetailModal({
                         </a>
                       }
                     />
-                    {orderData.customerEmail && (
-                      <DisplayField
-                        label="Email"
-                        value={
-                          <a
-                            href={`mailto:${orderData.customerEmail}`}
-                            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium break-all"
-                          >
-                            {orderData.customerEmail}
-                          </a>
-                        }
-                      />
-                    )}
                     {orderData.customerNote && (
                       <DisplayField
                         label="Customer Note"
@@ -339,11 +326,6 @@ export function CustomerOrderDetailModal({
                                   <h4 className="font-semibold text-sm">
                                     #{idx + 1} - {item.product?.name || "Unknown"}
                                   </h4>
-                                  {item.hasPromotion && (
-                                    <span className="inline-flex items-center gap-1 bg-transparent border border-red-500 dark:border-red-400 text-red-600 dark:text-red-400 px-2 py-1 rounded-full text-xs font-bold whitespace-nowrap">
-                                      {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}%` : formatCurrency(item.promotionValue || 0)}
-                                    </span>
-                                  )}
                                 </div>
                                 {}
                                 <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
@@ -370,22 +352,6 @@ export function CustomerOrderDetailModal({
                             </div>
 
                             {}
-                            {item.hasPromotion && item.currentPrice && (
-                              <div className="space-y-1">
-                                <span className="text-muted-foreground text-xs font-medium">Original Price:</span>
-                                <p className="font-medium line-through text-orange-500 dark:text-orange-400 text-sm">{formatCurrency(item.currentPrice)}</p>
-                              </div>
-                            )}
-
-                            {}
-                            {item.hasPromotion && (
-                              <div className="space-y-1">
-                                <span className="text-muted-foreground text-xs font-medium">Discount:</span>
-                                <p className="font-bold text-red-600 dark:text-red-400 text-sm">-{formatCurrency((item.currentPrice || 0) - (item.finalPrice || 0))}</p>
-                              </div>
-                            )}
-
-                            {}
                             <div className="space-y-1">
                               <span className="text-muted-foreground text-xs font-medium">Unit Price:</span>
                               <p className="font-bold text-sm">{formatCurrency(item.finalPrice)}</p>
@@ -401,7 +367,7 @@ export function CustomerOrderDetailModal({
                             {(item.customizationTotal ?? 0) > 0 && (
                               <div className="space-y-1">
                                 <span className="text-muted-foreground text-xs font-medium">Add-ons:</span>
-                                <p className="font-bold text-blue-600 dark:text-blue-400 text-sm">+{formatCurrency(item.customizationTotal)}</p>
+                                <p className="font-bold text-blue-600 dark:text-blue-400 text-sm">+{formatCurrency(item.customizationTotal ?? 0)}</p>
                               </div>
                             )}
                           </div>

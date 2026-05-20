@@ -317,8 +317,8 @@ export default function ProductPage() {
     dispatch(selectProductStatus(status));
   };
 
-  const handleSizeFilterChange = (value: string) => {
-    setSizeFilter(value);
+  const handleSizeFilterChange = (value: string | number | boolean | null | undefined) => {
+    setSizeFilter(String(value ?? ""));
   };
 
   const handleBrandChange = (brand: BrandResponseModel | null) => {
@@ -331,12 +331,12 @@ export default function ProductPage() {
     setSelectedCategories(categories);
   };
 
-  const handleSortByChange = (value: string) => {
-    setSortBy(value);
+  const handleSortByChange = (value: string | number | boolean | null | undefined) => {
+    setSortBy(String(value ?? ""));
   };
 
-  const handleSortDirectionChange = (value: string) => {
-    setSortDirection(value);
+  const handleSortDirectionChange = (value: string | number | boolean | null | undefined) => {
+    setSortDirection(String(value ?? ""));
   };
 
   const filterConfig = useMemo((): FilterPanelConfig => ({

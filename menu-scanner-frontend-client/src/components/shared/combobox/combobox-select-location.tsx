@@ -105,9 +105,9 @@ export function ComboboxSelectLocation({
 
       if (newPage === 1) {
         const newData = result.content || [];
-        setData(removeDuplicates(newData));
+        setData(removeDuplicates(newData as unknown as Location[]));
       } else {
-        setData((prev) => removeDuplicates([...prev, ...(result.content || [])]));
+        setData((prev) => removeDuplicates([...prev, ...((result.content || []) as unknown as Location[])]));
       }
 
       setPage(result.pageNo);

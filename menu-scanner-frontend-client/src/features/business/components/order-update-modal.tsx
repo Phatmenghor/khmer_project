@@ -184,7 +184,7 @@ export function OrderUpdateModal({
       }
       handleClose();
     } catch (error: unknown) {
-      showToast.error(error || Messages.upload.orderError);
+      showToast.error((error as { message?: string })?.message || Messages.upload.orderError);
     } finally {
       setIsSaving(false);
     }

@@ -8,6 +8,7 @@ import {
   UpdateExchangeRateParams,
 } from "../models/request/exchange-rate-request";
 import { CreateExchangeRateData } from "../models/schema/exchange-rate-schema";
+import { ExchangeRateResponseModel } from "../models/response/exchange-rate-response";
 
 
 export const fetchAllExchangeRateService = createApiThunk<
@@ -78,3 +79,17 @@ export const deleteExchangeRateService = createApiThunk<any, string>(
     return response.data.data;
   }
 );
+
+export const toggleExchangeRateStatusService = createApiThunk<
+  ExchangeRateResponseModel,
+  ExchangeRateResponseModel
+>("business-exchange-rates/toggleStatus", async (rate) => {
+  const response = await axiosClientWithAuth.put(
+    `/api/v1/business-exchange-rates/${rate.id}`,
+    {
+      ...rate,
+      status: rate.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+    }
+  );
+  return response.data.data;
+});

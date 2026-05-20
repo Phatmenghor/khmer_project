@@ -72,7 +72,7 @@ export default function ResetPasswordModal({
 
       handleClose();
     } catch (error: unknown) {
-      toast.error(error || "Reset failed. Please try again.");
+      toast.error((error as { message?: string })?.message || "Reset failed. Please try again.");
     }
   };
 

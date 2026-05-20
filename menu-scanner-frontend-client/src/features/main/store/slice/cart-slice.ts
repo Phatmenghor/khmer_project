@@ -215,7 +215,6 @@ const cartSlice = createSlice({
           promotionValue: promotionValue || null,
           promotionFromDate: promotionFromDate || null,
           promotionToDate: promotionToDate || null,
-          promotionEndDate: promotionToDate || null,
           totalBeforeDiscount,
           discountAmount,
           lastOptimisticTimestamp: optimisticTimestamp || Date.now()

@@ -1,10 +1,21 @@
 "use client";
 
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Controller, FieldError } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { TextareaFieldProps } from ".";
+
+interface TextareaFieldProps {
+  name: string;
+  label: string;
+  control: any;
+  error?: FieldError;
+  disabled?: boolean;
+  required?: boolean;
+  placeholder?: string;
+  rows?: number;
+  className?: string;
+}
 
 export function TextareaField({
   name,

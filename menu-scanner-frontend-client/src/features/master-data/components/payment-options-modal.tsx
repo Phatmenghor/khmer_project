@@ -91,7 +91,7 @@ export default function PaymentOptionsModal({
       reset({
         name: paymentOption.name || "",
         paymentOptionType: paymentOption.paymentOptionType || "",
-        status: paymentOption.status || Status.ACTIVE,
+        status: (paymentOption.status || Status.ACTIVE) as "ACTIVE" | "INACTIVE",
       });
     }
   }, [isOpen, isCreate, paymentOption, reset]);
@@ -120,7 +120,7 @@ export default function PaymentOptionsModal({
         handleClose();
       }
     } catch (error: unknown) {
-      showToast.error(error || Messages.payment.saveFailed);
+      showToast.error((error as { message?: string })?.message || Messages.payment.saveFailed);
     }
   };
 

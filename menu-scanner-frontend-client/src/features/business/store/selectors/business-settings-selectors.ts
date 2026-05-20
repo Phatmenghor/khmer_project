@@ -17,14 +17,6 @@ export const selectBusinessPrimaryColor = (state: RootState) => {
   return state.businessSettings.data?.primaryColor || defaultSettings.primaryColor;
 };
 
-export const selectBusinessSecondaryColor = (state: RootState) => {
-  return state.businessSettings.data?.secondaryColor || defaultSettings.secondaryColor;
-};
-
-export const selectBusinessAccentColor = (state: RootState) => {
-  return state.businessSettings.data?.accentColor || defaultSettings.accentColor;
-};
-
 export const selectBusinessLogo = (state: RootState) => {
   return state.businessSettings.data?.logoBusinessUrl || defaultSettings.logoBusinessUrl;
 };

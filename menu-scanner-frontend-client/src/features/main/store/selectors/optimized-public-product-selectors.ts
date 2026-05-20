@@ -81,8 +81,9 @@ export const selectCategoriesWithCounts = createSelector(
       }
     });
     return categories.map((cat) => ({
-      ...cat,
-      count: counts.get(cat.id) || 0,
+      id: cat,
+      name: cat,
+      count: counts.get(cat) || 0,
     }));
   }
 );
@@ -101,8 +102,9 @@ export const selectBrandsWithCounts = createSelector(
       }
     });
     return brands.map((brand) => ({
-      ...brand,
-      count: counts.get(brand.id) || 0,
+      id: brand,
+      name: brand,
+      count: counts.get(brand) || 0,
     }));
   }
 );

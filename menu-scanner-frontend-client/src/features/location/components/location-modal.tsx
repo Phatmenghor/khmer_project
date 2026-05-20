@@ -1,5 +1,16 @@
 "use client";
 
+declare global {
+  interface Window {
+    google?: {
+      maps?: {
+        Map?: unknown;
+        [key: string]: unknown;
+      };
+    };
+  }
+}
+
 import { Messages } from "@/constants/messages";
 import React, {
   useEffect,
@@ -446,9 +457,9 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   useEffect(() => {
     if (selectionMode === "map" && googleMapRef.current) {
       const t = setTimeout(() => {
-        google.maps.event.trigger(googleMapRef.current, "resize");
-        const center = googleMapRef.current.getCenter();
-        if (center) googleMapRef.current.setCenter(center);
+        google.maps.event.trigger(googleMapRef.current!, "resize");
+        const center = googleMapRef.current?.getCenter();
+        if (center) googleMapRef.current?.setCenter(center);
       }, 50);
       return () => clearTimeout(t);
     }

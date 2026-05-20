@@ -8,6 +8,7 @@ export interface FetchMyOrdersParams {
   pageNo?: number;
   pageSize?: number;
   status?: string;
+  paymentStatus?: string;
   businessId?: string;
   search?: string;
 }

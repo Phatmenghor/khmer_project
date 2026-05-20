@@ -3,6 +3,8 @@
 
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
+import { SessionResponseModel, AllSessionsResponseModel } from "@/features/sessions/store/models/response/session-response";
+import { AllSessionRequest } from "@/features/auth/store/models/request/session-request";
 
 
 export const getAllSessionsService = createApiThunk<any, void>(
@@ -17,7 +19,7 @@ export const getAllSessionsService = createApiThunk<any, void>(
 
 
 export const getSessionByIdService = createApiThunk<
-  UserSessionResponse,
+  SessionResponseModel,
   string
 >("sessions/getById", async (sessionId) => {
   const response = await axiosClientWithAuth.get(
@@ -54,8 +56,8 @@ export const logoutAllSessionsService = createApiThunk<void, void>(
 
 
 export const adminGetSessionsService = createApiThunk<
-  PaginatedSessionsResponse,
-  SessionFilterRequest
+  AllSessionsResponseModel,
+  AllSessionRequest
 >("sessions/adminGetAll", async (filterRequest) => {
   const response = await axiosClientWithAuth.post(
     "/api/v1/sessions/admin/all",
@@ -66,7 +68,7 @@ export const adminGetSessionsService = createApiThunk<
 
 
 export const adminGetSessionByIdService = createApiThunk<
-  AdminSessionResponse,
+  SessionResponseModel,
   string
 >("sessions/adminGetById", async (sessionId) => {
   const response = await axiosClientWithAuth.get(

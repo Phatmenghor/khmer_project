@@ -7,17 +7,19 @@ import {
   ExchangeRateResponseModel,
 } from "../store/models/response/exchange-rate-response";
 import { ActionButton } from "@/components/shared/button/action-button";
+import { Switch } from "@/components/ui/switch";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
   formatKhrRate,
   formatCnyRate,
   formatVndRate,
-  formatExchangeRateStatus,
 } from "@/utils/format/exchange-rate-formatter";
 
 interface HandlersTableHandlers {
   handleEditRate: (param: ExchangeRateResponseModel) => void;
   handleViewRateDetail: (param: ExchangeRateResponseModel) => void;
   handleDeleteRate: (param: ExchangeRateResponseModel) => void;
+  handleToggleExchangeRateStatus: (param: ExchangeRateResponseModel) => void;
 }
 
 interface TableOptions {
@@ -29,7 +31,7 @@ export const exchangeRateTableColumns = ({
   data,
   handlers,
 }: TableOptions): TableColumn<ExchangeRateResponseModel>[] => {
-  const { handleEditRate, handleViewRateDetail, handleDeleteRate } = handlers;
+  const { handleEditRate, handleViewRateDetail, handleDeleteRate, handleToggleExchangeRateStatus } = handlers;
 
 
   const totalRatesCount = data?.content?.length || 0;
@@ -91,15 +93,15 @@ export const exchangeRateTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (parameter) => (
-        <span
-          className={`text-xs font-medium px-2 py-1 rounded-full ${
-            parameter?.status === "ACTIVE"
-              ? "bg-primary/10 text-primary border border-primary"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {formatExchangeRateStatus(parameter?.status)}
-        </span>
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={parameter?.status === "ACTIVE"}
+            onCheckedChange={() => handleToggleExchangeRateStatus(parameter)}
+          />
+          <span className="text-xs text-muted-foreground">
+            {parameter?.status ? formatEnumValue(parameter.status) : "---"}
+          </span>
+        </div>
       ),
     },
 

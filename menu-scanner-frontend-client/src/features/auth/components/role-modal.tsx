@@ -143,7 +143,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
       }
     } catch (error: unknown) {
       showToast.error(
-        error || `Failed to ${isCreate ? "create" : "update"} role`,
+        (error as { message?: string })?.message || `Failed to ${isCreate ? "create" : "update"} role`,
       );
     }
   };

@@ -463,7 +463,7 @@ export default function UserBusinessModal({
       }
     } catch (error: unknown) {
       showToast.error(
-        error || `Failed to ${isCreate ? "create" : "update"} user business`,
+        (error as { message?: string })?.message || `Failed to ${isCreate ? "create" : "update"} user business`,
       );
     }
   };

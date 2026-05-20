@@ -19,12 +19,14 @@ import { ExchangeRateResponseModel } from "@/features/master-data/store/models/r
 import {
   deleteExchangeRateService,
   fetchAllMyBusinessExchangeRateService,
+  toggleExchangeRateStatusService,
 } from "@/features/master-data/store/thunks/exchange-rate-thunks";
 import {
   setExchangeRateStatusFilter,
   resetState,
   setPageNo,
   setSearchFilter,
+  updateExchangeRateInList,
 } from "@/features/master-data/store/slice/exchange-rate-slice";
 import { exchangeRateTableColumns } from "@/features/master-data/table/exchange-rate-table";
 import { EXCHAGE_RATE_FILTER } from "@/constants/status/filter-status";
@@ -122,6 +124,17 @@ export default function ExchangeRatePage() {
     });
   };
 
+  const handleToggleExchangeRateStatus = async (rate: ExchangeRateResponseModel) => {
+    if (!rate?.id) return;
+    try {
+      const result = await dispatch(toggleExchangeRateStatusService(rate)).unwrap();
+      dispatch(updateExchangeRateInList(result));
+      showToast.success(Messages.exchangeRate.updated);
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || Messages.exchangeRate.updated);
+    }
+  };
+
   const handleDeleteRate = (exchage: ExchangeRateResponseModel) => {
 
     if (exchangeRateContent.length === 1) {
@@ -142,6 +155,7 @@ export default function ExchangeRatePage() {
       handleEditRate,
       handleViewRateDetail,
       handleDeleteRate,
+      handleToggleExchangeRateStatus,
     }),
     [],
   );

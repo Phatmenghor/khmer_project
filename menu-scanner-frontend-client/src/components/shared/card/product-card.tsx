@@ -264,7 +264,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
       .catch((error: unknown) => {
 
         setIsFavorited((prev) => !prev);
-        showToast.error(error?.message || Messages.favorites.updateFailed);
+        showToast.error((error as { message?: string })?.message || Messages.favorites.updateFailed);
       });
   };
 
@@ -284,7 +284,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
 
 
   const isEditingProduct = useMemo(() => {
-    return sizePickerProduct && totalQuantity > 0;
+    return !!(sizePickerProduct && totalQuantity > 0);
   }, [sizePickerProduct, totalQuantity]);
 
 

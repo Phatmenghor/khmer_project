@@ -80,7 +80,7 @@ export default function ProductsStockPage() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const stockManagementSuccessMessage = useAppSelector(
-    (state: { stockManagement?: { successMessage?: string } }) => state.stockManagement?.successMessage
+    (state) => (state.stockManagement as { successMessage: string | null }).successMessage ?? undefined
   );
 
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -205,7 +205,7 @@ export default function ProductsStockPage() {
               })
             );
             showToast.error(
-              error?.message ||
+              (error as { message?: string })?.message ||
                 "Failed to update stock status. Changes reverted."
             );
           });
@@ -274,8 +274,8 @@ export default function ProductsStockPage() {
     setSelectedCategories(categories);
   };
 
-  const handleStockStatusChange = (value: string) => {
-    setStockStatusFilter(value);
+  const handleStockStatusChange = (value: string | number | boolean | null | undefined) => {
+    setStockStatusFilter(String(value ?? ""));
   };
 
   const filterConfig = useMemo((): FilterPanelConfig => ({
@@ -320,7 +320,7 @@ export default function ProductsStockPage() {
         label: "Product Status",
         placeholder: "All Status",
         value: filters.status,
-        onChange: (value) => handleProductStatusChange(value as ProductStatus),
+        onChange: (value: string | number | boolean | null | undefined) => handleProductStatusChange(value as ProductStatus),
         options: PRODUCT_STATUS_FILTER,
       },
     ],

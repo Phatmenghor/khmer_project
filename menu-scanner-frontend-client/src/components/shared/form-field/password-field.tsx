@@ -1,15 +1,15 @@
 "use client";
 
 import React from "react";
-import { Controller, FieldError } from "react-hook-form";
+import { Controller, FieldError, Control, FieldValues, Path } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 
-interface PasswordFieldProps {
-  name: string;
+interface PasswordFieldProps<T extends FieldValues = FieldValues> {
+  name: Path<T>;
   label: string;
-  control: Control<FieldValues>;
+  control: Control<T>;
   error?: FieldError;
   disabled?: boolean;
   required?: boolean;
@@ -19,7 +19,7 @@ interface PasswordFieldProps {
   className?: string;
 }
 
-export function PasswordField({
+export function PasswordField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,
@@ -30,7 +30,7 @@ export function PasswordField({
   onTogglePassword,
   showPassword = false,
   className = "",
-}: PasswordFieldProps) {
+}: PasswordFieldProps<T>) {
   return (
     <div className={`space-y-2 ${className}`}>
       <Label htmlFor={name} className="text-sm font-medium">

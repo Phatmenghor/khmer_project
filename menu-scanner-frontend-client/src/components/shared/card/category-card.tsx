@@ -67,11 +67,11 @@ export function CategoryCard({ category, className }: CategoryCardProps) {
           </div>
 
           {}
-          {category.activeProducts > 0 && (
+          {(category.activeProducts ?? 0) > 0 && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground group-hover:text-primary/80 transition-colors">
               <ShoppingBag className="h-3 w-3" />
               <span className="font-medium">
-                {category.activeProducts} {category.activeProducts === 1 ? 'item' : 'items'}
+                {category.activeProducts ?? 0} {(category.activeProducts ?? 0) === 1 ? 'item' : 'items'}
               </span>
               <ArrowRight className="h-3 w-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
             </div>

@@ -18,11 +18,11 @@ export const StatusConfig = {
 
 
 export const getStatusLabel = (status: Status): string => {
-  return StatusConfig[status]?.label || status;
+  return (StatusConfig as Record<string, { label: string }>)[status]?.label || status;
 };
 
 export const getStatusDescription = (status: Status): string => {
-  return StatusConfig[status]?.description || status;
+  return (StatusConfig as Record<string, { description: string }>)[status]?.description || status;
 };
 
 export const isActive = (status: Status): boolean => {
@@ -162,7 +162,7 @@ export const ProductStatusConfig = {
 
 
 export const getProductStatusLabel = (status: string): string => {
-  return ProductStatusConfig[status as ProductStatus]?.label || status;
+  return (ProductStatusConfig as Record<string, { label: string }>)[status]?.label || status;
 };
 
 export enum StockStatus {
@@ -182,7 +182,7 @@ export const StockStatusConfig = {
 
 
 export const getStockStatusLabel = (status: string): string => {
-  return StockStatusConfig[status as StockStatus]?.label || status;
+  return (StockStatusConfig as Record<string, { label: string }>)[status]?.label || status;
 };
 
 export enum PromotionType {

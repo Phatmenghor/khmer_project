@@ -240,7 +240,7 @@ export default function ProductPromotionPage() {
       await dispatch(resetAllPromotionsService()).unwrap();
       showToast.success(Messages.promotions.allReset);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || error || Messages.promotions.allResetFailed);
+      showToast.error((error as { message?: string })?.message || Messages.promotions.allResetFailed);
     }
   };
 
@@ -268,7 +268,7 @@ export default function ProductPromotionPage() {
       await dispatch(resetBulkPromotionsService(ids as any)).unwrap();
       showToast.success(`Reset promotions for ${ids.length} products`);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || error || "Failed to reset promotions");
+      showToast.error((error as { message?: string })?.message || "Failed to reset promotions");
     }
   };
 
@@ -370,7 +370,7 @@ export default function ProductPromotionPage() {
         `Promotion reset for product "${resetPromotionState.product?.name ?? ""}"`,
       );
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || error || Messages.promotions.resetFailed);
+      showToast.error((error as { message?: string })?.message || Messages.promotions.resetFailed);
     }
   };
 
@@ -388,16 +388,16 @@ export default function ProductPromotionPage() {
     setSelectedCategories(categories);
   };
 
-  const handleSizeFilterChange = (value: string) => {
-    setSizeFilter(value);
+  const handleSizeFilterChange = (value: string | number | boolean | null | undefined) => {
+    setSizeFilter(String(value ?? ""));
   };
 
-  const handleSortByChange = (value: string) => {
-    setSortBy(value);
+  const handleSortByChange = (value: string | number | boolean | null | undefined) => {
+    setSortBy(String(value ?? ""));
   };
 
-  const handleSortDirectionChange = (value: string) => {
-    setSortDirection(value);
+  const handleSortDirectionChange = (value: string | number | boolean | null | undefined) => {
+    setSortDirection(String(value ?? ""));
   };
 
   const filterConfig = useMemo((): FilterPanelConfig => ({

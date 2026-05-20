@@ -66,7 +66,7 @@ function ProductImagePreview({
   );
 }
 
-function SizesDisplay({ sizes }: { sizes: Record<string, unknown>[] | undefined }) {
+function SizesDisplay({ sizes }: { sizes: { id: string; name: string; finalPrice: number; hasPromotion?: boolean; promotionType?: string; promotionValue?: number }[] | undefined }) {
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;
   }

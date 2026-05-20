@@ -153,7 +153,7 @@ export default function LeaveTypeModal({
       }
     } catch (error: unknown) {
       showToast.error(
-        error || `Failed to ${isCreate ? "create" : "update"} leave type`,
+        (error as { message?: string })?.message || `Failed to ${isCreate ? "create" : "update"} leave type`,
       );
     }
   };

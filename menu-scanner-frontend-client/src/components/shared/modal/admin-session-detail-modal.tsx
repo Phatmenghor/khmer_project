@@ -11,13 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Monitor, Smartphone, Tablet, Globe, MapPin, Clock, Calendar, Timer, Wifi, CheckCircle2, XCircle, User, Shield, LogOut } from "lucide-react";
-import { AdminSessionResponse } from "@/features/auth/store/models/response/session-response";
-import { DeviceType, SessionStatus } from "@/features/auth/store/models/request/session-request";
+import { Monitor, Smartphone, Tablet, Globe, MapPin, Clock, Calendar, Wifi, CheckCircle2, XCircle, User, Shield, LogOut } from "lucide-react";
+import { SessionResponseModel as SessionResponse } from "@/features/sessions/store/models/response/session-response";
 import { format, formatDistanceToNow } from "date-fns";
 
 interface AdminSessionDetailModalProps {
-  session: AdminSessionResponse | null;
+  session: SessionResponse | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -29,7 +28,7 @@ export function AdminSessionDetailModal({
 }: AdminSessionDetailModalProps) {
   if (!session) return null;
 
-  const getDeviceIcon = (deviceType: DeviceType) => {
+  const getDeviceIcon = (deviceType: string) => {
     switch (deviceType) {
       case "MOBILE":
         return <Smartphone className="h-6 w-6" />;
@@ -42,7 +41,7 @@ export function AdminSessionDetailModal({
     }
   };
 
-  const getStatusBadge = (status: SessionStatus) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVE":
         return (
@@ -68,20 +67,6 @@ export function AdminSessionDetailModal({
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
-  };
-
-  const formatDuration = (minutes: number) => {
-    if (minutes < 60) return `${minutes} minutes`;
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    if (hours < 24) {
-      return remainingMinutes > 0
-        ? `${hours}h ${remainingMinutes}m`
-        : `${hours} hours`;
-    }
-    const days = Math.floor(hours / 24);
-    const remainingHours = hours % 24;
-    return remainingHours > 0 ? `${days}d ${remainingHours}h` : `${days} days`;
   };
 
   return (
@@ -178,7 +163,7 @@ export function AdminSessionDetailModal({
             <DetailRow
               icon={<MapPin className="h-4 w-4" />}
               label="Location"
-              value={`${session.city}, ${session.country}`}
+              value={session.location}
             />
             <DetailRow
               icon={<Wifi className="h-4 w-4" />}
@@ -209,16 +194,6 @@ export function AdminSessionDetailModal({
               value={formatDistanceToNow(new Date(session.lastActiveAt), {
                 addSuffix: true,
               })}
-            />
-            <DetailRow
-              icon={<Timer className="h-4 w-4" />}
-              label="Session Duration"
-              value={formatDuration(session.sessionDurationMinutes)}
-            />
-            <DetailRow
-              icon={<Timer className="h-4 w-4" />}
-              label="Inactive Duration"
-              value={formatDuration(session.inactiveDurationMinutes)}
             />
             <DetailRow
               icon={<Calendar className="h-4 w-4" />}

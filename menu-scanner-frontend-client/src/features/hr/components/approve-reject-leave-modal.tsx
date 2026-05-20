@@ -98,7 +98,7 @@ export default function ApproveRejectLeaveModal({
       handleClose();
     } catch (error: unknown) {
       showToast.error(
-        error || `Failed to ${isApprove ? "approve" : "reject"} leave request`,
+        (error as { message?: string })?.message || `Failed to ${isApprove ? "approve" : "reject"} leave request`,
       );
     }
   };

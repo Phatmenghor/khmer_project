@@ -98,7 +98,7 @@ export function TelegramSyncCard({
               <div className="relative flex-shrink-0">
                 {isTelegramConnected && socialSync?.telegramPhotoUrl ? (
                   <CustomAvatar
-                    src={socialSync.telegramPhotoUrl}
+                    imageUrl={socialSync.telegramPhotoUrl}
                     name={socialSync.telegramFirstName || socialSync.telegramUsername || "T"}
                     size="md"
                     className="w-12 h-12"

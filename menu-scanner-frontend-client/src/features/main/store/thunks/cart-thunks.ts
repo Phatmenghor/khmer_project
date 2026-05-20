@@ -27,10 +27,6 @@ export const addToCart = createApiThunk<CartResponseModel, AddToCartRequest>(
     let responseData = response.data.data;
 
 
-    if (!isCorrect) {
-    }
-
-
     if (responseData?.items) {
       responseData.items = responseData.items.map((item: Record<string, unknown>) => ({
         ...item,

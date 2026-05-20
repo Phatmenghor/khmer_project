@@ -105,7 +105,7 @@ export function useCartDebounce(dispatch: AppDispatch) {
           if (isAbortError(error)) {
             return;
           }
-          showToast.error(error?.message || Messages.cart.updateFailed);
+          showToast.error((error as { message?: string })?.message || Messages.cart.updateFailed);
         })
         .finally(() => {
 

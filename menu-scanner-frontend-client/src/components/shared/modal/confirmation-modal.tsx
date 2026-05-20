@@ -18,7 +18,7 @@ interface ConfirmationModalProps {
   itemName?: string;
   isSubmitting?: boolean;
   actionLabel?: string;
-  actionVariant?: "default" | "destructive" | "secondary" | "warning";
+  actionVariant?: "default" | "destructive" | "secondary" | "outline" | "ghost";
   headerBgColor?: string;
   buttonColor?: string;
   isDangerous?: boolean;

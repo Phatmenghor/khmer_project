@@ -3,7 +3,7 @@
 import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Save, Eye, Upload, Plus, Trash2, Globe } from "lucide-react";
+import { Save, Eye, Upload, Plus, Trash2, Globe, Image as ImageIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

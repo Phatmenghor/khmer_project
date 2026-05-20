@@ -34,7 +34,7 @@ export const deductOrderStock = async (
     return response.data.data;
   } catch (error: unknown) {
     throw new Error(
-      error.response?.data?.message || "Failed to deduct stock"
+      (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to deduct stock"
     );
   }
 };

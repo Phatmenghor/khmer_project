@@ -58,7 +58,7 @@ const favoriteSlice = createSlice({
       })
       .addCase(
         fetchFavoritePaginated.fulfilled,
-        (state, action: PayloadAction<AllFavoriteResponseModel>) => {
+        (state, action) => {
           state.loading.fetch = false;
           const newItems = action.payload.content || [];
           const pageNo = action.meta.arg.pageNo;

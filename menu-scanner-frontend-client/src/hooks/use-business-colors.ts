@@ -7,7 +7,5 @@ export function useBusinessColors() {
 
   return {
     primary: colors.primary,
-    secondary: colors.secondary,
-    accent: colors.accent,
   };
 }

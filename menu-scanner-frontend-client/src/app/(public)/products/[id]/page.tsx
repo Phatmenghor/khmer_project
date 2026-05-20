@@ -90,10 +90,10 @@ export default function ProductDetailPage() {
 
       if (sizeId) {
         const size = product.sizes?.find((s) => s.id === sizeId);
-        return getSizeQuantity(size);
+        return getSizeQuantity(size as unknown as Record<string, unknown>);
       }
 
-      return product.quantityInCart || 0;
+      return 0;
     },
     [cartItems, product]
   );
@@ -144,7 +144,7 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (!product?.id || fetchedSimilarRef.current === product.id) return;
     fetchedSimilarRef.current = product.id;
-    dispatch(fetchPublicProducts({ pageNo: 1, pageSize: 6, categoryId: product.categoryId || undefined, status: "ACTIVE" }))
+    dispatch(fetchPublicProducts({ pageNo: 1, pageSize: 6, categoryId: product.categoryId || undefined, statuses: ["ACTIVE"] }))
       .unwrap()
       .then((res) => {
         setSimilarProducts((res.content || []).filter((p: any) => p.id !== productId).slice(0, 4));
@@ -295,7 +295,7 @@ export default function ProductDetailPage() {
 
         setIsFavorited((prev) => !prev);
         setIsTogglingFavorite(false);
-        showToast.error(err?.message || Messages.favorites.updateFailed);
+        showToast.error((err as { message?: string })?.message || Messages.favorites.updateFailed);
       });
   };
 

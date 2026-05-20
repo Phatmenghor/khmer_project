@@ -116,7 +116,7 @@ export function usePOSPersistence() {
     const params = urlParams.getAllParams();
     const hasFilters = Object.keys(params).length > 0;
     const hasCart = cartStorage.value && cartStorage.value.items.length > 0;
-    return hasFilters || hasCart;
+    return hasFilters || !!hasCart;
   }, [urlParams, cartStorage.value]);
 
   const exportState = useCallback(
@@ -208,12 +208,11 @@ export function usePOSSyncPersistence(
 export function validatePOSCartItems(items: unknown[]): items is PosPageCartItem[] {
   if (!Array.isArray(items)) return false;
   return items.every(
-    (item) =>
-      item.id &&
-      item.productId &&
-      item.productName &&
-      typeof item.quantity === "number" &&
-      typeof item.currentPrice === "number"
+    (item: unknown) => {
+      const i = item as Record<string, unknown>;
+      return i.id && i.productId && i.productName &&
+        typeof i.quantity === "number" && typeof i.currentPrice === "number";
+    }
   );
 }
 

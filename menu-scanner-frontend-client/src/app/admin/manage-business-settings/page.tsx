@@ -131,7 +131,7 @@ export default function BusinessSettingsPage() {
           primaryColor: data.primaryColor || "",
           businessName: data.businessName,
           logoBusinessUrl: data.logoBusinessUrl,
-          taxPercentage: data.taxPercentage,
+          taxPercentage: data.taxPercentage ?? undefined,
         };
 
 
@@ -182,8 +182,8 @@ export default function BusinessSettingsPage() {
 
       const uploadedSocialMedia = await Promise.all(
         (data.socialMedia || []).map(async (social) => {
-          let imageUrl = social.imageUrl;
-          if (isBase64Image(imageUrl)) {
+          let imageUrl = (social as { name: string; linkUrl: string; imageUrl?: string }).imageUrl;
+          if (imageUrl && isBase64Image(imageUrl)) {
             try {
               imageUrl = await uploadImage(imageUrl);
             } catch (error) {
@@ -230,7 +230,7 @@ export default function BusinessSettingsPage() {
           primaryColor: result.primaryColor || "",
           businessName: result.businessName,
           logoBusinessUrl: result.logoBusinessUrl,
-          taxPercentage: result.taxPercentage,
+          taxPercentage: result.taxPercentage ?? undefined,
         };
         cacheThemeColors(result.businessId, businessData);
 
@@ -560,9 +560,9 @@ export default function BusinessSettingsPage() {
             <div>
               <h3 className="text-lg font-semibold">Business Hours</h3>
               <p className="text-sm text-muted-foreground">
-                {form.watch("businessHours")?.length > 0
-                  ? `${form.watch("businessHours").length} day${
-                      form.watch("businessHours").length > 1 ? "s" : ""
+                {form.watch("businessHours")?.length
+                  ? `${form.watch("businessHours")?.length ?? 0} day${
+                      (form.watch("businessHours")?.length ?? 0) > 1 ? "s" : ""
                     } configured`
                   : "No business hours configured"}
               </p>

@@ -246,13 +246,10 @@ export default function LocationPage() {
           <LocationCard
             key={uniqueKey}
             location={location}
-            isPrimary={primaryLocation?.id === location.id}
-            onEdit={() => handleEditLocation(location)}
-            onDelete={() => setDeletingLocation(location)}
-            onSetPrimary={() => handleSetPrimary(location.id)}
-            isSettingPrimary={settingPrimaryId === location.id}
-            currentCoords={currentCoords}
-            primaryColor={primaryColor}
+            settingPrimaryId={settingPrimaryId}
+            onEdit={handleEditLocation}
+            onDelete={(loc) => setDeletingLocation(loc)}
+            onSetPrimary={(loc) => handleSetPrimary(loc.id)}
           />
           );
         })}

@@ -86,7 +86,7 @@ export function useBusinessTheme() {
         primaryColor: businessSettings.primaryColor || "",
         businessName: businessSettings.businessName,
         logoBusinessUrl: businessSettings.logoBusinessUrl,
-        taxPercentage: businessSettings.taxPercentage,
+        taxPercentage: businessSettings.taxPercentage ?? undefined,
       };
 
       if (hasThemeChanged(cachedColors, currentData)) {
@@ -117,7 +117,7 @@ export function useBusinessTheme() {
           primaryColor: payload.primaryColor || "",
           businessName: payload.businessName,
           logoBusinessUrl: payload.logoBusinessUrl,
-          taxPercentage: payload.taxPercentage,
+          taxPercentage: payload.taxPercentage ?? undefined,
         };
 
 

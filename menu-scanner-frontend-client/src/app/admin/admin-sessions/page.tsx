@@ -23,12 +23,8 @@ import {
 import { Monitor, Smartphone, Tablet, Globe, Search, RefreshCw, ChevronLeft, ChevronRight, User, CheckCircle2, XCircle, Eye } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { adminGetSessionsService } from "@/features/auth/store/thunks/session-thunks";
-import { AdminSessionResponse } from "@/features/auth/store/models/response/session-response";
-import {
-  SessionFilterRequest,
-  DeviceType,
-  SessionStatus,
-} from "@/features/auth/store/models/request/session-request";
+import { SessionResponseModel as SessionResponse } from "@/features/sessions/store/models/response/session-response";
+import { AllSessionRequest } from "@/features/auth/store/models/request/session-request";
 import { formatDistanceToNow, format } from "date-fns";
 import { AdminSessionDetailModal } from "@/components/shared/modal/admin-session-detail-modal";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -38,21 +34,21 @@ import { PageSizeSelectField } from "@/components/shared/form-field/page-size-se
 export default function AdminSessionsPage() {
   const dispatch = useAppDispatch();
 
-  const { adminSessions, isAdminLoading, error } = useAppSelector(
+  const { data: adminSessions, isLoading: isAdminLoading, error } = useAppSelector(
     (state) => state.sessions,
   );
 
   const [selectedSession, setSelectedSession] =
-    useState<AdminSessionResponse | null>(null);
+    useState<SessionResponse | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  const [filters, setFilters] = useState<SessionFilterRequest>({
+  const [filters, setFilters] = useState<AllSessionRequest>({
     search: "",
     pageNo: 1,
     pageSize: AppDefault.PAGE_SIZE,
     sortBy: "loginAt",
     sortDirection: "DESC",
-    userId: null,
+    userId: undefined,
     statuses: [],
     deviceTypes: [],
   });
@@ -74,7 +70,7 @@ export default function AdminSessionsPage() {
     return () => clearTimeout(timer);
   }, [searchValue]);
 
-  const getDeviceIcon = (deviceType: DeviceType) => {
+  const getDeviceIcon = (deviceType: string) => {
     switch (deviceType) {
       case "MOBILE":
         return <Smartphone className="h-4 w-4" />;
@@ -87,7 +83,7 @@ export default function AdminSessionsPage() {
     }
   };
 
-  const getStatusBadge = (status: SessionStatus) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVE":
         return (
@@ -125,7 +121,7 @@ export default function AdminSessionsPage() {
     } else {
       setFilters((prev) => ({
         ...prev,
-        statuses: [status as SessionStatus],
+        statuses: [status ],
         pageNo: 1,
       }));
     }
@@ -137,13 +133,13 @@ export default function AdminSessionsPage() {
     } else {
       setFilters((prev) => ({
         ...prev,
-        deviceTypes: [deviceType as DeviceType],
+        deviceTypes: [deviceType ],
         pageNo: 1,
       }));
     }
   };
 
-  const handleViewSession = (session: AdminSessionResponse) => {
+  const handleViewSession = (session: SessionResponse) => {
     setSelectedSession(session);
     setIsDetailModalOpen(true);
   };
@@ -234,7 +230,7 @@ export default function AdminSessionsPage() {
 
               {}
               <PageSizeSelectField
-                pageSize={filters.pageSize}
+                pageSize={filters.pageSize ?? 15}
                 pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
                 onPageSizeChange={(size) =>
                   setFilters((prev) => ({
@@ -308,7 +304,7 @@ export default function AdminSessionsPage() {
                     <TableCell>
                       <div>
                         <p className="text-sm">
-                          {session.city}, {session.country}
+                          {session.location}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {session.ipAddress}
@@ -365,8 +361,8 @@ export default function AdminSessionsPage() {
         {adminSessions && adminSessions.totalPages > 1 && (
           <div className="flex items-center justify-between mt-4 gap-2 flex-wrap">
             <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
-              Showing {(currentPage - 1) * filters.pageSize + 1} to{" "}
-              {Math.min(currentPage * filters.pageSize, totalElements)} of{" "}
+              Showing {(currentPage - 1) * (filters.pageSize ?? 15) + 1} to{" "}
+              {Math.min(currentPage * (filters.pageSize ?? 15), totalElements)} of{" "}
               {totalElements} sessions
             </p>
             <div className="flex items-center gap-2">

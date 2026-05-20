@@ -1082,7 +1082,7 @@ export default function BulkPromotionPage() {
             : ""
         }.`}
         actionLabel="Clear Promotion"
-        actionVariant="warning"
+        actionVariant="default"
         headerBgColor="bg-yellow-50"
         isDangerous={false}
         isSubmitting={isClearingSelected}

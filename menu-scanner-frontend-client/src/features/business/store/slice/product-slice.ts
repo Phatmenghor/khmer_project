@@ -31,6 +31,7 @@ const initialState: ProductManagementState = {
   operations: {
     isCreating: false,
     isUpdating: false,
+    isUpdatingStatus: false,
     isDeleting: false,
     isFetchingDetail: false,
     isResettingPromotion: false,
@@ -134,10 +135,10 @@ const productSlice = createSlice({
             const updated = {
               ...product,
               hasPromotion: false,
-              displayPromotionType: null,
-              displayPromotionValue: null,
-              displayPrice: product.price,
-              displayOriginPrice: product.price,
+              displayPromotionType: null as unknown as string,
+              displayPromotionValue: null as unknown as number,
+              displayPrice: product.displayPrice,
+              displayOriginPrice: product.displayOriginPrice,
             };
 
 
@@ -167,10 +168,10 @@ const productSlice = createSlice({
           const updated = {
             ...product,
             hasPromotion: false,
-            displayPromotionType: null,
-            displayPromotionValue: null,
-            displayPrice: product.price,
-            displayOriginPrice: product.price,
+            displayPromotionType: null as unknown as string,
+            displayPromotionValue: null as unknown as number,
+            displayPrice: product.displayPrice,
+            displayOriginPrice: product.displayOriginPrice,
           };
 
 
@@ -200,10 +201,10 @@ const productSlice = createSlice({
             const updated = {
               ...product,
               hasPromotion: false,
-              displayPromotionType: null,
-              displayPromotionValue: null,
-              displayPrice: product.price,
-              displayOriginPrice: product.price,
+              displayPromotionType: null as unknown as string,
+              displayPromotionValue: null as unknown as number,
+              displayPrice: product.displayPrice,
+              displayOriginPrice: product.displayOriginPrice,
             };
 
 
@@ -365,16 +366,16 @@ const productSlice = createSlice({
             if (shouldResetAll) {
               return {
                 ...product,
-                promotionType: null,
-                promotionValue: null,
-                promotionFromDate: null,
-                promotionToDate: null,
+                promotionType: null as unknown as string,
+                promotionValue: null as unknown as number,
+                promotionFromDate: null as unknown as string,
+                promotionToDate: null as unknown as string,
                 displayPrice: parseFloat(product.price),
                 displayOriginPrice: parseFloat(product.price),
-                displayPromotionType: null,
-                displayPromotionValue: null,
-                displayPromotionFromDate: null,
-                displayPromotionToDate: null,
+                displayPromotionType: null as unknown as string,
+                displayPromotionValue: null as unknown as number,
+                displayPromotionFromDate: null as unknown as string,
+                displayPromotionToDate: null as unknown as string,
                 hasPromotion: false,
                 sizes: updatedSizes,
               };

@@ -11,5 +11,5 @@ export const getFieldError = (
 export const getArrayFieldError = (error: unknown): FieldError | undefined => {
   if (!error) return undefined;
   if (Array.isArray(error)) return error[0];
-  return error;
+  return error as FieldError;
 };

@@ -129,7 +129,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
         window.location.reload();
       }
     } catch (err: unknown) {
-      showToast.error(err || Messages.auth.telegramFailed);
+      showToast.error((err as { message?: string })?.message || Messages.auth.telegramFailed);
     } finally {
       setIsTelegramLoading(false);
     }

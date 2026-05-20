@@ -95,7 +95,7 @@ const publicProductSlice = createSlice({
 
 
         const existingIds = new Set(state.products.map((p) => p.id));
-        const uniqueNew = newProducts.filter((p) => !existingIds.has(p.id));
+        const uniqueNew = newProducts.filter((p: { id: string }) => !existingIds.has(p.id));
 
 
         state.products = [...state.products, ...uniqueNew];

@@ -10,7 +10,6 @@ import {
   fetchOrderDetailsService,
   cancelOrderService,
 } from "@/features/main/store/thunks/my-orders-thunks";
-import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -102,21 +101,9 @@ export default function OrderDetailPage() {
 
         const orderResult = await dispatch(fetchOrderDetailsService(orderId)).unwrap();
 
-        const statusResult = await dispatch(
-          fetchAllOrderStatusService({
-            businessId: AppDefault.BUSINESS_ID,
-            statuses: ["ACTIVE"],
-            pageNo: 1,
-            pageSize: 100,
-          })
-        ).unwrap();
-
-        const sortedStatuses = statusResult.content || [];
-
         setState((prev) => ({
           ...prev,
           order: orderResult,
-          statusTimeline: sortedStatuses,
           loading: false,
         }));
       } catch (error: unknown) {
@@ -177,13 +164,7 @@ export default function OrderDetailPage() {
       setState((prev) => ({
         ...prev,
         order: prev.order
-          ? {
-              ...prev.order,
-              orderProcessStatus: {
-                ...prev.order.orderProcessStatus,
-                name: "CANCELLED",
-              },
-            }
+          ? { ...prev.order, orderStatus: OrderStatus.CANCELLED }
           : null,
         cancelling: false,
       }));
@@ -508,7 +489,7 @@ export default function OrderDetailPage() {
                             </p>
                           )}
                         </div>
-                        {item.hasPromotion && (
+                        {(item as unknown as { hasPromotion?: boolean }).hasPromotion && (
                           <div className="ml-2 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded text-xs font-semibold flex-shrink-0">
                             Sale
                           </div>
@@ -519,23 +500,13 @@ export default function OrderDetailPage() {
                       <div className="space-y-1">
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">
-                            {formatCurrency(item.currentPrice)} × {item.quantity}
+                            {formatCurrency(item.finalPrice)} × {item.quantity}
                           </span>
                           <span className="font-semibold text-foreground">
                             {formatCurrency(item.totalPrice)}
                           </span>
                         </div>
 
-                        {item.discountAmount > 0 && (
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-green-700 dark:text-green-400">
-                              Discount
-                            </span>
-                            <span className="text-green-700 dark:text-green-400 font-semibold">
-                              -{formatCurrency(item.discountAmount)}
-                            </span>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>

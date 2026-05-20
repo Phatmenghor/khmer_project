@@ -16,6 +16,7 @@ export interface ProductFilters {
 export interface OperationStates {
   isCreating: boolean;
   isUpdating: boolean;
+  isUpdatingStatus: boolean;
   isDeleting: boolean;
   isFetchingDetail: boolean;
   isResettingPromotion: boolean;

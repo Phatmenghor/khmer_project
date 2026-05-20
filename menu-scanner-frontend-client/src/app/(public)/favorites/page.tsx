@@ -134,15 +134,13 @@ export default function FavoritesPage() {
       });
   };
 
-  const handleClearAll = () => {
-    dispatch(clearAllFavorites())
-      .unwrap()
-      .then(() => {
-        showToast.success(Messages.favorites.allCleared);
-      })
-      .catch((error: unknown) => {
-        showToast.error((error as { message?: string })?.message || Messages.favorites.clearFailed);
-      });
+  const handleClearAll = async () => {
+    try {
+      await dispatch(clearAllFavorites()).unwrap();
+      showToast.success(Messages.favorites.allCleared);
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || Messages.favorites.clearFailed);
+    }
   };
 
   const handleMoveToCart = (productId: string) => {

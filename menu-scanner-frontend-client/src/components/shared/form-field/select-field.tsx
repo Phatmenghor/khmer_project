@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Controller, FieldValues } from "react-hook-form";
+import { Controller, FieldValues, Control, FieldError, Path } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +11,21 @@ import {
 } from "@/components/ui/popover";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SelectFieldProps } from ".";
+
+interface SelectFieldProps<T extends FieldValues = any> {
+  name: Path<T>;
+  label: string;
+  control: Control<T>;
+  error?: FieldError;
+  disabled?: boolean;
+  required?: boolean;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+  onValueChange?: (value: string) => void;
+  className?: string;
+  loading?: boolean;
+  loadingPlaceholder?: string;
+}
 
 export function SelectField<T extends FieldValues = any>({
   name,

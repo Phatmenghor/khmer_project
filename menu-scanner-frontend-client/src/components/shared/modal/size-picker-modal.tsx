@@ -61,7 +61,7 @@ export function SizePickerModal({
 
   const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
 
-  const hasUnsavedChanges = modifiedSizes.size > 0 || (selectedSize && (customizationsBySize.get(selectedSize.id)?.size ?? 0) > 0);
+  const hasUnsavedChanges = modifiedSizes.size > 0 || !!(selectedSize && (customizationsBySize.get(selectedSize.id)?.size ?? 0) > 0);
 
   const getQuantityForSize = useCallback(
     (sizeId: string, customizationIds?: Set<string>) => {
@@ -230,7 +230,7 @@ export function SizePickerModal({
       } else if (hasCustomizations) {
 
         const noSizeId = "__no_size__";
-        const newSize = { id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as ProductSize;
+        const newSize = { id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as unknown as ProductSize;
         setSelectedSize(newSize);
         setPendingQuantities(new Map());
         setModifiedSizes(new Set([noSizeId]));
@@ -418,7 +418,7 @@ export function SizePickerModal({
   const displayPrice = selectedSize?.finalPrice || product?.displayPrice || 0;
 
   const selectedSizeCustoms = selectedSize ? (customizationsBySize.get(selectedSize.id) ?? new Set()) : new Set();
-  const customizationTotal = Array.from(selectedSizeCustoms).reduce((sum, customId) => {
+  const customizationTotal = Array.from(selectedSizeCustoms).reduce((sum: number, customId) => {
     const custom = product?.customizations?.find((c) => c.id === customId);
     return sum + (custom?.priceAdjustment || 0);
   }, 0);
@@ -563,7 +563,7 @@ export function SizePickerModal({
                 size="sm"
               />
               {}
-              {(currentQuantity > 0 || getQuantityForSize(selectedSize?.id || "")) > 0 && (
+              {(currentQuantity > 0 || getQuantityForSize(selectedSize?.id || "") > 0) && (
                 <CustomButton
                   variant="outline"
                   size="sm"
@@ -700,10 +700,11 @@ export function SizePickerModal({
           <CancelButton onClick={handleClose} />
           <SubmitButton
             onClick={handleSelectSize}
-            isLoading={false}
+            isSubmitting={false}
             disabled={!hasUnsavedChanges}
-            text={isEditing ? "Save Changes" : "Add to Cart"}
-            loadingText={isEditing ? "Saving..." : "Adding..."}
+            isCreate={!isEditing}
+            createText="Add to Cart"
+            updateText="Save Changes"
           />
         </FormFooter>
       </DialogContent>

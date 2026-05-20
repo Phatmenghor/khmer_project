@@ -166,7 +166,7 @@ export default function LeaveModal({
       }
     } catch (error: unknown) {
       showToast.error(
-        error || `Failed to ${isCreate ? "create" : "update"} leave request`,
+        (error as { message?: string })?.message || `Failed to ${isCreate ? "create" : "update"} leave request`,
       );
     }
   };

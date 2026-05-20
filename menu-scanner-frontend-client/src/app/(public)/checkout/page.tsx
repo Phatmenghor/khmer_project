@@ -103,8 +103,9 @@ export default function CheckoutPage() {
         }
       } catch (error: unknown) {
 
+        const axiosError = error as { response?: { status?: number } };
         const isExpectedError =
-          error?.response?.status === 404 ||
+          axiosError?.response?.status === 404 ||
           (typeof error === "string" && error.includes("No default")) ||
           (typeof error === "string" && error.includes("not found"));
 
@@ -304,9 +305,10 @@ export default function CheckoutPage() {
       }, 1500);
     } catch (error: unknown) {
 
+      const axiosErr = error as { response?: { data?: { message?: string } }; message?: string };
       const errorMessage =
-        error?.response?.data?.message ||
-        (error as { message?: string })?.message ||
+        axiosErr?.response?.data?.message ||
+        axiosErr?.message ||
         "Failed to complete checkout. Please try again.";
 
       showToast.error(errorMessage);

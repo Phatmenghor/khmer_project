@@ -61,7 +61,7 @@ export default function LoginPage() {
       router.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      showToast.error(e?.message || error || Messages.auth.loginFailed);
+      showToast.error(e?.message || Messages.auth.loginFailed);
     }
   }
 

@@ -48,7 +48,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
           <CustomSelect
             key={filter.id}
             options={filter.options || []}
-            value={filter.value}
+            value={filter.value != null ? String(filter.value) : undefined}
             placeholder={filter.placeholder || "Select..."}
             onValueChange={filter.onChange}
             label={filter.label}

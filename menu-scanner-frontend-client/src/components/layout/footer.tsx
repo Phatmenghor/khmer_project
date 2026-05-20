@@ -130,7 +130,7 @@ export function Footer() {
                   <div className="text-white">
                     {businessHours.map((hours, index) => (
                       <p key={index} className="font-medium">
-                        {hours.day}: {hours.openTime} - {hours.closeTime}
+                        {hours.day}: {hours.openingTime} - {hours.closingTime}
                       </p>
                     ))}
                   </div>
@@ -144,9 +144,9 @@ export function Footer() {
             <div className="space-y-4">
               <h3 className="font-semibold text-white text-base">Follow Us</h3>
               <div className="space-y-2 text-sm">
-                {socialMedia.map((social) => (
+                {socialMedia.map((social: { name: string; linkUrl: string; imageUrl?: string }) => (
                   <a
-                    key={social.id || social.name}
+                    key={social.name}
                     href={social.linkUrl}
                     target="_blank"
                     rel="noopener noreferrer"

@@ -50,16 +50,6 @@ const getPaymentVariant = (status: string) => {
   }
 };
 
-const getOrderFromVariant = (orderFrom: string) => {
-  switch (orderFrom) {
-    case "CUSTOMER":
-      return "outline";
-    case "BUSINESS":
-      return "secondary";
-    default:
-      return "outline";
-  }
-};
 
 export const orderAdminTableColumns = ({
   data,
@@ -91,13 +81,13 @@ export const orderAdminTableColumns = ({
       ),
     },
     {
-      key: "orderFrom",
+      key: "source",
       label: "Type",
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (
         <span className="text-xs font-medium">
-          {order?.orderFrom === "CUSTOMER" ? "Public" : "POS"}
+          {order?.source === "PUBLIC" ? "Public" : "POS"}
         </span>
       ),
     },

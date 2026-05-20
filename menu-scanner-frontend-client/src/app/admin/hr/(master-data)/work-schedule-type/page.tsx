@@ -211,10 +211,6 @@ export default function WorkScheduleTypePage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          breadcrumbs={[
-            { label: "Dashboard", href: ROUTES.ADMIN.ROOT },
-            { label: "Work Schedule Type", href: "" },
-          ]}
           title="Work Schedule Type Information"
           searchValue={filters.search}
           searchPlaceholder="Search work schedule types..."

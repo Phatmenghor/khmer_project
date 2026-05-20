@@ -2,7 +2,7 @@
 
 
 export function getProductQuantity(product: Record<string, unknown>): number {
-  return product?.quantity ?? 0;
+  return (product?.quantity as number) ?? 0;
 }
 
 
@@ -12,7 +12,7 @@ export function getSizeQuantity(size: Record<string, unknown>): number {
   if (typeof qty === 'string') {
     return parseInt(qty, 10) || 0;
   }
-  return qty || 0;
+  return (qty as number) || 0;
 }
 
 

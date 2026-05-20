@@ -31,8 +31,10 @@ export const createApiThunk = <ReturnType, ArgType = void>(
         if (options?.logError !== false) {
         }
 
-        if (error?.response?.data?.message) {
-          return rejectWithValue(error.response.data.message);
+        const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
+
+        if (axiosError?.response?.data?.message) {
+          return rejectWithValue(axiosError.response.data.message);
         }
 
         if (error instanceof Error) {
@@ -43,7 +45,7 @@ export const createApiThunk = <ReturnType, ArgType = void>(
           return rejectWithValue(error);
         }
 
-        return rejectWithValue(error?.message || "An unexpected error occurred");
+        return rejectWithValue(axiosError?.message || "An unexpected error occurred");
       }
     }
   );

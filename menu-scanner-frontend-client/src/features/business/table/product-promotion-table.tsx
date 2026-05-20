@@ -75,7 +75,7 @@ function ProductImagePreview({
 }
 
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
-  const { secondary } = useBusinessColors();
+  const { primary: secondary } = useBusinessColors();
 
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;

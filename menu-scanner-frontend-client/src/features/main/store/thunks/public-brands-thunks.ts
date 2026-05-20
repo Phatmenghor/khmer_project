@@ -31,7 +31,7 @@ export const fetchPublicBrands = createAsyncThunk<
     return response.data.data;
   } catch (error: unknown) {
     return rejectWithValue(
-      error.response?.data?.message || "Failed to fetch brands"
+      (error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to fetch brands"
     );
   }
 });
