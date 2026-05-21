@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -294,9 +293,7 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-4 py-6">
-      <CardHeaderSection title="Portfolio Profile" />
-
+    <div className="w-full px-4 py-6 space-y-6">
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information */}
         <Card>
