@@ -265,8 +265,8 @@ export default function BusinessProfilePage() {
 
         {/* Profile row */}
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="relative -mt-12 sm:-mt-16 flex flex-col sm:flex-row sm:items-center gap-4 pb-5">
-
+          {/* Logo + action buttons — logo overlaps cover by half */}
+          <div className="relative -mt-12 sm:-mt-16 flex items-end justify-between pb-3">
             {/* Logo — 50 % in cover / 50 % in white */}
             <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-background shadow-2xl flex-shrink-0 overflow-hidden bg-card">
               {profile.logo
@@ -275,34 +275,8 @@ export default function BusinessProfilePage() {
               }
             </div>
 
-            {/* Name badge — border-4 border-background matches the logo treatment */}
-            <div className="flex-1 min-w-0 space-y-2.5">
-              <div className="inline-flex items-center rounded-2xl border-4 border-background shadow-2xl bg-card px-5 py-3">
-                <span className="font-bold text-lg sm:text-xl text-foreground tracking-tight leading-snug">
-                  {profile.businessName}
-                </span>
-              </div>
-
-              {/* Meta row: rating + address */}
-              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                {totalReviews > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <StarRow rating={avg} size={3} />
-                    <span className="font-semibold text-foreground text-xs">{avg.toFixed(1)}</span>
-                    <span className="text-xs">({totalReviews})</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                  <span className="text-xs truncate">
-                    {profile.contact.address.street}, {profile.contact.address.city}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex gap-2 flex-shrink-0">
+            {/* Action buttons — pinned to the right, aligned to bottom of logo */}
+            <div className="flex gap-2 flex-shrink-0 pb-1">
               <Button size="sm" variant="outline" className="gap-2"
                 onClick={() => { if (typeof navigator !== "undefined" && navigator.share) navigator.share({ title: profile.businessName, url: profileUrl }).catch(() => {}); }}>
                 <Share2 className="w-4 h-4" />
@@ -312,6 +286,28 @@ export default function BusinessProfilePage() {
                 <QrCode className="w-4 h-4" />
                 View QR
               </Button>
+            </div>
+          </div>
+
+          {/* Business name + meta — plain text below cover, no badge */}
+          <div className="pb-5 space-y-1.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-snug">
+              {profile.businessName}
+            </h1>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              {totalReviews > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <StarRow rating={avg} size={3} />
+                  <span className="font-semibold text-foreground text-xs">{avg.toFixed(1)}</span>
+                  <span className="text-xs">({totalReviews})</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                <span className="text-xs truncate">
+                  {profile.contact.address.street}, {profile.contact.address.city}
+                </span>
+              </div>
             </div>
           </div>
         </div>
