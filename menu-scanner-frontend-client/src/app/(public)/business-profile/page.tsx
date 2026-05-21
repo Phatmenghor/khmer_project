@@ -167,9 +167,10 @@ export default function BusinessProfilePage() {
 
         {/* Profile row */}
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="relative -mt-16 sm:-mt-20 flex flex-col sm:flex-row sm:items-end gap-4 pb-5">
+          {/* -mt-12 / -mt-16 = exactly half the logo height → 50% in cover, 50% below */}
+          <div className="relative -mt-12 sm:-mt-16 flex flex-col sm:flex-row sm:items-end gap-4 pb-5">
 
-            {/* Logo */}
+            {/* Logo — 50% overlaps cover, 50% sits in the white area */}
             <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-background shadow-xl flex-shrink-0 overflow-hidden bg-card">
               {profile.logo ? (
                 <Image src={profile.logo} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
@@ -182,10 +183,11 @@ export default function BusinessProfilePage() {
 
             {/* Name block */}
             <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                {/* Name with solid background so it reads against the dark cover */}
+                <span className="inline-block bg-background/90 backdrop-blur-sm text-foreground font-bold text-xl sm:text-2xl leading-tight rounded-lg px-3 py-1 shadow-sm">
                   {profile.businessName}
-                </h1>
+                </span>
                 <Badge
                   className={open
                     ? "bg-green-100 text-green-700 border-green-200"
@@ -195,12 +197,8 @@ export default function BusinessProfilePage() {
                   {open ? "Open Now" : "Closed"}
                 </Badge>
               </div>
-              <p className="text-primary font-medium text-sm mb-2">{profile.tagline}</p>
               <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                <Badge variant="secondary" className="gap-1">
-                  <Building2 className="w-3 h-3" />
-                  {profile.industry}
-                </Badge>
+                <Badge variant="secondary">{profile.industry}</Badge>
                 {totalReviews > 0 && (
                   <div className="flex items-center gap-1">
                     <StarRow rating={avg} size={3} />
