@@ -273,31 +273,28 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             style={{
               maxWidth: 320,
               borderRadius: 0,
-              border: isPrint ? "3px solid #000" : "none",
+              border: isPrint ? "1px solid #e5e7eb" : "none",
             }}
           >
-            {/* TOP STRIPE — print only */}
-            {isPrint && <div style={{ height: 8, background: "#000" }} />}
-
             {/* ── HEADER ─────────────────────────────────────────────── */}
             {isPrint ? (
-              /* Print: logo circle + title + subtitle centered */
+              /* Print: clean white header — no stripes, no heavy borders */
               <div style={{
                 background: "#fff",
                 padding: "20px 20px 14px",
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
               }}>
                 {style.logoDataUrl ? (
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", overflow: "hidden", flexShrink: 0 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", overflow: "hidden", flexShrink: 0, boxShadow: "0 0 0 1.5px #e5e7eb" }}>
                     <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                   </div>
                 ) : (
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <QrCode style={{ width: 28, height: 28, color: "#000" }} />
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <QrCode style={{ width: 28, height: 28, color: "#9ca3af" }} />
                   </div>
                 )}
                 <div style={{ textAlign: "center" }}>
-                  <p style={{ fontWeight: 700, fontSize: 15, color: "#000", lineHeight: 1.3, margin: 0 }}>{displayTitle}</p>
+                  <p style={{ fontWeight: 700, fontSize: 15, color: "#111827", lineHeight: 1.3, margin: 0 }}>{displayTitle}</p>
                   <p style={{ fontSize: 11, color: "#6b7280", margin: "3px 0 0", textAlign: "center" }}>{displaySubtitle}</p>
                 </div>
               </div>
@@ -347,23 +344,17 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
               </div>
             )}
 
-            {/* Print dashed separator */}
-            {isPrint && (
-              <div style={{ margin: "0 20px", borderTop: "2px dashed rgba(0,0,0,0.2)" }} />
-            )}
-
             {/* ── QR AREA — containerRef never moves in the tree ─────── */}
             <div style={{
-              background: isPrint ? "#fff" : bgColor,
-              padding: isPrint ? "10px 16px 16px" : "0 12px 12px",
+              background: bgColor,
+              padding: isPrint ? "0 16px 16px" : "0 12px 12px",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
             }}>
               <div style={{
                 position: "relative",
-                borderRadius: isPrint ? 10 : 14,
-                border: isPrint ? "2px solid #000" : "none",
-                boxShadow: isPrint ? "none" : "0 4px 20px rgba(0,0,0,0.1)",
-                padding: isPrint ? 6 : 6,
+                borderRadius: 14,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                padding: 6,
                 background: "#fff",
               }}>
                 <div
@@ -385,24 +376,18 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 )}
               </div>
 
-              {/* Scan text */}
-              {isPrint ? (
-                <p style={{ width: "100%", textAlign: "center", fontSize: 10, fontWeight: 700, color: "#000", letterSpacing: 3, textTransform: "uppercase", margin: 0 }}>
+              {/* Scan text — same style for all templates */}
+              <div data-dl="scan-row" data-scan-text={displayScanText} style={{ width: "100%", textAlign: "center", lineHeight: 1 }}>
+                <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginRight: 6 }}>
+                  <Scan style={{ width: 12, height: 12, display: "block", color: "#9ca3af" }} />
+                </span>
+                <span style={{ display: "inline-block", verticalAlign: "middle", fontSize: 10, fontWeight: 600, color: "#6b7280", letterSpacing: 3, textTransform: "uppercase", lineHeight: 1 }}>
                   {displayScanText}
-                </p>
-              ) : (
-                <div data-dl="scan-row" data-scan-text={displayScanText} style={{ width: "100%", textAlign: "center", lineHeight: 1 }}>
-                  <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginRight: 6 }}>
-                    <Scan style={{ width: 12, height: 12, display: "block", color: "#9ca3af" }} />
-                  </span>
-                  <span style={{ display: "inline-block", verticalAlign: "middle", fontSize: 10, fontWeight: 600, color: "#6b7280", letterSpacing: 3, textTransform: "uppercase", lineHeight: 1 }}>
-                    {displayScanText}
-                  </span>
-                  <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginLeft: 6 }}>
-                    <Scan style={{ width: 12, height: 12, display: "block", color: "#9ca3af" }} />
-                  </span>
-                </div>
-              )}
+                </span>
+                <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginLeft: 6 }}>
+                  <Scan style={{ width: 12, height: 12, display: "block", color: "#9ca3af" }} />
+                </span>
+              </div>
             </div>
 
             {/* ── FOOTER — gradient only ──────────────────────────────── */}
@@ -425,8 +410,6 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
               </div>
             )}
 
-            {/* BOTTOM STRIPE — print only */}
-            {isPrint && <div style={{ height: 6, background: "#000" }} />}
           </div>
         </div>
 

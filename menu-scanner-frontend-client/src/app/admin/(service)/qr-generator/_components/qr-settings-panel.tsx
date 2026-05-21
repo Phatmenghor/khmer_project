@@ -73,7 +73,6 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
     });
   };
 
-  const isPrint = style.template === "print-ready";
 
   return (
     <Card>
@@ -133,36 +132,34 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
             })}
           </div>
 
-          {/* Per-template custom colors — hidden for print-ready */}
-          {!isPrint && (
-            <div className="space-y-2 pt-1">
-              <p className="text-[11px] text-muted-foreground font-medium">Customize colors</p>
-              <ColorRow
-                id="cardGradientFrom"
-                label="Header Top"
-                value={style.cardGradientFrom}
-                onChange={(v) => onUpdate({ cardGradientFrom: v, template: style.template })}
-              />
-              <ColorRow
-                id="cardGradientTo"
-                label="Header Bottom"
-                value={style.cardGradientTo}
-                onChange={(v) => onUpdate({ cardGradientTo: v, template: style.template })}
-              />
-              <ColorRow
-                id="primaryColor"
-                label="QR Dot Color"
-                value={style.primaryColor}
-                onChange={(v) => onUpdate({ primaryColor: v })}
-              />
-              <ColorRow
-                id="backgroundColor"
-                label="QR Background"
-                value={style.backgroundColor}
-                onChange={(v) => onUpdate({ backgroundColor: v })}
-              />
-            </div>
-          )}
+          {/* Color pickers — all templates support full color customisation */}
+          <div className="space-y-2 pt-1">
+            <p className="text-[11px] text-muted-foreground font-medium">Customize colors</p>
+            <ColorRow
+              id="cardGradientFrom"
+              label="Header Top"
+              value={style.cardGradientFrom}
+              onChange={(v) => onUpdate({ cardGradientFrom: v })}
+            />
+            <ColorRow
+              id="cardGradientTo"
+              label="Header Bottom"
+              value={style.cardGradientTo}
+              onChange={(v) => onUpdate({ cardGradientTo: v })}
+            />
+            <ColorRow
+              id="primaryColor"
+              label="QR Dot Color"
+              value={style.primaryColor}
+              onChange={(v) => onUpdate({ primaryColor: v })}
+            />
+            <ColorRow
+              id="backgroundColor"
+              label="QR Background"
+              value={style.backgroundColor}
+              onChange={(v) => onUpdate({ backgroundColor: v })}
+            />
+          </div>
         </div>
 
         <Separator />

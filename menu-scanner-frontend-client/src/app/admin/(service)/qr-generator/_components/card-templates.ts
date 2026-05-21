@@ -17,7 +17,6 @@ export const CARD_TEMPLATES: TemplateConfig[] = [
   { id: "aba-red",      name: "ABA Red",      gradientFrom: "#b71c1c", gradientTo: "#d32f2f", qrPrimaryColor: "#b71c1c", isDark: true  },
   { id: "royal-purple", name: "Royal Purple", gradientFrom: "#4a148c", gradientTo: "#7b1fa2", qrPrimaryColor: "#4a148c", isDark: true  },
   { id: "fresh-green",  name: "Fresh Green",  gradientFrom: "#1b5e20", gradientTo: "#2e7d32", qrPrimaryColor: "#1b5e20", isDark: true  },
-  { id: "dark-mode",    name: "Dark Mode",    gradientFrom: "#0f172a", gradientTo: "#1e293b", qrPrimaryColor: "#38bdf8", isDark: true  },
   { id: "print-ready",  name: "Print Ready",  gradientFrom: "#ffffff", gradientTo: "#f1f5f9", qrPrimaryColor: "#000000", isDark: false },
 ];
 
