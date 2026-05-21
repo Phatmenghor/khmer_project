@@ -1,0 +1,221 @@
+{
+  "success": true,
+  "data": {
+    "id": "demo-business-001",
+    "slug": "golden-dragon-restaurant",
+    "businessName": "Golden Dragon Restaurant",
+    "tagline": "Authentic Khmer & Asian Cuisine",
+    "description": "Welcome to Golden Dragon Restaurant — where traditional Cambodian flavors meet modern dining. Established in 2015, we have been serving the heart of Phnom Penh with fresh, locally sourced ingredients and time-honored recipes passed down through generations.\n\nOur chefs craft each dish with passion, bringing you the true taste of Cambodia alongside beloved Asian classics. Whether you are joining us for a family dinner, a business lunch, or a special celebration, our warm atmosphere and dedicated team will make every visit unforgettable.",
+    "logo": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+    "coverImage": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+    "businessType": "RESTAURANT",
+    "industry": "Food & Beverage",
+    "isPublished": true,
+    "contact": {
+      "email": "info@goldendragon.kh",
+      "phone": "+855 23 456 789",
+      "phones": [
+        "+855 23 456 789",
+        "+855 12 345 678"
+      ],
+      "whatsapp": "+85523456789",
+      "telegram": "+85523456789",
+      "address": {
+        "street": "123 Norodom Boulevard",
+        "city": "Phnom Penh",
+        "state": "",
+        "country": "Cambodia",
+        "postalCode": "12000"
+      },
+      "mapLink": "https://maps.google.com/?q=Phnom+Penh+Cambodia"
+    },
+    "socialMedia": {
+      "facebook": "https://facebook.com",
+      "instagram": "https://instagram.com",
+      "twitter": "https://twitter.com",
+      "website": "https://goldendragon.kh"
+    },
+    "businessHours": [
+      { "day": "MONDAY",    "isOpen": true,  "openTime": "07:00", "closeTime": "22:00" },
+      { "day": "TUESDAY",   "isOpen": true,  "openTime": "07:00", "closeTime": "22:00" },
+      { "day": "WEDNESDAY", "isOpen": true,  "openTime": "07:00", "closeTime": "22:00" },
+      { "day": "THURSDAY",  "isOpen": true,  "openTime": "07:00", "closeTime": "22:00" },
+      { "day": "FRIDAY",    "isOpen": true,  "openTime": "07:00", "closeTime": "23:00" },
+      { "day": "SATURDAY",  "isOpen": true,  "openTime": "08:00", "closeTime": "23:00" },
+      { "day": "SUNDAY",    "isOpen": false }
+    ],
+    "features": [
+      "Free Wi-Fi",
+      "Outdoor Seating",
+      "Private Dining Room",
+      "Vegetarian Menu",
+      "Halal Options",
+      "Parking Available",
+      "Air Conditioning",
+      "Live Music (Fri & Sat)",
+      "Takeaway Available",
+      "Online Ordering",
+      "Reservations Accepted",
+      "Birthday Packages"
+    ],
+    "services": [
+      {
+        "id": "svc-1",
+        "name": "Dine In",
+        "description": "Enjoy a full dining experience in our cozy, air-conditioned restaurant with attentive table service."
+      },
+      {
+        "id": "svc-2",
+        "name": "Takeaway",
+        "description": "Order your favorite dishes to go. Ready in 15–20 minutes."
+      },
+      {
+        "id": "svc-3",
+        "name": "Catering",
+        "description": "We cater events of all sizes — from intimate gatherings to large corporate events."
+      },
+      {
+        "id": "svc-4",
+        "name": "Private Events",
+        "description": "Reserve our private dining room for birthdays, anniversaries, and business dinners."
+      }
+    ],
+    "gallery": [
+      {
+        "id": "g1",
+        "url": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "title": "Amok Trey",
+        "description": "Traditional fish amok in coconut shell",
+        "order": 1
+      },
+      {
+        "id": "g2",
+        "url": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "title": "Lok Lak",
+        "description": "Stir-fried beef with pepper sauce",
+        "order": 2
+      },
+      {
+        "id": "g3",
+        "url": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "title": "Restaurant Interior",
+        "description": "Our warm, inviting dining area",
+        "order": 3
+      },
+      {
+        "id": "g4",
+        "url": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "title": "Chef's Special",
+        "description": "Daily chef's recommendation",
+        "order": 4
+      },
+      {
+        "id": "g5",
+        "url": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "title": "Outdoor Terrace",
+        "description": "Enjoy dining under the stars",
+        "order": 5
+      },
+      {
+        "id": "g6",
+        "url": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "title": "Fresh Ingredients",
+        "description": "Sourced daily from local markets",
+        "order": 6
+      }
+    ],
+    "team": [
+      {
+        "id": "t1",
+        "name": "Chef Visal Sok",
+        "position": "Head Chef",
+        "bio": "With 15 years of culinary experience across Cambodia and Southeast Asia, Chef Visal brings authentic flavors to every plate.",
+        "photo": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"
+      },
+      {
+        "id": "t2",
+        "name": "Malis Keo",
+        "position": "Restaurant Manager",
+        "bio": "Malis ensures every guest has an exceptional dining experience with her warm hospitality and attention to detail.",
+        "photo": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"
+      },
+      {
+        "id": "t3",
+        "name": "Dara Ngoun",
+        "position": "Sous Chef",
+        "bio": "Specializing in modern Cambodian fusion, Dara adds a creative twist to traditional recipes.",
+        "photo": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"
+      }
+    ],
+    "reviews": [
+      {
+        "id": "r1",
+        "customerName": "Sopheap Chan",
+        "customerPhoto": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "rating": 5,
+        "title": "Best Khmer food in Phnom Penh",
+        "comment": "Absolutely amazing food! The Amok Trey was the best I have ever had. The staff were incredibly friendly and the atmosphere was perfect. Will definitely come back!",
+        "isApproved": true,
+        "wouldRecommend": true,
+        "createdAt": "2026-04-15T10:00:00Z"
+      },
+      {
+        "id": "r2",
+        "customerName": "David Kim",
+        "customerPhoto": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "rating": 5,
+        "title": "Perfect for corporate events",
+        "comment": "We had our company dinner here and everyone was impressed. The private room was beautifully set up and the food was outstanding. Great service throughout the evening.",
+        "isApproved": true,
+        "wouldRecommend": true,
+        "createdAt": "2026-03-20T14:30:00Z"
+      },
+      {
+        "id": "r3",
+        "customerName": "Sreymom Pich",
+        "customerPhoto": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "rating": 4,
+        "title": "Authentic and delicious",
+        "comment": "Love the authentic flavors. The Lok Lak was perfectly cooked. Slightly long wait during peak hours but the quality makes it worth it.",
+        "isApproved": true,
+        "wouldRecommend": true,
+        "createdAt": "2026-02-10T19:00:00Z"
+      },
+      {
+        "id": "r4",
+        "customerName": "James Wilson",
+        "customerPhoto": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "rating": 5,
+        "title": "Wonderful first Cambodian food experience",
+        "comment": "As a first-time visitor to Cambodia, this restaurant gave me the most authentic culinary experience. The staff helped me understand each dish and the recommendations were spot on.",
+        "isApproved": true,
+        "wouldRecommend": true,
+        "createdAt": "2026-01-28T12:00:00Z"
+      },
+      {
+        "id": "r5",
+        "customerName": "Chanthy Ros",
+        "customerPhoto": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
+        "rating": 4,
+        "title": "My go-to spot for guests",
+        "comment": "Great location, beautiful decor, and the food is consistently good. I bring all my international guests here and they always leave impressed.",
+        "isApproved": true,
+        "wouldRecommend": true,
+        "createdAt": "2025-12-05T18:00:00Z"
+      }
+    ],
+    "stats": {
+      "yearsInBusiness": 10,
+      "customersServed": 50000,
+      "customStats": [
+        { "label": "Menu Items",     "value": "80+" },
+        { "label": "5-Star Reviews", "value": "1,200+" }
+      ]
+    },
+    "theme": {
+      "primaryColor": "#57823D"
+    },
+    "createdAt": "2015-06-01T00:00:00Z",
+    "updatedAt": "2026-05-21T00:00:00Z"
+  }
+}
