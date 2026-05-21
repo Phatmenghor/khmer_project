@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -125,6 +125,36 @@ export default function PortfolioPage() {
   const form = useForm<PortfolioProfileSaveRequest>({
     mode: "onBlur",
     defaultValues,
+  });
+
+  const { fields: businessHoursFields } = useFieldArray({
+    control: form.control,
+    name: "businessHours",
+  });
+
+  const { fields: galleryFields } = useFieldArray({
+    control: form.control,
+    name: "gallery",
+  });
+
+  const { fields: servicesFields } = useFieldArray({
+    control: form.control,
+    name: "services",
+  });
+
+  const { fields: teamFields } = useFieldArray({
+    control: form.control,
+    name: "team",
+  });
+
+  const { fields: featuresFields } = useFieldArray({
+    control: form.control,
+    name: "features",
+  });
+
+  const { fields: customStatsFields } = useFieldArray({
+    control: form.control,
+    name: "customStats",
   });
 
   useAdminCleanup(() => {
@@ -467,16 +497,17 @@ export default function PortfolioPage() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
-            {form.watch("features").map((feature, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  placeholder="Feature name..."
-                  value={feature}
-                  onChange={(e) => {
-                    const features = form.getValues("features");
-                    features[index] = e.target.value;
-                    form.setValue("features", features, { shouldDirty: true });
-                  }}
+            {featuresFields.map((field, index) => (
+              <div key={field.id} className="flex gap-2">
+                <Controller
+                  name={`features.${index}`}
+                  control={form.control}
+                  render={({ field: featureField }) => (
+                    <Input
+                      placeholder="Feature name..."
+                      {...featureField}
+                    />
+                  )}
                 />
                 <Button
                   type="button"
@@ -500,10 +531,10 @@ export default function PortfolioPage() {
             <CardTitle>Business Hours</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {form.watch("businessHours").map((hour, index) => (
-              <div key={index} className="p-4 border rounded-lg">
+            {businessHoursFields.map((field, index) => (
+              <div key={field.id} className="p-4 border rounded-lg">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-sm">{hour.day}</span>
+                  <span className="font-semibold text-sm">{field.day}</span>
                   <Controller
                     name={`businessHours.${index}.isOpen`}
                     control={form.control}
@@ -515,7 +546,7 @@ export default function PortfolioPage() {
                     )}
                   />
                 </div>
-                {hour.isOpen && (
+                {form.watch(`businessHours.${index}.isOpen`) && (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs">Open Time</Label>
@@ -567,8 +598,8 @@ export default function PortfolioPage() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
-            {form.watch("gallery").map((item, index) => (
-              <div key={index} className="p-4 border rounded-lg space-y-3">
+            {galleryFields.map((field, index) => (
+              <div key={field.id} className="p-4 border rounded-lg space-y-3">
                 <div className="flex items-center justify-between mb-3">
                   <span className="font-semibold text-sm">Image {index + 1}</span>
                   <Button
@@ -585,51 +616,61 @@ export default function PortfolioPage() {
                 </div>
 
                 <div>
-                  <ClickableImageUpload
-                    label="Image"
-                    value={item.url}
-                    onChange={(img) => handleGalleryImageSelect(index, img)}
+                  <Controller
+                    name={`gallery.${index}.url`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <ClickableImageUpload
+                        label="Image"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label className="text-xs">Title</Label>
-                    <Input
-                      placeholder="Image title..."
-                      value={item.title}
-                      onChange={(e) => {
-                        const gallery = form.getValues("gallery");
-                        gallery[index].title = e.target.value;
-                        form.setValue("gallery", gallery, { shouldDirty: true });
-                      }}
+                    <Controller
+                      name={`gallery.${index}.title`}
+                      control={form.control}
+                      render={({ field }) => (
+                        <Input
+                          placeholder="Image title..."
+                          {...field}
+                        />
+                      )}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs">Display Order</Label>
-                    <Input
-                      type="number"
-                      value={item.displayOrder}
-                      onChange={(e) => {
-                        const gallery = form.getValues("gallery");
-                        gallery[index].displayOrder = parseInt(e.target.value) || 0;
-                        form.setValue("gallery", gallery, { shouldDirty: true });
-                      }}
+                    <Controller
+                      name={`gallery.${index}.displayOrder`}
+                      control={form.control}
+                      render={({ field }) => (
+                        <Input
+                          type="number"
+                          value={field.value || 0}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        />
+                      )}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-xs">Description</Label>
-                  <Textarea
-                    placeholder="Image description..."
-                    rows={2}
-                    value={item.description}
-                    onChange={(e) => {
-                      const gallery = form.getValues("gallery");
-                      gallery[index].description = e.target.value;
-                      form.setValue("gallery", gallery, { shouldDirty: true });
-                    }}
+                  <Controller
+                    name={`gallery.${index}.description`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <Textarea
+                        placeholder="Image description..."
+                        rows={2}
+                        {...field}
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -654,8 +695,8 @@ export default function PortfolioPage() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
-            {form.watch("services").map((service, index) => (
-              <div key={index} className="p-4 border rounded-lg space-y-3">
+            {servicesFields.map((field, index) => (
+              <div key={field.id} className="p-4 border rounded-lg space-y-3">
                 <div className="flex items-center justify-between mb-3">
                   <span className="font-semibold text-sm">Service {index + 1}</span>
                   <Button
@@ -673,28 +714,30 @@ export default function PortfolioPage() {
 
                 <div className="space-y-2">
                   <Label className="text-xs">Service Name</Label>
-                  <Input
-                    placeholder="Service name..."
-                    value={service.name}
-                    onChange={(e) => {
-                      const services = form.getValues("services");
-                      services[index].name = e.target.value;
-                      form.setValue("services", services, { shouldDirty: true });
-                    }}
+                  <Controller
+                    name={`services.${index}.name`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <Input
+                        placeholder="Service name..."
+                        {...field}
+                      />
+                    )}
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-xs">Description</Label>
-                  <Textarea
-                    placeholder="Service description..."
-                    rows={3}
-                    value={service.description}
-                    onChange={(e) => {
-                      const services = form.getValues("services");
-                      services[index].description = e.target.value;
-                      form.setValue("services", services, { shouldDirty: true });
-                    }}
+                  <Controller
+                    name={`services.${index}.description`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <Textarea
+                        placeholder="Service description..."
+                        rows={3}
+                        {...field}
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -719,10 +762,10 @@ export default function PortfolioPage() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
-            {form.watch("team").map((member, index) => (
-              <div key={index} className="p-4 border rounded-lg space-y-3">
+            {teamFields.map((field, index) => (
+              <div key={field.id} className="p-4 border rounded-lg space-y-3">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-sm">{member.name || "Team Member"}</span>
+                  <span className="font-semibold text-sm">{form.watch(`team.${index}.name`) || "Team Member"}</span>
                   <Button
                     type="button"
                     size="sm"
@@ -737,51 +780,60 @@ export default function PortfolioPage() {
                 </div>
 
                 <div>
-                  <ClickableImageUpload
-                    label="Photo"
-                    value={member.photoUrl}
-                    onChange={(img) => handleTeamPhotoSelect(index, img)}
+                  <Controller
+                    name={`team.${index}.photoUrl`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <ClickableImageUpload
+                        label="Photo"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label className="text-xs">Name</Label>
-                    <Input
-                      placeholder="Full name..."
-                      value={member.name}
-                      onChange={(e) => {
-                        const team = form.getValues("team");
-                        team[index].name = e.target.value;
-                        form.setValue("team", team, { shouldDirty: true });
-                      }}
+                    <Controller
+                      name={`team.${index}.name`}
+                      control={form.control}
+                      render={({ field }) => (
+                        <Input
+                          placeholder="Full name..."
+                          {...field}
+                        />
+                      )}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs">Position</Label>
-                    <Input
-                      placeholder="Job title..."
-                      value={member.position}
-                      onChange={(e) => {
-                        const team = form.getValues("team");
-                        team[index].position = e.target.value;
-                        form.setValue("team", team, { shouldDirty: true });
-                      }}
+                    <Controller
+                      name={`team.${index}.position`}
+                      control={form.control}
+                      render={({ field }) => (
+                        <Input
+                          placeholder="Job title..."
+                          {...field}
+                        />
+                      )}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-xs">Bio</Label>
-                  <Textarea
-                    placeholder="Team member bio..."
-                    rows={3}
-                    value={member.bio}
-                    onChange={(e) => {
-                      const team = form.getValues("team");
-                      team[index].bio = e.target.value;
-                      form.setValue("team", team, { shouldDirty: true });
-                    }}
+                  <Controller
+                    name={`team.${index}.bio`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <Textarea
+                        placeholder="Team member bio..."
+                        rows={3}
+                        {...field}
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -806,21 +858,25 @@ export default function PortfolioPage() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
-            {form.watch("customStats").map((stat, index) => (
-              <div key={index} className="flex gap-2">
+            {customStatsFields.map((field, index) => (
+              <div key={field.id} className="flex gap-2">
                 <div className="flex-1">
-                  <Input placeholder="Label (e.g., Products)" value={stat.label} onChange={(e) => {
-                    const stats = form.getValues("customStats");
-                    stats[index].label = e.target.value;
-                    form.setValue("customStats", stats, { shouldDirty: true });
-                  }} />
+                  <Controller
+                    name={`customStats.${index}.label`}
+                    control={form.control}
+                    render={({ field: labelField }) => (
+                      <Input placeholder="Label (e.g., Products)" {...labelField} />
+                    )}
+                  />
                 </div>
                 <div className="flex-1">
-                  <Input placeholder="Value (e.g., 10,000+)" value={stat.value} onChange={(e) => {
-                    const stats = form.getValues("customStats");
-                    stats[index].value = e.target.value;
-                    form.setValue("customStats", stats, { shouldDirty: true });
-                  }} />
+                  <Controller
+                    name={`customStats.${index}.value`}
+                    control={form.control}
+                    render={({ field: valueField }) => (
+                      <Input placeholder="Value (e.g., 10,000+)" {...valueField} />
+                    )}
+                  />
                 </div>
                 <Button
                   type="button"
