@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QrCode } from "lucide-react";
-import { QRCardWithDownload } from "@/components/shared/qr/qr-card-with-download";
+import { QRGenerator } from "@/components/shared/qr/qr-generator";
 import { generateQRUrl, type QRConfig, type QRStyle } from "./use-qr-generator";
 
 interface QRPreviewPanelProps {
@@ -32,8 +32,8 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
       </CardHeader>
 
       <CardContent className="flex flex-col items-center gap-5 flex-1">
-        {/* Unified QR card with advanced download rendering */}
-        <QRCardWithDownload
+        {/* Unified QR generator — same component as modal */}
+        <QRGenerator
           link={effectiveUrl}
           businessName={displayTitle}
           subtitle={displaySubtitle}
@@ -44,9 +44,9 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
           primaryColor={style.primaryColor}
           bgColor={bgColor}
           maxWidth={320}
-          showActions={true}
+          showDownload={true}
+          showCopy={true}
           showShare={false}
-          hasContent={!!qrUrl}
         />
 
         {/* URL display info */}

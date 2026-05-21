@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X, QrCode } from "lucide-react";
-import { QRCardWithDownload } from "./qr-card-with-download";
+import { QRGenerator } from "./qr-generator";
 
 export interface QRTemplateModalProps {
   open: boolean;
@@ -38,7 +38,6 @@ export function QRTemplateModal({
 }: QRTemplateModalProps) {
   const [colors, setColors] = useState(() => parsePrimary("97 36% 37%"));
 
-  // Read --primary once when modal opens
   useEffect(() => {
     if (!open) return;
     const raw = getComputedStyle(document.documentElement).getPropertyValue("--primary");
@@ -48,17 +47,13 @@ export function QRTemplateModal({
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       <div
         className="relative z-10 w-full max-w-lg bg-background rounded-2xl shadow-2xl border border-border overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex items-center gap-2">
             <QrCode className="w-4 h-4 text-primary" />
@@ -73,8 +68,7 @@ export function QRTemplateModal({
         </div>
 
         <div className="p-5">
-          {/* Unified QR card with advanced download rendering */}
-          <QRCardWithDownload
+          <QRGenerator
             link={url}
             businessName={businessName}
             subtitle={subtitle}
@@ -83,9 +77,9 @@ export function QRTemplateModal({
             gradTo={colors.to}
             primaryColor={colors.color}
             maxWidth={440}
-            showActions={true}
+            showDownload={true}
+            showCopy={true}
             showShare={true}
-            hasContent={!!url}
           />
         </div>
       </div>
