@@ -60,11 +60,11 @@ VALUES (
 -- Mega Store Social Media Links
 INSERT INTO social_media (id, business_setting_id, name, image_url, link_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES
-  ('550e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440002', 'Facebook', 'https://cdn-icons-png.flaticon.com/512/733/733547.png', 'https://facebook.com/megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('550e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440002', 'Instagram', 'https://cdn-icons-png.flaticon.com/512/733/733558.png', 'https://instagram.com/megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('550e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440002', 'TikTok', 'https://cdn-icons-png.flaticon.com/512/3046/3046126.png', 'https://tiktok.com/@megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('550e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440002', 'WhatsApp', 'https://cdn-icons-png.flaticon.com/512/733/733585.png', 'https://wa.me/85512345678', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('550e8400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440002', 'Telegram', 'https://cdn-icons-png.flaticon.com/512/2111/2111646.png', 'https://t.me/megastore_cambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
+  ('550e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440002', 'Facebook', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://facebook.com/megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440002', 'Instagram', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://instagram.com/megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440002', 'TikTok', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://tiktok.com/@megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440002', 'WhatsApp', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://wa.me/85512345678', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440002', 'Telegram', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://t.me/megastore_cambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
 ON CONFLICT DO NOTHING;
 
 -- Mega Store Business Hours
@@ -99,10 +99,10 @@ VALUES (
 -- Fashion Hub Social Media Links
 INSERT INTO social_media (id, business_setting_id, name, image_url, link_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES
-  ('660e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440003', 'Facebook', 'https://cdn-icons-png.flaticon.com/512/733/733547.png', 'https://facebook.com/fashionhub.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('660e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440003', 'Instagram', 'https://cdn-icons-png.flaticon.com/512/733/733558.png', 'https://instagram.com/fashionhub.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('660e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440003', 'YouTube', 'https://cdn-icons-png.flaticon.com/512/733/733564.png', 'https://youtube.com/@fashionhubcambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('660e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440003', 'Pinterest', 'https://cdn-icons-png.flaticon.com/512/733/733553.png', 'https://pinterest.com/fashionhubcambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
+  ('660e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440003', 'Facebook', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://facebook.com/fashionhub.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('660e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440003', 'Instagram', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://instagram.com/fashionhub.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('660e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440003', 'YouTube', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://youtube.com/@fashionhubcambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('660e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440003', 'Pinterest', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://pinterest.com/fashionhubcambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
 ON CONFLICT DO NOTHING;
 
 -- Fashion Hub Business Hours
@@ -915,7 +915,7 @@ SELECT
   COALESCE(p.id, gen_random_uuid()),
   NULL,
   COALESCE(p.name, 'Product ' || ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id)),
-  COALESCE(p.main_image_url, 'https://via.placeholder.com/300x300?text=Product'),
+  COALESCE(p.main_image_url, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
   'Standard Size',
   COALESCE(p.sku, 'SKU-' || LPAD(ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id)::text, 5, '0')),
   COALESCE(p.barcode, '10000000000000' || LPAD(ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id)::text, 3, '0')),
@@ -1161,7 +1161,7 @@ VALUES (
   'Your One-Stop Shopping Destination in Cambodia',
   'Mega Store is Cambodia''s premier retail destination offering over 10,000 quality products across fashion, electronics, home goods, and more. Founded in 2016, we have served over 10,000 happy customers with a commitment to authenticity, value, and excellent service. Shop with confidence — every product is carefully curated and backed by our 30-day return policy.',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
-  'https://images.unsplash.com/photo-1441986300917-64674bd600d8',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'Retail',
   'megastore@example.com',
   '+855-12-345-678',
@@ -1205,7 +1205,7 @@ VALUES (
   'Where Style Meets Tradition',
   'Fashion Hub is Siem Reap''s leading fashion boutique, blending contemporary trends with Khmer craftsmanship. Since 2019, we have dressed thousands of style-conscious customers with our curated collections of local and international designers. From casual wear to formal attire, our experienced stylists are ready to help you find your perfect look.',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'Fashion & Apparel',
   'fashionhub@example.com',
   '+855-87-654-321',
@@ -1335,14 +1335,14 @@ INSERT INTO portfolio_gallery (
 )
 SELECT gen_random_uuid(), 'aa1cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, url, title, description, display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('https://images.unsplash.com/photo-1441986300917-64674bd600d8', 'Store Front',           'Our main entrance at Toul Kork, Phnom Penh',                      1),
-  ('https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5', 'Electronics Section',   'Latest gadgets and electronics on display',                       2),
-  ('https://images.unsplash.com/photo-1472851294608-062f824d29cc', 'Fashion Floor',          'Trending fashion from top local and international brands',         3),
-  ('https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a',   'Home & Living',           'Premium home goods and lifestyle décor',                           4),
-  ('https://images.unsplash.com/photo-1604719312566-8912e9c8a213', 'Customer Service Desk',  'Our award-winning customer service team ready to assist you',      5),
-  ('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d',   'Warehouse & Logistics',   'State-of-the-art storage and delivery fulfilment centre',          6),
-  ('https://images.unsplash.com/photo-1542744173-8e7e53415bb0',   'Team Meeting',            'Our dedicated team planning the best experience for you',          7),
-  ('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da', 'Grand Opening Event',    'Celebrating 8 years with our loyal customers',                    8)
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Store Front',           'Our main entrance at Toul Kork, Phnom Penh',                      1),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Electronics Section',   'Latest gadgets and electronics on display',                       2),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Fashion Floor',          'Trending fashion from top local and international brands',         3),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',   'Home & Living',           'Premium home goods and lifestyle décor',                           4),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Customer Service Desk',  'Our award-winning customer service team ready to assist you',      5),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',   'Warehouse & Logistics',   'State-of-the-art storage and delivery fulfilment centre',          6),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',   'Team Meeting',            'Our dedicated team planning the best experience for you',          7),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Grand Opening Event',    'Celebrating 8 years with our loyal customers',                    8)
 ) AS v(url, title, description, display_order)
 WHERE NOT EXISTS (
   SELECT 1 FROM portfolio_gallery WHERE profile_id = 'aa1cad56-cafd-4aba-baef-c4dcd53940d0' AND is_deleted = false
@@ -1355,12 +1355,12 @@ INSERT INTO portfolio_gallery (
 )
 SELECT gen_random_uuid(), 'bb1cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, url, title, description, display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('https://images.unsplash.com/photo-1558618666-fcd25c85cd64',   'Boutique Interior',       'Our elegant showroom in the heart of Siem Reap',                  1),
-  ('https://images.unsplash.com/photo-1524504388940-b1c1722653e1','Summer Collection',        '2024 Summer Collection — Vibrant, Fresh & Contemporary',           2),
-  ('https://images.unsplash.com/photo-1490481651871-ab68de25d43d','Khmer Traditional',        'Handcrafted traditional Khmer fashion pieces by local artisans',   3),
-  ('https://images.unsplash.com/photo-1469334031218-e382a71b716b','Fashion Show 2024',        'Our annual showcase of Khmer and international designers',          4),
-  ('https://images.unsplash.com/photo-1580618672591-eb180b1a973f','Fitting Room',             'Luxurious private fitting rooms for your comfort',                 5),
-  ('https://images.unsplash.com/photo-1512436991641-6745cdb1723f','Accessories Corner',       'Handpicked accessories and jewellery to complete your look',        6)
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',   'Boutique Interior',       'Our elegant showroom in the heart of Siem Reap',                  1),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce','Summer Collection',        '2024 Summer Collection — Vibrant, Fresh & Contemporary',           2),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce','Khmer Traditional',        'Handcrafted traditional Khmer fashion pieces by local artisans',   3),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce','Fashion Show 2024',        'Our annual showcase of Khmer and international designers',          4),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce','Fitting Room',             'Luxurious private fitting rooms for your comfort',                 5),
+  ('https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce','Accessories Corner',       'Handpicked accessories and jewellery to complete your look',        6)
 ) AS v(url, title, description, display_order)
 WHERE NOT EXISTS (
   SELECT 1 FROM portfolio_gallery WHERE profile_id = 'bb1cad56-cafd-4aba-baef-c4dcd53940d0' AND is_deleted = false
@@ -1417,11 +1417,11 @@ INSERT INTO portfolio_team_member (
 )
 SELECT gen_random_uuid(), 'aa1cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, name, position, bio, photo_url, display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('Sokha Phan',     'CEO & Founder',          'Sokha founded Mega Store in 2016 with a vision to bring quality retail to every Cambodian family. With 15+ years in the industry, he leads with passion and a genuine love for serving customers.',      'https://i.pravatar.cc/300?img=11', 1),
-  ('Dara Lim',       'General Manager',         'Dara oversees all store operations and ensures every customer leaves with a smile. An MBA graduate with 10 years in retail management, he keeps the business running like clockwork.',                  'https://i.pravatar.cc/300?img=12', 2),
-  ('Sophea Keo',     'Head of Marketing',       'Sophea drives our brand presence across digital and traditional channels. She brings creativity and data-driven strategy, growing Mega Store into a household name across Cambodia.',                     'https://i.pravatar.cc/300?img=13', 3),
-  ('Vanna Teng',     'Sales Manager',           'Vanna leads our sales team with energy and deep product knowledge. He built our customer loyalty programme from scratch and continues to set the bar for service excellence.',                           'https://i.pravatar.cc/300?img=14', 4),
-  ('Channary Ros',   'Customer Service Lead',   'Channary champions exceptional customer experiences from day one. Her team consistently achieves the highest satisfaction scores across all our contact channels.',                                      'https://i.pravatar.cc/300?img=15', 5)
+  ('Sokha Phan',     'CEO & Founder',          'Sokha founded Mega Store in 2016 with a vision to bring quality retail to every Cambodian family. With 15+ years in the industry, he leads with passion and a genuine love for serving customers.',      'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 1),
+  ('Dara Lim',       'General Manager',         'Dara oversees all store operations and ensures every customer leaves with a smile. An MBA graduate with 10 years in retail management, he keeps the business running like clockwork.',                  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 2),
+  ('Sophea Keo',     'Head of Marketing',       'Sophea drives our brand presence across digital and traditional channels. She brings creativity and data-driven strategy, growing Mega Store into a household name across Cambodia.',                     'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 3),
+  ('Vanna Teng',     'Sales Manager',           'Vanna leads our sales team with energy and deep product knowledge. He built our customer loyalty programme from scratch and continues to set the bar for service excellence.',                           'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 4),
+  ('Channary Ros',   'Customer Service Lead',   'Channary champions exceptional customer experiences from day one. Her team consistently achieves the highest satisfaction scores across all our contact channels.',                                      'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 5)
 ) AS v(name, position, bio, photo_url, display_order)
 WHERE NOT EXISTS (
   SELECT 1 FROM portfolio_team_member WHERE profile_id = 'aa1cad56-cafd-4aba-baef-c4dcd53940d0' AND is_deleted = false
@@ -1434,10 +1434,10 @@ INSERT INTO portfolio_team_member (
 )
 SELECT gen_random_uuid(), 'bb1cad56-cafd-4aba-baef-c4dcd53940d0'::uuid, name, position, bio, photo_url, display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('Bopha Chhun',    'Creative Director',   'Bopha is the visionary behind Fashion Hub''s unique identity. A graduate of design school in Bangkok, she expertly weaves Khmer cultural heritage into modern silhouettes that resonate globally.',         'https://i.pravatar.cc/300?img=21', 1),
-  ('Piseth Mao',     'Store Manager',       'Piseth ensures every visit to Fashion Hub is a memorable experience. With 8 years in luxury retail, he has built a team that delivers five-star service to every guest who walks through our doors.',       'https://i.pravatar.cc/300?img=22', 2),
-  ('Sreyleap Nou',   'Lead Stylist',        'Sreyleap has styled hundreds of clients for weddings, galas, and everyday confidence. She believes that the right outfit can change how you feel about yourself — and she proves it every day.',            'https://i.pravatar.cc/300?img=23', 3),
-  ('Kimhong Yem',    'Master Tailor',       'Kimhong brings 20 years of traditional Khmer tailoring expertise. His bespoke garments have been worn at royal ceremonies and international fashion events. Every stitch tells a story.',                  'https://i.pravatar.cc/300?img=24', 4)
+  ('Bopha Chhun',    'Creative Director',   'Bopha is the visionary behind Fashion Hub''s unique identity. A graduate of design school in Bangkok, she expertly weaves Khmer cultural heritage into modern silhouettes that resonate globally.',         'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 1),
+  ('Piseth Mao',     'Store Manager',       'Piseth ensures every visit to Fashion Hub is a memorable experience. With 8 years in luxury retail, he has built a team that delivers five-star service to every guest who walks through our doors.',       'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 2),
+  ('Sreyleap Nou',   'Lead Stylist',        'Sreyleap has styled hundreds of clients for weddings, galas, and everyday confidence. She believes that the right outfit can change how you feel about yourself — and she proves it every day.',            'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 3),
+  ('Kimhong Yem',    'Master Tailor',       'Kimhong brings 20 years of traditional Khmer tailoring expertise. His bespoke garments have been worn at royal ceremonies and international fashion events. Every stitch tells a story.',                  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 4)
 ) AS v(name, position, bio, photo_url, display_order)
 WHERE NOT EXISTS (
   SELECT 1 FROM portfolio_team_member WHERE profile_id = 'bb1cad56-cafd-4aba-baef-c4dcd53940d0' AND is_deleted = false
