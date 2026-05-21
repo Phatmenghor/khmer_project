@@ -170,10 +170,10 @@ export default function BusinessProfilePage() {
           <div className="container mx-auto px-4 max-w-6xl">
             <div className="flex flex-col sm:flex-row sm:items-start gap-4 py-4">
 
-              {/* Logo — only this element pops up into the cover */}
-              <div className="w-24 h-24 sm:w-28 sm:h-28 -mt-12 sm:-mt-16 rounded-2xl border-4 border-background shadow-xl flex-shrink-0 overflow-hidden bg-card">
+              {/* Logo — pops up into the cover image */}
+              <div className="w-28 h-28 sm:w-32 sm:h-32 -mt-14 sm:-mt-20 rounded-2xl border-4 border-background shadow-xl flex-shrink-0 overflow-hidden bg-card">
                 {profile.logo ? (
-                  <Image src={profile.logo} alt="logo" width={112} height={112} className="object-cover w-full h-full" />
+                  <Image src={profile.logo} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-primary/10">
                     <Building2 className="w-10 h-10 text-primary" />
@@ -181,27 +181,24 @@ export default function BusinessProfilePage() {
                 )}
               </div>
 
-              {/* Name block — fully on white, always readable */}
+              {/* Name block — on white, always readable */}
               <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-1">
+                {/* Row 1: name + open/closed badge */}
+                <div className="flex flex-wrap items-center gap-2 mb-2">
                   <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">
                     {profile.businessName}
                   </h1>
                   <Badge
                     className={open
-                      ? "bg-green-100 text-green-700 border-green-200"
-                      : "bg-destructive/10 text-destructive border-destructive/20"}
+                      ? "bg-green-500 text-white border-green-500"
+                      : "bg-destructive text-white border-destructive"}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 inline-block ${open ? "bg-green-500" : "bg-destructive"}`} />
                     {open ? "Open Now" : "Closed"}
                   </Badge>
                 </div>
-                <p className="text-primary font-medium text-sm mb-2">{profile.tagline}</p>
+                {/* Row 2: category + rating + address */}
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                  <Badge variant="secondary" className="gap-1">
-                    <Building2 className="w-3 h-3" />
-                    {profile.industry}
-                  </Badge>
+                  <Badge variant="secondary">{profile.industry}</Badge>
                   {totalReviews > 0 && (
                     <div className="flex items-center gap-1">
                       <StarRow rating={avg} size={3} />
