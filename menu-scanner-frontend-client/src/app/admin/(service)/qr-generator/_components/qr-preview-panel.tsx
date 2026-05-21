@@ -288,7 +288,9 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
               }}>
                 {style.logoDataUrl ? (
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", overflow: "hidden", flexShrink: 0, backgroundImage: `url(${style.logoDataUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", overflow: "hidden", flexShrink: 0 }}>
+                    <div style={{ width: "100%", height: "100%", backgroundImage: `url(${style.logoDataUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundColor: "#fff" }} />
+                  </div>
                 ) : (
                   <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <QrCode style={{ width: 28, height: 28, color: "#000" }} />
@@ -314,7 +316,9 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 {/* Top row: Logo LEFT — QR badge RIGHT */}
                 <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
                   {style.logoDataUrl ? (
-                    <div style={{ width: 44, height: 44, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0, backgroundImage: `url(${style.logoDataUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
+                    <div style={{ width: 44, height: 44, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0 }}>
+                      <div style={{ width: "100%", height: "100%", backgroundImage: `url(${style.logoDataUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundColor: "#fff" }} />
+                    </div>
                   ) : (
                     <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)", display: "block" }} />
