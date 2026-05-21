@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -310,7 +310,16 @@ export default function PortfolioPage() {
             </div>
 
             <div className="flex items-center gap-3 p-4 border rounded-lg">
-              <Switch {...form.register("isPublished")} />
+              <Controller
+                name="isPublished"
+                control={form.control}
+                render={({ field }) => (
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
+              />
               <div>
                 <p className="font-semibold text-sm">Publish Profile</p>
                 <p className="text-xs text-muted-foreground">Make this profile visible to customers</p>
@@ -495,37 +504,43 @@ export default function PortfolioPage() {
               <div key={index} className="p-4 border rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <span className="font-semibold text-sm">{hour.day}</span>
-                  <Switch
-                    checked={hour.isOpen}
-                    onCheckedChange={(checked) => {
-                      const hours = form.getValues("businessHours");
-                      hours[index].isOpen = checked;
-                      form.setValue("businessHours", hours, { shouldDirty: true });
-                    }}
+                  <Controller
+                    name={`businessHours.${index}.isOpen`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
                   />
                 </div>
                 {hour.isOpen && (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs">Open Time</Label>
-                      <CustomTimePicker
-                        value={hour.openTime}
-                        onChange={(time) => {
-                          const hours = form.getValues("businessHours");
-                          hours[index].openTime = time;
-                          form.setValue("businessHours", hours, { shouldDirty: true });
-                        }}
+                      <Controller
+                        name={`businessHours.${index}.openTime`}
+                        control={form.control}
+                        render={({ field }) => (
+                          <CustomTimePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
                       />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Close Time</Label>
-                      <CustomTimePicker
-                        value={hour.closeTime}
-                        onChange={(time) => {
-                          const hours = form.getValues("businessHours");
-                          hours[index].closeTime = time;
-                          form.setValue("businessHours", hours, { shouldDirty: true });
-                        }}
+                      <Controller
+                        name={`businessHours.${index}.closeTime`}
+                        control={form.control}
+                        render={({ field }) => (
+                          <CustomTimePicker
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
                       />
                     </div>
                   </div>
