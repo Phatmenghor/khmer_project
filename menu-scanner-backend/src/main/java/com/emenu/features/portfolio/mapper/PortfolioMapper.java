@@ -17,6 +17,47 @@ import java.util.stream.Collectors;
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PortfolioMapper {
 
+    // ── Request → Review entity ───────────────────────────────────────────
+    // profileId and businessId are set by the service after mapping.
+
+    @Mapping(target = "id",         ignore = true)
+    @Mapping(target = "profileId",  ignore = true)
+    @Mapping(target = "businessId", ignore = true)
+    @Mapping(target = "version",    ignore = true)
+    @Mapping(target = "createdAt",  ignore = true)
+    @Mapping(target = "updatedAt",  ignore = true)
+    @Mapping(target = "createdBy",  ignore = true)
+    @Mapping(target = "updatedBy",  ignore = true)
+    @Mapping(target = "isDeleted",  ignore = true)
+    @Mapping(target = "deletedAt",  ignore = true)
+    @Mapping(target = "deletedBy",  ignore = true)
+    PortfolioReview toReviewEntity(PortfolioReviewSubmitRequest request);
+
+    // ── Request → Profile entity (update/upsert) ───────────────────────────
+    // businessId and businessName are resolved by the service and set after.
+    // Collection fields are rebuilt separately via rebuildCollections().
+
+    @Mapping(target = "id",            ignore = true)
+    @Mapping(target = "businessId",    ignore = true)
+    @Mapping(target = "businessName",  ignore = true)
+    @Mapping(target = "version",       ignore = true)
+    @Mapping(target = "createdAt",     ignore = true)
+    @Mapping(target = "updatedAt",     ignore = true)
+    @Mapping(target = "createdBy",     ignore = true)
+    @Mapping(target = "updatedBy",     ignore = true)
+    @Mapping(target = "isDeleted",     ignore = true)
+    @Mapping(target = "deletedAt",     ignore = true)
+    @Mapping(target = "deletedBy",     ignore = true)
+    @Mapping(target = "businessHours", ignore = true)
+    @Mapping(target = "gallery",       ignore = true)
+    @Mapping(target = "services",      ignore = true)
+    @Mapping(target = "team",          ignore = true)
+    @Mapping(target = "customStats",   ignore = true)
+    @Mapping(target = "contactPhones", defaultExpression = "java(new java.util.ArrayList<>())")
+    @Mapping(target = "features",      defaultExpression = "java(new java.util.ArrayList<>())")
+    @Mapping(target = "isPublished",   defaultExpression = "java(Boolean.FALSE)")
+    void applyProfileFields(@MappingTarget PortfolioProfile profile, PortfolioProfileSaveRequest request);
+
     // ── Child entity → DTO ─────────────────────────────────────────────────
 
     PortfolioPublicResponse.HoursDto toHoursDto(PortfolioHours hours);

@@ -27,7 +27,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -96,16 +99,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         PortfolioProfile profile = profileRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Portfolio profile not found for business: " + businessId));
 
-        PortfolioReview review = new PortfolioReview();
+        PortfolioReview review = portfolioMapper.toReviewEntity(request);
         review.setProfileId(profile.getId());
         review.setBusinessId(businessId);
-        review.setCustomerName(request.getCustomerName());
-        review.setCustomerEmail(request.getCustomerEmail());
-        review.setCustomerPhone(request.getCustomerPhone());
-        review.setRating(request.getRating());
-        review.setTitle(request.getTitle());
-        review.setComment(request.getComment());
-        review.setWouldRecommend(request.getWouldRecommend());
 
         reviewRepository.save(review);
         log.info("Review submitted for businessId={}", businessId);
@@ -143,36 +139,9 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private void applyProfileFields(PortfolioProfile profile, PortfolioProfileSaveRequest request,
                                     UUID businessId, String businessName) {
+        portfolioMapper.applyProfileFields(profile, request);
         profile.setBusinessId(businessId);
         profile.setBusinessName(businessName);
-        profile.setSlug(request.getSlug());
-        profile.setTagline(request.getTagline());
-        profile.setDescription(request.getDescription());
-        profile.setLogoUrl(request.getLogoUrl());
-        profile.setCoverImageUrl(request.getCoverImageUrl());
-        profile.setIndustry(request.getIndustry());
-        profile.setContactEmail(request.getContactEmail());
-        profile.setContactPhone(request.getContactPhone());
-        profile.setContactPhones(request.getContactPhones() != null ? new ArrayList<>(request.getContactPhones()) : new ArrayList<>());
-        profile.setContactWhatsapp(request.getContactWhatsapp());
-        profile.setContactTelegram(request.getContactTelegram());
-        profile.setAddressStreet(request.getAddressStreet());
-        profile.setAddressCity(request.getAddressCity());
-        profile.setAddressState(request.getAddressState());
-        profile.setAddressCountry(request.getAddressCountry());
-        profile.setAddressPostalCode(request.getAddressPostalCode());
-        profile.setMapLink(request.getMapLink());
-        profile.setSocialFacebook(request.getSocialFacebook());
-        profile.setSocialInstagram(request.getSocialInstagram());
-        profile.setSocialTwitter(request.getSocialTwitter());
-        profile.setSocialLinkedin(request.getSocialLinkedin());
-        profile.setSocialYoutube(request.getSocialYoutube());
-        profile.setSocialTiktok(request.getSocialTiktok());
-        profile.setSocialWebsite(request.getSocialWebsite());
-        profile.setFeatures(request.getFeatures() != null ? new ArrayList<>(request.getFeatures()) : new ArrayList<>());
-        profile.setYearsInBusiness(request.getYearsInBusiness());
-        profile.setCustomersServed(request.getCustomersServed());
-        profile.setIsPublished(request.getIsPublished() != null ? request.getIsPublished() : false);
     }
 
     private void rebuildCollections(PortfolioProfile savedProfile, PortfolioProfileSaveRequest request) {
