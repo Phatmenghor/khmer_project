@@ -40,7 +40,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
       cornersSquareOptions: { type: "extra-rounded" as const, color: style.primaryColor },
       cornersDotOptions:    { color: style.primaryColor },
       backgroundOptions:    { color: style.backgroundColor },
-      imageOptions: { crossOrigin: "anonymous", margin: 5, imageSize: 0.3, hideBackgroundDots: true },
+      imageOptions: { crossOrigin: "anonymous", margin: 5, imageSize: style.logoSize, hideBackgroundDots: true },
     }),
     [effectiveUrl, style],
   );
@@ -74,7 +74,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
     try {
       const { default: html2canvas } = await import("html2canvas");
 
-      const snapshot = await html2canvas(cardRef.current, {
+      const snapshot = await html2canvas(cardRef.current!, {
         scale: 3,               // 3× → ~960px wide, print-quality
         useCORS: true,
         allowTaint: true,
@@ -87,20 +87,17 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             try {
               const dataUrl = (c as HTMLCanvasElement).toDataURL("image/png");
               const img = document.createElement("img");
-              img.src          = dataUrl;
-              img.style.width  = c.clientWidth  + "px";
-              img.style.height = c.clientHeight + "px";
+              img.src           = dataUrl;
+              img.style.width   = c.clientWidth  + "px";
+              img.style.height  = c.clientHeight + "px";
               img.style.display = "block";
               c.parentNode?.replaceChild(img, c);
-            } catch {
-              // If the canvas is tainted leave it; html2canvas will handle it
-            }
+            } catch { /* tainted canvas — html2canvas handles it */ }
           });
 
-          // Draw QR badge and eMenu on Canvas 2D then embed as <img>.
-          // Canvas 2D textBaseline:"middle" gives pixel-perfect centering — no CSS quirks.
           const S = 3; // match html2canvas scale
 
+          // ── QR badge (pill with green dot + "QR") ───────────────────────
           const badge = el.querySelector("[data-dl='qr-badge']") as HTMLElement | null;
           if (badge) {
             const W = 44, H = 20;
@@ -108,7 +105,6 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             bc.width = W * S; bc.height = H * S;
             const bx = bc.getContext("2d")!;
             bx.scale(S, S);
-            // pill bg
             bx.beginPath();
             bx.roundRect(0.5, 0.5, W - 1, H - 1, 10);
             bx.fillStyle = "rgba(255,255,255,0.15)";
@@ -116,12 +112,10 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             bx.strokeStyle = "rgba(255,255,255,0.2)";
             bx.lineWidth = 1;
             bx.stroke();
-            // green dot
             bx.beginPath();
             bx.arc(11, H / 2, 2.5, 0, Math.PI * 2);
             bx.fillStyle = "#34d399";
             bx.fill();
-            // QR text
             bx.fillStyle = "rgba(255,255,255,0.9)";
             bx.font = "600 9px system-ui,-apple-system,sans-serif";
             bx.textBaseline = "middle";
@@ -132,6 +126,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             badge.replaceWith(bimg);
           }
 
+          // ── eMenu (icon square + label) ──────────────────────────────────
           const emenu = el.querySelector("[data-dl='emenu']") as HTMLElement | null;
           if (emenu) {
             const label = "eMenu";
@@ -144,12 +139,10 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             ec.width = W * S; ec.height = H * S;
             const ex = ec.getContext("2d")!;
             ex.scale(S, S);
-            // icon square
             ex.beginPath();
             ex.roundRect(0, 0, 14, 14, 3);
             ex.fillStyle = "rgba(0,0,0,0.18)";
             ex.fill();
-            // eMenu text
             ex.fillStyle = "#64748b";
             ex.font = "500 10px system-ui,-apple-system,sans-serif";
             ex.textBaseline = "middle";
@@ -158,6 +151,69 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
             eimg.src = ec.toDataURL();
             eimg.style.cssText = `width:${W}px;height:${H}px;display:block;`;
             emenu.replaceWith(eimg);
+          }
+
+          // ── SCAN row (corner-bracket icons + centered text) ──────────────
+          const scanRow = el.querySelector("[data-dl='scan-row']") as HTMLElement | null;
+          if (scanRow) {
+            const scanText = (scanRow.getAttribute("data-scan-text") || "SCAN QR CODE").toUpperCase();
+            const iconSz = 12, gap = 6, H = 18;
+
+            // Measure text width with same font + letter-spacing as CSS
+            const tmpC = document.createElement("canvas");
+            const tmpX = tmpC.getContext("2d")!;
+            tmpX.font = "600 10px system-ui,-apple-system,sans-serif";
+            (tmpX as any).letterSpacing = "3px";
+            const textW = tmpX.measureText(scanText).width;
+            const W = Math.ceil(iconSz + gap + textW + gap + iconSz) + 4;
+
+            const sc = document.createElement("canvas");
+            sc.width = W * S; sc.height = H * S;
+            const sx = sc.getContext("2d")!;
+            sx.scale(S, S);
+
+            const cy = H / 2;
+            const iconColor = "#9ca3af";
+            const cornerLen = iconSz * 0.33;
+            const lw = 1.5;
+
+            const drawCorners = (ox: number) => {
+              const oy = cy - iconSz / 2;
+              sx.strokeStyle = iconColor;
+              sx.lineWidth = lw;
+              sx.lineCap = "round";
+              sx.lineJoin = "round";
+              // TL
+              sx.beginPath(); sx.moveTo(ox + cornerLen, oy); sx.lineTo(ox, oy); sx.lineTo(ox, oy + cornerLen); sx.stroke();
+              // TR
+              sx.beginPath(); sx.moveTo(ox + iconSz - cornerLen, oy); sx.lineTo(ox + iconSz, oy); sx.lineTo(ox + iconSz, oy + cornerLen); sx.stroke();
+              // BL
+              sx.beginPath(); sx.moveTo(ox, oy + iconSz - cornerLen); sx.lineTo(ox, oy + iconSz); sx.lineTo(ox + cornerLen, oy + iconSz); sx.stroke();
+              // BR
+              sx.beginPath(); sx.moveTo(ox + iconSz, oy + iconSz - cornerLen); sx.lineTo(ox + iconSz, oy + iconSz); sx.lineTo(ox + iconSz - cornerLen, oy + iconSz); sx.stroke();
+            };
+
+            const leftX = 2;
+            const textX = leftX + iconSz + gap;
+            const rightX = textX + Math.ceil(textW) + gap;
+
+            drawCorners(leftX);
+
+            sx.fillStyle = "#6b7280";
+            sx.font = "600 10px system-ui,-apple-system,sans-serif";
+            (sx as any).letterSpacing = "3px";
+            sx.textBaseline = "middle";
+            sx.fillText(scanText, textX, cy);
+
+            drawCorners(rightX);
+
+            const simg = document.createElement("img");
+            simg.src = sc.toDataURL();
+            simg.style.cssText = `width:${W}px;height:${H}px;display:inline-block;vertical-align:top;`;
+            const wrapper = document.createElement("div");
+            wrapper.style.cssText = "width:100%;text-align:center;line-height:0;font-size:0;";
+            wrapper.appendChild(simg);
+            scanRow.replaceWith(wrapper);
           }
         },
       });
@@ -232,9 +288,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
               }}>
                 {style.logoDataUrl ? (
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", overflow: "hidden", flexShrink: 0 }}>
-                    <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  </div>
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", overflow: "hidden", flexShrink: 0, backgroundImage: `url(${style.logoDataUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
                 ) : (
                   <div style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #000", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <QrCode style={{ width: 28, height: 28, color: "#000" }} />
@@ -260,9 +314,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                 {/* Top row: Logo LEFT — QR badge RIGHT */}
                 <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
                   {style.logoDataUrl ? (
-                    <div style={{ width: 44, height: 44, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0 }}>
-                      <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    </div>
+                    <div style={{ width: 44, height: 44, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0, backgroundImage: `url(${style.logoDataUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }} />
                   ) : (
                     <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)", display: "block" }} />
@@ -335,7 +387,7 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                   {displayScanText}
                 </p>
               ) : (
-                <div style={{ width: "100%", textAlign: "center", lineHeight: 1 }}>
+                <div data-dl="scan-row" data-scan-text={displayScanText} style={{ width: "100%", textAlign: "center", lineHeight: 1 }}>
                   <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginRight: 6 }}>
                     <Scan style={{ width: 12, height: 12, display: "block", color: "#9ca3af" }} />
                   </span>

@@ -25,6 +25,7 @@ export interface QRStyle {
   cardGradientFrom: string;
   cardGradientTo: string;
   template: CardTemplate;
+  logoSize: number; // 0.1–0.5, fraction of QR area the logo occupies
 }
 
 export const QR_TYPE_OPTIONS: Array<{
@@ -63,4 +64,5 @@ export const DEFAULT_STYLE: QRStyle = {
   cardGradientFrom: "#1a237e",
   cardGradientTo: "#283593",
   template: "bank-classic",
+  logoSize: 0.3,
 };

@@ -169,28 +169,53 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
           </p>
 
           {style.logoDataUrl ? (
-            <div className="flex items-center gap-3 p-2 rounded-md border border-border bg-muted/40">
-              {/* Circular preview */}
-              <div className="w-10 h-10 rounded-full overflow-hidden border border-border flex-shrink-0 bg-white">
-                <img
-                  src={style.logoDataUrl}
-                  alt="Logo preview"
-                  className="w-full h-full object-cover"
+            <>
+              <div className="flex items-center gap-3 p-2 rounded-md border border-border bg-muted/40">
+                {/* Circular preview */}
+                <div className="w-10 h-10 rounded-full overflow-hidden border border-border flex-shrink-0 bg-white">
+                  <img
+                    src={style.logoDataUrl}
+                    alt="Logo preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-foreground truncate">Logo uploaded</p>
+                  <p className="text-xs text-muted-foreground">Shown in QR card</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 flex-shrink-0 hover:text-destructive"
+                  onClick={() => onUpdate({ logoDataUrl: null })}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+
+              {/* Logo size slider — only when logo is present */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-foreground">Logo Size in QR</p>
+                  <span className="text-xs text-muted-foreground tabular-nums">
+                    {Math.round(style.logoSize * 100)}%
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="0.5"
+                  step="0.05"
+                  value={style.logoSize}
+                  onChange={(e) => onUpdate({ logoSize: parseFloat(e.target.value) })}
+                  className="w-full h-1.5 cursor-pointer accent-primary"
                 />
+                <div className="flex justify-between text-[10px] text-muted-foreground">
+                  <span>Small</span>
+                  <span>Large</span>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-foreground truncate">Logo uploaded</p>
-                <p className="text-xs text-muted-foreground">Shown in QR card</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 flex-shrink-0 hover:text-destructive"
-                onClick={() => onUpdate({ logoDataUrl: null })}
-              >
-                <X className="w-3.5 h-3.5" />
-              </Button>
-            </div>
+            </>
           ) : (
             <button
               type="button"
