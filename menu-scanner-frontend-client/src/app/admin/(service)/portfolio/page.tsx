@@ -151,31 +151,31 @@ export default function PortfolioPage() {
     const formData = buildFormFromProfile(profile);
     form.reset(formData);
     setIsLoading(false);
-  }, [profile, form]);
+  }, [profile]);
 
   const handleLogoSelect = useCallback((imageData: string) => {
     form.setValue("logoUrl", imageData, { shouldDirty: true });
     showToast.success("Logo selected");
-  }, [form]);
+  }, []);
 
   const handleCoverImageSelect = useCallback((imageData: string) => {
     form.setValue("coverImageUrl", imageData, { shouldDirty: true });
     showToast.success("Cover image selected");
-  }, [form]);
+  }, []);
 
   const handleGalleryImageSelect = useCallback((index: number, imageData: string) => {
     const gallery = form.getValues("gallery");
     gallery[index].url = imageData;
     form.setValue("gallery", gallery, { shouldDirty: true });
     showToast.success("Gallery image selected");
-  }, [form]);
+  }, []);
 
   const handleTeamPhotoSelect = useCallback((index: number, imageData: string) => {
     const team = form.getValues("team");
     team[index].photoUrl = imageData;
     form.setValue("team", team, { shouldDirty: true });
     showToast.success("Team photo selected");
-  }, [form]);
+  }, []);
 
   const onSubmit = async (data: PortfolioProfileSaveRequest) => {
     try {
