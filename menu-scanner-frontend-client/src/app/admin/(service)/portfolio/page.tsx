@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
@@ -116,31 +116,22 @@ const emptyForm = (): PortfolioProfileSaveRequest => ({
 export default function PortfolioPage() {
   const dispatch = useAppDispatch();
   const profile = usePortfolioProfileState();
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  const defaultValues = useMemo(() => emptyForm(), []);
+
   const form = useForm<PortfolioProfileSaveRequest>({
-    mode: "onChange",
-    defaultValues: emptyForm(),
+    mode: "onBlur",
+    defaultValues,
   });
 
   useAdminCleanup(() => {
     dispatch(resetState());
   });
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  useEffect(() => {
-    if (!profile) return;
-    const formData = buildFormFromProfile(profile);
-    form.reset(formData);
-    setIsLoading(false);
-  }, [profile]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       setIsLoading(true);
       await dispatch(fetchAdminPortfolioProfileThunk());
@@ -149,31 +140,42 @@ export default function PortfolioPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dispatch]);
 
-  const handleLogoSelect = (imageData: string) => {
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  useEffect(() => {
+    if (!profile) return;
+    const formData = buildFormFromProfile(profile);
+    form.reset(formData);
+    setIsLoading(false);
+  }, [profile, form]);
+
+  const handleLogoSelect = useCallback((imageData: string) => {
     form.setValue("logoUrl", imageData, { shouldDirty: true });
     showToast.success("Logo selected");
-  };
+  }, [form]);
 
-  const handleCoverImageSelect = (imageData: string) => {
+  const handleCoverImageSelect = useCallback((imageData: string) => {
     form.setValue("coverImageUrl", imageData, { shouldDirty: true });
     showToast.success("Cover image selected");
-  };
+  }, [form]);
 
-  const handleGalleryImageSelect = (index: number, imageData: string) => {
+  const handleGalleryImageSelect = useCallback((index: number, imageData: string) => {
     const gallery = form.getValues("gallery");
     gallery[index].url = imageData;
     form.setValue("gallery", gallery, { shouldDirty: true });
     showToast.success("Gallery image selected");
-  };
+  }, [form]);
 
-  const handleTeamPhotoSelect = (index: number, imageData: string) => {
+  const handleTeamPhotoSelect = useCallback((index: number, imageData: string) => {
     const team = form.getValues("team");
     team[index].photoUrl = imageData;
     form.setValue("team", team, { shouldDirty: true });
     showToast.success("Team photo selected");
-  };
+  }, [form]);
 
   const onSubmit = async (data: PortfolioProfileSaveRequest) => {
     try {
