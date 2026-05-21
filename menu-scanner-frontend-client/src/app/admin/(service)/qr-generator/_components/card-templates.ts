@@ -13,10 +13,10 @@ export interface TemplateConfig {
 }
 
 export const CARD_TEMPLATES: TemplateConfig[] = [
-  { id: "bank-classic", name: "Bank Classic", gradientFrom: "#1a237e", gradientTo: "#283593", qrPrimaryColor: "#1a237e", isDark: true },
-  { id: "aba-red",      name: "ABA Red",      gradientFrom: "#b71c1c", gradientTo: "#d32f2f", qrPrimaryColor: "#b71c1c", isDark: true },
-  { id: "royal-purple", name: "Royal Purple", gradientFrom: "#4a148c", gradientTo: "#7b1fa2", qrPrimaryColor: "#4a148c", isDark: true },
-  { id: "fresh-green",  name: "Fresh Green",  gradientFrom: "#1b5e20", gradientTo: "#2e7d32", qrPrimaryColor: "#1b5e20", isDark: true },
+  { id: "bank-classic", name: "Midnight",  gradientFrom: "#1a237e", gradientTo: "#283593", qrPrimaryColor: "#1a237e", isDark: true },
+  { id: "aba-red",      name: "Ruby",      gradientFrom: "#b71c1c", gradientTo: "#d32f2f", qrPrimaryColor: "#b71c1c", isDark: true },
+  { id: "royal-purple", name: "Violet",    gradientFrom: "#4a148c", gradientTo: "#7b1fa2", qrPrimaryColor: "#4a148c", isDark: true },
+  { id: "fresh-green",  name: "Forest",    gradientFrom: "#1b5e20", gradientTo: "#2e7d32", qrPrimaryColor: "#1b5e20", isDark: true },
   // "custom" is not in this list — its colors come from user's color picker
 ];
 
