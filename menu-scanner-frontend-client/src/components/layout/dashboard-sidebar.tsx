@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 
 declare global {
@@ -76,12 +76,12 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   });
   const [collapsed, setCollapsed] = useState(false);
 
+  const profileFetchedRef = useRef(false);
   useEffect(() => {
-    if (!profile && !isProfileLoading) {
+    if (!profile && !isProfileLoading && !profileFetchedRef.current) {
+      profileFetchedRef.current = true;
       dispatch(getProfileService());
     }
-
-
   }, [profile, isProfileLoading, dispatch]);
 
   const toggleSection = (section: string) => {
