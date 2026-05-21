@@ -149,85 +149,84 @@ export default function BusinessProfilePage() {
 
       {/* ── Hero / Cover ─────────────────────────────────────────────── */}
       <section className="relative">
-        {/* Cover image — overflow-hidden is on the inner div only so the logo is not clipped */}
-        <div className="relative h-52 sm:h-64 lg:h-72">
-          <div className="absolute inset-0 overflow-hidden">
-            {profile.coverImage ? (
-              <Image
-                src={profile.coverImage}
-                alt={profile.businessName}
-                fill
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))" }} />
-            )}
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
+        {/* Cover */}
+        <div className="relative h-56 sm:h-72 lg:h-80 overflow-hidden">
+          {profile.coverImage ? (
+            <Image
+              src={profile.coverImage}
+              alt={profile.businessName}
+              fill
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))" }} />
+          )}
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
-        {/* Profile strip — white card below the cover */}
-        <div className="bg-card border-b border-border shadow-sm">
-          <div className="container mx-auto px-4 max-w-6xl">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 py-4">
+        {/* Profile row */}
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="relative -mt-16 sm:-mt-20 flex flex-col sm:flex-row sm:items-end gap-4 pb-5">
 
-              {/* Logo — pops up into the cover, fully visible now */}
-              <div className="w-24 h-24 sm:w-28 sm:h-28 -mt-12 sm:-mt-16 rounded-2xl border-4 border-background shadow-xl flex-shrink-0 overflow-hidden bg-card">
-                {profile.logo ? (
-                  <Image src={profile.logo} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                    <Building2 className="w-10 h-10 text-primary" />
+            {/* Logo */}
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-background shadow-xl flex-shrink-0 overflow-hidden bg-card">
+              {profile.logo ? (
+                <Image src={profile.logo} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center" style={{ background: "hsl(var(--primary) / 0.1)" }}>
+                  <Building2 className="w-10 h-10 text-primary" />
+                </div>
+              )}
+            </div>
+
+            {/* Name block */}
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
+                  {profile.businessName}
+                </h1>
+                <Badge
+                  className={open
+                    ? "bg-green-100 text-green-700 border-green-200"
+                    : "bg-destructive/10 text-destructive border-destructive/20"}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full mr-1.5 inline-block ${open ? "bg-green-500" : "bg-destructive"}`} />
+                  {open ? "Open Now" : "Closed"}
+                </Badge>
+              </div>
+              <p className="text-primary font-medium text-sm mb-2">{profile.tagline}</p>
+              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <Badge variant="secondary" className="gap-1">
+                  <Building2 className="w-3 h-3" />
+                  {profile.industry}
+                </Badge>
+                {totalReviews > 0 && (
+                  <div className="flex items-center gap-1">
+                    <StarRow rating={avg} size={3} />
+                    <span className="font-semibold text-foreground">{avg.toFixed(1)}</span>
+                    <span className="text-muted-foreground">({totalReviews})</span>
                   </div>
                 )}
-              </div>
-
-              {/* Name block — on white, always readable */}
-              <div className="flex-1 min-w-0">
-                {/* Row 1: name + open/closed badge */}
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">
-                    {profile.businessName}
-                  </h1>
-                  <Badge
-                    className={open
-                      ? "bg-green-500 text-white border-green-500"
-                      : "bg-destructive text-white border-destructive"}
-                  >
-                    {open ? "Open Now" : "Closed"}
-                  </Badge>
-                </div>
-                {/* Row 2: category + rating + address */}
-                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                  <Badge variant="secondary">{profile.industry}</Badge>
-                  {totalReviews > 0 && (
-                    <div className="flex items-center gap-1">
-                      <StarRow rating={avg} size={3} />
-                      <span className="font-semibold text-foreground">{avg.toFixed(1)}</span>
-                      <span className="text-muted-foreground">({totalReviews})</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                    <span className="truncate">
-                      {profile.contact.address.street}, {profile.contact.address.city}
-                    </span>
-                  </div>
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                  <span className="truncate">
+                    {profile.contact.address.street}, {profile.contact.address.city}
+                  </span>
                 </div>
               </div>
+            </div>
 
-              {/* Actions */}
-              <div className="flex gap-2 flex-shrink-0">
-                <Button size="sm" variant="outline" className="gap-2" onClick={handleShare}>
-                  <Share2 className="w-4 h-4" />
-                  Share
-                </Button>
-                <Button size="sm" className="gap-2">
-                  <QrCode className="w-4 h-4" />
-                  View QR
-                </Button>
-              </div>
+            {/* Actions */}
+            <div className="flex gap-2 flex-shrink-0">
+              <Button size="sm" variant="outline" className="gap-2" onClick={handleShare}>
+                <Share2 className="w-4 h-4" />
+                Share
+              </Button>
+              <Button size="sm" className="gap-2">
+                <QrCode className="w-4 h-4" />
+                View QR
+              </Button>
             </div>
           </div>
         </div>
