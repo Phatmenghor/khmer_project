@@ -293,7 +293,7 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className="w-full px-4 py-6 space-y-6">
+    <div className="flex flex-1 flex-col gap-6 px-4 py-6">
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information */}
         <Card>
