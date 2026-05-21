@@ -15,6 +15,7 @@ export const demoBusinessProfile: BusinessProfile = {
   contact: {
     email: "info@goldendragon.kh",
     phone: "+855 23 456 789",
+    phones: ["+855 23 456 789", "+855 12 345 678"],
     whatsapp: "+85523456789",
     telegram: "+85523456789",
     address: {

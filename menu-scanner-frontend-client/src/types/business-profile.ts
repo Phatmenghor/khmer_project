@@ -65,6 +65,7 @@ export enum BusinessType {
 export interface ContactInfo {
   email: string;
   phone: string;
+  phones?: string[];
   whatsapp?: string;
   telegram?: string;
   address: Address;

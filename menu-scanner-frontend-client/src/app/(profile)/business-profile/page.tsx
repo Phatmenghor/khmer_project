@@ -5,7 +5,7 @@ import Image from "next/image";
 import {
   MapPin, Phone, Mail, Clock, Globe,
   Facebook, Instagram, Twitter,
-  Star, Check, ExternalLink, MessageCircle,
+  Star, Check, ExternalLink,
   Share2, QrCode, Building2, Users, Send,
 } from "lucide-react";
 import { QRTemplateModal } from "@/components/shared/qr/qr-template-modal";
@@ -14,7 +14,7 @@ import { BusinessProfile, DayOfWeek, CustomerReview } from "@/types/business-pro
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 function getDayLabel(day: DayOfWeek) {
@@ -381,12 +381,14 @@ export default function BusinessProfilePage() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-primary flex-shrink-0" />
-                  <a href={`tel:${profile.contact.phone}`} className="text-sm text-muted-foreground hover:text-primary">
-                    {profile.contact.phone}
-                  </a>
-                </div>
+                {(profile.contact.phones?.length ? profile.contact.phones : [profile.contact.phone]).map((num, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <Phone className="w-4 h-4 text-primary flex-shrink-0" />
+                    <a href={`tel:${num}`} className="text-sm text-muted-foreground hover:text-primary">
+                      {num}
+                    </a>
+                  </div>
+                ))}
                 <div className="flex items-center gap-3">
                   <Mail className="w-4 h-4 text-primary flex-shrink-0" />
                   <a href={`mailto:${profile.contact.email}`} className="text-sm text-muted-foreground hover:text-primary truncate">
@@ -401,20 +403,6 @@ export default function BusinessProfilePage() {
                       {profile.socialMedia.website.replace(/^https?:\/\//, "")}
                     </a>
                   </div>
-                )}
-                <Separator />
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary" className="text-xs">{profile.industry}</Badge>
-                  <Badge variant="secondary" className="text-xs">{profile.businessType}</Badge>
-                </div>
-                {profile.contact.whatsapp && (
-                  <a href={`https://wa.me/${profile.contact.whatsapp.replace(/[^0-9]/g, "")}`}
-                    target="_blank" rel="noopener noreferrer" className="block">
-                    <Button variant="outline" size="sm" className="w-full gap-2 border-green-200 text-green-700 hover:bg-green-50">
-                      <MessageCircle className="w-3.5 h-3.5" />
-                      Chat on WhatsApp
-                    </Button>
-                  </a>
                 )}
                 {profile.contact.telegram && (
                   <a href={`https://t.me/${profile.contact.telegram.replace(/[^0-9]/g, "")}`}
