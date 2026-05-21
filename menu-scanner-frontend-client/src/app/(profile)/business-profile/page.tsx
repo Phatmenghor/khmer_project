@@ -1,21 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import {
   MapPin, Phone, Mail, Clock, Globe,
   Facebook, Instagram, Twitter,
   Star, Check, ExternalLink, MessageCircle,
-  Share2, QrCode, Download, Building2, Users, X, Send,
+  Share2, QrCode, Building2, Users, Send,
 } from "lucide-react";
+import { QRTemplateModal } from "@/components/shared/qr/qr-template-modal";
 import { demoBusinessProfile } from "@/data/business-profile-template";
 import { BusinessProfile, DayOfWeek, CustomerReview } from "@/types/business-profile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import QRCodeStyling from "qr-code-styling";
-
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 function getDayLabel(day: DayOfWeek) {
@@ -57,54 +56,6 @@ function StarRow({ rating, size = 4 }: { rating: number; size?: number }) {
           className={i <= Math.round(rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}
         />
       ))}
-    </div>
-  );
-}
-
-// ── QRDisplay ─────────────────────────────────────────────────────────────────
-
-function QRDisplay({ url }: { url: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const qrRef        = useRef<QRCodeStyling | null>(null);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const raw   = getComputedStyle(document.documentElement).getPropertyValue("--primary").trim() || "97 36% 37%";
-    const color = `hsl(${raw})`;
-
-    if (!qrRef.current) {
-      qrRef.current = new QRCodeStyling({
-        width: 168, height: 168, type: "canvas",
-        data: url || "https://goldendragon.kh",
-        dotsOptions:          { color, type: "rounded" },
-        cornersSquareOptions: { color, type: "extra-rounded" },
-        cornersDotOptions:    { color },
-        backgroundOptions:    { color: "#ffffff" },
-        imageOptions:         { crossOrigin: "anonymous", margin: 4 },
-      });
-      qrRef.current.append(containerRef.current);
-    } else {
-      qrRef.current.update({ data: url });
-    }
-  }, [url]);
-
-  return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="p-3 rounded-2xl bg-white border border-border shadow-md">
-        <div ref={containerRef} />
-      </div>
-      <div className="flex gap-2 w-full">
-        <Button size="sm" className="flex-1 gap-1.5"
-          onClick={() => qrRef.current?.download({ name: "business-qr", extension: "png" })}>
-          <Download className="w-3.5 h-3.5" />
-          Download
-        </Button>
-        <Button size="sm" variant="outline" className="flex-1 gap-1.5"
-          onClick={() => { if (navigator.share) navigator.share({ title: "Business QR", url }).catch(() => {}); }}>
-          <Share2 className="w-3.5 h-3.5" />
-          Share
-        </Button>
-      </div>
     </div>
   );
 }
@@ -477,17 +428,20 @@ export default function BusinessProfilePage() {
               </CardContent>
             </Card>
 
-            {/* QR Code — no description text */}
+            {/* QR Code — opens template modal */}
             <Card className="overflow-hidden">
               <div className="h-1.5 bg-primary" />
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <QrCode className="w-4 h-4 text-primary" />
-                  Scan & Order
+                  Scan &amp; Order
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <QRDisplay url={profileUrl} />
+                <Button className="w-full gap-2" onClick={() => setShowQRModal(true)}>
+                  <QrCode className="w-4 h-4" />
+                  View QR Code
+                </Button>
               </CardContent>
             </Card>
 
@@ -535,37 +489,14 @@ export default function BusinessProfilePage() {
         </div>
       </div>
 
-      {/* ── QR Modal ─────────────────────────────────────────────── */}
-      {showQRModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowQRModal(false)}
-        >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div
-            className="relative z-10 w-full max-w-xs bg-card rounded-2xl shadow-2xl border border-border overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="h-1.5 bg-primary" />
-            <div className="flex items-center justify-between px-5 pt-4 pb-2">
-              <div className="flex items-center gap-2">
-                <QrCode className="w-4 h-4 text-primary" />
-                <span className="font-semibold text-foreground text-sm">Scan &amp; Order</span>
-              </div>
-              <button
-                onClick={() => setShowQRModal(false)}
-                className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <p className="px-5 text-xs text-muted-foreground pb-3">{profile.businessName}</p>
-            <div className="px-5 pb-5">
-              <QRDisplay url={profileUrl} />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── QR Template Modal ────────────────────────────────────── */}
+      <QRTemplateModal
+        open={showQRModal}
+        onClose={() => setShowQRModal(false)}
+        url={profileUrl}
+        businessName={profile.businessName}
+        subtitle={profile.tagline || "Scan to view our menu"}
+      />
     </div>
   );
 }
