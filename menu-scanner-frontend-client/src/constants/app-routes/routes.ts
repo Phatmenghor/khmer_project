@@ -40,6 +40,8 @@ export const ROUTES = {
     POS: "/admin/pos",
     BUSINESS_SETTINGS: "/admin/manage-business-settings",
     QR_GENERATOR: "/admin/qr-generator",
+    PORTFOLIO: "/admin/portfolio",
+    PORTFOLIO_REVIEWS: "/admin/portfolio/reviews",
   },
 
   MANAGE_STOCK: {
@@ -174,6 +176,14 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "QR Generator",
         href: ROUTES.ADMIN.QR_GENERATOR,
+      },
+      {
+        title: "Portfolio",
+        href: ROUTES.ADMIN.PORTFOLIO,
+      },
+      {
+        title: "Reviews",
+        href: ROUTES.ADMIN.PORTFOLIO_REVIEWS,
       },
     ],
   },

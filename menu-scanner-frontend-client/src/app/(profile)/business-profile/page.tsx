@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   MapPin, Phone, Mail, Clock, Globe,
@@ -10,15 +10,19 @@ import {
   X, PenLine, CheckCircle2,
 } from "lucide-react";
 import { QRTemplateModal } from "@/components/shared/qr/qr-template-modal";
-import { demoBusinessProfile } from "@/data/business-profile-template";
-import { BusinessProfile, DayOfWeek, CustomerReview } from "@/types/business-profile";
+import { BusinessProfileSkeleton } from "@/components/shared/skeletons/business-profile-skeleton";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { fetchPublicPortfolioThunk, submitPublicReviewThunk } from "@/features/portfolio/store/thunks/portfolio-thunks";
+import { selectPublicProfile, selectPublicPortfolioLoading, selectIsSubmittingReview } from "@/features/portfolio/store/selectors/portfolio-selectors";
+import { PortfolioPublicProfile, PortfolioHoursDto, ReviewStatsDto, PortfolioReviewSubmitRequest } from "@/features/portfolio/store/models/portfolio-types";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-function getDayLabel(day: DayOfWeek) {
+function getDayLabel(day: string) {
   return day.charAt(0) + day.slice(1).toLowerCase();
 }
 
@@ -28,15 +32,10 @@ function formatTime(t: string) {
   return `${hour % 12 || 12}:${m} ${hour >= 12 ? "PM" : "AM"}`;
 }
 
-function calcAvg(reviews?: CustomerReview[]) {
-  if (!reviews?.length) return 0;
-  return reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
-}
-
-function isOpenNow(profile: BusinessProfile): boolean {
+function isOpenNow(profile: PortfolioPublicProfile): boolean {
   const now  = new Date();
   const days = ["SUNDAY","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
-  const h    = profile.businessHours?.find((x) => x.day === (days[now.getDay()] as DayOfWeek));
+  const h    = profile.businessHours?.find((x: PortfolioHoursDto) => x.day === days[now.getDay()]);
   if (!h?.isOpen || !h.openTime || !h.closeTime) return false;
   const [oh, om] = h.openTime.split(":").map(Number);
   const [ch, cm] = h.closeTime.split(":").map(Number);
@@ -70,17 +69,29 @@ interface ReviewForm {
   comment: string;
 }
 
-function WriteReviewModal({ open, onClose, businessName }: { open: boolean; onClose: () => void; businessName: string }) {
-  const [form, setForm]       = useState<ReviewForm>({ name: "", rating: 0, title: "", comment: "" });
-  const [hover, setHover]     = useState(0);
-  const [loading, setLoading] = useState(false);
+function WriteReviewModal({
+  open,
+  onClose,
+  businessName,
+  businessId,
+}: {
+  open: boolean;
+  onClose: () => void;
+  businessName: string;
+  businessId: string;
+}) {
+  const dispatch = useAppDispatch();
+  const isSubmitting = useAppSelector(selectIsSubmittingReview);
+  const [form, setForm]           = useState<ReviewForm>({ name: "", rating: 0, title: "", comment: "" });
+  const [hover, setHover]         = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   function reset() {
     setForm({ name: "", rating: 0, title: "", comment: "" });
     setHover(0);
-    setLoading(false);
     setSubmitted(false);
+    setSubmitError("");
   }
 
   function handleClose() {
@@ -91,11 +102,19 @@ function WriteReviewModal({ open, onClose, businessName }: { open: boolean; onCl
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.rating) return;
-    setLoading(true);
-    // TODO: replace with real API call — POST /api/reviews
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
-    setSubmitted(true);
+    setSubmitError("");
+    const request: PortfolioReviewSubmitRequest = {
+      customerName: form.name,
+      rating: form.rating,
+      title: form.title || undefined,
+      comment: form.comment,
+    };
+    const result = await dispatch(submitPublicReviewThunk({ businessId, request }));
+    if (submitPublicReviewThunk.fulfilled.match(result)) {
+      setSubmitted(true);
+    } else {
+      setSubmitError("Failed to submit review. Please try again.");
+    }
   }
 
   if (!open) return null;
@@ -119,7 +138,6 @@ function WriteReviewModal({ open, onClose, businessName }: { open: boolean; onCl
         </div>
 
         {submitted ? (
-          /* ── Success state ── */
           <div className="flex flex-col items-center gap-4 px-6 py-10 text-center">
             <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
               <CheckCircle2 className="w-7 h-7 text-primary" />
@@ -135,7 +153,6 @@ function WriteReviewModal({ open, onClose, businessName }: { open: boolean; onCl
             </button>
           </div>
         ) : (
-          /* ── Form ── */
           <form onSubmit={handleSubmit} className="px-5 py-5 space-y-4">
             {/* Star rating */}
             <div className="space-y-1.5">
@@ -200,6 +217,8 @@ function WriteReviewModal({ open, onClose, businessName }: { open: boolean; onCl
               />
             </div>
 
+            {submitError && <p className="text-xs text-destructive">{submitError}</p>}
+
             <p className="text-xs text-muted-foreground">
               Your review will be visible after approval by the business.
             </p>
@@ -211,10 +230,10 @@ function WriteReviewModal({ open, onClose, businessName }: { open: boolean; onCl
               </button>
               <button
                 type="submit"
-                disabled={loading || !form.rating}
+                disabled={isSubmitting || !form.rating}
                 className="flex-1 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {loading ? (
+                {isSubmitting ? (
                   <><span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />Submitting…</>
                 ) : "Submit Review"}
               </button>
@@ -229,33 +248,48 @@ function WriteReviewModal({ open, onClose, businessName }: { open: boolean; onCl
 // ── page ──────────────────────────────────────────────────────────────────────
 
 export default function BusinessProfilePage() {
-  const profile: BusinessProfile = demoBusinessProfile;
+  const dispatch  = useAppDispatch();
+  const profile   = useAppSelector(selectPublicProfile);
+  const isLoading = useAppSelector(selectPublicPortfolioLoading);
 
   const [showQRModal, setShowQRModal]         = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
 
-  const open         = isOpenNow(profile);
-  const avg          = calcAvg(profile.reviews);
-  const totalReviews = profile.reviews?.length ?? 0;
+  useEffect(() => {
+    const businessId = typeof window !== "undefined"
+      ? localStorage.getItem("businessId") || AppDefault.BUSINESS_ID
+      : AppDefault.BUSINESS_ID;
+    dispatch(fetchPublicPortfolioThunk(businessId));
+  }, [dispatch]);
 
-  const dist: Record<number,number> = { 5:0, 4:0, 3:0, 2:0, 1:0 };
-  profile.reviews?.forEach((r) => { dist[r.rating] = (dist[r.rating] || 0) + 1; });
+  if (isLoading || !profile) {
+    return <BusinessProfileSkeleton />;
+  }
 
-  const profileUrl = typeof window !== "undefined" ? window.location.href : "https://goldendragon.kh";
+  const open   = isOpenNow(profile);
+  const stats  = profile.reviewStats;
+  const avg    = stats?.averageRating ?? 0;
+  const total  = stats?.totalReviews ?? 0;
+  const dist   = stats?.distribution ?? {};
 
+  const profileUrl = typeof window !== "undefined" ? window.location.href : "";
   const days    = ["SUNDAY","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
   const todayKey = days[new Date().getDay()];
+
+  const businessId = typeof window !== "undefined"
+    ? localStorage.getItem("businessId") || AppDefault.BUSINESS_ID
+    : AppDefault.BUSINESS_ID;
 
   return (
     <div className="min-h-screen bg-background">
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative">
-        {/* Cover — overflow-hidden on inner div so logo is not clipped */}
+        {/* Cover */}
         <div className="relative h-56 sm:h-72 lg:h-80">
           <div className="absolute inset-0 overflow-hidden">
-            {profile.coverImage ? (
-              <Image src={profile.coverImage} alt={profile.businessName} fill className="object-cover" priority />
+            {profile.coverImageUrl ? (
+              <Image src={profile.coverImageUrl} alt={profile.businessName} fill className="object-cover" priority />
             ) : (
               <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.7))" }} />
             )}
@@ -265,17 +299,16 @@ export default function BusinessProfilePage() {
 
         {/* Profile row */}
         <div className="container mx-auto px-4 max-w-6xl">
-          {/* Logo + action buttons — logo overlaps cover by half */}
           <div className="relative -mt-12 sm:-mt-16 flex items-end justify-between pb-3">
-            {/* Logo — 50 % in cover / 50 % in white */}
+            {/* Logo */}
             <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-background shadow-2xl flex-shrink-0 overflow-hidden bg-card">
-              {profile.logo
-                ? <Image src={profile.logo} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
+              {profile.logoUrl
+                ? <Image src={profile.logoUrl} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
                 : <div className="w-full h-full flex items-center justify-center bg-primary/10"><Building2 className="w-10 h-10 text-primary" /></div>
               }
             </div>
 
-            {/* Action buttons — pinned to the right, aligned to bottom of logo */}
+            {/* Action buttons */}
             <div className="flex gap-2 flex-shrink-0 pb-1">
               <Button size="sm" variant="outline" className="gap-2"
                 onClick={() => { if (typeof navigator !== "undefined" && navigator.share) navigator.share({ title: profile.businessName, url: profileUrl }).catch(() => {}); }}>
@@ -289,18 +322,23 @@ export default function BusinessProfilePage() {
             </div>
           </div>
 
-          {/* Business name + meta — plain text below cover, no badge */}
+          {/* Business name + meta */}
           <div className="pb-5 space-y-1.5">
             <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-snug">
               {profile.businessName}
             </h1>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              {totalReviews > 0 && (
+              {total > 0 && (
                 <div className="flex items-center gap-1.5">
                   <StarRow rating={avg} size={3} />
                   <span className="font-semibold text-foreground text-xs">{avg.toFixed(1)}</span>
-                  <span className="text-xs">({totalReviews})</span>
+                  <span className="text-xs">({total})</span>
                 </div>
+              )}
+              {open && (
+                <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-200 px-1.5 h-5">
+                  Open Now
+                </Badge>
               )}
               <div className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
@@ -359,7 +397,7 @@ export default function BusinessProfilePage() {
                 </p>
                 {profile.features?.length ? (
                   <div className="mt-5">
-                    <p className="text-sm font-semibold text-foreground mb-3">Features & Amenities</p>
+                    <p className="text-sm font-semibold text-foreground mb-3">Features &amp; Amenities</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {profile.features.map((f, i) => (
                         <div key={i} className="flex items-center gap-2">
@@ -459,22 +497,21 @@ export default function BusinessProfilePage() {
             ) : null}
 
             {/* Reviews */}
-            {totalReviews > 0 && (
-              <Card>
-                <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                  <CardTitle className="text-lg">Customer Reviews</CardTitle>
-                  <Button size="sm" variant="outline" className="gap-1.5 shrink-0" onClick={() => setShowReviewModal(true)}>
-                    <PenLine className="w-3.5 h-3.5" />
-                    Write a Review
-                  </Button>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  {/* Summary */}
+            <Card>
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <CardTitle className="text-lg">Customer Reviews</CardTitle>
+                <Button size="sm" variant="outline" className="gap-1.5 shrink-0" onClick={() => setShowReviewModal(true)}>
+                  <PenLine className="w-3.5 h-3.5" />
+                  Write a Review
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                {total > 0 ? (
                   <div className="flex gap-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
                     <div className="text-center flex-shrink-0">
                       <p className="text-4xl font-bold text-primary">{avg.toFixed(1)}</p>
                       <StarRow rating={avg} size={4} />
-                      <p className="text-xs text-muted-foreground mt-1">{totalReviews} reviews</p>
+                      <p className="text-xs text-muted-foreground mt-1">{total} reviews</p>
                     </div>
                     <div className="flex-1 space-y-1.5 min-w-0">
                       {[5,4,3,2,1].map((r) => (
@@ -482,17 +519,20 @@ export default function BusinessProfilePage() {
                           <span className="text-xs text-muted-foreground w-8 text-right">{r} ★</span>
                           <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                             <div className="h-full rounded-full bg-yellow-400 transition-all"
-                              style={{ width: `${totalReviews ? ((dist[r] || 0) / totalReviews) * 100 : 0}%` }} />
+                              style={{ width: `${total ? ((dist[r] || 0) / total) * 100 : 0}%` }} />
                           </div>
                           <span className="text-xs text-muted-foreground w-4">{dist[r] || 0}</span>
                         </div>
                       ))}
                     </div>
                   </div>
-
-                </CardContent>
-              </Card>
-            )}
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No reviews yet. Be the first to review!
+                  </p>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Team */}
             {profile.team?.length ? (
@@ -508,8 +548,8 @@ export default function BusinessProfilePage() {
                     {profile.team.map((m) => (
                       <div key={m.id} className="text-center p-4 rounded-xl bg-muted/30 border border-border hover:border-primary/20 transition-colors">
                         <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border-2 border-border mb-3 bg-muted">
-                          {m.photo
-                            ? <Image src={m.photo} alt={m.name} width={64} height={64} className="object-cover w-full h-full" />
+                          {m.photoUrl
+                            ? <Image src={m.photoUrl} alt={m.name} width={64} height={64} className="object-cover w-full h-full" />
                             : <div className="w-full h-full flex items-center justify-center bg-primary/10">
                                 <span className="text-xl font-bold text-primary">{m.name.charAt(0)}</span>
                               </div>
@@ -583,7 +623,7 @@ export default function BusinessProfilePage() {
               </CardContent>
             </Card>
 
-            {/* QR Code — opens template modal */}
+            {/* QR Code */}
             <Card className="overflow-hidden">
               <div className="h-1.5 bg-primary" />
               <CardHeader className="pb-3">
@@ -649,6 +689,7 @@ export default function BusinessProfilePage() {
         open={showReviewModal}
         onClose={() => setShowReviewModal(false)}
         businessName={profile.businessName}
+        businessId={businessId}
       />
 
       {/* ── QR Template Modal ────────────────────────────────────── */}
@@ -658,6 +699,7 @@ export default function BusinessProfilePage() {
         url={profileUrl}
         businessName={profile.businessName}
         subtitle={profile.tagline || "Scan to view our menu"}
+        logoUrl={profile.logoUrl}
       />
     </div>
   );

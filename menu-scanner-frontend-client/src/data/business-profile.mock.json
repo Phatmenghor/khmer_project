@@ -147,63 +147,11 @@
         "photo": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"
       }
     ],
-    "reviews": [
-      {
-        "id": "r1",
-        "customerName": "Sopheap Chan",
-        "customerPhoto": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
-        "rating": 5,
-        "title": "Best Khmer food in Phnom Penh",
-        "comment": "Absolutely amazing food! The Amok Trey was the best I have ever had. The staff were incredibly friendly and the atmosphere was perfect. Will definitely come back!",
-        "isApproved": true,
-        "wouldRecommend": true,
-        "createdAt": "2026-04-15T10:00:00Z"
-      },
-      {
-        "id": "r2",
-        "customerName": "David Kim",
-        "customerPhoto": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
-        "rating": 5,
-        "title": "Perfect for corporate events",
-        "comment": "We had our company dinner here and everyone was impressed. The private room was beautifully set up and the food was outstanding. Great service throughout the evening.",
-        "isApproved": true,
-        "wouldRecommend": true,
-        "createdAt": "2026-03-20T14:30:00Z"
-      },
-      {
-        "id": "r3",
-        "customerName": "Sreymom Pich",
-        "customerPhoto": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
-        "rating": 4,
-        "title": "Authentic and delicious",
-        "comment": "Love the authentic flavors. The Lok Lak was perfectly cooked. Slightly long wait during peak hours but the quality makes it worth it.",
-        "isApproved": true,
-        "wouldRecommend": true,
-        "createdAt": "2026-02-10T19:00:00Z"
-      },
-      {
-        "id": "r4",
-        "customerName": "James Wilson",
-        "customerPhoto": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
-        "rating": 5,
-        "title": "Wonderful first Cambodian food experience",
-        "comment": "As a first-time visitor to Cambodia, this restaurant gave me the most authentic culinary experience. The staff helped me understand each dish and the recommendations were spot on.",
-        "isApproved": true,
-        "wouldRecommend": true,
-        "createdAt": "2026-01-28T12:00:00Z"
-      },
-      {
-        "id": "r5",
-        "customerName": "Chanthy Ros",
-        "customerPhoto": "https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce",
-        "rating": 4,
-        "title": "My go-to spot for guests",
-        "comment": "Great location, beautiful decor, and the food is consistently good. I bring all my international guests here and they always leave impressed.",
-        "isApproved": true,
-        "wouldRecommend": true,
-        "createdAt": "2025-12-05T18:00:00Z"
-      }
-    ],
+    "reviewStats": {
+      "averageRating": 4.6,
+      "totalReviews": 5,
+      "distribution": { "1": 0, "2": 0, "3": 0, "4": 2, "5": 3 }
+    },
     "stats": {
       "yearsInBusiness": 10,
       "customersServed": 50000,
@@ -211,9 +159,6 @@
         { "label": "Menu Items",     "value": "80+" },
         { "label": "5-Star Reviews", "value": "1,200+" }
       ]
-    },
-    "theme": {
-      "primaryColor": "#57823D"
     },
     "createdAt": "2015-06-01T00:00:00Z",
     "updatedAt": "2026-05-21T00:00:00Z"

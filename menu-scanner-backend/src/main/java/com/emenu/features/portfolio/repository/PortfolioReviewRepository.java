@@ -1,0 +1,29 @@
+package com.emenu.features.portfolio.repository;
+
+import com.emenu.features.portfolio.models.PortfolioReview;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface PortfolioReviewRepository extends JpaRepository<PortfolioReview, UUID> {
+
+    Page<PortfolioReview> findByProfileIdAndIsDeletedFalse(UUID profileId, Pageable pageable);
+
+    @Query("SELECT r.rating, COUNT(r) FROM PortfolioReview r WHERE r.profileId = :profileId AND r.isApproved = true AND r.isDeleted = false GROUP BY r.rating")
+    List<Object[]> countByRatingForProfile(@Param("profileId") UUID profileId);
+
+    @Query("SELECT r FROM PortfolioReview r WHERE r.profileId = :profileId AND r.isDeleted = false " +
+           "AND (:search IS NULL OR LOWER(r.customerName) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "AND (:isApproved IS NULL OR r.isApproved = :isApproved)")
+    Page<PortfolioReview> findWithFilters(@Param("profileId") UUID profileId,
+                                          @Param("search") String search,
+                                          @Param("isApproved") Boolean isApproved,
+                                          Pageable pageable);
+}
