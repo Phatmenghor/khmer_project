@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -112,152 +112,6 @@ const emptyForm = (): PortfolioProfileSaveRequest => ({
   services: [],
   team: [],
 });
-
-// Helper component for single business hour to avoid infinite loops with form.watch
-function BusinessHourField({ index, control, day }: { index: number; control: any; day: string }) {
-  const isOpen = useWatch({
-    control,
-    name: `businessHours.${index}.isOpen`,
-  });
-
-  return (
-    <div className="p-4 border rounded-lg">
-      <div className="flex items-center justify-between mb-3">
-        <span className="font-semibold text-sm">{day}</span>
-        <Controller
-          name={`businessHours.${index}.isOpen`}
-          control={control}
-          render={({ field }) => (
-            <Switch
-              checked={field.value}
-              onCheckedChange={field.onChange}
-            />
-          )}
-        />
-      </div>
-      {isOpen && (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs">Open Time</Label>
-            <Controller
-              name={`businessHours.${index}.openTime`}
-              control={control}
-              render={({ field }) => (
-                <CustomTimePicker
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Close Time</Label>
-            <Controller
-              name={`businessHours.${index}.closeTime`}
-              control={control}
-              render={({ field }) => (
-                <CustomTimePicker
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Helper component for team member to avoid infinite loops with form.watch
-function TeamMemberField({ index, control, teamFields }: { index: number; control: any; teamFields: any[] }) {
-  const teamMemberName = useWatch({
-    control,
-    name: `team.${index}.name`,
-  });
-
-  const field = teamFields[index];
-  if (!field) return null;
-
-  return (
-    <div key={field.id} className="p-4 border rounded-lg space-y-3">
-      <div className="flex items-center justify-between mb-3">
-        <span className="font-semibold text-sm">{teamMemberName || "Team Member"}</span>
-        <Button
-          type="button"
-          size="sm"
-          variant="ghost"
-          onClick={() => {
-            const team = control._formValues.team;
-            if (team) {
-              team.splice(index, 1);
-            }
-          }}
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
-      </div>
-
-      <div>
-        <Controller
-          name={`team.${index}.photoUrl`}
-          control={control}
-          render={({ field }) => (
-            <ClickableImageUpload
-              label="Photo"
-              value={field.value}
-              onChange={field.onChange}
-            />
-          )}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-2">
-          <Label className="text-xs">Name</Label>
-          <Controller
-            name={`team.${index}.name`}
-            control={control}
-            render={({ field }) => (
-              <Input
-                placeholder="Full name..."
-                {...field}
-              />
-            )}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label className="text-xs">Position</Label>
-          <Controller
-            name={`team.${index}.position`}
-            control={control}
-            render={({ field }) => (
-              <Input
-                placeholder="Job title..."
-                {...field}
-              />
-            )}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label className="text-xs">Bio</Label>
-        <Controller
-          name={`team.${index}.bio`}
-          control={control}
-          render={({ field }) => (
-            <Textarea
-              placeholder="Team member bio..."
-              rows={3}
-              {...field}
-            />
-          )}
-        />
-      </div>
-    </div>
-  );
-}
 
 export default function PortfolioPage() {
   const dispatch = useAppDispatch();
@@ -678,12 +532,49 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {businessHoursFields.map((field, index) => (
-              <BusinessHourField
-                key={field.id}
-                index={index}
-                control={form.control}
-                day={field.day}
-              />
+              <div key={field.id} className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-semibold text-sm">{field.day}</span>
+                  <Controller
+                    name={`businessHours.${index}.isOpen`}
+                    control={form.control}
+                    render={({ field: switchField }) => (
+                      <Switch
+                        checked={switchField.value || false}
+                        onCheckedChange={switchField.onChange}
+                      />
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Open Time</Label>
+                    <Controller
+                      name={`businessHours.${index}.openTime`}
+                      control={form.control}
+                      render={({ field: timeField }) => (
+                        <CustomTimePicker
+                          value={timeField.value || "08:00"}
+                          onChange={timeField.onChange}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Close Time</Label>
+                    <Controller
+                      name={`businessHours.${index}.closeTime`}
+                      control={form.control}
+                      render={({ field: timeField }) => (
+                        <CustomTimePicker
+                          value={timeField.value || "18:00"}
+                          onChange={timeField.onChange}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
             ))}
           </CardContent>
         </Card>
@@ -870,12 +761,80 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             {teamFields.map((field, index) => (
-              <TeamMemberField
-                key={field.id}
-                index={index}
-                control={form.control}
-                teamFields={teamFields}
-              />
+              <div key={field.id} className="p-4 border rounded-lg space-y-3">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-semibold text-sm">{field.name || "Team Member"}</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      const team = form.getValues("team");
+                      form.setValue("team", team.filter((_, i) => i !== index), { shouldDirty: true });
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div>
+                  <Controller
+                    name={`team.${index}.photoUrl`}
+                    control={form.control}
+                    render={({ field: photoField }) => (
+                      <ClickableImageUpload
+                        label="Photo"
+                        value={photoField.value}
+                        onChange={photoField.onChange}
+                      />
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Name</Label>
+                    <Controller
+                      name={`team.${index}.name`}
+                      control={form.control}
+                      render={({ field: nameField }) => (
+                        <Input
+                          placeholder="Full name..."
+                          {...nameField}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">Position</Label>
+                    <Controller
+                      name={`team.${index}.position`}
+                      control={form.control}
+                      render={({ field: posField }) => (
+                        <Input
+                          placeholder="Job title..."
+                          {...posField}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs">Bio</Label>
+                  <Controller
+                    name={`team.${index}.bio`}
+                    control={form.control}
+                    render={({ field: bioField }) => (
+                      <Textarea
+                        placeholder="Team member bio..."
+                        rows={3}
+                        {...bioField}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
             ))}
           </CardContent>
         </Card>
