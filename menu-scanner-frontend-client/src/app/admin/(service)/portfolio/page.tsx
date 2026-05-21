@@ -1,18 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Save, Plus, Trash2, X } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
@@ -825,7 +822,7 @@ export default function PortfolioPage() {
         </Card>
 
         {/* Submit Button */}
-        <div className="flex gap-3 justify-end sticky bottom-6 bg-background p-4 rounded-lg border">
+        <div className="w-full flex gap-3 justify-end sticky bottom-6 bg-background p-4 rounded-lg border">
           <Button type="button" variant="outline" disabled={isSaving}>
             Cancel
           </Button>
