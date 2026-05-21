@@ -1,18 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Save, Plus, Trash2, Globe, Building2 } from "lucide-react";
+import { Loader2, Save, Plus, Trash2, X } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { showToast } from "@/components/shared/common/show-toast";
+import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
+import { useAppDispatch } from "@/store";
 import { usePortfolioProfileState } from "@/features/portfolio/store/state/portfolio-profile-state";
 import { fetchAdminPortfolioProfileThunk, saveAdminPortfolioProfileThunk } from "@/features/portfolio/store/thunks/portfolio-thunks";
 import { resetState } from "@/features/portfolio/store/slice/portfolio-profile-slice";
+import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import {
   PortfolioProfileSaveRequest,
   PortfolioHoursRequest,
@@ -23,7 +32,7 @@ import {
   PortfolioAdminProfile,
 } from "@/features/portfolio/store/models/portfolio-types";
 
-const DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"] as const;
+const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
 
 function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveRequest {
   const contact = p.contact || {};
@@ -98,6 +107,8 @@ const emptyForm = (): PortfolioProfileSaveRequest => ({
   socialWebsite: "",
   features: [],
   customStats: [],
+  yearsInBusiness: undefined,
+  customersServed: undefined,
   isPublished: false,
   businessHours: DAYS.map((d) => ({ day: d, isOpen: false, openTime: "08:00", closeTime: "18:00", is24Hours: false })),
   gallery: [],
@@ -106,479 +117,723 @@ const emptyForm = (): PortfolioProfileSaveRequest => ({
 });
 
 export default function PortfolioPage() {
-  useAdminCleanup(resetState);
+  const dispatch = useAppDispatch();
+  const profile = usePortfolioProfileState();
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const { profile, isLoading, isSaving, dispatch } = usePortfolioProfileState();
-  const [form, setForm] = useState<PortfolioProfileSaveRequest>(emptyForm);
-  const [featureInput, setFeatureInput] = useState("");
+  const form = useForm<PortfolioProfileSaveRequest>({
+    mode: "onChange",
+    defaultValues: emptyForm(),
+  });
+
+  useAdminCleanup(() => {
+    dispatch(resetState());
+  });
 
   useEffect(() => {
-    dispatch(fetchAdminPortfolioProfileThunk());
-  }, [dispatch]);
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
-    if (profile) setForm(buildFormFromProfile(profile));
+    if (!profile) return;
+    const formData = buildFormFromProfile(profile);
+    form.reset(formData);
+    setIsLoading(false);
   }, [profile]);
 
-  function setField<K extends keyof PortfolioProfileSaveRequest>(key: K, value: PortfolioProfileSaveRequest[K]) {
-    setForm((f) => ({ ...f, [key]: value }));
-  }
-
-  // ── Business Hours ──────────────────────────────────────────────
-  function setHour(idx: number, update: Partial<PortfolioHoursRequest>) {
-    setForm((f) => {
-      const hours = [...(f.businessHours ?? [])];
-      hours[idx] = { ...hours[idx], ...update };
-      return { ...f, businessHours: hours };
-    });
-  }
-
-  // ── Phone list ──────────────────────────────────────────────────
-  function addPhone() {
-    setForm((f) => ({ ...f, contactPhones: [...(f.contactPhones ?? []), ""] }));
-  }
-  function setPhone(i: number, v: string) {
-    setForm((f) => { const p = [...(f.contactPhones ?? [])]; p[i] = v; return { ...f, contactPhones: p }; });
-  }
-  function removePhone(i: number) {
-    setForm((f) => ({ ...f, contactPhones: (f.contactPhones ?? []).filter((_, idx) => idx !== i) }));
-  }
-
-  // ── Features ────────────────────────────────────────────────────
-  function addFeature() {
-    const v = featureInput.trim();
-    if (!v) return;
-    setForm((f) => ({ ...f, features: [...(f.features ?? []), v] }));
-    setFeatureInput("");
-  }
-  function removeFeature(i: number) {
-    setForm((f) => ({ ...f, features: (f.features ?? []).filter((_, idx) => idx !== i) }));
-  }
-
-  // ── Gallery ─────────────────────────────────────────────────────
-  function addGallery() {
-    setForm((f) => ({ ...f, gallery: [...(f.gallery ?? []), { url: "", title: "", description: "", displayOrder: (f.gallery?.length ?? 0) + 1 }] }));
-  }
-  function setGallery(i: number, update: Partial<PortfolioGalleryItemRequest>) {
-    setForm((f) => { const g = [...(f.gallery ?? [])]; g[i] = { ...g[i], ...update }; return { ...f, gallery: g }; });
-  }
-  function removeGallery(i: number) {
-    setForm((f) => ({ ...f, gallery: (f.gallery ?? []).filter((_, idx) => idx !== i) }));
-  }
-
-  // ── Services ────────────────────────────────────────────────────
-  function addService() {
-    setForm((f) => ({ ...f, services: [...(f.services ?? []), { name: "", description: "" }] }));
-  }
-  function setService(i: number, update: Partial<PortfolioServiceItemRequest>) {
-    setForm((f) => { const s = [...(f.services ?? [])]; s[i] = { ...s[i], ...update }; return { ...f, services: s }; });
-  }
-  function removeService(i: number) {
-    setForm((f) => ({ ...f, services: (f.services ?? []).filter((_, idx) => idx !== i) }));
-  }
-
-  // ── Team ────────────────────────────────────────────────────────
-  function addTeam() {
-    setForm((f) => ({ ...f, team: [...(f.team ?? []), { name: "", position: "", bio: "", photoUrl: "" }] }));
-  }
-  function setTeam(i: number, update: Partial<PortfolioTeamMemberRequest>) {
-    setForm((f) => { const t = [...(f.team ?? [])]; t[i] = { ...t[i], ...update }; return { ...f, team: t }; });
-  }
-  function removeTeam(i: number) {
-    setForm((f) => ({ ...f, team: (f.team ?? []).filter((_, idx) => idx !== i) }));
-  }
-
-  // ── Custom Stats ────────────────────────────────────────────────
-  function addCustomStat() {
-    setForm((f) => ({ ...f, customStats: [...(f.customStats ?? []), { label: "", value: "" }] }));
-  }
-  function setCustomStat(i: number, update: Partial<PortfolioCustomStatRequest>) {
-    setForm((f) => { const c = [...(f.customStats ?? [])]; c[i] = { ...c[i], ...update }; return { ...f, customStats: c }; });
-  }
-  function removeCustomStat(i: number) {
-    setForm((f) => ({ ...f, customStats: (f.customStats ?? []).filter((_, idx) => idx !== i) }));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!form.slug?.trim()) { showToast.error("Slug is required"); return; }
-    if (!form.description?.trim()) { showToast.error("Description is required"); return; }
-    if (!form.contactEmail?.trim()) { showToast.error("Contact email is required"); return; }
-    if (!form.contactPhone?.trim()) { showToast.error("Contact phone is required"); return; }
-
-    const result = await dispatch(saveAdminPortfolioProfileThunk(form));
-    if (saveAdminPortfolioProfileThunk.fulfilled.match(result)) {
-      showToast.success("Portfolio profile saved successfully");
-    } else {
-      showToast.error((result.payload as string) || "Failed to save portfolio profile");
+  const fetchProfile = async () => {
+    try {
+      setIsLoading(true);
+      await dispatch(fetchAdminPortfolioProfileThunk());
+    } catch (err) {
+      showToast.error("Failed to load portfolio profile");
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
+  const handleLogoSelect = (imageData: string) => {
+    form.setValue("logoUrl", imageData, { shouldDirty: true });
+    showToast.success("Logo selected");
+  };
+
+  const handleCoverImageSelect = (imageData: string) => {
+    form.setValue("coverImageUrl", imageData, { shouldDirty: true });
+    showToast.success("Cover image selected");
+  };
+
+  const handleGalleryImageSelect = (index: number, imageData: string) => {
+    const gallery = form.getValues("gallery");
+    gallery[index].url = imageData;
+    form.setValue("gallery", gallery, { shouldDirty: true });
+    showToast.success("Gallery image selected");
+  };
+
+  const handleTeamPhotoSelect = (index: number, imageData: string) => {
+    const team = form.getValues("team");
+    team[index].photoUrl = imageData;
+    form.setValue("team", team, { shouldDirty: true });
+    showToast.success("Team photo selected");
+  };
+
+  const onSubmit = async (data: PortfolioProfileSaveRequest) => {
+    try {
+      setIsSaving(true);
+
+      // Upload base64 images
+      let logoUrl = data.logoUrl;
+      let coverImageUrl = data.coverImageUrl;
+
+      if (logoUrl && isBase64Image(logoUrl)) {
+        try {
+          logoUrl = await uploadImage(logoUrl);
+        } catch {
+          showToast.error("Failed to upload logo");
+          return;
+        }
+      }
+
+      if (coverImageUrl && isBase64Image(coverImageUrl)) {
+        try {
+          coverImageUrl = await uploadImage(coverImageUrl);
+        } catch {
+          showToast.error("Failed to upload cover image");
+          return;
+        }
+      }
+
+      // Upload gallery images
+      const uploadedGallery = await Promise.all(
+        (data.gallery || []).map(async (item) => {
+          let url = item.url;
+          if (url && isBase64Image(url)) {
+            try {
+              url = await uploadImage(url);
+            } catch {
+              showToast.error("Failed to upload gallery image");
+              throw new Error("Gallery upload failed");
+            }
+          }
+          return { ...item, url };
+        })
+      );
+
+      // Upload team photos
+      const uploadedTeam = await Promise.all(
+        (data.team || []).map(async (member) => {
+          let photoUrl = member.photoUrl;
+          if (photoUrl && isBase64Image(photoUrl)) {
+            try {
+              photoUrl = await uploadImage(photoUrl);
+            } catch {
+              showToast.error("Failed to upload team photo");
+              throw new Error("Team photo upload failed");
+            }
+          }
+          return { ...member, photoUrl };
+        })
+      );
+
+      const submitData = {
+        ...data,
+        logoUrl,
+        coverImageUrl,
+        gallery: uploadedGallery,
+        team: uploadedTeam,
+      };
+
+      const result = await dispatch(saveAdminPortfolioProfileThunk(submitData));
+      if (saveAdminPortfolioProfileThunk.fulfilled.match(result)) {
+        showToast.success("Portfolio profile saved successfully");
+        await fetchProfile();
+      } else {
+        showToast.error("Failed to save portfolio profile");
+      }
+    } catch (error) {
+      console.error("Error saving portfolio:", error);
+      showToast.error("Failed to save portfolio profile");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 flex-col gap-4 px-2 pb-8">
-        <CardHeaderSection title="Portfolio Profile" />
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2 pb-8">
+    <div className="flex flex-1 flex-col gap-6 px-4 py-6">
       <CardHeaderSection title="Portfolio Profile" />
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
-
-        {/* ── Basic Info ────────────────────────────────────────── */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Basic Information */}
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-primary" />
-              Basic Information
-            </CardTitle>
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Slug <span className="text-destructive">*</span></Label>
-                <Input value={form.slug} onChange={(e) => setField("slug", e.target.value)} placeholder="golden-dragon-restaurant" />
-                <p className="text-xs text-muted-foreground">URL-friendly identifier (no spaces)</p>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Business Name</Label>
+                <Input placeholder="Enter business name" {...form.register("slug")} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label>Industry</Label>
-                <Input value={form.industry} onChange={(e) => setField("industry", e.target.value)} placeholder="Food & Beverage" />
+                <Input placeholder="e.g., Retail, Fashion" {...form.register("industry")} />
               </div>
             </div>
-            <div className="space-y-1.5">
+
+            <div className="space-y-2">
               <Label>Tagline</Label>
-              <Input value={form.tagline} onChange={(e) => setField("tagline", e.target.value)} placeholder="Authentic Khmer & Asian Cuisine" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Description <span className="text-destructive">*</span></Label>
-              <textarea
-                rows={4}
-                value={form.description}
-                onChange={(e) => setField("description", e.target.value)}
-                placeholder="Tell visitors about your business..."
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none"
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Logo URL</Label>
-                <Input value={form.logoUrl} onChange={(e) => setField("logoUrl", e.target.value)} placeholder="https://..." />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Cover Image URL</Label>
-                <Input value={form.coverImageUrl} onChange={(e) => setField("coverImageUrl", e.target.value)} placeholder="https://..." />
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Switch
-                checked={form.isPublished ?? false}
-                onCheckedChange={(v) => setField("isPublished", v)}
-              />
-              <Label>Published (visible to public)</Label>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* ── Contact ───────────────────────────────────────────── */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Contact Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Email <span className="text-destructive">*</span></Label>
-                <Input type="email" value={form.contactEmail} onChange={(e) => setField("contactEmail", e.target.value)} placeholder="info@example.com" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Primary Phone <span className="text-destructive">*</span></Label>
-                <Input value={form.contactPhone} onChange={(e) => setField("contactPhone", e.target.value)} placeholder="+855 23 456 789" />
-              </div>
+              <Input placeholder="Your one-stop destination..." {...form.register("tagline")} />
             </div>
 
-            {/* Additional phones */}
             <div className="space-y-2">
-              <Label>Additional Phone Numbers</Label>
-              {(form.contactPhones ?? []).map((phone, i) => (
-                <div key={i} className="flex gap-2">
-                  <Input value={phone} onChange={(e) => setPhone(i, e.target.value)} placeholder="+855 12 345 678" />
-                  <Button type="button" variant="outline" size="sm" onClick={() => removePhone(i)}><Trash2 className="w-3.5 h-3.5" /></Button>
-                </div>
-              ))}
-              <Button type="button" variant="outline" size="sm" onClick={addPhone} className="gap-1.5">
-                <Plus className="w-3.5 h-3.5" /> Add Phone
-              </Button>
+              <Label>Description</Label>
+              <Textarea placeholder="Detailed business description..." rows={5} {...form.register("description")} />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Telegram</Label>
-                <Input value={form.contactTelegram} onChange={(e) => setField("contactTelegram", e.target.value)} placeholder="+85523456789" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>WhatsApp</Label>
-                <Input value={form.contactWhatsapp} onChange={(e) => setField("contactWhatsapp", e.target.value)} placeholder="+85523456789" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label>Street</Label>
-                <Input value={form.addressStreet} onChange={(e) => setField("addressStreet", e.target.value)} placeholder="123 Norodom Boulevard" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>City</Label>
-                <Input value={form.addressCity} onChange={(e) => setField("addressCity", e.target.value)} placeholder="Phnom Penh" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Country</Label>
-                <Input value={form.addressCountry} onChange={(e) => setField("addressCountry", e.target.value)} placeholder="Cambodia" />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Postal Code</Label>
-                <Input value={form.addressPostalCode} onChange={(e) => setField("addressPostalCode", e.target.value)} placeholder="12000" />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Google Maps Link</Label>
-              <Input value={form.mapLink} onChange={(e) => setField("mapLink", e.target.value)} placeholder="https://maps.google.com/..." />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* ── Social Media ──────────────────────────────────────── */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Globe className="w-4 h-4 text-primary" />
-              Social Media
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {(["socialFacebook","socialInstagram","socialTwitter","socialLinkedin","socialYoutube","socialTiktok","socialWebsite"] as const).map((key) => (
-                <div key={key} className="space-y-1.5">
-                  <Label>{key.replace("social", "")}</Label>
-                  <Input value={(form[key] as string) ?? ""} onChange={(e) => setField(key, e.target.value)} placeholder="https://..." />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* ── Business Hours ────────────────────────────────────── */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Business Hours</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {(form.businessHours ?? []).map((h, i) => (
-              <div key={h.day} className="flex flex-wrap items-center gap-3 py-2 border-b border-border last:border-0">
-                <span className="w-24 text-sm font-medium text-foreground">
-                  {h.day.charAt(0) + h.day.slice(1).toLowerCase()}
-                </span>
-                <Switch checked={h.isOpen} onCheckedChange={(v) => setHour(i, { isOpen: v })} />
-                {h.isOpen && (
-                  <>
-                    <Switch checked={h.is24Hours ?? false} onCheckedChange={(v) => setHour(i, { is24Hours: v })} />
-                    <span className="text-xs text-muted-foreground">24h</span>
-                    {!h.is24Hours && (
-                      <>
-                        <Input type="time" value={h.openTime ?? "08:00"} onChange={(e) => setHour(i, { openTime: e.target.value })} className="w-32" />
-                        <span className="text-sm text-muted-foreground">–</span>
-                        <Input type="time" value={h.closeTime ?? "18:00"} onChange={(e) => setHour(i, { closeTime: e.target.value })} className="w-32" />
-                      </>
-                    )}
-                  </>
-                )}
-                {!h.isOpen && <span className="text-sm text-destructive">Closed</span>}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* ── Stats ─────────────────────────────────────────────── */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Business Stats</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
                 <Label>Years in Business</Label>
-                <Input type="number" value={form.yearsInBusiness ?? ""} onChange={(e) => setField("yearsInBusiness", e.target.value ? parseInt(e.target.value) : undefined)} placeholder="10" />
+                <Input type="number" placeholder="8" {...form.register("yearsInBusiness", { valueAsNumber: true })} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label>Customers Served</Label>
-                <Input type="number" value={form.customersServed ?? ""} onChange={(e) => setField("customersServed", e.target.value ? parseInt(e.target.value) : undefined)} placeholder="50000" />
+                <Input type="number" placeholder="10000" {...form.register("customersServed", { valueAsNumber: true })} />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Custom Stats</Label>
-              {(form.customStats ?? []).map((s, i) => (
-                <div key={i} className="flex gap-2">
-                  <Input value={s.label} onChange={(e) => setCustomStat(i, { label: e.target.value })} placeholder="Menu Items" className="flex-1" />
-                  <Input value={s.value} onChange={(e) => setCustomStat(i, { value: e.target.value })} placeholder="80+" className="flex-1" />
-                  <Button type="button" variant="outline" size="sm" onClick={() => removeCustomStat(i)}><Trash2 className="w-3.5 h-3.5" /></Button>
-                </div>
-              ))}
-              <Button type="button" variant="outline" size="sm" onClick={addCustomStat} className="gap-1.5">
-                <Plus className="w-3.5 h-3.5" /> Add Stat
-              </Button>
+
+            <div className="flex items-center gap-3 p-4 border rounded-lg">
+              <Switch {...form.register("isPublished")} />
+              <div>
+                <p className="font-semibold text-sm">Publish Profile</p>
+                <p className="text-xs text-muted-foreground">Make this profile visible to customers</p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* ── Features ──────────────────────────────────────────── */}
+        {/* Images */}
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Features &amp; Amenities</CardTitle>
+          <CardHeader>
+            <CardTitle>Images</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <ClickableImageUpload
+                label="Logo"
+                value={form.watch("logoUrl")}
+                onChange={handleLogoSelect}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <ClickableImageUpload
+                label="Cover Image"
+                value={form.watch("coverImageUrl")}
+                onChange={handleCoverImageSelect}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Contact Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Contact Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input type="email" placeholder="contact@business.com" {...form.register("contactEmail")} />
+              </div>
+              <div className="space-y-2">
+                <Label>Phone</Label>
+                <Input placeholder="+1-234-567-8900" {...form.register("contactPhone")} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>WhatsApp</Label>
+                <Input placeholder="+1-234-567-8900" {...form.register("contactWhatsapp")} />
+              </div>
+              <div className="space-y-2">
+                <Label>Telegram</Label>
+                <Input placeholder="@username" {...form.register("contactTelegram")} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Address */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Address</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label>Street</Label>
+              <Input placeholder="123 Main Street" {...form.register("addressStreet")} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>City</Label>
+                <Input placeholder="New York" {...form.register("addressCity")} />
+              </div>
+              <div className="space-y-2">
+                <Label>State/Province</Label>
+                <Input placeholder="NY" {...form.register("addressState")} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Country</Label>
+                <Input placeholder="United States" {...form.register("addressCountry")} />
+              </div>
+              <div className="space-y-2">
+                <Label>Postal Code</Label>
+                <Input placeholder="10001" {...form.register("addressPostalCode")} />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Map Link</Label>
+              <Input placeholder="https://maps.google.com/..." {...form.register("mapLink")} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Social Media */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Social Media</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                { field: "socialFacebook", label: "Facebook" },
+                { field: "socialInstagram", label: "Instagram" },
+                { field: "socialTwitter", label: "Twitter" },
+                { field: "socialLinkedin", label: "LinkedIn" },
+                { field: "socialYoutube", label: "YouTube" },
+                { field: "socialTiktok", label: "TikTok" },
+              ].map(({ field, label }) => (
+                <div key={field} className="space-y-2">
+                  <Label>{label}</Label>
+                  <Input placeholder={`https://${label.toLowerCase()}.com/...`} {...form.register(field as any)} />
+                </div>
+              ))}
+              <div className="space-y-2">
+                <Label>Website</Label>
+                <Input placeholder="https://yourwebsite.com" {...form.register("socialWebsite")} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Features */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Features & Amenities</CardTitle>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const features = form.getValues("features");
+                form.setValue("features", [...features, ""], { shouldDirty: true });
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Feature
+            </Button>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex gap-2">
-              <Input value={featureInput} onChange={(e) => setFeatureInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addFeature(); } }}
-                placeholder="e.g. Free Wi-Fi" />
-              <Button type="button" variant="outline" onClick={addFeature} className="gap-1.5">
-                <Plus className="w-3.5 h-3.5" /> Add
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {(form.features ?? []).map((f, i) => (
-                <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                  {f}
-                  <button type="button" onClick={() => removeFeature(i)} className="hover:opacity-70"><Trash2 className="w-3 h-3" /></button>
-                </span>
-              ))}
-            </div>
+            {form.watch("features").map((feature, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  placeholder="Feature name..."
+                  value={feature}
+                  onChange={(e) => {
+                    const features = form.getValues("features");
+                    features[index] = e.target.value;
+                    form.setValue("features", features, { shouldDirty: true });
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    const features = form.getValues("features");
+                    form.setValue("features", features.filter((_, i) => i !== index), { shouldDirty: true });
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
           </CardContent>
         </Card>
 
-        {/* ── Gallery ───────────────────────────────────────────── */}
+        {/* Business Hours */}
         <Card>
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Gallery</CardTitle>
-            <Button type="button" variant="outline" size="sm" onClick={addGallery} className="gap-1.5">
-              <Plus className="w-3.5 h-3.5" /> Add Item
-            </Button>
+          <CardHeader>
+            <CardTitle>Business Hours</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {(form.gallery ?? []).length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">No gallery items. Click &quot;Add Item&quot; to begin.</p>
-            )}
-            {(form.gallery ?? []).map((g, i) => (
-              <div key={i} className="p-4 rounded-lg border border-border space-y-3 relative">
-                <button type="button" onClick={() => removeGallery(i)}
-                  className="absolute top-3 right-3 text-muted-foreground hover:text-destructive">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-8">
-                  <div className="space-y-1.5">
-                    <Label>Image URL</Label>
-                    <Input value={g.url} onChange={(e) => setGallery(i, { url: e.target.value })} placeholder="https://..." />
+            {form.watch("businessHours").map((hour, index) => (
+              <div key={index} className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-semibold text-sm">{hour.day}</span>
+                  <Switch
+                    checked={hour.isOpen}
+                    onCheckedChange={(checked) => {
+                      const hours = form.getValues("businessHours");
+                      hours[index].isOpen = checked;
+                      form.setValue("businessHours", hours, { shouldDirty: true });
+                    }}
+                  />
+                </div>
+                {hour.isOpen && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Open Time</Label>
+                      <CustomTimePicker
+                        value={hour.openTime}
+                        onChange={(time) => {
+                          const hours = form.getValues("businessHours");
+                          hours[index].openTime = time;
+                          form.setValue("businessHours", hours, { shouldDirty: true });
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Close Time</Label>
+                      <CustomTimePicker
+                        value={hour.closeTime}
+                        onChange={(time) => {
+                          const hours = form.getValues("businessHours");
+                          hours[index].closeTime = time;
+                          form.setValue("businessHours", hours, { shouldDirty: true });
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label>Title</Label>
-                    <Input value={g.title ?? ""} onChange={(e) => setGallery(i, { title: e.target.value })} placeholder="Dish Name" />
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Gallery */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Gallery</CardTitle>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const gallery = form.getValues("gallery");
+                form.setValue("gallery", [...gallery, { url: "", title: "", description: "", displayOrder: gallery.length }], { shouldDirty: true });
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Image
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {form.watch("gallery").map((item, index) => (
+              <div key={index} className="p-4 border rounded-lg space-y-3">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-semibold text-sm">Image {index + 1}</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      const gallery = form.getValues("gallery");
+                      form.setValue("gallery", gallery.filter((_, i) => i !== index), { shouldDirty: true });
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div>
+                  <ClickableImageUpload
+                    label="Image"
+                    value={item.url}
+                    onChange={(img) => handleGalleryImageSelect(index, img)}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Title</Label>
+                    <Input
+                      placeholder="Image title..."
+                      value={item.title}
+                      onChange={(e) => {
+                        const gallery = form.getValues("gallery");
+                        gallery[index].title = e.target.value;
+                        form.setValue("gallery", gallery, { shouldDirty: true });
+                      }}
+                    />
                   </div>
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <Label>Description</Label>
-                    <Input value={g.description ?? ""} onChange={(e) => setGallery(i, { description: e.target.value })} placeholder="Brief description" />
+                  <div className="space-y-2">
+                    <Label className="text-xs">Display Order</Label>
+                    <Input
+                      type="number"
+                      value={item.displayOrder}
+                      onChange={(e) => {
+                        const gallery = form.getValues("gallery");
+                        gallery[index].displayOrder = parseInt(e.target.value) || 0;
+                        form.setValue("gallery", gallery, { shouldDirty: true });
+                      }}
+                    />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs">Description</Label>
+                  <Textarea
+                    placeholder="Image description..."
+                    rows={2}
+                    value={item.description}
+                    onChange={(e) => {
+                      const gallery = form.getValues("gallery");
+                      gallery[index].description = e.target.value;
+                      form.setValue("gallery", gallery, { shouldDirty: true });
+                    }}
+                  />
                 </div>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        {/* ── Services ──────────────────────────────────────────── */}
+        {/* Services */}
         <Card>
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Services</CardTitle>
-            <Button type="button" variant="outline" size="sm" onClick={addService} className="gap-1.5">
-              <Plus className="w-3.5 h-3.5" /> Add Service
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Services</CardTitle>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const services = form.getValues("services");
+                form.setValue("services", [...services, { name: "", description: "" }], { shouldDirty: true });
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Service
             </Button>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {(form.services ?? []).length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">No services added yet.</p>
-            )}
-            {(form.services ?? []).map((s, i) => (
-              <div key={i} className="p-4 rounded-lg border border-border space-y-3 relative">
-                <button type="button" onClick={() => removeService(i)}
-                  className="absolute top-3 right-3 text-muted-foreground hover:text-destructive">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <div className="grid grid-cols-1 gap-3 pr-8">
-                  <div className="space-y-1.5">
-                    <Label>Service Name</Label>
-                    <Input value={s.name} onChange={(e) => setService(i, { name: e.target.value })} placeholder="Dine In" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>Description</Label>
-                    <Input value={s.description} onChange={(e) => setService(i, { description: e.target.value })} placeholder="Brief description of this service" />
-                  </div>
+          <CardContent className="space-y-6">
+            {form.watch("services").map((service, index) => (
+              <div key={index} className="p-4 border rounded-lg space-y-3">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-semibold text-sm">Service {index + 1}</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      const services = form.getValues("services");
+                      form.setValue("services", services.filter((_, i) => i !== index), { shouldDirty: true });
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs">Service Name</Label>
+                  <Input
+                    placeholder="Service name..."
+                    value={service.name}
+                    onChange={(e) => {
+                      const services = form.getValues("services");
+                      services[index].name = e.target.value;
+                      form.setValue("services", services, { shouldDirty: true });
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs">Description</Label>
+                  <Textarea
+                    placeholder="Service description..."
+                    rows={3}
+                    value={service.description}
+                    onChange={(e) => {
+                      const services = form.getValues("services");
+                      services[index].description = e.target.value;
+                      form.setValue("services", services, { shouldDirty: true });
+                    }}
+                  />
                 </div>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        {/* ── Team ──────────────────────────────────────────────── */}
+        {/* Team Members */}
         <Card>
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Team Members</CardTitle>
-            <Button type="button" variant="outline" size="sm" onClick={addTeam} className="gap-1.5">
-              <Plus className="w-3.5 h-3.5" /> Add Member
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Team Members</CardTitle>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const team = form.getValues("team");
+                form.setValue("team", [...team, { name: "", position: "", bio: "", photoUrl: "" }], { shouldDirty: true });
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Member
             </Button>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {(form.team ?? []).length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">No team members added yet.</p>
-            )}
-            {(form.team ?? []).map((m, i) => (
-              <div key={i} className="p-4 rounded-lg border border-border space-y-3 relative">
-                <button type="button" onClick={() => removeTeam(i)}
-                  className="absolute top-3 right-3 text-muted-foreground hover:text-destructive">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-8">
-                  <div className="space-y-1.5">
-                    <Label>Name</Label>
-                    <Input value={m.name} onChange={(e) => setTeam(i, { name: e.target.value })} placeholder="Chef Visal Sok" />
+          <CardContent className="space-y-6">
+            {form.watch("team").map((member, index) => (
+              <div key={index} className="p-4 border rounded-lg space-y-3">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-semibold text-sm">{member.name || "Team Member"}</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      const team = form.getValues("team");
+                      form.setValue("team", team.filter((_, i) => i !== index), { shouldDirty: true });
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div>
+                  <ClickableImageUpload
+                    label="Photo"
+                    value={member.photoUrl}
+                    onChange={(img) => handleTeamPhotoSelect(index, img)}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Name</Label>
+                    <Input
+                      placeholder="Full name..."
+                      value={member.name}
+                      onChange={(e) => {
+                        const team = form.getValues("team");
+                        team[index].name = e.target.value;
+                        form.setValue("team", team, { shouldDirty: true });
+                      }}
+                    />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label>Position</Label>
-                    <Input value={m.position} onChange={(e) => setTeam(i, { position: e.target.value })} placeholder="Head Chef" />
+                  <div className="space-y-2">
+                    <Label className="text-xs">Position</Label>
+                    <Input
+                      placeholder="Job title..."
+                      value={member.position}
+                      onChange={(e) => {
+                        const team = form.getValues("team");
+                        team[index].position = e.target.value;
+                        form.setValue("team", team, { shouldDirty: true });
+                      }}
+                    />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label>Photo URL</Label>
-                    <Input value={m.photoUrl ?? ""} onChange={(e) => setTeam(i, { photoUrl: e.target.value })} placeholder="https://..." />
-                  </div>
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <Label>Bio</Label>
-                    <Input value={m.bio ?? ""} onChange={(e) => setTeam(i, { bio: e.target.value })} placeholder="Short bio about this team member" />
-                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs">Bio</Label>
+                  <Textarea
+                    placeholder="Team member bio..."
+                    rows={3}
+                    value={member.bio}
+                    onChange={(e) => {
+                      const team = form.getValues("team");
+                      team[index].bio = e.target.value;
+                      form.setValue("team", team, { shouldDirty: true });
+                    }}
+                  />
                 </div>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        {/* ── Save button ───────────────────────────────────────── */}
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isSaving} className="gap-2 min-w-32">
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {isSaving ? "Saving…" : "Save Profile"}
+        {/* Custom Stats */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Custom Statistics</CardTitle>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const stats = form.getValues("customStats");
+                form.setValue("customStats", [...stats, { label: "", value: "" }], { shouldDirty: true });
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Stat
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {form.watch("customStats").map((stat, index) => (
+              <div key={index} className="flex gap-2">
+                <div className="flex-1">
+                  <Input placeholder="Label (e.g., Products)" value={stat.label} onChange={(e) => {
+                    const stats = form.getValues("customStats");
+                    stats[index].label = e.target.value;
+                    form.setValue("customStats", stats, { shouldDirty: true });
+                  }} />
+                </div>
+                <div className="flex-1">
+                  <Input placeholder="Value (e.g., 10,000+)" value={stat.value} onChange={(e) => {
+                    const stats = form.getValues("customStats");
+                    stats[index].value = e.target.value;
+                    form.setValue("customStats", stats, { shouldDirty: true });
+                  }} />
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    const stats = form.getValues("customStats");
+                    form.setValue("customStats", stats.filter((_, i) => i !== index), { shouldDirty: true });
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Submit Button */}
+        <div className="flex gap-3 justify-end sticky bottom-6 bg-background p-4 rounded-lg border">
+          <Button type="button" variant="outline" disabled={isSaving}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSaving} className="gap-2">
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+            {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
-
       </form>
     </div>
   );
