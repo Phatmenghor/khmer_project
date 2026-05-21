@@ -148,30 +148,32 @@ export default function BusinessProfilePage() {
     <div className="min-h-screen bg-background">
 
       {/* ── Hero / Cover ─────────────────────────────────────────────── */}
-      <section>
-        {/* Cover image */}
-        <div className="relative h-52 sm:h-64 lg:h-72 overflow-hidden">
-          {profile.coverImage ? (
-            <Image
-              src={profile.coverImage}
-              alt={profile.businessName}
-              fill
-              className="object-cover"
-              priority
-            />
-          ) : (
-            <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))" }} />
-          )}
-          <div className="absolute inset-0 bg-black/40" />
+      <section className="relative">
+        {/* Cover image — overflow-hidden is on the inner div only so the logo is not clipped */}
+        <div className="relative h-52 sm:h-64 lg:h-72">
+          <div className="absolute inset-0 overflow-hidden">
+            {profile.coverImage ? (
+              <Image
+                src={profile.coverImage}
+                alt={profile.businessName}
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))" }} />
+            )}
+            <div className="absolute inset-0 bg-black/40" />
+          </div>
         </div>
 
         {/* Profile strip — white card below the cover */}
         <div className="bg-card border-b border-border shadow-sm">
           <div className="container mx-auto px-4 max-w-6xl">
-            <div className="flex flex-col sm:flex-row sm:items-start gap-4 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 py-4">
 
-              {/* Logo — pops up into the cover image */}
-              <div className="w-28 h-28 sm:w-32 sm:h-32 -mt-14 sm:-mt-20 rounded-2xl border-4 border-background shadow-xl flex-shrink-0 overflow-hidden bg-card">
+              {/* Logo — pops up into the cover, fully visible now */}
+              <div className="w-24 h-24 sm:w-28 sm:h-28 -mt-12 sm:-mt-16 rounded-2xl border-4 border-background shadow-xl flex-shrink-0 overflow-hidden bg-card">
                 {profile.logo ? (
                   <Image src={profile.logo} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
                 ) : (
