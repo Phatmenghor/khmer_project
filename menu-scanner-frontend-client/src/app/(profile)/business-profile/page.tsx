@@ -7,6 +7,7 @@ import {
   Facebook, Instagram, Twitter,
   Star, Check, ExternalLink,
   Share2, QrCode, Building2, Users, Send,
+  X, PenLine, CheckCircle2,
 } from "lucide-react";
 import { QRTemplateModal } from "@/components/shared/qr/qr-template-modal";
 import { demoBusinessProfile } from "@/data/business-profile-template";
@@ -60,12 +61,178 @@ function StarRow({ rating, size = 4 }: { rating: number; size?: number }) {
   );
 }
 
+// ── WriteReviewModal ─────────────────────────────────────────────────────────
+
+interface ReviewForm {
+  name: string;
+  rating: number;
+  title: string;
+  comment: string;
+}
+
+function WriteReviewModal({ open, onClose, businessName }: { open: boolean; onClose: () => void; businessName: string }) {
+  const [form, setForm]       = useState<ReviewForm>({ name: "", rating: 0, title: "", comment: "" });
+  const [hover, setHover]     = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  function reset() {
+    setForm({ name: "", rating: 0, title: "", comment: "" });
+    setHover(0);
+    setLoading(false);
+    setSubmitted(false);
+  }
+
+  function handleClose() {
+    onClose();
+    setTimeout(reset, 300);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.rating) return;
+    setLoading(true);
+    // TODO: replace with real API call — POST /api/reviews
+    await new Promise((r) => setTimeout(r, 1200));
+    setLoading(false);
+    setSubmitted(true);
+  }
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={handleClose}>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div
+        className="relative z-10 w-full sm:max-w-lg bg-background rounded-t-2xl sm:rounded-2xl shadow-2xl border border-border overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <div className="flex items-center gap-2">
+            <PenLine className="w-4 h-4 text-primary" />
+            <span className="font-semibold text-sm text-foreground">Write a Review</span>
+          </div>
+          <button onClick={handleClose} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {submitted ? (
+          /* ── Success state ── */
+          <div className="flex flex-col items-center gap-4 px-6 py-10 text-center">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <CheckCircle2 className="w-7 h-7 text-primary" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground text-base">Thank you for your review!</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Your review has been submitted and is pending approval by <span className="font-medium">{businessName}</span>.
+              </p>
+            </div>
+            <button onClick={handleClose} className="mt-2 px-6 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+              Close
+            </button>
+          </div>
+        ) : (
+          /* ── Form ── */
+          <form onSubmit={handleSubmit} className="px-5 py-5 space-y-4">
+            {/* Star rating */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">Your Rating <span className="text-destructive">*</span></label>
+              <div className="flex items-center gap-1.5">
+                {[1,2,3,4,5].map((s) => (
+                  <button
+                    key={s} type="button"
+                    onMouseEnter={() => setHover(s)}
+                    onMouseLeave={() => setHover(0)}
+                    onClick={() => setForm((f) => ({ ...f, rating: s }))}
+                  >
+                    <Star
+                      className="w-8 h-8 transition-colors"
+                      style={{ color: s <= (hover || form.rating) ? "#facc15" : "#e5e7eb",
+                               fill:  s <= (hover || form.rating) ? "#facc15" : "#e5e7eb" }}
+                    />
+                  </button>
+                ))}
+                {(hover || form.rating) > 0 && (
+                  <span className="text-xs text-muted-foreground ml-1">
+                    {["","Poor","Fair","Good","Very Good","Excellent"][hover || form.rating]}
+                  </span>
+                )}
+              </div>
+              {!form.rating && <p className="text-xs text-muted-foreground">Please select a rating</p>}
+            </div>
+
+            {/* Name */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">Your Name <span className="text-destructive">*</span></label>
+              <input
+                required
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="e.g. Sopheap Chan"
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+              />
+            </div>
+
+            {/* Title */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">Review Title</label>
+              <input
+                value={form.title}
+                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                placeholder="e.g. Amazing experience!"
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+              />
+            </div>
+
+            {/* Comment */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">Your Review <span className="text-destructive">*</span></label>
+              <textarea
+                required
+                rows={4}
+                value={form.comment}
+                onChange={(e) => setForm((f) => ({ ...f, comment: e.target.value }))}
+                placeholder="Share your experience with others..."
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none"
+              />
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Your review will be visible after approval by the business.
+            </p>
+
+            <div className="flex gap-2 pt-1">
+              <button type="button" onClick={handleClose}
+                className="flex-1 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading || !form.rating}
+                className="flex-1 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <><span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />Submitting…</>
+                ) : "Submit Review"}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── page ──────────────────────────────────────────────────────────────────────
 
 export default function BusinessProfilePage() {
   const profile: BusinessProfile = demoBusinessProfile;
 
-  const [showQRModal, setShowQRModal] = useState(false);
+  const [showQRModal, setShowQRModal]         = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const open         = isOpenNow(profile);
   const avg          = calcAvg(profile.reviews);
@@ -295,11 +462,15 @@ export default function BusinessProfilePage() {
               </Card>
             ) : null}
 
-            {/* Reviews — no comment body, no write-review button */}
+            {/* Reviews */}
             {totalReviews > 0 && (
               <Card>
-                <CardHeader className="pb-3">
+                <CardHeader className="pb-3 flex flex-row items-center justify-between">
                   <CardTitle className="text-lg">Customer Reviews</CardTitle>
+                  <Button size="sm" variant="outline" className="gap-1.5 shrink-0" onClick={() => setShowReviewModal(true)}>
+                    <PenLine className="w-3.5 h-3.5" />
+                    Write a Review
+                  </Button>
                 </CardHeader>
                 <CardContent className="space-y-5">
                   {/* Summary */}
@@ -476,6 +647,13 @@ export default function BusinessProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* ── Write a Review Modal ─────────────────────────────────── */}
+      <WriteReviewModal
+        open={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        businessName={profile.businessName}
+      />
 
       {/* ── QR Template Modal ────────────────────────────────────── */}
       <QRTemplateModal
