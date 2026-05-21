@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   MapPin, Phone, Mail, Clock, Globe,
   Facebook, Instagram, Twitter,
   Star, Check, ExternalLink, MessageCircle,
-  Share2, QrCode, Download, Building2, Users,
+  Share2, QrCode, Download, Building2, Users, X, Send,
 } from "lucide-react";
 import { demoBusinessProfile } from "@/data/business-profile-template";
 import { BusinessProfile, DayOfWeek, CustomerReview } from "@/types/business-profile";
@@ -114,6 +114,8 @@ function QRDisplay({ url }: { url: string }) {
 export default function BusinessProfilePage() {
   const profile: BusinessProfile = demoBusinessProfile;
 
+  const [showQRModal, setShowQRModal] = useState(false);
+
   const open         = isOpenNow(profile);
   const avg          = calcAvg(profile.reviews);
   const totalReviews = profile.reviews?.length ?? 0;
@@ -188,7 +190,7 @@ export default function BusinessProfilePage() {
                 <Share2 className="w-4 h-4" />
                 Share
               </Button>
-              <Button size="sm" className="gap-2">
+              <Button size="sm" className="gap-2" onClick={() => setShowQRModal(true)}>
                 <QrCode className="w-4 h-4" />
                 View QR
               </Button>
@@ -463,6 +465,15 @@ export default function BusinessProfilePage() {
                     </Button>
                   </a>
                 )}
+                {profile.contact.telegram && (
+                  <a href={`https://t.me/${profile.contact.telegram.replace(/[^0-9]/g, "")}`}
+                    target="_blank" rel="noopener noreferrer" className="block">
+                    <Button variant="outline" size="sm" className="w-full gap-2 border-sky-200 text-sky-600 hover:bg-sky-50">
+                      <Send className="w-3.5 h-3.5" />
+                      Chat on Telegram
+                    </Button>
+                  </a>
+                )}
               </CardContent>
             </Card>
 
@@ -523,6 +534,38 @@ export default function BusinessProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* ── QR Modal ─────────────────────────────────────────────── */}
+      {showQRModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowQRModal(false)}
+        >
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div
+            className="relative z-10 w-full max-w-xs bg-card rounded-2xl shadow-2xl border border-border overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="h-1.5 bg-primary" />
+            <div className="flex items-center justify-between px-5 pt-4 pb-2">
+              <div className="flex items-center gap-2">
+                <QrCode className="w-4 h-4 text-primary" />
+                <span className="font-semibold text-foreground text-sm">Scan &amp; Order</span>
+              </div>
+              <button
+                onClick={() => setShowQRModal(false)}
+                className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="px-5 text-xs text-muted-foreground pb-3">{profile.businessName}</p>
+            <div className="px-5 pb-5">
+              <QRDisplay url={profileUrl} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -66,6 +66,7 @@ export interface ContactInfo {
   email: string;
   phone: string;
   whatsapp?: string;
+  telegram?: string;
   address: Address;
   mapLink?: string;
 }

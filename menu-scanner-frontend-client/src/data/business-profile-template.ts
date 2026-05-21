@@ -16,6 +16,7 @@ export const demoBusinessProfile: BusinessProfile = {
     email: "info@goldendragon.kh",
     phone: "+855 23 456 789",
     whatsapp: "+85523456789",
+    telegram: "+85523456789",
     address: {
       street: "123 Norodom Boulevard",
       city: "Phnom Penh",
