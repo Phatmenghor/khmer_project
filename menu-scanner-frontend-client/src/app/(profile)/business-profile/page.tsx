@@ -355,23 +355,23 @@ export default function BusinessProfilePage() {
       {profile.stats && (
         <div className="bg-card border-b border-border">
           <div className="container mx-auto px-4 max-w-6xl">
-            <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 divide-x divide-border">
               {profile.stats.yearsInBusiness && (
-                <div className="py-4 px-6 text-center">
-                  <p className="text-2xl font-bold text-primary">{profile.stats.yearsInBusiness}+</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Years</p>
+                <div className="py-4 px-3 sm:px-4 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-primary break-words">{profile.stats.yearsInBusiness}+</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">Years</p>
                 </div>
               )}
               {profile.stats.customersServed && (
-                <div className="py-4 px-6 text-center">
-                  <p className="text-2xl font-bold text-primary">{(profile.stats.customersServed / 1000).toFixed(0)}k+</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Customers</p>
+                <div className="py-4 px-3 sm:px-4 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-primary break-words">{(profile.stats.customersServed / 1000).toFixed(0)}k+</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">Customers</p>
                 </div>
               )}
               {profile.stats.customStats?.map((s, i) => (
-                <div key={i} className="py-4 px-6 text-center">
-                  <p className="text-2xl font-bold text-primary">{s.value}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
+                <div key={i} className="py-4 px-3 sm:px-4 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-primary break-words">{s.value}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -423,7 +423,7 @@ export default function BusinessProfilePage() {
                       <div key={svc.id}
                         className="p-3.5 rounded-xl border border-border bg-muted/30 hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-default">
                         <p className="text-sm font-semibold text-foreground">{svc.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{svc.description}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">{svc.description}</p>
                       </div>
                     ))}
                   </div>
