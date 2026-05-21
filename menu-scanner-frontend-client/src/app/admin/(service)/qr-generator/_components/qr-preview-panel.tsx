@@ -24,7 +24,6 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
   const qrUrl        = generateQRUrl(config);
   const effectiveUrl = qrUrl || "https://your-domain.com/preview";
 
-  const isPrint    = style.template === "print-ready";
   const headerFrom = style.cardGradientFrom;
   const headerTo   = style.cardGradientTo;
   const bgColor    = style.backgroundColor || "#ffffff";
@@ -270,84 +269,50 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
           <div
             ref={cardRef}
             className="w-full overflow-hidden shadow-2xl"
-            style={{
-              maxWidth: 320,
-              borderRadius: 0,
-              border: isPrint ? "1px solid #e5e7eb" : "none",
-            }}
+            style={{ maxWidth: 320, borderRadius: 0 }}
           >
             {/* ── HEADER ─────────────────────────────────────────────── */}
-            {isPrint ? (
-              /* Print: clean white header — no stripes, no heavy borders */
-              <div style={{
-                background: "#fff",
-                padding: "20px 20px 14px",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
-              }}>
+            <div style={{
+              background: `linear-gradient(135deg, ${headerFrom}, ${headerTo})`,
+              padding: "12px 14px 30px",
+              position: "relative",
+              overflow: "hidden",
+            }}>
+              {/* Decorative circles */}
+              <div style={{ position: "absolute", width: 160, height: 160, right: -40, top: -40, borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", width: 80,  height: 80,  right: 10,  top: 60,  borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
+
+              {/* Top row: Logo LEFT — QR badge RIGHT */}
+              <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
                 {style.logoDataUrl ? (
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", overflow: "hidden", flexShrink: 0, boxShadow: "0 0 0 1.5px #e5e7eb" }}>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0 }}>
                     <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                   </div>
                 ) : (
-                  <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <QrCode style={{ width: 28, height: 28, color: "#9ca3af" }} />
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)", display: "block" }} />
                   </div>
                 )}
-                <div style={{ textAlign: "center" }}>
-                  <p style={{ fontWeight: 700, fontSize: 15, color: "#111827", lineHeight: 1.3, margin: 0 }}>{displayTitle}</p>
-                  <p style={{ fontSize: 11, color: "#6b7280", margin: "3px 0 0", textAlign: "center" }}>{displaySubtitle}</p>
+                <div data-dl="qr-badge" style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "3px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
+                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34d399", flexShrink: 0 }} />
+                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", color: "rgba(255,255,255,0.9)", lineHeight: 1 }}>QR</span>
                 </div>
               </div>
-            ) : (
-              /* Gradient: wave cap lives INSIDE header as absolute element */
-              <div style={{
-                background: `linear-gradient(135deg, ${headerFrom}, ${headerTo})`,
-                padding: "12px 14px 30px",
-                position: "relative",
-                overflow: "hidden",
-              }}>
-                {/* Decorative circles */}
-                <div style={{ position: "absolute", width: 160, height: 160, right: -40, top: -40, borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
-                <div style={{ position: "absolute", width: 80,  height: 80,  right: 10,  top: 60,  borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
 
-                {/* Top row: Logo LEFT — QR badge RIGHT */}
-                <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
-                  {style.logoDataUrl ? (
-                    <div style={{ width: 44, height: 44, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0 }}>
-                      <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                    </div>
-                  ) : (
-                    <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)", display: "block" }} />
-                    </div>
-                  )}
-                  {/* QR badge — flex for preview; onclone rewrites with position:absolute for download */}
-                  <div data-dl="qr-badge" style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "3px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
-                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34d399", flexShrink: 0 }} />
-                    <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", color: "rgba(255,255,255,0.9)", lineHeight: 1 }}>QR</span>
-                  </div>
-                </div>
-
-                {/* Title + subtitle below logo row */}
-                <div style={{ position: "relative", zIndex: 10 }}>
-                  <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1.3, margin: 0 }}>{displayTitle}</h2>
-                  <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 3, fontWeight: 300 }}>{displaySubtitle}</p>
-                </div>
-
-                {/* White rounded cap — absolute at bottom of header */}
-                <div style={{
-                  position: "absolute", bottom: 0, left: 0, right: 0,
-                  height: 20,
-                  background: bgColor,
-                  borderRadius: "1.25rem 1.25rem 0 0",
-                }} />
+              {/* Title + subtitle */}
+              <div style={{ position: "relative", zIndex: 10 }}>
+                <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1.3, margin: 0 }}>{displayTitle}</h2>
+                <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 3, fontWeight: 300 }}>{displaySubtitle}</p>
               </div>
-            )}
 
-            {/* ── QR AREA — containerRef never moves in the tree ─────── */}
+              {/* Rounded white cap */}
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 20, background: bgColor, borderRadius: "1.25rem 1.25rem 0 0" }} />
+            </div>
+
+            {/* ── QR AREA ─────────────────────────────────────────────── */}
             <div style={{
               background: bgColor,
-              padding: isPrint ? "0 16px 16px" : "0 12px 12px",
+              padding: "0 12px 12px",
               display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
             }}>
               <div style={{
@@ -390,9 +355,8 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
               </div>
             </div>
 
-            {/* ── FOOTER — gradient only ──────────────────────────────── */}
-            {!isPrint && (
-              <div style={{
+            {/* ── FOOTER ──────────────────────────────────────────────── */}
+            <div style={{
                 padding: "8px 16px",
                 background: `${headerFrom}20`,
                 display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -408,7 +372,6 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
                   ))}
                 </div>
               </div>
-            )}
 
           </div>
         </div>

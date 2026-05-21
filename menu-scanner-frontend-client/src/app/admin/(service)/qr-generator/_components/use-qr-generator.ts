@@ -5,7 +5,7 @@ export type CardTemplate =
   | "aba-red"
   | "royal-purple"
   | "fresh-green"
-  | "print-ready";
+  | "custom";
 
 export interface QRConfig {
   type: QRType;

@@ -13,11 +13,11 @@ export interface TemplateConfig {
 }
 
 export const CARD_TEMPLATES: TemplateConfig[] = [
-  { id: "bank-classic", name: "Bank Classic", gradientFrom: "#1a237e", gradientTo: "#283593", qrPrimaryColor: "#1a237e", isDark: true  },
-  { id: "aba-red",      name: "ABA Red",      gradientFrom: "#b71c1c", gradientTo: "#d32f2f", qrPrimaryColor: "#b71c1c", isDark: true  },
-  { id: "royal-purple", name: "Royal Purple", gradientFrom: "#4a148c", gradientTo: "#7b1fa2", qrPrimaryColor: "#4a148c", isDark: true  },
-  { id: "fresh-green",  name: "Fresh Green",  gradientFrom: "#1b5e20", gradientTo: "#2e7d32", qrPrimaryColor: "#1b5e20", isDark: true  },
-  { id: "print-ready",  name: "Print Ready",  gradientFrom: "#ffffff", gradientTo: "#f1f5f9", qrPrimaryColor: "#000000", isDark: false },
+  { id: "bank-classic", name: "Bank Classic", gradientFrom: "#1a237e", gradientTo: "#283593", qrPrimaryColor: "#1a237e", isDark: true },
+  { id: "aba-red",      name: "ABA Red",      gradientFrom: "#b71c1c", gradientTo: "#d32f2f", qrPrimaryColor: "#b71c1c", isDark: true },
+  { id: "royal-purple", name: "Royal Purple", gradientFrom: "#4a148c", gradientTo: "#7b1fa2", qrPrimaryColor: "#4a148c", isDark: true },
+  { id: "fresh-green",  name: "Fresh Green",  gradientFrom: "#1b5e20", gradientTo: "#2e7d32", qrPrimaryColor: "#1b5e20", isDark: true },
+  // "custom" is not in this list — its colors come from user's color picker
 ];
 
 export function getTemplateConfig(id: CardTemplate): TemplateConfig {
@@ -320,7 +320,6 @@ export async function downloadQRCard(
   if (!url) throw new Error("No valid QR URL — fill in all required fields");
 
   const tpl = getTemplateConfig(style.template);
-  const isPrint = style.template === "print-ready";
 
   // High-res QR — 480px matches the fixed download size
   const { default: QRCodeStyling } = await import("qr-code-styling");
@@ -346,19 +345,14 @@ export async function downloadQRCard(
   URL.revokeObjectURL(qrObjectUrl);
 
   // Canvas height — header + QR + scan text + footer + breathing room
-  const HEADER_H = isPrint ? PRINT_HEADER_H : GRAD_HEADER_H;
-  const TOTAL_H  = HEADER_H + qrImg.height + 220 + FOOTER_H;
+  const TOTAL_H = GRAD_HEADER_H + qrImg.height + 220 + FOOTER_H;
 
   const canvas  = document.createElement("canvas");
   canvas.width  = CARD_W;
   canvas.height = TOTAL_H;
   const ctx     = canvas.getContext("2d")!;
 
-  if (isPrint) {
-    await drawPrintCard(ctx, TOTAL_H, qrImg, config);
-  } else {
-    await drawGradientCard(ctx, TOTAL_H, qrImg, config, style, tpl);
-  }
+  await drawGradientCard(ctx, TOTAL_H, qrImg, config, style, tpl);
 
   canvas.toBlob(
     (blob) => {

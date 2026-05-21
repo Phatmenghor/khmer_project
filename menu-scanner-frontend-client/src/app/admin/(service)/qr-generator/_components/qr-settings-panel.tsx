@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ImagePlus, X, Check } from "lucide-react";
+import { ImagePlus, X, Check, Palette } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
 import { CARD_TEMPLATES, getTemplateConfig } from "./card-templates";
 import type { QRStyle } from "./use-qr-generator";
@@ -13,6 +13,15 @@ import type { QRStyle } from "./use-qr-generator";
 interface QRSettingsPanelProps {
   style: QRStyle;
   onUpdate: (updates: Partial<QRStyle>) => void;
+}
+
+/** Lighten a hex color by adding `amount` to each RGB channel. */
+function lighten(hex: string, amount = 28): string {
+  const clamp = (n: number) => Math.min(255, Math.max(0, n));
+  const r = clamp(parseInt(hex.slice(1, 3), 16) + amount);
+  const g = clamp(parseInt(hex.slice(3, 5), 16) + amount);
+  const b = clamp(parseInt(hex.slice(5, 7), 16) + amount);
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
 }
 
 function ColorRow({
@@ -48,31 +57,41 @@ function ColorRow({
 }
 
 export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef        = useRef<HTMLInputElement>(null);
+  const customColorInputRef = useRef<HTMLInputElement>(null);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) { showToast.error("Upload a valid image file"); return; }
     if (file.size > 2 * 1024 * 1024)     { showToast.error("Image must be under 2MB");   return; }
-
     const reader = new FileReader();
     reader.onload = (ev) => onUpdate({ logoDataUrl: ev.target?.result as string });
     reader.readAsDataURL(file);
-
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSelectTemplate = (id: typeof style.template) => {
     const tpl = getTemplateConfig(id);
     onUpdate({
-      template: id,
+      template:         id,
       cardGradientFrom: tpl.gradientFrom,
       cardGradientTo:   tpl.gradientTo,
       primaryColor:     tpl.qrPrimaryColor,
     });
   };
 
+  /** When user picks a custom color, derive a two-stop gradient from it. */
+  const handleCustomColor = (color: string) => {
+    onUpdate({
+      template:         "custom",
+      cardGradientFrom: color,
+      cardGradientTo:   lighten(color, 28),
+      primaryColor:     color,
+    });
+  };
+
+  const isCustom = style.template === "custom";
 
   return (
     <Card>
@@ -82,15 +101,14 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
 
       <CardContent className="space-y-5">
 
-        {/* ── Card Template + Colors ───────────────────────────── */}
+        {/* ── Card Template ────────────────────────────────────── */}
         <div className="space-y-3">
           <p className="text-xs font-semibold text-foreground">Card Template</p>
 
-          {/* Preset swatches */}
           <div className="grid grid-cols-3 gap-2">
+            {/* 4 preset templates */}
             {CARD_TEMPLATES.map((tpl) => {
               const isSelected = style.template === tpl.id;
-              const isBW       = tpl.id === "print-ready";
               return (
                 <button
                   key={tpl.id}
@@ -105,18 +123,8 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                 >
                   <div
                     className="h-10 w-full"
-                    style={
-                      isBW
-                        ? { background: "#fff", border: "2px solid #000" }
-                        : { background: `linear-gradient(135deg, ${tpl.gradientFrom}, ${tpl.gradientTo})` }
-                    }
-                  >
-                    {isBW && (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-black text-[10px] font-bold tracking-wider">B&amp;W</span>
-                      </div>
-                    )}
-                  </div>
+                    style={{ background: `linear-gradient(135deg, ${tpl.gradientFrom}, ${tpl.gradientTo})` }}
+                  />
                   <div className="bg-muted/80 px-1 py-0.5 text-center">
                     <span className="text-[10px] text-foreground leading-tight block truncate">
                       {tpl.name}
@@ -130,9 +138,53 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                 </button>
               );
             })}
+
+            {/* Custom color picker swatch */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => customColorInputRef.current?.click()}
+                className={`relative w-full rounded-xl overflow-hidden border-2 transition-all duration-150 cursor-pointer ${
+                  isCustom
+                    ? "border-primary shadow-md scale-[1.03]"
+                    : "border-border hover:border-primary/40"
+                }`}
+                title="Pick any color"
+              >
+                <div
+                  className="h-10 w-full flex items-center justify-center"
+                  style={
+                    isCustom
+                      ? { background: `linear-gradient(135deg, ${style.cardGradientFrom}, ${style.cardGradientTo})` }
+                      : { background: "conic-gradient(from 0deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6, #ec4899, #ef4444)" }
+                  }
+                >
+                  {!isCustom && <Palette className="w-4 h-4 text-white drop-shadow" />}
+                </div>
+                <div className="bg-muted/80 px-1 py-0.5 text-center">
+                  <span className="text-[10px] text-foreground leading-tight block truncate">
+                    Custom
+                  </span>
+                </div>
+                {isCustom && (
+                  <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                    <Check className="w-2.5 h-2.5 text-white" />
+                  </div>
+                )}
+              </button>
+              {/* Hidden native color picker */}
+              <input
+                ref={customColorInputRef}
+                type="color"
+                value={isCustom ? style.cardGradientFrom : "#e11d48"}
+                onChange={(e) => handleCustomColor(e.target.value)}
+                className="absolute opacity-0 w-0 h-0 pointer-events-none"
+                tabIndex={-1}
+              />
+            </div>
           </div>
 
-          {/* Color pickers — all templates support full color customisation */}
+          {/* Fine-tune colors for any template */}
           <div className="space-y-2 pt-1">
             <p className="text-[11px] text-muted-foreground font-medium">Customize colors</p>
             <ColorRow
@@ -194,7 +246,6 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                 </Button>
               </div>
 
-              {/* Logo size in QR */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-medium text-foreground">Logo Size in QR</p>
