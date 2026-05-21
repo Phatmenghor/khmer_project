@@ -58,22 +58,6 @@ export const fetchPortfolioReviewsThunk = createApiThunk<
   }
 );
 
-export const approveReviewThunk = createApiThunk<PortfolioReviewAdmin, string>(
-  "portfolio/approveReview",
-  async (id) => {
-    const response = await axiosClientWithAuth.patch(`/api/v1/portfolio/reviews/${id}/approve`);
-    return response.data.data;
-  }
-);
-
-export const rejectReviewThunk = createApiThunk<PortfolioReviewAdmin, string>(
-  "portfolio/rejectReview",
-  async (id) => {
-    const response = await axiosClientWithAuth.patch(`/api/v1/portfolio/reviews/${id}/reject`);
-    return response.data.data;
-  }
-);
-
 export const deleteReviewThunk = createApiThunk<string, string>(
   "portfolio/deleteReview",
   async (id) => {

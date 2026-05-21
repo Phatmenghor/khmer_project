@@ -46,18 +46,6 @@ public class PortfolioController {
                 portfolioService.getReviews(filter)));
     }
 
-    @PatchMapping("/reviews/{id}/approve")
-    public ResponseEntity<ApiResponse<PortfolioReviewAdminResponse>> approveReview(@PathVariable UUID id) {
-        return ResponseEntity.ok(ApiResponse.success("Review approved",
-                portfolioService.approveReview(id)));
-    }
-
-    @PatchMapping("/reviews/{id}/reject")
-    public ResponseEntity<ApiResponse<PortfolioReviewAdminResponse>> rejectReview(@PathVariable UUID id) {
-        return ResponseEntity.ok(ApiResponse.success("Review rejected",
-                portfolioService.rejectReview(id)));
-    }
-
     @DeleteMapping("/reviews/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable UUID id) {
         portfolioService.deleteReview(id);

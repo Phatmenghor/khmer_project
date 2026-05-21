@@ -106,7 +106,6 @@ export interface PortfolioReviewAdmin {
   rating: number;
   title?: string;
   comment: string;
-  isApproved?: boolean;
   wouldRecommend?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -196,5 +195,4 @@ export interface PortfolioReviewFilterRequest {
   search?: string;
   sortBy?: string;
   sortDirection?: string;
-  isApproved?: boolean | null;
 }

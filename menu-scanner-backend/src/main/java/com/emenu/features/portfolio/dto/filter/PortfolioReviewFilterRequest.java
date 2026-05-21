@@ -11,6 +11,4 @@ import java.util.UUID;
 public class PortfolioReviewFilterRequest extends BaseFilterRequest {
 
     private UUID businessId;
-
-    private Boolean isApproved; // null=all, true=approved, false=pending
 }

@@ -41,9 +41,6 @@ public class PortfolioReview extends BaseUUIDEntity {
     @Column(name = "comment", columnDefinition = "TEXT", nullable = false)
     private String comment;
 
-    @Column(name = "is_approved", nullable = false)
-    private Boolean isApproved = false;
-
     @Column(name = "would_recommend")
     private Boolean wouldRecommend;
 }

@@ -14,16 +14,14 @@ import java.util.UUID;
 @Repository
 public interface PortfolioReviewRepository extends JpaRepository<PortfolioReview, UUID> {
 
-    Page<PortfolioReview> findByProfileIdAndIsDeletedFalse(UUID profileId, Pageable pageable);
-
-    @Query("SELECT r.rating, COUNT(r) FROM PortfolioReview r WHERE r.profileId = :profileId AND r.isApproved = true AND r.isDeleted = false GROUP BY r.rating")
+    @Query("SELECT r.rating, COUNT(r) FROM PortfolioReview r " +
+           "WHERE r.profileId = :profileId AND r.isDeleted = false GROUP BY r.rating")
     List<Object[]> countByRatingForProfile(@Param("profileId") UUID profileId);
 
     @Query("SELECT r FROM PortfolioReview r WHERE r.profileId = :profileId AND r.isDeleted = false " +
-           "AND (:search IS NULL OR LOWER(r.customerName) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-           "AND (:isApproved IS NULL OR r.isApproved = :isApproved)")
+           "AND (:search IS NULL OR LOWER(r.customerName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "     OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<PortfolioReview> findWithFilters(@Param("profileId") UUID profileId,
                                           @Param("search") String search,
-                                          @Param("isApproved") Boolean isApproved,
                                           Pageable pageable);
 }

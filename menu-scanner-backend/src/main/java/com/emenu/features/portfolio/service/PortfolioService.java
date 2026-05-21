@@ -22,9 +22,5 @@ public interface PortfolioService {
 
     PaginationResponse<PortfolioReviewAdminResponse> getReviews(PortfolioReviewFilterRequest filter);
 
-    PortfolioReviewAdminResponse approveReview(UUID reviewId);
-
-    PortfolioReviewAdminResponse rejectReview(UUID reviewId);
-
     void deleteReview(UUID reviewId);
 }

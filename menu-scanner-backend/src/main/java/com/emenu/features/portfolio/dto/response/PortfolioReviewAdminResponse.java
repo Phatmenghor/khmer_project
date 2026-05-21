@@ -21,7 +21,6 @@ public class PortfolioReviewAdminResponse {
     private Integer rating;
     private String title;
     private String comment;
-    private Boolean isApproved;
     private Boolean wouldRecommend;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
