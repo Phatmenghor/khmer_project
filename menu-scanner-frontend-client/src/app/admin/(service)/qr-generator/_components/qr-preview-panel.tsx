@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Copy, Check, Download, QrCode, Scan } from "lucide-react";
+import { Copy, Check, Download, QrCode } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
+import { QRCardTemplate } from "@/components/shared/qr/qr-card-template";
 import { generateQRUrl, type QRConfig, type QRStyle } from "./use-qr-generator";
 
 interface QRPreviewPanelProps {
@@ -264,116 +265,23 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
 
       <CardContent className="flex flex-col items-center gap-5 flex-1">
 
-        {/* ── QR Card — ref for screenshot ─────────────────────────────── */}
+        {/* ── QR Card — shared template, ref for screenshot ─────────── */}
         <div className="w-full flex justify-center">
-          <div
-            ref={cardRef}
-            className="w-full overflow-hidden shadow-2xl"
-            style={{ maxWidth: 320, borderRadius: 0 }}
-          >
-            {/* ── HEADER ─────────────────────────────────────────────── */}
-            <div style={{
-              background: `linear-gradient(135deg, ${headerFrom}, ${headerTo})`,
-              padding: "12px 14px 30px",
-              position: "relative",
-              overflow: "hidden",
-            }}>
-              {/* Decorative circles */}
-              <div style={{ position: "absolute", width: 160, height: 160, right: -40, top: -40, borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
-              <div style={{ position: "absolute", width: 80,  height: 80,  right: 10,  top: 60,  borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
-
-              {/* Top row: Logo LEFT — QR badge RIGHT */}
-              <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 10 }}>
-                {style.logoDataUrl ? (
-                  <div style={{ width: 44, height: 44, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", overflow: "hidden", flexShrink: 0 }}>
-                    <img src={style.logoDataUrl} alt="logo" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                  </div>
-                ) : (
-                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <QrCode style={{ width: 20, height: 20, color: "rgba(255,255,255,0.8)", display: "block" }} />
-                  </div>
-                )}
-                <div data-dl="qr-badge" style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "3px 10px", border: "1px solid rgba(255,255,255,0.2)", flexShrink: 0 }}>
-                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#34d399", flexShrink: 0 }} />
-                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: "0.5px", color: "rgba(255,255,255,0.9)", lineHeight: 1 }}>QR</span>
-                </div>
-              </div>
-
-              {/* Title + subtitle */}
-              <div style={{ position: "relative", zIndex: 10 }}>
-                <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1.3, margin: 0 }}>{displayTitle}</h2>
-                <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 3, fontWeight: 300 }}>{displaySubtitle}</p>
-              </div>
-
-              {/* Rounded white cap */}
-              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 20, background: bgColor, borderRadius: "1.25rem 1.25rem 0 0" }} />
-            </div>
-
-            {/* ── QR AREA ─────────────────────────────────────────────── */}
-            <div style={{
-              background: bgColor,
-              padding: "0 12px 12px",
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
-            }}>
-              <div style={{
-                position: "relative",
-                borderRadius: 14,
-                boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                padding: 6,
-                background: "#fff",
-              }}>
-                <div
-                  ref={containerRef}
-                  className={qrUrl ? "block" : "opacity-20 pointer-events-none"}
-                />
-                {!qrUrl && (
-                  <div style={{
-                    position: "absolute", inset: 0,
-                    display: "flex", flexDirection: "column",
-                    alignItems: "center", justifyContent: "center", gap: 4,
-                    pointerEvents: "none",
-                  }}>
-                    <QrCode style={{ width: 36, height: 36, color: "#d1d5db" }} />
-                    <p style={{ fontSize: 10, color: "#9ca3af", textAlign: "center", margin: 0 }}>
-                      Enter fields to generate
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Scan text — same style for all templates */}
-              <div data-dl="scan-row" data-scan-text={displayScanText} style={{ width: "100%", textAlign: "center", lineHeight: 1 }}>
-                <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginRight: 6 }}>
-                  <Scan style={{ width: 12, height: 12, display: "block", color: "#9ca3af" }} />
-                </span>
-                <span style={{ display: "inline-block", verticalAlign: "middle", fontSize: 10, fontWeight: 600, color: "#6b7280", letterSpacing: 3, textTransform: "uppercase", lineHeight: 1 }}>
-                  {displayScanText}
-                </span>
-                <span style={{ display: "inline-block", verticalAlign: "middle", lineHeight: 0, marginLeft: 6 }}>
-                  <Scan style={{ width: 12, height: 12, display: "block", color: "#9ca3af" }} />
-                </span>
-              </div>
-            </div>
-
-            {/* ── FOOTER ──────────────────────────────────────────────── */}
-            <div style={{
-                padding: "8px 16px",
-                background: `${headerFrom}20`,
-                display: "flex", alignItems: "center", justifyContent: "space-between",
-              }}>
-                {/* eMenu — flex for preview; onclone rewrites for download */}
-                <div data-dl="emenu" style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <div style={{ width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)", flexShrink: 0 }} />
-                  <span style={{ fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: 1 }}>eMenu</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                  {[0.25, 0.55, 0.85].map((op, i) => (
-                    <span key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: headerFrom, opacity: op, display: "block", flexShrink: 0 }} />
-                  ))}
-                </div>
-              </div>
-
-          </div>
+          <QRCardTemplate
+            cardRef={cardRef}
+            qrContainerRef={containerRef}
+            gradFrom={headerFrom}
+            gradTo={headerTo}
+            bgColor={bgColor}
+            title={displayTitle}
+            subtitle={displaySubtitle}
+            logoUrl={style.logoDataUrl}
+            scanText={displayScanText}
+            hasContent={!!qrUrl}
+            maxWidth={320}
+            borderRadius={0}
+            shadow="0 25px 60px rgba(0,0,0,0.2)"
+          />
         </div>
 
         {/* ── URL display ──────────────────────────────────────────────── */}
