@@ -38,6 +38,7 @@ const CARD_SHADOW = "0 20px 60px rgba(0,0,0,0.18)";
 const QR_SIZE = 220;
 const S = 3; // html2canvas scale factor
 
+
 export function QRGenerator({
   link,
   businessName,
@@ -58,6 +59,10 @@ export function QRGenerator({
   const qrInstanceRef = useRef<any>(null);
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Footer background - subtle tint that works on any theme
+  // Uses rgba(0,0,0, 0.06) for consistent, visible overlay
+  const footerBg = "rgba(0, 0, 0, 0.06)";
 
   // Build QR options with consistent settings
   const buildQROptions = useCallback(
@@ -118,6 +123,12 @@ export function QRGenerator({
         backgroundColor: bgColor,
         logging: false,
         onclone: (_doc, el) => {
+          // Ensure footer background is visible
+          const footer = el.querySelector("[data-qr-footer]") as HTMLElement | null;
+          if (footer) {
+            footer.style.background = footerBg;
+          }
+
           // Convert all canvas elements to images
           el.querySelectorAll("canvas").forEach((c) => {
             try {
@@ -593,9 +604,10 @@ export function QRGenerator({
 
           {/* FOOTER */}
           <div
+            data-qr-footer
             style={{
               padding: "8px 16px",
-              background: `${gradFrom}22`,
+              background: footerBg,
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
