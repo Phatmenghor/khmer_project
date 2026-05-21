@@ -26,6 +26,8 @@ import {
 const DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"] as const;
 
 function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveRequest {
+  const contact = p.contact || {};
+  const address = contact.address || {};
   return {
     slug: p.slug || "",
     tagline: p.tagline || "",
@@ -33,17 +35,17 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveReq
     logoUrl: p.logoUrl || "",
     coverImageUrl: p.coverImageUrl || "",
     industry: p.industry || "",
-    contactEmail: p.contact.email || "",
-    contactPhone: p.contact.phone || "",
-    contactPhones: p.contact.phones ?? [],
-    contactWhatsapp: p.contact.whatsapp || "",
-    contactTelegram: p.contact.telegram || "",
-    addressStreet: p.contact.address.street || "",
-    addressCity: p.contact.address.city || "",
-    addressState: p.contact.address.state || "",
-    addressCountry: p.contact.address.country || "",
-    addressPostalCode: p.contact.address.postalCode || "",
-    mapLink: p.contact.mapLink || "",
+    contactEmail: contact.email || "",
+    contactPhone: contact.phone || "",
+    contactPhones: contact.phones ?? [],
+    contactWhatsapp: contact.whatsapp || "",
+    contactTelegram: contact.telegram || "",
+    addressStreet: address.street || "",
+    addressCity: address.city || "",
+    addressState: address.state || "",
+    addressCountry: address.country || "",
+    addressPostalCode: address.postalCode || "",
+    mapLink: contact.mapLink || "",
     socialFacebook: p.socialMedia?.facebook || "",
     socialInstagram: p.socialMedia?.instagram || "",
     socialTwitter: p.socialMedia?.twitter || "",
