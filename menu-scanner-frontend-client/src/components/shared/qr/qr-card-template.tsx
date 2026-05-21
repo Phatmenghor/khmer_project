@@ -74,12 +74,6 @@ export function QRCardTemplate({
           </div>
         </div>
 
-        {/* Title + subtitle */}
-        <div style={{ position: "relative", zIndex: 10 }}>
-          <h2 style={{ color: "#fff", fontWeight: 700, fontSize: 15, lineHeight: 1.3, margin: 0 }}>{title}</h2>
-          <p  style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, marginTop: 3, fontWeight: 300, margin: "3px 0 0" }}>{subtitle}</p>
-        </div>
-
         {/* Rounded cap that bleeds into the QR area */}
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 20, background: bgColor, borderRadius: "1.25rem 1.25rem 0 0" }} />
       </div>
@@ -108,6 +102,14 @@ export function QRCardTemplate({
             <Scan style={{ width: 11, height: 11, color: "#9ca3af", display: "block" }} />
           </span>
         </div>
+      </div>
+
+      {/* ── Business name ─────────────────────────────────────────────── */}
+      <div style={{ background: bgColor, padding: "0 16px 12px", textAlign: "center" }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: "#111827", margin: 0, lineHeight: 1.3 }}>{title}</p>
+        {subtitle && (
+          <p style={{ fontSize: 10, color: "#6b7280", margin: "3px 0 0", lineHeight: 1.4 }}>{subtitle}</p>
+        )}
       </div>
 
       {/* ── FOOTER ────────────────────────────────────────────────────── */}

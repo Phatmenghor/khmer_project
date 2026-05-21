@@ -156,7 +156,7 @@ export function QRTemplateModal({
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       <div
-        className="relative z-10 w-full max-w-sm bg-background rounded-2xl shadow-2xl border border-border overflow-hidden"
+        className="relative z-10 w-full max-w-md bg-background rounded-2xl shadow-2xl border border-border overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal header */}
@@ -184,6 +184,7 @@ export function QRTemplateModal({
             subtitle={subtitle}
             logoUrl={logoUrl}
             hasContent={!!url}
+            maxWidth={380}
           />
 
           {/* Actions */}
