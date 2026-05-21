@@ -155,13 +155,10 @@ export default function BusinessProfilePage() {
               }
             </div>
 
-            {/* Name pill — same 50/50 visual weight as the logo */}
+            {/* Name badge — border-4 border-background matches the logo treatment */}
             <div className="flex-1 min-w-0 space-y-2.5">
-              {/* ── Modern name badge ── */}
-              <div className="inline-flex items-center gap-3 rounded-2xl bg-card/95 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.18)] border border-border/60 pl-1 pr-5 py-1">
-                {/* Primary accent bar */}
-                <div className="w-1.5 self-stretch rounded-full bg-primary flex-shrink-0" />
-                <span className="font-bold text-lg sm:text-xl text-foreground tracking-tight leading-snug py-2">
+              <div className="inline-flex items-center rounded-2xl border-4 border-background shadow-2xl bg-card px-5 py-3">
+                <span className="font-bold text-lg sm:text-xl text-foreground tracking-tight leading-snug">
                   {profile.businessName}
                 </span>
               </div>
@@ -270,12 +267,9 @@ export default function BusinessProfilePage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {profile.services.map((svc) => (
                       <div key={svc.id}
-                        className="flex items-start gap-3 p-3.5 rounded-xl border border-border bg-muted/30 hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-default">
-                        {svc.icon && <span className="text-2xl flex-shrink-0">{svc.icon}</span>}
-                        <div>
-                          <p className="text-sm font-semibold text-foreground">{svc.name}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{svc.description}</p>
-                        </div>
+                        className="p-3.5 rounded-xl border border-border bg-muted/30 hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-default">
+                        <p className="text-sm font-semibold text-foreground">{svc.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{svc.description}</p>
                       </div>
                     ))}
                   </div>
@@ -376,29 +370,6 @@ export default function BusinessProfilePage() {
                     </div>
                   </div>
 
-                  {/* Review cards — name + date + stars only, no comment text */}
-                  <div className="space-y-3">
-                    {profile.reviews?.filter((r) => r.isApproved).map((r) => (
-                      <div key={r.id}
-                        className="flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/20 transition-colors">
-                        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-border bg-muted">
-                          {r.customerPhoto
-                            ? <Image src={r.customerPhoto} alt={r.customerName} width={40} height={40} className="object-cover w-full h-full" />
-                            : <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                                <span className="text-xs font-bold text-primary">{r.customerName.charAt(0)}</span>
-                              </div>
-                          }
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground">{r.customerName}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(r.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
-                          </p>
-                        </div>
-                        <StarRow rating={r.rating} size={3} />
-                      </div>
-                    ))}
-                  </div>
                 </CardContent>
               </Card>
             )}
