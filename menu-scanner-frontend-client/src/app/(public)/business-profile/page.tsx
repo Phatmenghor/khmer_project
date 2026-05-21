@@ -167,10 +167,10 @@ export default function BusinessProfilePage() {
 
         {/* Profile row */}
         <div className="container mx-auto px-4 max-w-6xl">
-          {/* -mt-12 / -mt-16 = exactly half the logo height → 50% in cover, 50% below */}
-          <div className="relative -mt-12 sm:-mt-16 flex flex-col sm:flex-row sm:items-end gap-4 pb-5">
+          {/* items-center aligns logo and name pill at the same midpoint — both 50/50 */}
+          <div className="relative -mt-12 sm:-mt-16 flex flex-col sm:flex-row sm:items-center gap-4 pb-5">
 
-            {/* Logo — 50% overlaps cover, 50% sits in the white area */}
+            {/* Logo — 50% in cover, 50% in white */}
             <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-background shadow-xl flex-shrink-0 overflow-hidden bg-card">
               {profile.logo ? (
                 <Image src={profile.logo} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
@@ -181,29 +181,19 @@ export default function BusinessProfilePage() {
               )}
             </div>
 
-            {/* Name block */}
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                {/* Name with solid background so it reads against the dark cover */}
-                <span className="inline-block bg-background/90 backdrop-blur-sm text-foreground font-bold text-xl sm:text-2xl leading-tight rounded-lg px-3 py-1 shadow-sm">
+            {/* Name pill — same 50/50 straddle as the logo via items-center */}
+            <div className="flex-1 min-w-0 space-y-2">
+              <div className="inline-flex items-center rounded-2xl border-2 border-background bg-card shadow-xl px-4 py-2.5">
+                <span className="font-bold text-lg sm:text-xl text-foreground leading-tight">
                   {profile.businessName}
                 </span>
-                <Badge
-                  className={open
-                    ? "bg-green-100 text-green-700 border-green-200"
-                    : "bg-destructive/10 text-destructive border-destructive/20"}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full mr-1.5 inline-block ${open ? "bg-green-500" : "bg-destructive"}`} />
-                  {open ? "Open Now" : "Closed"}
-                </Badge>
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                <Badge variant="secondary">{profile.industry}</Badge>
+              <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 {totalReviews > 0 && (
                   <div className="flex items-center gap-1">
                     <StarRow rating={avg} size={3} />
                     <span className="font-semibold text-foreground">{avg.toFixed(1)}</span>
-                    <span className="text-muted-foreground">({totalReviews})</span>
+                    <span>({totalReviews})</span>
                   </div>
                 )}
                 <div className="flex items-center gap-1">
