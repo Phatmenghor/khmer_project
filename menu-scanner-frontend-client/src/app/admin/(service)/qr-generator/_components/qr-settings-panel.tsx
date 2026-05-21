@@ -30,7 +30,10 @@ function ColorRow({
         <span className="text-xs text-muted-foreground font-mono uppercase tabular-nums">
           {value}
         </span>
-        <div className="relative w-8 h-8 rounded border border-border shadow-sm overflow-hidden cursor-pointer" style={{ backgroundColor: value }}>
+        <div
+          className="relative w-8 h-8 rounded border border-border shadow-sm overflow-hidden cursor-pointer"
+          style={{ backgroundColor: value }}
+        >
           <input
             id={id}
             type="color"
@@ -70,6 +73,8 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
     });
   };
 
+  const isPrint = style.template === "print-ready";
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -78,32 +83,36 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
 
       <CardContent className="space-y-5">
 
-        {/* ── Card Templates ──────────────────────────────────── */}
+        {/* ── Card Template + Colors ───────────────────────────── */}
         <div className="space-y-3">
           <p className="text-xs font-semibold text-foreground">Card Template</p>
+
+          {/* Preset swatches */}
           <div className="grid grid-cols-3 gap-2">
             {CARD_TEMPLATES.map((tpl) => {
               const isSelected = style.template === tpl.id;
-              const isPrint    = tpl.id === "print-ready";
+              const isBW       = tpl.id === "print-ready";
               return (
                 <button
                   key={tpl.id}
                   type="button"
                   onClick={() => handleSelectTemplate(tpl.id)}
                   className={`relative rounded-xl overflow-hidden border-2 transition-all duration-150 cursor-pointer ${
-                    isSelected ? "border-primary shadow-md scale-[1.03]" : "border-border hover:border-primary/40"
+                    isSelected
+                      ? "border-primary shadow-md scale-[1.03]"
+                      : "border-border hover:border-primary/40"
                   }`}
                   title={tpl.name}
                 >
                   <div
                     className="h-10 w-full"
                     style={
-                      isPrint
+                      isBW
                         ? { background: "#fff", border: "2px solid #000" }
                         : { background: `linear-gradient(135deg, ${tpl.gradientFrom}, ${tpl.gradientTo})` }
                     }
                   >
-                    {isPrint && (
+                    {isBW && (
                       <div className="w-full h-full flex items-center justify-center">
                         <span className="text-black text-[10px] font-bold tracking-wider">B&amp;W</span>
                       </div>
@@ -123,46 +132,42 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
               );
             })}
           </div>
+
+          {/* Per-template custom colors — hidden for print-ready */}
+          {!isPrint && (
+            <div className="space-y-2 pt-1">
+              <p className="text-[11px] text-muted-foreground font-medium">Customize colors</p>
+              <ColorRow
+                id="cardGradientFrom"
+                label="Header Top"
+                value={style.cardGradientFrom}
+                onChange={(v) => onUpdate({ cardGradientFrom: v, template: style.template })}
+              />
+              <ColorRow
+                id="cardGradientTo"
+                label="Header Bottom"
+                value={style.cardGradientTo}
+                onChange={(v) => onUpdate({ cardGradientTo: v, template: style.template })}
+              />
+              <ColorRow
+                id="primaryColor"
+                label="QR Dot Color"
+                value={style.primaryColor}
+                onChange={(v) => onUpdate({ primaryColor: v })}
+              />
+              <ColorRow
+                id="backgroundColor"
+                label="QR Background"
+                value={style.backgroundColor}
+                onChange={(v) => onUpdate({ backgroundColor: v })}
+              />
+            </div>
+          )}
         </div>
 
         <Separator />
 
-        {/* ── Colors ──────────────────────────────────────────── */}
-        <div className="space-y-3">
-          <p className="text-xs font-semibold text-foreground">QR Colors</p>
-          <ColorRow
-            id="primaryColor"
-            label="QR Dot Color"
-            value={style.primaryColor}
-            onChange={(v) => onUpdate({ primaryColor: v })}
-          />
-          <ColorRow
-            id="backgroundColor"
-            label="QR Background"
-            value={style.backgroundColor}
-            onChange={(v) => onUpdate({ backgroundColor: v })}
-          />
-        </div>
-
-        <div className="space-y-3">
-          <p className="text-xs font-semibold text-foreground">Card Header Colors</p>
-          <ColorRow
-            id="cardGradientFrom"
-            label="Top Color"
-            value={style.cardGradientFrom}
-            onChange={(v) => onUpdate({ cardGradientFrom: v })}
-          />
-          <ColorRow
-            id="cardGradientTo"
-            label="Bottom Color"
-            value={style.cardGradientTo}
-            onChange={(v) => onUpdate({ cardGradientTo: v })}
-          />
-        </div>
-
-        <Separator />
-
-        {/* ── Logo (required) ─────────────────────────────────── */}
+        {/* ── Logo ─────────────────────────────────────────────── */}
         <div className="space-y-3">
           <p className="text-xs font-semibold text-foreground">
             Logo <span className="text-destructive">*</span>
@@ -171,7 +176,6 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
           {style.logoDataUrl ? (
             <>
               <div className="flex items-center gap-3 p-2 rounded-md border border-border bg-muted/40">
-                {/* Circular preview */}
                 <div className="w-10 h-10 rounded-full overflow-hidden border border-border flex-shrink-0 bg-white">
                   <img
                     src={style.logoDataUrl}
@@ -181,7 +185,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground truncate">Logo uploaded</p>
-                  <p className="text-xs text-muted-foreground">Shown in QR card</p>
+                  <p className="text-xs text-muted-foreground">Shown in QR card &amp; center of QR</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -193,7 +197,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                 </Button>
               </div>
 
-              {/* Logo size slider — only when logo is present */}
+              {/* Logo size in QR */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-medium text-foreground">Logo Size in QR</p>

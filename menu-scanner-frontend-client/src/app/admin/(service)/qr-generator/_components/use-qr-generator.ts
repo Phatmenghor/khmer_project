@@ -64,5 +64,5 @@ export const DEFAULT_STYLE: QRStyle = {
   cardGradientFrom: "#1a237e",
   cardGradientTo: "#283593",
   template: "bank-classic",
-  logoSize: 0.3,
+  logoSize: 0.15,
 };
