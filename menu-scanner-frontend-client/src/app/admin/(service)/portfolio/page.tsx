@@ -115,7 +115,7 @@ const emptyForm = (): PortfolioProfileSaveRequest => ({
 
 export default function PortfolioPage() {
   const dispatch = useAppDispatch();
-  const profile = usePortfolioProfileState();
+  const { profile } = usePortfolioProfileState();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -147,10 +147,7 @@ export default function PortfolioPage() {
     name: "team",
   });
 
-  const { fields: featuresFields } = useFieldArray({
-    control: form.control,
-    name: "features",
-  });
+  const features = form.watch("features") ?? [];
 
   const { fields: customStatsFields } = useFieldArray({
     control: form.control,
@@ -489,7 +486,6 @@ export default function PortfolioPage() {
               size="sm"
               variant="outline"
               onClick={() => {
-                const features = form.getValues("features");
                 form.setValue("features", [...features, ""], { shouldDirty: true });
               }}
             >
@@ -497,24 +493,22 @@ export default function PortfolioPage() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
-            {featuresFields.map((field, index) => (
-              <div key={field.id} className="flex gap-2">
-                <Controller
-                  name={`features.${index}`}
-                  control={form.control}
-                  render={({ field: featureField }) => (
-                    <Input
-                      placeholder="Feature name..."
-                      {...featureField}
-                    />
-                  )}
+            {features.map((feature, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  placeholder="Feature name..."
+                  value={feature}
+                  onChange={(e) => {
+                    const updated = [...features];
+                    updated[index] = e.target.value;
+                    form.setValue("features", updated, { shouldDirty: true });
+                  }}
                 />
                 <Button
                   type="button"
                   size="sm"
                   variant="ghost"
                   onClick={() => {
-                    const features = form.getValues("features");
                     form.setValue("features", features.filter((_, i) => i !== index), { shouldDirty: true });
                   }}
                 >
