@@ -343,7 +343,7 @@ export default function BusinessProfilePage() {
               <div className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                 <span className="text-xs truncate">
-                  {profile.contact.address.street}, {profile.contact.address.city}
+                  {profile.contact.address}
                 </span>
               </div>
             </div>
@@ -578,8 +578,7 @@ export default function BusinessProfilePage() {
                 <div className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <div className="text-sm text-muted-foreground">
-                    <p>{profile.contact.address.street}</p>
-                    <p>{profile.contact.address.city}, {profile.contact.address.country}</p>
+                    <p className="whitespace-pre-wrap">{profile.contact.address}</p>
                     {profile.contact.mapLink && (
                       <a href={profile.contact.mapLink} target="_blank" rel="noopener noreferrer"
                         className="text-primary hover:underline inline-flex items-center gap-1 mt-1 text-xs">
