@@ -124,6 +124,7 @@ public class PortfolioResponse {
         private UUID id;
         private String label;
         private String value;
+        private Integer displayOrder;
     }
 
     @Data
