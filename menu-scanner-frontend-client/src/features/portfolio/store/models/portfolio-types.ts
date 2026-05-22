@@ -81,8 +81,6 @@ export interface PortfolioPublicProfile {
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;
-  industry?: string;
-  isPublished?: boolean;
   contact: PortfolioContactDto;
   socialMedia?: PortfolioSocialMediaDto;
   businessHours?: PortfolioHoursDto[];
@@ -149,7 +147,6 @@ export interface PortfolioProfileSaveRequest {
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;
-  industry?: string;
   contactEmail: string;
   contactPhone: string;
   contactPhones?: string[];
@@ -172,7 +169,6 @@ export interface PortfolioProfileSaveRequest {
   yearsInBusiness?: number;
   customersServed?: number;
   customStats?: PortfolioCustomStatRequest[];
-  isPublished?: boolean;
   businessHours?: PortfolioHoursRequest[];
   gallery?: PortfolioGalleryItemRequest[];
   services?: PortfolioServiceItemRequest[];
