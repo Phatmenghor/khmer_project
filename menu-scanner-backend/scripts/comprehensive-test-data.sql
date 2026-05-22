@@ -507,6 +507,49 @@ FROM generate_series(1, 2) AS t(addr_num);
 
 
 -- ============================================================================
+-- 6. UPDATE USER PROFILES WITH COMPREHENSIVE DATA
+
+-- ============================================================================
+
+-- Update main users with full profile information
+UPDATE user_profiles
+SET nickname = 'Phat',
+    gender = 'MALE',
+    date_of_birth = '1990-01-15'::date,
+    profile_image_url = 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+WHERE email = 'phatmenghor20@gmail.com';
+
+UPDATE user_profiles
+SET nickname = 'Menghor',
+    gender = 'FEMALE',
+    date_of_birth = '1992-06-20'::date,
+    profile_image_url = 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+WHERE email = 'phatmenghor21@gmail.com';
+
+-- Update all admin users
+UPDATE user_profiles
+SET nickname = 'Admin',
+    gender = 'MALE',
+    date_of_birth = '1985-03-10'::date,
+    profile_image_url = 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+WHERE email LIKE 'admin%@%.com' AND gender IS NULL;
+
+-- Update all manager users
+UPDATE user_profiles
+SET nickname = 'Manager',
+    gender = 'MALE',
+    date_of_birth = '1988-05-15'::date,
+    profile_image_url = 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+WHERE email LIKE 'manager%@%.com' AND gender IS NULL;
+
+-- Update all staff users
+UPDATE user_profiles
+SET nickname = 'Staff',
+    gender = 'MALE',
+    date_of_birth = '1995-07-20'::date,
+    profile_image_url = 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+WHERE email LIKE 'staff%@%.com' AND gender IS NULL;
+
 -- 6.5. ASSIGN USER ROLES
 
 -- ============================================================================
