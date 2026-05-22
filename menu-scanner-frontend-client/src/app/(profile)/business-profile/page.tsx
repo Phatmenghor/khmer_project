@@ -493,31 +493,25 @@ export default function BusinessProfilePage() {
                 </Button>
               </CardHeader>
               <CardContent className="space-y-5">
-                {total > 0 ? (
-                  <div className="flex gap-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
-                    <div className="text-center flex-shrink-0">
-                      <p className="text-4xl font-bold text-primary">{avg.toFixed(1)}</p>
-                      <StarRow rating={avg} size={4} />
-                      <p className="text-xs text-muted-foreground mt-1">{total} reviews</p>
-                    </div>
-                    <div className="flex-1 space-y-1.5 min-w-0">
-                      {[5,4,3,2,1].map((r) => (
-                        <div key={r} className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground w-8 text-right">{r} ★</span>
-                          <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                            <div className="h-full rounded-full bg-yellow-400 transition-all"
-                              style={{ width: `${total ? ((dist[r] || 0) / total) * 100 : 0}%` }} />
-                          </div>
-                          <span className="text-xs text-muted-foreground w-4">{dist[r] || 0}</span>
-                        </div>
-                      ))}
-                    </div>
+                <div className="flex gap-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
+                  <div className="text-center flex-shrink-0">
+                    <p className="text-4xl font-bold text-primary">{avg.toFixed(1)}</p>
+                    <StarRow rating={avg} size={4} />
+                    <p className="text-xs text-muted-foreground mt-1">{total} reviews</p>
                   </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No reviews yet. Be the first to review!
-                  </p>
-                )}
+                  <div className="flex-1 space-y-1.5 min-w-0">
+                    {[5,4,3,2,1].map((r) => (
+                      <div key={r} className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground w-8 text-right">{r} ★</span>
+                        <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full bg-yellow-400 transition-all"
+                            style={{ width: `${total ? ((dist[r] || 0) / total) * 100 : 0}%` }} />
+                        </div>
+                        <span className="text-xs text-muted-foreground w-4">{dist[r] || 0}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
