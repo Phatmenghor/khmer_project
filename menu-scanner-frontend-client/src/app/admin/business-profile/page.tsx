@@ -32,7 +32,6 @@ export default function BusinessProfileEditorPage() {
       tagline: profile.tagline || "",
       description: profile.description,
       businessType: profile.businessType,
-      industry: profile.industry,
       email: profile.contact.email,
       phone: profile.contact.phone,
       whatsapp: profile.contact.whatsapp || "",
@@ -90,13 +89,6 @@ export default function BusinessProfileEditorPage() {
             Save Changes
           </Button>
         </div>
-      </div>
-
-      {}
-      <div className="mb-6">
-        <Badge variant={profile.isPublished ? "default" : "secondary"}>
-          {profile.isPublished ? "Published" : "Draft"}
-        </Badge>
       </div>
 
       {}
@@ -182,19 +174,6 @@ export default function BusinessProfileEditorPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Industry *
-                    </label>
-                    <Controller
-                      name="industry"
-                      control={control}
-                      rules={{ required: "Industry is required" }}
-                      render={({ field }) => (
-                        <Input {...field} placeholder="e.g., Food & Beverage" />
-                      )}
-                    />
-                  </div>
                 </div>
 
                 <div>
