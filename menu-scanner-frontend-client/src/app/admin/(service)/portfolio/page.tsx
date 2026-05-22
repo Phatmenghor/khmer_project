@@ -333,7 +333,11 @@ export default function PortfolioPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-4 border rounded-lg">
+            <div className="flex items-center justify-between gap-3 p-4 border rounded-lg">
+              <div>
+                <p className="font-semibold text-sm">Publish Profile</p>
+                <p className="text-xs text-muted-foreground">Make this profile visible to customers</p>
+              </div>
               <Controller
                 name="isPublished"
                 control={form.control}
@@ -344,9 +348,6 @@ export default function PortfolioPage() {
                   />
                 )}
               />
-              <div>
-                <p className="font-semibold text-sm">Publish Profile</p>
-              </div>
             </div>
           </CardContent>
         </Card>
