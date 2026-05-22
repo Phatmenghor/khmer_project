@@ -536,9 +536,6 @@ public class GlobalExceptionHandler {
         ApiResponse<Object> response = new ApiResponse<>();
         response.setStatus("error");
         response.setMessage(message);
-        response.setCode(code);
-        response.setRequestId(RequestIdUtils.getCurrentRequestId());
-        response.setTimestamp(LocalDateTime.now());
         response.setPath(request.getRequestURI());
         response.setMethod(request.getMethod());
         return response;
