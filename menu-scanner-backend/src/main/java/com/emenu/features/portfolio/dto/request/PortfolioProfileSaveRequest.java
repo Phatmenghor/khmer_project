@@ -10,6 +10,9 @@ import java.util.List;
 public class PortfolioProfileSaveRequest {
 
     @NotBlank
+    private String businessName;
+
+    @NotBlank
     private String description;
 
     private String logoUrl;

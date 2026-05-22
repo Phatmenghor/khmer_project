@@ -36,7 +36,6 @@ public interface PortfolioMapper {
 
     @Mapping(target = "id",            ignore = true)
     @Mapping(target = "businessId",    ignore = true)
-    @Mapping(target = "businessName",  ignore = true)
     @Mapping(target = "version",       ignore = true)
     @Mapping(target = "createdAt",     ignore = true)
     @Mapping(target = "updatedAt",     ignore = true)

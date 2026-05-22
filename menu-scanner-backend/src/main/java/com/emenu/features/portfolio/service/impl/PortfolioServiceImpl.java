@@ -1,9 +1,6 @@
 package com.emenu.features.portfolio.service.impl;
 
 import com.emenu.exception.custom.ResourceNotFoundException;
-import com.emenu.exception.custom.ValidationException;
-import com.emenu.features.auth.models.Business;
-import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.portfolio.dto.filter.PortfolioReviewFilterRequest;
 import com.emenu.features.portfolio.dto.request.PortfolioProfileSaveRequest;
 import com.emenu.features.portfolio.dto.request.PortfolioReviewSubmitRequest;
@@ -40,7 +37,6 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private final PortfolioProfileRepository profileRepository;
     private final PortfolioReviewRepository reviewRepository;
-    private final BusinessRepository businessRepository;
     private final SecurityUtils securityUtils;
     private final PortfolioMapper portfolioMapper;
     private final PaginationMapper paginationMapper;
@@ -60,14 +56,10 @@ public class PortfolioServiceImpl implements PortfolioService {
     public PortfolioResponse saveProfile(PortfolioProfileSaveRequest request) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
 
-        String businessName = businessRepository.findByIdAndIsDeletedFalse(businessId)
-                .map(Business::getName)
-                .orElse(null);
-
         PortfolioProfile profile = profileRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseGet(PortfolioProfile::new);
 
-        applyProfileFields(profile, request, businessId, businessName);
+        applyProfileFields(profile, request, businessId);
 
         PortfolioProfile savedProfile = profileRepository.save(profile);
         rebuildCollections(savedProfile, request);
@@ -155,10 +147,9 @@ public class PortfolioServiceImpl implements PortfolioService {
     // ==================== Private Helpers ====================
 
     private void applyProfileFields(PortfolioProfile profile, PortfolioProfileSaveRequest request,
-                                    UUID businessId, String businessName) {
+                                    UUID businessId) {
         portfolioMapper.applyProfileFields(profile, request);
         profile.setBusinessId(businessId);
-        profile.setBusinessName(businessName);
     }
 
     private void rebuildCollections(PortfolioProfile savedProfile, PortfolioProfileSaveRequest request) {
