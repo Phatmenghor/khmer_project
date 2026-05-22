@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { Loader2, Plus, Trash2, Save, Star } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import {
+  Loader2, Plus, Trash2, Save, Star,
+  Mail, Phone, MapPin, Globe, MessageCircle, Send,
+  Image, Users, Clock, BarChart2, Sparkles, Briefcase,
+  Building2, CalendarDays, ChevronRight,
+} from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
@@ -18,17 +23,14 @@ import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { useAppDispatch } from "@/store";
 import { usePortfolioProfileState } from "@/features/portfolio/store/state/portfolio-profile-state";
-import { fetchAdminPortfolioProfileThunk, saveAdminPortfolioProfileThunk } from "@/features/portfolio/store/thunks/portfolio-thunks";
+import {
+  fetchAdminPortfolioProfileThunk,
+  saveAdminPortfolioProfileThunk,
+} from "@/features/portfolio/store/thunks/portfolio-thunks";
 import { resetState } from "@/features/portfolio/store/slice/portfolio-profile-slice";
 import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import {
   PortfolioProfileSaveRequest,
-  PortfolioHoursRequest,
-  PortfolioGalleryItemRequest,
-  PortfolioServiceItemRequest,
-  PortfolioTeamMemberRequest,
-  PortfolioCustomStatRequest,
-  PortfolioSocialMediaRequest,
   PortfolioAdminProfile,
 } from "@/features/portfolio/store/models/portfolio-types";
 import {
@@ -36,7 +38,19 @@ import {
   type PortfolioFormData,
 } from "./schema/portfolio-form.schema";
 
-const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
+const DAYS = [
+  "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY",
+] as const;
+
+const DAY_LABELS: Record<string, string> = {
+  MONDAY: "Monday",
+  TUESDAY: "Tuesday",
+  WEDNESDAY: "Wednesday",
+  THURSDAY: "Thursday",
+  FRIDAY: "Friday",
+  SATURDAY: "Saturday",
+  SUNDAY: "Sunday",
+};
 
 function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
   const contact = p.contact || {};
@@ -47,24 +61,35 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
     contact: {
       email: contact.email ?? "",
       phone: contact.phone ?? "",
-      phones: (contact.phones || []).map(phone => ({ id: phone.id, number: phone.number })),
+      phones: (contact.phones || []).map((ph) => ({ id: ph.id, number: ph.number })),
       whatsapp: contact.whatsapp || "",
       telegram: contact.telegram || "",
       address: contact.address || "",
       mapLink: contact.mapLink || "",
     },
-    socialMedia: (p.socialMedia || []).map(sm => ({ id: sm.id, name: sm.name, url: sm.url })),
+    socialMedia: (p.socialMedia || []).map((sm) => ({ id: sm.id, name: sm.name, url: sm.url })),
     features: (p.features || []).map((f) => ({ id: f.id, name: f.name })),
     customStats: (p.stats || []).map((s) => ({ id: s.id, label: s.label, value: s.value })),
-    businessHours: p.businessHours?.map((h) => ({
-      id: h.id,
-      day: h.day,
-      openTime: h.openTime || "",
-      closeTime: h.closeTime || "",
-    })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
+    businessHours:
+      p.businessHours?.map((h) => ({
+        id: h.id,
+        day: h.day,
+        openTime: h.openTime || "",
+        closeTime: h.closeTime || "",
+      })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
     gallery: (p.gallery || []).map((g) => ({ id: g.id, url: g.url, title: g.title || "" })),
-    services: (p.services || []).map((s) => ({ id: s.id, name: s.name, description: s.description || "" })),
-    team: (p.team || []).map((m) => ({ id: m.id, name: m.name, position: m.position, bio: m.bio || "", photoUrl: m.photoUrl || "" })),
+    services: (p.services || []).map((s) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description || "",
+    })),
+    team: (p.team || []).map((m) => ({
+      id: m.id,
+      name: m.name,
+      position: m.position,
+      bio: m.bio || "",
+      photoUrl: m.photoUrl || "",
+    })),
   };
 }
 
@@ -72,15 +97,7 @@ const emptyForm = (): PortfolioFormData => ({
   description: "",
   logoUrl: "",
   coverImageUrl: "",
-  contact: {
-    email: "",
-    phone: "",
-    phones: [],
-    whatsapp: "",
-    telegram: "",
-    address: "",
-    mapLink: "",
-  },
+  contact: { email: "", phone: "", phones: [], whatsapp: "", telegram: "", address: "", mapLink: "" },
   socialMedia: [],
   features: [],
   customStats: [],
@@ -89,6 +106,28 @@ const emptyForm = (): PortfolioFormData => ({
   services: [],
   team: [],
 });
+
+function SectionHeader({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ElementType;
+  title: string;
+  description?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 pt-4 pb-2">
+      <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary shrink-0">
+        <Icon className="w-5 h-5" />
+      </div>
+      <div>
+        <h2 className="text-xl font-bold">{title}</h2>
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+      </div>
+    </div>
+  );
+}
 
 export default function PortfolioPage() {
   const dispatch = useAppDispatch();
@@ -102,94 +141,30 @@ export default function PortfolioPage() {
     defaultValues,
   });
 
-  const { fields: businessHoursFields, append: appendBusinessHours, remove: removeBusinessHours } = useFieldArray({
-    control: form.control,
-    name: "businessHours",
-  });
+  const { fields: businessHoursFields } = useFieldArray({ control: form.control, name: "businessHours" });
+  const { fields: galleryFields, append: appendGallery, remove: removeGallery } = useFieldArray({ control: form.control, name: "gallery" });
+  const { fields: servicesFields, append: appendService, remove: removeService } = useFieldArray({ control: form.control, name: "services" });
+  const { fields: teamFields, append: appendTeam, remove: removeTeam } = useFieldArray({ control: form.control, name: "team" });
+  const { fields: customStatsFields, append: appendCustomStat, remove: removeCustomStat } = useFieldArray({ control: form.control, name: "customStats" });
+  const { fields: socialMediaFields, append: appendSocialMedia, remove: removeSocialMedia } = useFieldArray({ control: form.control, name: "socialMedia" });
+  const { fields: featuresFields, append: appendFeature, remove: removeFeature } = useFieldArray({ control: form.control, name: "features" });
+  const { fields: contactPhonesFields, append: appendContactPhone, remove: removeContactPhone } = useFieldArray({ control: form.control, name: "contact.phones" });
 
-  const { fields: galleryFields, append: appendGallery, remove: removeGallery } = useFieldArray({
-    control: form.control,
-    name: "gallery",
-  });
-
-  const { fields: servicesFields, append: appendService, remove: removeService } = useFieldArray({
-    control: form.control,
-    name: "services",
-  });
-
-  const { fields: teamFields, append: appendTeam, remove: removeTeam } = useFieldArray({
-    control: form.control,
-    name: "team",
-  });
-
-  const { fields: customStatsFields, append: appendCustomStat, remove: removeCustomStat } = useFieldArray({
-    control: form.control,
-    name: "customStats",
-  });
-
-  const { fields: socialMediaFields, append: appendSocialMedia, remove: removeSocialMedia } = useFieldArray({
-    control: form.control,
-    name: "socialMedia",
-  });
-
-  const { fields: featuresFields, append: appendFeature, remove: removeFeature } = useFieldArray({
-    control: form.control,
-    name: "features",
-  });
-
-  const { fields: contactPhonesFields, append: appendContactPhone, remove: removeContactPhone } = useFieldArray({
-    control: form.control,
-    name: "contact.phones",
-  });
-
-  useAdminCleanup(() => {
-    dispatch(resetState());
-  });
+  useAdminCleanup(() => { dispatch(resetState()); });
 
   useEffect(() => {
-    // Fetch portfolio profile on component mount
-    const result = dispatch(fetchAdminPortfolioProfileThunk());
-    return () => {
-      // Cleanup if needed
-    };
+    dispatch(fetchAdminPortfolioProfileThunk());
   }, [dispatch]);
 
   useEffect(() => {
-    // Populate form when profile data is loaded
     if (profile) {
       try {
-        const formData = buildFormFromProfile(profile);
-        form.reset(formData);
-      } catch (error) {
-        console.error("Error building form from profile:", error);
+        form.reset(buildFormFromProfile(profile));
+      } catch {
         showToast.error("Error loading portfolio data");
       }
     }
   }, [profile, form]);
-
-  const handleLogoSelect = useCallback((imageData: string) => {
-    form.setValue("logoUrl", imageData, { shouldDirty: true });
-    showToast.success("Logo selected");
-  }, []);
-
-  const handleCoverImageSelect = useCallback((imageData: string) => {
-    form.setValue("coverImageUrl", imageData, { shouldDirty: true });
-    showToast.success("Cover image selected");
-  }, []);
-
-  const handleGalleryImageSelect = useCallback((index: number, imageData: string) => {
-    const gallery = form.getValues("gallery");
-    gallery[index].url = imageData;
-    form.setValue("gallery", gallery, { shouldDirty: true });
-    showToast.success("Gallery image selected");
-  }, []);
-
-  const handleTeamPhotoSelect = useCallback((index: number, imageData: string) => {
-    const team = form.getValues("team");
-    team[index].photoUrl = imageData;
-    form.setValue("team", team, { shouldDirty: true });
-    showToast.success("Team photo selected");
-  }, []);
 
   const onSubmit = async (data: PortfolioFormData) => {
     try {
@@ -197,33 +172,20 @@ export default function PortfolioPage() {
       let coverImageUrl = data.coverImageUrl || "";
 
       if (logoUrl && isBase64Image(logoUrl)) {
-        try {
-          logoUrl = await uploadImage(logoUrl);
-        } catch {
-          showToast.error("Failed to upload logo");
-          return;
-        }
+        try { logoUrl = await uploadImage(logoUrl); }
+        catch { showToast.error("Failed to upload logo"); return; }
       }
-
       if (coverImageUrl && isBase64Image(coverImageUrl)) {
-        try {
-          coverImageUrl = await uploadImage(coverImageUrl);
-        } catch {
-          showToast.error("Failed to upload cover image");
-          return;
-        }
+        try { coverImageUrl = await uploadImage(coverImageUrl); }
+        catch { showToast.error("Failed to upload cover image"); return; }
       }
 
       const uploadedGallery = await Promise.all(
         (data.gallery || []).map(async (item) => {
           let url = item.url;
           if (url && isBase64Image(url)) {
-            try {
-              url = await uploadImage(url);
-            } catch {
-              showToast.error("Failed to upload gallery image");
-              throw new Error("Gallery upload failed");
-            }
+            try { url = await uploadImage(url); }
+            catch { showToast.error("Failed to upload gallery image"); throw new Error("Gallery upload failed"); }
           }
           return { ...item, url };
         })
@@ -233,12 +195,8 @@ export default function PortfolioPage() {
         (data.team || []).map(async (member) => {
           let photoUrl = member.photoUrl || "";
           if (photoUrl && isBase64Image(photoUrl)) {
-            try {
-              photoUrl = await uploadImage(photoUrl);
-            } catch {
-              showToast.error("Failed to upload team photo");
-              throw new Error("Team photo upload failed");
-            }
+            try { photoUrl = await uploadImage(photoUrl); }
+            catch { showToast.error("Failed to upload team photo"); throw new Error("Team photo upload failed"); }
           }
           return { ...member, photoUrl };
         })
@@ -272,8 +230,7 @@ export default function PortfolioPage() {
       } else {
         showToast.error("Failed to save portfolio profile");
       }
-    } catch (error) {
-      console.error("Error saving portfolio:", error);
+    } catch {
       showToast.error("Failed to save portfolio profile");
     }
   };
@@ -288,112 +245,119 @@ export default function PortfolioPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 py-6">
-      <div className="space-y-2">
+      {/* ── Page Header ── */}
+      <div className="space-y-1">
         <h1 className="text-3xl font-bold">Portfolio Profile</h1>
         <p className="text-muted-foreground">
-          Manage your business portfolio, services, team, and customer reviews
+          Manage your public business profile — services, team, gallery, and more
         </p>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* ========== BASIC INFORMATION ========== */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
-        {/* Business Name - Read Only */}
-        <Card className="bg-blue-50 border-blue-200">
-          <CardHeader>
-            <CardTitle className="text-blue-900">Business Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
+        {/* ════════════════════════════════════════
+            SECTION 1 — BUSINESS OVERVIEW (read-only)
+        ════════════════════════════════════════ */}
+        <SectionHeader icon={Building2} title="Business Overview" description="Read-only information about your business" />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Business Info Card */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-primary" />
+                Business Identity
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
               <div>
-                <Label className="text-sm font-semibold text-blue-900">Business Name</Label>
-                <p className="text-lg font-bold text-foreground mt-1">{profile?.businessName || "Not set"}</p>
-                <p className="text-xs text-muted-foreground mt-1">This is managed through your account settings and cannot be changed here.</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Business Name</p>
+                <p className="text-xl font-bold mt-0.5">{profile?.businessName || "—"}</p>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Managed through account settings and cannot be changed here.
+              </p>
               {profile?.createdAt && (
-                <div className="border-t pt-3">
-                  <Label className="text-sm font-semibold text-gray-600">Created</Label>
-                  <p className="text-sm text-muted-foreground mt-1">{new Date(profile.createdAt).toLocaleDateString()} at {new Date(profile.createdAt).toLocaleTimeString()}</p>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-3">
+                  <CalendarDays className="w-4 h-4 shrink-0" />
+                  <span>
+                    Created {new Date(profile.createdAt).toLocaleDateString()} · Updated{" "}
+                    {profile.updatedAt ? new Date(profile.updatedAt).toLocaleDateString() : "—"}
+                  </span>
                 </div>
               )}
-              {profile?.updatedAt && (
-                <div className="border-t pt-3">
-                  <Label className="text-sm font-semibold text-gray-600">Last Updated</Label>
-                  <p className="text-sm text-muted-foreground mt-1">{new Date(profile.updatedAt).toLocaleDateString()} at {new Date(profile.updatedAt).toLocaleTimeString()}</p>
+            </CardContent>
+          </Card>
+
+          {/* Review Stats Card */}
+          {profile?.reviewStats && (
+            <Card className="border-yellow-200 bg-yellow-50/50">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                  Customer Reviews
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-start gap-6">
+                  {/* Big Number */}
+                  <div className="flex flex-col items-center gap-1 shrink-0">
+                    <p className="text-4xl font-black text-yellow-500">
+                      {profile.reviewStats.averageRating.toFixed(1)}
+                    </p>
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Star
+                          key={i}
+                          size={14}
+                          className={i <= Math.round(profile.reviewStats.averageRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{profile.reviewStats.totalReviews} reviews</p>
+                  </div>
+                  {/* Distribution */}
+                  <div className="flex-1 space-y-1.5">
+                    {[5, 4, 3, 2, 1].map((rating) => {
+                      const count = profile.reviewStats.distribution[rating] || 0;
+                      const pct = profile.reviewStats.totalReviews > 0
+                        ? (count / profile.reviewStats.totalReviews) * 100
+                        : 0;
+                      return (
+                        <div key={rating} className="flex items-center gap-2">
+                          <span className="text-xs font-medium w-4 text-right">{rating}</span>
+                          <Star size={10} className="fill-yellow-400 text-yellow-400 shrink-0" />
+                          <div className="flex-1 h-1.5 bg-yellow-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="text-xs text-muted-foreground w-8 text-right">{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        <div className="space-y-2 mb-6">
-          <h2 className="text-2xl font-bold">Basic Information</h2>
-          <p className="text-muted-foreground text-sm">Manage your portfolio description and branding images</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
-      {/* Review Statistics - Read Only */}
-      {profile?.reviewStats && (
-        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-primary">Customer Reviews Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Average Rating */}
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star
-                        key={i}
-                        size={20}
-                        className={`${i <= Math.round(profile.reviewStats.averageRating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-3xl font-bold text-primary">{profile.reviewStats.averageRating.toFixed(2)}</p>
-                  <p className="text-sm text-muted-foreground">Average Rating</p>
-                </div>
-              </div>
+        {/* ════════════════════════════════════════
+            SECTION 2 — BASIC INFORMATION
+        ════════════════════════════════════════ */}
+        <div className="border-t" />
+        <SectionHeader icon={Briefcase} title="Basic Information" description="Your portfolio description and branding images" />
 
-              {/* Total Reviews */}
-              <div className="flex flex-col items-center justify-center gap-2 p-4 bg-white/50 rounded-lg">
-                <p className="text-3xl font-bold text-primary">{profile.reviewStats.totalReviews}</p>
-                <p className="text-sm text-muted-foreground">Total Reviews</p>
-              </div>
-
-              {/* Rating Distribution */}
-              <div className="flex flex-col gap-2">
-                <p className="text-sm font-semibold text-foreground mb-2">Rating Distribution:</p>
-                {[5, 4, 3, 2, 1].map((rating) => (
-                  <div key={rating} className="flex items-center gap-2">
-                    <span className="text-xs font-medium w-6">{rating}★</span>
-                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-yellow-400"
-                        style={{
-                          width: `${profile.reviewStats.totalReviews > 0 ? ((profile.reviewStats.distribution[rating] || 0) / profile.reviewStats.totalReviews * 100) : 0}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-xs text-muted-foreground w-12 text-right">{profile.reviewStats.distribution[rating] || 0}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-        {/* Basic Information */}
+        {/* Description */}
         <Card>
           <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
+            <CardTitle>Description</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent>
             <TextareaField<PortfolioFormData>
               control={form.control}
               name="description"
-              label="Description"
-              placeholder="Detailed business description..."
+              label="Business Description"
+              placeholder="Describe your business in detail — what you offer, your values, and what makes you unique..."
               rows={5}
               error={form.formState.errors.description}
             />
@@ -403,42 +367,73 @@ export default function PortfolioPage() {
         {/* Images */}
         <Card>
           <CardHeader>
-            <CardTitle>Images</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Image className="w-4 h-4" />
+              Branding Images
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <ClickableImageUpload
-                label="Logo"
-                value={form.getValues("logoUrl")}
-                onChange={handleLogoSelect}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <ClickableImageUpload
-                label="Cover Image"
-                value={form.getValues("coverImageUrl")}
-                onChange={handleCoverImageSelect}
-              />
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <Controller
+                  name="logoUrl"
+                  control={form.control}
+                  render={({ field }) => (
+                    <ClickableImageUpload
+                      label="Business Logo"
+                      value={field.value || ""}
+                      onChange={(v) => { field.onChange(v); showToast.success("Logo selected"); }}
+                      aspectRatio="square"
+                      height="h-48"
+                      placeholder="Click to upload logo"
+                      helperText="Square image recommended (PNG, JPG)"
+                      maxSize={5}
+                    />
+                  )}
+                />
+              </div>
+              <div className="space-y-1">
+                <Controller
+                  name="coverImageUrl"
+                  control={form.control}
+                  render={({ field }) => (
+                    <ClickableImageUpload
+                      label="Cover Image"
+                      value={field.value || ""}
+                      onChange={(v) => { field.onChange(v); showToast.success("Cover image selected"); }}
+                      aspectRatio="video"
+                      height="h-48"
+                      placeholder="Click to upload cover"
+                      helperText="Wide banner image recommended (PNG, JPG)"
+                      maxSize={5}
+                    />
+                  )}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* ========== CONTACT & COMMUNICATION ========== */}
-        <div className="pt-6 border-t">
-          <h2 className="text-2xl font-bold mb-6">Contact & Communication</h2>
-        </div>
-        {/* Contact Information */}
+        {/* ════════════════════════════════════════
+            SECTION 3 — CONTACT & COMMUNICATION
+        ════════════════════════════════════════ */}
+        <div className="border-t" />
+        <SectionHeader icon={Phone} title="Contact & Communication" description="How customers can reach you" />
+
+        {/* Contact fields */}
         <Card>
           <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              Contact Information
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TextField<PortfolioFormData>
                 control={form.control}
                 name="contact.email"
-                label="Email"
+                label="Email Address"
                 type="email"
                 placeholder="contact@business.com"
                 error={form.formState.errors.contact?.email}
@@ -446,8 +441,8 @@ export default function PortfolioPage() {
               <TextField<PortfolioFormData>
                 control={form.control}
                 name="contact.phone"
-                label="Phone"
-                placeholder="+1-234-567-8900"
+                label="Primary Phone"
+                placeholder="+855 12 345 678"
                 error={form.formState.errors.contact?.phone}
               />
             </div>
@@ -456,23 +451,30 @@ export default function PortfolioPage() {
               <TextField<PortfolioFormData>
                 control={form.control}
                 name="contact.whatsapp"
-                label="WhatsApp"
-                placeholder="+1-234-567-8900"
+                label="WhatsApp Number"
+                placeholder="+855 12 345 678"
                 error={form.formState.errors.contact?.whatsapp}
               />
               <TextField<PortfolioFormData>
                 control={form.control}
                 name="contact.telegram"
-                label="Telegram"
-                placeholder="https://t.me/..."
+                label="Telegram Link"
+                placeholder="https://t.me/yourbusiness"
                 error={form.formState.errors.contact?.telegram}
               />
             </div>
 
-            {/* Additional Contact Phones */}
-            <div className="space-y-4 border-t pt-6">
+            {/* Additional Phones */}
+            <div className="border-t pt-5 space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-base font-semibold">Additional Phone Numbers</Label>
+                <div>
+                  <Label className="text-sm font-semibold">Additional Phone Numbers</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {contactPhonesFields.length > 0
+                      ? `${contactPhonesFields.length} number${contactPhonesFields.length > 1 ? "s" : ""} added`
+                      : "No additional numbers"}
+                  </p>
+                </div>
                 <Button
                   type="button"
                   size="sm"
@@ -483,17 +485,19 @@ export default function PortfolioPage() {
                 </Button>
               </div>
               {contactPhonesFields.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {contactPhonesFields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2">
+                    <div key={field.id} className="flex gap-2 items-center">
+                      <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
                       <Input
-                        placeholder="+1-234-567-8900"
+                        placeholder="+855 12 345 678"
                         {...form.register(`contact.phones.${index}.number`)}
                       />
                       <Button
                         type="button"
                         size="sm"
                         variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={() => removeContactPhone(index)}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -502,61 +506,79 @@ export default function PortfolioPage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No additional phone numbers added</p>
+                <div className="text-center py-4 border-2 border-dashed rounded-lg">
+                  <p className="text-sm text-muted-foreground">No additional phone numbers added</p>
+                </div>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Address */}
+        {/* Location */}
         <Card>
           <CardHeader>
-            <CardTitle>Address</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              Location
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             <TextareaField<PortfolioFormData>
               control={form.control}
               name="contact.address"
-              label="Address"
-              placeholder="Street 271, Toul Kork, Phnom Penh, Phnom Penh, Cambodia, 12000"
-              rows={3}
+              label="Physical Address"
+              placeholder="Street 271, Toul Kork, Phnom Penh, Cambodia, 12000"
+              rows={2}
               error={form.formState.errors.contact?.address}
             />
-
             <TextField<PortfolioFormData>
               control={form.control}
               name="contact.mapLink"
-              label="Map Link"
-              placeholder="https://maps.google.com/..."
+              label="Google Maps Link"
+              placeholder="https://maps.google.com/?q=your+location"
               error={form.formState.errors.contact?.mapLink}
             />
           </CardContent>
         </Card>
 
-        {/* ========== ONLINE PRESENCE ========== */}
-        <div className="pt-6 border-t">
-          <h2 className="text-2xl font-bold mb-6">Online Presence</h2>
-        </div>
-        {/* Social Media */}
+        {/* ════════════════════════════════════════
+            SECTION 4 — ONLINE PRESENCE
+        ════════════════════════════════════════ */}
+        <div className="border-t" />
+        <SectionHeader icon={Globe} title="Online Presence" description="Social media accounts and links" />
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Social Media</CardTitle>
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Social Media
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {socialMediaFields.length > 0
+                  ? `${socialMediaFields.length} account${socialMediaFields.length > 1 ? "s" : ""} connected`
+                  : "No social media accounts added yet"}
+              </p>
+            </div>
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendSocialMedia({ id: "", name: "", url: "" })}
             >
-              <Plus className="w-4 h-4 mr-1" /> Add Social Media
+              <Plus className="w-4 h-4 mr-1" /> Add Account
             </Button>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             {socialMediaFields.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {socialMediaFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-3 p-4 border rounded-lg">
+                  <div key={field.id} className="flex gap-3 items-center p-3 border rounded-lg hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary shrink-0 text-sm font-bold">
+                      {form.watch(`socialMedia.${index}.name`)?.[0]?.toUpperCase() || "?"}
+                    </div>
                     <Input
-                      placeholder="Name (Facebook, Instagram, Twitter, YouTube, etc.)"
+                      placeholder="Platform (Facebook, Instagram...)"
                       {...form.register(`socialMedia.${index}.name`)}
                       className="flex-1"
                     />
@@ -569,6 +591,7 @@ export default function PortfolioPage() {
                       type="button"
                       size="sm"
                       variant="ghost"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
                       onClick={() => removeSocialMedia(index)}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -577,19 +600,35 @@ export default function PortfolioPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No social media links added yet</p>
+              <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                <Globe className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No social media accounts added</p>
+                <p className="text-xs text-muted-foreground mt-1">Click "Add Account" to get started</p>
+              </div>
             )}
           </CardContent>
         </Card>
 
-        {/* ========== HIGHLIGHTS ========== */}
-        <div className="pt-6 border-t">
-          <h2 className="text-2xl font-bold mb-6">Highlights & Statistics</h2>
-        </div>
+        {/* ════════════════════════════════════════
+            SECTION 5 — HIGHLIGHTS & STATISTICS
+        ════════════════════════════════════════ */}
+        <div className="border-t" />
+        <SectionHeader icon={Sparkles} title="Highlights & Statistics" description="Key features and business stats displayed on your profile" />
+
         {/* Features */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Features & Amenities</CardTitle>
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Features & Amenities
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {featuresFields.length > 0
+                  ? `${featuresFields.length} feature${featuresFields.length > 1 ? "s" : ""} listed`
+                  : "No features added yet"}
+              </p>
+            </div>
             <Button
               type="button"
               size="sm"
@@ -599,296 +638,52 @@ export default function PortfolioPage() {
               <Plus className="w-4 h-4 mr-1" /> Add Feature
             </Button>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent>
             {featuresFields.length > 0 ? (
-              <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
                 {featuresFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2">
+                  <div key={field.id} className="flex items-center gap-1 bg-muted rounded-full pl-3 pr-1 py-1">
                     <Input
                       placeholder="Feature name..."
                       {...form.register(`features.${index}.name`)}
+                      className="border-0 bg-transparent p-0 h-auto text-sm focus-visible:ring-0 w-32 min-w-[80px]"
                     />
                     <Button
                       type="button"
-                      size="sm"
+                      size="icon"
                       variant="ghost"
+                      className="w-5 h-5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                       onClick={() => removeFeature(index)}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No features added yet</p>
+              <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                <Sparkles className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No features added</p>
+                <p className="text-xs text-muted-foreground mt-1">e.g., Free Delivery, 30-Day Returns, 24/7 Support</p>
+              </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* ========== BUSINESS OPERATIONS ========== */}
-        <div className="pt-6 border-t">
-          <h2 className="text-2xl font-bold mb-6">Business Operations</h2>
-        </div>
-        {/* Business Hours */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Business Hours</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {businessHoursFields.map((field, index) => (
-              <div key={field.id} className="p-4 border rounded-lg">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label className="text-xs">Open Time</Label>
-                    <Controller
-                      name={`businessHours.${index}.openTime`}
-                      control={form.control}
-                      render={({ field: timeField }) => (
-                        <CustomTimePicker
-                          value={timeField.value || "08:00"}
-                          onChange={timeField.onChange}
-                        />
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Close Time</Label>
-                    <Controller
-                      name={`businessHours.${index}.closeTime`}
-                      control={form.control}
-                      render={({ field: timeField }) => (
-                        <CustomTimePicker
-                          value={timeField.value || "18:00"}
-                          onChange={timeField.onChange}
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* ========== PORTFOLIO & SHOWCASE ========== */}
-        <div className="pt-6 border-t">
-          <h2 className="text-2xl font-bold mb-6">Portfolio & Showcase</h2>
-        </div>
-        {/* Gallery */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Gallery</CardTitle>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => appendGallery({ id: "", url: "", title: "" })}
-            >
-              <Plus className="w-4 h-4 mr-1" /> Add Image
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {galleryFields.map((field, index) => (
-              <div key={field.id} className="p-4 border rounded-lg space-y-3">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-sm">Image {index + 1}</span>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => removeGallery(index)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                <div>
-                  <Controller
-                    name={`gallery.${index}.url`}
-                    control={form.control}
-                    render={({ field }) => (
-                      <ClickableImageUpload
-                        label="Image"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Title</Label>
-                  <Controller
-                    name={`gallery.${index}.title`}
-                    control={form.control}
-                    render={({ field }) => (
-                      <Input
-                        placeholder="Image title..."
-                        {...field}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Services */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Services</CardTitle>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => appendService({ id: "", name: "", description: "" })}
-            >
-              <Plus className="w-4 h-4 mr-1" /> Add Service
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {servicesFields.map((field, index) => (
-              <div key={field.id} className="p-4 border rounded-lg space-y-3">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-sm">Service {index + 1}</span>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => removeService(index)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Service Name</Label>
-                  <Controller
-                    name={`services.${index}.name`}
-                    control={form.control}
-                    render={({ field }) => (
-                      <Input
-                        placeholder="Service name..."
-                        {...field}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Description</Label>
-                  <Controller
-                    name={`services.${index}.description`}
-                    control={form.control}
-                    render={({ field }) => (
-                      <Textarea
-                        placeholder="Service description..."
-                        rows={3}
-                        {...field}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Team Members */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Team Members</CardTitle>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => appendTeam({ id: "", name: "", position: "", bio: "", photoUrl: "" })}
-            >
-              <Plus className="w-4 h-4 mr-1" /> Add Member
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {teamFields.map((field, index) => (
-              <div key={field.id} className="p-4 border rounded-lg space-y-3">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-sm">{field.name || "Team Member"}</span>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => removeTeam(index)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                <div>
-                  <Controller
-                    name={`team.${index}.photoUrl`}
-                    control={form.control}
-                    render={({ field: photoField }) => (
-                      <ClickableImageUpload
-                        label="Photo"
-                        value={photoField.value}
-                        onChange={photoField.onChange}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label className="text-xs">Name</Label>
-                    <Controller
-                      name={`team.${index}.name`}
-                      control={form.control}
-                      render={({ field: nameField }) => (
-                        <Input
-                          placeholder="Full name..."
-                          {...nameField}
-                        />
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs">Position</Label>
-                    <Controller
-                      name={`team.${index}.position`}
-                      control={form.control}
-                      render={({ field: posField }) => (
-                        <Input
-                          placeholder="Job title..."
-                          {...posField}
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Bio</Label>
-                  <Controller
-                    name={`team.${index}.bio`}
-                    control={form.control}
-                    render={({ field: bioField }) => (
-                      <Textarea
-                        placeholder="Team member bio..."
-                        rows={3}
-                        {...bioField}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-            ))}
           </CardContent>
         </Card>
 
         {/* Custom Stats */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Custom Statistics</CardTitle>
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart2 className="w-4 h-4" />
+                Business Statistics
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {customStatsFields.length > 0
+                  ? `${customStatsFields.length} stat${customStatsFields.length > 1 ? "s" : ""} configured`
+                  : "No stats added yet"}
+              </p>
+            </div>
             <Button
               type="button"
               size="sm"
@@ -898,46 +693,433 @@ export default function PortfolioPage() {
               <Plus className="w-4 h-4 mr-1" /> Add Stat
             </Button>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {customStatsFields.map((field, index) => (
-              <div key={field.id} className="flex gap-2">
-                <div className="flex-1">
-                  <Controller
-                    name={`customStats.${index}.label`}
-                    control={form.control}
-                    render={({ field: labelField }) => (
-                      <Input placeholder="Label (e.g., Products)" {...labelField} />
-                    )}
-                  />
-                </div>
-                <div className="flex-1">
-                  <Controller
-                    name={`customStats.${index}.value`}
-                    control={form.control}
-                    render={({ field: valueField }) => (
-                      <Input placeholder="Value (e.g., 10,000+)" {...valueField} />
-                    )}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => removeCustomStat(index)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+          <CardContent>
+            {customStatsFields.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {customStatsFields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className="flex gap-2 items-center p-3 border rounded-lg hover:bg-muted/30 transition-colors"
+                  >
+                    <div className="flex-1 space-y-1">
+                      <Controller
+                        name={`customStats.${index}.value`}
+                        control={form.control}
+                        render={({ field: f }) => (
+                          <Input
+                            placeholder="Value (e.g., 10,000+)"
+                            className="font-bold text-primary border-0 p-0 h-auto text-lg focus-visible:ring-0"
+                            {...f}
+                          />
+                        )}
+                      />
+                      <Controller
+                        name={`customStats.${index}.label`}
+                        control={form.control}
+                        render={({ field: f }) => (
+                          <Input
+                            placeholder="Label (e.g., Happy Customers)"
+                            className="text-xs text-muted-foreground border-0 p-0 h-auto focus-visible:ring-0"
+                            {...f}
+                          />
+                        )}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                      onClick={() => removeCustomStat(index)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                <BarChart2 className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No statistics added</p>
+                <p className="text-xs text-muted-foreground mt-1">e.g., 10,000+ Happy Customers, 8 Years in Business</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Submit Button */}
+        {/* ════════════════════════════════════════
+            SECTION 6 — BUSINESS OPERATIONS
+        ════════════════════════════════════════ */}
+        <div className="border-t" />
+        <SectionHeader icon={Clock} title="Business Operations" description="Opening hours for each day of the week" />
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              Business Hours
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {businessHoursFields.map((field, index) => {
+                const dayLabel = DAY_LABELS[field.day] || field.day;
+                const openTime = form.watch(`businessHours.${index}.openTime`);
+                const closeTime = form.watch(`businessHours.${index}.closeTime`);
+                const isClosed = !openTime && !closeTime;
+                const isWeekend = field.day === "SATURDAY" || field.day === "SUNDAY";
+
+                return (
+                  <div
+                    key={field.id}
+                    className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${isClosed ? "bg-muted/30 opacity-70" : "hover:bg-muted/20"}`}
+                  >
+                    {/* Day label */}
+                    <div className="w-24 shrink-0">
+                      <p className={`text-sm font-semibold ${isWeekend ? "text-orange-600" : "text-foreground"}`}>
+                        {dayLabel}
+                      </p>
+                      {isClosed && (
+                        <Badge variant="secondary" className="text-xs mt-0.5 px-1.5 py-0">Closed</Badge>
+                      )}
+                    </div>
+
+                    {/* Time pickers */}
+                    <div className="flex flex-1 items-center gap-2">
+                      <Controller
+                        name={`businessHours.${index}.openTime`}
+                        control={form.control}
+                        render={({ field: timeField }) => (
+                          <CustomTimePicker
+                            value={timeField.value || ""}
+                            onChange={timeField.onChange}
+                            placeholder="Open"
+                          />
+                        )}
+                      />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <Controller
+                        name={`businessHours.${index}.closeTime`}
+                        control={form.control}
+                        render={({ field: timeField }) => (
+                          <CustomTimePicker
+                            value={timeField.value || ""}
+                            onChange={timeField.onChange}
+                            placeholder="Close"
+                          />
+                        )}
+                      />
+                    </div>
+
+                    {/* Clear button */}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={isClosed ? "outline" : "ghost"}
+                      className={`shrink-0 text-xs px-2 ${isClosed ? "text-primary border-primary/30" : "text-muted-foreground"}`}
+                      onClick={() => {
+                        const hours = form.getValues("businessHours") || [];
+                        if (isClosed) {
+                          hours[index].openTime = "08:00";
+                          hours[index].closeTime = "18:00";
+                        } else {
+                          hours[index].openTime = "";
+                          hours[index].closeTime = "";
+                        }
+                        form.setValue("businessHours", [...hours], { shouldDirty: true });
+                      }}
+                    >
+                      {isClosed ? "Set Hours" : "Close"}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ════════════════════════════════════════
+            SECTION 7 — PORTFOLIO & SHOWCASE
+        ════════════════════════════════════════ */}
+        <div className="border-t" />
+        <SectionHeader icon={Image} title="Portfolio & Showcase" description="Gallery, services, and team members" />
+
+        {/* Gallery */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Image className="w-4 h-4" />
+                Photo Gallery
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {galleryFields.length > 0
+                  ? `${galleryFields.length} image${galleryFields.length > 1 ? "s" : ""} in gallery`
+                  : "No gallery images added yet"}
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => appendGallery({ id: "", url: "", title: "" })}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Image
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {galleryFields.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {galleryFields.map((field, index) => (
+                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className="text-xs">Image {index + 1}</Badge>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
+                        onClick={() => removeGallery(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                    <Controller
+                      name={`gallery.${index}.url`}
+                      control={form.control}
+                      render={({ field: f }) => (
+                        <ClickableImageUpload
+                          label=""
+                          value={f.value}
+                          onChange={f.onChange}
+                          height="h-36"
+                          placeholder="Click to upload"
+                          maxSize={5}
+                        />
+                      )}
+                    />
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Caption (optional)</Label>
+                      <Controller
+                        name={`gallery.${index}.title`}
+                        control={form.control}
+                        render={({ field: f }) => (
+                          <Input placeholder="e.g., Store Entrance" {...f} />
+                        )}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 border-2 border-dashed rounded-lg">
+                <Image className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No gallery images</p>
+                <p className="text-xs text-muted-foreground mt-1">Showcase your store, products, or events</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Services */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="w-4 h-4" />
+                Services
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {servicesFields.length > 0
+                  ? `${servicesFields.length} service${servicesFields.length > 1 ? "s" : ""} listed`
+                  : "No services added yet"}
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => appendService({ id: "", name: "", description: "" })}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Service
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {servicesFields.length > 0 ? (
+              <div className="space-y-3">
+                {servicesFields.map((field, index) => (
+                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0">
+                          {index + 1}
+                        </div>
+                        <Controller
+                          name={`services.${index}.name`}
+                          control={form.control}
+                          render={({ field: f }) => (
+                            <Input
+                              placeholder="Service name..."
+                              className="font-semibold border-0 p-0 h-auto text-sm focus-visible:ring-0"
+                              {...f}
+                            />
+                          )}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
+                        onClick={() => removeService(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                    <Controller
+                      name={`services.${index}.description`}
+                      control={form.control}
+                      render={({ field: f }) => (
+                        <Textarea
+                          placeholder="Describe what this service includes..."
+                          rows={2}
+                          className="resize-none text-sm"
+                          {...f}
+                        />
+                      )}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 border-2 border-dashed rounded-lg">
+                <Briefcase className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No services listed</p>
+                <p className="text-xs text-muted-foreground mt-1">e.g., In-Store Shopping, Online Ordering, Gift Wrapping</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Team Members */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Team Members
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {teamFields.length > 0
+                  ? `${teamFields.length} member${teamFields.length > 1 ? "s" : ""} on the team`
+                  : "No team members added yet"}
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => appendTeam({ id: "", name: "", position: "", bio: "", photoUrl: "" })}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Member
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {teamFields.length > 0 ? (
+              <div className="space-y-4">
+                {teamFields.map((field, index) => (
+                  <div key={field.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
+                    <div className="flex gap-4">
+                      {/* Photo */}
+                      <div className="shrink-0 w-28">
+                        <Controller
+                          name={`team.${index}.photoUrl`}
+                          control={form.control}
+                          render={({ field: f }) => (
+                            <ClickableImageUpload
+                              label="Photo"
+                              value={f.value || ""}
+                              onChange={f.onChange}
+                              aspectRatio="square"
+                              height="h-28"
+                              placeholder="Upload"
+                              maxSize={5}
+                            />
+                          )}
+                        />
+                      </div>
+
+                      {/* Details */}
+                      <div className="flex-1 space-y-2 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
+                            <div className="space-y-1">
+                              <Label className="text-xs text-muted-foreground">Full Name</Label>
+                              <Controller
+                                name={`team.${index}.name`}
+                                control={form.control}
+                                render={({ field: f }) => (
+                                  <Input placeholder="John Doe" className="text-sm font-semibold" {...f} />
+                                )}
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs text-muted-foreground">Position / Title</Label>
+                              <Controller
+                                name={`team.${index}.position`}
+                                control={form.control}
+                                render={({ field: f }) => (
+                                  <Input placeholder="Store Manager" className="text-sm" {...f} />
+                                )}
+                              />
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0 shrink-0"
+                            onClick={() => removeTeam(index)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Bio</Label>
+                          <Controller
+                            name={`team.${index}.bio`}
+                            control={form.control}
+                            render={({ field: f }) => (
+                              <Textarea
+                                placeholder="Short bio about this team member..."
+                                rows={2}
+                                className="resize-none text-sm"
+                                {...f}
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 border-2 border-dashed rounded-lg">
+                <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No team members added</p>
+                <p className="text-xs text-muted-foreground mt-1">Introduce your team to build trust with customers</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* ── Save / Cancel ── */}
         <div className="flex gap-3 justify-end pt-4 border-t">
           <Button
             type="button"
             variant="outline"
-            onClick={() => fetchProfile()}
+            onClick={() => dispatch(fetchAdminPortfolioProfileThunk())}
             disabled={isSaving}
             className="min-w-[120px]"
           >
