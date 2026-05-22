@@ -248,8 +248,9 @@ public class PortfolioServiceImpl implements PortfolioService {
             sum += (double) rating * count;
         }
         double avg = total > 0 ? sum / total : 0.0;
+        double roundedAvg = Math.round(avg * 100.0) / 100.0;
         return ReviewStatsResponse.builder()
-                .averageRating(avg)
+                .averageRating(roundedAvg)
                 .totalReviews(total)
                 .distribution(distribution)
                 .build();

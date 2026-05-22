@@ -317,7 +317,7 @@ export default function BusinessProfilePage() {
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <StarRow rating={avg} size={3} />
-                <span className="font-semibold text-foreground text-xs">{avg.toFixed(1)}</span>
+                <span className="font-semibold text-foreground text-xs">{avg.toFixed(2)}</span>
                 <span className="text-xs">({total})</span>
               </div>
               <div className="flex items-center gap-1">
@@ -481,7 +481,7 @@ export default function BusinessProfilePage() {
               <CardContent className="space-y-5">
                 <div className="flex gap-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
                   <div className="text-center flex-shrink-0">
-                    <p className="text-4xl font-bold text-primary">{avg.toFixed(1)}</p>
+                    <p className="text-4xl font-bold text-primary">{avg.toFixed(2)}</p>
                     <StarRow rating={avg} size={4} />
                     <p className="text-xs text-muted-foreground mt-1">{total} reviews</p>
                   </div>
