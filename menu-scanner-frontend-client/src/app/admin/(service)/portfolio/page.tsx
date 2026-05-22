@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo } from "react";
 import {
-  Loader2, Plus, Trash2, Save, Star,
-  Mail, Phone, MapPin, Globe, MessageCircle, Send,
+  Loader2, Plus, Trash2, Save,
+  Mail, Phone, MapPin, Globe,
   Image, Users, Clock, BarChart2, Sparkles, Briefcase,
-  Building2, CalendarDays, ChevronRight,
+  ChevronRight,
 } from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -256,96 +256,8 @@ export default function PortfolioPage() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
         {/* ════════════════════════════════════════
-            SECTION 1 — BUSINESS OVERVIEW (read-only)
+            SECTION 1 — BASIC INFORMATION
         ════════════════════════════════════════ */}
-        <SectionHeader icon={Building2} title="Business Overview" description="Read-only information about your business" />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Business Info Card */}
-          <Card className="border-primary/20 bg-primary/5">
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-primary" />
-                Business Identity
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Business Name</p>
-                <p className="text-xl font-bold mt-0.5">{profile?.businessName || "—"}</p>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Managed through account settings and cannot be changed here.
-              </p>
-              {profile?.createdAt && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-3">
-                  <CalendarDays className="w-4 h-4 shrink-0" />
-                  <span>
-                    Created {new Date(profile.createdAt).toLocaleDateString()} · Updated{" "}
-                    {profile.updatedAt ? new Date(profile.updatedAt).toLocaleDateString() : "—"}
-                  </span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Review Stats Card */}
-          {profile?.reviewStats && (
-            <Card className="border-yellow-200 bg-yellow-50/50">
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                  Customer Reviews
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-start gap-6">
-                  {/* Big Number */}
-                  <div className="flex flex-col items-center gap-1 shrink-0">
-                    <p className="text-4xl font-black text-yellow-500">
-                      {profile.reviewStats.averageRating.toFixed(1)}
-                    </p>
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <Star
-                          key={i}
-                          size={14}
-                          className={i <= Math.round(profile.reviewStats.averageRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground">{profile.reviewStats.totalReviews} reviews</p>
-                  </div>
-                  {/* Distribution */}
-                  <div className="flex-1 space-y-1.5">
-                    {[5, 4, 3, 2, 1].map((rating) => {
-                      const count = profile.reviewStats.distribution[rating] || 0;
-                      const pct = profile.reviewStats.totalReviews > 0
-                        ? (count / profile.reviewStats.totalReviews) * 100
-                        : 0;
-                      return (
-                        <div key={rating} className="flex items-center gap-2">
-                          <span className="text-xs font-medium w-4 text-right">{rating}</span>
-                          <Star size={10} className="fill-yellow-400 text-yellow-400 shrink-0" />
-                          <div className="flex-1 h-1.5 bg-yellow-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${pct}%` }} />
-                          </div>
-                          <span className="text-xs text-muted-foreground w-8 text-right">{count}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* ════════════════════════════════════════
-            SECTION 2 — BASIC INFORMATION
-        ════════════════════════════════════════ */}
-        <div className="border-t" />
-        <SectionHeader icon={Briefcase} title="Basic Information" description="Your portfolio description and branding images" />
 
         {/* Description */}
         <Card>
