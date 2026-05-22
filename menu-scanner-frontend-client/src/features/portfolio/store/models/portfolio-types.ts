@@ -1,18 +1,10 @@
-export interface PortfolioAddressDto {
-  street: string;
-  city: string;
-  state?: string;
-  country: string;
-  postalCode?: string;
-}
-
 export interface PortfolioContactDto {
   email: string;
   phone: string;
   phones?: string[];
   whatsapp?: string;
   telegram?: string;
-  address: PortfolioAddressDto;
+  address?: string;
   mapLink?: string;
 }
 
@@ -152,11 +144,7 @@ export interface PortfolioProfileSaveRequest {
   contactPhones?: string[];
   contactWhatsapp?: string;
   contactTelegram?: string;
-  addressStreet?: string;
-  addressCity?: string;
-  addressState?: string;
-  addressCountry?: string;
-  addressPostalCode?: string;
+  address?: string;
   mapLink?: string;
   socialFacebook?: string;
   socialInstagram?: string;

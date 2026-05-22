@@ -45,20 +45,8 @@ public class PortfolioPublicResponse {
         private List<String> phones;
         private String whatsapp;
         private String telegram;
-        private AddressDto address;
+        private String address;
         private String mapLink;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class AddressDto {
-        private String street;
-        private String city;
-        private String state;
-        private String country;
-        private String postalCode;
     }
 
     @Data

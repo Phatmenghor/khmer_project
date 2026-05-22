@@ -62,20 +62,8 @@ public class PortfolioProfile extends BaseUUIDEntity {
     private String contactTelegram;
 
     // Address
-    @Column(name = "address_street")
-    private String addressStreet;
-
-    @Column(name = "address_city")
-    private String addressCity;
-
-    @Column(name = "address_state")
-    private String addressState;
-
-    @Column(name = "address_country")
-    private String addressCountry;
-
-    @Column(name = "address_postal_code")
-    private String addressPostalCode;
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
 
     @Column(name = "map_link")
     private String mapLink;

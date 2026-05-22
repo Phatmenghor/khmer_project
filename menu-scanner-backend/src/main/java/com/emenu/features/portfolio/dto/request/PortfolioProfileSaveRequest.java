@@ -35,15 +35,7 @@ public class PortfolioProfileSaveRequest {
     private String contactTelegram;
 
     // Address
-    private String addressStreet;
-
-    private String addressCity;
-
-    private String addressState;
-
-    private String addressCountry;
-
-    private String addressPostalCode;
+    private String address;
 
     private String mapLink;
 

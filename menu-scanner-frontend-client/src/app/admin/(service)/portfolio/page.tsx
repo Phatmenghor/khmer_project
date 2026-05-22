@@ -32,7 +32,6 @@ const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"
 
 function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveRequest {
   const contact = p.contact || {};
-  const address = contact.address || {};
   return {
     slug: p.slug || "",
     tagline: p.tagline || "",
@@ -44,11 +43,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveReq
     contactPhones: contact.phones ?? [],
     contactWhatsapp: contact.whatsapp || "",
     contactTelegram: contact.telegram || "",
-    addressStreet: address.street || "",
-    addressCity: address.city || "",
-    addressState: address.state || "",
-    addressCountry: address.country || "",
-    addressPostalCode: address.postalCode || "",
+    address: contact.address || "",
     mapLink: contact.mapLink || "",
     socialFacebook: p.socialMedia?.facebook || "",
     socialInstagram: p.socialMedia?.instagram || "",
@@ -85,11 +80,7 @@ const emptyForm = (): PortfolioProfileSaveRequest => ({
   contactPhones: [],
   contactWhatsapp: "",
   contactTelegram: "",
-  addressStreet: "",
-  addressCity: "",
-  addressState: "",
-  addressCountry: "",
-  addressPostalCode: "",
+  address: "",
   mapLink: "",
   socialFacebook: "",
   socialInstagram: "",
@@ -388,30 +379,8 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label>Street</Label>
-              <Input placeholder="123 Main Street" {...form.register("addressStreet")} />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>City</Label>
-                <Input placeholder="New York" {...form.register("addressCity")} />
-              </div>
-              <div className="space-y-2">
-                <Label>State/Province</Label>
-                <Input placeholder="NY" {...form.register("addressState")} />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Country</Label>
-                <Input placeholder="United States" {...form.register("addressCountry")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Postal Code</Label>
-                <Input placeholder="10001" {...form.register("addressPostalCode")} />
-              </div>
+              <Label>Address</Label>
+              <Textarea placeholder="Street 271, Toul Kork, Phnom Penh, Phnom Penh, Cambodia, 12000" rows={3} {...form.register("address")} />
             </div>
 
             <div className="space-y-2">
