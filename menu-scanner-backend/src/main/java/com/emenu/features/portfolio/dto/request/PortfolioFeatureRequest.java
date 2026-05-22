@@ -10,7 +10,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PortfolioFeatureRequest {
-    private UUID id;
+    private String id;
     private String name;
-    private Integer displayOrder;
 }

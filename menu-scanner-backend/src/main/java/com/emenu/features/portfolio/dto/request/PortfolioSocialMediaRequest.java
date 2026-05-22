@@ -6,8 +6,7 @@ import java.util.UUID;
 
 @Data
 public class PortfolioSocialMediaRequest {
-    private UUID id;
+    private String id;
     private String name;
     private String url;
-    private Integer displayOrder;
 }

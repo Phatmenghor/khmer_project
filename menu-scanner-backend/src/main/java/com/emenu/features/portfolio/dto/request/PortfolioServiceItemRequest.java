@@ -6,10 +6,10 @@ import lombok.Data;
 @Data
 public class PortfolioServiceItemRequest {
 
+    private String id;
+
     @NotBlank
     private String name;
 
     private String description;
-
-    private Integer displayOrder = 0;
 }

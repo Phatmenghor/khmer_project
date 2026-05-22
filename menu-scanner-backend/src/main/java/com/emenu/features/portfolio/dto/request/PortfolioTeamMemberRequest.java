@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 public class PortfolioTeamMemberRequest {
 
+    private String id;
+
     @NotBlank
     private String name;
 
@@ -15,6 +17,4 @@ public class PortfolioTeamMemberRequest {
     private String bio;
 
     private String photoUrl;
-
-    private Integer displayOrder = 0;
 }
