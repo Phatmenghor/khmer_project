@@ -575,43 +575,56 @@ export default function BusinessProfilePage() {
                 <CardTitle className="text-base">Business Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-muted-foreground">
-                    <p className="whitespace-pre-wrap">{profile.contact.address}</p>
-                    {profile.contact.mapLink && (
-                      <a href={profile.contact.mapLink} target="_blank" rel="noopener noreferrer"
-                        className="text-primary hover:underline inline-flex items-center gap-1 mt-1 text-xs">
-                        View on Map <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
+                {profile.contact.address && (
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-muted-foreground">
+                      <p className="whitespace-pre-wrap">{profile.contact.address}</p>
+                      {profile.contact.mapLink && (
+                        <a href={profile.contact.mapLink} target="_blank" rel="noopener noreferrer"
+                          className="text-primary hover:underline inline-flex items-center gap-1 mt-1 text-xs">
+                          View on Map <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </div>
-                {(profile.contact.phones?.length ? profile.contact.phones : [profile.contact.phone]).map((num, i) => (
-                  <div key={i} className="flex items-center gap-3">
+                )}
+                {profile.contact.phones && profile.contact.phones.length > 0 ? (
+                  profile.contact.phones.map((phone, i) => (
+                    <div key={phone.id || i} className="flex items-center gap-3">
+                      <Phone className="w-4 h-4 text-primary flex-shrink-0" />
+                      <a href={`tel:${phone.number}`} className="text-sm text-muted-foreground hover:text-primary">
+                        {phone.number}
+                      </a>
+                    </div>
+                  ))
+                ) : profile.contact.phone ? (
+                  <div className="flex items-center gap-3">
                     <Phone className="w-4 h-4 text-primary flex-shrink-0" />
-                    <a href={`tel:${num}`} className="text-sm text-muted-foreground hover:text-primary">
-                      {num}
+                    <a href={`tel:${profile.contact.phone}`} className="text-sm text-muted-foreground hover:text-primary">
+                      {profile.contact.phone}
                     </a>
                   </div>
-                ))}
-                <div className="flex items-center gap-3">
-                  <Mail className="w-4 h-4 text-primary flex-shrink-0" />
-                  <a href={`mailto:${profile.contact.email}`} className="text-sm text-muted-foreground hover:text-primary truncate">
-                    {profile.contact.email}
-                  </a>
-                </div>
-                {profile.socialMedia?.website && (
+                ) : null}
+                {profile.contact.email && (
                   <div className="flex items-center gap-3">
-                    <Globe className="w-4 h-4 text-primary flex-shrink-0" />
-                    <a href={profile.socialMedia.website} target="_blank" rel="noopener noreferrer"
-                      className="text-sm text-muted-foreground hover:text-primary truncate">
-                      {profile.socialMedia.website.replace(/^https?:\/\//, "")}
+                    <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                    <a href={`mailto:${profile.contact.email}`} className="text-sm text-muted-foreground hover:text-primary truncate">
+                      {profile.contact.email}
+                    </a>
+                  </div>
+                )}
+                {profile.contact.whatsapp && (
+                  <div className="flex items-center gap-3">
+                    <Phone className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <a href={`https://wa.me/${profile.contact.whatsapp.replace(/[^0-9]/g, "")}`}
+                      target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary">
+                      WhatsApp
                     </a>
                   </div>
                 )}
                 {profile.contact.telegram && (
-                  <a href={`https://t.me/${profile.contact.telegram.replace(/[^0-9]/g, "")}`}
+                  <a href={profile.contact.telegram}
                     target="_blank" rel="noopener noreferrer" className="block">
                     <Button variant="outline" size="sm" className="w-full gap-2 border-sky-200 text-sky-600 hover:bg-sky-50">
                       <Send className="w-3.5 h-3.5" />
@@ -640,41 +653,37 @@ export default function BusinessProfilePage() {
             </Card>
 
             {/* Social Media */}
-            {profile.socialMedia && (
+            {profile.socialMedia && Array.isArray(profile.socialMedia) && profile.socialMedia.length > 0 && (
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">Follow Us</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-2">
-                    {profile.socialMedia.facebook && (
-                      <a href={profile.socialMedia.facebook} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 p-2.5 rounded-lg border border-border hover:border-blue-300 hover:bg-blue-50 transition-colors group">
-                        <Facebook className="w-4 h-4 text-blue-600" />
-                        <span className="text-xs font-medium text-muted-foreground group-hover:text-blue-600">Facebook</span>
-                      </a>
-                    )}
-                    {profile.socialMedia.instagram && (
-                      <a href={profile.socialMedia.instagram} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 p-2.5 rounded-lg border border-border hover:border-pink-300 hover:bg-pink-50 transition-colors group">
-                        <Instagram className="w-4 h-4 text-pink-600" />
-                        <span className="text-xs font-medium text-muted-foreground group-hover:text-pink-600">Instagram</span>
-                      </a>
-                    )}
-                    {profile.socialMedia.twitter && (
-                      <a href={profile.socialMedia.twitter} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 p-2.5 rounded-lg border border-border hover:border-sky-300 hover:bg-sky-50 transition-colors group">
-                        <Twitter className="w-4 h-4 text-sky-500" />
-                        <span className="text-xs font-medium text-muted-foreground group-hover:text-sky-500">Twitter</span>
-                      </a>
-                    )}
-                    {profile.socialMedia.website && (
-                      <a href={profile.socialMedia.website} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 p-2.5 rounded-lg border border-border hover:bg-muted transition-colors group">
-                        <Globe className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-xs font-medium text-muted-foreground">Website</span>
-                      </a>
-                    )}
+                    {profile.socialMedia.map((social) => {
+                      const isClicked = social.name?.toLowerCase() || "";
+                      let icon = <Globe className="w-4 h-4 text-muted-foreground" />;
+                      let hoverClass = "hover:border-gray-300 hover:bg-gray-50";
+
+                      if (isClicked.includes("facebook")) {
+                        icon = <Facebook className="w-4 h-4 text-blue-600" />;
+                        hoverClass = "hover:border-blue-300 hover:bg-blue-50";
+                      } else if (isClicked.includes("instagram")) {
+                        icon = <Instagram className="w-4 h-4 text-pink-600" />;
+                        hoverClass = "hover:border-pink-300 hover:bg-pink-50";
+                      } else if (isClicked.includes("twitter") || isClicked.includes("x.com")) {
+                        icon = <Twitter className="w-4 h-4 text-sky-500" />;
+                        hoverClass = "hover:border-sky-300 hover:bg-sky-50";
+                      }
+
+                      return (
+                        <a key={social.id} href={social.url} target="_blank" rel="noopener noreferrer"
+                          className={`flex items-center gap-2 p-2.5 rounded-lg border border-border transition-colors group ${hoverClass}`}>
+                          {icon}
+                          <span className="text-xs font-medium text-muted-foreground group-hover:text-primary truncate">{social.name}</span>
+                        </a>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
