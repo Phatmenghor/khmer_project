@@ -1216,14 +1216,14 @@ VALUES (
 -- ============================================================================
 
 INSERT INTO portfolio_phone (id, profile_id, number, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id, v.profile_id, v.number, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+SELECT v.id::uuid, v.profile_id::uuid, v.number, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
   ('550e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-12-345-678', 1),
   ('550e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-98-765-432', 2),
   ('550e8400-e29b-41d4-a716-446655440003', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-87-654-321', 1),
   ('550e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-11-222-333', 2)
 ) AS v(id, profile_id, number, display_order)
-WHERE NOT EXISTS (SELECT 1 FROM portfolio_phone WHERE id = v.id)
+WHERE NOT EXISTS (SELECT 1 FROM portfolio_phone WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -1231,7 +1231,7 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 
 INSERT INTO portfolio_feature (id, profile_id, name, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id, v.profile_id, v.name, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+SELECT v.id::uuid, v.profile_id::uuid, v.name, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
   ('880e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Free Delivery on orders over $50', 1),
   ('880e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '30-Day Easy Returns', 2),
@@ -1245,7 +1245,7 @@ FROM (VALUES
   ('880e8400-e29b-41d4-a716-446655440010', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Free Gift Wrapping', 4),
   ('880e8400-e29b-41d4-a716-446655440011', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'VIP Shopping Hours', 5)
 ) AS v(id, profile_id, name, display_order)
-WHERE NOT EXISTS (SELECT 1 FROM portfolio_feature WHERE id = v.id)
+WHERE NOT EXISTS (SELECT 1 FROM portfolio_feature WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -1253,7 +1253,7 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 
 INSERT INTO portfolio_hours (id, profile_id, day, open_time, close_time, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id, v.profile_id, v.day, v.open_time, v.close_time, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+SELECT v.id::uuid, v.profile_id::uuid, v.day, v.open_time, v.close_time, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
   ('660e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'MONDAY', '08:00', '22:00', 1),
   ('660e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'TUESDAY', '08:00', '22:00', 2),
@@ -1270,7 +1270,7 @@ FROM (VALUES
   ('660e8400-e29b-41d4-a716-446655440013', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'SATURDAY', '10:00', '22:00', 6),
   ('660e8400-e29b-41d4-a716-446655440014', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'SUNDAY', '10:00', '20:00', 7)
 ) AS v(id, profile_id, day, open_time, close_time, display_order)
-WHERE NOT EXISTS (SELECT 1 FROM portfolio_hours WHERE id = v.id)
+WHERE NOT EXISTS (SELECT 1 FROM portfolio_hours WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -1278,7 +1278,7 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 
 INSERT INTO portfolio_gallery_item (id, profile_id, url, title, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id, v.profile_id, v.url, v.title, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+SELECT v.id::uuid, v.profile_id::uuid, v.url, v.title, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
   ('770e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Store Entrance', 1),
   ('770e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Electronics Section', 2),
@@ -1288,7 +1288,7 @@ FROM (VALUES
   ('770e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Collections', 2),
   ('770e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Style Showcase', 3)
 ) AS v(id, profile_id, url, title, display_order)
-WHERE NOT EXISTS (SELECT 1 FROM portfolio_gallery_item WHERE id = v.id)
+WHERE NOT EXISTS (SELECT 1 FROM portfolio_gallery_item WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -1296,7 +1296,7 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 
 INSERT INTO portfolio_service_item (id, profile_id, name, description, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id, v.profile_id, v.name, v.description, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+SELECT v.id::uuid, v.profile_id::uuid, v.name, v.description, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
   ('990e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'In-Store Shopping', 'Browse our vast selection of 10,000+ products across multiple categories with expert staff assistance.', 1),
   ('990e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Online Ordering', 'Shop online 24/7 and get fast, reliable delivery to your doorstep.', 2),
@@ -1307,7 +1307,7 @@ FROM (VALUES
   ('990e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Styling Consultation', 'Expert advice on fashion trends, color coordination, and wardrobe building.', 3),
   ('990e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Corporate Gifting', 'Bulk ordering solutions for corporate gifts and employee gifts.', 4)
 ) AS v(id, profile_id, name, description, display_order)
-WHERE NOT EXISTS (SELECT 1 FROM portfolio_service_item WHERE id = v.id)
+WHERE NOT EXISTS (SELECT 1 FROM portfolio_service_item WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -1315,7 +1315,7 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 
 INSERT INTO portfolio_team_member (id, profile_id, name, position, bio, photo_url, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id, v.profile_id, v.name, v.position, v.bio, v.photo_url, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+SELECT v.id::uuid, v.profile_id::uuid, v.name, v.position, v.bio, v.photo_url, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
   ('aa0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Sokha Pou', 'Store Manager', 'With over 12 years of retail experience, Sokha leads Mega Store with passion for customer satisfaction.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 1),
   ('aa0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Kosal Touch', 'Sales Director', 'Kosal ensures our team delivers the best shopping experience with expert product knowledge.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 2),
@@ -1324,7 +1324,7 @@ FROM (VALUES
   ('aa0e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Chanthy Ros', 'Senior Stylist', 'With expertise in both traditional and contemporary fashion, Chanthy helps clients discover their unique style.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 2),
   ('aa0e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Piseth Rith', 'Tailor Master', 'Piseth brings 20+ years of tailoring expertise, ensuring perfect fits for all our customers.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 3)
 ) AS v(id, profile_id, name, position, bio, photo_url, display_order)
-WHERE NOT EXISTS (SELECT 1 FROM portfolio_team_member WHERE id = v.id)
+WHERE NOT EXISTS (SELECT 1 FROM portfolio_team_member WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -1332,7 +1332,7 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 
 INSERT INTO portfolio_custom_stat (id, profile_id, label, value, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id, v.profile_id, v.label, v.value, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+SELECT v.id::uuid, v.profile_id::uuid, v.label, v.value, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
   ('bb0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Years In Business', '8', 1),
   ('bb0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Happy Customers', '10,000+', 2),
@@ -1344,7 +1344,7 @@ FROM (VALUES
   ('bb0e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Brands Carried', '100+', 3),
   ('bb0e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Styling Sessions', '1,000+', 4)
 ) AS v(id, profile_id, label, value, display_order)
-WHERE NOT EXISTS (SELECT 1 FROM portfolio_custom_stat WHERE id = v.id)
+WHERE NOT EXISTS (SELECT 1 FROM portfolio_custom_stat WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
