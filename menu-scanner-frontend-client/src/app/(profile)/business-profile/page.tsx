@@ -346,14 +346,19 @@ export default function BusinessProfilePage() {
       {/* ── Stats bar ────────────────────────────────────────────────── */}
       {profile.stats && Array.isArray(profile.stats) && profile.stats.length > 0 && (
         <div className="bg-card border-b border-border">
-          <div className="container mx-auto px-4 max-w-6xl py-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
-              {profile.stats.map((stat) => (
-                <div key={stat.id} className="p-4 sm:p-5 text-center border border-border/50 rounded-lg hover:border-primary/30 hover:bg-primary/5 transition-colors">
-                  <p className="text-2xl sm:text-3xl font-bold text-primary break-words">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{stat.label}</p>
-                </div>
-              ))}
+          <div className="container mx-auto max-w-6xl py-6 px-4 sm:px-6">
+            <div className="flex flex-wrap gap-4 sm:gap-6">
+              {profile.stats.map((stat, index) => {
+                const itemCount = profile.stats.length;
+                const widthClass = itemCount === 1 ? 'w-full' : itemCount === 2 ? 'flex-1 min-w-[calc(50%-12px)]' : `flex-1 min-w-[calc(${100/itemCount}%-${(itemCount-1)*6/itemCount}px)]`;
+
+                return (
+                  <div key={stat.id} className={`${widthClass} p-4 sm:p-5 text-center border border-border/50 rounded-lg hover:border-primary/30 hover:bg-primary/5 transition-colors`}>
+                    <p className="text-2xl sm:text-3xl font-bold text-primary break-words">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{stat.label}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
