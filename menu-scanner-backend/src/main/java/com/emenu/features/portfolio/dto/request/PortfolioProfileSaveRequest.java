@@ -44,7 +44,8 @@ public class PortfolioProfileSaveRequest {
     @Valid
     private List<PortfolioSocialMediaRequest> socialMedia;
 
-    private List<String> features;
+    @Valid
+    private List<PortfolioFeatureRequest> features;
 
     // Stats
     private Integer yearsInBusiness;

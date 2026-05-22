@@ -54,7 +54,7 @@ public interface PortfolioMapper {
     @Mapping(target = "team",          ignore = true)
     @Mapping(target = "customStats",   ignore = true)
     @Mapping(target = "contactPhones", ignore = true)
-    @Mapping(target = "features",      defaultExpression = "java(new java.util.ArrayList<>())")
+    @Mapping(target = "features",      ignore = true)
     @Mapping(target = "industry",      ignore = true)
     @Mapping(target = "isPublished",   ignore = true)
     void applyProfileFields(@MappingTarget PortfolioProfile profile, PortfolioProfileSaveRequest request);
@@ -70,6 +70,8 @@ public interface PortfolioMapper {
     PortfolioPublicResponse.TeamMemberDto toTeamDto(PortfolioTeamMember member);
 
     PortfolioPublicResponse.CustomStatDto toCustomStatDto(PortfolioCustomStat stat);
+
+    PortfolioPublicResponse.FeatureDto toFeatureDto(PortfolioFeature feature);
 
     PortfolioReviewAdminResponse toReviewAdminResponse(PortfolioReview review);
 
@@ -143,6 +145,19 @@ public interface PortfolioMapper {
     @Mapping(target = "deletedBy",    ignore = true)
     @Mapping(target = "displayOrder", ignore = true)
     PortfolioCustomStat toCustomStatEntity(PortfolioCustomStatRequest request);
+
+    @Mapping(target = "id",           ignore = true)
+    @Mapping(target = "profile",      ignore = true)
+    @Mapping(target = "version",      ignore = true)
+    @Mapping(target = "createdAt",    ignore = true)
+    @Mapping(target = "updatedAt",    ignore = true)
+    @Mapping(target = "createdBy",    ignore = true)
+    @Mapping(target = "updatedBy",    ignore = true)
+    @Mapping(target = "isDeleted",    ignore = true)
+    @Mapping(target = "deletedAt",    ignore = true)
+    @Mapping(target = "deletedBy",    ignore = true)
+    @Mapping(target = "displayOrder", ignore = true)
+    PortfolioFeature toFeatureEntity(PortfolioFeatureRequest request);
 
     // ── Filtered list helpers (exclude soft-deleted children) ──────────────
 
@@ -236,6 +251,24 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
+    @Named("filterAndMapFeatures")
+    default List<PortfolioPublicResponse.FeatureDto> filterAndMapFeatures(List<PortfolioFeature> features) {
+        if (features == null) return Collections.emptyList();
+        return features.stream()
+                .filter(f -> !Boolean.TRUE.equals(f.getIsDeleted()))
+                .map(this::toFeatureDto)
+                .collect(Collectors.toList());
+    }
+
+    @Named("filterAndMapFeaturesUnified")
+    default List<PortfolioResponse.FeatureDto> filterAndMapFeaturesUnified(List<PortfolioFeature> features) {
+        if (features == null) return Collections.emptyList();
+        return features.stream()
+                .filter(f -> !Boolean.TRUE.equals(f.getIsDeleted()))
+                .map(this::toFeatureDtoUnified)
+                .collect(Collectors.toList());
+    }
+
     // ── Profile → Public/Admin response ────────────────────────────────────
     // Flat profile fields are mapped to nested contact/socialMedia/stats DTOs.
     // reviewStats is computed separately by the service and set after mapping.
@@ -263,6 +296,7 @@ public interface PortfolioMapper {
     @Mapping(source = "gallery",           target = "gallery",             qualifiedByName = "filterAndMapGallery")
     @Mapping(source = "services",          target = "services",            qualifiedByName = "filterAndMapServices")
     @Mapping(source = "team",              target = "team",                qualifiedByName = "filterAndMapTeam")
+    @Mapping(source = "features",          target = "features",            qualifiedByName = "filterAndMapFeatures")
     @Mapping(target = "reviewStats",       ignore = true)
     @Mapping(target = "createdAt", expression = "java(profile.getCreatedAt() != null ? profile.getCreatedAt().toString() : null)")
     @Mapping(target = "updatedAt", expression = "java(profile.getUpdatedAt() != null ? profile.getUpdatedAt().toString() : null)")
@@ -288,6 +322,7 @@ public interface PortfolioMapper {
     @Mapping(source = "gallery",           target = "gallery",             qualifiedByName = "filterAndMapGalleryUnified")
     @Mapping(source = "services",          target = "services",            qualifiedByName = "filterAndMapServicesUnified")
     @Mapping(source = "team",              target = "team",                qualifiedByName = "filterAndMapTeamUnified")
+    @Mapping(source = "features",          target = "features",            qualifiedByName = "filterAndMapFeaturesUnified")
     @Mapping(target = "reviewStats",       ignore = true)
     @Mapping(target = "createdAt", expression = "java(profile.getCreatedAt() != null ? profile.getCreatedAt().toString() : null)")
     @Mapping(target = "updatedAt", expression = "java(profile.getUpdatedAt() != null ? profile.getUpdatedAt().toString() : null)")
@@ -304,6 +339,8 @@ public interface PortfolioMapper {
     PortfolioResponse.TeamMemberDto toTeamDtoUnified(PortfolioTeamMember member);
 
     PortfolioResponse.CustomStatDto toCustomStatDtoUnified(PortfolioCustomStat stat);
+
+    PortfolioResponse.FeatureDto toFeatureDtoUnified(PortfolioFeature feature);
 
     // ── Pagination ──────────────────────────────────────────────────────────
 

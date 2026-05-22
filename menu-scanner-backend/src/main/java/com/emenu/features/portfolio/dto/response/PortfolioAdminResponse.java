@@ -29,7 +29,7 @@ public class PortfolioAdminResponse {
     private List<PortfolioPublicResponse.GalleryItemDto> gallery;
     private List<PortfolioPublicResponse.ServiceItemDto> services;
     private List<PortfolioPublicResponse.TeamMemberDto> team;
-    private List<String> features;
+    private List<PortfolioPublicResponse.FeatureDto> features;
     private PortfolioPublicResponse.StatsDto stats;
     private ReviewStatsResponse reviewStats;
     private String createdAt;

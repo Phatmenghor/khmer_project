@@ -28,7 +28,7 @@ export interface BusinessProfile {
   gallery?: GalleryItem[];
 
 
-  features?: string[];
+  features?: FeatureInfo[];
   services?: Service[];
 
 
@@ -71,6 +71,11 @@ export interface SocialMediaInfo {
   id?: string;
   type: string;
   url: string;
+}
+
+export interface FeatureInfo {
+  id?: string;
+  name: string;
 }
 
 export interface ContactInfo {

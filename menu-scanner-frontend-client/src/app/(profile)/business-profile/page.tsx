@@ -399,10 +399,10 @@ export default function BusinessProfilePage() {
                   <div className="mt-5">
                     <p className="text-sm font-semibold text-foreground mb-3">Features &amp; Amenities</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {profile.features.map((f, i) => (
-                        <div key={i} className="flex items-center gap-2">
+                      {profile.features.map((f) => (
+                        <div key={f.id} className="flex items-center gap-2">
                           <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                          <span className="text-xs text-muted-foreground">{f}</span>
+                          <span className="text-xs text-muted-foreground">{f.name}</span>
                         </div>
                       ))}
                     </div>

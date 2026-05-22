@@ -27,7 +27,7 @@ public class PortfolioResponse {
     private List<GalleryItemDto> gallery;
     private List<ServiceItemDto> services;
     private List<TeamMemberDto> team;
-    private List<String> features;
+    private List<FeatureDto> features;
     private StatsDto stats;
     private ReviewStatsResponse reviewStats;
     private String createdAt;
@@ -127,5 +127,14 @@ public class PortfolioResponse {
         private UUID id;
         private String label;
         private String value;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FeatureDto {
+        private UUID id;
+        private String name;
     }
 }

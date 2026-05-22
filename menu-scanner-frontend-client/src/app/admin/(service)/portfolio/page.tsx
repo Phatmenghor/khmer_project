@@ -47,7 +47,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveReq
     address: contact.address || "",
     mapLink: contact.mapLink || "",
     socialMedia: Array.isArray(p.socialMedia) ? p.socialMedia : [],
-    features: p.features ?? [],
+    features: p.features?.map((f: any) => ({ id: f.id, name: f.name || f })) ?? [],
     yearsInBusiness: p.stats?.yearsInBusiness,
     customersServed: p.stats?.customersServed,
     customStats: p.stats?.customStats ?? [],
@@ -121,8 +121,6 @@ export default function PortfolioPage() {
     name: "team",
   });
 
-  const features = form.watch("features") ?? [];
-
   const { fields: customStatsFields } = useFieldArray({
     control: form.control,
     name: "customStats",
@@ -131,6 +129,11 @@ export default function PortfolioPage() {
   const { fields: socialMediaFields, append: appendSocialMedia, remove: removeSocialMedia } = useFieldArray({
     control: form.control,
     name: "socialMedia",
+  });
+
+  const { fields: featuresFields, append: appendFeature, remove: removeFeature } = useFieldArray({
+    control: form.control,
+    name: "features",
   });
 
   useAdminCleanup(() => {
@@ -436,37 +439,34 @@ export default function PortfolioPage() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => {
-                form.setValue("features", [...features, ""], { shouldDirty: true });
-              }}
+              onClick={() => appendFeature({ id: "", name: "" })}
             >
               <Plus className="w-4 h-4 mr-1" /> Add Feature
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
-            {features.map((feature, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  placeholder="Feature name..."
-                  value={feature}
-                  onChange={(e) => {
-                    const updated = [...features];
-                    updated[index] = e.target.value;
-                    form.setValue("features", updated, { shouldDirty: true });
-                  }}
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    form.setValue("features", features.filter((_, i) => i !== index), { shouldDirty: true });
-                  }}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+            {featuresFields.length > 0 ? (
+              <div className="space-y-3">
+                {featuresFields.map((field, index) => (
+                  <div key={field.id} className="flex gap-2">
+                    <Input
+                      placeholder="Feature name..."
+                      {...form.register(`features.${index}.name`)}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeFeature(index)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <p className="text-sm text-muted-foreground">No features added yet</p>
+            )}
           </CardContent>
         </Card>
 

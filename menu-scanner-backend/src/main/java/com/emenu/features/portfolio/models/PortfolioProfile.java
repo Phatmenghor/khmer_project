@@ -91,10 +91,9 @@ public class PortfolioProfile extends BaseUUIDEntity {
     private String socialWebsite;
 
     // Features
-    @ElementCollection
-    @CollectionTable(name = "portfolio_profile_features", joinColumns = @JoinColumn(name = "profile_id"))
-    @Column(name = "feature")
-    private List<String> features = new ArrayList<>();
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
+    private List<PortfolioFeature> features = new ArrayList<>();
 
     // Stats
     @Column(name = "years_in_business")
