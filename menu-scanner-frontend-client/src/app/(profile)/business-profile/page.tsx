@@ -327,13 +327,11 @@ export default function BusinessProfilePage() {
               {profile.businessName}
             </h1>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              {total > 0 && (
-                <div className="flex items-center gap-1.5">
-                  <StarRow rating={avg} size={3} />
-                  <span className="font-semibold text-foreground text-xs">{avg.toFixed(1)}</span>
-                  <span className="text-xs">({total})</span>
-                </div>
-              )}
+              <div className="flex items-center gap-1.5">
+                <StarRow rating={avg} size={3} />
+                <span className="font-semibold text-foreground text-xs">{avg.toFixed(1)}</span>
+                <span className="text-xs">({total})</span>
+              </div>
               {open && (
                 <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-200 px-1.5 h-5">
                   Open Now
