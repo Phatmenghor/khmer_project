@@ -68,7 +68,6 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", ignore = true)
     PortfolioHours toHoursEntity(PortfolioHoursRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -81,7 +80,6 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", ignore = true)
     PortfolioGalleryItem toGalleryEntity(PortfolioGalleryItemRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -94,7 +92,6 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", ignore = true)
     PortfolioServiceItem toServiceEntity(PortfolioServiceItemRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -107,7 +104,6 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", ignore = true)
     PortfolioTeamMember toTeamEntity(PortfolioTeamMemberRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -120,7 +116,6 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", ignore = true)
     PortfolioCustomStat toCustomStatEntity(PortfolioCustomStatRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -133,7 +128,6 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", ignore = true)
     PortfolioFeature toFeatureEntity(PortfolioFeatureRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -146,7 +140,6 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", ignore = true)
     PortfolioPhone toPhoneEntity(PortfolioPhoneRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -159,7 +152,6 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", ignore = true)
     PortfolioSocialMedia toSocialMediaEntity(PortfolioSocialMediaRequest request);
 
     // ── Review response ──────────────────────────────────────────────────────
@@ -262,7 +254,6 @@ public interface PortfolioMapper {
                         .id(s.getId())
                         .name(s.getName())
                         .url(s.getUrl())
-                        .displayOrder(s.getDisplayOrder())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -280,7 +271,7 @@ public interface PortfolioMapper {
     // Flat profile fields are mapped to nested contact/socialMedia/stats DTOs.
     // reviewStats is computed separately by the service and set after mapping.
     // Collections are filtered to exclude soft-deleted children, ordered by
-    // displayOrder ASC (maintained by @OrderBy on the entity relation).
+    // createdAt ASC (maintained by @OrderBy on the entity relation).
 
     @Mapping(source = "contactEmail",      target = "contact.email")
     @Mapping(source = "contactPhone",      target = "contact.phone")
