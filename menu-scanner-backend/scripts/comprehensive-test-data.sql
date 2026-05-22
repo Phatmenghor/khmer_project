@@ -1277,7 +1277,7 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO GALLERY
 -- ============================================================================
 
-INSERT INTO portfolio_gallery_item (id, profile_id, url, title, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO portfolio_gallery (id, profile_id, url, title, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT v.id::uuid, v.profile_id::uuid, v.url, v.title, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
   ('770e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Store Entrance', 1),
@@ -1288,7 +1288,7 @@ FROM (VALUES
   ('770e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Collections', 2),
   ('770e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Style Showcase', 3)
 ) AS v(id, profile_id, url, title, display_order)
-WHERE NOT EXISTS (SELECT 1 FROM portfolio_gallery_item WHERE id = v.id::uuid)
+WHERE NOT EXISTS (SELECT 1 FROM portfolio_gallery WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
