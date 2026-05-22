@@ -306,10 +306,6 @@ export default function PortfolioPage() {
                 <Label>Business Name</Label>
                 <Input placeholder="Enter business name" {...form.register("slug")} />
               </div>
-              <div className="space-y-2">
-                <Label>Industry</Label>
-                <Input placeholder="e.g., Retail, Fashion" {...form.register("industry")} />
-              </div>
             </div>
 
             <div className="space-y-2">
@@ -331,23 +327,6 @@ export default function PortfolioPage() {
                 <Label>Customers Served</Label>
                 <Input type="number" placeholder="10000" {...form.register("customersServed", { valueAsNumber: true })} />
               </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 p-4 border rounded-lg">
-              <div>
-                <p className="font-semibold text-sm">Publish Profile</p>
-                <p className="text-xs text-muted-foreground">Make this profile visible to customers</p>
-              </div>
-              <Controller
-                name="isPublished"
-                control={form.control}
-                render={({ field }) => (
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                )}
-              />
             </div>
           </CardContent>
         </Card>
