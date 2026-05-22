@@ -1,36 +1,13 @@
 
 -- ============================================================================
 -- COMPREHENSIVE MEGA TEST DATA GENERATION SCRIPT
--- Complete E-Commerce System with Orders, Stock & Portfolio Management
--- 2 Businesses, 101+ Users with Full Order History, Dynamic Portfolio Profiles
--- ============================================================================
+-- Complete E-Commerce System with Orders, Stock & 10,000 Products
+-- 2 Businesses, 101+ Users with Full Order History
 
 -- ============================================================================
--- 1. CREATE BUSINESSES
+
+
 -- ============================================================================
-
--- Business 1: Mega Store (phatmenghor20@gmail.com owner)
-INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
-  '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  'Mega Store',
-  '+855-12-345-678',
-  'megastore@example.com',
-  'Phnom Penh, Cambodia',
-  'ACTIVE', true, 0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT DO NOTHING;
-
--- Business 2: Fashion Hub (phatmenghor21@gmail.com owner)
-INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
-  '660cad56-cafd-4aba-baef-c4dcd53940d0',
-  'Fashion Hub',
-  '+855-87-654-321',
-  'fashionhub@example.com',
-  'Siem Reap, Cambodia',
-  'ACTIVE', true, 0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT DO NOTHING;
-
 -- 1. CREATE BUSINESSES
 
 -- ============================================================================
@@ -1148,12 +1125,22 @@ SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550cad56-cafd-4
 
 
 -- ============================================================================
+-- 18. PORTFOLIO FEATURE TEST DATA
+-- Full portfolio profiles for Mega Store and Fashion Hub
+-- Tables covered:
+--   portfolio_profile, portfolio_profile_phones, portfolio_profile_features,
+--   portfolio_hours, portfolio_gallery, portfolio_service_item,
+--   portfolio_team_member, portfolio_custom_stat, portfolio_review
+--
+-- Profile IDs (fixed for FK references):
+--   Mega Store   profile = aa1cad56-cafd-4aba-baef-c4dcd53940d0
+--   Fashion Hub  profile = bb1cad56-cafd-4aba-baef-c4dcd53940d0
+-- ============================================================================
+
 
 -- ============================================================================
--- 18. PORTFOLIO PROFILES WITH DYNAMIC DATA (UPDATED SCHEMA)
--- ============================================================================
 
--- Mega Store Portfolio Profile
+-- PORTFOLIO PROFILES (Updated Schema with Dynamic Data)
 INSERT INTO portfolio_profile (
   id, business_id, business_name, slug, tagline, description,
   logo_url, cover_image_url, industry,
@@ -1189,7 +1176,6 @@ VALUES (
   true, 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
--- Fashion Hub Portfolio Profile
 INSERT INTO portfolio_profile (
   id, business_id, business_name, slug, tagline, description,
   logo_url, cover_image_url, industry,
@@ -1241,6 +1227,28 @@ WHERE NOT EXISTS (SELECT 1 FROM portfolio_phone WHERE id = v.id)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
+-- PORTFOLIO FEATURES (Dynamic with IDs)
+-- ============================================================================
+
+INSERT INTO portfolio_feature (id, profile_id, name, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id, v.profile_id, v.name, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+FROM (VALUES
+  ('880e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Free Delivery on orders over $50', 1),
+  ('880e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '30-Day Easy Returns', 2),
+  ('880e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '1-Year Product Warranty', 3),
+  ('880e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '100% Authentic Products', 4),
+  ('880e8400-e29b-41d4-a716-446655440005', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '24/7 Customer Support', 5),
+  ('880e8400-e29b-41d4-a716-446655440006', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Loyalty Rewards Program', 6),
+  ('880e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Personal Styling Service', 1),
+  ('880e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Same-Day Alterations Available', 2),
+  ('880e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Exclusive Member Previews', 3),
+  ('880e8400-e29b-41d4-a716-446655440010', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Free Gift Wrapping', 4),
+  ('880e8400-e29b-41d4-a716-446655440011', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'VIP Shopping Hours', 5)
+) AS v(id, profile_id, name, display_order)
+WHERE NOT EXISTS (SELECT 1 FROM portfolio_feature WHERE id = v.id)
+ON CONFLICT DO NOTHING;
+
+-- ============================================================================
 -- PORTFOLIO BUSINESS HOURS (Dynamic with IDs)
 -- ============================================================================
 
@@ -1266,7 +1274,7 @@ WHERE NOT EXISTS (SELECT 1 FROM portfolio_hours WHERE id = v.id)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
--- PORTFOLIO GALLERY ITEMS (Dynamic with IDs)
+-- PORTFOLIO GALLERY
 -- ============================================================================
 
 INSERT INTO portfolio_gallery_item (id, profile_id, url, title, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -1284,29 +1292,7 @@ WHERE NOT EXISTS (SELECT 1 FROM portfolio_gallery_item WHERE id = v.id)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
--- PORTFOLIO FEATURES (Dynamic with IDs)
--- ============================================================================
-
-INSERT INTO portfolio_feature (id, profile_id, name, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id, v.profile_id, v.name, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
-FROM (VALUES
-  ('880e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Free Delivery on orders over $50', 1),
-  ('880e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '30-Day Easy Returns', 2),
-  ('880e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '1-Year Product Warranty', 3),
-  ('880e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '100% Authentic Products', 4),
-  ('880e8400-e29b-41d4-a716-446655440005', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '24/7 Customer Support', 5),
-  ('880e8400-e29b-41d4-a716-446655440006', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Loyalty Rewards Program', 6),
-  ('880e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Personal Styling Service', 1),
-  ('880e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Same-Day Alterations Available', 2),
-  ('880e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Exclusive Member Previews', 3),
-  ('880e8400-e29b-41d4-a716-446655440010', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Free Gift Wrapping', 4),
-  ('880e8400-e29b-41d4-a716-446655440011', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'VIP Shopping Hours', 5)
-) AS v(id, profile_id, name, display_order)
-WHERE NOT EXISTS (SELECT 1 FROM portfolio_feature WHERE id = v.id)
-ON CONFLICT DO NOTHING;
-
--- ============================================================================
--- PORTFOLIO SERVICES (Dynamic with IDs)
+-- PORTFOLIO SERVICES
 -- ============================================================================
 
 INSERT INTO portfolio_service_item (id, profile_id, name, description, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -1325,7 +1311,7 @@ WHERE NOT EXISTS (SELECT 1 FROM portfolio_service_item WHERE id = v.id)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
--- PORTFOLIO TEAM MEMBERS (Dynamic with IDs)
+-- PORTFOLIO TEAM MEMBERS
 -- ============================================================================
 
 INSERT INTO portfolio_team_member (id, profile_id, name, position, bio, photo_url, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -1342,7 +1328,7 @@ WHERE NOT EXISTS (SELECT 1 FROM portfolio_team_member WHERE id = v.id)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
--- PORTFOLIO CUSTOM STATS (All Dynamic - No Fixed Fields)
+-- PORTFOLIO CUSTOM STATISTICS (All Dynamic - No Fixed Fields)
 -- ============================================================================
 
 INSERT INTO portfolio_custom_stat (id, profile_id, label, value, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -1361,3 +1347,70 @@ FROM (VALUES
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_custom_stat WHERE id = v.id)
 ON CONFLICT DO NOTHING;
 
+-- ============================================================================
+
+SELECT '=== PORTFOLIO PROFILES ===' AS info;
+SELECT id, business_name, slug, industry, is_published, years_in_business, customers_served
+FROM portfolio_profile
+WHERE is_deleted = false
+ORDER BY created_at;
+
+SELECT '=== PORTFOLIO COUNTS PER BUSINESS ===' AS info;
+SELECT
+  pp.business_name,
+  (SELECT COUNT(*) FROM portfolio_profile_phones   WHERE profile_id = pp.id)                           AS phones,
+  (SELECT COUNT(*) FROM portfolio_profile_features WHERE profile_id = pp.id)                           AS features,
+  (SELECT COUNT(*) FROM portfolio_hours            WHERE profile_id = pp.id AND is_deleted = false)    AS hours,
+  (SELECT COUNT(*) FROM portfolio_gallery          WHERE profile_id = pp.id AND is_deleted = false)    AS gallery,
+  (SELECT COUNT(*) FROM portfolio_service_item     WHERE profile_id = pp.id AND is_deleted = false)    AS services,
+  (SELECT COUNT(*) FROM portfolio_team_member      WHERE profile_id = pp.id AND is_deleted = false)    AS team,
+  (SELECT COUNT(*) FROM portfolio_custom_stat      WHERE profile_id = pp.id AND is_deleted = false)    AS custom_stats,
+  (SELECT COUNT(*) FROM portfolio_review           WHERE profile_id = pp.id AND is_deleted = false)    AS reviews
+FROM portfolio_profile pp
+WHERE pp.is_deleted = false
+ORDER BY pp.created_at;
+
+SELECT '=== PORTFOLIO REVIEW RATING DISTRIBUTION ===' AS info;
+SELECT
+  pp.business_name,
+  pr.rating,
+  COUNT(*) AS count
+FROM portfolio_review pr
+JOIN portfolio_profile pp ON pr.profile_id = pp.id
+WHERE pr.is_deleted = false
+GROUP BY pp.business_name, pr.rating
+ORDER BY pp.business_name, pr.rating DESC;
+
+-- ============================================================================
+-- COMPREHENSIVE SUMMARY
+-- ============================================================================
+-- ✅ BUSINESSES: 2
+--   ├─ Mega Store (phatmenghor20@gmail.com)
+--   └─ Fashion Hub (phatmenghor21@gmail.com)
+--
+-- ✅ PORTFOLIO PROFILES: 2
+--   ├─ Mega Store Profile
+--   │  ├─ Phones:       3
+--   │  ├─ Features:     6
+--   │  ├─ Hours:        7  (Mon–Sun, all open)
+--   │  ├─ Gallery:      8  items
+--   │  ├─ Services:     6
+--   │  ├─ Team:         5  members
+--   │  ├─ Custom Stats: 4
+--   │  └─ Reviews:      30 (~60% 5★, 20% 4★, 13% 3★, 7% 2★)
+--   │
+--   └─ Fashion Hub Profile
+--      ├─ Phones:       2
+--      ├─ Features:     5
+--      ├─ Hours:        7  (all days open)
+--      ├─ Gallery:      6  items
+--      ├─ Services:     4
+--      ├─ Team:         4  members
+--      ├─ Custom Stats: 3
+--      └─ Reviews:      15 (~60% 5★, 25% 4★, 15% 3★)
+--
+-- ✅ USERS: 150+
+-- ✅ PRODUCTS: 10,000
+-- ✅ ORDERS: 30
+-- ✅ TOTAL RECORDS: ~300,000+
+-- ============================================================================
