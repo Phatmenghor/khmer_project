@@ -36,7 +36,7 @@ function isOpenNow(profile: PortfolioPublicProfile): boolean {
   const now  = new Date();
   const days = ["SUNDAY","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
   const h    = profile.businessHours?.find((x: PortfolioHoursDto) => x.day === days[now.getDay()]);
-  if (!h?.isOpen || !h.openTime || !h.closeTime) return false;
+  if (!h?.openTime || !h.closeTime) return false;
   const [oh, om] = h.openTime.split(":").map(Number);
   const [ch, cm] = h.closeTime.split(":").map(Number);
   const mins = now.getHours() * 60 + now.getMinutes();
@@ -482,9 +482,9 @@ export default function BusinessProfilePage() {
                               </Badge>
                             )}
                           </div>
-                          {h.isOpen
+                          {(h.openTime && h.closeTime)
                             ? <span className={`text-sm ${isToday ? "text-primary font-semibold" : "text-muted-foreground"}`}>
-                                {h.is24Hours ? "24 Hours" : `${formatTime(h.openTime!)} – ${formatTime(h.closeTime!)}`}
+                                {`${formatTime(h.openTime)} – ${formatTime(h.closeTime)}`}
                               </span>
                             : <span className="text-sm text-destructive font-medium">Closed</span>
                           }

@@ -25,6 +25,7 @@ import {
   PortfolioServiceItemRequest,
   PortfolioTeamMemberRequest,
   PortfolioCustomStatRequest,
+  PortfolioSocialMediaRequest,
   PortfolioAdminProfile,
 } from "@/features/portfolio/store/models/portfolio-types";
 
@@ -125,6 +126,11 @@ export default function PortfolioPage() {
   const { fields: customStatsFields } = useFieldArray({
     control: form.control,
     name: "customStats",
+  });
+
+  const { fields: socialMediaFields, append: appendSocialMedia, remove: removeSocialMedia } = useFieldArray({
+    control: form.control,
+    name: "socialMedia",
   });
 
   useAdminCleanup(() => {
@@ -379,29 +385,46 @@ export default function PortfolioPage() {
 
         {/* Social Media */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Social Media</CardTitle>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => appendSocialMedia({ id: "", type: "", url: "" })}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Social Media
+            </Button>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                { field: "socialFacebook", label: "Facebook" },
-                { field: "socialInstagram", label: "Instagram" },
-                { field: "socialTwitter", label: "Twitter" },
-                { field: "socialLinkedin", label: "LinkedIn" },
-                { field: "socialYoutube", label: "YouTube" },
-                { field: "socialTiktok", label: "TikTok" },
-              ].map(({ field, label }) => (
-                <div key={field} className="space-y-2">
-                  <Label>{label}</Label>
-                  <Input placeholder={`https://${label.toLowerCase()}.com/...`} {...form.register(field as any)} />
-                </div>
-              ))}
-              <div className="space-y-2">
-                <Label>Website</Label>
-                <Input placeholder="https://yourwebsite.com" {...form.register("socialWebsite")} />
+          <CardContent className="space-y-4">
+            {socialMediaFields.length > 0 ? (
+              <div className="space-y-4">
+                {socialMediaFields.map((field, index) => (
+                  <div key={field.id} className="flex gap-3 p-4 border rounded-lg">
+                    <Input
+                      placeholder="Type (facebook, instagram, twitter, youtube, etc.)"
+                      {...form.register(`socialMedia.${index}.type`)}
+                      className="flex-1"
+                    />
+                    <Input
+                      placeholder="https://..."
+                      {...form.register(`socialMedia.${index}.url`)}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => removeSocialMedia(index)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
-            </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No social media links added yet</p>
+            )}
           </CardContent>
         </Card>
 
