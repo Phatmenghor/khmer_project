@@ -64,7 +64,6 @@ public class PortfolioResponse {
         private UUID id;
         private String name;
         private String url;
-        private Integer displayOrder;
     }
 
     @Data
@@ -89,7 +88,6 @@ public class PortfolioResponse {
         private String url;
         private String title;
         private String description;
-        private Integer displayOrder;
     }
 
     @Data
@@ -100,7 +98,6 @@ public class PortfolioResponse {
         private UUID id;
         private String name;
         private String description;
-        private Integer displayOrder;
     }
 
     @Data
@@ -113,7 +110,6 @@ public class PortfolioResponse {
         private String position;
         private String bio;
         private String photoUrl;
-        private Integer displayOrder;
     }
 
     @Data
@@ -124,7 +120,6 @@ public class PortfolioResponse {
         private UUID id;
         private String label;
         private String value;
-        private Integer displayOrder;
     }
 
     @Data
@@ -134,6 +129,5 @@ public class PortfolioResponse {
     public static class FeatureDto {
         private UUID id;
         private String name;
-        private Integer displayOrder;
     }
 }

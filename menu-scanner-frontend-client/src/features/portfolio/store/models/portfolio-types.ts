@@ -17,7 +17,6 @@ export interface PortfolioSocialMediaItemDto {
   id: string;
   name: string;
   url: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioHoursDto {
@@ -34,14 +33,12 @@ export interface PortfolioGalleryItemDto {
   url: string;
   title?: string;
   description?: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioServiceItemDto {
   id: string;
   name: string;
   description: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioTeamMemberDto {
@@ -50,7 +47,6 @@ export interface PortfolioTeamMemberDto {
   position: string;
   bio?: string;
   photoUrl?: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioCustomStatDto {
@@ -62,7 +58,6 @@ export interface PortfolioCustomStatDto {
 export interface PortfolioFeatureDto {
   id: string;
   name: string;
-  displayOrder?: number;
 }
 
 
