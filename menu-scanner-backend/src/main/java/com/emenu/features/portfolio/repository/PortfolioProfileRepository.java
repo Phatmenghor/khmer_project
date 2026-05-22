@@ -11,10 +11,4 @@ import java.util.UUID;
 public interface PortfolioProfileRepository extends JpaRepository<PortfolioProfile, UUID> {
 
     Optional<PortfolioProfile> findByBusinessIdAndIsDeletedFalse(UUID businessId);
-
-    Optional<PortfolioProfile> findBySlugAndIsDeletedFalse(String slug);
-
-    boolean existsBySlugAndIsDeletedFalse(String slug);
-
-    boolean existsBySlugAndBusinessIdNotAndIsDeletedFalse(String slug, UUID businessId);
 }
