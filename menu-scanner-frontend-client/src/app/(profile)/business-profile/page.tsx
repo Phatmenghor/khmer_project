@@ -352,26 +352,14 @@ export default function BusinessProfilePage() {
       </section>
 
       {/* ── Stats bar ────────────────────────────────────────────────── */}
-      {profile.stats && (
+      {profile.stats && Array.isArray(profile.stats) && profile.stats.length > 0 && (
         <div className="bg-card border-b border-border">
           <div className="container mx-auto px-4 max-w-6xl">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 divide-x divide-border">
-              {profile.stats.yearsInBusiness && (
-                <div className="py-4 px-3 sm:px-4 text-center">
-                  <p className="text-xl sm:text-2xl font-bold text-primary break-words">{profile.stats.yearsInBusiness}+</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">Years</p>
-                </div>
-              )}
-              {profile.stats.customersServed && (
-                <div className="py-4 px-3 sm:px-4 text-center">
-                  <p className="text-xl sm:text-2xl font-bold text-primary break-words">{(profile.stats.customersServed / 1000).toFixed(0)}k+</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">Customers</p>
-                </div>
-              )}
-              {profile.stats.customStats?.map((s, i) => (
-                <div key={i} className="py-4 px-3 sm:px-4 text-center">
-                  <p className="text-xl sm:text-2xl font-bold text-primary break-words">{s.value}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{s.label}</p>
+              {profile.stats.map((stat) => (
+                <div key={stat.id} className="py-4 px-3 sm:px-4 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-primary break-words">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{stat.label}</p>
                 </div>
               ))}
             </div>
