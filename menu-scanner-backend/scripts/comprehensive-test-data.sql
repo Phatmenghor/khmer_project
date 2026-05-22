@@ -1182,6 +1182,164 @@ SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550cad56-cafd-4
 
 
 -- ============================================================================
+-- 7. USER RELATIONSHIPS (Employment, Telegram, Address, Emergency Contact, Documents, Education)
+-- ============================================================================
+
+-- USER EMPLOYMENT DATA
+INSERT INTO user_employment (id, user_id, employee_id, position, department, employment_type, join_date, shift, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  u.id,
+  'EMP-' || SUBSTRING(u.id::text, 1, 8),
+  CASE
+    WHEN u.user_identifier LIKE '%phatmenghor20%' THEN 'Business Owner'
+    WHEN u.user_identifier LIKE '%phatmenghor21%' THEN 'Business Owner'
+    WHEN u.user_identifier LIKE '%admin%' THEN 'Administrator'
+    WHEN u.user_identifier LIKE '%manager%' THEN 'Store Manager'
+    WHEN u.user_identifier LIKE '%staff%' THEN 'Sales Associate'
+    ELSE 'Employee'
+  END,
+  CASE
+    WHEN u.user_identifier LIKE '%phatmenghor20%' THEN 'Management'
+    WHEN u.user_identifier LIKE '%phatmenghor21%' THEN 'Management'
+    WHEN u.user_identifier LIKE '%admin%' THEN 'Administration'
+    WHEN u.user_identifier LIKE '%manager%' THEN 'Operations'
+    ELSE 'Sales'
+  END,
+  CASE WHEN u.user_identifier LIKE '%phatmenghor%' THEN 'PERMANENT'::text ELSE 'FULL_TIME'::text END,
+  CASE
+    WHEN u.user_identifier LIKE '%phatmenghor20%' THEN '2016-01-01'::date
+    WHEN u.user_identifier LIKE '%phatmenghor21%' THEN '2018-06-15'::date
+    WHEN u.user_identifier LIKE '%admin%' THEN '2020-01-10'::date
+    WHEN u.user_identifier LIKE '%manager%' THEN '2019-03-20'::date
+    ELSE '2023-01-15'::date
+  END,
+  'Morning Shift',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u
+WHERE NOT EXISTS (SELECT 1 FROM user_employment WHERE user_id = u.id);
+
+-- USER TELEGRAM DATA
+INSERT INTO user_telegram (id, user_id, telegram_id, telegram_username, telegram_first_name, telegram_last_name, telegram_photo_url, telegram_synced_at, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  u.id,
+  (987654320 + ROW_NUMBER() OVER (ORDER BY u.id))::bigint,
+  REPLACE(SPLIT_PART(u.user_identifier, '@', 1), '.', '_'),
+  SPLIT_PART(u.user_identifier, '@', 1),
+  'Cambodian',
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  NOW(),
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u
+WHERE NOT EXISTS (SELECT 1 FROM user_telegram WHERE user_id = u.id)
+  AND u.user_type IN ('BUSINESS_USER', 'CUSTOMER');
+
+-- USER ADDRESSES (Home and Work)
+INSERT INTO user_addresses (id, user_id, address_type, house_no, street, village, commune, district, province, country, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  u.id,
+  'HOME'::text,
+  '123',
+  'Street 271',
+  'Toul Kork',
+  'Toul Kork',
+  'Chamkarmon',
+  'Phnom Penh',
+  'Cambodia',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u
+WHERE NOT EXISTS (SELECT 1 FROM user_addresses WHERE user_id = u.id AND address_type = 'HOME');
+
+INSERT INTO user_addresses (id, user_id, address_type, house_no, street, village, commune, district, province, country, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  u.id,
+  'WORK'::text,
+  '456',
+  'Business Street',
+  'Business Village',
+  'Business Commune',
+  'Business District',
+  'Phnom Penh',
+  'Cambodia',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u
+WHERE NOT EXISTS (SELECT 1 FROM user_addresses WHERE user_id = u.id AND address_type = 'WORK')
+  AND u.user_type = 'BUSINESS_USER';
+
+-- USER EMERGENCY CONTACTS
+INSERT INTO user_emergency_contacts (id, user_id, name, phone, relationship, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  u.id,
+  'Family Member',
+  '+855-97-' || LPAD((987654 + ROW_NUMBER() OVER (ORDER BY u.id))::text, 6, '0'),
+  'Family',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u
+WHERE NOT EXISTS (SELECT 1 FROM user_emergency_contacts WHERE user_id = u.id);
+
+-- USER DOCUMENTS (ID Card, Passport)
+INSERT INTO user_documents (id, user_id, type, number, file_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  u.id,
+  'NATIONAL_ID'::text,
+  '120000000' || LPAD((ROW_NUMBER() OVER (ORDER BY u.id))::text, 6, '0'),
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u
+WHERE NOT EXISTS (SELECT 1 FROM user_documents WHERE user_id = u.id AND type = 'NATIONAL_ID');
+
+INSERT INTO user_documents (id, user_id, type, number, file_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  u.id,
+  'PASSPORT'::text,
+  'C' || LPAD((ROW_NUMBER() OVER (ORDER BY u.id))::text, 7, '0'),
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u
+WHERE NOT EXISTS (SELECT 1 FROM user_documents WHERE user_id = u.id AND type = 'PASSPORT');
+
+-- USER EDUCATION
+INSERT INTO user_education (id, user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  u.id,
+  'BACHELOR'::text,
+  'Royal University of Phnom Penh',
+  CASE
+    WHEN u.user_identifier LIKE '%admin%' THEN 'Computer Science'
+    WHEN u.user_identifier LIKE '%manager%' THEN 'Business Management'
+    ELSE 'Commerce'
+  END,
+  '2010',
+  '2014',
+  true,
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u
+WHERE NOT EXISTS (SELECT 1 FROM user_education WHERE user_id = u.id);
+
+INSERT INTO user_education (id, user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  u.id,
+  'HIGH_SCHOOL'::text,
+  'Sisowath High School',
+  'General Education',
+  '2006',
+  '2010',
+  true,
+  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u
+WHERE NOT EXISTS (SELECT 1 FROM user_education WHERE user_id = u.id AND level = 'HIGH_SCHOOL');
+
+-- ============================================================================
 
 -- PORTFOLIO PROFILES (Updated Schema with Dynamic Data)
 INSERT INTO portfolio_profile (
