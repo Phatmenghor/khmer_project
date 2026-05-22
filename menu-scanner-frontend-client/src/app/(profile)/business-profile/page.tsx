@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   MapPin, Phone, Mail, Clock, Globe,
-  Facebook, Instagram, Twitter,
   Star, Check, ExternalLink,
   Share2, QrCode, Building2, Users, Send,
   X, PenLine, CheckCircle2,
@@ -648,30 +647,12 @@ export default function BusinessProfilePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-2">
-                    {profile.socialMedia.map((social) => {
-                      const isClicked = social.name?.toLowerCase() || "";
-                      let icon = <Globe className="w-4 h-4 text-muted-foreground" />;
-                      let hoverClass = "hover:border-gray-300 hover:bg-gray-50";
-
-                      if (isClicked.includes("facebook")) {
-                        icon = <Facebook className="w-4 h-4 text-blue-600" />;
-                        hoverClass = "hover:border-blue-300 hover:bg-blue-50";
-                      } else if (isClicked.includes("instagram")) {
-                        icon = <Instagram className="w-4 h-4 text-pink-600" />;
-                        hoverClass = "hover:border-pink-300 hover:bg-pink-50";
-                      } else if (isClicked.includes("twitter") || isClicked.includes("x.com")) {
-                        icon = <Twitter className="w-4 h-4 text-sky-500" />;
-                        hoverClass = "hover:border-sky-300 hover:bg-sky-50";
-                      }
-
-                      return (
-                        <a key={social.id} href={social.url} target="_blank" rel="noopener noreferrer"
-                          className={`flex items-center gap-2 p-2.5 rounded-lg border border-border transition-colors group ${hoverClass}`}>
-                          {icon}
-                          <span className="text-xs font-medium text-muted-foreground group-hover:text-primary truncate">{social.name}</span>
-                        </a>
-                      );
-                    })}
+                    {profile.socialMedia.map((social) => (
+                      <a key={social.id} href={social.url} target="_blank" rel="noopener noreferrer"
+                        className="p-3 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-colors">
+                        <span className="text-sm font-medium text-muted-foreground hover:text-primary">{social.name}</span>
+                      </a>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
