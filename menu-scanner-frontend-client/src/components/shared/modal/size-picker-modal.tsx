@@ -1,28 +1,27 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
-import { Check, Trash2 } from "lucide-react";
 import { buildCustomizationMapKey, getQuantityForCombo } from "@/utils/common/customization-utils";
 import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CustomButton } from "@/components/shared/button/custom-button";
-import { QuantitySelector } from "@/components/shared/input/quantity-selector";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
-import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel, ProductSize } from "@/features/business/store/models/response/product-response";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
+import { SizeSelector } from "./size-selector";
+import { SizeCustomization } from "./size-customization";
+import { QuantityControl } from "./quantity-control";
 
 interface SizePickerModalProps {
   product: ProductDetailResponseModel | null;
@@ -499,131 +498,32 @@ export function SizePickerModal({
 
           {}
           {activeSizes.length > 0 && (
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2 text-sm">Choose Size</h4>
-              <div className="flex flex-wrap gap-2">
-                {activeSizes.map((size) => {
-                  const isActive = selectedSize?.id === size.id;
-                  const sizeDisplayQty = getDisplayQuantity(size.id);
-                  const sizeCartQty = getQuantityForSize(size.id);
-                  const isModified = modifiedSizes.has(size.id) && sizeDisplayQty !== sizeCartQty;
-
-                  return (
-                    <button
-                      key={size.id}
-                      onClick={() => setSelectedSize(size)}
-                      className={cn(
-                        "relative border-2 rounded-lg px-3 py-2 transition-all cursor-pointer hover:border-primary",
-                        isActive
-                          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                          : "border-border",
-                        isModified && "ring-2 ring-amber-400/50"
-                      )}
-                    >
-                      <div className="font-semibold text-xs">{size.name}</div>
-                      <div className="text-primary font-bold text-sm">
-                        {formatCurrency(size.finalPrice)}
-                      </div>
-                      {size.hasPromotion && (
-                        <div className="text-xs text-muted-foreground line-through">
-                          {formatCurrency(size.price)}
-                        </div>
-                      )}
-                      {isActive && (
-                        <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
-                          <Check className="h-2.5 w-2.5" />
-                        </div>
-                      )}
-                      {}
-                      {sizeDisplayQty > 0 && (
-                        <div
-                          className={cn(
-                            "absolute -top-1.5 -left-1.5 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold",
-                            isModified ? "bg-amber-500" : "bg-green-500"
-                          )}
-                        >
-                          {sizeDisplayQty}
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <SizeSelector
+              sizes={activeSizes}
+              selectedSize={selectedSize}
+              onSizeSelect={setSelectedSize}
+              getDisplayQuantity={getDisplayQuantity}
+              getQuantityForSize={getQuantityForSize}
+              modifiedSizes={modifiedSizes}
+            />
           )}
 
           {}
-          <div className="mb-4 p-3 bg-muted/30 rounded-lg border">
-            <h4 className="font-semibold mb-3 text-sm">Quantity</h4>
-            <div className="flex items-center gap-2">
-              <QuantitySelector
-                value={quantity}
-                onChange={handleQuantityChange}
-                min={0}
-                size="sm"
-              />
-              {}
-              {(currentQuantity > 0 || getQuantityForSize(selectedSize?.id || "") > 0) && (
-                <CustomButton
-                  variant="outline"
-                  size="sm"
-                  className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors"
-                  onClick={handleClearSize}
-                  title="Remove this size and customizations from cart"
-                >
-                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-                  Clear
-                </CustomButton>
-              )}
-            </div>
-          </div>
+          <QuantityControl
+            quantity={quantity}
+            currentQuantity={currentQuantity}
+            selectedSizeQuantity={getQuantityForSize(selectedSize?.id || "")}
+            onQuantityChange={handleQuantityChange}
+            onClear={handleClearSize}
+          />
 
           {}
           {product?.customizations && product.customizations.length > 0 && (
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-3">
-                <h4 className="font-semibold text-sm text-green-600">Add-ons</h4>
-                {selectedSizeCustoms.size > 0 && (
-                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-300">
-                    {selectedSizeCustoms.size} selected
-                  </Badge>
-                )}
-              </div>
-              <div className="space-y-2">
-                {product.customizations.map((customization) => {
-                  const isSelected = selectedSizeCustoms.has(customization.id);
-                  const priceAdjustment = customization.priceAdjustment || 0;
-                  return (
-                    <button
-                      key={customization.id}
-                      onClick={() => toggleCustomization(customization.id)}
-                      className={cn(
-                        "w-full flex items-center justify-between rounded-lg px-3 py-2.5 transition-all cursor-pointer text-left border",
-                        isSelected
-                          ? "bg-green-50 border-green-300"
-                          : "border-border hover:border-green-300 hover:bg-green-50/30"
-                      )}
-                    >
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm text-foreground">
-                          {customization.name}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 ml-2">
-                        <span className="text-sm font-semibold text-green-600">
-                          +{formatCurrency(priceAdjustment)}
-                        </span>
-                        {isSelected && (
-                          <div className="bg-green-500 text-white rounded-full p-0.5 flex-shrink-0">
-                            <Check className="h-3 w-3" />
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <SizeCustomization
+              product={product}
+              selectedSizeCustoms={selectedSizeCustoms}
+              onToggleCustomization={toggleCustomization}
+            />
           )}
 
           {}
