@@ -12,6 +12,8 @@ import { Switch } from "@/components/ui/switch";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
+import { TextField } from "@/components/shared/form-field/text-field";
+import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { useAppDispatch } from "@/store";
 import { usePortfolioProfileState } from "@/features/portfolio/store/state/portfolio-profile-state";
@@ -292,25 +294,38 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Business Name</Label>
-                <Input placeholder="Enter business name" {...form.register("slug")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Industry</Label>
-                <Input placeholder="e.g., Retail, Fashion, Technology..." {...form.register("industry")} />
-              </div>
+              <TextField<PortfolioProfileSaveRequest>
+                control={form.control}
+                name="slug"
+                label="Business Name"
+                placeholder="Enter business name"
+                error={form.formState.errors.slug}
+              />
+              <TextField<PortfolioProfileSaveRequest>
+                control={form.control}
+                name="industry"
+                label="Industry"
+                placeholder="e.g., Retail, Fashion, Technology..."
+                error={form.formState.errors.industry}
+              />
             </div>
 
-            <div className="space-y-2">
-              <Label>Tagline</Label>
-              <Input placeholder="Your one-stop destination..." {...form.register("tagline")} />
-            </div>
+            <TextField<PortfolioProfileSaveRequest>
+              control={form.control}
+              name="tagline"
+              label="Tagline"
+              placeholder="Your one-stop destination..."
+              error={form.formState.errors.tagline}
+            />
 
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea placeholder="Detailed business description..." rows={5} {...form.register("description")} />
-            </div>
+            <TextareaField<PortfolioProfileSaveRequest>
+              control={form.control}
+              name="description"
+              label="Description"
+              placeholder="Detailed business description..."
+              rows={5}
+              error={form.formState.errors.description}
+            />
 
             <div className="flex items-center space-x-2">
               <Switch {...form.register("isPublished")} />
@@ -350,25 +365,38 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input type="email" placeholder="contact@business.com" {...form.register("contactEmail")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Phone</Label>
-                <Input placeholder="+1-234-567-8900" {...form.register("contactPhone")} />
-              </div>
+              <TextField<PortfolioProfileSaveRequest>
+                control={form.control}
+                name="contactEmail"
+                label="Email"
+                type="email"
+                placeholder="contact@business.com"
+                error={form.formState.errors.contactEmail}
+              />
+              <TextField<PortfolioProfileSaveRequest>
+                control={form.control}
+                name="contactPhone"
+                label="Phone"
+                placeholder="+1-234-567-8900"
+                error={form.formState.errors.contactPhone}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>WhatsApp</Label>
-                <Input placeholder="+1-234-567-8900" {...form.register("contactWhatsapp")} />
-              </div>
-              <div className="space-y-2">
-                <Label>Telegram</Label>
-                <Input placeholder="https://t.me/..." {...form.register("contactTelegram")} />
-              </div>
+              <TextField<PortfolioProfileSaveRequest>
+                control={form.control}
+                name="contactWhatsapp"
+                label="WhatsApp"
+                placeholder="+1-234-567-8900"
+                error={form.formState.errors.contactWhatsapp}
+              />
+              <TextField<PortfolioProfileSaveRequest>
+                control={form.control}
+                name="contactTelegram"
+                label="Telegram"
+                placeholder="https://t.me/..."
+                error={form.formState.errors.contactTelegram}
+              />
             </div>
 
             {/* Additional Contact Phones */}
@@ -416,15 +444,22 @@ export default function PortfolioPage() {
             <CardTitle>Address</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label>Address</Label>
-              <Textarea placeholder="Street 271, Toul Kork, Phnom Penh, Phnom Penh, Cambodia, 12000" rows={3} {...form.register("address")} />
-            </div>
+            <TextareaField<PortfolioProfileSaveRequest>
+              control={form.control}
+              name="address"
+              label="Address"
+              placeholder="Street 271, Toul Kork, Phnom Penh, Phnom Penh, Cambodia, 12000"
+              rows={3}
+              error={form.formState.errors.address}
+            />
 
-            <div className="space-y-2">
-              <Label>Map Link</Label>
-              <Input placeholder="https://maps.google.com/..." {...form.register("mapLink")} />
-            </div>
+            <TextField<PortfolioProfileSaveRequest>
+              control={form.control}
+              name="mapLink"
+              label="Map Link"
+              placeholder="https://maps.google.com/..."
+              error={form.formState.errors.mapLink}
+            />
           </CardContent>
         </Card>
 
