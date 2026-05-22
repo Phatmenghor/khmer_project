@@ -47,11 +47,7 @@ public class PortfolioProfileSaveRequest {
     @Valid
     private List<PortfolioFeatureRequest> features;
 
-    // Stats
-    private Integer yearsInBusiness;
-
-    private Long customersServed;
-
+    // Stats (all dynamic)
     @Valid
     private List<PortfolioCustomStatRequest> customStats;
 

@@ -30,7 +30,7 @@ public class PortfolioPublicResponse {
     private List<ServiceItemDto> services;
     private List<TeamMemberDto> team;
     private List<FeatureDto> features;
-    private StatsDto stats;
+    private List<CustomStatDto> stats;
     private ReviewStatsResponse reviewStats;
     private String createdAt;
     private String updatedAt;
@@ -113,17 +113,8 @@ public class PortfolioPublicResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class StatsDto {
-        private Integer yearsInBusiness;
-        private Long customersServed;
-        private List<CustomStatDto> customStats;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class CustomStatDto {
+        private UUID id;
         private String label;
         private String value;
     }

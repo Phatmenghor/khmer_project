@@ -28,7 +28,7 @@ public class PortfolioResponse {
     private List<ServiceItemDto> services;
     private List<TeamMemberDto> team;
     private List<FeatureDto> features;
-    private StatsDto stats;
+    private List<CustomStatDto> stats;
     private ReviewStatsResponse reviewStats;
     private String createdAt;
     private String updatedAt;
@@ -107,16 +107,6 @@ public class PortfolioResponse {
         private String position;
         private String bio;
         private String photoUrl;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class StatsDto {
-        private Integer yearsInBusiness;
-        private Long customersServed;
-        private List<CustomStatDto> customStats;
     }
 
     @Data

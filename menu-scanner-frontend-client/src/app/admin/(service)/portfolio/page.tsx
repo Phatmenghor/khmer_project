@@ -48,9 +48,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveReq
     mapLink: contact.mapLink || "",
     socialMedia: Array.isArray(p.socialMedia) ? p.socialMedia : [],
     features: p.features?.map((f: any) => ({ id: f.id, name: f.name || f })) ?? [],
-    yearsInBusiness: p.stats?.yearsInBusiness,
-    customersServed: p.stats?.customersServed,
-    customStats: p.stats?.customStats ?? [],
+    customStats: (Array.isArray(p.stats) ? p.stats : p.stats?.customStats) ?? [],
     businessHours: p.businessHours?.map((h) => ({
       id: h.id,
       day: h.day,
@@ -79,8 +77,6 @@ const emptyForm = (): PortfolioProfileSaveRequest => ({
   socialMedia: [],
   features: [],
   customStats: [],
-  yearsInBusiness: undefined,
-  customersServed: undefined,
   businessHours: DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
   gallery: [],
   services: [],
@@ -299,17 +295,6 @@ export default function PortfolioPage() {
             <div className="space-y-2">
               <Label>Description</Label>
               <Textarea placeholder="Detailed business description..." rows={5} {...form.register("description")} />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Years in Business</Label>
-                <Input type="number" placeholder="8" {...form.register("yearsInBusiness", { valueAsNumber: true })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Customers Served</Label>
-                <Input type="number" placeholder="10000" {...form.register("customersServed", { valueAsNumber: true })} />
-              </div>
             </div>
           </CardContent>
         </Card>

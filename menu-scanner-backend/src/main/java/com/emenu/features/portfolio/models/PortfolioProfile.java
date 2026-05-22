@@ -95,13 +95,6 @@ public class PortfolioProfile extends BaseUUIDEntity {
     @OrderBy("displayOrder ASC")
     private List<PortfolioFeature> features = new ArrayList<>();
 
-    // Stats
-    @Column(name = "years_in_business")
-    private Integer yearsInBusiness;
-
-    @Column(name = "customers_served")
-    private Long customersServed;
-
     @Column(name = "is_published", nullable = false)
     private Boolean isPublished = false;
 

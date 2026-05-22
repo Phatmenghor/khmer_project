@@ -30,7 +30,7 @@ public class PortfolioAdminResponse {
     private List<PortfolioPublicResponse.ServiceItemDto> services;
     private List<PortfolioPublicResponse.TeamMemberDto> team;
     private List<PortfolioPublicResponse.FeatureDto> features;
-    private PortfolioPublicResponse.StatsDto stats;
+    private List<PortfolioPublicResponse.CustomStatDto> stats;
     private ReviewStatsResponse reviewStats;
     private String createdAt;
     private String updatedAt;

@@ -57,11 +57,6 @@ export interface PortfolioFeatureDto {
   name: string;
 }
 
-export interface PortfolioStatsDto {
-  yearsInBusiness?: number;
-  customersServed?: number;
-  customStats?: PortfolioCustomStatDto[];
-}
 
 export interface ReviewStatsDto {
   averageRating: number;
@@ -84,7 +79,7 @@ export interface PortfolioPublicProfile {
   services?: PortfolioServiceItemDto[];
   team?: PortfolioTeamMemberDto[];
   features?: PortfolioFeatureDto[];
-  stats?: PortfolioStatsDto;
+  stats?: PortfolioCustomStatDto[];
   reviewStats?: ReviewStatsDto;
   createdAt?: string;
   updatedAt?: string;
@@ -167,8 +162,6 @@ export interface PortfolioProfileSaveRequest {
   mapLink?: string;
   socialMedia?: PortfolioSocialMediaRequest[];
   features?: PortfolioFeatureRequest[];
-  yearsInBusiness?: number;
-  customersServed?: number;
   customStats?: PortfolioCustomStatRequest[];
   businessHours?: PortfolioHoursRequest[];
   gallery?: PortfolioGalleryItemRequest[];
