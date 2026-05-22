@@ -55,7 +55,8 @@ public interface PortfolioMapper {
     @Mapping(target = "customStats",   ignore = true)
     @Mapping(target = "contactPhones", defaultExpression = "java(new java.util.ArrayList<>())")
     @Mapping(target = "features",      defaultExpression = "java(new java.util.ArrayList<>())")
-    @Mapping(target = "isPublished",   defaultExpression = "java(Boolean.FALSE)")
+    @Mapping(target = "industry",      ignore = true)
+    @Mapping(target = "isPublished",   ignore = true)
     void applyProfileFields(@MappingTarget PortfolioProfile profile, PortfolioProfileSaveRequest request);
 
     // ── Child entity → DTO ─────────────────────────────────────────────────

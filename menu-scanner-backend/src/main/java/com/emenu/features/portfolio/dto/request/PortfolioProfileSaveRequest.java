@@ -21,8 +21,6 @@ public class PortfolioProfileSaveRequest {
 
     private String coverImageUrl;
 
-    private String industry;
-
     // Contact
     @NotBlank
     private String contactEmail;
@@ -73,8 +71,6 @@ public class PortfolioProfileSaveRequest {
 
     @Valid
     private List<PortfolioCustomStatRequest> customStats;
-
-    private Boolean isPublished = false;
 
     @Valid
     private List<PortfolioHoursRequest> businessHours;
