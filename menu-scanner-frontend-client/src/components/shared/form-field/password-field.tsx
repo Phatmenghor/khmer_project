@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Controller, FieldError, Control, FieldValues, Path } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

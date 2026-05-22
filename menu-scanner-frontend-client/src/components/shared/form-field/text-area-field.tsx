@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Controller, FieldError } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";

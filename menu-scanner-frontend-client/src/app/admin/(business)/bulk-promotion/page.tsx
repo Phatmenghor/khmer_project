@@ -75,8 +75,8 @@ import {
   resetSelectedPromotionsOptimistic,
 } from "@/features/business/store/slice/product-slice";
 import { selectSelectedProductIds } from "@/features/business/store/selectors/bulk-promotion-selector";
-import { useBulkPromotionStorageSync } from "@/hooks/useBulkPromotionStorageSync";
-import { useBulkPromotionSizesStorageSync } from "@/hooks/useBulkPromotionSizesStorageSync";
+import { useBulkPromotionStorageSync } from "@/hooks/use-bulk-promotion-storage-sync";
+import { useBulkPromotionSizesStorageSync } from "@/hooks/use-bulk-promotion-sizes-storage-sync";
 import {
   toggleSizeForProduct,
   clearAllSizeSelections,

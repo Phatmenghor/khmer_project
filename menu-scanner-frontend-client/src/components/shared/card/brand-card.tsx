@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ interface BrandCardProps {
   className?: string;
 }
 
-export function BrandCard({ brand, className }: BrandCardProps) {
+function BrandCardComponent({ brand, className }: BrandCardProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -80,3 +80,5 @@ export function BrandCard({ brand, className }: BrandCardProps) {
     </Link>
   );
 }
+
+export const BrandCard = memo(BrandCardComponent);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ interface CategoryCardProps {
 }
 
 
-export function CategoryCard({ category, className }: CategoryCardProps) {
+function CategoryCardComponent({ category, className }: CategoryCardProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -81,3 +81,5 @@ export function CategoryCard({ category, className }: CategoryCardProps) {
     </Link>
   );
 }
+
+export const CategoryCard = memo(CategoryCardComponent);

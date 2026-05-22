@@ -58,8 +58,8 @@ import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-se
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { useLocalStorageSync } from "@/hooks/useLocalStorageSync";
-import { useFilterURLSync } from "@/hooks/useFilterURLSync";
+import { useLocalStorageSync } from "@/hooks/use-local-storage-sync";
+import { useFilterURLSync } from "@/hooks/use-filter-url-sync";
 
 
 import { usePOSPageState } from "@/features/business/store/state/pos-page-state";
