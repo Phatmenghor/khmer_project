@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const portfolioFormSchema = z.object({
   slug: z.string().optional(),
-  tagline: z.string().optional(),
   description: z.string().min(1, "Description is required"),
   logoUrl: z.string().optional(),
   coverImageUrl: z.string().optional(),
@@ -47,7 +46,6 @@ export const portfolioFormSchema = z.object({
       url: z.string().min(1, "Gallery image URL is required"),
       title: z.string().optional(),
       description: z.string().optional(),
-      displayOrder: z.number().optional(),
     })
   ).optional(),
 
@@ -56,7 +54,6 @@ export const portfolioFormSchema = z.object({
       id: z.string().optional(),
       name: z.string().min(1, "Service name is required"),
       description: z.string().min(1, "Service description is required"),
-      displayOrder: z.number().optional(),
     })
   ).optional(),
 
@@ -67,7 +64,6 @@ export const portfolioFormSchema = z.object({
       position: z.string().min(1, "Position is required"),
       bio: z.string().optional(),
       photoUrl: z.string().optional(),
-      displayOrder: z.number().optional(),
     })
   ).optional(),
 

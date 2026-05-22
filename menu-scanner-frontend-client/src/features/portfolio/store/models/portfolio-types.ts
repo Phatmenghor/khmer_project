@@ -130,14 +130,12 @@ export interface PortfolioGalleryItemRequest {
   url: string;
   title?: string;
   description?: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioServiceItemRequest {
   id?: string;
   name: string;
   description: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioTeamMemberRequest {
@@ -146,7 +144,6 @@ export interface PortfolioTeamMemberRequest {
   position: string;
   bio?: string;
   photoUrl?: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioCustomStatRequest {
@@ -162,7 +159,6 @@ export interface PortfolioFeatureRequest {
 
 export interface PortfolioProfileSaveRequest {
   slug?: string;
-  tagline?: string;
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;

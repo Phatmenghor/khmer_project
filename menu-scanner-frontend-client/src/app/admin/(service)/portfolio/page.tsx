@@ -42,7 +42,6 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
   const contact = p.contact || {};
   return {
     slug: p.slug || "",
-    tagline: p.tagline || "",
     description: p.description || "",
     logoUrl: p.logoUrl || "",
     coverImageUrl: p.coverImageUrl || "",
@@ -66,7 +65,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
       isOpen: h.isOpen,
       is24Hours: h.is24Hours,
     })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00", isOpen: true, is24Hours: false })),
-    gallery: p.gallery?.map((g) => ({ id: g.id, url: g.url, title: g.title || "", description: g.description || "", displayOrder: g.displayOrder })) ?? [],
+    gallery: p.gallery?.map((g) => ({ id: g.id, url: g.url, title: g.title || "", description: g.description || "" })) ?? [],
     services: p.services?.map((s) => ({ id: s.id, name: s.name, description: s.description })) ?? [],
     team: p.team?.map((m) => ({ id: m.id, name: m.name, position: m.position, bio: m.bio || "", photoUrl: m.photoUrl || "" })) ?? [],
   };
@@ -74,7 +73,6 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
 
 const emptyForm = (): PortfolioFormData => ({
   slug: "",
-  tagline: "",
   description: "",
   logoUrl: "",
   coverImageUrl: "",
@@ -258,7 +256,6 @@ export default function PortfolioPage() {
 
       const submitData: PortfolioProfileSaveRequest = {
         slug: data.slug || "",
-        tagline: data.tagline || "",
         description: data.description || "",
         logoUrl,
         coverImageUrl,
@@ -335,14 +332,6 @@ export default function PortfolioPage() {
                 error={form.formState.errors.industry}
               />
             </div>
-
-            <TextField<PortfolioFormData>
-              control={form.control}
-              name="tagline"
-              label="Tagline"
-              placeholder="Your one-stop destination..."
-              error={form.formState.errors.tagline}
-            />
 
             <TextareaField<PortfolioFormData>
               control={form.control}
