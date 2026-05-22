@@ -45,7 +45,7 @@ public class PortfolioProfile extends BaseUUIDEntity {
     private String contactPhone;
 
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("displayOrder ASC")
+    @OrderBy("createdAt ASC")
     private List<PortfolioPhone> contactPhones = new ArrayList<>();
 
     @Column(name = "contact_whatsapp")
@@ -63,12 +63,12 @@ public class PortfolioProfile extends BaseUUIDEntity {
 
     // Social Media (Dynamic)
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("displayOrder ASC")
+    @OrderBy("createdAt ASC")
     private List<PortfolioSocialMedia> socialMedia = new ArrayList<>();
 
     // Features
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("displayOrder ASC")
+    @OrderBy("createdAt ASC")
     private List<PortfolioFeature> features = new ArrayList<>();
 
     @Column(name = "is_published", nullable = false)
@@ -76,22 +76,22 @@ public class PortfolioProfile extends BaseUUIDEntity {
 
     // Relations
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("displayOrder ASC")
+    @OrderBy("createdAt ASC")
     private List<PortfolioHours> businessHours = new ArrayList<>();
 
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("displayOrder ASC")
+    @OrderBy("createdAt ASC")
     private List<PortfolioGalleryItem> gallery = new ArrayList<>();
 
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("displayOrder ASC")
+    @OrderBy("createdAt ASC")
     private List<PortfolioServiceItem> services = new ArrayList<>();
 
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("displayOrder ASC")
+    @OrderBy("createdAt ASC")
     private List<PortfolioTeamMember> team = new ArrayList<>();
 
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("displayOrder ASC")
+    @OrderBy("createdAt ASC")
     private List<PortfolioCustomStat> customStats = new ArrayList<>();
 }

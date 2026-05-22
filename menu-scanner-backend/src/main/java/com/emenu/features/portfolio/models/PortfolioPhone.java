@@ -21,7 +21,4 @@ public class PortfolioPhone extends BaseUUIDEntity {
 
     @Column(name = "number")
     private String number;
-
-    @Column(name = "display_order")
-    private Integer displayOrder;
 }

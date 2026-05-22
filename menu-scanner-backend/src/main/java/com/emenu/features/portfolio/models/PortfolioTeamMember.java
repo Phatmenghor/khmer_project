@@ -30,7 +30,4 @@ public class PortfolioTeamMember extends BaseUUIDEntity {
 
     @Column(name = "photo_url")
     private String photoUrl;
-
-    @Column(name = "display_order")
-    private Integer displayOrder;
 }

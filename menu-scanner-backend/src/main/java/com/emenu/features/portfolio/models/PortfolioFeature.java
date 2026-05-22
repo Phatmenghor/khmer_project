@@ -21,7 +21,4 @@ public class PortfolioFeature extends BaseUUIDEntity {
 
     @Column(name = "name")
     private String name;
-
-    @Column(name = "display_order")
-    private Integer displayOrder;
 }

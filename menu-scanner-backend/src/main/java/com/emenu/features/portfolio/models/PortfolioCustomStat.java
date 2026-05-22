@@ -24,7 +24,4 @@ public class PortfolioCustomStat extends BaseUUIDEntity {
 
     @Column(name = "value")
     private String value;
-
-    @Column(name = "display_order")
-    private Integer displayOrder;
 }

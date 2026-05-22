@@ -73,10 +73,8 @@ public class PortfolioResponse {
     public static class HoursDto {
         private UUID id;
         private String day;
-        private Boolean isOpen;
         private String openTime;
         private String closeTime;
-        private Boolean is24Hours;
     }
 
     @Data

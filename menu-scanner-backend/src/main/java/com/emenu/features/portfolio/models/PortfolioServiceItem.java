@@ -24,7 +24,4 @@ public class PortfolioServiceItem extends BaseUUIDEntity {
 
     @Column(name = "description")
     private String description;
-
-    @Column(name = "display_order")
-    private Integer displayOrder;
 }

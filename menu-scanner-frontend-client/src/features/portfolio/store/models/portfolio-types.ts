@@ -22,10 +22,8 @@ export interface PortfolioSocialMediaItemDto {
 export interface PortfolioHoursDto {
   id: string;
   day: string;
-  isOpen?: boolean;
   openTime?: string;
   closeTime?: string;
-  is24Hours?: boolean;
 }
 
 export interface PortfolioGalleryItemDto {
@@ -118,10 +116,8 @@ export interface PortfolioSocialMediaRequest {
 export interface PortfolioHoursRequest {
   id?: string;
   day: string;
-  isOpen?: boolean;
   openTime?: string;
   closeTime?: string;
-  is24Hours?: boolean;
 }
 
 export interface PortfolioGalleryItemRequest {

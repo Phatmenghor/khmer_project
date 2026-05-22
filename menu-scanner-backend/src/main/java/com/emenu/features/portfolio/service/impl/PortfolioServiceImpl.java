@@ -143,7 +143,6 @@ public class PortfolioServiceImpl implements PortfolioService {
             for (int i = 0; i < request.getContactPhones().size(); i++) {
                 PortfolioPhone phone = portfolioMapper.toPhoneEntity(request.getContactPhones().get(i));
                 phone.setProfile(savedProfile);
-                phone.setDisplayOrder(i + 1);
                 savedProfile.getContactPhones().add(phone);
             }
         }
@@ -153,7 +152,6 @@ public class PortfolioServiceImpl implements PortfolioService {
             for (int i = 0; i < request.getFeatures().size(); i++) {
                 PortfolioFeature feature = portfolioMapper.toFeatureEntity(request.getFeatures().get(i));
                 feature.setProfile(savedProfile);
-                feature.setDisplayOrder(i + 1);
                 savedProfile.getFeatures().add(feature);
             }
         }
@@ -163,7 +161,6 @@ public class PortfolioServiceImpl implements PortfolioService {
             for (int i = 0; i < request.getSocialMedia().size(); i++) {
                 PortfolioSocialMedia socialMedia = portfolioMapper.toSocialMediaEntity(request.getSocialMedia().get(i));
                 socialMedia.setProfile(savedProfile);
-                socialMedia.setDisplayOrder(i + 1);
                 savedProfile.getSocialMedia().add(socialMedia);
             }
         }
@@ -173,7 +170,6 @@ public class PortfolioServiceImpl implements PortfolioService {
             for (int i = 0; i < request.getBusinessHours().size(); i++) {
                 PortfolioHours hours = portfolioMapper.toHoursEntity(request.getBusinessHours().get(i));
                 hours.setProfile(savedProfile);
-                hours.setDisplayOrder(i + 1);
                 savedProfile.getBusinessHours().add(hours);
             }
         }
@@ -183,7 +179,6 @@ public class PortfolioServiceImpl implements PortfolioService {
             for (int i = 0; i < request.getGallery().size(); i++) {
                 PortfolioGalleryItem item = portfolioMapper.toGalleryEntity(request.getGallery().get(i));
                 item.setProfile(savedProfile);
-                item.setDisplayOrder(i + 1);
                 savedProfile.getGallery().add(item);
             }
         }
@@ -193,7 +188,6 @@ public class PortfolioServiceImpl implements PortfolioService {
             for (int i = 0; i < request.getServices().size(); i++) {
                 PortfolioServiceItem svc = portfolioMapper.toServiceEntity(request.getServices().get(i));
                 svc.setProfile(savedProfile);
-                svc.setDisplayOrder(i + 1);
                 savedProfile.getServices().add(svc);
             }
         }
@@ -203,7 +197,6 @@ public class PortfolioServiceImpl implements PortfolioService {
             for (int i = 0; i < request.getTeam().size(); i++) {
                 PortfolioTeamMember member = portfolioMapper.toTeamEntity(request.getTeam().get(i));
                 member.setProfile(savedProfile);
-                member.setDisplayOrder(i + 1);
                 savedProfile.getTeam().add(member);
             }
         }
@@ -213,7 +206,6 @@ public class PortfolioServiceImpl implements PortfolioService {
             for (int i = 0; i < request.getCustomStats().size(); i++) {
                 PortfolioCustomStat stat = portfolioMapper.toCustomStatEntity(request.getCustomStats().get(i));
                 stat.setProfile(savedProfile);
-                stat.setDisplayOrder(i + 1);
                 savedProfile.getCustomStats().add(stat);
             }
         }

@@ -22,18 +22,9 @@ public class PortfolioHours extends BaseUUIDEntity {
     @Column(name = "day")
     private String day;
 
-    @Column(name = "is_open")
-    private Boolean isOpen;
-
     @Column(name = "open_time")
     private String openTime;
 
     @Column(name = "close_time")
     private String closeTime;
-
-    @Column(name = "is_24_hours", nullable = false)
-    private Boolean is24Hours = false;
-
-    @Column(name = "display_order")
-    private Integer displayOrder;
 }

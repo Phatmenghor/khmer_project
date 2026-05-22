@@ -24,7 +24,4 @@ public class PortfolioSocialMedia extends BaseUUIDEntity {
 
     @Column(name = "url")
     private String url;
-
-    @Column(name = "display_order")
-    private Integer displayOrder;
 }
