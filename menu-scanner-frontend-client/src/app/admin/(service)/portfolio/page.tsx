@@ -103,27 +103,27 @@ export default function PortfolioPage() {
     defaultValues,
   });
 
-  const { fields: businessHoursFields } = useFieldArray({
+  const { fields: businessHoursFields, append: appendBusinessHours, remove: removeBusinessHours } = useFieldArray({
     control: form.control,
     name: "businessHours",
   });
 
-  const { fields: galleryFields } = useFieldArray({
+  const { fields: galleryFields, append: appendGallery, remove: removeGallery } = useFieldArray({
     control: form.control,
     name: "gallery",
   });
 
-  const { fields: servicesFields } = useFieldArray({
+  const { fields: servicesFields, append: appendService, remove: removeService } = useFieldArray({
     control: form.control,
     name: "services",
   });
 
-  const { fields: teamFields } = useFieldArray({
+  const { fields: teamFields, append: appendTeam, remove: removeTeam } = useFieldArray({
     control: form.control,
     name: "team",
   });
 
-  const { fields: customStatsFields } = useFieldArray({
+  const { fields: customStatsFields, append: appendCustomStat, remove: removeCustomStat } = useFieldArray({
     control: form.control,
     name: "customStats",
   });
