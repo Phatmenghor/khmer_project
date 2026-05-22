@@ -561,10 +561,7 @@ export default function PortfolioPage() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => {
-                const gallery = form.getValues("gallery");
-                form.setValue("gallery", [...gallery, { url: "", title: "" }], { shouldDirty: true });
-              }}
+              onClick={() => appendGallery({ id: "", url: "", title: "", description: "" })}
             >
               <Plus className="w-4 h-4 mr-1" /> Add Image
             </Button>
@@ -578,10 +575,7 @@ export default function PortfolioPage() {
                     type="button"
                     size="sm"
                     variant="ghost"
-                    onClick={() => {
-                      const gallery = form.getValues("gallery");
-                      form.setValue("gallery", gallery.filter((_, i) => i !== index), { shouldDirty: true });
-                    }}
+                    onClick={() => removeGallery(index)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -627,10 +621,7 @@ export default function PortfolioPage() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => {
-                const services = form.getValues("services");
-                form.setValue("services", [...services, { name: "", description: "" }], { shouldDirty: true });
-              }}
+              onClick={() => appendService({ id: "", name: "", description: "" })}
             >
               <Plus className="w-4 h-4 mr-1" /> Add Service
             </Button>
@@ -644,10 +635,7 @@ export default function PortfolioPage() {
                     type="button"
                     size="sm"
                     variant="ghost"
-                    onClick={() => {
-                      const services = form.getValues("services");
-                      form.setValue("services", services.filter((_, i) => i !== index), { shouldDirty: true });
-                    }}
+                    onClick={() => removeService(index)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -694,10 +682,7 @@ export default function PortfolioPage() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => {
-                const team = form.getValues("team");
-                form.setValue("team", [...team, { name: "", position: "", bio: "", photoUrl: "" }], { shouldDirty: true });
-              }}
+              onClick={() => appendTeam({ id: "", name: "", position: "", bio: "", photoUrl: "" })}
             >
               <Plus className="w-4 h-4 mr-1" /> Add Member
             </Button>
@@ -711,10 +696,7 @@ export default function PortfolioPage() {
                     type="button"
                     size="sm"
                     variant="ghost"
-                    onClick={() => {
-                      const team = form.getValues("team");
-                      form.setValue("team", team.filter((_, i) => i !== index), { shouldDirty: true });
-                    }}
+                    onClick={() => removeTeam(index)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -790,10 +772,7 @@ export default function PortfolioPage() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => {
-                const stats = form.getValues("customStats");
-                form.setValue("customStats", [...stats, { label: "", value: "" }], { shouldDirty: true });
-              }}
+              onClick={() => appendCustomStat({ id: "", label: "", value: "" })}
             >
               <Plus className="w-4 h-4 mr-1" /> Add Stat
             </Button>
@@ -823,10 +802,7 @@ export default function PortfolioPage() {
                   type="button"
                   size="sm"
                   variant="ghost"
-                  onClick={() => {
-                    const stats = form.getValues("customStats");
-                    form.setValue("customStats", stats.filter((_, i) => i !== index), { shouldDirty: true });
-                  }}
+                  onClick={() => removeCustomStat(index)}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
