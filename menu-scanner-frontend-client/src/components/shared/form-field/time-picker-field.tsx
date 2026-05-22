@@ -1,19 +1,11 @@
 "use client";
 
-import { Controller, FieldError } from "react-hook-form";
+import { Controller } from "react-hook-form";
+import type { TimePickerFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
 
-interface TimePickerFieldProps {
-  name: string;
-  label: string;
-  control: any;
-  error?: FieldError;
-  disabled?: boolean;
-  required?: boolean;
-  placeholder?: string;
-  className?: string;
-}
+type TimePickerFieldProps = TimePickerFormFieldProps;
 
 export function TimePickerField({
   name,

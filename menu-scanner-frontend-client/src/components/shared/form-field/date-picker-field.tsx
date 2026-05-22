@@ -3,25 +3,14 @@
 import React from "react";
 import {
   Controller,
-  Control,
   FieldValues,
   Path,
-  FieldError,
 } from "react-hook-form";
+import { DatePickerFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
 import { CustomDateTimePicker } from "../common/custom-date-picker";
 
-interface DateTimePickerFieldProps<T extends FieldValues> {
-  name: Path<T>;
-  label: string;
-  control: Control<T>;
-  error?: FieldError;
-  disabled?: boolean;
-  required?: boolean;
-  placeholder?: string;
-  className?: string;
-  mode?: "date" | "datetime";
-}
+type DateTimePickerFieldProps<T extends FieldValues> = DatePickerFormFieldProps;
 
 export function DateTimePickerField<T extends FieldValues>({
   name,

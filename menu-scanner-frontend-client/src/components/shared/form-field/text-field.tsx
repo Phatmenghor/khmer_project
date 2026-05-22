@@ -1,34 +1,11 @@
 "use client";
 
-import { Controller, FieldError } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { TextFormFieldProps } from "./form-field-types";
 
-interface TextFieldProps {
-  name: string;
-  label: string;
-  control: any;
-  error?: FieldError;
-  disabled?: boolean;
-  required?: boolean;
-  type?:
-    | "text"
-    | "email"
-    | "tel"
-    | "password"
-    | "number"
-    | "url"
-    | "datetime-local";
-  placeholder?: string;
-  className?: string;
-  valueAsNumber?: boolean;
-  min?: number;
-  max?: number;
-  step?: number | string;
-  allowZero?: boolean;
-  pattern?: string;
-  onCustomChange?: (value: string) => void;
-}
+type TextFieldProps = TextFormFieldProps;
 
 export function TextField({
   name,

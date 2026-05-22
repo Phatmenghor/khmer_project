@@ -1,22 +1,12 @@
 "use client";
 
-import { Controller, FieldError, Control, FieldValues, Path } from "react-hook-form";
+import { Controller, FieldValues, Path } from "react-hook-form";
+import { PasswordFormFieldProps } from "./form-field-types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 
-interface PasswordFieldProps<T extends FieldValues = FieldValues> {
-  name: Path<T>;
-  label: string;
-  control: Control<T>;
-  error?: FieldError;
-  disabled?: boolean;
-  required?: boolean;
-  placeholder?: string;
-  showPassword?: boolean;
-  onTogglePassword?: () => void;
-  className?: string;
-}
+type PasswordFieldProps<T extends FieldValues = FieldValues> = PasswordFormFieldProps;
 
 export function PasswordField<T extends FieldValues = FieldValues>({
   name,
