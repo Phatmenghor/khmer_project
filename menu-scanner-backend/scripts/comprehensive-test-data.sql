@@ -1543,7 +1543,7 @@ SELECT
   '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,  -- Mega Store business
   'Customer_' || row_number,
   'customer' || row_number || '@email.com',
-  '+855-' || LPAD((ROW_NUMBER() % 999999)::text, 6, '0'),
+  '+855-' || LPAD((row_number % 999999)::text, 6, '0'),
   CASE
     WHEN rnd < 0.60 THEN 5
     WHEN rnd < 0.80 THEN 4
@@ -1588,7 +1588,7 @@ SELECT
   '660cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,  -- Fashion Hub business
   'Shopper_' || row_number,
   'shopper' || row_number || '@email.com',
-  '+855-' || LPAD((90000 + (ROW_NUMBER() % 999999))::text, 6, '0'),
+  '+855-' || LPAD((90000 + (row_number % 999999))::text, 6, '0'),
   CASE
     WHEN rnd < 0.60 THEN 5
     WHEN rnd < 0.80 THEN 4
