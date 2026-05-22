@@ -353,8 +353,8 @@ export default function BusinessProfilePage() {
                 const widthClass = itemCount === 1 ? 'w-full' : itemCount === 2 ? 'flex-1 min-w-[50%]' : `flex-1 min-w-[calc(${100/itemCount}%)]`;
 
                 return (
-                  <div key={stat.id} className={`${widthClass} p-4 sm:p-5 text-center hover:bg-primary/5 transition-colors`}>
-                    <p className="text-2xl sm:text-3xl font-bold text-primary break-words">{stat.value}</p>
+                  <div key={stat.id} className={`${widthClass} p-4 sm:p-5 text-center`}>
+                    <p className="text-2xl sm:text-3xl font-bold text-muted-foreground break-words">{stat.value}</p>
                     <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{stat.label}</p>
                   </div>
                 );
