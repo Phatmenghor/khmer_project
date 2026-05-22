@@ -15,9 +15,7 @@ import java.util.UUID;
 public class PortfolioResponse {
 
     private UUID id;
-    private String slug;
     private String businessName;
-    private String tagline;
     private String description;
     private String logoUrl;
     private String coverImageUrl;

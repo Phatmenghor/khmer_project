@@ -8,6 +8,7 @@ import com.emenu.shared.mapper.PaginationMapper;
 import org.mapstruct.*;
 import org.springframework.data.domain.Page;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,6 +93,19 @@ public interface PortfolioMapper {
                 .filter(p -> !Boolean.TRUE.equals(p.getIsDeleted()))
                 .map(this::toPhoneDto)
                 .collect(Collectors.toList());
+    }
+
+    default PortfolioPublicResponse.SocialMediaDto buildSocialMediaDto(String facebook, String instagram, String twitter,
+                                                                       String linkedin, String youtube, String tiktok, String website) {
+        return PortfolioPublicResponse.SocialMediaDto.builder()
+                .facebook(facebook)
+                .instagram(instagram)
+                .twitter(twitter)
+                .linkedin(linkedin)
+                .youtube(youtube)
+                .tiktok(tiktok)
+                .website(website)
+                .build();
     }
 
     PortfolioReviewAdminResponse toReviewAdminResponse(PortfolioReview review);
@@ -200,6 +214,7 @@ public interface PortfolioMapper {
         if (hours == null) return Collections.emptyList();
         return hours.stream()
                 .filter(h -> !Boolean.TRUE.equals(h.getIsDeleted()))
+                .filter(h -> h.getOpenTime() != null && h.getCloseTime() != null)
                 .map(this::toHoursDto)
                 .collect(Collectors.toList());
     }
@@ -209,6 +224,7 @@ public interface PortfolioMapper {
         if (hours == null) return Collections.emptyList();
         return hours.stream()
                 .filter(h -> !Boolean.TRUE.equals(h.getIsDeleted()))
+                .filter(h -> h.getOpenTime() != null && h.getCloseTime() != null)
                 .map(this::toHoursDtoUnified)
                 .collect(Collectors.toList());
     }
@@ -325,13 +341,7 @@ public interface PortfolioMapper {
     @Mapping(source = "contactTelegram",   target = "contact.telegram")
     @Mapping(source = "address",           target = "contact.address")
     @Mapping(source = "mapLink",           target = "contact.mapLink")
-    @Mapping(source = "socialFacebook",    target = "socialMedia.facebook")
-    @Mapping(source = "socialInstagram",   target = "socialMedia.instagram")
-    @Mapping(source = "socialTwitter",     target = "socialMedia.twitter")
-    @Mapping(source = "socialLinkedin",    target = "socialMedia.linkedin")
-    @Mapping(source = "socialYoutube",     target = "socialMedia.youtube")
-    @Mapping(source = "socialTiktok",      target = "socialMedia.tiktok")
-    @Mapping(source = "socialWebsite",     target = "socialMedia.website")
+    @Mapping(target = "socialMedia",       ignore = true)
     @Mapping(source = "customStats",       target = "stats",               qualifiedByName = "filterAndMapStats")
     @Mapping(source = "businessHours",     target = "businessHours",      qualifiedByName = "filterAndMapHours")
     @Mapping(source = "gallery",           target = "gallery",             qualifiedByName = "filterAndMapGallery")
@@ -386,5 +396,49 @@ public interface PortfolioMapper {
     default PaginationResponse<PortfolioReviewAdminResponse> toReviewPaginationResponse(
             Page<PortfolioReview> page, PaginationMapper paginationMapper) {
         return paginationMapper.toPaginationResponse(page, this::toReviewAdminResponseList);
+    }
+
+    @AfterMapping
+    default void setSocialMediaPublic(@MappingTarget PortfolioPublicResponse response, PortfolioProfile profile) {
+        response.setSocialMedia(buildSocialMediaDto(
+                profile.getSocialFacebook(),
+                profile.getSocialInstagram(),
+                profile.getSocialTwitter(),
+                profile.getSocialLinkedin(),
+                profile.getSocialYoutube(),
+                profile.getSocialTiktok(),
+                profile.getSocialWebsite()
+        ));
+    }
+
+    @AfterMapping
+    default void setSocialMediaUnified(@MappingTarget PortfolioResponse response, PortfolioProfile profile) {
+        response.setSocialMedia(buildSocialMediaItemDtoList(profile));
+    }
+
+    default List<PortfolioResponse.SocialMediaItemDto> buildSocialMediaItemDtoList(PortfolioProfile profile) {
+        List<PortfolioResponse.SocialMediaItemDto> items = new ArrayList<>();
+        if (profile.getSocialFacebook() != null) {
+            items.add(PortfolioResponse.SocialMediaItemDto.builder().type("facebook").url(profile.getSocialFacebook()).build());
+        }
+        if (profile.getSocialInstagram() != null) {
+            items.add(PortfolioResponse.SocialMediaItemDto.builder().type("instagram").url(profile.getSocialInstagram()).build());
+        }
+        if (profile.getSocialTwitter() != null) {
+            items.add(PortfolioResponse.SocialMediaItemDto.builder().type("twitter").url(profile.getSocialTwitter()).build());
+        }
+        if (profile.getSocialLinkedin() != null) {
+            items.add(PortfolioResponse.SocialMediaItemDto.builder().type("linkedin").url(profile.getSocialLinkedin()).build());
+        }
+        if (profile.getSocialYoutube() != null) {
+            items.add(PortfolioResponse.SocialMediaItemDto.builder().type("youtube").url(profile.getSocialYoutube()).build());
+        }
+        if (profile.getSocialTiktok() != null) {
+            items.add(PortfolioResponse.SocialMediaItemDto.builder().type("tiktok").url(profile.getSocialTiktok()).build());
+        }
+        if (profile.getSocialWebsite() != null) {
+            items.add(PortfolioResponse.SocialMediaItemDto.builder().type("website").url(profile.getSocialWebsite()).build());
+        }
+        return items;
     }
 }
