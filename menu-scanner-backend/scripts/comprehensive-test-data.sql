@@ -1206,7 +1206,7 @@ SELECT
     WHEN u.user_identifier LIKE '%manager%' THEN 'Operations'
     ELSE 'Sales'
   END,
-  CASE WHEN u.user_identifier LIKE '%phatmenghor%' THEN 'PERMANENT'::text ELSE 'FULL_TIME'::text END,
+  'FULL_TIME'::text,
   CASE
     WHEN u.user_identifier LIKE '%phatmenghor20%' THEN '2016-01-01'::date
     WHEN u.user_identifier LIKE '%phatmenghor21%' THEN '2018-06-15'::date
