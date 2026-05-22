@@ -346,7 +346,6 @@ export default function PortfolioPage() {
               />
               <div>
                 <p className="font-semibold text-sm">Publish Profile</p>
-                <p className="text-xs text-muted-foreground">Make this profile visible to customers</p>
               </div>
             </div>
           </CardContent>
