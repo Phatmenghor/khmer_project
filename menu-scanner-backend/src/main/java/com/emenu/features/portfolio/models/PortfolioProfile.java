@@ -50,10 +50,9 @@ public class PortfolioProfile extends BaseUUIDEntity {
     @Column(name = "contact_phone")
     private String contactPhone;
 
-    @ElementCollection
-    @CollectionTable(name = "portfolio_profile_phones", joinColumns = @JoinColumn(name = "profile_id"))
-    @Column(name = "phone")
-    private List<String> contactPhones = new ArrayList<>();
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
+    private List<PortfolioPhone> contactPhones = new ArrayList<>();
 
     @Column(name = "contact_whatsapp")
     private String contactWhatsapp;

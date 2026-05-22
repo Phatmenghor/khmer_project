@@ -1215,14 +1215,14 @@ VALUES (
 -- PORTFOLIO CONTACT PHONES (Dynamic with IDs)
 -- ============================================================================
 
-INSERT INTO portfolio_phone (id, profile_id, number, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id, v.profile_id, v.number, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_phone (id, profile_id, number, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id, v.profile_id, v.number, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('550e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-12-345-678'),
-  ('550e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-98-765-432'),
-  ('550e8400-e29b-41d4-a716-446655440003', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-87-654-321'),
-  ('550e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-11-222-333')
-) AS v(id, profile_id, number)
+  ('550e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-12-345-678', 1),
+  ('550e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-98-765-432', 2),
+  ('550e8400-e29b-41d4-a716-446655440003', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-87-654-321', 1),
+  ('550e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-11-222-333', 2)
+) AS v(id, profile_id, number, display_order)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_phone WHERE id = v.id)
 ON CONFLICT DO NOTHING;
 
@@ -1358,8 +1358,8 @@ ORDER BY created_at;
 SELECT '=== PORTFOLIO COUNTS PER BUSINESS ===' AS info;
 SELECT
   pp.business_name,
-  (SELECT COUNT(*) FROM portfolio_profile_phones   WHERE profile_id = pp.id)                           AS phones,
-  (SELECT COUNT(*) FROM portfolio_profile_features WHERE profile_id = pp.id)                           AS features,
+  (SELECT COUNT(*) FROM portfolio_phone   WHERE profile_id = pp.id)                                  AS phones,
+  (SELECT COUNT(*) FROM portfolio_feature WHERE profile_id = pp.id AND is_deleted = false)          AS features,
   (SELECT COUNT(*) FROM portfolio_hours            WHERE profile_id = pp.id AND is_deleted = false)    AS hours,
   (SELECT COUNT(*) FROM portfolio_gallery          WHERE profile_id = pp.id AND is_deleted = false)    AS gallery,
   (SELECT COUNT(*) FROM portfolio_service_item     WHERE profile_id = pp.id AND is_deleted = false)    AS services,

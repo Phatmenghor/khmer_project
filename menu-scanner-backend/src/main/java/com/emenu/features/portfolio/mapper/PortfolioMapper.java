@@ -73,6 +73,27 @@ public interface PortfolioMapper {
 
     PortfolioPublicResponse.FeatureDto toFeatureDto(PortfolioFeature feature);
 
+    default String toPhoneString(PortfolioPhone phone) {
+        return phone == null ? null : phone.getNumber();
+    }
+
+    default PortfolioResponse.PhoneDto toPhoneDto(PortfolioPhone phone) {
+        if (phone == null) return null;
+        return PortfolioResponse.PhoneDto.builder()
+                .id(phone.getId())
+                .number(phone.getNumber())
+                .build();
+    }
+
+    @Named("filterAndMapPhones")
+    default List<PortfolioResponse.PhoneDto> filterAndMapPhones(List<PortfolioPhone> phones) {
+        if (phones == null) return Collections.emptyList();
+        return phones.stream()
+                .filter(p -> !Boolean.TRUE.equals(p.getIsDeleted()))
+                .map(this::toPhoneDto)
+                .collect(Collectors.toList());
+    }
+
     PortfolioReviewAdminResponse toReviewAdminResponse(PortfolioReview review);
 
     List<PortfolioReviewAdminResponse> toReviewAdminResponseList(List<PortfolioReview> reviews);
@@ -158,6 +179,19 @@ public interface PortfolioMapper {
     @Mapping(target = "deletedBy",    ignore = true)
     @Mapping(target = "displayOrder", ignore = true)
     PortfolioFeature toFeatureEntity(PortfolioFeatureRequest request);
+
+    @Mapping(target = "id",           ignore = true)
+    @Mapping(target = "profile",      ignore = true)
+    @Mapping(target = "version",      ignore = true)
+    @Mapping(target = "createdAt",    ignore = true)
+    @Mapping(target = "updatedAt",    ignore = true)
+    @Mapping(target = "createdBy",    ignore = true)
+    @Mapping(target = "updatedBy",    ignore = true)
+    @Mapping(target = "isDeleted",    ignore = true)
+    @Mapping(target = "deletedAt",    ignore = true)
+    @Mapping(target = "deletedBy",    ignore = true)
+    @Mapping(target = "displayOrder", ignore = true)
+    PortfolioPhone toPhoneEntity(PortfolioPhoneRequest request);
 
     // ── Filtered list helpers (exclude soft-deleted children) ──────────────
 
@@ -269,6 +303,15 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
+    @Named("filterPhoneNumbers")
+    default List<String> filterPhoneNumbers(List<PortfolioPhone> phones) {
+        if (phones == null) return Collections.emptyList();
+        return phones.stream()
+                .filter(p -> !Boolean.TRUE.equals(p.getIsDeleted()))
+                .map(PortfolioPhone::getNumber)
+                .collect(Collectors.toList());
+    }
+
     // ── Profile → Public/Admin response ────────────────────────────────────
     // Flat profile fields are mapped to nested contact/socialMedia/stats DTOs.
     // reviewStats is computed separately by the service and set after mapping.
@@ -277,7 +320,7 @@ public interface PortfolioMapper {
 
     @Mapping(source = "contactEmail",      target = "contact.email")
     @Mapping(source = "contactPhone",      target = "contact.phone")
-    @Mapping(source = "contactPhones",     target = "contact.phones")
+    @Mapping(source = "contactPhones",     target = "contact.phones",      qualifiedByName = "filterPhoneNumbers")
     @Mapping(source = "contactWhatsapp",   target = "contact.whatsapp")
     @Mapping(source = "contactTelegram",   target = "contact.telegram")
     @Mapping(source = "address",           target = "contact.address")
@@ -307,7 +350,7 @@ public interface PortfolioMapper {
 
     @Mapping(source = "contactEmail",      target = "contact.email")
     @Mapping(source = "contactPhone",      target = "contact.phone")
-    @Mapping(target = "contact.phones",    ignore = true)
+    @Mapping(source = "contactPhones",     target = "contact.phones",      qualifiedByName = "filterAndMapPhones")
     @Mapping(source = "contactWhatsapp",   target = "contact.whatsapp")
     @Mapping(source = "contactTelegram",   target = "contact.telegram")
     @Mapping(source = "address",           target = "contact.address")
