@@ -1531,6 +1531,101 @@ WHERE NOT EXISTS (SELECT 1 FROM portfolio_custom_stat WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
+-- PORTFOLIO REVIEWS (3000 Total)
+-- ============================================================================
+
+-- Insert 3000 reviews: 1800 for Mega Store + 1200 for Fashion Hub
+-- Rating distribution: 60% 5★, 20% 4★, 13% 3★, 5% 2★, 2% 1★
+INSERT INTO portfolio_review (id, profile_id, business_id, customer_name, customer_email, customer_phone, rating, title, comment, would_recommend, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  'aa1cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,  -- Mega Store profile
+  '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,  -- Mega Store business
+  'Customer_' || row_number,
+  'customer' || row_number || '@email.com',
+  '+855-' || LPAD((ROW_NUMBER() % 999999)::text, 6, '0'),
+  CASE
+    WHEN rnd < 0.60 THEN 5
+    WHEN rnd < 0.80 THEN 4
+    WHEN rnd < 0.93 THEN 3
+    WHEN rnd < 0.98 THEN 2
+    ELSE 1
+  END as rating,
+  CASE
+    WHEN rnd < 0.60 THEN 'Excellent service and great products!'
+    WHEN rnd < 0.80 THEN 'Good quality, would visit again'
+    WHEN rnd < 0.93 THEN 'Average experience'
+    WHEN rnd < 0.98 THEN 'Below expectations'
+    ELSE 'Not satisfied'
+  END as title,
+  CASE
+    WHEN rnd < 0.60 THEN 'Amazing shopping experience. Staff is friendly and helpful. Highly recommend to everyone!'
+    WHEN rnd < 0.80 THEN 'Good variety of products. Prices are reasonable. Will come back again.'
+    WHEN rnd < 0.93 THEN 'It was okay. Some items were out of stock but overall decent.'
+    WHEN rnd < 0.98 THEN 'The service could be better. Long wait times.'
+    ELSE 'Very disappointed with the quality and service.'
+  END as comment,
+  CASE
+    WHEN rnd < 0.60 THEN true
+    WHEN rnd < 0.80 THEN true
+    WHEN rnd < 0.93 THEN false
+    WHEN rnd < 0.98 THEN false
+    ELSE false
+  END as would_recommend,
+  0, false, NOW() - INTERVAL '1 day' * (row_number % 365), NOW() - INTERVAL '1 day' * (row_number % 365), 'system', 'system'
+FROM (
+  SELECT
+    n as row_number,
+    (n::float / 1800) as rnd
+  FROM generate_series(1, 1800) n
+) data;
+
+-- Insert 1200 reviews for Fashion Hub
+INSERT INTO portfolio_review (id, profile_id, business_id, customer_name, customer_email, customer_phone, rating, title, comment, would_recommend, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  'bb1cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,  -- Fashion Hub profile
+  '660cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,  -- Fashion Hub business
+  'Shopper_' || row_number,
+  'shopper' || row_number || '@email.com',
+  '+855-' || LPAD((90000 + (ROW_NUMBER() % 999999))::text, 6, '0'),
+  CASE
+    WHEN rnd < 0.60 THEN 5
+    WHEN rnd < 0.80 THEN 4
+    WHEN rnd < 0.93 THEN 3
+    WHEN rnd < 0.98 THEN 2
+    ELSE 1
+  END as rating,
+  CASE
+    WHEN rnd < 0.60 THEN 'Beautiful collection and perfect fit!'
+    WHEN rnd < 0.80 THEN 'Nice styles, good customer service'
+    WHEN rnd < 0.93 THEN 'Decent options available'
+    WHEN rnd < 0.98 THEN 'Limited selection'
+    ELSE 'Disappointed with selection'
+  END as title,
+  CASE
+    WHEN rnd < 0.60 THEN 'Love the fashion styles! The staff gave me great styling advice. Will definitely shop here again!'
+    WHEN rnd < 0.80 THEN 'Great boutique with nice pieces. Friendly staff and good prices.'
+    WHEN rnd < 0.93 THEN 'Okay selection. Could use more modern designs.'
+    WHEN rnd < 0.98 THEN 'Not many options that suit my taste.'
+    ELSE 'Selection is too limited and prices are high.'
+  END as comment,
+  CASE
+    WHEN rnd < 0.60 THEN true
+    WHEN rnd < 0.80 THEN true
+    WHEN rnd < 0.93 THEN false
+    WHEN rnd < 0.98 THEN false
+    ELSE false
+  END as would_recommend,
+  0, false, NOW() - INTERVAL '1 day' * (row_number % 365), NOW() - INTERVAL '1 day' * (row_number % 365), 'system', 'system'
+FROM (
+  SELECT
+    n as row_number,
+    (n::float / 1200) as rnd
+  FROM generate_series(1, 1200) n
+) data;
+
+-- ============================================================================
 
 SELECT '=== PORTFOLIO PROFILES ===' AS info;
 SELECT id, business_name, slug, industry, is_published
