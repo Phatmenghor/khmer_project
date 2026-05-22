@@ -119,6 +119,15 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public PortfolioReviewAdminResponse getReviewDetail(UUID reviewId) {
+        PortfolioReview review = reviewRepository.findById(reviewId)
+                .filter(r -> !Boolean.TRUE.equals(r.getIsDeleted()))
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found: " + reviewId));
+        return portfolioMapper.toReviewAdminResponse(review);
+    }
+
+    @Override
     public void deleteReview(UUID reviewId) {
         PortfolioReview review = reviewRepository.findById(reviewId)
                 .filter(r -> !Boolean.TRUE.equals(r.getIsDeleted()))

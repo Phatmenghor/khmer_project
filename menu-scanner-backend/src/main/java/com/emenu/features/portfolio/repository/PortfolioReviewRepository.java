@@ -18,16 +18,20 @@ public interface PortfolioReviewRepository extends JpaRepository<PortfolioReview
            "WHERE r.profileId = :profileId AND r.isDeleted = false GROUP BY r.rating")
     List<Object[]> countByRatingForProfile(@Param("profileId") UUID profileId);
 
-    @Query("SELECT r FROM PortfolioReview r WHERE r.profileId = :profileId AND r.isDeleted = false " +
-           "AND (:search IS NULL OR LOWER(CAST(r.customerName AS String)) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "     OR LOWER(CAST(r.comment AS String)) LIKE LOWER(CONCAT('%', :search, '%')))")
+    @Query(value = "SELECT * FROM portfolio_review r WHERE r.profile_id = :profileId AND r.is_deleted = false " +
+           "AND (:search IS NULL OR LOWER(r.customer_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "     OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "ORDER BY r.created_at DESC",
+           nativeQuery = true)
     Page<PortfolioReview> findWithFilters(@Param("profileId") UUID profileId,
                                           @Param("search") String search,
                                           Pageable pageable);
 
-    @Query("SELECT r FROM PortfolioReview r WHERE r.businessId = :businessId AND r.isDeleted = false " +
-           "AND (:search IS NULL OR LOWER(CAST(r.customerName AS String)) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "     OR LOWER(CAST(r.comment AS String)) LIKE LOWER(CONCAT('%', :search, '%')))")
+    @Query(value = "SELECT * FROM portfolio_review r WHERE r.business_id = :businessId AND r.is_deleted = false " +
+           "AND (:search IS NULL OR LOWER(r.customer_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "     OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "ORDER BY r.created_at DESC",
+           nativeQuery = true)
     Page<PortfolioReview> findWithFiltersByBusiness(@Param("businessId") UUID businessId,
                                                      @Param("search") String search,
                                                      Pageable pageable);

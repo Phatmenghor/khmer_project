@@ -45,6 +45,12 @@ public class PortfolioController {
                 portfolioService.getReviews(filter)));
     }
 
+    @GetMapping("/reviews/{id}")
+    public ResponseEntity<ApiResponse<PortfolioReviewAdminResponse>> getReviewDetail(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success("Review found",
+                portfolioService.getReviewDetail(id)));
+    }
+
     @DeleteMapping("/reviews/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable UUID id) {
         portfolioService.deleteReview(id);

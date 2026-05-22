@@ -21,5 +21,7 @@ public interface PortfolioService {
 
     PaginationResponse<PortfolioReviewAdminResponse> getReviews(PortfolioReviewFilterRequest filter);
 
+    PortfolioReviewAdminResponse getReviewDetail(UUID reviewId);
+
     void deleteReview(UUID reviewId);
 }
