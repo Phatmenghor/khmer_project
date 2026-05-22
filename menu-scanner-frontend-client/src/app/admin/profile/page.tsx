@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -25,6 +25,7 @@ import { SelectField } from "@/components/shared/form-field/select-field";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { useAppDispatch, useAppSelector } from "@/store";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 import {
   getProfileService,
   updateProfileService,
@@ -72,6 +73,7 @@ import {
 export default function AdminProfilePage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { accessToken } = useAuthState();
 
   const userProfile = useAppSelector(selectProfile);
   const isProfileLoading = useAppSelector(selectIsProfileLoading);
@@ -163,11 +165,13 @@ export default function AdminProfilePage() {
   });
 
 
+  const profileFetchedRef = useRef(false);
   useEffect(() => {
-    if (!userProfile && !isProfileLoading) {
+    if (accessToken && !userProfile && !isProfileLoading && !profileFetchedRef.current) {
+      profileFetchedRef.current = true;
       dispatch(getProfileService());
     }
-  }, [dispatch, userProfile, isProfileLoading]);
+  }, [accessToken, dispatch, userProfile, isProfileLoading]);
 
 
   useEffect(() => {
