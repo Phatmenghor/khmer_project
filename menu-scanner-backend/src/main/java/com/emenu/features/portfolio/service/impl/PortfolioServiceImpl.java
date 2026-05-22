@@ -139,9 +139,9 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private void rebuildCollections(PortfolioProfile savedProfile, PortfolioProfileSaveRequest request) {
         savedProfile.getContactPhones().clear();
-        if (request.getContactPhones() != null) {
-            for (int i = 0; i < request.getContactPhones().size(); i++) {
-                PortfolioPhone phone = portfolioMapper.toPhoneEntity(request.getContactPhones().get(i));
+        if (request.getContact() != null && request.getContact().getPhones() != null) {
+            for (int i = 0; i < request.getContact().getPhones().size(); i++) {
+                PortfolioPhone phone = portfolioMapper.toPhoneEntity(request.getContact().getPhones().get(i));
                 phone.setProfile(savedProfile);
                 savedProfile.getContactPhones().add(phone);
             }

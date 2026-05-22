@@ -52,6 +52,12 @@ public interface PortfolioMapper {
     @Mapping(target = "customStats",   ignore = true)
     @Mapping(target = "contactPhones", ignore = true)
     @Mapping(target = "features",      ignore = true)
+    @Mapping(source = "contact.email",      target = "contactEmail")
+    @Mapping(source = "contact.phone",      target = "contactPhone")
+    @Mapping(source = "contact.whatsapp",   target = "contactWhatsapp")
+    @Mapping(source = "contact.telegram",   target = "contactTelegram")
+    @Mapping(source = "contact.address",    target = "address")
+    @Mapping(source = "contact.mapLink",    target = "mapLink")
     void applyProfileFields(@MappingTarget PortfolioProfile profile, PortfolioProfileSaveRequest request);
 
     // ── Request → Child entity ─────────────────────────────────────────────

@@ -16,35 +16,11 @@ public class PortfolioProfileSaveRequest {
 
     private String coverImageUrl;
 
-    // Contact
-    @NotBlank
-    private String contactEmail;
-
-    @NotBlank
-    private String contactPhone;
-
     @Valid
-    private List<PortfolioPhoneRequest> contactPhones;
+    private ContactRequest contact;
 
-    private String contactWhatsapp;
-
-    private String contactTelegram;
-
-    // Address
-    private String address;
-
-    private String mapLink;
-
-    // Social
     @Valid
     private List<PortfolioSocialMediaRequest> socialMedia;
-
-    @Valid
-    private List<PortfolioFeatureRequest> features;
-
-    // Stats (all dynamic)
-    @Valid
-    private List<PortfolioCustomStatRequest> customStats;
 
     @Valid
     private List<PortfolioHoursRequest> businessHours;
@@ -57,4 +33,22 @@ public class PortfolioProfileSaveRequest {
 
     @Valid
     private List<PortfolioTeamMemberRequest> team;
+
+    @Valid
+    private List<PortfolioFeatureRequest> features;
+
+    @Valid
+    private List<PortfolioCustomStatRequest> customStats;
+
+    @Data
+    public static class ContactRequest {
+        private String email;
+        private String phone;
+        @Valid
+        private List<PortfolioPhoneRequest> phones;
+        private String whatsapp;
+        private String telegram;
+        private String address;
+        private String mapLink;
+    }
 }

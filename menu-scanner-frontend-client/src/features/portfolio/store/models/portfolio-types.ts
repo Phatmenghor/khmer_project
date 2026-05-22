@@ -147,24 +147,28 @@ export interface PortfolioFeatureRequest {
   name: string;
 }
 
+export interface PortfolioContactRequest {
+  email?: string;
+  phone?: string;
+  phones?: PortfolioPhoneRequest[];
+  whatsapp?: string;
+  telegram?: string;
+  address?: string;
+  mapLink?: string;
+}
+
 export interface PortfolioProfileSaveRequest {
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;
-  contactEmail: string;
-  contactPhone: string;
-  contactPhones?: PortfolioPhoneRequest[];
-  contactWhatsapp?: string;
-  contactTelegram?: string;
-  address?: string;
-  mapLink?: string;
+  contact?: PortfolioContactRequest;
   socialMedia?: PortfolioSocialMediaRequest[];
-  features?: PortfolioFeatureRequest[];
-  customStats?: PortfolioCustomStatRequest[];
   businessHours?: PortfolioHoursRequest[];
   gallery?: PortfolioGalleryItemRequest[];
   services?: PortfolioServiceItemRequest[];
   team?: PortfolioTeamMemberRequest[];
+  features?: PortfolioFeatureRequest[];
+  customStats?: PortfolioCustomStatRequest[];
 }
 
 export interface PortfolioReviewSubmitRequest {

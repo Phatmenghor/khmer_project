@@ -5,18 +5,20 @@ export const portfolioFormSchema = z.object({
   logoUrl: z.string().optional(),
   coverImageUrl: z.string().optional(),
 
-  contactEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
-  contactPhone: z.string().optional(),
-  contactPhones: z.array(
-    z.object({
-      id: z.string().optional(),
-      number: z.string().min(1, "Phone number is required"),
-    })
-  ).optional(),
-  contactWhatsapp: z.string().optional(),
-  contactTelegram: z.string().optional(),
-  address: z.string().optional(),
-  mapLink: z.string().optional(),
+  contact: z.object({
+    email: z.string().email("Invalid email address").optional().or(z.literal("")),
+    phone: z.string().optional(),
+    phones: z.array(
+      z.object({
+        id: z.string().optional(),
+        number: z.string().min(1, "Phone number is required"),
+      })
+    ).optional(),
+    whatsapp: z.string().optional(),
+    telegram: z.string().optional(),
+    address: z.string().optional(),
+    mapLink: z.string().optional(),
+  }).optional(),
 
   socialMedia: z.array(
     z.object({
