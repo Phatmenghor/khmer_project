@@ -142,7 +142,7 @@ export default function PortfolioPage() {
 
   const { fields: contactPhonesFields, append: appendContactPhone, remove: removeContactPhone } = useFieldArray({
     control: form.control,
-    name: "contactPhones",
+    name: "contact.phones",
   });
 
   useAdminCleanup(() => {
@@ -355,35 +355,35 @@ export default function PortfolioPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TextField<PortfolioFormData>
                 control={form.control}
-                name="contactEmail"
+                name="contact.email"
                 label="Email"
                 type="email"
                 placeholder="contact@business.com"
-                error={form.formState.errors.contactEmail}
+                error={form.formState.errors.contact?.email}
               />
               <TextField<PortfolioFormData>
                 control={form.control}
-                name="contactPhone"
+                name="contact.phone"
                 label="Phone"
                 placeholder="+1-234-567-8900"
-                error={form.formState.errors.contactPhone}
+                error={form.formState.errors.contact?.phone}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TextField<PortfolioFormData>
                 control={form.control}
-                name="contactWhatsapp"
+                name="contact.whatsapp"
                 label="WhatsApp"
                 placeholder="+1-234-567-8900"
-                error={form.formState.errors.contactWhatsapp}
+                error={form.formState.errors.contact?.whatsapp}
               />
               <TextField<PortfolioFormData>
                 control={form.control}
-                name="contactTelegram"
+                name="contact.telegram"
                 label="Telegram"
                 placeholder="https://t.me/..."
-                error={form.formState.errors.contactTelegram}
+                error={form.formState.errors.contact?.telegram}
               />
             </div>
 
@@ -406,7 +406,7 @@ export default function PortfolioPage() {
                     <div key={field.id} className="flex gap-2">
                       <Input
                         placeholder="+1-234-567-8900"
-                        {...form.register(`contactPhones.${index}.number`)}
+                        {...form.register(`contact.phones.${index}.number`)}
                       />
                       <Button
                         type="button"
@@ -434,19 +434,19 @@ export default function PortfolioPage() {
           <CardContent className="space-y-6">
             <TextareaField<PortfolioFormData>
               control={form.control}
-              name="address"
+              name="contact.address"
               label="Address"
               placeholder="Street 271, Toul Kork, Phnom Penh, Phnom Penh, Cambodia, 12000"
               rows={3}
-              error={form.formState.errors.address}
+              error={form.formState.errors.contact?.address}
             />
 
             <TextField<PortfolioFormData>
               control={form.control}
-              name="mapLink"
+              name="contact.mapLink"
               label="Map Link"
               placeholder="https://maps.google.com/..."
-              error={form.formState.errors.mapLink}
+              error={form.formState.errors.contact?.mapLink}
             />
           </CardContent>
         </Card>

@@ -58,6 +58,14 @@ export const fetchPortfolioReviewsThunk = createApiThunk<
   }
 );
 
+export const getReviewDetailThunk = createApiThunk<PortfolioReviewAdmin, string>(
+  "portfolio/getReviewDetail",
+  async (id) => {
+    const response = await axiosClientWithAuth.get(`/api/v1/portfolio/reviews/${id}`);
+    return response.data.data;
+  }
+);
+
 export const deleteReviewThunk = createApiThunk<string, string>(
   "portfolio/deleteReview",
   async (id) => {
