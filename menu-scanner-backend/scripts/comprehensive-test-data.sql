@@ -1235,12 +1235,12 @@ FROM users u
 WHERE NOT EXISTS (SELECT 1 FROM user_telegrams WHERE user_id = u.id)
   AND u.user_type IN ('BUSINESS_USER', 'CUSTOMER');
 
--- USER ADDRESSES (Home and Work)
+-- USER ADDRESSES (Current Address)
 INSERT INTO user_addresses (id, user_id, address_type, house_no, street, village, commune, district, province, country, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   u.id,
-  'HOME'::text,
+  'CURRENT'::text,
   '123',
   'Street 271',
   'Toul Kork',
@@ -1250,24 +1250,7 @@ SELECT
   'Cambodia',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
-WHERE NOT EXISTS (SELECT 1 FROM user_addresses WHERE user_id = u.id AND address_type = 'HOME');
-
-INSERT INTO user_addresses (id, user_id, address_type, house_no, street, village, commune, district, province, country, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  u.id,
-  'WORK'::text,
-  '456',
-  'Business Street',
-  'Business Village',
-  'Business Commune',
-  'Business District',
-  'Phnom Penh',
-  'Cambodia',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM users u
-WHERE NOT EXISTS (SELECT 1 FROM user_addresses WHERE user_id = u.id AND address_type = 'WORK')
-  AND u.user_type = 'BUSINESS_USER';
+WHERE NOT EXISTS (SELECT 1 FROM user_addresses WHERE user_id = u.id AND address_type = 'CURRENT');
 
 -- USER EMERGENCY CONTACTS
 INSERT INTO user_emergency_contacts (id, user_id, name, phone, relationship, version, is_deleted, created_at, updated_at, created_by, updated_by)
