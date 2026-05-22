@@ -154,12 +154,30 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
+    @Named("filterAndMapHoursUnified")
+    default List<PortfolioResponse.HoursDto> filterAndMapHoursUnified(List<PortfolioHours> hours) {
+        if (hours == null) return Collections.emptyList();
+        return hours.stream()
+                .filter(h -> !Boolean.TRUE.equals(h.getIsDeleted()))
+                .map(this::toHoursDtoUnified)
+                .collect(Collectors.toList());
+    }
+
     @Named("filterAndMapGallery")
     default List<PortfolioPublicResponse.GalleryItemDto> filterAndMapGallery(List<PortfolioGalleryItem> items) {
         if (items == null) return Collections.emptyList();
         return items.stream()
                 .filter(g -> !Boolean.TRUE.equals(g.getIsDeleted()))
                 .map(this::toGalleryDto)
+                .collect(Collectors.toList());
+    }
+
+    @Named("filterAndMapGalleryUnified")
+    default List<PortfolioResponse.GalleryItemDto> filterAndMapGalleryUnified(List<PortfolioGalleryItem> items) {
+        if (items == null) return Collections.emptyList();
+        return items.stream()
+                .filter(g -> !Boolean.TRUE.equals(g.getIsDeleted()))
+                .map(this::toGalleryDtoUnified)
                 .collect(Collectors.toList());
     }
 
@@ -172,6 +190,15 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
+    @Named("filterAndMapServicesUnified")
+    default List<PortfolioResponse.ServiceItemDto> filterAndMapServicesUnified(List<PortfolioServiceItem> services) {
+        if (services == null) return Collections.emptyList();
+        return services.stream()
+                .filter(s -> !Boolean.TRUE.equals(s.getIsDeleted()))
+                .map(this::toServiceDtoUnified)
+                .collect(Collectors.toList());
+    }
+
     @Named("filterAndMapTeam")
     default List<PortfolioPublicResponse.TeamMemberDto> filterAndMapTeam(List<PortfolioTeamMember> team) {
         if (team == null) return Collections.emptyList();
@@ -181,12 +208,30 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
+    @Named("filterAndMapTeamUnified")
+    default List<PortfolioResponse.TeamMemberDto> filterAndMapTeamUnified(List<PortfolioTeamMember> team) {
+        if (team == null) return Collections.emptyList();
+        return team.stream()
+                .filter(m -> !Boolean.TRUE.equals(m.getIsDeleted()))
+                .map(this::toTeamDtoUnified)
+                .collect(Collectors.toList());
+    }
+
     @Named("filterAndMapStats")
     default List<PortfolioPublicResponse.CustomStatDto> filterAndMapStats(List<PortfolioCustomStat> stats) {
         if (stats == null) return Collections.emptyList();
         return stats.stream()
                 .filter(s -> !Boolean.TRUE.equals(s.getIsDeleted()))
                 .map(this::toCustomStatDto)
+                .collect(Collectors.toList());
+    }
+
+    @Named("filterAndMapStatsUnified")
+    default List<PortfolioResponse.CustomStatDto> filterAndMapStatsUnified(List<PortfolioCustomStat> stats) {
+        if (stats == null) return Collections.emptyList();
+        return stats.stream()
+                .filter(s -> !Boolean.TRUE.equals(s.getIsDeleted()))
+                .map(this::toCustomStatDtoUnified)
                 .collect(Collectors.toList());
     }
 
@@ -228,6 +273,50 @@ public interface PortfolioMapper {
 
     @InheritConfiguration(name = "toPublicResponse")
     PortfolioAdminResponse toAdminResponse(PortfolioProfile profile);
+
+    // ── Unified response (for both admin and public) ──────────────────────────
+
+    @Mapping(source = "contactEmail",      target = "contact.email")
+    @Mapping(source = "contactPhone",      target = "contact.phone")
+    @Mapping(source = "contactPhones",     target = "contact.phones")
+    @Mapping(source = "contactWhatsapp",   target = "contact.whatsapp")
+    @Mapping(source = "contactTelegram",   target = "contact.telegram")
+    @Mapping(source = "addressStreet",     target = "contact.address.street")
+    @Mapping(source = "addressCity",       target = "contact.address.city")
+    @Mapping(source = "addressState",      target = "contact.address.state")
+    @Mapping(source = "addressCountry",    target = "contact.address.country")
+    @Mapping(source = "addressPostalCode", target = "contact.address.postalCode")
+    @Mapping(source = "mapLink",           target = "contact.mapLink")
+    @Mapping(source = "socialFacebook",    target = "socialMedia.facebook")
+    @Mapping(source = "socialInstagram",   target = "socialMedia.instagram")
+    @Mapping(source = "socialTwitter",     target = "socialMedia.twitter")
+    @Mapping(source = "socialLinkedin",    target = "socialMedia.linkedin")
+    @Mapping(source = "socialYoutube",     target = "socialMedia.youtube")
+    @Mapping(source = "socialTiktok",      target = "socialMedia.tiktok")
+    @Mapping(source = "socialWebsite",     target = "socialMedia.website")
+    @Mapping(source = "yearsInBusiness",   target = "stats.yearsInBusiness")
+    @Mapping(source = "customersServed",   target = "stats.customersServed")
+    @Mapping(source = "customStats",       target = "stats.customStats",  qualifiedByName = "filterAndMapStatsUnified")
+    @Mapping(source = "businessHours",     target = "businessHours",      qualifiedByName = "filterAndMapHoursUnified")
+    @Mapping(source = "gallery",           target = "gallery",             qualifiedByName = "filterAndMapGalleryUnified")
+    @Mapping(source = "services",          target = "services",            qualifiedByName = "filterAndMapServicesUnified")
+    @Mapping(source = "team",              target = "team",                qualifiedByName = "filterAndMapTeamUnified")
+    @Mapping(target = "reviewStats",       ignore = true)
+    @Mapping(target = "createdAt", expression = "java(profile.getCreatedAt() != null ? profile.getCreatedAt().toString() : null)")
+    @Mapping(target = "updatedAt", expression = "java(profile.getUpdatedAt() != null ? profile.getUpdatedAt().toString() : null)")
+    PortfolioResponse toUnifiedResponse(PortfolioProfile profile);
+
+    // ── Unified child DTOs ────────────────────────────────────────────────────
+
+    PortfolioResponse.HoursDto toHoursDtoUnified(PortfolioHours hours);
+
+    PortfolioResponse.GalleryItemDto toGalleryDtoUnified(PortfolioGalleryItem item);
+
+    PortfolioResponse.ServiceItemDto toServiceDtoUnified(PortfolioServiceItem service);
+
+    PortfolioResponse.TeamMemberDto toTeamDtoUnified(PortfolioTeamMember member);
+
+    PortfolioResponse.CustomStatDto toCustomStatDtoUnified(PortfolioCustomStat stat);
 
     // ── Pagination ──────────────────────────────────────────────────────────
 

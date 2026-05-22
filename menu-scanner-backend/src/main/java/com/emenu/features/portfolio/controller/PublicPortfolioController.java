@@ -1,7 +1,7 @@
 package com.emenu.features.portfolio.controller;
 
 import com.emenu.features.portfolio.dto.request.PortfolioReviewSubmitRequest;
-import com.emenu.features.portfolio.dto.response.PortfolioPublicResponse;
+import com.emenu.features.portfolio.dto.response.PortfolioResponse;
 import com.emenu.features.portfolio.service.PortfolioService;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -21,7 +21,7 @@ public class PublicPortfolioController {
     private final PortfolioService portfolioService;
 
     @GetMapping("/{businessId}")
-    public ResponseEntity<ApiResponse<PortfolioPublicResponse>> getPublicProfile(@PathVariable UUID businessId) {
+    public ResponseEntity<ApiResponse<PortfolioResponse>> getPublicProfile(@PathVariable UUID businessId) {
         return ResponseEntity.ok(ApiResponse.success("Portfolio profile found",
                 portfolioService.getPublicProfile(businessId)));
     }

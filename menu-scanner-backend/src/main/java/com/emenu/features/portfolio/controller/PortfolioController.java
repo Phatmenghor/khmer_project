@@ -2,7 +2,7 @@ package com.emenu.features.portfolio.controller;
 
 import com.emenu.features.portfolio.dto.filter.PortfolioReviewFilterRequest;
 import com.emenu.features.portfolio.dto.request.PortfolioProfileSaveRequest;
-import com.emenu.features.portfolio.dto.response.PortfolioAdminResponse;
+import com.emenu.features.portfolio.dto.response.PortfolioResponse;
 import com.emenu.features.portfolio.dto.response.PortfolioReviewAdminResponse;
 import com.emenu.features.portfolio.service.PortfolioService;
 import com.emenu.security.SecurityUtils;
@@ -26,13 +26,13 @@ public class PortfolioController {
     private final SecurityUtils securityUtils;
 
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<PortfolioAdminResponse>> getMyProfile() {
+    public ResponseEntity<ApiResponse<PortfolioResponse>> getMyProfile() {
         return ResponseEntity.ok(ApiResponse.success("Portfolio profile found",
                 portfolioService.getMyProfile()));
     }
 
     @PostMapping("/profile")
-    public ResponseEntity<ApiResponse<PortfolioAdminResponse>> saveProfile(
+    public ResponseEntity<ApiResponse<PortfolioResponse>> saveProfile(
             @Valid @RequestBody PortfolioProfileSaveRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Portfolio profile saved",
                 portfolioService.saveProfile(request)));
