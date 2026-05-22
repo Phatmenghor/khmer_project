@@ -1,13 +1,11 @@
 "use client";
 
-import { Controller } from "react-hook-form";
+import { Controller, FieldValues } from "react-hook-form";
 import type { TimePickerFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
 
-type TimePickerFieldProps = TimePickerFormFieldProps;
-
-export function TimePickerField({
+export function TimePickerField<T extends FieldValues = any>({
   name,
   label,
   control,
@@ -16,7 +14,7 @@ export function TimePickerField({
   required = false,
   placeholder = "Select time",
   className = "",
-}: TimePickerFieldProps) {
+}: TimePickerFormFieldProps<T>) {
   return (
     <div className={`space-y-2 ${className}`}>
       <Label htmlFor={name} className="text-sm font-medium">

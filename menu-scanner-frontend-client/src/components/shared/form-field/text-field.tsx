@@ -1,13 +1,11 @@
 "use client";
 
-import { Controller } from "react-hook-form";
+import { Controller, FieldValues } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { TextFormFieldProps } from "./form-field-types";
 
-type TextFieldProps = TextFormFieldProps;
-
-export function TextField({
+export function TextField<T extends FieldValues = any>({
   name,
   label,
   control,
@@ -24,7 +22,7 @@ export function TextField({
   allowZero = true,
   pattern,
   onCustomChange,
-}: TextFieldProps) {
+}: TextFormFieldProps<T>) {
   return (
     <div className={`space-y-2 ${className}`}>
       <Label htmlFor={name} className="text-sm font-medium text-foreground">

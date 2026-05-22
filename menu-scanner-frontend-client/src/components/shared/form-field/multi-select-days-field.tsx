@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Controller, FieldError, ControllerRenderProps, Control, FieldValues, Path } from "react-hook-form";
+import { Controller, ControllerRenderProps, FieldValues, Path } from "react-hook-form";
+import { MultiSelectDaysFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { DayOfWeek } from "@/types/business-profile";
@@ -26,18 +27,11 @@ const DEFAULT_WORK_DAYS = [
   DayOfWeek.FRIDAY,
 ];
 
-interface MultiSelectDaysFieldProps<T extends FieldValues = FieldValues> {
-  name: Path<T>;
-  label: string;
-  control: Control<T>;
-  error?: FieldError | any;
-  disabled?: boolean;
-  required?: boolean;
-  className?: string;
+interface MultiSelectDaysFieldPropsWithDefaults<T extends FieldValues = any> extends MultiSelectDaysFieldProps<T> {
   defaultDays?: DayOfWeek[];
 }
 
-export function MultiSelectDaysField<T extends FieldValues = FieldValues>({
+export function MultiSelectDaysField<T extends FieldValues = any>({
   name,
   label,
   control,
@@ -46,7 +40,7 @@ export function MultiSelectDaysField<T extends FieldValues = FieldValues>({
   required = false,
   className = "",
   defaultDays = DEFAULT_WORK_DAYS,
-}: MultiSelectDaysFieldProps<T>) {
+}: MultiSelectDaysFieldPropsWithDefaults<T>) {
   const hasError = !!error;
   const errorMessage =
     error?.message || (typeof error === "string" ? error : "");

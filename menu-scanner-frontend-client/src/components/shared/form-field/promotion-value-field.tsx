@@ -3,25 +3,12 @@
 import React from "react";
 import {
   Controller,
-  Control,
   FieldValues,
-  Path,
-  FieldError,
 } from "react-hook-form";
+import { PromoValueFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
 
-interface PromotionValueFieldProps<T extends FieldValues> {
-  name: Path<T>;
-  label: string;
-  control: Control<T>;
-  promotionType?: "FIXED_AMOUNT" | "PERCENTAGE";
-  error?: FieldError;
-  disabled?: boolean;
-  required?: boolean;
-  className?: string;
-}
-
-export function PromotionValueField<T extends FieldValues>({
+export function PromotionValueField<T extends FieldValues = any>({
   name,
   label,
   control,
@@ -30,7 +17,7 @@ export function PromotionValueField<T extends FieldValues>({
   disabled = false,
   required = false,
   className = "",
-}: PromotionValueFieldProps<T>) {
+}: PromoValueFormFieldProps<T>) {
   const suffix = promotionType === "PERCENTAGE" ? "%" : "$";
   const placeholder = promotionType === "PERCENTAGE" ? "0-100" : "Amount";
 

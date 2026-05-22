@@ -4,15 +4,12 @@ import React from "react";
 import {
   Controller,
   FieldValues,
-  Path,
 } from "react-hook-form";
 import { DatePickerFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
 import { CustomDateTimePicker } from "../common/custom-date-picker";
 
-type DateTimePickerFieldProps<T extends FieldValues> = DatePickerFormFieldProps;
-
-export function DateTimePickerField<T extends FieldValues>({
+export function DateTimePickerField<T extends FieldValues = any>({
   name,
   label,
   control,
@@ -22,7 +19,7 @@ export function DateTimePickerField<T extends FieldValues>({
   placeholder = "Select date",
   className = "",
   mode = "date",
-}: DateTimePickerFieldProps<T>) {
+}: DatePickerFormFieldProps<T>) {
   return (
     <div className={`space-y-2`}>
       <Label

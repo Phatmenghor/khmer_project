@@ -1,13 +1,13 @@
-import { Control, FieldError } from "react-hook-form";
+import { Control, FieldError, FieldValues } from "react-hook-form";
 
 /**
  * Base props for all form field components
  * Using Control<any> is necessary until we know the exact form shape at component level
  */
-export interface BaseFormFieldProps {
+export interface BaseFormFieldProps<T extends FieldValues = any> {
   name: string;
   label: string;
-  control: Control<any>;
+  control: Control<T>;
   error?: FieldError;
   disabled?: boolean;
   required?: boolean;
@@ -18,7 +18,7 @@ export interface BaseFormFieldProps {
 /**
  * Extended props for text-based form fields
  */
-export interface TextFormFieldProps extends BaseFormFieldProps {
+export interface TextFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
   type?:
     | "text"
     | "email"
@@ -39,14 +39,14 @@ export interface TextFormFieldProps extends BaseFormFieldProps {
 /**
  * Extended props for textarea form fields
  */
-export interface TextareaFormFieldProps extends BaseFormFieldProps {
+export interface TextareaFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
   rows?: number;
 }
 
 /**
  * Extended props for select/combobox form fields
  */
-export interface SelectFormFieldProps extends BaseFormFieldProps {
+export interface SelectFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
   options: Array<{ label: string; value: string | number }>;
   multiple?: boolean;
   searchable?: boolean;
@@ -56,7 +56,7 @@ export interface SelectFormFieldProps extends BaseFormFieldProps {
 /**
  * Extended props for time picker form fields
  */
-export interface TimePickerFormFieldProps extends BaseFormFieldProps {
+export interface TimePickerFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
   value?: string;
   onChange?: (value: string) => void;
 }
@@ -64,7 +64,7 @@ export interface TimePickerFormFieldProps extends BaseFormFieldProps {
 /**
  * Extended props for date picker form fields
  */
-export interface DatePickerFormFieldProps extends BaseFormFieldProps {
+export interface DatePickerFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
   mode?: "date" | "datetime" | "time";
   minDate?: Date;
   maxDate?: Date;
@@ -73,7 +73,7 @@ export interface DatePickerFormFieldProps extends BaseFormFieldProps {
 /**
  * Extended props for password form fields
  */
-export interface PasswordFormFieldProps extends BaseFormFieldProps {
+export interface PasswordFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
   showPassword?: boolean;
   onTogglePassword?: () => void;
 }
@@ -81,14 +81,14 @@ export interface PasswordFormFieldProps extends BaseFormFieldProps {
 /**
  * Extended props for promotion value form fields
  */
-export interface PromoValueFormFieldProps extends BaseFormFieldProps {
+export interface PromoValueFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
   promotionType?: "FIXED_AMOUNT" | "PERCENTAGE";
 }
 
 /**
  * Extended props for multi-select days form fields
  */
-export interface MultiSelectDaysFieldProps extends BaseFormFieldProps {
+export interface MultiSelectDaysFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
   defaultDays?: string[];
 }
 
