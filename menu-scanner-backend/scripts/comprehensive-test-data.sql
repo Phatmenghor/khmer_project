@@ -1186,7 +1186,7 @@ SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550cad56-cafd-4
 -- ============================================================================
 
 -- USER EMPLOYMENT DATA
-INSERT INTO user_employment (id, user_id, employee_id, position, department, employment_type, join_date, shift, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO user_employments (id, user_id, employee_id, position, department, employment_type, join_date, shift, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   u.id,
@@ -1217,10 +1217,10 @@ SELECT
   'Morning Shift',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
-WHERE NOT EXISTS (SELECT 1 FROM user_employment WHERE user_id = u.id);
+WHERE NOT EXISTS (SELECT 1 FROM user_employments WHERE user_id = u.id);
 
 -- USER TELEGRAM DATA
-INSERT INTO user_telegram (id, user_id, telegram_id, telegram_username, telegram_first_name, telegram_last_name, telegram_photo_url, telegram_synced_at, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO user_telegrams (id, user_id, telegram_id, telegram_username, telegram_first_name, telegram_last_name, telegram_photo_url, telegram_synced_at, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   u.id,
@@ -1232,7 +1232,7 @@ SELECT
   NOW(),
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
-WHERE NOT EXISTS (SELECT 1 FROM user_telegram WHERE user_id = u.id)
+WHERE NOT EXISTS (SELECT 1 FROM user_telegrams WHERE user_id = u.id)
   AND u.user_type IN ('BUSINESS_USER', 'CUSTOMER');
 
 -- USER ADDRESSES (Home and Work)
@@ -1305,7 +1305,7 @@ FROM users u
 WHERE NOT EXISTS (SELECT 1 FROM user_documents WHERE user_id = u.id AND type = 'PASSPORT');
 
 -- USER EDUCATION
-INSERT INTO user_education (id, user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO user_educations (id, user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   u.id,
@@ -1322,9 +1322,9 @@ SELECT
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
-WHERE NOT EXISTS (SELECT 1 FROM user_education WHERE user_id = u.id);
+WHERE NOT EXISTS (SELECT 1 FROM user_educations WHERE user_id = u.id);
 
-INSERT INTO user_education (id, user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO user_educations (id, user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   u.id,
@@ -1337,7 +1337,7 @@ SELECT
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
-WHERE NOT EXISTS (SELECT 1 FROM user_education WHERE user_id = u.id AND level = 'HIGH_SCHOOL');
+WHERE NOT EXISTS (SELECT 1 FROM user_educations WHERE user_id = u.id AND level = 'HIGH_SCHOOL');
 
 -- ============================================================================
 
