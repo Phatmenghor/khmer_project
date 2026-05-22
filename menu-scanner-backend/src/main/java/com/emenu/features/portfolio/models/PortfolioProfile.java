@@ -67,27 +67,10 @@ public class PortfolioProfile extends BaseUUIDEntity {
     @Column(name = "map_link")
     private String mapLink;
 
-    // Social
-    @Column(name = "social_facebook")
-    private String socialFacebook;
-
-    @Column(name = "social_instagram")
-    private String socialInstagram;
-
-    @Column(name = "social_twitter")
-    private String socialTwitter;
-
-    @Column(name = "social_linkedin")
-    private String socialLinkedin;
-
-    @Column(name = "social_youtube")
-    private String socialYoutube;
-
-    @Column(name = "social_tiktok")
-    private String socialTiktok;
-
-    @Column(name = "social_website")
-    private String socialWebsite;
+    // Social Media (Dynamic)
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
+    private List<PortfolioSocialMedia> socialMedia = new ArrayList<>();
 
     // Features
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)

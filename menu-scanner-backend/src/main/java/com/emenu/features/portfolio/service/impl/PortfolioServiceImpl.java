@@ -164,6 +164,16 @@ public class PortfolioServiceImpl implements PortfolioService {
             }
         }
 
+        savedProfile.getSocialMedia().clear();
+        if (request.getSocialMedia() != null) {
+            for (int i = 0; i < request.getSocialMedia().size(); i++) {
+                PortfolioSocialMedia socialMedia = portfolioMapper.toSocialMediaEntity(request.getSocialMedia().get(i));
+                socialMedia.setProfile(savedProfile);
+                socialMedia.setDisplayOrder(i + 1);
+                savedProfile.getSocialMedia().add(socialMedia);
+            }
+        }
+
         savedProfile.getBusinessHours().clear();
         if (request.getBusinessHours() != null) {
             for (int i = 0; i < request.getBusinessHours().size(); i++) {

@@ -22,7 +22,7 @@ public class PortfolioPublicResponse {
     private String industry;
     private Boolean isPublished;
     private ContactDto contact;
-    private SocialMediaDto socialMedia;
+    private List<SocialMediaItemDto> socialMedia;
     private List<HoursDto> businessHours;
     private List<GalleryItemDto> gallery;
     private List<ServiceItemDto> services;
@@ -51,14 +51,10 @@ public class PortfolioPublicResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SocialMediaDto {
-        private String facebook;
-        private String instagram;
-        private String twitter;
-        private String linkedin;
-        private String youtube;
-        private String tiktok;
-        private String website;
+    public static class SocialMediaItemDto {
+        private UUID id;
+        private String name;
+        private String url;
     }
 
     @Data

@@ -15,16 +15,14 @@ import java.util.UUID;
 public class PortfolioAdminResponse {
 
     private UUID id;
-    private String slug;
     private String businessName;
-    private String tagline;
     private String description;
     private String logoUrl;
     private String coverImageUrl;
     private String industry;
     private Boolean isPublished;
     private PortfolioPublicResponse.ContactDto contact;
-    private PortfolioPublicResponse.SocialMediaDto socialMedia;
+    private List<PortfolioPublicResponse.SocialMediaItemDto> socialMedia;
     private List<PortfolioPublicResponse.HoursDto> businessHours;
     private List<PortfolioPublicResponse.GalleryItemDto> gallery;
     private List<PortfolioPublicResponse.ServiceItemDto> services;
