@@ -55,6 +55,7 @@ const DAY_LABELS: Record<string, string> = {
 function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
   const contact = p.contact || {};
   return {
+    businessName: p.businessName || "",
     description: p.description || "",
     logoUrl: p.logoUrl || "",
     coverImageUrl: p.coverImageUrl || "",
@@ -94,6 +95,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
 }
 
 const emptyForm = (): PortfolioFormData => ({
+  businessName: "",
   description: "",
   logoUrl: "",
   coverImageUrl: "",
@@ -203,6 +205,7 @@ export default function PortfolioPage() {
       );
 
       const submitData: PortfolioProfileSaveRequest = {
+        businessName: data.businessName || "",
         description: data.description || "",
         logoUrl,
         coverImageUrl,
@@ -259,12 +262,19 @@ export default function PortfolioPage() {
             SECTION 1 — BASIC INFORMATION
         ════════════════════════════════════════ */}
 
-        {/* Description */}
+        {/* Business Name + Description */}
         <Card>
           <CardHeader>
-            <CardTitle>Description</CardTitle>
+            <CardTitle>Basic Information</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <TextField<PortfolioFormData>
+              control={form.control}
+              name="businessName"
+              label="Business Name"
+              placeholder="e.g. Mega Store"
+              error={form.formState.errors.businessName}
+            />
             <TextareaField<PortfolioFormData>
               control={form.control}
               name="description"

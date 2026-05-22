@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const portfolioFormSchema = z.object({
+  businessName: z.string().min(1, "Business name is required"),
   description: z.string().min(1, "Description is required"),
   logoUrl: z.string().optional(),
   coverImageUrl: z.string().optional(),

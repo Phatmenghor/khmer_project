@@ -164,6 +164,7 @@ export interface PortfolioContactRequest {
 }
 
 export interface PortfolioProfileSaveRequest {
+  businessName: string;
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;
