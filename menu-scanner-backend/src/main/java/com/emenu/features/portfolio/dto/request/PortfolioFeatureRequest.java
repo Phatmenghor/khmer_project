@@ -12,4 +12,5 @@ import java.util.UUID;
 public class PortfolioFeatureRequest {
     private UUID id;
     private String name;
+    private Integer displayOrder;
 }

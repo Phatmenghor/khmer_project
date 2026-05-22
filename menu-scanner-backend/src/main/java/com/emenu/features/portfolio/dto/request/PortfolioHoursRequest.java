@@ -13,7 +13,11 @@ public class PortfolioHoursRequest {
     @NotBlank
     private String day;
 
+    private Boolean isOpen;
+
     private String openTime;
 
     private String closeTime;
+
+    private Boolean is24Hours;
 }

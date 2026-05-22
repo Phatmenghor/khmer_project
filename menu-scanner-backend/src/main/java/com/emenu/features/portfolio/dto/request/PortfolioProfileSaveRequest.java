@@ -9,10 +9,7 @@ import java.util.List;
 @Data
 public class PortfolioProfileSaveRequest {
 
-    @NotBlank
     private String slug;
-
-    private String tagline;
 
     @NotBlank
     private String description;
@@ -20,6 +17,10 @@ public class PortfolioProfileSaveRequest {
     private String logoUrl;
 
     private String coverImageUrl;
+
+    private String industry;
+
+    private Boolean isPublished;
 
     // Contact
     @NotBlank

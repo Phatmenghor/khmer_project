@@ -19,6 +19,8 @@ public class PortfolioResponse {
     private String description;
     private String logoUrl;
     private String coverImageUrl;
+    private String industry;
+    private Boolean isPublished;
     private ContactDto contact;
     private List<SocialMediaItemDto> socialMedia;
     private List<HoursDto> businessHours;
@@ -62,6 +64,7 @@ public class PortfolioResponse {
         private UUID id;
         private String name;
         private String url;
+        private Integer displayOrder;
     }
 
     @Data
@@ -71,8 +74,10 @@ public class PortfolioResponse {
     public static class HoursDto {
         private UUID id;
         private String day;
+        private Boolean isOpen;
         private String openTime;
         private String closeTime;
+        private Boolean is24Hours;
     }
 
     @Data
@@ -83,6 +88,8 @@ public class PortfolioResponse {
         private UUID id;
         private String url;
         private String title;
+        private String description;
+        private Integer displayOrder;
     }
 
     @Data
@@ -93,6 +100,7 @@ public class PortfolioResponse {
         private UUID id;
         private String name;
         private String description;
+        private Integer displayOrder;
     }
 
     @Data
@@ -105,6 +113,7 @@ public class PortfolioResponse {
         private String position;
         private String bio;
         private String photoUrl;
+        private Integer displayOrder;
     }
 
     @Data
@@ -124,5 +133,6 @@ public class PortfolioResponse {
     public static class FeatureDto {
         private UUID id;
         private String name;
+        private Integer displayOrder;
     }
 }

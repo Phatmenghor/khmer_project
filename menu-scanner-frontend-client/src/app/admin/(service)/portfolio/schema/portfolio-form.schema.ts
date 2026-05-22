@@ -6,7 +6,7 @@ export const portfolioFormSchema = z.object({
   logoUrl: z.string().optional(),
   coverImageUrl: z.string().optional(),
   industry: z.string().optional(),
-  isPublished: z.boolean().optional(),
+  isPublished: z.boolean().default(false).optional(),
 
   contactEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
   contactPhone: z.string().optional(),
@@ -26,6 +26,7 @@ export const portfolioFormSchema = z.object({
       id: z.string().optional(),
       name: z.string().min(1, "Social media name is required"),
       url: z.string().url("Invalid URL"),
+      displayOrder: z.number().optional(),
     })
   ).optional(),
 
@@ -33,9 +34,9 @@ export const portfolioFormSchema = z.object({
     z.object({
       id: z.string().optional(),
       day: z.string(),
+      isOpen: z.boolean().optional(),
       openTime: z.string().optional(),
       closeTime: z.string().optional(),
-      isOpen: z.boolean().optional(),
       is24Hours: z.boolean().optional(),
     })
   ).optional(),
@@ -46,6 +47,7 @@ export const portfolioFormSchema = z.object({
       url: z.string().min(1, "Gallery image URL is required"),
       title: z.string().optional(),
       description: z.string().optional(),
+      displayOrder: z.number().optional(),
     })
   ).optional(),
 
@@ -54,6 +56,7 @@ export const portfolioFormSchema = z.object({
       id: z.string().optional(),
       name: z.string().min(1, "Service name is required"),
       description: z.string().min(1, "Service description is required"),
+      displayOrder: z.number().optional(),
     })
   ).optional(),
 
@@ -64,6 +67,7 @@ export const portfolioFormSchema = z.object({
       position: z.string().min(1, "Position is required"),
       bio: z.string().optional(),
       photoUrl: z.string().optional(),
+      displayOrder: z.number().optional(),
     })
   ).optional(),
 
@@ -71,6 +75,7 @@ export const portfolioFormSchema = z.object({
     z.object({
       id: z.string().optional(),
       name: z.string().min(1, "Feature name is required"),
+      displayOrder: z.number().optional(),
     })
   ).optional(),
 

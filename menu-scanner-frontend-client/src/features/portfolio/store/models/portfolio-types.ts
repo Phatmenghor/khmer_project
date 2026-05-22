@@ -17,14 +17,15 @@ export interface PortfolioSocialMediaItemDto {
   id: string;
   name: string;
   url: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioHoursDto {
   id: string;
   day: string;
+  isOpen?: boolean;
   openTime?: string;
   closeTime?: string;
-  isOpen?: boolean;
   is24Hours?: boolean;
 }
 
@@ -40,6 +41,7 @@ export interface PortfolioServiceItemDto {
   id: string;
   name: string;
   description: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioTeamMemberDto {
@@ -48,6 +50,7 @@ export interface PortfolioTeamMemberDto {
   position: string;
   bio?: string;
   photoUrl?: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioCustomStatDto {
@@ -59,6 +62,7 @@ export interface PortfolioCustomStatDto {
 export interface PortfolioFeatureDto {
   id: string;
   name: string;
+  displayOrder?: number;
 }
 
 
@@ -70,7 +74,6 @@ export interface ReviewStatsDto {
 
 export interface PortfolioPublicProfile {
   id: string;
-  slug?: string;
   businessName: string;
   description: string;
   logoUrl?: string;
@@ -114,14 +117,15 @@ export interface PortfolioSocialMediaRequest {
   id?: string;
   name: string;
   url: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioHoursRequest {
   id?: string;
   day: string;
+  isOpen?: boolean;
   openTime?: string;
   closeTime?: string;
-  isOpen?: boolean;
   is24Hours?: boolean;
 }
 
@@ -130,12 +134,14 @@ export interface PortfolioGalleryItemRequest {
   url: string;
   title?: string;
   description?: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioServiceItemRequest {
   id?: string;
   name: string;
   description: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioTeamMemberRequest {
@@ -144,6 +150,7 @@ export interface PortfolioTeamMemberRequest {
   position: string;
   bio?: string;
   photoUrl?: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioCustomStatRequest {
@@ -155,6 +162,7 @@ export interface PortfolioCustomStatRequest {
 export interface PortfolioFeatureRequest {
   id?: string;
   name: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioProfileSaveRequest {

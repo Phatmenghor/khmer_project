@@ -55,6 +55,7 @@ public class PortfolioPublicResponse {
         private UUID id;
         private String name;
         private String url;
+        private Integer displayOrder;
     }
 
     @Data
@@ -62,6 +63,7 @@ public class PortfolioPublicResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HoursDto {
+        private UUID id;
         private String day;
         private Boolean isOpen;
         private String openTime;
@@ -89,6 +91,7 @@ public class PortfolioPublicResponse {
         private UUID id;
         private String name;
         private String description;
+        private Integer displayOrder;
     }
 
     @Data
@@ -101,6 +104,7 @@ public class PortfolioPublicResponse {
         private String position;
         private String bio;
         private String photoUrl;
+        private Integer displayOrder;
     }
 
     @Data
@@ -120,5 +124,6 @@ public class PortfolioPublicResponse {
     public static class FeatureDto {
         private UUID id;
         private String name;
+        private Integer displayOrder;
     }
 }
