@@ -1350,7 +1350,7 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 
 SELECT '=== PORTFOLIO PROFILES ===' AS info;
-SELECT id, business_name, slug, industry, is_published, years_in_business, customers_served
+SELECT id, business_name, slug, industry, is_published
 FROM portfolio_profile
 WHERE is_deleted = false
 ORDER BY created_at;
