@@ -15,7 +15,7 @@ export interface PortfolioContactDto {
 
 export interface PortfolioSocialMediaItemDto {
   id: string;
-  type: string;
+  name: string;
   url: string;
 }
 
@@ -24,12 +24,16 @@ export interface PortfolioHoursDto {
   day: string;
   openTime?: string;
   closeTime?: string;
+  isOpen?: boolean;
+  is24Hours?: boolean;
 }
 
 export interface PortfolioGalleryItemDto {
   id: string;
   url: string;
   title?: string;
+  description?: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioServiceItemDto {
@@ -66,14 +70,15 @@ export interface ReviewStatsDto {
 
 export interface PortfolioPublicProfile {
   id: string;
-  slug: string;
+  slug?: string;
   businessName: string;
-  tagline?: string;
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;
+  industry?: string;
+  isPublished?: boolean;
   contact: PortfolioContactDto;
-  socialMedia?: PortfolioSocialMediaDto;
+  socialMedia?: PortfolioSocialMediaItemDto[];
   businessHours?: PortfolioHoursDto[];
   gallery?: PortfolioGalleryItemDto[];
   services?: PortfolioServiceItemDto[];
@@ -107,7 +112,7 @@ export interface PortfolioPhoneRequest {
 
 export interface PortfolioSocialMediaRequest {
   id?: string;
-  type: string;
+  name: string;
   url: string;
 }
 
@@ -116,24 +121,32 @@ export interface PortfolioHoursRequest {
   day: string;
   openTime?: string;
   closeTime?: string;
+  isOpen?: boolean;
+  is24Hours?: boolean;
 }
 
 export interface PortfolioGalleryItemRequest {
   id?: string;
   url: string;
   title?: string;
+  description?: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioServiceItemRequest {
+  id?: string;
   name: string;
   description: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioTeamMemberRequest {
+  id?: string;
   name: string;
   position: string;
   bio?: string;
   photoUrl?: string;
+  displayOrder?: number;
 }
 
 export interface PortfolioCustomStatRequest {
@@ -148,11 +161,13 @@ export interface PortfolioFeatureRequest {
 }
 
 export interface PortfolioProfileSaveRequest {
-  slug: string;
+  slug?: string;
   tagline?: string;
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;
+  industry?: string;
+  isPublished?: boolean;
   contactEmail: string;
   contactPhone: string;
   contactPhones?: PortfolioPhoneRequest[];

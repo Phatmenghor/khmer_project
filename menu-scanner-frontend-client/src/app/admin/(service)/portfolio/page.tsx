@@ -39,6 +39,8 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveReq
     description: p.description || "",
     logoUrl: p.logoUrl || "",
     coverImageUrl: p.coverImageUrl || "",
+    industry: p.industry || "",
+    isPublished: p.isPublished ?? false,
     contactEmail: contact.email || "",
     contactPhone: contact.phone || "",
     contactPhones: contact.phones ?? [],
@@ -54,10 +56,12 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveReq
       day: h.day,
       openTime: h.openTime || "",
       closeTime: h.closeTime || "",
-    })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
-    gallery: p.gallery?.map((g) => ({ id: g.id, url: g.url, title: g.title || "" })) ?? [],
-    services: p.services?.map((s) => ({ name: s.name, description: s.description })) ?? [],
-    team: p.team?.map((m) => ({ name: m.name, position: m.position, bio: m.bio || "", photoUrl: m.photoUrl || "" })) ?? [],
+      isOpen: h.isOpen,
+      is24Hours: h.is24Hours,
+    })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00", isOpen: true, is24Hours: false })),
+    gallery: p.gallery?.map((g) => ({ id: g.id, url: g.url, title: g.title || "", description: g.description || "", displayOrder: g.displayOrder })) ?? [],
+    services: p.services?.map((s) => ({ id: s.id, name: s.name, description: s.description })) ?? [],
+    team: p.team?.map((m) => ({ id: m.id, name: m.name, position: m.position, bio: m.bio || "", photoUrl: m.photoUrl || "" })) ?? [],
   };
 }
 
@@ -67,6 +71,8 @@ const emptyForm = (): PortfolioProfileSaveRequest => ({
   description: "",
   logoUrl: "",
   coverImageUrl: "",
+  industry: "",
+  isPublished: false,
   contactEmail: "",
   contactPhone: "",
   contactPhones: [],
@@ -77,7 +83,7 @@ const emptyForm = (): PortfolioProfileSaveRequest => ({
   socialMedia: [],
   features: [],
   customStats: [],
-  businessHours: DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
+  businessHours: DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00", isOpen: true, is24Hours: false })),
   gallery: [],
   services: [],
   team: [],
@@ -130,6 +136,11 @@ export default function PortfolioPage() {
   const { fields: featuresFields, append: appendFeature, remove: removeFeature } = useFieldArray({
     control: form.control,
     name: "features",
+  });
+
+  const { fields: contactPhonesFields, append: appendContactPhone, remove: removeContactPhone } = useFieldArray({
+    control: form.control,
+    name: "contactPhones",
   });
 
   useAdminCleanup(() => {
@@ -285,6 +296,10 @@ export default function PortfolioPage() {
                 <Label>Business Name</Label>
                 <Input placeholder="Enter business name" {...form.register("slug")} />
               </div>
+              <div className="space-y-2">
+                <Label>Industry</Label>
+                <Input placeholder="e.g., Retail, Fashion, Technology..." {...form.register("industry")} />
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -295,6 +310,11 @@ export default function PortfolioPage() {
             <div className="space-y-2">
               <Label>Description</Label>
               <Textarea placeholder="Detailed business description..." rows={5} {...form.register("description")} />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch {...form.register("isPublished")} />
+              <Label>Published</Label>
             </div>
           </CardContent>
         </Card>
@@ -347,8 +367,45 @@ export default function PortfolioPage() {
               </div>
               <div className="space-y-2">
                 <Label>Telegram</Label>
-                <Input placeholder="@username" {...form.register("contactTelegram")} />
+                <Input placeholder="https://t.me/..." {...form.register("contactTelegram")} />
               </div>
+            </div>
+
+            {/* Additional Contact Phones */}
+            <div className="space-y-4 border-t pt-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-semibold">Additional Phone Numbers</Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => appendContactPhone({ id: "", number: "" })}
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Add Phone
+                </Button>
+              </div>
+              {contactPhonesFields.length > 0 ? (
+                <div className="space-y-3">
+                  {contactPhonesFields.map((field, index) => (
+                    <div key={field.id} className="flex gap-2">
+                      <Input
+                        placeholder="+1-234-567-8900"
+                        {...form.register(`contactPhones.${index}.number`)}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => removeContactPhone(index)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No additional phone numbers added</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -379,7 +436,7 @@ export default function PortfolioPage() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => appendSocialMedia({ id: "", type: "", url: "" })}
+              onClick={() => appendSocialMedia({ id: "", name: "", url: "" })}
             >
               <Plus className="w-4 h-4 mr-1" /> Add Social Media
             </Button>
@@ -390,8 +447,8 @@ export default function PortfolioPage() {
                 {socialMediaFields.map((field, index) => (
                   <div key={field.id} className="flex gap-3 p-4 border rounded-lg">
                     <Input
-                      placeholder="Type (facebook, instagram, twitter, youtube, etc.)"
-                      {...form.register(`socialMedia.${index}.type`)}
+                      placeholder="Name (Facebook, Instagram, Twitter, YouTube, etc.)"
+                      {...form.register(`socialMedia.${index}.name`)}
                       className="flex-1"
                     />
                     <Input
