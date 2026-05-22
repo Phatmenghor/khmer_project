@@ -50,7 +50,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         PortfolioProfile profile = profileRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Portfolio profile not found for this business"));
-        PortfolioResponse response = portfolioMapper.toUnifiedResponse(profile);
+        PortfolioResponse response = portfolioMapper.toResponse(profile);
         response.setReviewStats(computeReviewStats(profile.getId()));
         return response;
     }
@@ -78,7 +78,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         PortfolioProfile finalProfile = profileRepository.save(savedProfile);
         log.info("Portfolio profile saved for businessId={}", businessId);
 
-        PortfolioResponse response = portfolioMapper.toUnifiedResponse(finalProfile);
+        PortfolioResponse response = portfolioMapper.toResponse(finalProfile);
         response.setReviewStats(computeReviewStats(finalProfile.getId()));
         return response;
     }
@@ -88,7 +88,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     public PortfolioResponse getPublicProfile(UUID businessId) {
         PortfolioProfile profile = profileRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Portfolio profile not found for business: " + businessId));
-        PortfolioResponse response = portfolioMapper.toUnifiedResponse(profile);
+        PortfolioResponse response = portfolioMapper.toResponse(profile);
         response.setReviewStats(computeReviewStats(profile.getId()));
         return response;
     }

@@ -8,7 +8,6 @@ import com.emenu.shared.mapper.PaginationMapper;
 import org.mapstruct.*;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 public interface PortfolioMapper {
 
     // ── Request → Review entity ───────────────────────────────────────────
-    // profileId and businessId are set by the service after mapping.
 
     @Mapping(target = "id",         ignore = true)
     @Mapping(target = "profileId",  ignore = true)
@@ -35,8 +33,6 @@ public interface PortfolioMapper {
     PortfolioReview toReviewEntity(PortfolioReviewSubmitRequest request);
 
     // ── Request → Profile entity (update/upsert) ───────────────────────────
-    // businessId and businessName are resolved by the service and set after.
-    // Collection fields are rebuilt separately via rebuildCollections().
 
     @Mapping(target = "id",            ignore = true)
     @Mapping(target = "businessId",    ignore = true)
@@ -60,48 +56,7 @@ public interface PortfolioMapper {
     @Mapping(target = "isPublished",   ignore = true)
     void applyProfileFields(@MappingTarget PortfolioProfile profile, PortfolioProfileSaveRequest request);
 
-    // ── Child entity → DTO ─────────────────────────────────────────────────
-
-    PortfolioPublicResponse.HoursDto toHoursDto(PortfolioHours hours);
-
-    PortfolioPublicResponse.GalleryItemDto toGalleryDto(PortfolioGalleryItem item);
-
-    PortfolioPublicResponse.ServiceItemDto toServiceDto(PortfolioServiceItem service);
-
-    PortfolioPublicResponse.TeamMemberDto toTeamDto(PortfolioTeamMember member);
-
-    PortfolioPublicResponse.CustomStatDto toCustomStatDto(PortfolioCustomStat stat);
-
-    PortfolioPublicResponse.FeatureDto toFeatureDto(PortfolioFeature feature);
-
-    default String toPhoneString(PortfolioPhone phone) {
-        return phone == null ? null : phone.getNumber();
-    }
-
-    default PortfolioResponse.PhoneDto toPhoneDto(PortfolioPhone phone) {
-        if (phone == null) return null;
-        return PortfolioResponse.PhoneDto.builder()
-                .id(phone.getId())
-                .number(phone.getNumber())
-                .build();
-    }
-
-    @Named("filterAndMapPhones")
-    default List<PortfolioResponse.PhoneDto> filterAndMapPhones(List<PortfolioPhone> phones) {
-        if (phones == null) return Collections.emptyList();
-        return phones.stream()
-                .filter(p -> !Boolean.TRUE.equals(p.getIsDeleted()))
-                .map(this::toPhoneDto)
-                .collect(Collectors.toList());
-    }
-
-    PortfolioReviewAdminResponse toReviewAdminResponse(PortfolioReview review);
-
-    List<PortfolioReviewAdminResponse> toReviewAdminResponseList(List<PortfolioReview> reviews);
-
     // ── Request → Child entity ─────────────────────────────────────────────
-    // BaseUUIDEntity fields are all excluded via IGNORE policy.
-    // profile reference is set by the service after mapping.
 
     @Mapping(target = "id",           ignore = true)
     @Mapping(target = "profile",      ignore = true)
@@ -207,30 +162,44 @@ public interface PortfolioMapper {
     @Mapping(target = "displayOrder", ignore = true)
     PortfolioSocialMedia toSocialMediaEntity(PortfolioSocialMediaRequest request);
 
+    // ── Review response ──────────────────────────────────────────────────────
+
+    PortfolioReviewAdminResponse toReviewAdminResponse(PortfolioReview review);
+
+    List<PortfolioReviewAdminResponse> toReviewAdminResponseList(List<PortfolioReview> reviews);
+
     // ── Filtered list helpers (exclude soft-deleted children) ──────────────
 
+    @Named("filterAndMapPhones")
+    default List<PortfolioResponse.PhoneDto> filterAndMapPhones(List<PortfolioPhone> phones) {
+        if (phones == null) return Collections.emptyList();
+        return phones.stream()
+                .filter(p -> !Boolean.TRUE.equals(p.getIsDeleted()))
+                .map(this::toPhoneDto)
+                .collect(Collectors.toList());
+    }
+
+    default PortfolioResponse.PhoneDto toPhoneDto(PortfolioPhone phone) {
+        if (phone == null) return null;
+        return PortfolioResponse.PhoneDto.builder()
+                .id(phone.getId())
+                .number(phone.getNumber())
+                .build();
+    }
+
     @Named("filterAndMapHours")
-    default List<PortfolioPublicResponse.HoursDto> filterAndMapHours(List<PortfolioHours> hours) {
+    default List<PortfolioResponse.HoursDto> filterAndMapHours(List<PortfolioHours> hours) {
         if (hours == null) return Collections.emptyList();
         return hours.stream()
                 .filter(h -> !Boolean.TRUE.equals(h.getIsDeleted()))
-                .filter(h -> h.getOpenTime() != null && h.getCloseTime() != null)
                 .map(this::toHoursDto)
                 .collect(Collectors.toList());
     }
 
-    @Named("filterAndMapHoursUnified")
-    default List<PortfolioResponse.HoursDto> filterAndMapHoursUnified(List<PortfolioHours> hours) {
-        if (hours == null) return Collections.emptyList();
-        return hours.stream()
-                .filter(h -> !Boolean.TRUE.equals(h.getIsDeleted()))
-                .filter(h -> h.getOpenTime() != null && h.getCloseTime() != null)
-                .map(this::toHoursDtoUnified)
-                .collect(Collectors.toList());
-    }
+    PortfolioResponse.HoursDto toHoursDto(PortfolioHours hours);
 
     @Named("filterAndMapGallery")
-    default List<PortfolioPublicResponse.GalleryItemDto> filterAndMapGallery(List<PortfolioGalleryItem> items) {
+    default List<PortfolioResponse.GalleryItemDto> filterAndMapGallery(List<PortfolioGalleryItem> items) {
         if (items == null) return Collections.emptyList();
         return items.stream()
                 .filter(g -> !Boolean.TRUE.equals(g.getIsDeleted()))
@@ -238,17 +207,10 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
-    @Named("filterAndMapGalleryUnified")
-    default List<PortfolioResponse.GalleryItemDto> filterAndMapGalleryUnified(List<PortfolioGalleryItem> items) {
-        if (items == null) return Collections.emptyList();
-        return items.stream()
-                .filter(g -> !Boolean.TRUE.equals(g.getIsDeleted()))
-                .map(this::toGalleryDtoUnified)
-                .collect(Collectors.toList());
-    }
+    PortfolioResponse.GalleryItemDto toGalleryDto(PortfolioGalleryItem item);
 
     @Named("filterAndMapServices")
-    default List<PortfolioPublicResponse.ServiceItemDto> filterAndMapServices(List<PortfolioServiceItem> services) {
+    default List<PortfolioResponse.ServiceItemDto> filterAndMapServices(List<PortfolioServiceItem> services) {
         if (services == null) return Collections.emptyList();
         return services.stream()
                 .filter(s -> !Boolean.TRUE.equals(s.getIsDeleted()))
@@ -256,17 +218,10 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
-    @Named("filterAndMapServicesUnified")
-    default List<PortfolioResponse.ServiceItemDto> filterAndMapServicesUnified(List<PortfolioServiceItem> services) {
-        if (services == null) return Collections.emptyList();
-        return services.stream()
-                .filter(s -> !Boolean.TRUE.equals(s.getIsDeleted()))
-                .map(this::toServiceDtoUnified)
-                .collect(Collectors.toList());
-    }
+    PortfolioResponse.ServiceItemDto toServiceDto(PortfolioServiceItem service);
 
     @Named("filterAndMapTeam")
-    default List<PortfolioPublicResponse.TeamMemberDto> filterAndMapTeam(List<PortfolioTeamMember> team) {
+    default List<PortfolioResponse.TeamMemberDto> filterAndMapTeam(List<PortfolioTeamMember> team) {
         if (team == null) return Collections.emptyList();
         return team.stream()
                 .filter(m -> !Boolean.TRUE.equals(m.getIsDeleted()))
@@ -274,17 +229,10 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
-    @Named("filterAndMapTeamUnified")
-    default List<PortfolioResponse.TeamMemberDto> filterAndMapTeamUnified(List<PortfolioTeamMember> team) {
-        if (team == null) return Collections.emptyList();
-        return team.stream()
-                .filter(m -> !Boolean.TRUE.equals(m.getIsDeleted()))
-                .map(this::toTeamDtoUnified)
-                .collect(Collectors.toList());
-    }
+    PortfolioResponse.TeamMemberDto toTeamDto(PortfolioTeamMember member);
 
     @Named("filterAndMapStats")
-    default List<PortfolioPublicResponse.CustomStatDto> filterAndMapStats(List<PortfolioCustomStat> stats) {
+    default List<PortfolioResponse.CustomStatDto> filterAndMapStats(List<PortfolioCustomStat> stats) {
         if (stats == null) return Collections.emptyList();
         return stats.stream()
                 .filter(s -> !Boolean.TRUE.equals(s.getIsDeleted()))
@@ -292,17 +240,10 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
-    @Named("filterAndMapStatsUnified")
-    default List<PortfolioResponse.CustomStatDto> filterAndMapStatsUnified(List<PortfolioCustomStat> stats) {
-        if (stats == null) return Collections.emptyList();
-        return stats.stream()
-                .filter(s -> !Boolean.TRUE.equals(s.getIsDeleted()))
-                .map(this::toCustomStatDtoUnified)
-                .collect(Collectors.toList());
-    }
+    PortfolioResponse.CustomStatDto toCustomStatDto(PortfolioCustomStat stat);
 
     @Named("filterAndMapFeatures")
-    default List<PortfolioPublicResponse.FeatureDto> filterAndMapFeatures(List<PortfolioFeature> features) {
+    default List<PortfolioResponse.FeatureDto> filterAndMapFeatures(List<PortfolioFeature> features) {
         if (features == null) return Collections.emptyList();
         return features.stream()
                 .filter(f -> !Boolean.TRUE.equals(f.getIsDeleted()))
@@ -310,26 +251,10 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
-    @Named("filterAndMapFeaturesUnified")
-    default List<PortfolioResponse.FeatureDto> filterAndMapFeaturesUnified(List<PortfolioFeature> features) {
-        if (features == null) return Collections.emptyList();
-        return features.stream()
-                .filter(f -> !Boolean.TRUE.equals(f.getIsDeleted()))
-                .map(this::toFeatureDtoUnified)
-                .collect(Collectors.toList());
-    }
+    PortfolioResponse.FeatureDto toFeatureDto(PortfolioFeature feature);
 
     @Named("filterAndMapSocialMedia")
-    default List<PortfolioPublicResponse.SocialMediaItemDto> filterAndMapSocialMedia(List<PortfolioSocialMedia> socialMedia) {
-        if (socialMedia == null) return Collections.emptyList();
-        return socialMedia.stream()
-                .filter(s -> !Boolean.TRUE.equals(s.getIsDeleted()))
-                .map(this::toSocialMediaItemDtoPublic)
-                .collect(Collectors.toList());
-    }
-
-    @Named("filterAndMapSocialMediaUnified")
-    default List<PortfolioResponse.SocialMediaItemDto> filterAndMapSocialMediaUnified(List<PortfolioSocialMedia> socialMedia) {
+    default List<PortfolioResponse.SocialMediaItemDto> filterAndMapSocialMedia(List<PortfolioSocialMedia> socialMedia) {
         if (socialMedia == null) return Collections.emptyList();
         return socialMedia.stream()
                 .filter(s -> !Boolean.TRUE.equals(s.getIsDeleted()))
@@ -337,26 +262,9 @@ public interface PortfolioMapper {
                         .id(s.getId())
                         .name(s.getName())
                         .url(s.getUrl())
+                        .displayOrder(s.getDisplayOrder())
                         .build())
                 .collect(Collectors.toList());
-    }
-
-    default PortfolioPublicResponse.SocialMediaItemDto toSocialMediaItemDtoPublic(PortfolioSocialMedia socialMedia) {
-        if (socialMedia == null) return null;
-        return PortfolioPublicResponse.SocialMediaItemDto.builder()
-                .id(socialMedia.getId())
-                .name(socialMedia.getName())
-                .url(socialMedia.getUrl())
-                .build();
-    }
-
-    default PortfolioResponse.SocialMediaItemDto toSocialMediaItemDto(PortfolioSocialMedia socialMedia) {
-        if (socialMedia == null) return null;
-        return PortfolioResponse.SocialMediaItemDto.builder()
-                .id(socialMedia.getId())
-                .name(socialMedia.getName())
-                .url(socialMedia.getUrl())
-                .build();
     }
 
     @Named("filterPhoneNumbers")
@@ -368,35 +276,11 @@ public interface PortfolioMapper {
                 .collect(Collectors.toList());
     }
 
-    // ── Profile → Public/Admin response ────────────────────────────────────
+    // ── Profile → Response ──────────────────────────────────────────────────
     // Flat profile fields are mapped to nested contact/socialMedia/stats DTOs.
     // reviewStats is computed separately by the service and set after mapping.
     // Collections are filtered to exclude soft-deleted children, ordered by
     // displayOrder ASC (maintained by @OrderBy on the entity relation).
-
-    @Mapping(source = "contactEmail",      target = "contact.email")
-    @Mapping(source = "contactPhone",      target = "contact.phone")
-    @Mapping(source = "contactPhones",     target = "contact.phones",      qualifiedByName = "filterPhoneNumbers")
-    @Mapping(source = "contactWhatsapp",   target = "contact.whatsapp")
-    @Mapping(source = "contactTelegram",   target = "contact.telegram")
-    @Mapping(source = "address",           target = "contact.address")
-    @Mapping(source = "mapLink",           target = "contact.mapLink")
-    @Mapping(source = "socialMedia",       target = "socialMedia",         qualifiedByName = "filterAndMapSocialMedia")
-    @Mapping(source = "customStats",       target = "stats",               qualifiedByName = "filterAndMapStats")
-    @Mapping(source = "businessHours",     target = "businessHours",      qualifiedByName = "filterAndMapHours")
-    @Mapping(source = "gallery",           target = "gallery",             qualifiedByName = "filterAndMapGallery")
-    @Mapping(source = "services",          target = "services",            qualifiedByName = "filterAndMapServices")
-    @Mapping(source = "team",              target = "team",                qualifiedByName = "filterAndMapTeam")
-    @Mapping(source = "features",          target = "features",            qualifiedByName = "filterAndMapFeatures")
-    @Mapping(target = "reviewStats",       ignore = true)
-    @Mapping(target = "createdAt", expression = "java(profile.getCreatedAt() != null ? profile.getCreatedAt().toString() : null)")
-    @Mapping(target = "updatedAt", expression = "java(profile.getUpdatedAt() != null ? profile.getUpdatedAt().toString() : null)")
-    PortfolioPublicResponse toPublicResponse(PortfolioProfile profile);
-
-    @InheritConfiguration(name = "toPublicResponse")
-    PortfolioAdminResponse toAdminResponse(PortfolioProfile profile);
-
-    // ── Unified response (for both admin and public) ──────────────────────────
 
     @Mapping(source = "contactEmail",      target = "contact.email")
     @Mapping(source = "contactPhone",      target = "contact.phone")
@@ -405,31 +289,17 @@ public interface PortfolioMapper {
     @Mapping(source = "contactTelegram",   target = "contact.telegram")
     @Mapping(source = "address",           target = "contact.address")
     @Mapping(source = "mapLink",           target = "contact.mapLink")
-    @Mapping(source = "socialMedia",       target = "socialMedia",         qualifiedByName = "filterAndMapSocialMediaUnified")
-    @Mapping(source = "customStats",       target = "stats",               qualifiedByName = "filterAndMapStatsUnified")
-    @Mapping(source = "businessHours",     target = "businessHours",      qualifiedByName = "filterAndMapHoursUnified")
-    @Mapping(source = "gallery",           target = "gallery",             qualifiedByName = "filterAndMapGalleryUnified")
-    @Mapping(source = "services",          target = "services",            qualifiedByName = "filterAndMapServicesUnified")
-    @Mapping(source = "team",              target = "team",                qualifiedByName = "filterAndMapTeamUnified")
-    @Mapping(source = "features",          target = "features",            qualifiedByName = "filterAndMapFeaturesUnified")
+    @Mapping(source = "socialMedia",       target = "socialMedia",         qualifiedByName = "filterAndMapSocialMedia")
+    @Mapping(source = "customStats",       target = "stats",               qualifiedByName = "filterAndMapStats")
+    @Mapping(source = "businessHours",     target = "businessHours",       qualifiedByName = "filterAndMapHours")
+    @Mapping(source = "gallery",           target = "gallery",             qualifiedByName = "filterAndMapGallery")
+    @Mapping(source = "services",          target = "services",            qualifiedByName = "filterAndMapServices")
+    @Mapping(source = "team",              target = "team",                qualifiedByName = "filterAndMapTeam")
+    @Mapping(source = "features",          target = "features",            qualifiedByName = "filterAndMapFeatures")
     @Mapping(target = "reviewStats",       ignore = true)
     @Mapping(target = "createdAt", expression = "java(profile.getCreatedAt() != null ? profile.getCreatedAt().toString() : null)")
     @Mapping(target = "updatedAt", expression = "java(profile.getUpdatedAt() != null ? profile.getUpdatedAt().toString() : null)")
-    PortfolioResponse toUnifiedResponse(PortfolioProfile profile);
-
-    // ── Unified child DTOs ────────────────────────────────────────────────────
-
-    PortfolioResponse.HoursDto toHoursDtoUnified(PortfolioHours hours);
-
-    PortfolioResponse.GalleryItemDto toGalleryDtoUnified(PortfolioGalleryItem item);
-
-    PortfolioResponse.ServiceItemDto toServiceDtoUnified(PortfolioServiceItem service);
-
-    PortfolioResponse.TeamMemberDto toTeamDtoUnified(PortfolioTeamMember member);
-
-    PortfolioResponse.CustomStatDto toCustomStatDtoUnified(PortfolioCustomStat stat);
-
-    PortfolioResponse.FeatureDto toFeatureDtoUnified(PortfolioFeature feature);
+    PortfolioResponse toResponse(PortfolioProfile profile);
 
     // ── Pagination ──────────────────────────────────────────────────────────
 
