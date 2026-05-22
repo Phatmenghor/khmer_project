@@ -524,19 +524,6 @@ export default function PortfolioPage() {
           <CardContent className="space-y-4">
             {businessHoursFields.map((field, index) => (
               <div key={field.id} className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-sm">{field.day}</span>
-                  <Controller
-                    name={`businessHours.${index}.isOpen`}
-                    control={form.control}
-                    render={({ field: switchField }) => (
-                      <Switch
-                        checked={switchField.value || false}
-                        onCheckedChange={switchField.onChange}
-                      />
-                    )}
-                  />
-                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label className="text-xs">Open Time</Label>
