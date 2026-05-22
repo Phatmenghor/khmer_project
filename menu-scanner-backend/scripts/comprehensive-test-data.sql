@@ -1330,8 +1330,6 @@ INSERT INTO portfolio_profile (
   logo_url, cover_image_url, industry,
   contact_email, contact_phone, contact_whatsapp, contact_telegram,
   address, map_link,
-  social_facebook, social_instagram, social_twitter, social_linkedin,
-  social_youtube, social_tiktok, social_website,
   is_published, version, is_deleted, created_at, updated_at, created_by, updated_by
 )
 VALUES (
@@ -1350,13 +1348,6 @@ VALUES (
   'https://t.me/megastore_cambodia',
   'Street 271, Toul Kork, Phnom Penh, Cambodia, 12000',
   'https://maps.google.com/?q=Mega+Store+Phnom+Penh',
-  'https://facebook.com/megastore.cambodia',
-  'https://instagram.com/megastore.cambodia',
-  'https://twitter.com/megastore_kh',
-  'https://linkedin.com/company/megastore-cambodia',
-  'https://youtube.com/@megastore.cambodia',
-  'https://tiktok.com/@megastore.cambodia',
-  'https://megastore.com.kh',
   true, 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
@@ -1365,8 +1356,6 @@ INSERT INTO portfolio_profile (
   logo_url, cover_image_url, industry,
   contact_email, contact_phone, contact_whatsapp, contact_telegram,
   address, map_link,
-  social_facebook, social_instagram, social_twitter, social_linkedin,
-  social_youtube, social_tiktok, social_website,
   is_published, version, is_deleted, created_at, updated_at, created_by, updated_by
 )
 VALUES (
@@ -1385,13 +1374,6 @@ VALUES (
   'https://t.me/fashionhub_siemreap',
   'Sivatha Blvd, Pub Street Area, Siem Reap, Cambodia, 17000',
   'https://maps.google.com/?q=Fashion+Hub+Siem+Reap',
-  'https://facebook.com/fashionhub.cambodia',
-  'https://instagram.com/fashionhub.cambodia',
-  'https://twitter.com/fashionhub_kh',
-  'https://linkedin.com/company/fashionhub-cambodia',
-  'https://youtube.com/@fashionhubcambodia',
-  'https://tiktok.com/@fashionhub.cambodia',
-  'https://fashionhub.com.kh',
   true, 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
