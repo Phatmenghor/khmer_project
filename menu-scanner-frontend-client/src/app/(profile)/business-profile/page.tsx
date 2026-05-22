@@ -323,16 +323,9 @@ export default function BusinessProfilePage() {
 
           {/* Business name + meta */}
           <div className="pb-5 space-y-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-snug">
-                {profile.businessName}
-              </h1>
-              {open && (
-                <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-200 px-2.5 py-1.5 flex-shrink-0">
-                  ● Open Now
-                </Badge>
-              )}
-            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-snug">
+              {profile.businessName}
+            </h1>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <StarRow rating={avg} size={3} />
