@@ -59,7 +59,6 @@ public class PortfolioResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SocialMediaItemDto {
-        private UUID id;
         private String type;
         private String url;
     }
