@@ -1252,24 +1252,24 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO BUSINESS HOURS (Dynamic with IDs)
 -- ============================================================================
 
-INSERT INTO portfolio_hours (id, profile_id, day, open_time, close_time, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.day, v.open_time, v.close_time, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_hours (id, profile_id, day, is_open, open_time, close_time, is_24_hours, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.day, v.is_open, v.open_time, v.close_time, v.is_24_hours, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('660e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'MONDAY', '08:00', '22:00', 1),
-  ('660e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'TUESDAY', '08:00', '22:00', 2),
-  ('660e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'WEDNESDAY', '08:00', '22:00', 3),
-  ('660e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'THURSDAY', '08:00', '22:00', 4),
-  ('660e8400-e29b-41d4-a716-446655440005', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'FRIDAY', '08:00', '23:00', 5),
-  ('660e8400-e29b-41d4-a716-446655440006', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'SATURDAY', '09:00', '23:00', 6),
-  ('660e8400-e29b-41d4-a716-446655440007', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'SUNDAY', NULL, NULL, 7),
-  ('660e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'MONDAY', '09:00', '21:00', 1),
-  ('660e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'TUESDAY', '09:00', '21:00', 2),
-  ('660e8400-e29b-41d4-a716-446655440010', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'WEDNESDAY', '09:00', '21:00', 3),
-  ('660e8400-e29b-41d4-a716-446655440011', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'THURSDAY', '09:00', '21:00', 4),
-  ('660e8400-e29b-41d4-a716-446655440012', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'FRIDAY', '09:00', '22:00', 5),
-  ('660e8400-e29b-41d4-a716-446655440013', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'SATURDAY', '10:00', '22:00', 6),
-  ('660e8400-e29b-41d4-a716-446655440014', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'SUNDAY', '10:00', '20:00', 7)
-) AS v(id, profile_id, day, open_time, close_time, display_order)
+  ('660e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'MONDAY', true, '08:00', '22:00', false, 1),
+  ('660e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'TUESDAY', true, '08:00', '22:00', false, 2),
+  ('660e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'WEDNESDAY', true, '08:00', '22:00', false, 3),
+  ('660e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'THURSDAY', true, '08:00', '22:00', false, 4),
+  ('660e8400-e29b-41d4-a716-446655440005', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'FRIDAY', true, '08:00', '23:00', false, 5),
+  ('660e8400-e29b-41d4-a716-446655440006', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'SATURDAY', true, '09:00', '23:00', false, 6),
+  ('660e8400-e29b-41d4-a716-446655440007', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'SUNDAY', false, NULL, NULL, false, 7),
+  ('660e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'MONDAY', true, '09:00', '21:00', false, 1),
+  ('660e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'TUESDAY', true, '09:00', '21:00', false, 2),
+  ('660e8400-e29b-41d4-a716-446655440010', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'WEDNESDAY', true, '09:00', '21:00', false, 3),
+  ('660e8400-e29b-41d4-a716-446655440011', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'THURSDAY', true, '09:00', '21:00', false, 4),
+  ('660e8400-e29b-41d4-a716-446655440012', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'FRIDAY', true, '09:00', '22:00', false, 5),
+  ('660e8400-e29b-41d4-a716-446655440013', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'SATURDAY', true, '10:00', '22:00', false, 6),
+  ('660e8400-e29b-41d4-a716-446655440014', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'SUNDAY', true, '10:00', '20:00', false, 7)
+) AS v(id, profile_id, day, is_open, open_time, close_time, is_24_hours, display_order)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_hours WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
