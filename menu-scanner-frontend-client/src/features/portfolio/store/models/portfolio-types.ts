@@ -1,37 +1,35 @@
+export interface PortfolioPhoneDto {
+  id: string;
+  number: string;
+}
+
 export interface PortfolioContactDto {
   email: string;
   phone: string;
-  phones?: string[];
+  phones?: PortfolioPhoneDto[];
   whatsapp?: string;
   telegram?: string;
   address?: string;
   mapLink?: string;
 }
 
-export interface PortfolioSocialMediaDto {
-  facebook?: string;
-  instagram?: string;
-  twitter?: string;
-  linkedin?: string;
-  youtube?: string;
-  tiktok?: string;
-  website?: string;
+export interface PortfolioSocialMediaItemDto {
+  id: string;
+  type: string;
+  url: string;
 }
 
 export interface PortfolioHoursDto {
+  id: string;
   day: string;
-  isOpen: boolean;
   openTime?: string;
   closeTime?: string;
-  is24Hours?: boolean;
 }
 
 export interface PortfolioGalleryItemDto {
   id: string;
   url: string;
   title?: string;
-  description?: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioServiceItemDto {
@@ -49,6 +47,7 @@ export interface PortfolioTeamMemberDto {
 }
 
 export interface PortfolioCustomStatDto {
+  id: string;
   label: string;
   value: string;
 }
@@ -101,19 +100,28 @@ export interface PortfolioReviewAdmin {
   updatedAt?: string;
 }
 
+export interface PortfolioPhoneRequest {
+  id?: string;
+  number: string;
+}
+
+export interface PortfolioSocialMediaRequest {
+  id?: string;
+  type: string;
+  url: string;
+}
+
 export interface PortfolioHoursRequest {
+  id?: string;
   day: string;
-  isOpen: boolean;
   openTime?: string;
   closeTime?: string;
-  is24Hours?: boolean;
 }
 
 export interface PortfolioGalleryItemRequest {
+  id?: string;
   url: string;
   title?: string;
-  description?: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioServiceItemRequest {
@@ -129,6 +137,7 @@ export interface PortfolioTeamMemberRequest {
 }
 
 export interface PortfolioCustomStatRequest {
+  id?: string;
   label: string;
   value: string;
 }
@@ -141,18 +150,12 @@ export interface PortfolioProfileSaveRequest {
   coverImageUrl?: string;
   contactEmail: string;
   contactPhone: string;
-  contactPhones?: string[];
+  contactPhones?: PortfolioPhoneRequest[];
   contactWhatsapp?: string;
   contactTelegram?: string;
   address?: string;
   mapLink?: string;
-  socialFacebook?: string;
-  socialInstagram?: string;
-  socialTwitter?: string;
-  socialLinkedin?: string;
-  socialYoutube?: string;
-  socialTiktok?: string;
-  socialWebsite?: string;
+  socialMedia?: PortfolioSocialMediaRequest[];
   features?: string[];
   yearsInBusiness?: number;
   customersServed?: number;

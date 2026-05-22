@@ -45,25 +45,18 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveReq
     contactTelegram: contact.telegram || "",
     address: contact.address || "",
     mapLink: contact.mapLink || "",
-    socialFacebook: p.socialMedia?.facebook || "",
-    socialInstagram: p.socialMedia?.instagram || "",
-    socialTwitter: p.socialMedia?.twitter || "",
-    socialLinkedin: p.socialMedia?.linkedin || "",
-    socialYoutube: p.socialMedia?.youtube || "",
-    socialTiktok: p.socialMedia?.tiktok || "",
-    socialWebsite: p.socialMedia?.website || "",
+    socialMedia: Array.isArray(p.socialMedia) ? p.socialMedia : [],
     features: p.features ?? [],
     yearsInBusiness: p.stats?.yearsInBusiness,
     customersServed: p.stats?.customersServed,
     customStats: p.stats?.customStats ?? [],
     businessHours: p.businessHours?.map((h) => ({
+      id: h.id,
       day: h.day,
-      isOpen: h.isOpen,
       openTime: h.openTime || "",
       closeTime: h.closeTime || "",
-      is24Hours: h.is24Hours ?? false,
-    })) ?? DAYS.map((d) => ({ day: d, isOpen: false, openTime: "08:00", closeTime: "18:00", is24Hours: false })),
-    gallery: p.gallery?.map((g) => ({ url: g.url, title: g.title || "", description: g.description || "", displayOrder: g.displayOrder ?? 0 })) ?? [],
+    })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
+    gallery: p.gallery?.map((g) => ({ id: g.id, url: g.url, title: g.title || "" })) ?? [],
     services: p.services?.map((s) => ({ name: s.name, description: s.description })) ?? [],
     team: p.team?.map((m) => ({ name: m.name, position: m.position, bio: m.bio || "", photoUrl: m.photoUrl || "" })) ?? [],
   };
@@ -82,18 +75,12 @@ const emptyForm = (): PortfolioProfileSaveRequest => ({
   contactTelegram: "",
   address: "",
   mapLink: "",
-  socialFacebook: "",
-  socialInstagram: "",
-  socialTwitter: "",
-  socialLinkedin: "",
-  socialYoutube: "",
-  socialTiktok: "",
-  socialWebsite: "",
+  socialMedia: [],
   features: [],
   customStats: [],
   yearsInBusiness: undefined,
   customersServed: undefined,
-  businessHours: DAYS.map((d) => ({ day: d, isOpen: false, openTime: "08:00", closeTime: "18:00", is24Hours: false })),
+  businessHours: DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
   gallery: [],
   services: [],
   team: [],
@@ -511,7 +498,7 @@ export default function PortfolioPage() {
               variant="outline"
               onClick={() => {
                 const gallery = form.getValues("gallery");
-                form.setValue("gallery", [...gallery, { url: "", title: "", description: "", displayOrder: gallery.length }], { shouldDirty: true });
+                form.setValue("gallery", [...gallery, { url: "", title: "" }], { shouldDirty: true });
               }}
             >
               <Plus className="w-4 h-4 mr-1" /> Add Image
@@ -549,45 +536,14 @@ export default function PortfolioPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label className="text-xs">Title</Label>
-                    <Controller
-                      name={`gallery.${index}.title`}
-                      control={form.control}
-                      render={({ field }) => (
-                        <Input
-                          placeholder="Image title..."
-                          {...field}
-                        />
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs">Display Order</Label>
-                    <Controller
-                      name={`gallery.${index}.displayOrder`}
-                      control={form.control}
-                      render={({ field }) => (
-                        <Input
-                          type="number"
-                          value={field.value || 0}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-
                 <div className="space-y-2">
-                  <Label className="text-xs">Description</Label>
+                  <Label className="text-xs">Title</Label>
                   <Controller
-                    name={`gallery.${index}.description`}
+                    name={`gallery.${index}.title`}
                     control={form.control}
                     render={({ field }) => (
-                      <Textarea
-                        placeholder="Image description..."
-                        rows={2}
+                      <Input
+                        placeholder="Image title..."
                         {...field}
                       />
                     )}

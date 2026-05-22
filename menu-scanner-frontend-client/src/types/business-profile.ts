@@ -62,10 +62,21 @@ export enum BusinessType {
   OTHER = "OTHER",
 }
 
+export interface PhoneInfo {
+  id?: string;
+  number: string;
+}
+
+export interface SocialMediaInfo {
+  id?: string;
+  type: string;
+  url: string;
+}
+
 export interface ContactInfo {
   email: string;
   phone: string;
-  phones?: string[];
+  phones?: PhoneInfo[];
   whatsapp?: string;
   telegram?: string;
   address?: string;
@@ -73,21 +84,13 @@ export interface ContactInfo {
 }
 
 export interface SocialMediaLinks {
-  facebook?: string;
-  instagram?: string;
-  twitter?: string;
-  linkedin?: string;
-  youtube?: string;
-  tiktok?: string;
-  website?: string;
+  socialMedia?: SocialMediaInfo[];
 }
 
 export interface BusinessHours {
   day: DayOfWeek;
-  isOpen: boolean;
   openTime?: string;
   closeTime?: string;
-  is24Hours?: boolean;
 }
 
 export enum DayOfWeek {
@@ -104,8 +107,6 @@ export interface GalleryItem {
   id: string;
   url: string;
   title?: string;
-  description?: string;
-  order: number;
 }
 
 export interface Service {
@@ -174,6 +175,7 @@ export interface BusinessStats {
 }
 
 export interface CustomStat {
+  id?: string;
   label: string;
   value: string | number;
   icon?: string;
@@ -210,9 +212,5 @@ export interface BusinessProfileFormData {
   phone: string;
   whatsapp: string;
   address: string;
-  facebook: string;
-  instagram: string;
-  twitter: string;
-  linkedin: string;
-  website: string;
+  socialMedia?: SocialMediaInfo[];
 }
