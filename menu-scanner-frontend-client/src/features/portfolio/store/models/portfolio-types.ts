@@ -88,14 +88,20 @@ export type PortfolioAdminProfile = PortfolioPublicProfile;
 export interface PortfolioReviewAdmin {
   id: string;
   customerName: string;
-  customerEmail?: string;
   customerPhone?: string;
   rating: number;
-  title?: string;
   comment: string;
-  wouldRecommend?: boolean;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface PortfolioReviewPublic {
+  id: string;
+  customerName: string;
+  customerPhone?: string;
+  rating: number;
+  comment: string;
+  createdAt?: string;
 }
 
 export interface PortfolioPhoneRequest {
@@ -173,12 +179,9 @@ export interface PortfolioProfileSaveRequest {
 
 export interface PortfolioReviewSubmitRequest {
   customerName: string;
-  customerEmail?: string;
   customerPhone?: string;
   rating: number;
-  title?: string;
   comment: string;
-  wouldRecommend?: boolean;
 }
 
 export interface PortfolioReviewFilterRequest {

@@ -64,7 +64,6 @@ function StarRow({ rating, size = 4 }: { rating: number; size?: number }) {
 interface ReviewForm {
   name: string;
   rating: number;
-  title: string;
   comment: string;
 }
 
@@ -81,13 +80,13 @@ function WriteReviewModal({
 }) {
   const dispatch = useAppDispatch();
   const isSubmitting = useAppSelector(selectIsSubmittingReview);
-  const [form, setForm]           = useState<ReviewForm>({ name: "", rating: 0, title: "", comment: "" });
+  const [form, setForm]           = useState<ReviewForm>({ name: "", rating: 0, comment: "" });
   const [hover, setHover]         = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
   function reset() {
-    setForm({ name: "", rating: 0, title: "", comment: "" });
+    setForm({ name: "", rating: 0, comment: "" });
     setHover(0);
     setSubmitted(false);
     setSubmitError("");
@@ -105,7 +104,6 @@ function WriteReviewModal({
     const request: PortfolioReviewSubmitRequest = {
       customerName: form.name,
       rating: form.rating,
-      title: form.title || undefined,
       comment: form.comment,
     };
     const result = await dispatch(submitPublicReviewThunk({ businessId, request }));
@@ -192,16 +190,6 @@ function WriteReviewModal({
               />
             </div>
 
-            {/* Title */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-medium text-foreground">Review Title</label>
-              <input
-                value={form.title}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                placeholder="e.g. Amazing experience!"
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
-              />
-            </div>
 
             {/* Comment */}
             <div className="space-y-1.5">

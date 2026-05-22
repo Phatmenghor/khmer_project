@@ -74,8 +74,8 @@ export default function PortfolioReviewsPage() {
       render: (r) => (
         <div>
           <p className="text-sm font-medium text-foreground">{r.customerName}</p>
-          {r.customerEmail && (
-            <p className="text-xs text-muted-foreground">{r.customerEmail}</p>
+          {r.customerPhone && (
+            <p className="text-xs text-muted-foreground">{r.customerPhone}</p>
           )}
         </div>
       ),
@@ -90,9 +90,6 @@ export default function PortfolioReviewsPage() {
       label: "Review",
       render: (r) => (
         <div className="max-w-xs">
-          {r.title && (
-            <p className="text-xs font-semibold text-foreground mb-0.5">{r.title}</p>
-          )}
           <p className="text-xs text-muted-foreground line-clamp-2">{r.comment}</p>
         </div>
       ),
