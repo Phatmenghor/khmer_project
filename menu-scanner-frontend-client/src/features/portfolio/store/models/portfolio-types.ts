@@ -71,7 +71,6 @@ export interface PortfolioPublicProfile {
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;
-  industry?: string;
   contact: PortfolioContactDto;
   socialMedia?: PortfolioSocialMediaItemDto[];
   businessHours?: PortfolioHoursDto[];
@@ -154,7 +153,6 @@ export interface PortfolioProfileSaveRequest {
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;
-  industry?: string;
   contactEmail: string;
   contactPhone: string;
   contactPhones?: PortfolioPhoneRequest[];

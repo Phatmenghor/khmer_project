@@ -34,9 +34,6 @@ public class PortfolioProfile extends BaseUUIDEntity {
     @Column(name = "cover_image_url")
     private String coverImageUrl;
 
-    @Column(name = "industry")
-    private String industry;
-
     // Contact
     @Column(name = "contact_email")
     private String contactEmail;

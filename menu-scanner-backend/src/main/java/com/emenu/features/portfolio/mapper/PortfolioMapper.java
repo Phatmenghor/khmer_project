@@ -52,7 +52,6 @@ public interface PortfolioMapper {
     @Mapping(target = "customStats",   ignore = true)
     @Mapping(target = "contactPhones", ignore = true)
     @Mapping(target = "features",      ignore = true)
-    @Mapping(target = "industry",      ignore = true)
     void applyProfileFields(@MappingTarget PortfolioProfile profile, PortfolioProfileSaveRequest request);
 
     // ── Request → Child entity ─────────────────────────────────────────────

@@ -16,8 +16,6 @@ public class PortfolioProfileSaveRequest {
 
     private String coverImageUrl;
 
-    private String industry;
-
     // Contact
     @NotBlank
     private String contactEmail;

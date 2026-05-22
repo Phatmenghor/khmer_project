@@ -44,7 +44,6 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
     description: p.description || "",
     logoUrl: p.logoUrl || "",
     coverImageUrl: p.coverImageUrl || "",
-    industry: p.industry || "",
     contactEmail: contact.email ?? "",
     contactPhone: contact.phone ?? "",
     contactPhones: contact.phones ?? [],
@@ -71,7 +70,6 @@ const emptyForm = (): PortfolioFormData => ({
   description: "",
   logoUrl: "",
   coverImageUrl: "",
-  industry: "",
   contactEmail: "",
   contactPhone: "",
   contactPhones: [],
@@ -252,7 +250,6 @@ export default function PortfolioPage() {
         description: data.description || "",
         logoUrl,
         coverImageUrl,
-        industry: data.industry || "",
         contactEmail: data.contactEmail || "",
         contactPhone: data.contactPhone || "",
         contactPhones: data.contactPhones || [],
@@ -308,14 +305,6 @@ export default function PortfolioPage() {
             <CardTitle>Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <TextField<PortfolioFormData>
-              control={form.control}
-              name="industry"
-              label="Industry"
-              placeholder="e.g., Retail, Fashion, Technology..."
-              error={form.formState.errors.industry}
-            />
-
             <TextareaField<PortfolioFormData>
               control={form.control}
               name="description"

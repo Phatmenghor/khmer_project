@@ -4,7 +4,6 @@ export const portfolioFormSchema = z.object({
   description: z.string().min(1, "Description is required"),
   logoUrl: z.string().optional(),
   coverImageUrl: z.string().optional(),
-  industry: z.string().optional(),
 
   contactEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
   contactPhone: z.string().optional(),
