@@ -328,8 +328,8 @@ export default function BusinessProfilePage() {
                 {profile.businessName}
               </h1>
               {open && (
-                <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-200 px-1.5 h-5 flex-shrink-0">
-                  Open Now
+                <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-200 px-2.5 py-1.5 flex-shrink-0">
+                  ● Open Now
                 </Badge>
               )}
             </div>
