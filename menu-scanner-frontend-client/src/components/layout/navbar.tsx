@@ -1,8 +1,4 @@
-
-
-
 "use client";
-
 
 declare global {
   interface Window {
@@ -16,47 +12,24 @@ declare global {
 }
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  Search,
-  ShoppingCart,
-  X,
-  User,
-  LogOut,
-  UserCircle,
-  Package,
-  Heart,
-  MapPin,
-  CarTaxiFront,
-  Menu,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
-import { Badge } from "@/components/ui/badge";
-import { CustomButton } from "../shared/button/custom-button";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/features/main/store/state/favorite-state";
 import { clearProducts } from "@/features/main/store/slice/public-product-slice";
 import { selectBusinessName, selectBusinessLogo } from "@/features/business/store/selectors/business-settings-selector";
-import { showToast } from "@/components/shared/common/show-toast";
 import { useLogout } from "@/hooks/use-logout";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { LoginModal } from "../shared/modal/login-modal";
 import { RegisterModal } from "../shared/modal/register-modal";
-import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
 import { PageContainer } from "../shared/common/page-container";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
-import { ROUTES } from "@/constants/app-routes/routes";
 
+import { NavbarSearch } from "./navbar-search";
+import { NavbarAuth } from "./navbar-auth";
+import { NavbarCart } from "./navbar-cart";
+import { NavbarLinks } from "./navbar-links";
+import { NavbarMenu } from "./navbar-menu";
 
 const navigationLinks = [
   { name: "Home", href: "/" },
@@ -88,10 +61,8 @@ export function Navbar() {
   const reduxBusinessName = useSelector(selectBusinessName);
   const reduxBusinessLogoUrl = useSelector(selectBusinessLogo);
 
-
   const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
   const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
-
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.__cachedBusinessData) {
@@ -100,13 +71,11 @@ export function Navbar() {
     }
   }, []);
 
-
   const businessName = reduxBusinessName || cachedBusinessName || "";
   const businessLogoUrl = reduxBusinessLogoUrl || cachedLogoUrl || "";
 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
   const prevFavoriteCount = useRef(favoriteItemCount);
-
 
   useEffect(() => {
     if (
@@ -120,13 +89,11 @@ export function Navbar() {
     prevFavoriteCount.current = favoriteItemCount;
   }, [favoriteItemCount]);
 
-
   useEffect(() => {
     if (mobileSearchOpen) {
       setTimeout(() => mobileSearchRef.current?.focus(), 50);
     }
   }, [mobileSearchOpen]);
-
 
   useEffect(() => {
     const handleResize = () => {
@@ -139,7 +106,6 @@ export function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-
   const handleNavigateToHome = () => {
     navigatingRef.current = true;
     setMobileSearchOpen(false);
@@ -147,18 +113,15 @@ export function Navbar() {
     router.push("/");
   };
 
-
   const handleSwitchToRegister = () => {
     setIsLoginModalOpen(false);
     setIsRegisterModalOpen(true);
   };
 
-
   const handleSwitchToLogin = () => {
     setIsRegisterModalOpen(false);
     setIsLoginModalOpen(true);
   };
-
 
   const handleNavigateToPage = (href: string) => {
     navigatingRef.current = true;
@@ -168,25 +131,20 @@ export function Navbar() {
     router.push(href);
   };
 
-
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-
 
   useEffect(() => {
     const urlSearchQuery = new URLSearchParams(window.location.search).get("q");
     if (urlSearchQuery) setSearchQuery(urlSearchQuery);
   }, []);
 
-
   useEffect(() => {
-
     if (navigatingRef.current) {
       navigatingRef.current = false;
       return;
     }
 
     if (!debouncedSearchQuery.trim()) {
-
       if (pathname !== "/") {
         const currentParams = new URLSearchParams(window.location.search);
         if (currentParams.has("q")) {
@@ -200,18 +158,15 @@ export function Navbar() {
       return;
     }
 
-
     if (pathname === "/" && searchQuery === "") {
       return;
     }
-
 
     const params = new URLSearchParams(window.location.search);
     const searchRoute = pathname === "/" ? "/products" : pathname;
     params.set("q", debouncedSearchQuery.trim());
     router.push(`${searchRoute}?${params.toString()}`);
   }, [debouncedSearchQuery, pathname, searchQuery, router]);
-
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,71 +178,6 @@ export function Navbar() {
       setMobileSearchOpen(false);
     }
   };
-
-  const dropdownSections = [
-    {
-      items: [
-        {
-          label: "My Profile",
-          icon: <UserCircle className="h-4 w-4" />,
-          onClick: () => router.push("/profile"),
-        },
-        {
-          label: "Location",
-          icon: <MapPin className="h-4 w-4" />,
-          onClick: () => router.push(ROUTES.LOCATION),
-        },
-      ],
-    },
-    {
-      label: "Shopping",
-      items: [
-        {
-          label: "Cart",
-          icon: <CarTaxiFront className="h-4 w-4" />,
-          onClick: () => router.push("/cart"),
-        },
-        {
-          label: "Favorites",
-          icon: <Heart className="h-4 w-4" />,
-          onClick: () => router.push("/favorites"),
-        },
-        {
-          label: "My Orders",
-          icon: <Package className="h-4 w-4" />,
-          onClick: () => router.push("/orders"),
-        },
-      ],
-    },
-    {
-      items: [
-        {
-          label: "Logout",
-          icon: <LogOut className="h-4 w-4" />,
-          onClick: handleLogout,
-          variant: "destructive" as const,
-        },
-      ],
-    },
-  ];
-
-  const dropdownHeader = (
-    <div className="flex items-center gap-3">
-      <CustomAvatar
-        imageUrl={profileImage || profile?.profileImageUrl}
-        name={fullName || profile?.fullName || "User"}
-        size="lg"
-      />
-      <div className="flex flex-col space-y-0.5 flex-1 min-w-0">
-        <p className="text-sm font-semibold line-clamp-1">
-          {fullName || profile?.fullName || "User"}
-        </p>
-        <p className="text-xs text-muted-foreground line-clamp-1">
-          {email || profile?.email || ""}
-        </p>
-      </div>
-    </div>
-  );
 
   const searchPlaceholder =
     pathname === "/products"
@@ -302,49 +192,39 @@ export function Navbar() {
     <>
       <nav className="sticky top-0 z-50 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm flex items-center">
         <PageContainer className="max-w-8xl w-full">
-          {}
+          {/* Mobile: Search or Navigation */}
           {mobileSearchOpen ? (
-            <form
-              onSubmit={handleSearchSubmit}
-              className="lg:hidden flex items-center gap-2 w-full h-14"
-            >
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  ref={mobileSearchRef}
-                  type="search"
-                  placeholder={searchPlaceholder}
-                  className="pl-10 w-full h-10 bg-muted/50"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="shrink-0"
-                onClick={() => setMobileSearchOpen(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </form>
+            <NavbarSearch
+              mobileSearchOpen={mobileSearchOpen}
+              onMobileSearchOpen={setMobileSearchOpen}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              searchPlaceholder={searchPlaceholder}
+              onSearchSubmit={handleSearchSubmit}
+              mobileSearchRef={mobileSearchRef}
+            />
           ) : (
-
             <div className="lg:hidden flex items-center justify-between w-full h-14 gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                {}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 shrink-0 hover:bg-primary/10 hover:text-primary transition-colors"
-                  onClick={() => setMenuOpen(!menuOpen)}
-                  title="Menu"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
+                <NavbarMenu
+                  open={menuOpen}
+                  onOpenChange={setMenuOpen}
+                  businessName={businessName}
+                  businessLogoUrl={businessLogoUrl}
+                  navigationLinks={navigationLinks}
+                  pathname={pathname}
+                  isAuthenticated={isAuthenticated}
+                  fullName={fullName}
+                  email={email}
+                  profileImage={profileImage}
+                  profile={profile}
+                  onNavigateHome={handleNavigateToHome}
+                  onNavigate={handleNavigateToPage}
+                  onLogin={() => setIsLoginModalOpen(true)}
+                  onRegister={() => setIsRegisterModalOpen(true)}
+                  onLogout={handleLogout}
+                />
 
-                {}
                 {businessName && (
                   <button onClick={handleNavigateToHome} className="flex flex-col gap-0.5 group min-w-0">
                     <span className="text-foreground font-bold text-sm leading-tight line-clamp-1">
@@ -357,244 +237,40 @@ export function Navbar() {
                 )}
               </div>
 
-              {}
               <div className="flex items-center gap-1">
-                {}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="lg:hidden h-9 w-9"
+                <button
                   onClick={() => setMobileSearchOpen(true)}
+                  className="lg:hidden h-9 w-9 hover:text-primary"
                 >
-                  <Search className="h-5 w-5" />
-                </Button>
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative h-10 w-10"
-                  onClick={() => router.push("/favorites")}
-                >
-                  <Heart className="h-7 w-7" />
-                  {favoriteItemCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className={cn(
-                        "absolute -top-1 -right-1 h-5 min-w-[20px] max-w-[28px] px-1 flex items-center justify-center text-[11px] font-semibold leading-none transition-transform duration-300",
-                        favoriteAnimating && "animate-slide-down",
-                      )}
-                    >
-                      {favoriteItemCount}
-                    </Badge>
-                  )}
-                </Button>
+                <NavbarCart
+                  cartItemCount={cartItemCount}
+                  favoriteItemCount={favoriteItemCount}
+                  favoriteAnimating={favoriteAnimating}
+                  onFavoritesClick={() => router.push("/favorites")}
+                  onCartClick={() => router.push("/cart")}
+                  isMobile={true}
+                />
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative h-10 w-10"
-                  onClick={() => router.push("/cart")}
-                >
-                  <ShoppingCart className="h-7 w-7" />
-                  {cartItemCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 min-w-[20px] max-w-[28px] h-5 px-1 flex items-center justify-center text-xs font-semibold leading-none"
-                    >
-                      {cartItemCount > 99 ? "99+" : cartItemCount}
-                    </Badge>
-                  )}
-                </Button>
-
-                {isAuthenticated ? (
-                  <CustomDropdownMenu
-                    trigger={
-                      <div className="h-9 w-9 flex items-center justify-center rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
-                        <CustomAvatar
-                          imageUrl={profileImage || profile?.profileImageUrl}
-                          name={fullName || profile?.fullName || "User"}
-                          size="sm"
-                        />
-                      </div>
-                    }
-                    header={dropdownHeader}
-                    sections={dropdownSections}
-                    align="right"
-                    openOnHover={false}
-                    hoverDelay={200}
-                  />
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9"
-                    onClick={() => setIsLoginModalOpen(true)}
-                  >
-                    <User className="h-5 w-5" />
-                  </Button>
-                )}
+                <NavbarAuth
+                  isAuthenticated={isAuthenticated}
+                  fullName={fullName}
+                  email={email}
+                  profileImage={profileImage}
+                  profile={profile}
+                  onLoginClick={() => setIsLoginModalOpen(true)}
+                  onLogout={handleLogout}
+                  openOnHover={false}
+                />
               </div>
             </div>
           )}
 
-          {}
-          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-            <SheetContent side="left" className="w-4/5 sm:w-96 p-0 flex flex-col">
-              {}
-              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-
-              {}
-              <div className="border-b border-border/60 px-6 py-4 mt-0 bg-gradient-to-br from-primary/5 to-transparent">
-                <div className="flex items-start gap-3">
-                  {}
-                  {businessLogoUrl && (
-                    <div className="relative shrink-0">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
-                        <img
-                          src={businessLogoUrl}
-                          alt={businessName}
-                          className="w-full h-full object-cover rounded"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {}
-                  <div className="flex-1 min-w-0 pt-1">
-                    <h2 className="text-foreground font-bold text-sm leading-tight line-clamp-1">
-                      {businessName}
-                    </h2>
-                    <p className="text-muted-foreground text-xs font-medium">
-                      Shop Online
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col h-full overflow-y-auto">
-                {}
-                <nav className="flex flex-col py-2">
-                  {navigationLinks.map((link, index) => {
-                    const active =
-                      pathname === link.href ||
-                      (link.href === "/products" &&
-                        pathname.startsWith("/products"));
-
-
-                    if (link.name === "Home") {
-                      return (
-                        <button
-                          key={link.name}
-                          onClick={() => {
-                            handleNavigateToHome();
-                            setMenuOpen(false);
-                          }}
-                          className={cn(
-                            "w-full text-left px-4 py-3 mx-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3",
-                            active
-                              ? "text-primary bg-primary/10 shadow-sm"
-                              : "text-foreground hover:bg-muted/50 active:bg-muted/70"
-                          )}
-                        >
-                          <span className="flex-1">{link.name}</span>
-                          {active && (
-                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                          )}
-                        </button>
-                      );
-                    }
-
-
-                    return (
-                      <button
-                        key={link.name}
-                        onClick={() => {
-                          handleNavigateToPage(link.href);
-                          setMenuOpen(false);
-                        }}
-                        className={cn(
-                          "w-full text-left px-4 py-3 mx-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3",
-                          active
-                            ? "text-primary bg-primary/10 shadow-sm"
-                            : "text-foreground hover:bg-muted/50 active:bg-muted/70"
-                        )}
-                      >
-                        <span className="flex-1">{link.name}</span>
-                        {active && (
-                          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </nav>
-
-                {}
-                <div className="my-2 mx-4 border-t border-border/40" />
-
-                {}
-                {isAuthenticated ? (
-                  <div className="px-4 py-4 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent">
-                    <div className="flex items-center gap-3 mb-4 p-2 rounded-lg bg-background/50">
-                      <CustomAvatar
-                        imageUrl={profileImage || profile?.profileImageUrl}
-                        name={fullName || profile?.fullName || "User"}
-                        size="md"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold line-clamp-1">
-                          {fullName || profile?.fullName || "User"}
-                        </p>
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {email || profile?.email || ""}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full transition-all duration-200 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-                      onClick={() => {
-                        handleLogout();
-                        setMenuOpen(false);
-                      }}
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Logout
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="px-4 py-4 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 transition-all duration-200"
-                      onClick={() => {
-                        setIsLoginModalOpen(true);
-                        setMenuOpen(false);
-                      }}
-                    >
-                      Login
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="flex-1 transition-all duration-200"
-                      onClick={() => {
-                        setIsRegisterModalOpen(true);
-                        setMenuOpen(false);
-                      }}
-                    >
-                      Register
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
-
-          {}
+          {/* Desktop View */}
           <div className="hidden lg:flex h-full w-full items-center justify-between gap-4">
             <div className="flex items-center gap-8">
               {businessName && (
@@ -617,142 +293,52 @@ export function Navbar() {
                   </div>
                   <div className="hidden md:flex flex-col">
                     <span className="text-foreground font-bold text-sm leading-tight">
-                    {businessName}
-                  </span>
-                  <span className="text-muted-foreground text-xs font-medium">
-                    Shop Online
-                  </span>
-                </div>
+                      {businessName}
+                    </span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      Shop Online
+                    </span>
+                  </div>
                 </button>
               )}
 
-              <div className="hidden lg:flex items-center gap-1">
-                {navigationLinks.map((link) => {
-                  const active =
-                    pathname === link.href ||
-                    (link.href === "/products" &&
-                      pathname.startsWith("/products"));
-
-
-                  if (link.name === "Home") {
-                    return (
-                      <Button
-                        key={link.name}
-                        variant="ghost"
-                        className={cn(
-                          "text-foreground hover:text-primary hover:bg-primary/10 relative",
-                          active &&
-                            "text-primary after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-3/4 after:h-0.5 after:bg-primary after:rounded-full",
-                        )}
-                        onClick={handleNavigateToHome}
-                      >
-                        {link.name}
-                      </Button>
-                    );
-                  }
-
-
-                  return (
-                    <Button
-                      key={link.name}
-                      variant="ghost"
-                      className={cn(
-                        "text-foreground hover:text-primary hover:bg-primary/10 relative",
-                        active &&
-                          "text-primary after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-3/4 after:h-0.5 after:bg-primary after:rounded-full",
-                      )}
-                      onClick={() => handleNavigateToPage(link.href)}
-                    >
-                      {link.name}
-                    </Button>
-                  );
-                })}
-              </div>
+              <NavbarLinks
+                navigationLinks={navigationLinks}
+                pathname={pathname}
+                onNavigateHome={handleNavigateToHome}
+                onNavigate={handleNavigateToPage}
+              />
             </div>
 
-            {}
-            <form
-              onSubmit={handleSearchSubmit}
-              className="hidden lg:flex flex-1 max-w-xl"
-            >
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  type="search"
-                  placeholder={searchPlaceholder}
-                  className="pl-10 w-full bg-muted/50"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </form>
+            <NavbarSearch
+              mobileSearchOpen={mobileSearchOpen}
+              onMobileSearchOpen={setMobileSearchOpen}
+              searchQuery={searchQuery}
+              onSearchQueryChange={setSearchQuery}
+              searchPlaceholder={searchPlaceholder}
+              onSearchSubmit={handleSearchSubmit}
+              mobileSearchRef={mobileSearchRef}
+            />
 
-            {}
             <div className="hidden lg:flex items-center gap-2">
-              <CustomButton
-                variant="ghost"
-                size="icon"
-                className="relative h-10 w-10 hover:text-primary flex items-center justify-center"
-                onClick={() => router.push("/favorites")}
-              >
-                <Heart className="h-7 w-7" />
-                {favoriteItemCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className={cn(
-                      "absolute -top-1 -right-1 h-5 min-w-[20px] max-w-[28px] px-1 flex items-center justify-center text-xs font-semibold leading-none transition-transform duration-300",
-                      favoriteAnimating && "animate-slide-down",
-                    )}
-                  >
-                    {favoriteItemCount}
-                  </Badge>
-                )}
-              </CustomButton>
+              <NavbarCart
+                cartItemCount={cartItemCount}
+                favoriteItemCount={favoriteItemCount}
+                favoriteAnimating={favoriteAnimating}
+                onFavoritesClick={() => router.push("/favorites")}
+                onCartClick={() => router.push("/cart")}
+              />
 
-              <CustomButton
-                variant="ghost"
-                size="icon"
-                className="relative h-10 w-10 hover:text-primary flex items-center justify-center"
-                onClick={() => router.push("/cart")}
-              >
-                <ShoppingCart className="h-7 w-7" />
-                {cartItemCount > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 min-w-[20px] max-w-[28px] h-5 px-1 flex items-center justify-center text-xs font-semibold leading-none"
-                  >
-                    {cartItemCount > 99 ? "99+" : cartItemCount}
-                  </Badge>
-                )}
-              </CustomButton>
-
-              {isAuthenticated ? (
-                <CustomDropdownMenu
-                  trigger={
-                    <div className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
-                      <CustomAvatar
-                        imageUrl={profileImage || profile?.profileImageUrl}
-                        name={fullName || profile?.fullName || "User"}
-                        size="md"
-                      />
-                    </div>
-                  }
-                  header={dropdownHeader}
-                  sections={dropdownSections}
-                  align="right"
-                  openOnHover={true}
-                  hoverDelay={200}
-                />
-              ) : (
-                <CustomButton
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsLoginModalOpen(true)}
-                  className="hover:bg-primary/10 hover:text-primary transition-colors"
-                >
-                  <User className="h-5 w-5" />
-                </CustomButton>
-              )}
+              <NavbarAuth
+                isAuthenticated={isAuthenticated}
+                fullName={fullName}
+                email={email}
+                profileImage={profileImage}
+                profile={profile}
+                onLoginClick={() => setIsLoginModalOpen(true)}
+                onLogout={handleLogout}
+                openOnHover={true}
+              />
             </div>
           </div>
         </PageContainer>
