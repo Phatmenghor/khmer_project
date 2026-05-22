@@ -322,21 +322,23 @@ export default function BusinessProfilePage() {
           </div>
 
           {/* Business name + meta */}
-          <div className="pb-5 space-y-1.5">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-snug">
-              {profile.businessName}
-            </h1>
+          <div className="pb-5 space-y-2">
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-snug">
+                {profile.businessName}
+              </h1>
+              {open && (
+                <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-200 px-1.5 h-5 flex-shrink-0">
+                  Open Now
+                </Badge>
+              )}
+            </div>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <StarRow rating={avg} size={3} />
                 <span className="font-semibold text-foreground text-xs">{avg.toFixed(1)}</span>
                 <span className="text-xs">({total})</span>
               </div>
-              {open && (
-                <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-200 px-1.5 h-5">
-                  Open Now
-                </Badge>
-              )}
               <div className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                 <span className="text-xs truncate">
