@@ -1,17 +1,12 @@
 package com.emenu.features.portfolio.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.UUID;
 
 @Data
-public class PortfolioGalleryItemRequest {
-
+public class PortfolioSocialMediaRequest {
     private UUID id;
-
-    @NotBlank
+    private String type;
     private String url;
-
-    private String title;
 }

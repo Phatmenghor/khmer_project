@@ -28,7 +28,8 @@ public class PortfolioProfileSaveRequest {
     @NotBlank
     private String contactPhone;
 
-    private List<String> contactPhones;
+    @Valid
+    private List<PortfolioPhoneRequest> contactPhones;
 
     private String contactWhatsapp;
 
@@ -40,19 +41,8 @@ public class PortfolioProfileSaveRequest {
     private String mapLink;
 
     // Social
-    private String socialFacebook;
-
-    private String socialInstagram;
-
-    private String socialTwitter;
-
-    private String socialLinkedin;
-
-    private String socialYoutube;
-
-    private String socialTiktok;
-
-    private String socialWebsite;
+    @Valid
+    private List<PortfolioSocialMediaRequest> socialMedia;
 
     private List<String> features;
 

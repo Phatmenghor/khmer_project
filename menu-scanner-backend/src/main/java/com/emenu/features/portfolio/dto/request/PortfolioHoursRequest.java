@@ -1,23 +1,19 @@
 package com.emenu.features.portfolio.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Data
 public class PortfolioHoursRequest {
 
+    private UUID id;
+
     @NotBlank
     private String day;
-
-    @NotNull
-    private Boolean isOpen;
 
     private String openTime;
 
     private String closeTime;
-
-    private Boolean is24Hours = false;
-
-    private Integer displayOrder = 0;
 }

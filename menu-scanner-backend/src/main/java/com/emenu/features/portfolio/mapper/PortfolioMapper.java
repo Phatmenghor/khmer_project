@@ -53,7 +53,7 @@ public interface PortfolioMapper {
     @Mapping(target = "services",      ignore = true)
     @Mapping(target = "team",          ignore = true)
     @Mapping(target = "customStats",   ignore = true)
-    @Mapping(target = "contactPhones", defaultExpression = "java(new java.util.ArrayList<>())")
+    @Mapping(target = "contactPhones", ignore = true)
     @Mapping(target = "features",      defaultExpression = "java(new java.util.ArrayList<>())")
     @Mapping(target = "industry",      ignore = true)
     @Mapping(target = "isPublished",   ignore = true)
@@ -89,7 +89,7 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", defaultValue = "0")
+    @Mapping(target = "displayOrder", ignore = true)
     PortfolioHours toHoursEntity(PortfolioHoursRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -102,7 +102,7 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", defaultValue = "0")
+    @Mapping(target = "displayOrder", ignore = true)
     PortfolioGalleryItem toGalleryEntity(PortfolioGalleryItemRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -115,7 +115,7 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", defaultValue = "0")
+    @Mapping(target = "displayOrder", ignore = true)
     PortfolioServiceItem toServiceEntity(PortfolioServiceItemRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -128,7 +128,7 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", defaultValue = "0")
+    @Mapping(target = "displayOrder", ignore = true)
     PortfolioTeamMember toTeamEntity(PortfolioTeamMemberRequest request);
 
     @Mapping(target = "id",           ignore = true)
@@ -141,7 +141,7 @@ public interface PortfolioMapper {
     @Mapping(target = "isDeleted",    ignore = true)
     @Mapping(target = "deletedAt",    ignore = true)
     @Mapping(target = "deletedBy",    ignore = true)
-    @Mapping(target = "displayOrder", defaultValue = "0")
+    @Mapping(target = "displayOrder", ignore = true)
     PortfolioCustomStat toCustomStatEntity(PortfolioCustomStatRequest request);
 
     // ── Filtered list helpers (exclude soft-deleted children) ──────────────
@@ -275,18 +275,12 @@ public interface PortfolioMapper {
 
     @Mapping(source = "contactEmail",      target = "contact.email")
     @Mapping(source = "contactPhone",      target = "contact.phone")
-    @Mapping(source = "contactPhones",     target = "contact.phones")
+    @Mapping(target = "contact.phones",    ignore = true)
     @Mapping(source = "contactWhatsapp",   target = "contact.whatsapp")
     @Mapping(source = "contactTelegram",   target = "contact.telegram")
     @Mapping(source = "address",           target = "contact.address")
     @Mapping(source = "mapLink",           target = "contact.mapLink")
-    @Mapping(source = "socialFacebook",    target = "socialMedia.facebook")
-    @Mapping(source = "socialInstagram",   target = "socialMedia.instagram")
-    @Mapping(source = "socialTwitter",     target = "socialMedia.twitter")
-    @Mapping(source = "socialLinkedin",    target = "socialMedia.linkedin")
-    @Mapping(source = "socialYoutube",     target = "socialMedia.youtube")
-    @Mapping(source = "socialTiktok",      target = "socialMedia.tiktok")
-    @Mapping(source = "socialWebsite",     target = "socialMedia.website")
+    @Mapping(target = "socialMedia",       ignore = true)
     @Mapping(source = "yearsInBusiness",   target = "stats.yearsInBusiness")
     @Mapping(source = "customersServed",   target = "stats.customersServed")
     @Mapping(source = "customStats",       target = "stats.customStats",  qualifiedByName = "filterAndMapStatsUnified")

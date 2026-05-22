@@ -22,7 +22,7 @@ public class PortfolioResponse {
     private String logoUrl;
     private String coverImageUrl;
     private ContactDto contact;
-    private SocialMediaDto socialMedia;
+    private List<SocialMediaItemDto> socialMedia;
     private List<HoursDto> businessHours;
     private List<GalleryItemDto> gallery;
     private List<ServiceItemDto> services;
@@ -40,7 +40,7 @@ public class PortfolioResponse {
     public static class ContactDto {
         private String email;
         private String phone;
-        private List<String> phones;
+        private List<PhoneDto> phones;
         private String whatsapp;
         private String telegram;
         private String address;
@@ -51,14 +51,19 @@ public class PortfolioResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SocialMediaDto {
-        private String facebook;
-        private String instagram;
-        private String twitter;
-        private String linkedin;
-        private String youtube;
-        private String tiktok;
-        private String website;
+    public static class PhoneDto {
+        private UUID id;
+        private String number;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SocialMediaItemDto {
+        private UUID id;
+        private String type;
+        private String url;
     }
 
     @Data
@@ -66,11 +71,10 @@ public class PortfolioResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HoursDto {
+        private UUID id;
         private String day;
-        private Boolean isOpen;
         private String openTime;
         private String closeTime;
-        private Boolean is24Hours;
     }
 
     @Data
@@ -81,8 +85,6 @@ public class PortfolioResponse {
         private UUID id;
         private String url;
         private String title;
-        private String description;
-        private Integer displayOrder;
     }
 
     @Data
@@ -122,6 +124,7 @@ public class PortfolioResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CustomStatDto {
+        private UUID id;
         private String label;
         private String value;
     }
