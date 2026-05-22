@@ -20,8 +20,10 @@ public interface PortfolioReviewRepository extends JpaRepository<PortfolioReview
 
     @Query(value = "SELECT * FROM portfolio_review r WHERE r.profile_id = :profileId AND r.is_deleted = false " +
            "AND (:search IS NULL OR LOWER(r.customer_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "     OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-           "ORDER BY r.created_at DESC",
+           "     OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%')))",
+           countQuery = "SELECT COUNT(*) FROM portfolio_review r WHERE r.profile_id = :profileId AND r.is_deleted = false " +
+           "AND (:search IS NULL OR LOWER(r.customer_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "     OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%')))",
            nativeQuery = true)
     Page<PortfolioReview> findWithFilters(@Param("profileId") UUID profileId,
                                           @Param("search") String search,
@@ -29,8 +31,10 @@ public interface PortfolioReviewRepository extends JpaRepository<PortfolioReview
 
     @Query(value = "SELECT * FROM portfolio_review r WHERE r.business_id = :businessId AND r.is_deleted = false " +
            "AND (:search IS NULL OR LOWER(r.customer_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "     OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-           "ORDER BY r.created_at DESC",
+           "     OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%')))",
+           countQuery = "SELECT COUNT(*) FROM portfolio_review r WHERE r.business_id = :businessId AND r.is_deleted = false " +
+           "AND (:search IS NULL OR LOWER(r.customer_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "     OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%')))",
            nativeQuery = true)
     Page<PortfolioReview> findWithFiltersByBusiness(@Param("businessId") UUID businessId,
                                                      @Param("search") String search,

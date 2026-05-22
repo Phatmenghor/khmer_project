@@ -107,7 +107,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     public PaginationResponse<PortfolioReviewAdminResponse> getReviews(PortfolioReviewFilterRequest filter) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
 
-        Pageable pageable = PaginationUtils.createPageable(
+        Pageable pageable = PaginationUtils.createPageableForNativeQuery(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
