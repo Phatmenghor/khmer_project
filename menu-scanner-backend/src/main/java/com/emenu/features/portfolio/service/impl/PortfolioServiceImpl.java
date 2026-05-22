@@ -144,49 +144,74 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     private void rebuildCollections(PortfolioProfile savedProfile, PortfolioProfileSaveRequest request) {
+        savedProfile.getContactPhones().clear();
+        if (request.getContactPhones() != null) {
+            for (int i = 0; i < request.getContactPhones().size(); i++) {
+                PortfolioPhone phone = portfolioMapper.toPhoneEntity(request.getContactPhones().get(i));
+                phone.setProfile(savedProfile);
+                phone.setDisplayOrder(i + 1);
+                savedProfile.getContactPhones().add(phone);
+            }
+        }
+
+        savedProfile.getFeatures().clear();
+        if (request.getFeatures() != null) {
+            for (int i = 0; i < request.getFeatures().size(); i++) {
+                PortfolioFeature feature = portfolioMapper.toFeatureEntity(request.getFeatures().get(i));
+                feature.setProfile(savedProfile);
+                feature.setDisplayOrder(i + 1);
+                savedProfile.getFeatures().add(feature);
+            }
+        }
+
         savedProfile.getBusinessHours().clear();
         if (request.getBusinessHours() != null) {
-            request.getBusinessHours().forEach(req -> {
-                PortfolioHours hours = portfolioMapper.toHoursEntity(req);
+            for (int i = 0; i < request.getBusinessHours().size(); i++) {
+                PortfolioHours hours = portfolioMapper.toHoursEntity(request.getBusinessHours().get(i));
                 hours.setProfile(savedProfile);
+                hours.setDisplayOrder(i + 1);
                 savedProfile.getBusinessHours().add(hours);
-            });
+            }
         }
 
         savedProfile.getGallery().clear();
         if (request.getGallery() != null) {
-            request.getGallery().forEach(req -> {
-                PortfolioGalleryItem item = portfolioMapper.toGalleryEntity(req);
+            for (int i = 0; i < request.getGallery().size(); i++) {
+                PortfolioGalleryItem item = portfolioMapper.toGalleryEntity(request.getGallery().get(i));
                 item.setProfile(savedProfile);
+                item.setDisplayOrder(i + 1);
                 savedProfile.getGallery().add(item);
-            });
+            }
         }
 
         savedProfile.getServices().clear();
         if (request.getServices() != null) {
-            request.getServices().forEach(req -> {
-                PortfolioServiceItem svc = portfolioMapper.toServiceEntity(req);
+            for (int i = 0; i < request.getServices().size(); i++) {
+                PortfolioServiceItem svc = portfolioMapper.toServiceEntity(request.getServices().get(i));
                 svc.setProfile(savedProfile);
+                svc.setDisplayOrder(i + 1);
                 savedProfile.getServices().add(svc);
-            });
+            }
         }
 
         savedProfile.getTeam().clear();
         if (request.getTeam() != null) {
-            request.getTeam().forEach(req -> {
-                PortfolioTeamMember member = portfolioMapper.toTeamEntity(req);
+            for (int i = 0; i < request.getTeam().size(); i++) {
+                PortfolioTeamMember member = portfolioMapper.toTeamEntity(request.getTeam().get(i));
                 member.setProfile(savedProfile);
+                member.setDisplayOrder(i + 1);
                 savedProfile.getTeam().add(member);
-            });
+            }
         }
 
         savedProfile.getCustomStats().clear();
         if (request.getCustomStats() != null) {
-            request.getCustomStats().forEach(req -> {
-                PortfolioCustomStat stat = portfolioMapper.toCustomStatEntity(req);
+            for (int i = 0; i < request.getCustomStats().size(); i++) {
+                PortfolioCustomStat stat = portfolioMapper.toCustomStatEntity(request.getCustomStats().get(i));
                 stat.setProfile(savedProfile);
+                stat.setDisplayOrder(i + 1);
                 savedProfile.getCustomStats().add(stat);
-            });
+            }
         }
     }
 
