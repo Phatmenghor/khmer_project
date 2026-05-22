@@ -164,6 +164,10 @@ public interface PortfolioMapper {
 
     List<PortfolioReviewAdminResponse> toReviewAdminResponseList(List<PortfolioReview> reviews);
 
+    PortfolioReviewPublicResponse toReviewPublicResponse(PortfolioReview review);
+
+    List<PortfolioReviewPublicResponse> toReviewPublicResponseList(List<PortfolioReview> reviews);
+
     // ── Filtered list helpers (exclude soft-deleted children) ──────────────
 
     @Named("filterAndMapPhones")
@@ -301,5 +305,10 @@ public interface PortfolioMapper {
     default PaginationResponse<PortfolioReviewAdminResponse> toReviewPaginationResponse(
             Page<PortfolioReview> page, PaginationMapper paginationMapper) {
         return paginationMapper.toPaginationResponse(page, this::toReviewAdminResponseList);
+    }
+
+    default PaginationResponse<PortfolioReviewPublicResponse> toReviewPublicPaginationResponse(
+            Page<PortfolioReview> page, PaginationMapper paginationMapper) {
+        return paginationMapper.toPaginationResponse(page, this::toReviewPublicResponseList);
     }
 }

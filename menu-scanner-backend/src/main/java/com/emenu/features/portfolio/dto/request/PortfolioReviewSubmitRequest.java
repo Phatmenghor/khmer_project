@@ -9,8 +9,6 @@ public class PortfolioReviewSubmitRequest {
     @NotBlank
     private String customerName;
 
-    private String customerEmail;
-
     private String customerPhone;
 
     @NotNull
@@ -18,10 +16,6 @@ public class PortfolioReviewSubmitRequest {
     @Max(5)
     private Integer rating;
 
-    private String title;
-
     @NotBlank
     private String comment;
-
-    private Boolean wouldRecommend;
 }

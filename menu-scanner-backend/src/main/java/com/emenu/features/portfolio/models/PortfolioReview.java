@@ -26,21 +26,12 @@ public class PortfolioReview extends BaseUUIDEntity {
     @Column(name = "customer_name", nullable = false)
     private String customerName;
 
-    @Column(name = "customer_email")
-    private String customerEmail;
-
     @Column(name = "customer_phone")
     private String customerPhone;
 
     @Column(name = "rating", nullable = false)
     private Integer rating;
 
-    @Column(name = "title")
-    private String title;
-
     @Column(name = "comment", columnDefinition = "TEXT", nullable = false)
     private String comment;
-
-    @Column(name = "would_recommend")
-    private Boolean wouldRecommend;
 }

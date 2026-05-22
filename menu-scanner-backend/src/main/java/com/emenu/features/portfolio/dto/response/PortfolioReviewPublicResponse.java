@@ -12,7 +12,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PortfolioReviewAdminResponse {
+public class PortfolioReviewPublicResponse {
 
     private UUID id;
     private String customerName;
@@ -20,5 +20,4 @@ public class PortfolioReviewAdminResponse {
     private Integer rating;
     private String comment;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

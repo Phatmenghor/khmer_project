@@ -9,6 +9,7 @@ import com.emenu.features.portfolio.dto.request.PortfolioProfileSaveRequest;
 import com.emenu.features.portfolio.dto.request.PortfolioReviewSubmitRequest;
 import com.emenu.features.portfolio.dto.response.PortfolioResponse;
 import com.emenu.features.portfolio.dto.response.PortfolioReviewAdminResponse;
+import com.emenu.features.portfolio.dto.response.PortfolioReviewPublicResponse;
 import com.emenu.features.portfolio.dto.response.ReviewStatsResponse;
 import com.emenu.features.portfolio.mapper.PortfolioMapper;
 import com.emenu.features.portfolio.models.*;
@@ -135,6 +136,20 @@ public class PortfolioServiceImpl implements PortfolioService {
         review.softDelete();
         reviewRepository.save(review);
         log.info("Review soft-deleted: id={}", reviewId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginationResponse<PortfolioReviewPublicResponse> getPublicReviews(UUID businessId, PortfolioReviewFilterRequest filter) {
+        Pageable pageable = PaginationUtils.createPageableForNativeQuery(
+                filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
+        );
+
+        String search = (filter.getSearch() != null && !filter.getSearch().isBlank()) ? filter.getSearch() : null;
+
+        Page<PortfolioReview> page = reviewRepository.findWithFiltersByBusiness(businessId, search, pageable);
+
+        return portfolioMapper.toReviewPublicPaginationResponse(page, paginationMapper);
     }
 
     // ==================== Private Helpers ====================
