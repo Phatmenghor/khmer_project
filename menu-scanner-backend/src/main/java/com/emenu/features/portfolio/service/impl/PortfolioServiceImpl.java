@@ -7,8 +7,7 @@ import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.portfolio.dto.filter.PortfolioReviewFilterRequest;
 import com.emenu.features.portfolio.dto.request.PortfolioProfileSaveRequest;
 import com.emenu.features.portfolio.dto.request.PortfolioReviewSubmitRequest;
-import com.emenu.features.portfolio.dto.response.PortfolioAdminResponse;
-import com.emenu.features.portfolio.dto.response.PortfolioPublicResponse;
+import com.emenu.features.portfolio.dto.response.PortfolioResponse;
 import com.emenu.features.portfolio.dto.response.PortfolioReviewAdminResponse;
 import com.emenu.features.portfolio.dto.response.ReviewStatsResponse;
 import com.emenu.features.portfolio.mapper.PortfolioMapper;
@@ -47,17 +46,17 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     @Override
     @Transactional(readOnly = true)
-    public PortfolioAdminResponse getMyProfile() {
+    public PortfolioResponse getMyProfile() {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
         PortfolioProfile profile = profileRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Portfolio profile not found for this business"));
-        PortfolioAdminResponse response = portfolioMapper.toAdminResponse(profile);
+        PortfolioResponse response = portfolioMapper.toUnifiedResponse(profile);
         response.setReviewStats(computeReviewStats(profile.getId()));
         return response;
     }
 
     @Override
-    public PortfolioAdminResponse saveProfile(PortfolioProfileSaveRequest request) {
+    public PortfolioResponse saveProfile(PortfolioProfileSaveRequest request) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
 
         if (profileRepository.existsBySlugAndBusinessIdNotAndIsDeletedFalse(request.getSlug(), businessId)) {
@@ -79,17 +78,17 @@ public class PortfolioServiceImpl implements PortfolioService {
         PortfolioProfile finalProfile = profileRepository.save(savedProfile);
         log.info("Portfolio profile saved for businessId={}", businessId);
 
-        PortfolioAdminResponse response = portfolioMapper.toAdminResponse(finalProfile);
+        PortfolioResponse response = portfolioMapper.toUnifiedResponse(finalProfile);
         response.setReviewStats(computeReviewStats(finalProfile.getId()));
         return response;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PortfolioPublicResponse getPublicProfile(UUID businessId) {
+    public PortfolioResponse getPublicProfile(UUID businessId) {
         PortfolioProfile profile = profileRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new ResourceNotFoundException("Portfolio profile not found for business: " + businessId));
-        PortfolioPublicResponse response = portfolioMapper.toPublicResponse(profile);
+        PortfolioResponse response = portfolioMapper.toUnifiedResponse(profile);
         response.setReviewStats(computeReviewStats(profile.getId()));
         return response;
     }
