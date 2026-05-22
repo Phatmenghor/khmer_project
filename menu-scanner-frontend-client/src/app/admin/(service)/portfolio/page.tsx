@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Loader2, Plus, Trash2, Save } from "lucide-react";
+import { Loader2, Plus, Trash2, Save, Star } from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -305,6 +305,65 @@ export default function PortfolioPage() {
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* ========== BASIC INFORMATION ========== */}
+        <div className="space-y-2 mb-6">
+          <h2 className="text-2xl font-bold">Basic Information</h2>
+          <p className="text-muted-foreground text-sm">Manage your portfolio description and branding images</p>
+        </div>
+
+      {/* Review Statistics - Read Only */}
+      {profile?.reviewStats && (
+        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-primary">Customer Reviews Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Average Rating */}
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star
+                        key={i}
+                        size={20}
+                        className={`${i <= Math.round(profile.reviewStats.averageRating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-3xl font-bold text-primary">{profile.reviewStats.averageRating.toFixed(2)}</p>
+                  <p className="text-sm text-muted-foreground">Average Rating</p>
+                </div>
+              </div>
+
+              {/* Total Reviews */}
+              <div className="flex flex-col items-center justify-center gap-2 p-4 bg-white/50 rounded-lg">
+                <p className="text-3xl font-bold text-primary">{profile.reviewStats.totalReviews}</p>
+                <p className="text-sm text-muted-foreground">Total Reviews</p>
+              </div>
+
+              {/* Rating Distribution */}
+              <div className="flex flex-col gap-2">
+                <p className="text-sm font-semibold text-foreground mb-2">Rating Distribution:</p>
+                {[5, 4, 3, 2, 1].map((rating) => (
+                  <div key={rating} className="flex items-center gap-2">
+                    <span className="text-xs font-medium w-6">{rating}★</span>
+                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-yellow-400"
+                        style={{
+                          width: `${profile.reviewStats.totalReviews > 0 ? ((profile.reviewStats.distribution[rating] || 0) / profile.reviewStats.totalReviews * 100) : 0}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground w-12 text-right">{profile.reviewStats.distribution[rating] || 0}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
         {/* Basic Information */}
         <Card>
           <CardHeader>
@@ -346,6 +405,10 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
 
+        {/* ========== CONTACT & COMMUNICATION ========== */}
+        <div className="pt-6 border-t">
+          <h2 className="text-2xl font-bold mb-6">Contact & Communication</h2>
+        </div>
         {/* Contact Information */}
         <Card>
           <CardHeader>
@@ -451,6 +514,10 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
 
+        {/* ========== ONLINE PRESENCE ========== */}
+        <div className="pt-6 border-t">
+          <h2 className="text-2xl font-bold mb-6">Online Presence</h2>
+        </div>
         {/* Social Media */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
@@ -496,6 +563,10 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
 
+        {/* ========== HIGHLIGHTS ========== */}
+        <div className="pt-6 border-t">
+          <h2 className="text-2xl font-bold mb-6">Highlights & Statistics</h2>
+        </div>
         {/* Features */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
@@ -535,6 +606,10 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
 
+        {/* ========== BUSINESS OPERATIONS ========== */}
+        <div className="pt-6 border-t">
+          <h2 className="text-2xl font-bold mb-6">Business Operations</h2>
+        </div>
         {/* Business Hours */}
         <Card>
           <CardHeader>
@@ -576,6 +651,10 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
 
+        {/* ========== PORTFOLIO & SHOWCASE ========== */}
+        <div className="pt-6 border-t">
+          <h2 className="text-2xl font-bold mb-6">Portfolio & Showcase</h2>
+        </div>
         {/* Gallery */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
