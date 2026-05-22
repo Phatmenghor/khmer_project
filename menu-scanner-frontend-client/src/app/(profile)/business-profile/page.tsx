@@ -347,7 +347,7 @@ export default function BusinessProfilePage() {
       {profile.stats && Array.isArray(profile.stats) && profile.stats.length > 0 && (
         <div className="bg-card border-b border-border">
           <div className="container mx-auto max-w-6xl py-6 px-4 sm:px-6">
-            <div className="flex flex-wrap divide-x divide-border/30 gap-0">
+            <div className="flex flex-wrap divide-x divide-border gap-0">
               {profile.stats.map((stat, index) => {
                 const itemCount = profile.stats.length;
                 const widthClass = itemCount === 1 ? 'w-full' : itemCount === 2 ? 'flex-1 min-w-[50%]' : `flex-1 min-w-[calc(${100/itemCount}%)]`;
