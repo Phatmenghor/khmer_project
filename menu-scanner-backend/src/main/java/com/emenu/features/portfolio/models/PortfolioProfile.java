@@ -25,12 +25,6 @@ public class PortfolioProfile extends BaseUUIDEntity {
     @Column(name = "business_name")
     private String businessName;
 
-    @Column(name = "slug", unique = true)
-    private String slug;
-
-    @Column(name = "tagline")
-    private String tagline;
-
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 

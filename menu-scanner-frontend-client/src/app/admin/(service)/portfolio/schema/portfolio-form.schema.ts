@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const portfolioFormSchema = z.object({
-  slug: z.string().optional(),
   description: z.string().min(1, "Description is required"),
   logoUrl: z.string().optional(),
   coverImageUrl: z.string().optional(),

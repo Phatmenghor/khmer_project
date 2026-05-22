@@ -41,7 +41,6 @@ const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"
 function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
   const contact = p.contact || {};
   return {
-    slug: p.slug || "",
     description: p.description || "",
     logoUrl: p.logoUrl || "",
     coverImageUrl: p.coverImageUrl || "",
@@ -72,7 +71,6 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
 }
 
 const emptyForm = (): PortfolioFormData => ({
-  slug: "",
   description: "",
   logoUrl: "",
   coverImageUrl: "",
@@ -255,7 +253,6 @@ export default function PortfolioPage() {
       );
 
       const submitData: PortfolioProfileSaveRequest = {
-        slug: data.slug || "",
         description: data.description || "",
         logoUrl,
         coverImageUrl,
@@ -316,22 +313,13 @@ export default function PortfolioPage() {
             <CardTitle>Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TextField<PortfolioFormData>
-                control={form.control}
-                name="slug"
-                label="Business Name"
-                placeholder="Enter business name"
-                error={form.formState.errors.slug}
-              />
-              <TextField<PortfolioFormData>
-                control={form.control}
-                name="industry"
-                label="Industry"
-                placeholder="e.g., Retail, Fashion, Technology..."
-                error={form.formState.errors.industry}
-              />
-            </div>
+            <TextField<PortfolioFormData>
+              control={form.control}
+              name="industry"
+              label="Industry"
+              placeholder="e.g., Retail, Fashion, Technology..."
+              error={form.formState.errors.industry}
+            />
 
             <TextareaField<PortfolioFormData>
               control={form.control}

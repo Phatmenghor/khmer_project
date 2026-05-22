@@ -9,8 +9,6 @@ import java.util.List;
 @Data
 public class PortfolioProfileSaveRequest {
 
-    private String slug;
-
     @NotBlank
     private String description;
 

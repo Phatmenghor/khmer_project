@@ -166,7 +166,6 @@ export interface PortfolioFeatureRequest {
 }
 
 export interface PortfolioProfileSaveRequest {
-  slug?: string;
   description: string;
   logoUrl?: string;
   coverImageUrl?: string;
