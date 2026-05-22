@@ -1269,12 +1269,12 @@ INSERT INTO user_documents (id, user_id, type, number, file_url, version, is_del
 SELECT
   gen_random_uuid(),
   u.id,
-  'NATIONAL_ID'::text,
+  'ID_CARD'::text,
   '120000000' || LPAD((ROW_NUMBER() OVER (ORDER BY u.id))::text, 6, '0'),
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   0, false, NOW(), NOW(), 'admin', 'admin'
 FROM users u
-WHERE NOT EXISTS (SELECT 1 FROM user_documents WHERE user_id = u.id AND type = 'NATIONAL_ID');
+WHERE NOT EXISTS (SELECT 1 FROM user_documents WHERE user_id = u.id AND type = 'ID_CARD');
 
 INSERT INTO user_documents (id, user_id, type, number, file_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
