@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Loader2, Plus, Trash2, Save } from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,10 +31,14 @@ import {
   PortfolioSocialMediaRequest,
   PortfolioAdminProfile,
 } from "@/features/portfolio/store/models/portfolio-types";
+import {
+  portfolioFormSchema,
+  type PortfolioFormData,
+} from "./schema/portfolio-form.schema";
 
 const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
 
-function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveRequest {
+function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
   const contact = p.contact || {};
   return {
     slug: p.slug || "",
@@ -67,7 +72,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioProfileSaveReq
   };
 }
 
-const emptyForm = (): PortfolioProfileSaveRequest => ({
+const emptyForm = (): PortfolioFormData => ({
   slug: "",
   tagline: "",
   description: "",
@@ -100,8 +105,9 @@ export default function PortfolioPage() {
 
   const defaultValues = useMemo(() => emptyForm(), []);
 
-  const form = useForm<PortfolioProfileSaveRequest>({
-    mode: "onBlur",
+  const form = useForm<PortfolioFormData>({
+    resolver: zodResolver(portfolioFormSchema),
+    mode: "onChange",
     defaultValues,
   });
 
@@ -195,13 +201,12 @@ export default function PortfolioPage() {
     showToast.success("Team photo selected");
   }, []);
 
-  const onSubmit = async (data: PortfolioProfileSaveRequest) => {
+  const onSubmit = async (data: PortfolioFormData) => {
     try {
       setIsSaving(true);
 
-      // Upload base64 images
-      let logoUrl = data.logoUrl;
-      let coverImageUrl = data.coverImageUrl;
+      let logoUrl = data.logoUrl || "";
+      let coverImageUrl = data.coverImageUrl || "";
 
       if (logoUrl && isBase64Image(logoUrl)) {
         try {
@@ -221,7 +226,6 @@ export default function PortfolioPage() {
         }
       }
 
-      // Upload gallery images
       const uploadedGallery = await Promise.all(
         (data.gallery || []).map(async (item) => {
           let url = item.url;
@@ -237,10 +241,9 @@ export default function PortfolioPage() {
         })
       );
 
-      // Upload team photos
       const uploadedTeam = await Promise.all(
         (data.team || []).map(async (member) => {
-          let photoUrl = member.photoUrl;
+          let photoUrl = member.photoUrl || "";
           if (photoUrl && isBase64Image(photoUrl)) {
             try {
               photoUrl = await uploadImage(photoUrl);
@@ -253,11 +256,27 @@ export default function PortfolioPage() {
         })
       );
 
-      const submitData = {
-        ...data,
+      const submitData: PortfolioProfileSaveRequest = {
+        slug: data.slug || "",
+        tagline: data.tagline || "",
+        description: data.description || "",
         logoUrl,
         coverImageUrl,
+        industry: data.industry || "",
+        isPublished: data.isPublished || false,
+        contactEmail: data.contactEmail || "",
+        contactPhone: data.contactPhone || "",
+        contactPhones: data.contactPhones || [],
+        contactWhatsapp: data.contactWhatsapp || "",
+        contactTelegram: data.contactTelegram || "",
+        address: data.address || "",
+        mapLink: data.mapLink || "",
+        socialMedia: data.socialMedia || [],
+        features: data.features || [],
+        customStats: data.customStats || [],
+        businessHours: data.businessHours || [],
         gallery: uploadedGallery,
+        services: data.services || [],
         team: uploadedTeam,
       };
 
@@ -286,6 +305,13 @@ export default function PortfolioPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 py-6">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">Portfolio Profile</h1>
+        <p className="text-muted-foreground">
+          Manage your business portfolio, services, team, and customer reviews
+        </p>
+      </div>
+
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information */}
         <Card>
@@ -294,14 +320,14 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TextField<PortfolioProfileSaveRequest>
+              <TextField<PortfolioFormData>
                 control={form.control}
                 name="slug"
                 label="Business Name"
                 placeholder="Enter business name"
                 error={form.formState.errors.slug}
               />
-              <TextField<PortfolioProfileSaveRequest>
+              <TextField<PortfolioFormData>
                 control={form.control}
                 name="industry"
                 label="Industry"
@@ -310,7 +336,7 @@ export default function PortfolioPage() {
               />
             </div>
 
-            <TextField<PortfolioProfileSaveRequest>
+            <TextField<PortfolioFormData>
               control={form.control}
               name="tagline"
               label="Tagline"
@@ -318,7 +344,7 @@ export default function PortfolioPage() {
               error={form.formState.errors.tagline}
             />
 
-            <TextareaField<PortfolioProfileSaveRequest>
+            <TextareaField<PortfolioFormData>
               control={form.control}
               name="description"
               label="Description"
@@ -365,7 +391,7 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TextField<PortfolioProfileSaveRequest>
+              <TextField<PortfolioFormData>
                 control={form.control}
                 name="contactEmail"
                 label="Email"
@@ -373,7 +399,7 @@ export default function PortfolioPage() {
                 placeholder="contact@business.com"
                 error={form.formState.errors.contactEmail}
               />
-              <TextField<PortfolioProfileSaveRequest>
+              <TextField<PortfolioFormData>
                 control={form.control}
                 name="contactPhone"
                 label="Phone"
@@ -383,14 +409,14 @@ export default function PortfolioPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TextField<PortfolioProfileSaveRequest>
+              <TextField<PortfolioFormData>
                 control={form.control}
                 name="contactWhatsapp"
                 label="WhatsApp"
                 placeholder="+1-234-567-8900"
                 error={form.formState.errors.contactWhatsapp}
               />
-              <TextField<PortfolioProfileSaveRequest>
+              <TextField<PortfolioFormData>
                 control={form.control}
                 name="contactTelegram"
                 label="Telegram"
@@ -444,7 +470,7 @@ export default function PortfolioPage() {
             <CardTitle>Address</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <TextareaField<PortfolioProfileSaveRequest>
+            <TextareaField<PortfolioFormData>
               control={form.control}
               name="address"
               label="Address"
@@ -453,7 +479,7 @@ export default function PortfolioPage() {
               error={form.formState.errors.address}
             />
 
-            <TextField<PortfolioProfileSaveRequest>
+            <TextField<PortfolioFormData>
               control={form.control}
               name="mapLink"
               label="Map Link"
