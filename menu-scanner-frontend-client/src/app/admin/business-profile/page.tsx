@@ -35,11 +35,7 @@ export default function BusinessProfileEditorPage() {
       email: profile.contact.email,
       phone: profile.contact.phone,
       whatsapp: profile.contact.whatsapp || "",
-      street: profile.contact.address.street,
-      city: profile.contact.address.city,
-      state: profile.contact.address.state || "",
-      country: profile.contact.address.country,
-      postalCode: profile.contact.address.postalCode || "",
+      address: profile.contact.address || "",
       facebook: profile.socialMedia?.facebook || "",
       instagram: profile.socialMedia?.instagram || "",
       twitter: profile.socialMedia?.twitter || "",
@@ -269,72 +265,16 @@ export default function BusinessProfileEditorPage() {
 
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Street Address *
+                    Address *
                   </label>
                   <Controller
-                    name="street"
+                    name="address"
                     control={control}
                     rules={{ required: "Address is required" }}
                     render={({ field }) => (
-                      <Input {...field} placeholder="123 Main Street" />
+                      <Textarea {...field} rows={3} placeholder="123 Main Street, San Francisco, California, United States, 94102" />
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      City *
-                    </label>
-                    <Controller
-                      name="city"
-                      control={control}
-                      rules={{ required: "City is required" }}
-                      render={({ field }) => (
-                        <Input {...field} placeholder="San Francisco" />
-                      )}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      State/Province
-                    </label>
-                    <Controller
-                      name="state"
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} placeholder="California" />
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Country *
-                    </label>
-                    <Controller
-                      name="country"
-                      control={control}
-                      rules={{ required: "Country is required" }}
-                      render={({ field }) => (
-                        <Input {...field} placeholder="United States" />
-                      )}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Postal Code
-                    </label>
-                    <Controller
-                      name="postalCode"
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} placeholder="94102" />
-                      )}
-                    />
-                  </div>
                 </div>
               </CardContent>
             </Card>

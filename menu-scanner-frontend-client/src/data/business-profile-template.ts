@@ -18,13 +18,7 @@ export const demoBusinessProfile: BusinessProfile = {
     phones: ["+855 23 456 789", "+855 12 345 678"],
     whatsapp: "+85523456789",
     telegram: "+85523456789",
-    address: {
-      street: "123 Norodom Boulevard",
-      city: "Phnom Penh",
-      state: "",
-      country: "Cambodia",
-      postalCode: "12000",
-    },
+    address: "123 Norodom Boulevard, Phnom Penh, Cambodia, 12000",
     mapLink: "https://maps.google.com/?q=Phnom+Penh+Cambodia",
   },
   socialMedia: {

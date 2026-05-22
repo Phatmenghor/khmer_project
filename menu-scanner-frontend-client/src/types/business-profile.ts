@@ -68,16 +68,8 @@ export interface ContactInfo {
   phones?: string[];
   whatsapp?: string;
   telegram?: string;
-  address: Address;
+  address?: string;
   mapLink?: string;
-}
-
-export interface Address {
-  street: string;
-  city: string;
-  state?: string;
-  country: string;
-  postalCode?: string;
 }
 
 export interface SocialMediaLinks {
@@ -217,11 +209,7 @@ export interface BusinessProfileFormData {
   email: string;
   phone: string;
   whatsapp: string;
-  street: string;
-  city: string;
-  state: string;
-  country: string;
-  postalCode: string;
+  address: string;
   facebook: string;
   instagram: string;
   twitter: string;
