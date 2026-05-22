@@ -4,8 +4,8 @@ export interface PortfolioPhoneDto {
 }
 
 export interface PortfolioContactDto {
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
   phones?: PortfolioPhoneDto[];
   whatsapp?: string;
   telegram?: string;
