@@ -59,10 +59,6 @@ public class PortfolioServiceImpl implements PortfolioService {
     public PortfolioResponse saveProfile(PortfolioProfileSaveRequest request) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
 
-        if (profileRepository.existsBySlugAndBusinessIdNotAndIsDeletedFalse(request.getSlug(), businessId)) {
-            throw new ValidationException("Slug '" + request.getSlug() + "' is already taken by another business");
-        }
-
         String businessName = businessRepository.findByIdAndIsDeletedFalse(businessId)
                 .map(Business::getName)
                 .orElse(null);
@@ -109,9 +105,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<PortfolioReviewAdminResponse> getReviews(PortfolioReviewFilterRequest filter) {
-        UUID businessId = filter.getBusinessId();
-        PortfolioProfile profile = profileRepository.findByBusinessIdAndIsDeletedFalse(businessId)
-                .orElseThrow(() -> new ResourceNotFoundException("Portfolio profile not found for this business"));
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
 
         Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
@@ -119,7 +113,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         String search = (filter.getSearch() != null && !filter.getSearch().isBlank()) ? filter.getSearch() : null;
 
-        Page<PortfolioReview> page = reviewRepository.findWithFilters(profile.getId(), search, pageable);
+        Page<PortfolioReview> page = reviewRepository.findWithFiltersByBusiness(businessId, search, pageable);
 
         return portfolioMapper.toReviewPaginationResponse(page, paginationMapper);
     }

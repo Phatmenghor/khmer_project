@@ -41,7 +41,6 @@ public class PortfolioController {
     @PostMapping("/reviews/all")
     public ResponseEntity<ApiResponse<PaginationResponse<PortfolioReviewAdminResponse>>> getReviews(
             @Valid @RequestBody PortfolioReviewFilterRequest filter) {
-        filter.setBusinessId(securityUtils.getCurrentUserBusinessId());
         return ResponseEntity.ok(ApiResponse.success("Reviews found",
                 portfolioService.getReviews(filter)));
     }

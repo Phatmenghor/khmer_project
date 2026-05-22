@@ -19,9 +19,16 @@ public interface PortfolioReviewRepository extends JpaRepository<PortfolioReview
     List<Object[]> countByRatingForProfile(@Param("profileId") UUID profileId);
 
     @Query("SELECT r FROM PortfolioReview r WHERE r.profileId = :profileId AND r.isDeleted = false " +
-           "AND (:search IS NULL OR LOWER(r.customerName) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "     OR LOWER(r.comment) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "AND (:search IS NULL OR LOWER(CAST(r.customerName AS String)) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "     OR LOWER(CAST(r.comment AS String)) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<PortfolioReview> findWithFilters(@Param("profileId") UUID profileId,
                                           @Param("search") String search,
                                           Pageable pageable);
+
+    @Query("SELECT r FROM PortfolioReview r WHERE r.businessId = :businessId AND r.isDeleted = false " +
+           "AND (:search IS NULL OR LOWER(CAST(r.customerName AS String)) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "     OR LOWER(CAST(r.comment AS String)) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<PortfolioReview> findWithFiltersByBusiness(@Param("businessId") UUID businessId,
+                                                     @Param("search") String search,
+                                                     Pageable pageable);
 }
