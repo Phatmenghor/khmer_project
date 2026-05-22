@@ -73,7 +73,7 @@ import {
 export default function AdminProfilePage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { accessToken } = useAuthState();
+  const { accessToken, authReady } = useAuthState();
 
   const userProfile = useAppSelector(selectProfile);
   const isProfileLoading = useAppSelector(selectIsProfileLoading);
@@ -167,11 +167,11 @@ export default function AdminProfilePage() {
 
   const profileFetchedRef = useRef(false);
   useEffect(() => {
-    if (accessToken && !userProfile && !isProfileLoading && !profileFetchedRef.current) {
+    if (authReady && accessToken && !userProfile && !isProfileLoading && !profileFetchedRef.current) {
       profileFetchedRef.current = true;
       dispatch(getProfileService());
     }
-  }, [accessToken, dispatch, userProfile, isProfileLoading]);
+  }, [authReady, accessToken, dispatch, userProfile, isProfileLoading]);
 
 
   useEffect(() => {

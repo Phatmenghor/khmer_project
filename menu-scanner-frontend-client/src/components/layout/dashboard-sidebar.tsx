@@ -42,7 +42,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
-  const { profile, isProfileLoading, dispatch, accessToken } = useAuthState();
+  const { profile, isProfileLoading, dispatch, accessToken, authReady } = useAuthState();
 
 
   const businessSettings = useAppSelector(selectBusinessSettings);
@@ -78,11 +78,11 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
   const profileFetchedRef = useRef(false);
   useEffect(() => {
-    if (accessToken && !profile && !isProfileLoading && !profileFetchedRef.current) {
+    if (authReady && accessToken && !profile && !isProfileLoading && !profileFetchedRef.current) {
       profileFetchedRef.current = true;
       dispatch(getProfileService());
     }
-  }, [accessToken, profile, isProfileLoading, dispatch]);
+  }, [authReady, accessToken, profile, isProfileLoading, dispatch]);
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
