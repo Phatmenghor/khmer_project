@@ -18,8 +18,6 @@ public class PortfolioProfileSaveRequest {
 
     private String industry;
 
-    private Boolean isPublished;
-
     // Contact
     @NotBlank
     private String contactEmail;

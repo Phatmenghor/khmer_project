@@ -20,7 +20,6 @@ public class PortfolioResponse {
     private String logoUrl;
     private String coverImageUrl;
     private String industry;
-    private Boolean isPublished;
     private ContactDto contact;
     private List<SocialMediaItemDto> socialMedia;
     private List<HoursDto> businessHours;

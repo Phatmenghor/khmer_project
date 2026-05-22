@@ -72,7 +72,6 @@ export interface PortfolioPublicProfile {
   logoUrl?: string;
   coverImageUrl?: string;
   industry?: string;
-  isPublished?: boolean;
   contact: PortfolioContactDto;
   socialMedia?: PortfolioSocialMediaItemDto[];
   businessHours?: PortfolioHoursDto[];
@@ -110,7 +109,6 @@ export interface PortfolioSocialMediaRequest {
   id?: string;
   name: string;
   url: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioHoursRequest {
@@ -125,14 +123,12 @@ export interface PortfolioGalleryItemRequest {
   url: string;
   title?: string;
   description?: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioServiceItemRequest {
   id?: string;
   name: string;
   description: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioTeamMemberRequest {
@@ -141,7 +137,6 @@ export interface PortfolioTeamMemberRequest {
   position: string;
   bio?: string;
   photoUrl?: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioCustomStatRequest {
@@ -153,7 +148,6 @@ export interface PortfolioCustomStatRequest {
 export interface PortfolioFeatureRequest {
   id?: string;
   name: string;
-  displayOrder?: number;
 }
 
 export interface PortfolioProfileSaveRequest {
@@ -161,7 +155,6 @@ export interface PortfolioProfileSaveRequest {
   logoUrl?: string;
   coverImageUrl?: string;
   industry?: string;
-  isPublished?: boolean;
   contactEmail: string;
   contactPhone: string;
   contactPhones?: PortfolioPhoneRequest[];

@@ -45,7 +45,6 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
     logoUrl: p.logoUrl || "",
     coverImageUrl: p.coverImageUrl || "",
     industry: p.industry || "",
-    isPublished: p.isPublished ?? false,
     contactEmail: contact.email ?? "",
     contactPhone: contact.phone ?? "",
     contactPhones: contact.phones ?? [],
@@ -61,9 +60,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
       day: h.day,
       openTime: h.openTime || "",
       closeTime: h.closeTime || "",
-      isOpen: h.isOpen,
-      is24Hours: h.is24Hours,
-    })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00", isOpen: true, is24Hours: false })),
+    })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
     gallery: p.gallery?.map((g) => ({ id: g.id, url: g.url, title: g.title || "", description: g.description || "" })) ?? [],
     services: p.services?.map((s) => ({ id: s.id, name: s.name, description: s.description })) ?? [],
     team: p.team?.map((m) => ({ id: m.id, name: m.name, position: m.position, bio: m.bio || "", photoUrl: m.photoUrl || "" })) ?? [],
@@ -75,7 +72,6 @@ const emptyForm = (): PortfolioFormData => ({
   logoUrl: "",
   coverImageUrl: "",
   industry: "",
-  isPublished: false,
   contactEmail: "",
   contactPhone: "",
   contactPhones: [],
@@ -86,7 +82,7 @@ const emptyForm = (): PortfolioFormData => ({
   socialMedia: [],
   features: [],
   customStats: [],
-  businessHours: DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00", isOpen: true, is24Hours: false })),
+  businessHours: DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
   gallery: [],
   services: [],
   team: [],
@@ -257,7 +253,6 @@ export default function PortfolioPage() {
         logoUrl,
         coverImageUrl,
         industry: data.industry || "",
-        isPublished: data.isPublished || false,
         contactEmail: data.contactEmail || "",
         contactPhone: data.contactPhone || "",
         contactPhones: data.contactPhones || [],
@@ -329,11 +324,6 @@ export default function PortfolioPage() {
               rows={5}
               error={form.formState.errors.description}
             />
-
-            <div className="flex items-center space-x-2">
-              <Switch {...form.register("isPublished")} />
-              <Label>Published</Label>
-            </div>
           </CardContent>
         </Card>
 

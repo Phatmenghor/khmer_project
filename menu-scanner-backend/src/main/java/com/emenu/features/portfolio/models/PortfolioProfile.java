@@ -71,9 +71,6 @@ public class PortfolioProfile extends BaseUUIDEntity {
     @OrderBy("createdAt ASC")
     private List<PortfolioFeature> features = new ArrayList<>();
 
-    @Column(name = "is_published", nullable = false)
-    private Boolean isPublished = false;
-
     // Relations
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt ASC")
