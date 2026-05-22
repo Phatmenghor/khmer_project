@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Save } from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -884,13 +884,32 @@ export default function PortfolioPage() {
         </Card>
 
         {/* Submit Button */}
-        <div className="w-full flex gap-3 justify-end sticky bottom-6 bg-background p-4 rounded-lg border">
-          <Button type="button" variant="outline" disabled={isSaving}>
+        <div className="flex gap-3 justify-end pt-4 border-t">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => fetchProfile()}
+            disabled={isSaving}
+            className="min-w-[120px]"
+          >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSaving} className="gap-2">
-            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-            {isSaving ? "Saving..." : "Save Changes"}
+          <Button
+            type="submit"
+            disabled={isSaving || !form.formState.isDirty}
+            className="min-w-[140px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Save Changes
+              </>
+            )}
           </Button>
         </div>
       </form>
