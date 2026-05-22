@@ -1227,6 +1227,23 @@ WHERE NOT EXISTS (SELECT 1 FROM portfolio_phone WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
+-- PORTFOLIO SOCIAL MEDIA (Dynamic with IDs)
+-- ============================================================================
+
+INSERT INTO portfolio_social_media (id, profile_id, name, url, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.name, v.url, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+FROM (VALUES
+  ('cc0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Facebook', 'https://facebook.com/megastore.cambodia', 1),
+  ('cc0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Instagram', 'https://instagram.com/megastore.cambodia', 2),
+  ('cc0e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Twitter', 'https://twitter.com/megastore_kh', 3),
+  ('cc0e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Facebook', 'https://facebook.com/fashionhub.siem reap', 1),
+  ('cc0e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Instagram', 'https://instagram.com/fashionhub_sr', 2),
+  ('cc0e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Website', 'https://fashionhub-cambodia.com', 3)
+) AS v(id, profile_id, name, url, display_order)
+WHERE NOT EXISTS (SELECT 1 FROM portfolio_social_media WHERE id = v.id::uuid)
+ON CONFLICT DO NOTHING;
+
+-- ============================================================================
 -- PORTFOLIO FEATURES (Dynamic with IDs)
 -- ============================================================================
 
