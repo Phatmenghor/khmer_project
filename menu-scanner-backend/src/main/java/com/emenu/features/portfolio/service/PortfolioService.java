@@ -5,6 +5,7 @@ import com.emenu.features.portfolio.dto.request.PortfolioProfileSaveRequest;
 import com.emenu.features.portfolio.dto.request.PortfolioReviewSubmitRequest;
 import com.emenu.features.portfolio.dto.response.PortfolioResponse;
 import com.emenu.features.portfolio.dto.response.PortfolioReviewAdminResponse;
+import com.emenu.features.portfolio.dto.response.PortfolioReviewPublicResponse;
 import com.emenu.shared.dto.PaginationResponse;
 
 import java.util.UUID;
