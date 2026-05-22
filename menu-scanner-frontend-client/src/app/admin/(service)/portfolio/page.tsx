@@ -92,10 +92,7 @@ const emptyForm = (): PortfolioFormData => ({
 
 export default function PortfolioPage() {
   const dispatch = useAppDispatch();
-  const { profile } = usePortfolioProfileState();
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const { profile, isLoading, isSaving } = usePortfolioProfileState();
 
   const defaultValues = useMemo(() => emptyForm(), []);
 
@@ -149,27 +146,26 @@ export default function PortfolioPage() {
     dispatch(resetState());
   });
 
-  const fetchProfile = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      await dispatch(fetchAdminPortfolioProfileThunk());
-    } catch (err) {
-      showToast.error("Failed to load portfolio profile");
-    } finally {
-      setIsLoading(false);
-    }
+  useEffect(() => {
+    // Fetch portfolio profile on component mount
+    const result = dispatch(fetchAdminPortfolioProfileThunk());
+    return () => {
+      // Cleanup if needed
+    };
   }, [dispatch]);
 
   useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
-
-  useEffect(() => {
-    if (!profile) return;
-    const formData = buildFormFromProfile(profile);
-    form.reset(formData);
-    setIsLoading(false);
-  }, [profile]);
+    // Populate form when profile data is loaded
+    if (profile) {
+      try {
+        const formData = buildFormFromProfile(profile);
+        form.reset(formData);
+      } catch (error) {
+        console.error("Error building form from profile:", error);
+        showToast.error("Error loading portfolio data");
+      }
+    }
+  }, [profile, form]);
 
   const handleLogoSelect = useCallback((imageData: string) => {
     form.setValue("logoUrl", imageData, { shouldDirty: true });
@@ -197,8 +193,6 @@ export default function PortfolioPage() {
 
   const onSubmit = async (data: PortfolioFormData) => {
     try {
-      setIsSaving(true);
-
       let logoUrl = data.logoUrl || "";
       let coverImageUrl = data.coverImageUrl || "";
 
@@ -275,15 +269,12 @@ export default function PortfolioPage() {
       const result = await dispatch(saveAdminPortfolioProfileThunk(submitData));
       if (saveAdminPortfolioProfileThunk.fulfilled.match(result)) {
         showToast.success("Portfolio profile saved successfully");
-        await fetchProfile();
       } else {
         showToast.error("Failed to save portfolio profile");
       }
     } catch (error) {
       console.error("Error saving portfolio:", error);
       showToast.error("Failed to save portfolio profile");
-    } finally {
-      setIsSaving(false);
     }
   };
 
