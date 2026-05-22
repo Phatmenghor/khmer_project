@@ -47,24 +47,24 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
     contact: {
       email: contact.email ?? "",
       phone: contact.phone ?? "",
-      phones: contact.phones ?? [],
+      phones: (contact.phones || []).map(phone => ({ id: phone.id, number: phone.number })),
       whatsapp: contact.whatsapp || "",
       telegram: contact.telegram || "",
       address: contact.address || "",
       mapLink: contact.mapLink || "",
     },
-    socialMedia: Array.isArray(p.socialMedia) ? p.socialMedia : [],
-    features: p.features?.map((f: any) => ({ id: f.id, name: f.name || f })) ?? [],
-    customStats: (Array.isArray(p.stats) ? p.stats : p.stats?.customStats) ?? [],
+    socialMedia: (p.socialMedia || []).map(sm => ({ id: sm.id, name: sm.name, url: sm.url })),
+    features: (p.features || []).map((f) => ({ id: f.id, name: f.name })),
+    customStats: (p.stats || []).map((s) => ({ id: s.id, label: s.label, value: s.value })),
     businessHours: p.businessHours?.map((h) => ({
       id: h.id,
       day: h.day,
       openTime: h.openTime || "",
       closeTime: h.closeTime || "",
     })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
-    gallery: p.gallery?.map((g) => ({ id: g.id, url: g.url, title: g.title || "" })) ?? [],
-    services: p.services?.map((s) => ({ id: s.id, name: s.name, description: s.description })) ?? [],
-    team: p.team?.map((m) => ({ id: m.id, name: m.name, position: m.position, bio: m.bio || "", photoUrl: m.photoUrl || "" })) ?? [],
+    gallery: (p.gallery || []).map((g) => ({ id: g.id, url: g.url, title: g.title || "" })),
+    services: (p.services || []).map((s) => ({ id: s.id, name: s.name, description: s.description || "" })),
+    team: (p.team || []).map((m) => ({ id: m.id, name: m.name, position: m.position, bio: m.bio || "", photoUrl: m.photoUrl || "" })),
   };
 }
 
@@ -306,6 +306,34 @@ export default function PortfolioPage() {
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* ========== BASIC INFORMATION ========== */}
+
+        {/* Business Name - Read Only */}
+        <Card className="bg-blue-50 border-blue-200">
+          <CardHeader>
+            <CardTitle className="text-blue-900">Business Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-semibold text-blue-900">Business Name</Label>
+                <p className="text-lg font-bold text-foreground mt-1">{profile?.businessName || "Not set"}</p>
+                <p className="text-xs text-muted-foreground mt-1">This is managed through your account settings and cannot be changed here.</p>
+              </div>
+              {profile?.createdAt && (
+                <div className="border-t pt-3">
+                  <Label className="text-sm font-semibold text-gray-600">Created</Label>
+                  <p className="text-sm text-muted-foreground mt-1">{new Date(profile.createdAt).toLocaleDateString()} at {new Date(profile.createdAt).toLocaleTimeString()}</p>
+                </div>
+              )}
+              {profile?.updatedAt && (
+                <div className="border-t pt-3">
+                  <Label className="text-sm font-semibold text-gray-600">Last Updated</Label>
+                  <p className="text-sm text-muted-foreground mt-1">{new Date(profile.updatedAt).toLocaleDateString()} at {new Date(profile.updatedAt).toLocaleTimeString()}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
         <div className="space-y-2 mb-6">
           <h2 className="text-2xl font-bold">Basic Information</h2>
           <p className="text-muted-foreground text-sm">Manage your portfolio description and branding images</p>

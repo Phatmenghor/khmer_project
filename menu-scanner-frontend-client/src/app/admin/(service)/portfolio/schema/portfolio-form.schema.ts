@@ -49,7 +49,7 @@ export const portfolioFormSchema = z.object({
     z.object({
       id: z.string().optional(),
       name: z.string().min(1, "Service name is required"),
-      description: z.string().min(1, "Service description is required"),
+      description: z.string().optional(),
     })
   ).optional(),
 

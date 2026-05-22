@@ -118,8 +118,8 @@ export interface PortfolioSocialMediaRequest {
 export interface PortfolioHoursRequest {
   id?: string;
   day: string;
-  openTime?: string;
-  closeTime?: string;
+  openTime?: string | null;
+  closeTime?: string | null;
 }
 
 export interface PortfolioGalleryItemRequest {
@@ -131,7 +131,7 @@ export interface PortfolioGalleryItemRequest {
 export interface PortfolioServiceItemRequest {
   id?: string;
   name: string;
-  description: string;
+  description?: string;
 }
 
 export interface PortfolioTeamMemberRequest {
