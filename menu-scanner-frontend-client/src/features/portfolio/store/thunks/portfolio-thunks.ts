@@ -31,8 +31,17 @@ export const submitPublicReviewThunk = createApiThunk<
 export const fetchAdminPortfolioProfileThunk = createApiThunk<PortfolioAdminProfile, void>(
   "portfolio/fetchAdminProfile",
   async () => {
-    const response = await axiosClientWithAuth.get("/api/v1/portfolio/profile");
-    return response.data.data;
+    console.log("## [portfolio/fetchAdminProfile] calling GET /api/v1/portfolio/profile");
+    try {
+      const response = await axiosClientWithAuth.get("/api/v1/portfolio/profile");
+      console.log("## [portfolio/fetchAdminProfile] HTTP status:", response.status);
+      console.log("## [portfolio/fetchAdminProfile] full response.data:", response.data);
+      console.log("## [portfolio/fetchAdminProfile] response.data.data:", response.data.data);
+      return response.data.data;
+    } catch (error: any) {
+      console.error("## [portfolio/fetchAdminProfile] ERROR:", error?.response?.status, error?.response?.data ?? error?.message);
+      throw error;
+    }
   }
 );
 

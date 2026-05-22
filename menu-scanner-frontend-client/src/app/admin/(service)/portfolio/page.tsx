@@ -159,14 +159,20 @@ export default function PortfolioPage() {
   }, [dispatch]);
 
   useEffect(() => {
+    console.log("## [PortfolioPage] profile from Redux state:", profile);
     if (profile) {
       try {
-        form.reset(buildFormFromProfile(profile));
-      } catch {
+        const formData = buildFormFromProfile(profile);
+        console.log("## [PortfolioPage] built formData from profile:", formData);
+        form.reset(formData);
+        console.log("## [PortfolioPage] form.getValues() after reset:", form.getValues());
+      } catch (err) {
+        console.error("## [PortfolioPage] error building form from profile:", err);
         showToast.error("Error loading portfolio data");
       }
     }
-  }, [profile, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile]);
 
   const onSubmit = async (data: PortfolioFormData) => {
     try {
