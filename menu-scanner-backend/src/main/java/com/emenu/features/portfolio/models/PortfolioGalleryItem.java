@@ -24,7 +24,4 @@ public class PortfolioGalleryItem extends BaseUUIDEntity {
 
     @Column(name = "title")
     private String title;
-
-    @Column(name = "description")
-    private String description;
 }

@@ -83,7 +83,6 @@ public class PortfolioResponse {
         private UUID id;
         private String url;
         private String title;
-        private String description;
     }
 
     @Data

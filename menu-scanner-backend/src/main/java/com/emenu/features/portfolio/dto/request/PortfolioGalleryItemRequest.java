@@ -14,8 +14,4 @@ public class PortfolioGalleryItemRequest {
     private String url;
 
     private String title;
-
-    private String description;
-
-    private Integer displayOrder;
 }

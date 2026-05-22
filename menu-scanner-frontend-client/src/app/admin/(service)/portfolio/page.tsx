@@ -60,7 +60,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
       openTime: h.openTime || "",
       closeTime: h.closeTime || "",
     })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
-    gallery: p.gallery?.map((g) => ({ id: g.id, url: g.url, title: g.title || "", description: g.description || "" })) ?? [],
+    gallery: p.gallery?.map((g) => ({ id: g.id, url: g.url, title: g.title || "" })) ?? [],
     services: p.services?.map((s) => ({ id: s.id, name: s.name, description: s.description })) ?? [],
     team: p.team?.map((m) => ({ id: m.id, name: m.name, position: m.position, bio: m.bio || "", photoUrl: m.photoUrl || "" })) ?? [],
   };
@@ -578,7 +578,7 @@ export default function PortfolioPage() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => appendGallery({ id: "", url: "", title: "", description: "" })}
+              onClick={() => appendGallery({ id: "", url: "", title: "" })}
             >
               <Plus className="w-4 h-4 mr-1" /> Add Image
             </Button>

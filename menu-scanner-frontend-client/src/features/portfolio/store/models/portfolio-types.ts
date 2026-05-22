@@ -30,7 +30,6 @@ export interface PortfolioGalleryItemDto {
   id: string;
   url: string;
   title?: string;
-  description?: string;
 }
 
 export interface PortfolioServiceItemDto {
@@ -121,7 +120,6 @@ export interface PortfolioGalleryItemRequest {
   id?: string;
   url: string;
   title?: string;
-  description?: string;
 }
 
 export interface PortfolioServiceItemRequest {

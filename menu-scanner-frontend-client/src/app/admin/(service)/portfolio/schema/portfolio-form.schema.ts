@@ -40,7 +40,6 @@ export const portfolioFormSchema = z.object({
       id: z.string().optional(),
       url: z.string().min(1, "Gallery image URL is required"),
       title: z.string().optional(),
-      description: z.string().optional(),
     })
   ).optional(),
 
