@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Eye, Star, Trash } from "lucide-react";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
-import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
+import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
-import { ActionButton } from "@/components/shared/button/action-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -21,24 +19,11 @@ import {
 } from "@/features/portfolio/store/slice/portfolio-reviews-slice";
 import { PortfolioReviewAdmin } from "@/features/portfolio/store/models/portfolio-types";
 import { PortfolioReviewDetailModal } from "@/features/portfolio/components/portfolio-review-detail-modal";
+import { portfolioReviewTableColumns } from "@/features/portfolio/table/portfolio-reviews-table";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <Star
-          key={i}
-          className={`w-3 h-3 ${i <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`}
-        />
-      ))}
-    </div>
-  );
-}
 
 export default function PortfolioReviewsPage() {
   useAdminCleanup(resetState);
@@ -85,69 +70,8 @@ export default function PortfolioReviewsPage() {
   );
 
   const columns = useMemo(
-    (): TableColumn<PortfolioReviewAdmin>[] => [
-      {
-        key: "customerName",
-        label: "Name",
-        render: (r) => (
-          <span className="text-sm font-medium text-foreground">
-            {r.customerName || "—"}
-          </span>
-        ),
-      },
-      {
-        key: "customerPhone",
-        label: "Phone Number",
-        render: (r) => (
-          <span className="text-xs text-muted-foreground">
-            {r.customerPhone || "—"}
-          </span>
-        ),
-      },
-      {
-        key: "rating",
-        label: "Rating",
-        render: (r) => <StarRating rating={r.rating} />,
-      },
-      {
-        key: "comment",
-        label: "Review",
-        render: (r) => (
-          <div className="max-w-xs">
-            <p className="text-xs text-muted-foreground line-clamp-2">{r.comment || "—"}</p>
-          </div>
-        ),
-      },
-      {
-        key: "createdAt",
-        label: "Submitted At",
-        render: (r) => (
-          <span className="text-xs text-muted-foreground">
-            {r.createdAt ? dateTimeFormat(r.createdAt) : "—"}
-          </span>
-        ),
-      },
-      {
-        key: "actions",
-        label: "Actions",
-        render: (r) => (
-          <div className="flex items-center gap-2">
-            <ActionButton
-              icon={<Eye className="w-4 h-4" />}
-              tooltip="View Details"
-              onClick={() => tableHandlers.handleViewDetail(r)}
-            />
-            <ActionButton
-              icon={<Trash className="w-4 h-4" />}
-              tooltip="Delete Review"
-              onClick={() => tableHandlers.handleDeleteReview(r)}
-              variant="destructive"
-            />
-          </div>
-        ),
-      },
-    ],
-    [tableHandlers]
+    () => portfolioReviewTableColumns({ data, handlers: tableHandlers }),
+    [data, tableHandlers]
   );
 
   const handlePageSizeChange = (size: number) => {
