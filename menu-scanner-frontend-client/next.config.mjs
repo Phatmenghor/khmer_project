@@ -7,7 +7,7 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig = {
   output: "standalone",
 
-  allowedDevOrigins: ["e422-203-147-134-26.ngrok-free.app"],
+  allowedDevOrigins: ["b0e5-203-147-140-218.ngrok-free.app"],
 
   trailingSlash: false,
 
@@ -23,6 +23,15 @@ const nextConfig = {
         hostname: "**",
       },
     ],
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${process.env.BACKEND_API_URL || "http://localhost:8080"}/api/:path*`,
+      },
+    ];
   },
 
   async headers() {
