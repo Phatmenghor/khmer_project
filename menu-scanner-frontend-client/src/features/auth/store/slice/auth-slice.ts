@@ -39,6 +39,7 @@ const isAdmin = (userType?: string) => userType === "BUSINESS_USER";
 interface ExtendedAuthState extends AuthState {
   socialSync: SocialSyncResponse | null;
   isSocialLoading: boolean;
+  isLoadingSocialSync: boolean;
   isNewUser: boolean;
 }
 
@@ -53,6 +54,7 @@ const initialState: ExtendedAuthState = {
   error: null,
   socialSync: null,
   isSocialLoading: false,
+  isLoadingSocialSync: false,
   isNewUser: false,
 };
 
@@ -283,11 +285,15 @@ const authSlice = createSlice({
 
 
     builder
+      .addCase(getSocialSyncService.pending, (state) => {
+        state.isLoadingSocialSync = true;
+      })
       .addCase(getSocialSyncService.fulfilled, (state, action) => {
+        state.isLoadingSocialSync = false;
         state.socialSync = action.payload;
       })
-      .addCase(getSocialSyncService.rejected, () => {
-
+      .addCase(getSocialSyncService.rejected, (state) => {
+        state.isLoadingSocialSync = false;
       });
 
 

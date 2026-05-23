@@ -71,6 +71,14 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     }
 
     @Override
+    public SocialSyncResponse getSocialSyncStatus() {
+        UUID currentUserId = securityUtils.getCurrentUserId();
+        User userEntity = userRepository.findByIdAndIsDeletedFalse(currentUserId)
+                .orElseThrow(() -> new ValidationException("User not found"));
+        return socialSyncResponseMapper.toResponse(userEntity, SocialAuthProvider.TELEGRAM);
+    }
+
+    @Override
     public SocialSyncResponse syncSocialAccount(SocialAuthRequest syncRequestData) {
         UUID currentUserId = securityUtils.getCurrentUserId();
         log.info("Social account synchronization initiated: user_id={}, provider={}", currentUserId, syncRequestData.getProvider());

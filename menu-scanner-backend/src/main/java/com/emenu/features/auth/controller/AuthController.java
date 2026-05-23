@@ -62,6 +62,13 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Authentication successful", socialAuthResponse));
     }
 
+    @GetMapping("/social/sync")
+    public ResponseEntity<ApiResponse<SocialSyncResponse>> getSocialSyncStatus() {
+        log.info("Endpoint: GET social/sync - retrieving social sync status");
+        SocialSyncResponse syncStatus = socialAuthService.getSocialSyncStatus();
+        return ResponseEntity.ok(ApiResponse.success("Social sync status retrieved", syncStatus));
+    }
+
     @PostMapping("/social/sync")
     public ResponseEntity<ApiResponse<SocialSyncResponse>> syncSocialAccount(
             @Valid @RequestBody SocialAuthRequest syncRequestData) {

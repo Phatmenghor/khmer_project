@@ -13,7 +13,7 @@ public interface SocialSyncResponseMapper {
     @Mapping(target = "success", constant = "true")
     @Mapping(target = "message", expression = "java(provider.getDisplayName() + \" account synced successfully\")")
     @Mapping(target = "provider", source = "provider.providerKey")
-    @Mapping(target = "syncedAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "syncedAt", expression = "java(getTelegramSyncedAt(user))")
     @Mapping(target = "telegramId", expression = "java(getTelegramId(user))")
     @Mapping(target = "telegramUsername", expression = "java(getTelegramUsername(user))")
     @Mapping(target = "telegramFirstName", expression = "java(getTelegramFirstName(user))")
@@ -39,6 +39,10 @@ public interface SocialSyncResponseMapper {
 
     default String getTelegramPhotoUrl(User user) {
         return user.getTelegram() != null ? user.getTelegram().getTelegramPhotoUrl() : null;
+    }
+
+    default LocalDateTime getTelegramSyncedAt(User user) {
+        return user.getTelegram() != null ? user.getTelegram().getTelegramSyncedAt() : null;
     }
 
     @Mapping(target = "success", constant = "true")

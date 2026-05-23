@@ -31,7 +31,6 @@ import {
   updateProfileService,
   deleteAccountService,
 } from "@/features/auth/store/thunks/auth-thunks";
-import { getSocialSyncService } from "@/features/auth/store/thunks/social-auth-thunks";
 import {
   selectProfile,
   selectIsProfileLoading,
@@ -79,7 +78,6 @@ export default function AdminProfilePage() {
   const userProfile = useAppSelector(selectProfile);
   const isProfileLoading = useAppSelector(selectIsProfileLoading);
   const reduxError = useAppSelector(selectError);
-  const socialSync = useAppSelector((state) => state.auth.socialSync);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
@@ -171,7 +169,6 @@ export default function AdminProfilePage() {
     if (authReady && accessToken && !userProfile && !isProfileLoading && !profileFetchedRef.current) {
       profileFetchedRef.current = true;
       dispatch(getProfileService());
-      dispatch(getSocialSyncService());
     }
   }, [authReady, accessToken, dispatch, userProfile, isProfileLoading]);
 
@@ -1474,7 +1471,7 @@ export default function AdminProfilePage() {
                 <Link2 className="h-4 w-4" />
                 Connected Accounts
               </h3>
-              <TelegramSyncCard socialSync={socialSync} />
+              <TelegramSyncCard />
             </div>
 
             {}

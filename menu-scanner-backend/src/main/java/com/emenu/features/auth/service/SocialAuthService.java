@@ -8,6 +8,8 @@ public interface SocialAuthService {
 
     SocialAuthResponse authenticate(SocialAuthRequest request);
 
+    SocialSyncResponse getSocialSyncStatus();
+
     SocialSyncResponse syncSocialAccount(SocialAuthRequest request);
 
     SocialSyncResponse unsyncSocialAccount(String provider);
