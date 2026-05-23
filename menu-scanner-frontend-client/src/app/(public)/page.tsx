@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useCallback, useMemo, useRef } from "react";
+import React, { useEffect, useCallback, useMemo, useRef } from "react";
 
 import {
   fetchHomeBanners,
@@ -54,24 +54,33 @@ export default function HomePage() {
     };
   }, []);
 
-  // Tracks whether we just hydrated from sessionStorage so the fetch
-  // effect skips its first run (which would otherwise set loading=true
-  // and replace the restored content with a skeleton).
-  const justRestoredRef = useRef(false);
-
-  // Run synchronously before the browser paints so restored content is
-  // visible on the very first frame (no empty flash).
-  useLayoutEffect(() => {
+  // On mount: restore sessionStorage snapshot so back-navigation shows
+  // instant content instead of empty state while the API re-fetches.
+  // We still always run the normal fetch — the snapshot is only an initial
+  // data source, not a fetch gate. Sections won't show skeleton if they
+  // already have data (banners.length > 0) even while loading.
+  useEffect(() => {
     const allEmpty =
       !bannersSection.loaded &&
       !categoriesSection.loaded &&
       !promotionProductsSection.loaded &&
       !featuredProductsSection.loaded;
 
+    console.log("[HomePage] mount effect - allEmpty:", allEmpty, {
+      bannersLoaded: bannersSection.loaded,
+      categoriesLoaded: categoriesSection.loaded,
+      promotionsLoaded: promotionProductsSection.loaded,
+      featuredLoaded: featuredProductsSection.loaded,
+    });
+
     if (allEmpty) {
       const snapshot = loadHomeSnapshot();
+      console.log("[HomePage] snapshot from sessionStorage:", snapshot
+        ? { banners: snapshot.banners.length, categories: snapshot.categories.length, age: Math.round((Date.now() - snapshot.timestamp) / 1000) + "s" }
+        : null);
+
       if (snapshot && (snapshot.banners.length > 0 || snapshot.categories.length > 0)) {
-        justRestoredRef.current = true;
+        console.log("[HomePage] restoring snapshot into Redux");
         dispatch(
           restoreHomeSnapshot({
             banners: snapshot.banners as never,
@@ -85,7 +94,7 @@ export default function HomePage() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally only on mount — stale values are fine here
+  }, []); // only on initial mount
 
   const isInitialFeaturedLoading =
     featuredProductsSection.loading &&
@@ -93,23 +102,22 @@ export default function HomePage() {
     !featuredProductsSection.loaded;
 
   useEffect(() => {
-    // Skip the very first run after a snapshot restore. The next run
-    // (triggered by the loaded flags changing to true) will see loaded=true
-    // and correctly skip all fetches.
-    if (justRestoredRef.current) {
-      justRestoredRef.current = false;
-      return;
-    }
+    console.log("[HomePage] fetch effect running", {
+      bannersLoaded: bannersSection.loaded, bannersLoading: bannersSection.loading,
+      categoriesLoaded: categoriesSection.loaded, categoriesLoading: categoriesSection.loading,
+    });
 
     const loadData = async () => {
       const promises = [];
       const pageSize = getPageSize();
 
       if (!bannersSection.loaded && !bannersSection.loading) {
+        console.log("[HomePage] dispatching fetchHomeBanners");
         promises.push(dispatch(fetchHomeBanners({})));
       }
 
       if (!categoriesSection.loaded && !categoriesSection.loading) {
+        console.log("[HomePage] dispatching fetchHomeCategories");
         promises.push(dispatch(fetchHomeCategories({ pageSize: 12 })));
       }
 
@@ -124,8 +132,12 @@ export default function HomePage() {
       }
 
       if (promises.length > 0) {
+        console.log("[HomePage] waiting for", promises.length, "fetch(es)");
         await Promise.allSettled(promises);
         dispatch(setInitialLoadComplete());
+        console.log("[HomePage] all fetches done");
+      } else {
+        console.log("[HomePage] all sections already loaded or loading — no fetch needed");
       }
     };
 
@@ -139,8 +151,7 @@ export default function HomePage() {
     featuredProductsSection.loaded,
   ]);
 
-  // Persist a snapshot to sessionStorage when all sections finish loading
-  // so back-navigation from hard reloads can show instant content.
+  // Persist snapshot to sessionStorage once all sections are loaded.
   useEffect(() => {
     if (
       bannersSection.loaded &&
@@ -149,6 +160,7 @@ export default function HomePage() {
       featuredProductsSection.loaded &&
       (banners.length > 0 || categories.length > 0)
     ) {
+      console.log("[HomePage] saving snapshot to sessionStorage", { banners: banners.length, categories: categories.length });
       saveHomeSnapshot({
         banners,
         categories,
