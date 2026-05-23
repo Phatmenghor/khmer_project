@@ -25,8 +25,10 @@ public class TelegramAuthProvider {
     private final ObjectMapper objectMapper;
 
     public SocialUserInfo getUserInfo(String authData) {
+        log.info("[TG DEBUG] getUserInfo called — raw authData: {}", authData);
         try {
             JsonNode data = objectMapper.readTree(authData);
+            log.info("[TG DEBUG] Parsed JSON fields: {}", data.fieldNames());
 
             String id = data.get("id").asText();
             String username = data.has("username") ? data.get("username").asText() : null;
@@ -34,11 +36,18 @@ public class TelegramAuthProvider {
             String lastName = data.has("last_name") ? data.get("last_name").asText() : null;
             String photoUrl = data.has("photo_url") ? data.get("photo_url").asText() : null;
 
+            log.info("[TG DEBUG] Extracted — id={}, username={}, firstName={}, lastName={}", id, username, firstName, lastName);
+
             String hash = data.has("hash") ? data.get("hash").asText() : null;
+            log.info("[TG DEBUG] hash present={}, botToken configured={}, botToken length={}",
+                    hash != null, !botToken.isEmpty(), botToken.length());
+
             if (hash != null && !botToken.isEmpty()) {
+                log.info("[TG DEBUG] Running hash verification...");
                 verifyTelegramAuth(data, hash);
+                log.info("[TG DEBUG] Hash verification passed");
             } else {
-                log.warn("Telegram hash verification skipped: hash_present={}, bot_token_configured={}",
+                log.warn("[TG DEBUG] Telegram hash verification skipped: hash_present={}, bot_token_configured={}",
                         hash != null, !botToken.isEmpty());
             }
 
@@ -51,7 +60,7 @@ public class TelegramAuthProvider {
                     .photoUrl(photoUrl)
                     .build();
         } catch (Exception e) {
-            log.warn("Telegram authentication data parsing failed: error={}", e.getMessage());
+            log.error("[TG DEBUG] getUserInfo failed — error type={}, message={}", e.getClass().getSimpleName(), e.getMessage());
             throw new ValidationException("Invalid Telegram authentication data");
         }
     }
@@ -68,16 +77,23 @@ public class TelegramAuthProvider {
                 }
             });
 
+            log.info("[TG DEBUG] Check string for HMAC:\n{}", checkString);
+
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(new SecretKeySpec(secretKey, "HmacSHA256"));
             byte[] hmac = mac.doFinal(checkString.toString().getBytes(StandardCharsets.UTF_8));
             String computedHash = bytesToHex(hmac);
 
+            log.info("[TG DEBUG] computed hash={}", computedHash);
+            log.info("[TG DEBUG] received hash={}", hash);
+            log.info("[TG DEBUG] match={}", computedHash.equals(hash));
+
             if (!computedHash.equals(hash)) {
+                log.error("[TG DEBUG] Hash mismatch — verification failed");
                 throw new ValidationException("Invalid Telegram authentication hash");
             }
         } catch (Exception e) {
-            log.warn("Telegram authentication verification failed: error={}", e.getMessage());
+            log.error("[TG DEBUG] verifyTelegramAuth failed — error type={}, message={}", e.getClass().getSimpleName(), e.getMessage());
             throw new ValidationException("Failed to verify Telegram authentication");
         }
     }

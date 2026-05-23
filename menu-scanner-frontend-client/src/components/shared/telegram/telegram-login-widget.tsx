@@ -112,10 +112,14 @@ export function TelegramLoginButton({
 
     const telegramBotId = botId || botName;
 
-
     const authUrl = `https://oauth.telegram.org/auth?bot_id=${telegramBotId}&origin=${encodeURIComponent(
       window.location.origin
     )}&embed=1&request_access=write`;
+
+    console.log("[TG DEBUG] Opening popup");
+    console.log("[TG DEBUG] bot_id:", telegramBotId);
+    console.log("[TG DEBUG] origin:", window.location.origin);
+    console.log("[TG DEBUG] full auth URL:", authUrl);
 
     const popup = window.open(
       authUrl,
@@ -124,34 +128,42 @@ export function TelegramLoginButton({
     );
 
     if (!popup) {
+      console.log("[TG DEBUG] Popup was blocked by browser");
       return;
     }
 
+    console.log("[TG DEBUG] Popup opened successfully");
 
     let resolved = false;
 
-
     const onMessage = (event: MessageEvent) => {
-      if (event.origin !== "https://oauth.telegram.org") return;
-
+      console.log("[TG DEBUG] postMessage received — origin:", event.origin, "data:", event.data);
+      if (event.origin !== "https://oauth.telegram.org") {
+        console.log("[TG DEBUG] Ignored message from unexpected origin:", event.origin);
+        return;
+      }
 
       try {
         const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        console.log("[TG DEBUG] Parsed message data:", data);
 
         if (data?.event === "auth_result" && data?.result) {
+          console.log("[TG DEBUG] Auth result received:", data.result);
           resolved = true;
           cleanup();
           onAuth(data.result as TelegramAuthData);
         } else {
+          console.log("[TG DEBUG] Message received but not auth_result:", data);
         }
       } catch (err) {
+        console.log("[TG DEBUG] Failed to parse message data:", err);
       }
     };
-
 
     const checkPopup = setInterval(() => {
       if (!popup || popup.closed) {
         if (!resolved) {
+          console.log("[TG DEBUG] Popup closed without completing auth");
         }
         cleanup();
         return;
@@ -161,23 +173,27 @@ export function TelegramLoginButton({
         const url = new URL(popup.location.href);
         const tgAuthResult = url.searchParams.get("tgAuthResult");
         if (tgAuthResult) {
+          console.log("[TG DEBUG] tgAuthResult found in popup URL");
           resolved = true;
           cleanup();
           popup.close();
           const authData = JSON.parse(atob(tgAuthResult));
+          console.log("[TG DEBUG] Auth data from URL:", authData);
           onAuth(authData as TelegramAuthData);
         }
-      } catch {
-
+      } catch (e) {
+        // cross-origin access blocked — normal while popup is on oauth.telegram.org
       }
     }, 300);
 
     const cleanup = () => {
+      console.log("[TG DEBUG] Cleanup called — resolved:", resolved);
       window.removeEventListener("message", onMessage);
       clearInterval(checkPopup);
     };
 
     window.addEventListener("message", onMessage);
+    console.log("[TG DEBUG] Listening for postMessage from oauth.telegram.org");
   }, [botName, botId, onAuth, disabled, loading]);
 
   return (

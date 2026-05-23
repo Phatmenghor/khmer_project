@@ -59,6 +59,8 @@ export function TelegramSyncCard({
 
 
   const handleTelegramSync = async (telegramData: TelegramAuthData) => {
+    console.log("[TG DEBUG] handleTelegramSync called with data:", telegramData);
+    console.log("[TG DEBUG] userType:", userType);
     setIsConnecting(true);
     try {
       const result = await dispatch(
@@ -67,9 +69,11 @@ export function TelegramSyncCard({
           userType,
         })
       ).unwrap();
+      console.log("[TG DEBUG] Sync success:", result);
       showToast.success(Messages.auth.telegramConnected);
       onSyncSuccess?.(result);
     } catch (err: unknown) {
+      console.log("[TG DEBUG] Sync error:", err);
       showToast.error((err as { message?: string })?.message || "Failed to connect Telegram account.");
     } finally {
       setIsConnecting(false);
