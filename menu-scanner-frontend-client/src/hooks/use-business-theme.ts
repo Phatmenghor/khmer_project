@@ -66,8 +66,9 @@ export function useBusinessTheme() {
 
       if (cachedColors) {
         applyColors(cachedColors.primaryColor);
+        return; // cache hit — no need to fetch
       }
-      return;
+      // no cache on login page — fall through to fetch below
     }
 
 
