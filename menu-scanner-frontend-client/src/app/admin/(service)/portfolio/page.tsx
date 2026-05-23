@@ -344,6 +344,22 @@ export default function PortfolioPage() {
               />
             </div>
 
+            <TextareaField<PortfolioFormData>
+              control={form.control}
+              name="contact.address"
+              label="Physical Address"
+              placeholder="Street 271, Toul Kork, Phnom Penh, Cambodia, 12000"
+              rows={2}
+              error={form.formState.errors.contact?.address}
+            />
+            <TextField<PortfolioFormData>
+              control={form.control}
+              name="contact.mapLink"
+              label="Google Maps Link"
+              placeholder="https://maps.google.com/?q=your+location"
+              error={form.formState.errors.contact?.mapLink}
+            />
+
             {/* Additional Phones */}
             <div className="border-t pt-5 space-y-4">
               <div className="flex items-center justify-between">
@@ -389,29 +405,6 @@ export default function PortfolioPage() {
                   <p className="text-sm text-muted-foreground">No additional phone numbers added</p>
                 </div>
               )}
-            </div>
-
-            {/* Location */}
-            <div className="border-t pt-5 space-y-4">
-              <div>
-                <p className="text-sm font-semibold">Location</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Physical address and map link</p>
-              </div>
-              <TextareaField<PortfolioFormData>
-                control={form.control}
-                name="contact.address"
-                label="Physical Address"
-                placeholder="Street 271, Toul Kork, Phnom Penh, Cambodia, 12000"
-                rows={2}
-                error={form.formState.errors.contact?.address}
-              />
-              <TextField<PortfolioFormData>
-                control={form.control}
-                name="contact.mapLink"
-                label="Google Maps Link"
-                placeholder="https://maps.google.com/?q=your+location"
-                error={form.formState.errors.contact?.mapLink}
-              />
             </div>
           </CardContent>
         </Card>
