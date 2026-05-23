@@ -426,26 +426,35 @@ export default function PortfolioPage() {
             {socialMediaFields.length > 0 ? (
               <div className="space-y-3">
                 {socialMediaFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-3 items-center p-3 border rounded-lg hover:bg-muted/30 transition-colors">
-                    <Input
-                      placeholder="Platform (Facebook, Instagram...) *"
-                      {...form.register(`socialMedia.${index}.name`)}
-                      className="flex-1"
-                    />
-                    <Input
-                      placeholder="https://... *"
-                      {...form.register(`socialMedia.${index}.url`)}
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
-                      onClick={() => removeSocialMedia(index)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground font-medium">Account {index + 1}</p>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
+                        onClick={() => removeSocialMedia(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Platform <span className="text-red-500">*</span></Label>
+                        <Input
+                          placeholder="Facebook, Instagram..."
+                          {...form.register(`socialMedia.${index}.name`)}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">URL <span className="text-red-500">*</span></Label>
+                        <Input
+                          placeholder="https://..."
+                          {...form.register(`socialMedia.${index}.url`)}
+                        />
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -591,54 +600,58 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             {businessHoursFields.length > 0 ? (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="grid grid-cols-3 gap-2 flex-1">
-                    <Label className="text-xs text-muted-foreground">Day <span className="text-red-500">*</span></Label>
-                    <Label className="text-xs text-muted-foreground">Open Time</Label>
-                    <Label className="text-xs text-muted-foreground">Close Time</Label>
-                  </div>
-                  <div className="w-8 shrink-0" />
-                </div>
+              <div className="space-y-3">
                 {businessHoursFields.map((field, index) => (
-                  <div key={field.id} className="flex items-center gap-2">
-                    <div className="grid grid-cols-3 gap-2 flex-1">
-                      <Input
-                        placeholder="e.g. Monday"
-                        {...form.register(`businessHours.${index}.day`)}
-                      />
-                      <Controller
-                        name={`businessHours.${index}.openTime`}
-                        control={form.control}
-                        render={({ field: timeField }) => (
-                          <CustomTimePicker
-                            value={timeField.value || ""}
-                            onChange={timeField.onChange}
-                            placeholder="Open"
-                          />
-                        )}
-                      />
-                      <Controller
-                        name={`businessHours.${index}.closeTime`}
-                        control={form.control}
-                        render={({ field: timeField }) => (
-                          <CustomTimePicker
-                            value={timeField.value || ""}
-                            onChange={timeField.onChange}
-                            placeholder="Close"
-                          />
-                        )}
-                      />
+                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground font-medium">Entry {index + 1}</p>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
+                        onClick={() => removeBusinessHour(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
-                      onClick={() => removeBusinessHour(index)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Day <span className="text-red-500">*</span></Label>
+                        <Input
+                          placeholder="e.g. Monday"
+                          {...form.register(`businessHours.${index}.day`)}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Open Time</Label>
+                        <Controller
+                          name={`businessHours.${index}.openTime`}
+                          control={form.control}
+                          render={({ field: timeField }) => (
+                            <CustomTimePicker
+                              value={timeField.value || ""}
+                              onChange={timeField.onChange}
+                              placeholder="Open"
+                            />
+                          )}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Close Time</Label>
+                        <Controller
+                          name={`businessHours.${index}.closeTime`}
+                          control={form.control}
+                          render={({ field: timeField }) => (
+                            <CustomTimePicker
+                              value={timeField.value || ""}
+                              onChange={timeField.onChange}
+                              placeholder="Close"
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
