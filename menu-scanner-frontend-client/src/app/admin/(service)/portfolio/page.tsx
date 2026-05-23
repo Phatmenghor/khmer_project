@@ -455,25 +455,25 @@ export default function PortfolioPage() {
 
         {/* Features & Amenities */}
         <Card>
-          <CardHeader>
-            <CardTitle>Features &amp; Amenities</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Features &amp; Amenities</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
                 {featuresFields.length > 0
                   ? `${featuresFields.length} feature${featuresFields.length > 1 ? "s" : ""} listed`
                   : "No features added yet"}
               </p>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => appendFeature({ id: "", name: "" })}
-              >
-                <Plus className="w-4 h-4 mr-1" /> Add Feature
-              </Button>
             </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => appendFeature({ id: "", name: "" })}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Feature
+            </Button>
+          </CardHeader>
+          <CardContent>
             {featuresFields.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {featuresFields.map((field, index) => (
@@ -504,25 +504,25 @@ export default function PortfolioPage() {
 
         {/* Business Statistics */}
         <Card>
-          <CardHeader>
-            <CardTitle>Business Statistics</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Business Statistics</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
                 {customStatsFields.length > 0
                   ? `${customStatsFields.length} stat${customStatsFields.length > 1 ? "s" : ""} configured`
                   : "No stats added yet"}
               </p>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => appendCustomStat({ id: "", label: "", value: "" })}
-              >
-                <Plus className="w-4 h-4 mr-1" /> Add Stat
-              </Button>
             </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => appendCustomStat({ id: "", label: "", value: "" })}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Stat
+            </Button>
+          </CardHeader>
+          <CardContent>
             {customStatsFields.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {customStatsFields.map((field, index) => (
@@ -559,25 +559,25 @@ export default function PortfolioPage() {
 
         {/* Business Hours */}
         <Card>
-          <CardHeader>
-            <CardTitle>Business Hours</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Business Hours</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
                 {businessHoursFields.length > 0
                   ? `${businessHoursFields.length} day${businessHoursFields.length > 1 ? "s" : ""} configured`
                   : "No hours configured yet"}
               </p>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => appendBusinessHour({ id: "", day: "", openTime: "08:00", closeTime: "18:00" })}
-              >
-                <Plus className="w-4 h-4 mr-1" /> Add Hours
-              </Button>
             </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => appendBusinessHour({ id: "", day: "", openTime: "08:00", closeTime: "18:00" })}
+            >
+              <Plus className="w-4 h-4 mr-1" /> Add Hours
+            </Button>
+          </CardHeader>
+          <CardContent>
             {businessHoursFields.length > 0 ? (
               <div className="space-y-2">
                 {businessHoursFields.map((field, index) => (
