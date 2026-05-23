@@ -540,32 +540,36 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             {customStatsFields.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-3">
                 {customStatsFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2 items-end">
-                    <div className="space-y-1 flex-1">
-                      <Label className="text-xs text-muted-foreground">Value <span className="text-red-500">*</span></Label>
-                      <Input
-                        placeholder="e.g., 10,000+"
-                        {...form.register(`customStats.${index}.value`)}
-                      />
+                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
+                        onClick={() => removeCustomStat(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
-                    <div className="space-y-1 flex-1">
-                      <Label className="text-xs text-muted-foreground">Label <span className="text-red-500">*</span></Label>
-                      <Input
-                        placeholder="e.g., Happy Customers"
-                        {...form.register(`customStats.${index}.label`)}
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Value <span className="text-red-500">*</span></Label>
+                        <Input
+                          placeholder="e.g., 10,000+"
+                          {...form.register(`customStats.${index}.value`)}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Label <span className="text-red-500">*</span></Label>
+                        <Input
+                          placeholder="e.g., Happy Customers"
+                          {...form.register(`customStats.${index}.label`)}
+                        />
+                      </div>
                     </div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
-                      onClick={() => removeCustomStat(index)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
                   </div>
                 ))}
               </div>
