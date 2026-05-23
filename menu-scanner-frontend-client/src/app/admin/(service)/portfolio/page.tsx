@@ -33,19 +33,6 @@ import {
   type PortfolioFormData,
 } from "./schema/portfolio-form.schema";
 
-const DAYS = [
-  "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY",
-] as const;
-
-const DAY_LABELS: Record<string, string> = {
-  MONDAY: "Monday",
-  TUESDAY: "Tuesday",
-  WEDNESDAY: "Wednesday",
-  THURSDAY: "Thursday",
-  FRIDAY: "Friday",
-  SATURDAY: "Saturday",
-  SUNDAY: "Sunday",
-};
 
 function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
   const contact = p.contact || {};
@@ -586,7 +573,7 @@ export default function PortfolioPage() {
                 type="button"
                 size="sm"
                 variant="outline"
-                onClick={() => appendBusinessHour({ id: "", day: "MONDAY", openTime: "08:00", closeTime: "18:00" })}
+                onClick={() => appendBusinessHour({ id: "", day: "", openTime: "08:00", closeTime: "18:00" })}
               >
                 <Plus className="w-4 h-4 mr-1" /> Add Hours
               </Button>
@@ -595,14 +582,11 @@ export default function PortfolioPage() {
               <div className="space-y-2">
                 {businessHoursFields.map((field, index) => (
                   <div key={field.id} className="flex items-center gap-2">
-                    <select
+                    <Input
+                      placeholder="Day (e.g. Monday)"
                       {...form.register(`businessHours.${index}.day`)}
-                      className="flex h-9 w-32 shrink-0 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                    >
-                      {DAYS.map((d) => (
-                        <option key={d} value={d}>{DAY_LABELS[d]}</option>
-                      ))}
-                    </select>
+                      className="w-36 shrink-0"
+                    />
                     <div className="flex flex-1 items-center gap-2">
                       <Controller
                         name={`businessHours.${index}.openTime`}
