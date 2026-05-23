@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
@@ -689,7 +690,8 @@ export default function PortfolioPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {galleryFields.map((field, index) => (
                   <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
-                    <div className="flex justify-end">
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className="text-xs">Image {index + 1}</Badge>
                       <Button
                         type="button"
                         size="sm"
