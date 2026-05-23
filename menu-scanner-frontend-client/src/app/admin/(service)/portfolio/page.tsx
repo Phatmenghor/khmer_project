@@ -365,7 +365,7 @@ export default function PortfolioPage() {
                 </Button>
               </div>
               {contactPhonesFields.length > 0 ? (
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {contactPhonesFields.map((field, index) => (
                     <div key={field.id} className="flex gap-2 items-center">
                       <Input
