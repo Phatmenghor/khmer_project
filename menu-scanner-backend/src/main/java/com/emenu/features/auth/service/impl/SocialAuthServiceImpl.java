@@ -139,6 +139,15 @@ public class SocialAuthServiceImpl implements SocialAuthService {
 
     private User findOrCreateByTelegram(SocialUserInfo socialUserInfo, UserType userTypeEnum, UUID businessIdValue) {
         Long telegramIdValue = Long.parseLong(socialUserInfo.getId());
+
+        if (userTypeEnum == UserType.BUSINESS_USER) {
+            return userRepository.findByTelegramIdAndUserTypeAndIsDeletedFalse(telegramIdValue, UserType.BUSINESS_USER)
+                    .orElseThrow(() -> {
+                        log.warn("Telegram login rejected - no linked account found for business user: telegram_id={}", telegramIdValue);
+                        return new ValidationException("Telegram account not linked. Please sync your Telegram account from your profile settings first.");
+                    });
+        }
+
         return userRepository.findByTelegramIdAndIsDeletedFalse(telegramIdValue)
                 .orElseGet(() -> createNewUser(socialUserInfo, userTypeEnum, businessIdValue));
     }

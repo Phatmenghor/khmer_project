@@ -172,6 +172,7 @@ export default function LoginPage() {
               disabled={isAnyLoading}
               loading={isTelegramLoading}
               className="w-full h-11"
+              description="Click the button below to sign in with your linked Telegram account. You must first sync Telegram from your profile settings."
             />
 
             <p className="text-center text-xs text-gray-500 mt-5">

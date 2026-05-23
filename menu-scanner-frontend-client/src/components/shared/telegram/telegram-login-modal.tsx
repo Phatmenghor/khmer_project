@@ -15,11 +15,9 @@ import { TelegramAuthData } from "@/features/auth/store/models/request/social-au
 import { SocialAuthConfig } from "@/constants/app-resource/default/default";
 
 interface TelegramLoginModalProps {
-
   onAuth: (data: TelegramAuthData) => Promise<void>;
-
   buttonLabel?: string;
-
+  description?: string;
   className?: string;
   disabled?: boolean;
   loading?: boolean;
@@ -29,6 +27,7 @@ interface TelegramLoginModalProps {
 export function TelegramLoginModal({
   onAuth,
   buttonLabel = "Continue with Telegram",
+  description,
   className = "",
   disabled = false,
   loading = false,
@@ -75,8 +74,8 @@ export function TelegramLoginModal({
               Sign in with Telegram
             </DialogTitle>
             <DialogDescription>
-              Click the button below to open Telegram. If you don&apos;t have an
-              account yet, one will be created automatically.
+              {description ??
+                "Click the button below to open Telegram. If you don't have an account yet, one will be created automatically."}
             </DialogDescription>
           </DialogHeader>
 

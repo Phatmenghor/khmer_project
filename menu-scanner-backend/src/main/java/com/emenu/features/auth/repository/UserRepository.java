@@ -71,4 +71,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("SELECT u FROM User u JOIN u.telegram t WHERE t.telegramId = :telegramId AND u.isDeleted = false")
     Optional<User> findByTelegramIdAndIsDeletedFalse(@Param("telegramId") Long telegramId);
+
+    @Query("SELECT u FROM User u JOIN u.telegram t WHERE t.telegramId = :telegramId AND u.userType = :userType AND u.isDeleted = false")
+    Optional<User> findByTelegramIdAndUserTypeAndIsDeletedFalse(@Param("telegramId") Long telegramId, @Param("userType") UserType userType);
 }
