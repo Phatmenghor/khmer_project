@@ -605,54 +605,54 @@ export default function PortfolioPage() {
             {businessHoursFields.length > 0 ? (
               <div className="space-y-3">
                 {businessHoursFields.map((field, index) => (
-                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
-                    <div className="flex justify-end">
+                  <div key={field.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
+                    <div className="flex items-end gap-2">
+                      <div className="grid grid-cols-3 gap-3 flex-1">
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Day <span className="text-red-500">*</span></Label>
+                          <Input
+                            placeholder="e.g. Monday"
+                            {...form.register(`businessHours.${index}.day`)}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Open Time</Label>
+                          <Controller
+                            name={`businessHours.${index}.openTime`}
+                            control={form.control}
+                            render={({ field: timeField }) => (
+                              <CustomTimePicker
+                                value={timeField.value || ""}
+                                onChange={timeField.onChange}
+                                placeholder="Open"
+                              />
+                            )}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Close Time</Label>
+                          <Controller
+                            name={`businessHours.${index}.closeTime`}
+                            control={form.control}
+                            render={({ field: timeField }) => (
+                              <CustomTimePicker
+                                value={timeField.value || ""}
+                                onChange={timeField.onChange}
+                                placeholder="Close"
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
                       <Button
                         type="button"
                         size="sm"
                         variant="ghost"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-9 w-9 p-0 shrink-0"
                         onClick={() => removeBusinessHour(index)}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Day <span className="text-red-500">*</span></Label>
-                        <Input
-                          placeholder="e.g. Monday"
-                          {...form.register(`businessHours.${index}.day`)}
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Open Time</Label>
-                        <Controller
-                          name={`businessHours.${index}.openTime`}
-                          control={form.control}
-                          render={({ field: timeField }) => (
-                            <CustomTimePicker
-                              value={timeField.value || ""}
-                              onChange={timeField.onChange}
-                              placeholder="Open"
-                            />
-                          )}
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Close Time</Label>
-                        <Controller
-                          name={`businessHours.${index}.closeTime`}
-                          control={form.control}
-                          render={({ field: timeField }) => (
-                            <CustomTimePicker
-                              value={timeField.value || ""}
-                              onChange={timeField.onChange}
-                              placeholder="Close"
-                            />
-                          )}
-                        />
-                      </div>
                     </div>
                   </div>
                 ))}
