@@ -32,7 +32,7 @@ const businessSettingsSlice = createSlice({
       .addCase(fetchBusinessSettingsThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-        state.data = null;
+        // Keep existing data if present so a transient failure doesn't blank the UI
       });
 
 

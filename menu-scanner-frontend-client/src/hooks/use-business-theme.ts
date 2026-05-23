@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
+import { selectBusinessSettings, selectBusinessSettingsLoading } from "@/features/business/store/selectors/business-settings-selector";
 import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { BusinessSettingsResponse } from "@/features/business/store/services/business-settings-service";
-import { getCachedThemeColors, cacheThemeColors, hasThemeChanged, getCachedBusinessInfo } from "@/utils/common/theme-cache";
+import { getCachedThemeColors, cacheThemeColors, hasThemeChanged } from "@/utils/common/theme-cache";
 import { AppDefault } from "@/constants/app-resource/default/default";
 
 
@@ -15,9 +15,7 @@ const DEFAULT_COLORS = {
 
 
 function hexToHsl(hex: string): string {
-
   hex = hex.replace("#", "");
-
 
   const r = parseInt(hex.substring(0, 2), 16) / 255;
   const g = parseInt(hex.substring(2, 4), 16) / 255;
@@ -53,37 +51,39 @@ function hexToHsl(hex: string): string {
   return `${hue} ${saturation}% ${lightness}%`;
 }
 
+function syncWindowCache(settings: {
+  businessName?: string;
+  logoBusinessUrl?: string;
+  primaryColor?: string;
+  taxPercentage?: number | null;
+}) {
+  if (typeof window !== "undefined") {
+    window.__cachedBusinessData = {
+      businessName: settings.businessName,
+      logoBusinessUrl: settings.logoBusinessUrl,
+      primaryColor: settings.primaryColor,
+      taxPercentage: settings.taxPercentage ?? undefined,
+    };
+  }
+}
 
 export function useBusinessTheme() {
   const dispatch = useAppDispatch();
   const businessSettings = useAppSelector(selectBusinessSettings);
+  const isLoading = useAppSelector(selectBusinessSettingsLoading);
   const pathname = usePathname();
 
   useEffect(() => {
-    const isLoginPage = pathname?.includes("/login");
-
-    if (isLoginPage) {
-      const defaultBusinessId = AppDefault.BUSINESS_ID;
-      const cachedColors = getCachedThemeColors(defaultBusinessId);
-
-      if (cachedColors) {
-        applyColors(cachedColors.primaryColor);
-        return; // cache hit — no need to fetch
-      }
-      // no cache — fall through to fetch below
+    // Always try to apply colors from cache immediately (fast path)
+    const businessId = (typeof window !== "undefined" && localStorage.getItem("businessId")) || AppDefault.BUSINESS_ID;
+    const cachedColors = getCachedThemeColors(businessId);
+    if (cachedColors?.primaryColor) {
+      applyColors(cachedColors.primaryColor);
     }
 
-
+    // If we already have Redux data, apply it and keep window cache in sync
     if (businessSettings) {
-
       localStorage.setItem("businessId", businessSettings.businessId);
-
-
-      const cachedColors = getCachedThemeColors(businessSettings.businessId);
-      if (cachedColors) {
-        applyColors(cachedColors.primaryColor);
-      }
-
 
       const currentData = {
         primaryColor: businessSettings.primaryColor || "",
@@ -94,45 +94,43 @@ export function useBusinessTheme() {
 
       if (hasThemeChanged(cachedColors, currentData)) {
         cacheThemeColors(businessSettings.businessId, currentData);
-
-
-        if (businessSettings.primaryColor) {
-          applyColors(businessSettings.primaryColor);
-        }
       }
 
+      if (businessSettings.primaryColor) {
+        applyColors(businessSettings.primaryColor);
+      }
+
+      // Keep window cache in sync with latest Redux data
+      syncWindowCache(businessSettings);
       return;
     }
 
+    // No Redux data yet — dispatch fetch if not already in flight
+    if (!isLoading) {
+      dispatch(fetchBusinessSettingsThunk()).then((action) => {
+        if (action.meta.requestStatus === "fulfilled" && action.payload) {
+          const payload = action.payload as BusinessSettingsResponse;
 
-    dispatch(fetchBusinessSettingsThunk()).then((action) => {
+          localStorage.setItem("businessId", payload.businessId);
 
-      if (action.meta.requestStatus === "fulfilled" && action.payload) {
-        const payload = action.payload as BusinessSettingsResponse;
-        const businessId = payload.businessId;
+          const apiData = {
+            primaryColor: payload.primaryColor || "",
+            businessName: payload.businessName,
+            logoBusinessUrl: payload.logoBusinessUrl,
+            taxPercentage: payload.taxPercentage ?? undefined,
+          };
 
+          const existingCache = getCachedThemeColors(payload.businessId);
+          if (hasThemeChanged(existingCache, apiData)) {
+            cacheThemeColors(payload.businessId, apiData);
+          }
 
-        localStorage.setItem("businessId", businessId);
-
-
-        const cachedData = getCachedThemeColors(businessId);
-        const apiData = {
-          primaryColor: payload.primaryColor || "",
-          businessName: payload.businessName,
-          logoBusinessUrl: payload.logoBusinessUrl,
-          taxPercentage: payload.taxPercentage ?? undefined,
-        };
-
-
-        if (hasThemeChanged(cachedData, apiData)) {
-          cacheThemeColors(businessId, apiData);
+          applyColors(payload.primaryColor);
+          syncWindowCache(payload);
         }
-
-
-        applyColors(payload.primaryColor);
-      }
-    });
-  }, [dispatch, businessSettings, pathname]);
+      });
+    }
+  }, [dispatch, businessSettings, isLoading, pathname]);
 }
 
 

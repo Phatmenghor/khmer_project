@@ -64,12 +64,21 @@ export function Navbar() {
   const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
   const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
 
+  // Read window cache on mount, on route change, and on bfcache restoration
   useEffect(() => {
-    if (typeof window !== "undefined" && window.__cachedBusinessData) {
-      setCachedBusinessName(window.__cachedBusinessData.businessName);
-      setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
-    }
-  }, []);
+    const readWindowCache = () => {
+      if (typeof window !== "undefined" && window.__cachedBusinessData) {
+        setCachedBusinessName(window.__cachedBusinessData.businessName);
+        setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
+      }
+    };
+    readWindowCache();
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) readWindowCache();
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [pathname]);
 
   const businessName = reduxBusinessName || cachedBusinessName || "";
   const businessLogoUrl = reduxBusinessLogoUrl || cachedLogoUrl || "";
