@@ -54,11 +54,56 @@ export default function HomePage() {
     };
   }, []);
 
-  // On mount: restore sessionStorage snapshot so back-navigation shows
-  // instant content instead of empty state while the API re-fetches.
-  // We still always run the normal fetch — the snapshot is only an initial
-  // data source, not a fetch gate. Sections won't show skeleton if they
-  // already have data (banners.length > 0) even while loading.
+  // Always-current ref — readable inside event listeners without stale closure
+  const sectionsRef = useRef({
+    bannersLoaded: bannersSection.loaded,
+    categoriesLoaded: categoriesSection.loaded,
+    promotionsLoaded: promotionProductsSection.loaded,
+    featuredLoaded: featuredProductsSection.loaded,
+  });
+  sectionsRef.current = {
+    bannersLoaded: bannersSection.loaded,
+    categoriesLoaded: categoriesSection.loaded,
+    promotionsLoaded: promotionProductsSection.loaded,
+    featuredLoaded: featuredProductsSection.loaded,
+  };
+
+  // ── bfcache handler ──────────────────────────────────────────────────────
+  // When the browser presses Back and restores this page from bfcache,
+  // React components are NOT remounted and useEffect with [] does NOT re-run.
+  // Any in-flight API call at freeze-time gets cancelled, leaving the Redux
+  // state as loading=false, loaded=false, data=[] → sections show nothing.
+  // The pageshow event (persisted=true) lets us detect this and re-fetch.
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return; // normal load, not bfcache
+
+      const s = sectionsRef.current;
+      if (s.bannersLoaded && s.categoriesLoaded && s.promotionsLoaded && s.featuredLoaded) {
+        return; // all data already present in frozen state
+      }
+
+      // Re-fetch whatever is missing
+      const pageSize = getPageSize();
+      const fetches: Promise<unknown>[] = [];
+      if (!s.bannersLoaded) fetches.push(dispatch(fetchHomeBanners({})) as Promise<unknown>);
+      if (!s.categoriesLoaded) fetches.push(dispatch(fetchHomeCategories({ pageSize: 12 })) as Promise<unknown>);
+      if (!s.promotionsLoaded) fetches.push(dispatch(fetchHomePromotionProducts({ pageSize: 24 })) as Promise<unknown>);
+      if (!s.featuredLoaded) fetches.push(dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize })) as Promise<unknown>);
+
+      if (fetches.length > 0) {
+        Promise.allSettled(fetches).then(() => dispatch(setInitialLoadComplete()));
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [dispatch, getPageSize]);
+
+  // ── sessionStorage snapshot restore ─────────────────────────────────────
+  // For hard navigations (URL bar, server redirect → back), Redux is recreated
+  // empty. Restore a cached snapshot before the first fetch so the page has
+  // instant content rather than waiting for the API.
   useEffect(() => {
     const allEmpty =
       !bannersSection.loaded &&
@@ -66,21 +111,9 @@ export default function HomePage() {
       !promotionProductsSection.loaded &&
       !featuredProductsSection.loaded;
 
-    console.log("[HomePage] mount effect - allEmpty:", allEmpty, {
-      bannersLoaded: bannersSection.loaded,
-      categoriesLoaded: categoriesSection.loaded,
-      promotionsLoaded: promotionProductsSection.loaded,
-      featuredLoaded: featuredProductsSection.loaded,
-    });
-
     if (allEmpty) {
       const snapshot = loadHomeSnapshot();
-      console.log("[HomePage] snapshot from sessionStorage:", snapshot
-        ? { banners: snapshot.banners.length, categories: snapshot.categories.length, age: Math.round((Date.now() - snapshot.timestamp) / 1000) + "s" }
-        : null);
-
       if (snapshot && (snapshot.banners.length > 0 || snapshot.categories.length > 0)) {
-        console.log("[HomePage] restoring snapshot into Redux");
         dispatch(
           restoreHomeSnapshot({
             banners: snapshot.banners as never,
@@ -94,50 +127,35 @@ export default function HomePage() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // only on initial mount
+  }, []); // only on mount
 
   const isInitialFeaturedLoading =
     featuredProductsSection.loading &&
     featuredProducts.length === 0 &&
     !featuredProductsSection.loaded;
 
+  // ── normal data fetch ────────────────────────────────────────────────────
   useEffect(() => {
-    console.log("[HomePage] fetch effect running", {
-      bannersLoaded: bannersSection.loaded, bannersLoading: bannersSection.loading,
-      categoriesLoaded: categoriesSection.loaded, categoriesLoading: categoriesSection.loading,
-    });
-
     const loadData = async () => {
       const promises = [];
       const pageSize = getPageSize();
 
       if (!bannersSection.loaded && !bannersSection.loading) {
-        console.log("[HomePage] dispatching fetchHomeBanners");
         promises.push(dispatch(fetchHomeBanners({})));
       }
-
       if (!categoriesSection.loaded && !categoriesSection.loading) {
-        console.log("[HomePage] dispatching fetchHomeCategories");
         promises.push(dispatch(fetchHomeCategories({ pageSize: 12 })));
       }
-
       if (!promotionProductsSection.loaded && !promotionProductsSection.loading) {
         promises.push(dispatch(fetchHomePromotionProducts({ pageSize: 24 })));
       }
-
       if (!featuredProductsSection.loaded && !featuredProductsSection.loading) {
-        promises.push(
-          dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize })),
-        );
+        promises.push(dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize })));
       }
 
       if (promises.length > 0) {
-        console.log("[HomePage] waiting for", promises.length, "fetch(es)");
         await Promise.allSettled(promises);
         dispatch(setInitialLoadComplete());
-        console.log("[HomePage] all fetches done");
-      } else {
-        console.log("[HomePage] all sections already loaded or loading — no fetch needed");
       }
     };
 
@@ -151,7 +169,7 @@ export default function HomePage() {
     featuredProductsSection.loaded,
   ]);
 
-  // Persist snapshot to sessionStorage once all sections are loaded.
+  // ── persist snapshot ─────────────────────────────────────────────────────
   useEffect(() => {
     if (
       bannersSection.loaded &&
@@ -160,7 +178,6 @@ export default function HomePage() {
       featuredProductsSection.loaded &&
       (banners.length > 0 || categories.length > 0)
     ) {
-      console.log("[HomePage] saving snapshot to sessionStorage", { banners: banners.length, categories: categories.length });
       saveHomeSnapshot({
         banners,
         categories,
@@ -196,7 +213,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {}
       <div className="relative">
         <PageContainer className="pt-3 sm:pt-6">
           <BannerSection
@@ -207,7 +223,6 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      {}
       <div className="relative py-6 sm:py-10 bg-muted/5">
         <PageContainer>
           <CategoriesSection
@@ -219,7 +234,6 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      {}
       <div className="relative py-6 sm:py-10 bg-amber-50/30 dark:bg-amber-950/10">
         <PageContainer>
           <PromotionsSection
@@ -231,7 +245,6 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      {}
       <div className="relative py-6 sm:py-10">
         <PageContainer>
           <ProductsSection
