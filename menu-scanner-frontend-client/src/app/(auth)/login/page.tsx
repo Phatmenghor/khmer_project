@@ -35,7 +35,14 @@ export default function LoginPage() {
   const [isTelegramLoading, setIsTelegramLoading] = useState(false);
   const router = useRouter();
 
-  const { isLoading, dispatch } = useAuthState();
+  const { isLoading, dispatch, accessToken, authReady } = useAuthState();
+
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (authReady && accessToken) {
+      router.replace(ROUTES.ADMIN.DASHBOARD);
+    }
+  }, [authReady, accessToken, router]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),

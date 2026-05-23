@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
@@ -56,11 +57,12 @@ function hexToHsl(hex: string): string {
 export function useBusinessTheme() {
   const dispatch = useAppDispatch();
   const businessSettings = useAppSelector(selectBusinessSettings);
+  const pathname = usePathname();
 
   useEffect(() => {
+    const isLoginPage = pathname?.includes("/login");
 
-    if (typeof window !== "undefined" && window.location.pathname.includes("/login")) {
-
+    if (isLoginPage) {
       const defaultBusinessId = AppDefault.BUSINESS_ID;
       const cachedColors = getCachedThemeColors(defaultBusinessId);
 
@@ -68,7 +70,7 @@ export function useBusinessTheme() {
         applyColors(cachedColors.primaryColor);
         return; // cache hit — no need to fetch
       }
-      // no cache on login page — fall through to fetch below
+      // no cache — fall through to fetch below
     }
 
 
@@ -130,7 +132,7 @@ export function useBusinessTheme() {
         applyColors(payload.primaryColor);
       }
     });
-  }, [dispatch, businessSettings]);
+  }, [dispatch, businessSettings, pathname]);
 }
 
 

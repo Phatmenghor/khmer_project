@@ -6,6 +6,13 @@ import { useEffect } from "react";
 export function ThemeInitializer() {
   useEffect(() => {
     initializeTheme();
+
+    // Re-apply when browser restores page from bfcache (back/forward navigation)
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) initializeTheme();
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
   }, []);
 
   return null;
