@@ -127,7 +127,8 @@ export default function PortfolioReviewsPage() {
         onClose={() => setDeleteState({ isOpen: false, review: null })}
         onDelete={handleDelete}
         title="Delete Review"
-        description={`Are you sure you want to delete the review from "${deleteState.review?.customerName}"? This action cannot be undone.`}
+        description="Are you sure you want to delete this review? This action cannot be undone."
+        itemName={deleteState.review?.customerName}
         isSubmitting={operations.isDeleting}
       />
     </div>
