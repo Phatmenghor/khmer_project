@@ -373,20 +373,23 @@ export default function PortfolioPage() {
               {contactPhonesFields.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {contactPhonesFields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2 items-center">
-                      <Input
-                        placeholder="+855 12 345 678 *"
-                        {...form.register(`contact.phones.${index}.number`)}
-                      />
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => removeContactPhone(index)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div key={field.id} className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Phone Number <span className="text-red-500">*</span></Label>
+                      <div className="flex gap-2 items-center">
+                        <Input
+                          placeholder="+855 12 345 678"
+                          {...form.register(`contact.phones.${index}.number`)}
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => removeContactPhone(index)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -479,20 +482,23 @@ export default function PortfolioPage() {
             {featuresFields.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {featuresFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2 items-center">
-                    <Input
-                      placeholder="Feature name... *"
-                      {...form.register(`features.${index}.name`)}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => removeFeature(index)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                  <div key={field.id} className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Feature <span className="text-red-500">*</span></Label>
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        placeholder="Feature name..."
+                        {...form.register(`features.${index}.name`)}
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => removeFeature(index)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -526,16 +532,20 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             {customStatsFields.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {customStatsFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2 items-center">
-                    <div className="flex flex-1 gap-2">
+                  <div key={field.id} className="flex gap-2 items-end">
+                    <div className="space-y-1 flex-1">
+                      <Label className="text-xs text-muted-foreground">Value <span className="text-red-500">*</span></Label>
                       <Input
-                        placeholder="Value (e.g., 10,000+) *"
+                        placeholder="e.g., 10,000+"
                         {...form.register(`customStats.${index}.value`)}
                       />
+                    </div>
+                    <div className="space-y-1 flex-1">
+                      <Label className="text-xs text-muted-foreground">Label <span className="text-red-500">*</span></Label>
                       <Input
-                        placeholder="Label (e.g., Happy Customers) *"
+                        placeholder="e.g., Happy Customers"
                         {...form.register(`customStats.${index}.label`)}
                       />
                     </div>
@@ -582,11 +592,19 @@ export default function PortfolioPage() {
           <CardContent>
             {businessHoursFields.length > 0 ? (
               <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-3 gap-2 flex-1">
+                    <Label className="text-xs text-muted-foreground">Day <span className="text-red-500">*</span></Label>
+                    <Label className="text-xs text-muted-foreground">Open Time</Label>
+                    <Label className="text-xs text-muted-foreground">Close Time</Label>
+                  </div>
+                  <div className="w-8 shrink-0" />
+                </div>
                 {businessHoursFields.map((field, index) => (
                   <div key={field.id} className="flex items-center gap-2">
                     <div className="grid grid-cols-3 gap-2 flex-1">
                       <Input
-                        placeholder="Day (e.g. Monday) *"
+                        placeholder="e.g. Monday"
                         {...form.register(`businessHours.${index}.day`)}
                       />
                       <Controller
