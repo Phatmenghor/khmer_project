@@ -886,7 +886,7 @@ export default function PortfolioPage() {
                             render={({ field: f }) => (
                               <Textarea
                                 placeholder="Short bio about this team member..."
-                                rows={2}
+                                rows={4}
                                 className="resize-none text-sm"
                                 {...f}
                               />
