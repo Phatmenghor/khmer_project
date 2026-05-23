@@ -468,50 +468,48 @@ export default function PortfolioPage() {
 
         {/* Features & Amenities */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Features &amp; Amenities</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+          <CardHeader>
+            <CardTitle>Features &amp; Amenities</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
                 {featuresFields.length > 0
                   ? `${featuresFields.length} feature${featuresFields.length > 1 ? "s" : ""} listed`
                   : "No features added yet"}
               </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => appendFeature({ id: "", name: "" })}
+              >
+                <Plus className="w-4 h-4 mr-1" /> Add Feature
+              </Button>
             </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => appendFeature({ id: "", name: "" })}
-            >
-              <Plus className="w-4 h-4 mr-1" /> Add Feature
-            </Button>
-          </CardHeader>
-          <CardContent>
             {featuresFields.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {featuresFields.map((field, index) => (
-                  <div key={field.id} className="flex items-center gap-1 bg-muted rounded-full pl-3 pr-1 py-1">
+                  <div key={field.id} className="flex gap-2 items-center">
                     <Input
                       placeholder="Feature name..."
                       {...form.register(`features.${index}.name`)}
-                      className="border-0 bg-transparent p-0 h-auto text-sm focus-visible:ring-0 w-32 min-w-[80px]"
                     />
                     <Button
                       type="button"
-                      size="icon"
+                      size="sm"
                       variant="ghost"
-                      className="w-5 h-5 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       onClick={() => removeFeature(index)}
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 border-2 border-dashed rounded-lg">
+              <div className="text-center py-4 border-2 border-dashed rounded-lg">
                 <p className="text-sm text-muted-foreground">No features added</p>
-                <p className="text-xs text-muted-foreground mt-1">e.g., Free Delivery, 30-Day Returns, 24/7 Support</p>
               </div>
             )}
           </CardContent>
@@ -519,54 +517,37 @@ export default function PortfolioPage() {
 
         {/* Business Statistics */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Business Statistics</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+          <CardHeader>
+            <CardTitle>Business Statistics</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
                 {customStatsFields.length > 0
                   ? `${customStatsFields.length} stat${customStatsFields.length > 1 ? "s" : ""} configured`
                   : "No stats added yet"}
               </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => appendCustomStat({ id: "", label: "", value: "" })}
+              >
+                <Plus className="w-4 h-4 mr-1" /> Add Stat
+              </Button>
             </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => appendCustomStat({ id: "", label: "", value: "" })}
-            >
-              <Plus className="w-4 h-4 mr-1" /> Add Stat
-            </Button>
-          </CardHeader>
-          <CardContent>
             {customStatsFields.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {customStatsFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="flex gap-2 items-center p-3 border rounded-lg hover:bg-muted/30 transition-colors"
-                  >
-                    <div className="flex-1 space-y-1">
-                      <Controller
-                        name={`customStats.${index}.value`}
-                        control={form.control}
-                        render={({ field: f }) => (
-                          <Input
-                            placeholder="Value (e.g., 10,000+)"
-                            className="font-bold text-primary border-0 p-0 h-auto text-lg focus-visible:ring-0"
-                            {...f}
-                          />
-                        )}
+                  <div key={field.id} className="flex gap-2 items-center">
+                    <div className="flex flex-1 gap-2">
+                      <Input
+                        placeholder="Value (e.g., 10,000+)"
+                        {...form.register(`customStats.${index}.value`)}
                       />
-                      <Controller
-                        name={`customStats.${index}.label`}
-                        control={form.control}
-                        render={({ field: f }) => (
-                          <Input
-                            placeholder="Label (e.g., Happy Customers)"
-                            className="text-xs text-muted-foreground border-0 p-0 h-auto focus-visible:ring-0"
-                            {...f}
-                          />
-                        )}
+                      <Input
+                        placeholder="Label (e.g., Happy Customers)"
+                        {...form.register(`customStats.${index}.label`)}
                       />
                     </div>
                     <Button
@@ -582,9 +563,8 @@ export default function PortfolioPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 border-2 border-dashed rounded-lg">
+              <div className="text-center py-4 border-2 border-dashed rounded-lg">
                 <p className="text-sm text-muted-foreground">No statistics added</p>
-                <p className="text-xs text-muted-foreground mt-1">e.g., 10,000+ Happy Customers, 8 Years in Business</p>
               </div>
             )}
           </CardContent>
