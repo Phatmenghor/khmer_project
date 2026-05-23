@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useCallback, useMemo } from "react";
+import React, { useEffect, useLayoutEffect, useCallback, useMemo, useRef } from "react";
 
 import {
   fetchHomeBanners,
@@ -54,9 +54,14 @@ export default function HomePage() {
     };
   }, []);
 
-  // On mount: restore sessionStorage snapshot into Redux immediately so
-  // back-navigation shows stale content while the API re-validates.
-  useEffect(() => {
+  // Tracks whether we just hydrated from sessionStorage so the fetch
+  // effect skips its first run (which would otherwise set loading=true
+  // and replace the restored content with a skeleton).
+  const justRestoredRef = useRef(false);
+
+  // Run synchronously before the browser paints so restored content is
+  // visible on the very first frame (no empty flash).
+  useLayoutEffect(() => {
     const allEmpty =
       !bannersSection.loaded &&
       !categoriesSection.loaded &&
@@ -65,7 +70,8 @@ export default function HomePage() {
 
     if (allEmpty) {
       const snapshot = loadHomeSnapshot();
-      if (snapshot) {
+      if (snapshot && (snapshot.banners.length > 0 || snapshot.categories.length > 0)) {
+        justRestoredRef.current = true;
         dispatch(
           restoreHomeSnapshot({
             banners: snapshot.banners as never,
@@ -79,7 +85,7 @@ export default function HomePage() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // only on initial mount
+  }, []); // intentionally only on mount — stale values are fine here
 
   const isInitialFeaturedLoading =
     featuredProductsSection.loading &&
@@ -87,6 +93,14 @@ export default function HomePage() {
     !featuredProductsSection.loaded;
 
   useEffect(() => {
+    // Skip the very first run after a snapshot restore. The next run
+    // (triggered by the loaded flags changing to true) will see loaded=true
+    // and correctly skip all fetches.
+    if (justRestoredRef.current) {
+      justRestoredRef.current = false;
+      return;
+    }
+
     const loadData = async () => {
       const promises = [];
       const pageSize = getPageSize();
@@ -125,8 +139,8 @@ export default function HomePage() {
     featuredProductsSection.loaded,
   ]);
 
-  // Save snapshot to sessionStorage once all sections are loaded so it
-  // survives hard navigations (URL-bar change, server redirect + back).
+  // Persist a snapshot to sessionStorage when all sections finish loading
+  // so back-navigation from hard reloads can show instant content.
   useEffect(() => {
     if (
       bannersSection.loaded &&
