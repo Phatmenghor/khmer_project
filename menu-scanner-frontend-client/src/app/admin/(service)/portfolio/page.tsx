@@ -682,16 +682,7 @@ export default function PortfolioPage() {
             {galleryFields.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {galleryFields.map((field, index) => (
-                  <div key={field.id} className="border rounded-lg p-4 relative space-y-3 hover:shadow-sm transition-shadow">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => removeGallery(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
                     <Controller
                       name={`gallery.${index}.url`}
                       control={form.control}
@@ -708,13 +699,24 @@ export default function PortfolioPage() {
                     />
                     <div className="space-y-1">
                       <Label className="text-xs text-muted-foreground">Caption (optional)</Label>
-                      <Controller
-                        name={`gallery.${index}.title`}
-                        control={form.control}
-                        render={({ field: f }) => (
-                          <Input placeholder="e.g., Store Entrance" {...f} />
-                        )}
-                      />
+                      <div className="flex gap-2 items-center">
+                        <Controller
+                          name={`gallery.${index}.title`}
+                          control={form.control}
+                          render={({ field: f }) => (
+                            <Input placeholder="e.g., Store Entrance" {...f} />
+                          )}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0"
+                          onClick={() => removeGallery(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
