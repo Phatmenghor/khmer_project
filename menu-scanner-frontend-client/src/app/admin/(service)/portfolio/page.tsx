@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { Loader2, Plus, Trash2, Save, ChevronRight } from "lucide-react";
+import { Loader2, Plus, Trash2, Save } from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -582,12 +582,11 @@ export default function PortfolioPage() {
               <div className="space-y-2">
                 {businessHoursFields.map((field, index) => (
                   <div key={field.id} className="flex items-center gap-2">
-                    <Input
-                      placeholder="Day (e.g. Monday)"
-                      {...form.register(`businessHours.${index}.day`)}
-                      className="w-36 shrink-0"
-                    />
-                    <div className="flex flex-1 items-center gap-2">
+                    <div className="grid grid-cols-3 gap-2 flex-1">
+                      <Input
+                        placeholder="Day (e.g. Monday)"
+                        {...form.register(`businessHours.${index}.day`)}
+                      />
                       <Controller
                         name={`businessHours.${index}.openTime`}
                         control={form.control}
@@ -599,7 +598,6 @@ export default function PortfolioPage() {
                           />
                         )}
                       />
-                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                       <Controller
                         name={`businessHours.${index}.closeTime`}
                         control={form.control}
