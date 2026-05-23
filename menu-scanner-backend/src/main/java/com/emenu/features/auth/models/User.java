@@ -107,6 +107,7 @@ public class User extends BaseUUIDEntity {
             this.telegram.setUser(this);
         }
         this.telegram.setTelegramId(telegramId);
+        this.telegram.setBusinessId(this.businessId);
         this.telegram.setTelegramUsername(username);
         this.telegram.setTelegramFirstName(firstName);
         this.telegram.setTelegramLastName(lastName);

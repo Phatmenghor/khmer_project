@@ -5,9 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
-@Table(name = "user_telegrams")
+@Table(name = "user_telegrams", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_telegram_per_business", columnNames = {"telegram_id", "business_id"})
+})
 @Data
 @EqualsAndHashCode(callSuper = true, exclude = "user")
 @ToString(exclude = "user")
@@ -19,8 +22,11 @@ public class UserTelegram extends BaseUUIDEntity {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(name = "telegram_id", unique = true)
+    @Column(name = "telegram_id")
     private Long telegramId;
+
+    @Column(name = "business_id")
+    private UUID businessId;
 
     @Column(name = "telegram_username")
     private String telegramUsername;

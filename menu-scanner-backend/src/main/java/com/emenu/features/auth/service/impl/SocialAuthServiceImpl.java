@@ -149,19 +149,34 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         Long telegramIdValue = Long.parseLong(socialUserInfo.getId());
 
         if (userTypeEnum == UserType.BUSINESS_USER) {
-            return userRepository.findByTelegramIdAndUserTypeAndIsDeletedFalse(telegramIdValue, UserType.BUSINESS_USER)
+            if (businessIdValue == null) {
+                log.warn("Telegram login rejected - businessId is required for BUSINESS_USER: telegram_id={}", telegramIdValue);
+                throw new ValidationException("Business ID is required for business user login.");
+            }
+            return userRepository.findByTelegramIdAndBusinessIdAndIsDeletedFalse(telegramIdValue, businessIdValue)
                     .orElseThrow(() -> {
-                        log.warn("Telegram login rejected - no linked account found for business user: telegram_id={}", telegramIdValue);
+                        log.warn("Telegram login rejected - no linked account found for business user: telegram_id={}, business_id={}", telegramIdValue, businessIdValue);
                         return new ValidationException("Telegram account not linked. Please sync your Telegram account from your profile settings first.");
                     });
         }
 
+        if (userTypeEnum == UserType.PLATFORM_USER) {
+            return userRepository.findByTelegramIdAndUserTypeAndIsDeletedFalse(telegramIdValue, UserType.PLATFORM_USER)
+                    .orElseGet(() -> createNewUser(socialUserInfo, userTypeEnum, null));
+        }
+
+        // CUSTOMER: unique per business
+        if (businessIdValue != null) {
+            return userRepository.findByTelegramIdAndBusinessIdAndIsDeletedFalse(telegramIdValue, businessIdValue)
+                    .orElseGet(() -> createNewUser(socialUserInfo, userTypeEnum, businessIdValue));
+        }
+
         return userRepository.findByTelegramIdAndIsDeletedFalse(telegramIdValue)
-                .orElseGet(() -> createNewUser(socialUserInfo, userTypeEnum, businessIdValue));
+                .orElseGet(() -> createNewUser(socialUserInfo, userTypeEnum, null));
     }
 
     private User createNewUser(SocialUserInfo socialUserInfo, UserType userTypeEnum, UUID businessIdValue) {
-        String generatedUserIdentifier = generateUserIdentifier(socialUserInfo, userTypeEnum);
+        String generatedUserIdentifier = generateUserIdentifier(socialUserInfo, userTypeEnum, businessIdValue);
 
         String defaultRoleName = switch (userTypeEnum) {
             case PLATFORM_USER -> "PLATFORM_OWNER";
@@ -211,16 +226,26 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         }
     }
 
-    private String generateUserIdentifier(SocialUserInfo socialUserInfo, UserType userTypeEnum) {
+    private String generateUserIdentifier(SocialUserInfo socialUserInfo, UserType userTypeEnum, UUID businessIdValue) {
         String baseIdentifier = socialUserInfo.getUsername() != null ? socialUserInfo.getUsername() :
                       socialUserInfo.getEmail() != null ? socialUserInfo.getEmail().split("@")[0] :
                       "user" + socialUserInfo.getId().substring(0, 8);
         String normalizedIdentifier = baseIdentifier.toLowerCase().replaceAll("[^a-z0-9_]", "");
         int suffixCounter = 1;
         String candidateIdentifier = normalizedIdentifier;
-        while (userRepository.existsByUserIdentifierAndUserTypeAndIsDeletedFalse(candidateIdentifier, userTypeEnum)) {
+        while (identifierExists(candidateIdentifier, userTypeEnum, businessIdValue)) {
             candidateIdentifier = normalizedIdentifier + suffixCounter++;
         }
         return candidateIdentifier;
+    }
+
+    private boolean identifierExists(String identifier, UserType userTypeEnum, UUID businessIdValue) {
+        if (userTypeEnum == UserType.PLATFORM_USER) {
+            return userRepository.existsByUserIdentifierAndUserTypeAndIsDeletedFalse(identifier, userTypeEnum);
+        }
+        if (businessIdValue != null) {
+            return userRepository.existsByUserIdentifierAndBusinessIdAndIsDeletedFalse(identifier, businessIdValue);
+        }
+        return userRepository.existsByUserIdentifierAndUserTypeAndIsDeletedFalse(identifier, userTypeEnum);
     }
 }
