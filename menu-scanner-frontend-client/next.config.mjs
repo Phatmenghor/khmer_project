@@ -7,7 +7,7 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig = {
   output: "standalone",
 
-  allowedDevOrigins: ["b0e5-203-147-140-218.ngrok-free.app"],
+  allowedDevOrigins: ["d9b7-203-147-140-218.ngrok-free.app"],
 
   trailingSlash: false,
 
