@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import {
-  Loader2, Plus, Trash2, Save,
-  Mail, Phone, MapPin, Globe,
-  Image, Users, Clock, BarChart2, Sparkles, Briefcase,
-  ChevronRight,
-} from "lucide-react";
+import { Loader2, Plus, Trash2, Save, ChevronRight } from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,28 +103,6 @@ const emptyForm = (): PortfolioFormData => ({
   services: [],
   team: [],
 });
-
-function SectionHeader({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: React.ElementType;
-  title: string;
-  description?: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 pt-4 pb-2">
-      <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary shrink-0">
-        <Icon className="w-5 h-5" />
-      </div>
-      <div>
-        <h2 className="text-xl font-bold">{title}</h2>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
-      </div>
-    </div>
-  );
-}
 
 export default function PortfolioPage() {
   const dispatch = useAppDispatch();
@@ -254,7 +227,6 @@ export default function PortfolioPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 py-6">
-      {/* ── Page Header ── */}
       <div className="space-y-1">
         <h1 className="text-3xl font-bold">Portfolio Profile</h1>
         <p className="text-muted-foreground">
@@ -262,13 +234,9 @@ export default function PortfolioPage() {
         </p>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
-        {/* ════════════════════════════════════════
-            SECTION 1 — BASIC INFORMATION
-        ════════════════════════════════════════ */}
-
-        {/* Business Name + Description */}
+        {/* Basic Information */}
         <Card>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
@@ -292,69 +260,53 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
 
-        {/* Images */}
+        {/* Branding Images */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Image className="w-4 h-4" />
-              Branding Images
-            </CardTitle>
+            <CardTitle>Branding Images</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <Controller
-                  name="logoUrl"
-                  control={form.control}
-                  render={({ field }) => (
-                    <ClickableImageUpload
-                      label="Business Logo"
-                      value={field.value || ""}
-                      onChange={(v) => { field.onChange(v); showToast.success("Logo selected"); }}
-                      aspectRatio="square"
-                      height="h-48"
-                      placeholder="Click to upload logo"
-                      helperText="Square image recommended (PNG, JPG)"
-                      maxSize={5}
-                    />
-                  )}
-                />
-              </div>
-              <div className="space-y-1">
-                <Controller
-                  name="coverImageUrl"
-                  control={form.control}
-                  render={({ field }) => (
-                    <ClickableImageUpload
-                      label="Cover Image"
-                      value={field.value || ""}
-                      onChange={(v) => { field.onChange(v); showToast.success("Cover image selected"); }}
-                      aspectRatio="video"
-                      height="h-48"
-                      placeholder="Click to upload cover"
-                      helperText="Wide banner image recommended (PNG, JPG)"
-                      maxSize={5}
-                    />
-                  )}
-                />
-              </div>
+              <Controller
+                name="logoUrl"
+                control={form.control}
+                render={({ field }) => (
+                  <ClickableImageUpload
+                    label="Business Logo"
+                    value={field.value || ""}
+                    onChange={(v) => { field.onChange(v); showToast.success("Logo selected"); }}
+                    aspectRatio="square"
+                    height="h-48"
+                    placeholder="Click to upload logo"
+                    helperText="Square image recommended (PNG, JPG)"
+                    maxSize={5}
+                  />
+                )}
+              />
+              <Controller
+                name="coverImageUrl"
+                control={form.control}
+                render={({ field }) => (
+                  <ClickableImageUpload
+                    label="Cover Image"
+                    value={field.value || ""}
+                    onChange={(v) => { field.onChange(v); showToast.success("Cover image selected"); }}
+                    aspectRatio="video"
+                    height="h-48"
+                    placeholder="Click to upload cover"
+                    helperText="Wide banner image recommended (PNG, JPG)"
+                    maxSize={5}
+                  />
+                )}
+              />
             </div>
           </CardContent>
         </Card>
 
-        {/* ════════════════════════════════════════
-            SECTION 3 — CONTACT & COMMUNICATION
-        ════════════════════════════════════════ */}
-        <div className="border-t" />
-        <SectionHeader icon={Phone} title="Contact & Communication" description="How customers can reach you" />
-
-        {/* Contact fields */}
+        {/* Contact Information */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              Contact Information
-            </CardTitle>
+            <CardTitle>Contact Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -396,7 +348,7 @@ export default function PortfolioPage() {
             <div className="border-t pt-5 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label className="text-sm font-semibold">Additional Phone Numbers</Label>
+                  <p className="text-sm font-semibold">Additional Phone Numbers</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {contactPhonesFields.length > 0
                       ? `${contactPhonesFields.length} number${contactPhonesFields.length > 1 ? "s" : ""} added`
@@ -416,7 +368,6 @@ export default function PortfolioPage() {
                 <div className="space-y-2">
                   {contactPhonesFields.map((field, index) => (
                     <div key={field.id} className="flex gap-2 items-center">
-                      <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
                       <Input
                         placeholder="+855 12 345 678"
                         {...form.register(`contact.phones.${index}.number`)}
@@ -439,49 +390,37 @@ export default function PortfolioPage() {
                 </div>
               )}
             </div>
+
+            {/* Location */}
+            <div className="border-t pt-5 space-y-4">
+              <div>
+                <p className="text-sm font-semibold">Location</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Physical address and map link</p>
+              </div>
+              <TextareaField<PortfolioFormData>
+                control={form.control}
+                name="contact.address"
+                label="Physical Address"
+                placeholder="Street 271, Toul Kork, Phnom Penh, Cambodia, 12000"
+                rows={2}
+                error={form.formState.errors.contact?.address}
+              />
+              <TextField<PortfolioFormData>
+                control={form.control}
+                name="contact.mapLink"
+                label="Google Maps Link"
+                placeholder="https://maps.google.com/?q=your+location"
+                error={form.formState.errors.contact?.mapLink}
+              />
+            </div>
           </CardContent>
         </Card>
 
-        {/* Location */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              Location
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <TextareaField<PortfolioFormData>
-              control={form.control}
-              name="contact.address"
-              label="Physical Address"
-              placeholder="Street 271, Toul Kork, Phnom Penh, Cambodia, 12000"
-              rows={2}
-              error={form.formState.errors.contact?.address}
-            />
-            <TextField<PortfolioFormData>
-              control={form.control}
-              name="contact.mapLink"
-              label="Google Maps Link"
-              placeholder="https://maps.google.com/?q=your+location"
-              error={form.formState.errors.contact?.mapLink}
-            />
-          </CardContent>
-        </Card>
-
-        {/* ════════════════════════════════════════
-            SECTION 4 — ONLINE PRESENCE
-        ════════════════════════════════════════ */}
-        <div className="border-t" />
-        <SectionHeader icon={Globe} title="Online Presence" description="Social media accounts and links" />
-
+        {/* Social Media */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="w-4 h-4" />
-                Social Media
-              </CardTitle>
+              <CardTitle>Social Media</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 {socialMediaFields.length > 0
                   ? `${socialMediaFields.length} account${socialMediaFields.length > 1 ? "s" : ""} connected`
@@ -502,9 +441,6 @@ export default function PortfolioPage() {
               <div className="space-y-3">
                 {socialMediaFields.map((field, index) => (
                   <div key={field.id} className="flex gap-3 items-center p-3 border rounded-lg hover:bg-muted/30 transition-colors">
-                    <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary shrink-0 text-sm font-bold">
-                      {form.watch(`socialMedia.${index}.name`)?.[0]?.toUpperCase() || "?"}
-                    </div>
                     <Input
                       placeholder="Platform (Facebook, Instagram...)"
                       {...form.register(`socialMedia.${index}.name`)}
@@ -529,28 +465,18 @@ export default function PortfolioPage() {
               </div>
             ) : (
               <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                <Globe className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">No social media accounts added</p>
-                <p className="text-xs text-muted-foreground mt-1">Click "Add Account" to get started</p>
+                <p className="text-xs text-muted-foreground mt-1">Click &quot;Add Account&quot; to get started</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* ════════════════════════════════════════
-            SECTION 5 — HIGHLIGHTS & STATISTICS
-        ════════════════════════════════════════ */}
-        <div className="border-t" />
-        <SectionHeader icon={Sparkles} title="Highlights & Statistics" description="Key features and business stats displayed on your profile" />
-
-        {/* Features */}
+        {/* Features & Amenities */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Features & Amenities
-              </CardTitle>
+              <CardTitle>Features &amp; Amenities</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 {featuresFields.length > 0
                   ? `${featuresFields.length} feature${featuresFields.length > 1 ? "s" : ""} listed`
@@ -590,7 +516,6 @@ export default function PortfolioPage() {
               </div>
             ) : (
               <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                <Sparkles className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">No features added</p>
                 <p className="text-xs text-muted-foreground mt-1">e.g., Free Delivery, 30-Day Returns, 24/7 Support</p>
               </div>
@@ -598,14 +523,11 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
 
-        {/* Custom Stats */}
+        {/* Business Statistics */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart2 className="w-4 h-4" />
-                Business Statistics
-              </CardTitle>
+              <CardTitle>Business Statistics</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 {customStatsFields.length > 0
                   ? `${customStatsFields.length} stat${customStatsFields.length > 1 ? "s" : ""} configured`
@@ -667,7 +589,6 @@ export default function PortfolioPage() {
               </div>
             ) : (
               <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                <BarChart2 className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">No statistics added</p>
                 <p className="text-xs text-muted-foreground mt-1">e.g., 10,000+ Happy Customers, 8 Years in Business</p>
               </div>
@@ -675,18 +596,10 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
 
-        {/* ════════════════════════════════════════
-            SECTION 6 — BUSINESS OPERATIONS
-        ════════════════════════════════════════ */}
-        <div className="border-t" />
-        <SectionHeader icon={Clock} title="Business Operations" description="Opening hours for each day of the week" />
-
+        {/* Business Hours */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              Business Hours
-            </CardTitle>
+            <CardTitle>Business Hours</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -702,7 +615,6 @@ export default function PortfolioPage() {
                     key={field.id}
                     className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${isClosed ? "bg-muted/30 opacity-70" : "hover:bg-muted/20"}`}
                   >
-                    {/* Day label */}
                     <div className="w-24 shrink-0">
                       <p className={`text-sm font-semibold ${isWeekend ? "text-orange-600" : "text-foreground"}`}>
                         {dayLabel}
@@ -712,7 +624,6 @@ export default function PortfolioPage() {
                       )}
                     </div>
 
-                    {/* Time pickers */}
                     <div className="flex flex-1 items-center gap-2">
                       <Controller
                         name={`businessHours.${index}.openTime`}
@@ -739,7 +650,6 @@ export default function PortfolioPage() {
                       />
                     </div>
 
-                    {/* Clear button */}
                     <Button
                       type="button"
                       size="sm"
@@ -766,20 +676,11 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
 
-        {/* ════════════════════════════════════════
-            SECTION 7 — PORTFOLIO & SHOWCASE
-        ════════════════════════════════════════ */}
-        <div className="border-t" />
-        <SectionHeader icon={Image} title="Portfolio & Showcase" description="Gallery, services, and team members" />
-
-        {/* Gallery */}
+        {/* Photo Gallery */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Image className="w-4 h-4" />
-                Photo Gallery
-              </CardTitle>
+              <CardTitle>Photo Gallery</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 {galleryFields.length > 0
                   ? `${galleryFields.length} image${galleryFields.length > 1 ? "s" : ""} in gallery`
@@ -841,7 +742,6 @@ export default function PortfolioPage() {
               </div>
             ) : (
               <div className="text-center py-10 border-2 border-dashed rounded-lg">
-                <Image className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">No gallery images</p>
                 <p className="text-xs text-muted-foreground mt-1">Showcase your store, products, or events</p>
               </div>
@@ -853,10 +753,7 @@ export default function PortfolioPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Briefcase className="w-4 h-4" />
-                Services
-              </CardTitle>
+              <CardTitle>Services</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 {servicesFields.length > 0
                   ? `${servicesFields.length} service${servicesFields.length > 1 ? "s" : ""} listed`
@@ -921,7 +818,6 @@ export default function PortfolioPage() {
               </div>
             ) : (
               <div className="text-center py-10 border-2 border-dashed rounded-lg">
-                <Briefcase className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">No services listed</p>
                 <p className="text-xs text-muted-foreground mt-1">e.g., In-Store Shopping, Online Ordering, Gift Wrapping</p>
               </div>
@@ -933,10 +829,7 @@ export default function PortfolioPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Team Members
-              </CardTitle>
+              <CardTitle>Team Members</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 {teamFields.length > 0
                   ? `${teamFields.length} member${teamFields.length > 1 ? "s" : ""} on the team`
@@ -958,7 +851,6 @@ export default function PortfolioPage() {
                 {teamFields.map((field, index) => (
                   <div key={field.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
                     <div className="flex gap-4">
-                      {/* Photo */}
                       <div className="shrink-0 w-28">
                         <Controller
                           name={`team.${index}.photoUrl`}
@@ -977,7 +869,6 @@ export default function PortfolioPage() {
                         />
                       </div>
 
-                      {/* Details */}
                       <div className="flex-1 space-y-2 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
@@ -1034,7 +925,6 @@ export default function PortfolioPage() {
               </div>
             ) : (
               <div className="text-center py-10 border-2 border-dashed rounded-lg">
-                <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">No team members added</p>
                 <p className="text-xs text-muted-foreground mt-1">Introduce your team to build trust with customers</p>
               </div>
@@ -1042,7 +932,7 @@ export default function PortfolioPage() {
           </CardContent>
         </Card>
 
-        {/* ── Save / Cancel ── */}
+        {/* Save / Cancel */}
         <div className="flex gap-3 justify-end pt-4 border-t">
           <Button
             type="button"
