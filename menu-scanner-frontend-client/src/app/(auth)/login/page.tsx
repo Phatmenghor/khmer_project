@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { useRouter } from "next/navigation";
@@ -17,11 +18,10 @@ import { telegramAuthenticateService } from "@/features/auth/store/thunks/social
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
 import { appImages } from "@/constants/app-resource/icons/app-images";
-import { AppDefault } from "@/constants/app-resource/default/default";
-import { TelegramLoginButton, TelegramIcon } from "@/components/shared/telegram/telegram-login-widget";
+import { AppDefault, SocialAuthConfig } from "@/constants/app-resource/default/default";
+import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
 import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 import { UserGropeType } from "@/constants/status/status";
-import { SocialAuthConfig } from "@/constants/app-resource/default/default";
 
 const formSchema = z.object({
   userIdentifier: z.string().min(1, "Email or username is required"),
@@ -82,7 +82,8 @@ export default function LoginPage() {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      {/* ── Left hero panel ── */}
+
+      {/* ── Left — hero image ── */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden">
         <Image
           src={appImages.CpBank}
@@ -93,11 +94,11 @@ export default function LoginPage() {
           priority
         />
         {/* gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
 
-        {/* bottom-left branding */}
-        <div className="absolute bottom-10 left-10 text-white">
-          <p className="text-xs font-semibold uppercase tracking-widest text-white/60 mb-2">
+        {/* bottom branding */}
+        <div className="absolute bottom-10 left-10 right-10 text-white">
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/50 mb-3">
             Management System
           </p>
           <h2 className="text-3xl font-bold leading-snug">Admin Control Panel</h2>
@@ -107,108 +108,95 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* ── Right form panel ── */}
-      <div className="flex flex-1 flex-col items-center justify-center bg-background px-6 py-12">
-        <div className="w-full max-w-sm space-y-8">
+      {/* ── Right — form panel ── */}
+      <div className="flex flex-1 items-center justify-center bg-muted/40 p-6">
+        <Card className="w-full max-w-sm shadow-2xl border border-border/60 rounded-2xl overflow-hidden">
 
-          {/* Icon + heading */}
-          <div className="text-center space-y-3">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 border border-primary/30">
-              <ShieldCheck className="h-7 w-7 text-primary" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">
+          {/* Card header */}
+          <div className="bg-primary/5 border-b border-border/50 px-8 pt-8 pb-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+                <ShieldCheck className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary">
                 Admin Panel
-              </p>
-              <h1 className="text-2xl font-bold text-foreground">Welcome back</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Sign in to your account to continue
-              </p>
-            </div>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={form.handleSubmit(handleLoginSubmit)} className="space-y-4">
-            <TextField
-              name="userIdentifier"
-              label="Email or Username"
-              placeholder="name@example.com"
-              control={form.control}
-              error={form.formState.errors.userIdentifier}
-              disabled={isAnyLoading}
-              required
-            />
-
-            <PasswordField
-              name="password"
-              label="Password"
-              placeholder="Enter your password"
-              control={form.control}
-              error={form.formState.errors.password}
-              disabled={isAnyLoading}
-              required
-              showPassword={showPassword}
-              onTogglePassword={() => setShowPassword((v) => !v)}
-            />
-
-            <Button
-              type="submit"
-              className="w-full h-11 font-semibold mt-2"
-              disabled={isAnyLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-          </form>
-
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-background px-3 text-xs text-muted-foreground">
-                or continue with
               </span>
             </div>
+            <h1 className="text-2xl font-bold text-foreground leading-tight">
+              Welcome back
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Sign in to your account to continue
+            </p>
           </div>
 
-          {/* Telegram */}
-          <div className="space-y-2">
+          {/* Card body */}
+          <CardContent className="px-8 py-7 space-y-5">
+
+            {/* Credentials form */}
+            <form onSubmit={form.handleSubmit(handleLoginSubmit)} className="space-y-4">
+              <TextField
+                name="userIdentifier"
+                label="Email or Username"
+                placeholder="name@example.com"
+                control={form.control}
+                error={form.formState.errors.userIdentifier}
+                disabled={isAnyLoading}
+                required
+              />
+
+              <PasswordField
+                name="password"
+                label="Password"
+                placeholder="Enter your password"
+                control={form.control}
+                error={form.formState.errors.password}
+                disabled={isAnyLoading}
+                required
+                showPassword={showPassword}
+                onTogglePassword={() => setShowPassword((v) => !v)}
+              />
+
+              <Button
+                type="submit"
+                className="w-full h-10 font-semibold"
+                disabled={isAnyLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-background px-3 text-xs text-muted-foreground">
+                  or continue with
+                </span>
+              </div>
+            </div>
+
+            {/* Telegram */}
             <TelegramLoginButton
               botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
               botId={SocialAuthConfig.TELEGRAM_BOT_ID}
               onAuth={handleTelegramAuth}
               disabled={isAnyLoading}
               loading={isTelegramLoading}
-              className="w-full h-11"
-            >
-              <TelegramIcon className="h-4 w-4" />
-              Continue with Telegram
-            </TelegramLoginButton>
-            <p className="text-center text-xs text-muted-foreground">
-              Telegram must be synced from your profile settings first
-            </p>
-          </div>
+              className="w-full h-10"
+            />
 
-          {/* Terms */}
-          <p className="text-center text-xs text-muted-foreground">
-            By signing in, you agree to our{" "}
-            <a href="#" className="text-primary hover:underline font-medium">
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="#" className="text-primary hover:underline font-medium">
-              Privacy Policy
-            </a>
-          </p>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
