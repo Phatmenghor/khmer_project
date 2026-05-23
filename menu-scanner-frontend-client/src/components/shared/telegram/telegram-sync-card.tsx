@@ -160,7 +160,7 @@ export function TelegramSyncCard() {
         <CardContent className="p-6">
           {isTelegramConnected ? (
             <div className="space-y-4">
-              {/* Avatar + name */}
+              {/* Avatar + name + synced */}
               <div className="flex items-center gap-4">
                 <div className="relative flex-shrink-0">
                   {socialSync?.telegramPhotoUrl ? (
@@ -176,7 +176,7 @@ export function TelegramSyncCard() {
                     </div>
                   )}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   {displayName && (
                     <p className="font-semibold text-foreground text-base leading-tight truncate">
                       {displayName}
@@ -188,14 +188,13 @@ export function TelegramSyncCard() {
                     </p>
                   )}
                 </div>
+                {socialSync?.syncedAt && (
+                  <p className="text-xs text-muted-foreground flex-shrink-0">
+                    Synced{" "}
+                    {formatDistanceToNow(new Date(socialSync.syncedAt), { addSuffix: true })}
+                  </p>
+                )}
               </div>
-
-              {socialSync?.syncedAt && (
-                <p className="text-xs text-muted-foreground">
-                  Synced{" "}
-                  {formatDistanceToNow(new Date(socialSync.syncedAt), { addSuffix: true })}
-                </p>
-              )}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground leading-relaxed">
