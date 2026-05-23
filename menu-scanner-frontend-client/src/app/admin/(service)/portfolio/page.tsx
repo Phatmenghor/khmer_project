@@ -234,6 +234,7 @@ export default function PortfolioPage() {
               name="businessName"
               label="Business Name"
               placeholder="e.g. Mega Store"
+              required
               error={form.formState.errors.businessName}
             />
             <TextareaField<PortfolioFormData>
@@ -242,6 +243,7 @@ export default function PortfolioPage() {
               label="Business Description"
               placeholder="Describe your business in detail — what you offer, your values, and what makes you unique..."
               rows={5}
+              required
               error={form.formState.errors.description}
             />
           </CardContent>
@@ -373,7 +375,7 @@ export default function PortfolioPage() {
                   {contactPhonesFields.map((field, index) => (
                     <div key={field.id} className="flex gap-2 items-center">
                       <Input
-                        placeholder="+855 12 345 678"
+                        placeholder="+855 12 345 678 *"
                         {...form.register(`contact.phones.${index}.number`)}
                       />
                       <Button
@@ -423,12 +425,12 @@ export default function PortfolioPage() {
                 {socialMediaFields.map((field, index) => (
                   <div key={field.id} className="flex gap-3 items-center p-3 border rounded-lg hover:bg-muted/30 transition-colors">
                     <Input
-                      placeholder="Platform (Facebook, Instagram...)"
+                      placeholder="Platform (Facebook, Instagram...) *"
                       {...form.register(`socialMedia.${index}.name`)}
                       className="flex-1"
                     />
                     <Input
-                      placeholder="https://..."
+                      placeholder="https://... *"
                       {...form.register(`socialMedia.${index}.url`)}
                       className="flex-1"
                     />
@@ -479,7 +481,7 @@ export default function PortfolioPage() {
                 {featuresFields.map((field, index) => (
                   <div key={field.id} className="flex gap-2 items-center">
                     <Input
-                      placeholder="Feature name..."
+                      placeholder="Feature name... *"
                       {...form.register(`features.${index}.name`)}
                     />
                     <Button
@@ -529,11 +531,11 @@ export default function PortfolioPage() {
                   <div key={field.id} className="flex gap-2 items-center">
                     <div className="flex flex-1 gap-2">
                       <Input
-                        placeholder="Value (e.g., 10,000+)"
+                        placeholder="Value (e.g., 10,000+) *"
                         {...form.register(`customStats.${index}.value`)}
                       />
                       <Input
-                        placeholder="Label (e.g., Happy Customers)"
+                        placeholder="Label (e.g., Happy Customers) *"
                         {...form.register(`customStats.${index}.label`)}
                       />
                     </div>
@@ -584,7 +586,7 @@ export default function PortfolioPage() {
                   <div key={field.id} className="flex items-center gap-2">
                     <div className="grid grid-cols-3 gap-2 flex-1">
                       <Input
-                        placeholder="Day (e.g. Monday)"
+                        placeholder="Day (e.g. Monday) *"
                         {...form.register(`businessHours.${index}.day`)}
                       />
                       <Controller
@@ -738,7 +740,7 @@ export default function PortfolioPage() {
                           control={form.control}
                           render={({ field: f }) => (
                             <Input
-                              placeholder="Service name..."
+                              placeholder="Service name... *"
                               className="font-semibold border-0 p-0 h-auto text-sm focus-visible:ring-0"
                               {...f}
                             />
@@ -827,7 +829,7 @@ export default function PortfolioPage() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
                             <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Full Name</Label>
+                              <Label className="text-xs text-muted-foreground">Full Name <span className="text-red-500">*</span></Label>
                               <Controller
                                 name={`team.${index}.name`}
                                 control={form.control}
@@ -837,7 +839,7 @@ export default function PortfolioPage() {
                               />
                             </div>
                             <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Position / Title</Label>
+                              <Label className="text-xs text-muted-foreground">Position / Title <span className="text-red-500">*</span></Label>
                               <Controller
                                 name={`team.${index}.position`}
                                 control={form.control}
