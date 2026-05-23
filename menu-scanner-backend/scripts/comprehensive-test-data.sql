@@ -1375,14 +1375,14 @@ VALUES (
 -- PORTFOLIO CONTACT PHONES (Dynamic with IDs)
 -- ============================================================================
 
-INSERT INTO portfolio_phone (id, profile_id, number, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.number, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_phone (id, profile_id, number, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.number, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('550e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-12-345-678', 1),
-  ('550e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-98-765-432', 2),
-  ('550e8400-e29b-41d4-a716-446655440003', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-87-654-321', 1),
-  ('550e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-11-222-333', 2)
-) AS v(id, profile_id, number, display_order)
+  ('550e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-12-345-678'),
+  ('550e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-98-765-432'),
+  ('550e8400-e29b-41d4-a716-446655440003', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-87-654-321'),
+  ('550e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '+855-11-222-333')
+) AS v(id, profile_id, number)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_phone WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
@@ -1390,16 +1390,16 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO SOCIAL MEDIA (Dynamic with IDs)
 -- ============================================================================
 
-INSERT INTO portfolio_social_media (id, profile_id, name, url, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.name, v.url, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_social_media (id, profile_id, name, url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.name, v.url, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('cc0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Facebook', 'https://facebook.com/megastore.cambodia', 1),
-  ('cc0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Instagram', 'https://instagram.com/megastore.cambodia', 2),
-  ('cc0e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Twitter', 'https://twitter.com/megastore_kh', 3),
-  ('cc0e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Facebook', 'https://facebook.com/fashionhub.siem reap', 1),
-  ('cc0e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Instagram', 'https://instagram.com/fashionhub_sr', 2),
-  ('cc0e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Website', 'https://fashionhub-cambodia.com', 3)
-) AS v(id, profile_id, name, url, display_order)
+  ('cc0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Facebook', 'https://facebook.com/megastore.cambodia'),
+  ('cc0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Instagram', 'https://instagram.com/megastore.cambodia'),
+  ('cc0e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Twitter', 'https://twitter.com/megastore_kh'),
+  ('cc0e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Facebook', 'https://facebook.com/fashionhub.siemreap'),
+  ('cc0e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Instagram', 'https://instagram.com/fashionhub_sr'),
+  ('cc0e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Website', 'https://fashionhub-cambodia.com')
+) AS v(id, profile_id, name, url)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_social_media WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
@@ -1407,21 +1407,21 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO FEATURES (Dynamic with IDs)
 -- ============================================================================
 
-INSERT INTO portfolio_feature (id, profile_id, name, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.name, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_feature (id, profile_id, name, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.name, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('880e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Free Delivery on orders over $50', 1),
-  ('880e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '30-Day Easy Returns', 2),
-  ('880e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '1-Year Product Warranty', 3),
-  ('880e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '100% Authentic Products', 4),
-  ('880e8400-e29b-41d4-a716-446655440005', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '24/7 Customer Support', 5),
-  ('880e8400-e29b-41d4-a716-446655440006', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Loyalty Rewards Program', 6),
-  ('880e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Personal Styling Service', 1),
-  ('880e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Same-Day Alterations Available', 2),
-  ('880e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Exclusive Member Previews', 3),
-  ('880e8400-e29b-41d4-a716-446655440010', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Free Gift Wrapping', 4),
-  ('880e8400-e29b-41d4-a716-446655440011', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'VIP Shopping Hours', 5)
-) AS v(id, profile_id, name, display_order)
+  ('880e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Free Delivery on orders over $50'),
+  ('880e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '30-Day Easy Returns'),
+  ('880e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '1-Year Product Warranty'),
+  ('880e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '100% Authentic Products'),
+  ('880e8400-e29b-41d4-a716-446655440005', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '24/7 Customer Support'),
+  ('880e8400-e29b-41d4-a716-446655440006', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Loyalty Rewards Program'),
+  ('880e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Personal Styling Service'),
+  ('880e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Same-Day Alterations Available'),
+  ('880e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Exclusive Member Previews'),
+  ('880e8400-e29b-41d4-a716-446655440010', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Free Gift Wrapping'),
+  ('880e8400-e29b-41d4-a716-446655440011', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'VIP Shopping Hours')
+) AS v(id, profile_id, name)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_feature WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
@@ -1429,24 +1429,24 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO BUSINESS HOURS (Dynamic with IDs)
 -- ============================================================================
 
-INSERT INTO portfolio_hours (id, profile_id, day, is_open, open_time, close_time, is_24_hours, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.day, v.is_open, v.open_time, v.close_time, v.is_24_hours, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_hours (id, profile_id, day, open_time, close_time, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.day, v.open_time, v.close_time, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('660e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'MONDAY', true, '08:00', '22:00', false, 1),
-  ('660e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'TUESDAY', true, '08:00', '22:00', false, 2),
-  ('660e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'WEDNESDAY', true, '08:00', '22:00', false, 3),
-  ('660e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'THURSDAY', true, '08:00', '22:00', false, 4),
-  ('660e8400-e29b-41d4-a716-446655440005', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'FRIDAY', true, '08:00', '23:00', false, 5),
-  ('660e8400-e29b-41d4-a716-446655440006', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'SATURDAY', true, '09:00', '23:00', false, 6),
-  ('660e8400-e29b-41d4-a716-446655440007', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'SUNDAY', false, NULL, NULL, false, 7),
-  ('660e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'MONDAY', true, '09:00', '21:00', false, 1),
-  ('660e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'TUESDAY', true, '09:00', '21:00', false, 2),
-  ('660e8400-e29b-41d4-a716-446655440010', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'WEDNESDAY', true, '09:00', '21:00', false, 3),
-  ('660e8400-e29b-41d4-a716-446655440011', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'THURSDAY', true, '09:00', '21:00', false, 4),
-  ('660e8400-e29b-41d4-a716-446655440012', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'FRIDAY', true, '09:00', '22:00', false, 5),
-  ('660e8400-e29b-41d4-a716-446655440013', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'SATURDAY', true, '10:00', '22:00', false, 6),
-  ('660e8400-e29b-41d4-a716-446655440014', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'SUNDAY', true, '10:00', '20:00', false, 7)
-) AS v(id, profile_id, day, is_open, open_time, close_time, is_24_hours, display_order)
+  ('660e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'MONDAY',    '08:00', '22:00'),
+  ('660e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'TUESDAY',   '08:00', '22:00'),
+  ('660e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'WEDNESDAY', '08:00', '22:00'),
+  ('660e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'THURSDAY',  '08:00', '22:00'),
+  ('660e8400-e29b-41d4-a716-446655440005', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'FRIDAY',    '08:00', '23:00'),
+  ('660e8400-e29b-41d4-a716-446655440006', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'SATURDAY',  '09:00', '23:00'),
+  ('660e8400-e29b-41d4-a716-446655440007', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'SUNDAY',    NULL,    NULL),
+  ('660e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'MONDAY',    '09:00', '21:00'),
+  ('660e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'TUESDAY',   '09:00', '21:00'),
+  ('660e8400-e29b-41d4-a716-446655440010', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'WEDNESDAY', '09:00', '21:00'),
+  ('660e8400-e29b-41d4-a716-446655440011', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'THURSDAY',  '09:00', '21:00'),
+  ('660e8400-e29b-41d4-a716-446655440012', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'FRIDAY',    '09:00', '22:00'),
+  ('660e8400-e29b-41d4-a716-446655440013', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'SATURDAY',  '10:00', '22:00'),
+  ('660e8400-e29b-41d4-a716-446655440014', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'SUNDAY',    '10:00', '20:00')
+) AS v(id, profile_id, day, open_time, close_time)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_hours WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
@@ -1454,17 +1454,17 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO GALLERY
 -- ============================================================================
 
-INSERT INTO portfolio_gallery (id, profile_id, url, title, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.url, v.title, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_gallery (id, profile_id, url, title, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.url, v.title, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('770e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Store Entrance', 1),
-  ('770e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Electronics Section', 2),
-  ('770e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Fashion Floor', 3),
-  ('770e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Home Goods Display', 4),
-  ('770e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Boutique Front', 1),
-  ('770e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Collections', 2),
-  ('770e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Style Showcase', 3)
-) AS v(id, profile_id, url, title, display_order)
+  ('770e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Store Entrance'),
+  ('770e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Electronics Section'),
+  ('770e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Fashion Floor'),
+  ('770e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Home Goods Display'),
+  ('770e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Boutique Front'),
+  ('770e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Collections'),
+  ('770e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Style Showcase')
+) AS v(id, profile_id, url, title)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_gallery WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
@@ -1472,18 +1472,18 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO SERVICES
 -- ============================================================================
 
-INSERT INTO portfolio_service_item (id, profile_id, name, description, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.name, v.description, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_service_item (id, profile_id, name, description, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.name, v.description, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('990e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'In-Store Shopping', 'Browse our vast selection of 10,000+ products across multiple categories with expert staff assistance.', 1),
-  ('990e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Online Ordering', 'Shop online 24/7 and get fast, reliable delivery to your doorstep.', 2),
-  ('990e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Bulk Purchasing', 'Special pricing and services for bulk orders. Contact our B2B team for wholesale deals.', 3),
-  ('990e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Gift Wrapping', 'Complimentary gift wrapping and personalized messages for all occasions.', 4),
-  ('990e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Personal Shopping', 'Our stylists will help you find the perfect look tailored to your style and needs.', 1),
-  ('990e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Alterations', 'Professional alteration services to ensure perfect fit for all your garments.', 2),
-  ('990e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Styling Consultation', 'Expert advice on fashion trends, color coordination, and wardrobe building.', 3),
-  ('990e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Corporate Gifting', 'Bulk ordering solutions for corporate gifts and employee gifts.', 4)
-) AS v(id, profile_id, name, description, display_order)
+  ('990e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'In-Store Shopping', 'Browse our vast selection of 10,000+ products across multiple categories with expert staff assistance.'),
+  ('990e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Online Ordering', 'Shop online 24/7 and get fast, reliable delivery to your doorstep.'),
+  ('990e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Bulk Purchasing', 'Special pricing and services for bulk orders. Contact our B2B team for wholesale deals.'),
+  ('990e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Gift Wrapping', 'Complimentary gift wrapping and personalized messages for all occasions.'),
+  ('990e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Personal Shopping', 'Our stylists will help you find the perfect look tailored to your style and needs.'),
+  ('990e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Alterations', 'Professional alteration services to ensure perfect fit for all your garments.'),
+  ('990e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Styling Consultation', 'Expert advice on fashion trends, color coordination, and wardrobe building.'),
+  ('990e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Corporate Gifting', 'Bulk ordering solutions for corporate gifts and employee gifts.')
+) AS v(id, profile_id, name, description)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_service_item WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
@@ -1491,16 +1491,16 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO TEAM MEMBERS
 -- ============================================================================
 
-INSERT INTO portfolio_team_member (id, profile_id, name, position, bio, photo_url, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.name, v.position, v.bio, v.photo_url, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_team_member (id, profile_id, name, position, bio, photo_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.name, v.position, v.bio, v.photo_url, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('aa0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Sokha Pou', 'Store Manager', 'With over 12 years of retail experience, Sokha leads Mega Store with passion for customer satisfaction.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 1),
-  ('aa0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Kosal Touch', 'Sales Director', 'Kosal ensures our team delivers the best shopping experience with expert product knowledge.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 2),
-  ('aa0e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Srey Mom', 'Customer Service Lead', 'Srey Mom heads our dedicated customer support team, available 24/7 to assist you.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 3),
-  ('aa0e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Dina Savuth', 'Boutique Owner', 'Dina founded Fashion Hub with a vision to bring quality fashion to Siem Reap with a personal touch.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 1),
-  ('aa0e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Chanthy Ros', 'Senior Stylist', 'With expertise in both traditional and contemporary fashion, Chanthy helps clients discover their unique style.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 2),
-  ('aa0e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Piseth Rith', 'Tailor Master', 'Piseth brings 20+ years of tailoring expertise, ensuring perfect fits for all our customers.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 3)
-) AS v(id, profile_id, name, position, bio, photo_url, display_order)
+  ('aa0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Sokha Pou',   'Store Manager',        'With over 12 years of retail experience, Sokha leads Mega Store with passion for customer satisfaction.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
+  ('aa0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Kosal Touch', 'Sales Director',       'Kosal ensures our team delivers the best shopping experience with expert product knowledge.',              'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
+  ('aa0e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Srey Mom',    'Customer Service Lead', 'Srey Mom heads our dedicated customer support team, available 24/7 to assist you.',                       'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
+  ('aa0e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Dina Savuth', 'Boutique Owner',        'Dina founded Fashion Hub with a vision to bring quality fashion to Siem Reap with a personal touch.',    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
+  ('aa0e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Chanthy Ros', 'Senior Stylist',        'With expertise in both traditional and contemporary fashion, Chanthy helps clients discover their unique style.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
+  ('aa0e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Piseth Rith', 'Tailor Master',         'Piseth brings 20+ years of tailoring expertise, ensuring perfect fits for all our customers.',             'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce')
+) AS v(id, profile_id, name, position, bio, photo_url)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_team_member WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
@@ -1508,19 +1508,19 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO CUSTOM STATISTICS (All Dynamic - No Fixed Fields)
 -- ============================================================================
 
-INSERT INTO portfolio_custom_stat (id, profile_id, label, value, display_order, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.label, v.value, v.display_order, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_custom_stat (id, profile_id, label, value, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.label, v.value, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('bb0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Years In Business', '8', 1),
-  ('bb0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Happy Customers', '10,000+', 2),
-  ('bb0e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Products Available', '10,000+', 3),
-  ('bb0e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Daily Transactions', '500+', 4),
-  ('bb0e8400-e29b-41d4-a716-446655440005', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Cities Served', '5', 5),
-  ('bb0e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Years In Business', '5', 1),
-  ('bb0e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Happy Customers', '5,000+', 2),
-  ('bb0e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Brands Carried', '100+', 3),
-  ('bb0e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Styling Sessions', '1,000+', 4)
-) AS v(id, profile_id, label, value, display_order)
+  ('bb0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Years In Business',  '8'),
+  ('bb0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Happy Customers',    '10,000+'),
+  ('bb0e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Products Available', '10,000+'),
+  ('bb0e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Daily Transactions', '500+'),
+  ('bb0e8400-e29b-41d4-a716-446655440005', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Cities Served',      '5'),
+  ('bb0e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Years In Business',  '5'),
+  ('bb0e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Happy Customers',    '5,000+'),
+  ('bb0e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Brands Carried',     '100+'),
+  ('bb0e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Styling Sessions',   '1,000+')
+) AS v(id, profile_id, label, value)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_custom_stat WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
@@ -1530,13 +1530,12 @@ ON CONFLICT DO NOTHING;
 
 -- Insert 3000 reviews: 1800 for Mega Store + 1200 for Fashion Hub
 -- Rating distribution: 60% 5★, 20% 4★, 13% 3★, 5% 2★, 2% 1★
-INSERT INTO portfolio_review (id, profile_id, business_id, customer_name, customer_email, customer_phone, rating, title, comment, would_recommend, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO portfolio_review (id, profile_id, business_id, customer_name, customer_phone, rating, comment, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
-  'aa1cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,  -- Mega Store profile
-  '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,  -- Mega Store business
+  'aa1cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
+  '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
   'Customer_' || row_number,
-  'customer' || row_number || '@email.com',
   '+855-' || LPAD((row_number % 999999)::text, 6, '0'),
   CASE
     WHEN rnd < 0.60 THEN 5
@@ -1544,28 +1543,14 @@ SELECT
     WHEN rnd < 0.93 THEN 3
     WHEN rnd < 0.98 THEN 2
     ELSE 1
-  END as rating,
-  CASE
-    WHEN rnd < 0.60 THEN 'Excellent service and great products!'
-    WHEN rnd < 0.80 THEN 'Good quality, would visit again'
-    WHEN rnd < 0.93 THEN 'Average experience'
-    WHEN rnd < 0.98 THEN 'Below expectations'
-    ELSE 'Not satisfied'
-  END as title,
+  END,
   CASE
     WHEN rnd < 0.60 THEN 'Amazing shopping experience. Staff is friendly and helpful. Highly recommend to everyone!'
     WHEN rnd < 0.80 THEN 'Good variety of products. Prices are reasonable. Will come back again.'
     WHEN rnd < 0.93 THEN 'It was okay. Some items were out of stock but overall decent.'
     WHEN rnd < 0.98 THEN 'The service could be better. Long wait times.'
     ELSE 'Very disappointed with the quality and service.'
-  END as comment,
-  CASE
-    WHEN rnd < 0.60 THEN true
-    WHEN rnd < 0.80 THEN true
-    WHEN rnd < 0.93 THEN false
-    WHEN rnd < 0.98 THEN false
-    ELSE false
-  END as would_recommend,
+  END,
   0, false, NOW() - INTERVAL '1 day' * (row_number % 365), NOW() - INTERVAL '1 day' * (row_number % 365), 'system', 'system'
 FROM (
   SELECT
@@ -1575,13 +1560,12 @@ FROM (
 ) data;
 
 -- Insert 1200 reviews for Fashion Hub
-INSERT INTO portfolio_review (id, profile_id, business_id, customer_name, customer_email, customer_phone, rating, title, comment, would_recommend, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO portfolio_review (id, profile_id, business_id, customer_name, customer_phone, rating, comment, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
-  'bb1cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,  -- Fashion Hub profile
-  '660cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,  -- Fashion Hub business
+  'bb1cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
+  '660cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
   'Shopper_' || row_number,
-  'shopper' || row_number || '@email.com',
   '+855-' || LPAD((90000 + (row_number % 999999))::text, 6, '0'),
   CASE
     WHEN rnd < 0.60 THEN 5
@@ -1589,28 +1573,14 @@ SELECT
     WHEN rnd < 0.93 THEN 3
     WHEN rnd < 0.98 THEN 2
     ELSE 1
-  END as rating,
-  CASE
-    WHEN rnd < 0.60 THEN 'Beautiful collection and perfect fit!'
-    WHEN rnd < 0.80 THEN 'Nice styles, good customer service'
-    WHEN rnd < 0.93 THEN 'Decent options available'
-    WHEN rnd < 0.98 THEN 'Limited selection'
-    ELSE 'Disappointed with selection'
-  END as title,
+  END,
   CASE
     WHEN rnd < 0.60 THEN 'Love the fashion styles! The staff gave me great styling advice. Will definitely shop here again!'
     WHEN rnd < 0.80 THEN 'Great boutique with nice pieces. Friendly staff and good prices.'
     WHEN rnd < 0.93 THEN 'Okay selection. Could use more modern designs.'
     WHEN rnd < 0.98 THEN 'Not many options that suit my taste.'
     ELSE 'Selection is too limited and prices are high.'
-  END as comment,
-  CASE
-    WHEN rnd < 0.60 THEN true
-    WHEN rnd < 0.80 THEN true
-    WHEN rnd < 0.93 THEN false
-    WHEN rnd < 0.98 THEN false
-    ELSE false
-  END as would_recommend,
+  END,
   0, false, NOW() - INTERVAL '1 day' * (row_number % 365), NOW() - INTERVAL '1 day' * (row_number % 365), 'system', 'system'
 FROM (
   SELECT
