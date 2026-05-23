@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
