@@ -427,8 +427,7 @@ export default function PortfolioPage() {
               <div className="space-y-3">
                 {socialMediaFields.map((field, index) => (
                   <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-muted-foreground font-medium">Account {index + 1}</p>
+                    <div className="flex justify-end">
                       <Button
                         type="button"
                         size="sm"
@@ -603,8 +602,7 @@ export default function PortfolioPage() {
               <div className="space-y-3">
                 {businessHoursFields.map((field, index) => (
                   <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-muted-foreground font-medium">Entry {index + 1}</p>
+                    <div className="flex justify-end">
                       <Button
                         type="button"
                         size="sm"
