@@ -63,9 +63,12 @@ public class TelegramAuthProvider {
                     .lastName(lastName)
                     .photoUrl(photoUrl)
                     .build();
+        } catch (ValidationException e) {
+            log.error("[TG DEBUG] getUserInfo ValidationException: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
-            log.error("[TG DEBUG] getUserInfo failed — error type={}, message={}", e.getClass().getSimpleName(), e.getMessage());
-            throw new ValidationException("Invalid Telegram authentication data");
+            log.error("[TG DEBUG] getUserInfo unexpected error — type={}, message={}", e.getClass().getSimpleName(), e.getMessage(), e);
+            throw new ValidationException("Invalid Telegram authentication data: " + e.getMessage());
         }
     }
 
@@ -103,9 +106,11 @@ public class TelegramAuthProvider {
                 log.error("[TG DEBUG] Hash mismatch — verification failed");
                 throw new ValidationException("Invalid Telegram authentication hash");
             }
+        } catch (ValidationException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("[TG DEBUG] verifyTelegramAuth failed — error type={}, message={}", e.getClass().getSimpleName(), e.getMessage());
-            throw new ValidationException("Failed to verify Telegram authentication");
+            log.error("[TG DEBUG] verifyTelegramAuth unexpected error — type={}, message={}", e.getClass().getSimpleName(), e.getMessage(), e);
+            throw new ValidationException("Failed to verify Telegram authentication: " + e.getMessage());
         }
     }
 
