@@ -112,19 +112,22 @@ export function TelegramLoginButton({
 
     const telegramBotId = botId || botName;
 
+    // redirect mode: after auth Telegram redirects popup to return_to with ?tgAuthResult=<base64>
+    const returnTo = `${window.location.origin}/`;
     const authUrl = `https://oauth.telegram.org/auth?bot_id=${telegramBotId}&origin=${encodeURIComponent(
       window.location.origin
-    )}&embed=1&request_access=write`;
+    )}&return_to=${encodeURIComponent(returnTo)}&request_access=write`;
 
     console.log("[TG DEBUG] Opening popup");
     console.log("[TG DEBUG] bot_id:", telegramBotId);
     console.log("[TG DEBUG] origin:", window.location.origin);
+    console.log("[TG DEBUG] return_to:", returnTo);
     console.log("[TG DEBUG] full auth URL:", authUrl);
 
     const popup = window.open(
       authUrl,
       "TelegramAuth",
-      `width=${width},height=${height},left=${left},top=${top},status=no,location=no,menubar=no,toolbar=no`
+      `width=${width},height=${height},left=${left},top=${top}`
     );
 
     if (!popup) {
