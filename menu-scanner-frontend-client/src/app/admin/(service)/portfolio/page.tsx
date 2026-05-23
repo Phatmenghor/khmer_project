@@ -72,7 +72,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
         day: h.day,
         openTime: h.openTime || "",
         closeTime: h.closeTime || "",
-      })) ?? DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
+      })) ?? [],
     gallery: (p.gallery || []).map((g) => ({ id: g.id, url: g.url, title: g.title || "" })),
     services: (p.services || []).map((s) => ({
       id: s.id,
@@ -98,7 +98,7 @@ const emptyForm = (): PortfolioFormData => ({
   socialMedia: [],
   features: [],
   customStats: [],
-  businessHours: DAYS.map((d) => ({ day: d, openTime: "08:00", closeTime: "18:00" })),
+  businessHours: [],
   gallery: [],
   services: [],
   team: [],
@@ -116,7 +116,7 @@ export default function PortfolioPage() {
     defaultValues,
   });
 
-  const { fields: businessHoursFields } = useFieldArray({ control: form.control, name: "businessHours" });
+  const { fields: businessHoursFields, append: appendBusinessHour, remove: removeBusinessHour } = useFieldArray({ control: form.control, name: "businessHours" });
   const { fields: galleryFields, append: appendGallery, remove: removeGallery } = useFieldArray({ control: form.control, name: "gallery" });
   const { fields: servicesFields, append: appendService, remove: removeService } = useFieldArray({ control: form.control, name: "services" });
   const { fields: teamFields, append: appendTeam, remove: removeTeam } = useFieldArray({ control: form.control, name: "team" });
@@ -575,29 +575,34 @@ export default function PortfolioPage() {
           <CardHeader>
             <CardTitle>Business Hours</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              {businessHoursFields.map((field, index) => {
-                const dayLabel = DAY_LABELS[field.day] || field.day;
-                const openTime = form.watch(`businessHours.${index}.openTime`);
-                const closeTime = form.watch(`businessHours.${index}.closeTime`);
-                const isClosed = !openTime && !closeTime;
-                const isWeekend = field.day === "SATURDAY" || field.day === "SUNDAY";
-
-                return (
-                  <div
-                    key={field.id}
-                    className={`flex items-center gap-3 p-3 border rounded-lg transition-colors ${isClosed ? "bg-muted/30 opacity-70" : "hover:bg-muted/20"}`}
-                  >
-                    <div className="w-24 shrink-0">
-                      <p className={`text-sm font-semibold ${isWeekend ? "text-orange-600" : "text-foreground"}`}>
-                        {dayLabel}
-                      </p>
-                      {isClosed && (
-                        <Badge variant="secondary" className="text-xs mt-0.5 px-1.5 py-0">Closed</Badge>
-                      )}
-                    </div>
-
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                {businessHoursFields.length > 0
+                  ? `${businessHoursFields.length} day${businessHoursFields.length > 1 ? "s" : ""} configured`
+                  : "No hours configured yet"}
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => appendBusinessHour({ id: "", day: "MONDAY", openTime: "08:00", closeTime: "18:00" })}
+              >
+                <Plus className="w-4 h-4 mr-1" /> Add Hours
+              </Button>
+            </div>
+            {businessHoursFields.length > 0 ? (
+              <div className="space-y-2">
+                {businessHoursFields.map((field, index) => (
+                  <div key={field.id} className="flex items-center gap-2">
+                    <select
+                      {...form.register(`businessHours.${index}.day`)}
+                      className="flex h-9 w-32 shrink-0 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    >
+                      {DAYS.map((d) => (
+                        <option key={d} value={d}>{DAY_LABELS[d]}</option>
+                      ))}
+                    </select>
                     <div className="flex flex-1 items-center gap-2">
                       <Controller
                         name={`businessHours.${index}.openTime`}
@@ -623,30 +628,23 @@ export default function PortfolioPage() {
                         )}
                       />
                     </div>
-
                     <Button
                       type="button"
                       size="sm"
-                      variant={isClosed ? "outline" : "ghost"}
-                      className={`shrink-0 text-xs px-2 ${isClosed ? "text-primary border-primary/30" : "text-muted-foreground"}`}
-                      onClick={() => {
-                        const hours = form.getValues("businessHours") || [];
-                        if (isClosed) {
-                          hours[index].openTime = "08:00";
-                          hours[index].closeTime = "18:00";
-                        } else {
-                          hours[index].openTime = "";
-                          hours[index].closeTime = "";
-                        }
-                        form.setValue("businessHours", [...hours], { shouldDirty: true });
-                      }}
+                      variant="ghost"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                      onClick={() => removeBusinessHour(index)}
                     >
-                      {isClosed ? "Set Hours" : "Close"}
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4 border-2 border-dashed rounded-lg">
+                <p className="text-sm text-muted-foreground">No business hours added</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
