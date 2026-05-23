@@ -110,7 +110,7 @@ export default function LoginPage() {
 
       {/* ── Right — form panel ── */}
       <div className="flex flex-1 items-center justify-center bg-muted/40 p-6">
-        <Card className="w-full max-w-sm shadow-2xl border border-border/60 rounded-2xl overflow-hidden">
+        <Card className="w-full max-w-md shadow-2xl border border-border/60 rounded-2xl overflow-hidden">
 
           {/* Card header */}
           <div className="bg-primary/5 border-b border-border/50 px-8 pt-8 pb-6">
