@@ -23,7 +23,7 @@ public interface UserService {
     
     UserResponse deleteUser(UUID userId);
     
-    UserResponse getCurrentUser();
+    UserDetailResponse getCurrentUser();
 
     UserResponse updateCurrentUser(UserUpdateRequest request);
 }

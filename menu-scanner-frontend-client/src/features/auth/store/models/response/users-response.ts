@@ -80,6 +80,7 @@ export interface UserResponseModel {
   telegramPhotoUrl?: string;
   telegramSyncedAt?: string;
   telegramSynced?: boolean;
+  lastLoginAt?: string;
   addresses?: Address[];
   emergencyContacts?: EmergencyContact[];
   documents?: Document[];

@@ -343,10 +343,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponse getCurrentUser() {
+    public UserDetailResponse getCurrentUser() {
         User currentUserContext = securityUtils.getCurrentUser();
         log.info("Current user retrieved successfully: id={}", currentUserContext.getId());
-        return userMapper.toResponse(currentUserContext);
+        return userMapper.toDetailResponse(currentUserContext);
     }
 
     @Override

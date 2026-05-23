@@ -34,10 +34,10 @@ public class UserController {
     private final SecurityUtils securityUtils;
 
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
+    public ResponseEntity<ApiResponse<UserDetailResponse>> getCurrentUser() {
         log.info("Endpoint: profile - current user profile retrieval request received");
-        UserResponse userResponse = userService.getCurrentUser();
-        return ResponseEntity.ok(ApiResponse.success("User profile retrieved", userResponse));
+        UserDetailResponse userDetailResponse = userService.getCurrentUser();
+        return ResponseEntity.ok(ApiResponse.success("User profile retrieved", userDetailResponse));
     }
 
     @PutMapping("/profile")

@@ -63,6 +63,7 @@ import {
   GENDER_OPTIONS,
   EMPLOYMENT_TYPE_OPTIONS,
 } from "@/constants/form-options";
+import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
 
 
 import {
@@ -710,7 +711,7 @@ export default function AdminProfilePage() {
                             GENDER_OPTIONS.find((o) => o.value === watch("gender"))?.label
                           }
                         />
-                        <DisplayField label="Date of Birth" value={watch("dateOfBirth")} />
+                        <DisplayField label="Date of Birth" value={formatDate(watch("dateOfBirth"))} />
                         <DisplayField
                           label="Telegram ID"
                           value={userProfile?.telegramId}
@@ -729,7 +730,7 @@ export default function AdminProfilePage() {
                         />
                         <DisplayField
                           label="Telegram Synced At"
-                          value={userProfile?.telegramSyncedAt}
+                          value={dateTimeFormat(userProfile?.telegramSyncedAt)}
                         />
                         <DisplayField
                           label="Telegram Synced"
@@ -855,8 +856,8 @@ export default function AdminProfilePage() {
                             )?.label
                           }
                         />
-                        <DisplayField label="Join Date" value={watch("joinDate")} />
-                        <DisplayField label="Leave Date" value={watch("leaveDate")} />
+                        <DisplayField label="Join Date" value={formatDate(watch("joinDate"))} />
+                        <DisplayField label="Leave Date" value={formatDate(watch("leaveDate"))} />
                         <DisplayField label="Shift" value={watch("shift")} />
                       </>
                     )}
