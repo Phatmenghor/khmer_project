@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, Link2, Unlink, Check, Hash } from "lucide-react";
+import { Loader2, Unlink, Link2 } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { TelegramIcon, TelegramLoginButton } from "./telegram-login-widget";
 import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
@@ -48,7 +48,6 @@ export function TelegramSyncCard() {
 
   useEffect(() => {
     if (socialSync === null && !isLoadingSocialSync) {
-      console.log("[TelegramSyncCard] Fetching social sync status on mount");
       dispatch(getSocialSyncService());
     }
   }, [dispatch, socialSync, isLoadingSocialSync]);
@@ -58,15 +57,10 @@ export function TelegramSyncCard() {
 
   const handleTelegramSync = async (telegramData: TelegramAuthData) => {
     setIsConnecting(true);
-    console.log("[TelegramSyncCard] Syncing Telegram account:", telegramData.id);
     try {
-      const result = await dispatch(
-        syncTelegramAccountService({ telegramData, userType })
-      ).unwrap();
-      console.log("[TelegramSyncCard] Sync successful:", result);
+      await dispatch(syncTelegramAccountService({ telegramData, userType })).unwrap();
       showToast.success(Messages.auth.telegramConnected);
     } catch (err: unknown) {
-      console.error("[TelegramSyncCard] Sync failed:", err);
       showToast.error((err as { message?: string })?.message || "Failed to connect Telegram account.");
     } finally {
       setIsConnecting(false);
@@ -74,32 +68,41 @@ export function TelegramSyncCard() {
   };
 
   const handleTelegramUnsync = async () => {
-    console.log("[TelegramSyncCard] Unsyncing Telegram account");
     try {
       await dispatch(unsyncSocialAccountService("TELEGRAM")).unwrap();
-      console.log("[TelegramSyncCard] Unsync successful");
       showToast.success(Messages.auth.telegramDisconnected);
     } catch (err: unknown) {
-      console.error("[TelegramSyncCard] Unsync failed:", err);
       showToast.error((err as { message?: string })?.message || "Failed to disconnect Telegram account.");
     } finally {
       setIsConfirmDialogOpen(false);
     }
   };
 
+  const displayName = [socialSync?.telegramFirstName, socialSync?.telegramLastName]
+    .filter(Boolean)
+    .join(" ");
+
   if (isLoadingSocialSync) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Skeleton className="w-12 h-12 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-3 w-40" />
-              </div>
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-9 h-9 rounded-xl" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+          <Skeleton className="h-6 w-24 rounded-full" />
+        </div>
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-4">
+            <Skeleton className="w-14 h-14 rounded-2xl flex-shrink-0" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-24" />
             </div>
-            <Skeleton className="h-9 w-24" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Skeleton className="h-16 rounded-xl" />
+            <Skeleton className="h-16 rounded-xl" />
           </div>
         </CardContent>
       </Card>
@@ -108,114 +111,127 @@ export function TelegramSyncCard() {
 
   return (
     <>
-      <Card>
+      <Card className="overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#0088cc] flex items-center justify-center shadow-sm">
+              <TelegramIcon className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-semibold text-foreground">Telegram</span>
+          </div>
+          {isTelegramConnected ? (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Connected
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 border px-2.5 py-1 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
+              Not Connected
+            </span>
+          )}
+        </div>
+
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative flex-shrink-0">
-                {isTelegramConnected && socialSync?.telegramPhotoUrl ? (
-                  <CustomAvatar
-                    imageUrl={socialSync.telegramPhotoUrl}
-                    name={socialSync.telegramFirstName || socialSync.telegramUsername || "T"}
-                    size="md"
-                    className="w-12 h-12"
-                  />
-                ) : (
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      isTelegramConnected ? "bg-[#0088cc]" : "bg-gray-200"
-                    }`}
-                  >
-                    <TelegramIcon
-                      className={`h-6 w-6 ${
-                        isTelegramConnected ? "text-white" : "text-gray-500"
-                      }`}
+          {isTelegramConnected ? (
+            <div className="space-y-4">
+              {/* Avatar + name */}
+              <div className="flex items-center gap-4">
+                <div className="relative flex-shrink-0">
+                  {socialSync?.telegramPhotoUrl ? (
+                    <CustomAvatar
+                      imageUrl={socialSync.telegramPhotoUrl}
+                      name={displayName || socialSync.telegramUsername || "T"}
+                      size="lg"
+                      className="w-14 h-14 rounded-2xl"
                     />
-                  </div>
-                )}
-                {isTelegramConnected && (
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0088cc] rounded-full flex items-center justify-center">
-                    <Check className="h-3 w-3 text-white" />
-                  </div>
-                )}
+                  ) : (
+                    <div className="w-14 h-14 rounded-2xl bg-[#0088cc]/10 flex items-center justify-center">
+                      <TelegramIcon className="h-7 w-7 text-[#0088cc]" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  {displayName && (
+                    <p className="font-semibold text-foreground text-base leading-tight truncate">
+                      {displayName}
+                    </p>
+                  )}
+                  {socialSync?.telegramUsername && (
+                    <p className="text-sm font-medium text-[#0088cc] mt-0.5">
+                      @{socialSync.telegramUsername}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              <div className="min-w-0">
-                <h3 className="font-semibold text-foreground">Telegram</h3>
-                {isTelegramConnected ? (
-                  <div className="mt-1 space-y-0.5">
-                    {(socialSync?.telegramFirstName || socialSync?.telegramLastName) && (
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {[socialSync.telegramFirstName, socialSync.telegramLastName]
-                          .filter(Boolean)
-                          .join(" ")}
-                      </p>
-                    )}
-                    {socialSync?.telegramUsername && (
-                      <p className="text-sm text-muted-foreground">
-                        @{socialSync.telegramUsername}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Hash className="h-3 w-3" />
-                      <span>Chat ID: {socialSync?.telegramId}</span>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Connect your Telegram account for quick login
+              {/* Info tiles */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl bg-muted/40 border border-border/50 px-4 py-3">
+                  <p className="text-xs text-muted-foreground mb-1">Chat ID</p>
+                  <p className="text-sm font-semibold font-mono text-foreground">
+                    {socialSync?.telegramId}
                   </p>
-                )}
-                {socialSync?.syncedAt && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Synced{" "}
-                    {formatDistanceToNow(new Date(socialSync.syncedAt), {
-                      addSuffix: true,
-                    })}
+                </div>
+                <div className="rounded-xl bg-muted/40 border border-border/50 px-4 py-3">
+                  <p className="text-xs text-muted-foreground mb-1">Last Synced</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {socialSync?.syncedAt
+                      ? formatDistanceToNow(new Date(socialSync.syncedAt), { addSuffix: true })
+                      : "—"}
                   </p>
-                )}
+                </div>
+              </div>
+
+              {/* Disconnect action */}
+              <div className="flex justify-end pt-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsConfirmDialogOpen(true)}
+                  disabled={isSocialLoading}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/5 hover:border-destructive/30"
+                >
+                  {isSocialLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Unlink className="h-4 w-4 mr-2" />
+                  )}
+                  Disconnect
+                </Button>
               </div>
             </div>
-
-            {isTelegramConnected ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsConfirmDialogOpen(true)}
-                disabled={isSocialLoading}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-              >
-                {isSocialLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <Unlink className="h-4 w-4 mr-2" />
-                )}
-                Disconnect
-              </Button>
-            ) : (
-              <TelegramLoginButton
-                botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
-                botId={SocialAuthConfig.TELEGRAM_BOT_ID}
-                onAuth={handleTelegramSync}
-                disabled={isSocialLoading}
-                loading={isConnecting}
-                className="h-9 text-sm"
-              >
-                <Link2 className="h-4 w-4 mr-2" />
-                Connect
-              </TelegramLoginButton>
-            )}
-          </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Connect your Telegram account to enable quick login and stay synced across devices.
+              </p>
+              <div className="flex justify-end">
+                <TelegramLoginButton
+                  botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
+                  botId={SocialAuthConfig.TELEGRAM_BOT_ID}
+                  onAuth={handleTelegramSync}
+                  disabled={isSocialLoading}
+                  loading={isConnecting}
+                  className="h-9 text-sm"
+                >
+                  <Link2 className="h-4 w-4 mr-2" />
+                  Connect
+                </TelegramLoginButton>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Disconnect Telegram Account</DialogTitle>
+            <DialogTitle>Disconnect Telegram</DialogTitle>
             <DialogDescription>
-              Are you sure you want to disconnect your Telegram account
-              {socialSync?.telegramUsername ? ` (@${socialSync.telegramUsername})` : ""}?
+              Are you sure you want to disconnect
+              {socialSync?.telegramUsername ? ` @${socialSync.telegramUsername}` : " your Telegram account"}?
               You will no longer be able to use Telegram to sign in.
             </DialogDescription>
           </DialogHeader>
