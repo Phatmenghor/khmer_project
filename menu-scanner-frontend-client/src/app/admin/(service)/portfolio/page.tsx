@@ -425,28 +425,26 @@ export default function PortfolioPage() {
             {socialMediaFields.length > 0 ? (
               <div className="space-y-3">
                 {socialMediaFields.map((field, index) => (
-                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
-                    <div className="flex justify-end">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
-                        onClick={() => removeSocialMedia(index)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Platform <span className="text-red-500">*</span></Label>
+                  <div key={field.id} className="border rounded-lg p-4 relative hover:shadow-sm transition-shadow">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => removeSocialMedia(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Platform <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="Facebook, Instagram..."
                           {...form.register(`socialMedia.${index}.name`)}
                         />
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">URL <span className="text-red-500">*</span></Label>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">URL <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="https://..."
                           {...form.register(`socialMedia.${index}.url`)}
@@ -541,28 +539,26 @@ export default function PortfolioPage() {
             {customStatsFields.length > 0 ? (
               <div className="space-y-3">
                 {customStatsFields.map((field, index) => (
-                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
-                    <div className="flex justify-end">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
-                        onClick={() => removeCustomStat(index)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Value <span className="text-red-500">*</span></Label>
+                  <div key={field.id} className="border rounded-lg p-4 relative hover:shadow-sm transition-shadow">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => removeCustomStat(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Value <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="e.g., 10,000+"
                           {...form.register(`customStats.${index}.value`)}
                         />
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Label <span className="text-red-500">*</span></Label>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Label <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="e.g., Happy Customers"
                           {...form.register(`customStats.${index}.label`)}
@@ -686,18 +682,16 @@ export default function PortfolioPage() {
             {galleryFields.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {galleryFields.map((field, index) => (
-                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
-                    <div className="flex justify-end">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
-                        onClick={() => removeGallery(index)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </div>
+                  <div key={field.id} className="border rounded-lg p-4 relative space-y-3 hover:shadow-sm transition-shadow">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => removeGallery(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                     <Controller
                       name={`gallery.${index}.url`}
                       control={form.control}
