@@ -822,7 +822,7 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             {teamFields.length > 0 ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {teamFields.map((field, index) => (
                   <div key={field.id} className="border rounded-lg p-4 hover:shadow-sm transition-shadow">
                     <div className="flex gap-4">
