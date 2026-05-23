@@ -1326,55 +1326,49 @@ WHERE NOT EXISTS (SELECT 1 FROM user_educations WHERE user_id = u.id AND level =
 
 -- PORTFOLIO PROFILES (Updated Schema with Dynamic Data)
 INSERT INTO portfolio_profile (
-  id, business_id, business_name, slug, tagline, description,
-  logo_url, cover_image_url, industry,
+  id, business_id, business_name, description,
+  logo_url, cover_image_url,
   contact_email, contact_phone, contact_whatsapp, contact_telegram,
   address, map_link,
-  is_published, version, is_deleted, created_at, updated_at, created_by, updated_by
+  version, is_deleted, created_at, updated_at, created_by, updated_by
 )
 VALUES (
   'aa1cad56-cafd-4aba-baef-c4dcd53940d0',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   'Mega Store',
-  'mega-store',
-  'Your One-Stop Shopping Destination in Cambodia',
   'Mega Store is Cambodia''s premier retail destination offering over 10,000 quality products across fashion, electronics, home goods, and more. Founded in 2016, we have served over 10,000 happy customers with a commitment to authenticity, value, and excellent service. Shop with confidence — every product is carefully curated and backed by our 30-day return policy.',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
-  'Retail',
   'megastore@example.com',
   '+855-12-345-678',
   '+855-12-345-678',
   'https://t.me/megastore_cambodia',
   'Street 271, Toul Kork, Phnom Penh, Cambodia, 12000',
   'https://maps.google.com/?q=Mega+Store+Phnom+Penh',
-  true, 0, false, NOW(), NOW(), 'admin', 'admin'
+  0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
 INSERT INTO portfolio_profile (
-  id, business_id, business_name, slug, tagline, description,
-  logo_url, cover_image_url, industry,
+  id, business_id, business_name, description,
+  logo_url, cover_image_url,
   contact_email, contact_phone, contact_whatsapp, contact_telegram,
   address, map_link,
-  is_published, version, is_deleted, created_at, updated_at, created_by, updated_by
+  version, is_deleted, created_at, updated_at, created_by, updated_by
 )
 VALUES (
   'bb1cad56-cafd-4aba-baef-c4dcd53940d0',
   '660cad56-cafd-4aba-baef-c4dcd53940d0',
   'Fashion Hub',
-  'fashion-hub',
-  'Where Style Meets Tradition',
   'Fashion Hub is Siem Reap''s leading fashion boutique, blending contemporary trends with Khmer craftsmanship. Since 2019, we have dressed thousands of style-conscious customers with our curated collections of local and international designers. From casual wear to formal attire, our experienced stylists are ready to help you find your perfect look.',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
-  'Fashion & Apparel',
   'fashionhub@example.com',
   '+855-87-654-321',
   '+855-87-654-321',
   'https://t.me/fashionhub_siemreap',
   'Sivatha Blvd, Pub Street Area, Siem Reap, Cambodia, 17000',
   'https://maps.google.com/?q=Fashion+Hub+Siem+Reap',
-  true, 0, false, NOW(), NOW(), 'admin', 'admin'
+  0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -1628,7 +1622,7 @@ FROM (
 -- ============================================================================
 
 SELECT '=== PORTFOLIO PROFILES ===' AS info;
-SELECT id, business_name, slug, industry, is_published
+SELECT id, business_name, description
 FROM portfolio_profile
 WHERE is_deleted = false
 ORDER BY created_at;
