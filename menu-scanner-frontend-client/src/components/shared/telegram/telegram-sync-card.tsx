@@ -83,9 +83,12 @@ export function TelegramSyncCard() {
             <Skeleton className="w-9 h-9 rounded-xl" />
             <Skeleton className="h-4 w-20" />
           </div>
-          <Skeleton className="h-6 w-24 rounded-full" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-6 w-24 rounded-full" />
+            <Skeleton className="h-7 w-24 rounded-md" />
+          </div>
         </div>
-        <CardContent className="p-6 space-y-4">
+        <CardContent className="p-6 space-y-3">
           <div className="flex items-center gap-4">
             <Skeleton className="w-14 h-14 rounded-2xl flex-shrink-0" />
             <div className="space-y-2">
@@ -93,10 +96,7 @@ export function TelegramSyncCard() {
               <Skeleton className="h-3 w-24" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Skeleton className="h-16 rounded-xl" />
-            <Skeleton className="h-16 rounded-xl" />
-          </div>
+          <Skeleton className="h-3 w-28" />
         </CardContent>
       </Card>
     );
@@ -113,17 +113,48 @@ export function TelegramSyncCard() {
             </div>
             <span className="font-semibold text-foreground">Telegram</span>
           </div>
-          {isTelegramConnected ? (
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Connected
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 border px-2.5 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
-              Not Connected
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {isTelegramConnected ? (
+              <>
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Connected
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsConfirmDialogOpen(true)}
+                  disabled={isSocialLoading}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/5 hover:border-destructive/30 h-7 text-xs px-2.5"
+                >
+                  {isSocialLoading ? (
+                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                  ) : (
+                    <Unlink className="h-3 w-3 mr-1" />
+                  )}
+                  Disconnect
+                </Button>
+              </>
+            ) : (
+              <>
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 border px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
+                  Not Connected
+                </span>
+                <TelegramLoginButton
+                  botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
+                  botId={SocialAuthConfig.TELEGRAM_BOT_ID}
+                  onAuth={handleTelegramSync}
+                  disabled={isSocialLoading}
+                  loading={isConnecting}
+                  className="h-7 text-xs px-2.5"
+                >
+                  <Link2 className="h-3 w-3 mr-1" />
+                  Connect
+                </TelegramLoginButton>
+              </>
+            )}
+          </div>
         </div>
 
         <CardContent className="p-6">
@@ -159,61 +190,17 @@ export function TelegramSyncCard() {
                 </div>
               </div>
 
-              {/* Info tiles */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-muted/40 border border-border/50 px-4 py-3">
-                  <p className="text-xs text-muted-foreground mb-1">Chat ID</p>
-                  <p className="text-sm font-semibold font-mono text-foreground">
-                    {socialSync?.telegramId}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-muted/40 border border-border/50 px-4 py-3">
-                  <p className="text-xs text-muted-foreground mb-1">Last Synced</p>
-                  <p className="text-sm font-medium text-foreground">
-                    {socialSync?.syncedAt
-                      ? formatDistanceToNow(new Date(socialSync.syncedAt), { addSuffix: true })
-                      : "—"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Disconnect action */}
-              <div className="flex justify-end pt-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsConfirmDialogOpen(true)}
-                  disabled={isSocialLoading}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/5 hover:border-destructive/30"
-                >
-                  {isSocialLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <Unlink className="h-4 w-4 mr-2" />
-                  )}
-                  Disconnect
-                </Button>
-              </div>
+              {socialSync?.syncedAt && (
+                <p className="text-xs text-muted-foreground">
+                  Synced{" "}
+                  {formatDistanceToNow(new Date(socialSync.syncedAt), { addSuffix: true })}
+                </p>
+              )}
             </div>
           ) : (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Connect your Telegram account to enable quick login and stay synced across devices.
-              </p>
-              <div className="flex justify-end">
-                <TelegramLoginButton
-                  botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
-                  botId={SocialAuthConfig.TELEGRAM_BOT_ID}
-                  onAuth={handleTelegramSync}
-                  disabled={isSocialLoading}
-                  loading={isConnecting}
-                  className="h-9 text-sm"
-                >
-                  <Link2 className="h-4 w-4 mr-2" />
-                  Connect
-                </TelegramLoginButton>
-              </div>
-            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Connect your Telegram account to enable quick login and stay synced across devices.
+            </p>
           )}
         </CardContent>
       </Card>
