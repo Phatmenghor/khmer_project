@@ -8,6 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -70,12 +74,19 @@ public class TelegramAuthProvider {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] secretKey = digest.digest(botToken.getBytes(StandardCharsets.UTF_8));
 
+            // Telegram spec: fields sorted alphabetically, joined by \n, no trailing newline
+            List<Map.Entry<String, JsonNode>> fields = new ArrayList<>();
+            data.fields().forEachRemaining(fields::add);
+            fields.sort(Map.Entry.comparingByKey());
+
             StringBuilder checkString = new StringBuilder();
-            data.fields().forEachRemaining(entry -> {
+            for (int i = 0; i < fields.size(); i++) {
+                Map.Entry<String, JsonNode> entry = fields.get(i);
                 if (!"hash".equals(entry.getKey())) {
-                    checkString.append(entry.getKey()).append("=").append(entry.getValue().asText()).append("\n");
+                    if (checkString.length() > 0) checkString.append("\n");
+                    checkString.append(entry.getKey()).append("=").append(entry.getValue().asText());
                 }
-            });
+            }
 
             log.info("[TG DEBUG] Check string for HMAC:\n{}", checkString);
 
