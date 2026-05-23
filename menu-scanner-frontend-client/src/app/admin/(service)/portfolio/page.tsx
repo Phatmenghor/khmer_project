@@ -344,21 +344,22 @@ export default function PortfolioPage() {
               />
             </div>
 
-            <TextareaField<PortfolioFormData>
-              control={form.control}
-              name="contact.address"
-              label="Physical Address"
-              placeholder="Street 271, Toul Kork, Phnom Penh, Cambodia, 12000"
-              rows={2}
-              error={form.formState.errors.contact?.address}
-            />
-            <TextField<PortfolioFormData>
-              control={form.control}
-              name="contact.mapLink"
-              label="Google Maps Link"
-              placeholder="https://maps.google.com/?q=your+location"
-              error={form.formState.errors.contact?.mapLink}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TextField<PortfolioFormData>
+                control={form.control}
+                name="contact.address"
+                label="Physical Address"
+                placeholder="Street 271, Toul Kork, Phnom Penh, Cambodia, 12000"
+                error={form.formState.errors.contact?.address}
+              />
+              <TextField<PortfolioFormData>
+                control={form.control}
+                name="contact.mapLink"
+                label="Google Maps Link"
+                placeholder="https://maps.google.com/?q=your+location"
+                error={form.formState.errors.contact?.mapLink}
+              />
+            </div>
 
             {/* Additional Phones */}
             <div className="border-t pt-5 space-y-4">
