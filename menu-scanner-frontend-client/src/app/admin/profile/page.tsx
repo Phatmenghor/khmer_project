@@ -31,6 +31,7 @@ import {
   updateProfileService,
   deleteAccountService,
 } from "@/features/auth/store/thunks/auth-thunks";
+import { getSocialSyncService } from "@/features/auth/store/thunks/social-auth-thunks";
 import {
   selectProfile,
   selectIsProfileLoading,
@@ -170,6 +171,7 @@ export default function AdminProfilePage() {
     if (authReady && accessToken && !userProfile && !isProfileLoading && !profileFetchedRef.current) {
       profileFetchedRef.current = true;
       dispatch(getProfileService());
+      dispatch(getSocialSyncService());
     }
   }, [authReady, accessToken, dispatch, userProfile, isProfileLoading]);
 

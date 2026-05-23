@@ -76,11 +76,7 @@ export default function LoginPage() {
         }),
       ).unwrap();
 
-      showToast.success(
-        result?.isNewUser
-          ? Messages.auth.accountCreated
-          : Messages.auth.welcomeBack,
-      );
+      showToast.success(Messages.auth.welcomeBack);
 
       router.replace(ROUTES.ADMIN.DASHBOARD);
     } catch (err: unknown) {

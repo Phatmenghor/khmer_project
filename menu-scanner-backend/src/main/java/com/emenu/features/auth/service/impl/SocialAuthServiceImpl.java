@@ -73,25 +73,21 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     @Override
     public SocialSyncResponse syncSocialAccount(SocialAuthRequest syncRequestData) {
         UUID currentUserId = securityUtils.getCurrentUserId();
-        log.info("[TG DEBUG] syncSocialAccount called — user_id={}, provider={}", currentUserId, syncRequestData.getProvider());
-        log.info("[TG DEBUG] accessToken (raw)={}", syncRequestData.getAccessToken());
+        log.info("Social account synchronization initiated: user_id={}, provider={}", currentUserId, syncRequestData.getProvider());
 
         User userEntity = userRepository.findByIdAndIsDeletedFalse(currentUserId)
                 .orElseThrow(() -> {
-                    log.warn("[TG DEBUG] User not found: user_id={}", currentUserId);
+                    log.warn("Social account synchronization failed - user not found: user_id={}", currentUserId);
                     return new ValidationException("User not found");
                 });
 
-        log.info("[TG DEBUG] User found — identifier={}, type={}", userEntity.getUserIdentifier(), userEntity.getUserType());
-
         SocialAuthProvider socialProvider = SocialAuthProvider.fromProviderKey(syncRequestData.getProvider());
-        log.info("[TG DEBUG] Calling fetchUserInfo for provider={}", socialProvider);
         SocialUserInfo fetchedUserInfo = fetchUserInfo(socialProvider, syncRequestData.getAccessToken());
-        log.info("[TG DEBUG] fetchUserInfo returned — id={}, username={}", fetchedUserInfo.getId(), fetchedUserInfo.getUsername());
 
         syncSocialData(userEntity, socialProvider, fetchedUserInfo);
         userRepository.save(userEntity);
-        log.info("[TG DEBUG] syncSocialAccount complete — telegram linked to user_id={}", currentUserId);
+
+        log.info("Social account synchronized successfully: user_id={}, provider={}", currentUserId, socialProvider);
 
         return socialSyncResponseMapper.toResponse(userEntity, socialProvider);
     }

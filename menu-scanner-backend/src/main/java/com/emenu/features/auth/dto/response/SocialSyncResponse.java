@@ -23,9 +23,12 @@ public class SocialSyncResponse {
     private String telegramLastName;
     private String telegramPhotoUrl;
 
-    public static SocialSyncResponse telegramSuccess(Long telegramId, String telegramUsername, LocalDateTime syncedAt) {
+    public static SocialSyncResponse telegramSuccess(Long telegramId, String telegramUsername,
+            String telegramFirstName, String telegramLastName, String telegramPhotoUrl, LocalDateTime syncedAt) {
         return SocialSyncResponse.builder()
                 .success(true).message("Telegram account synced successfully").provider("telegram")
-                .telegramId(telegramId).telegramUsername(telegramUsername).syncedAt(syncedAt).build();
+                .telegramId(telegramId).telegramUsername(telegramUsername)
+                .telegramFirstName(telegramFirstName).telegramLastName(telegramLastName)
+                .telegramPhotoUrl(telegramPhotoUrl).syncedAt(syncedAt).build();
     }
 }
