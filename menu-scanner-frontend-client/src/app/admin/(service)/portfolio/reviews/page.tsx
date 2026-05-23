@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Trash2, Star, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Eye, Star, Trash } from "lucide-react";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
+import { ActionButton } from "@/components/shared/button/action-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -19,9 +20,12 @@ import {
   resetState,
 } from "@/features/portfolio/store/slice/portfolio-reviews-slice";
 import { PortfolioReviewAdmin } from "@/features/portfolio/store/models/portfolio-types";
+import { PortfolioReviewDetailModal } from "@/features/portfolio/components/portfolio-review-detail-modal";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
+import { useAppSelector } from "@/store";
+import { dateTimeFormat } from "@/utils/date/date-time-format";
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -40,127 +44,166 @@ export default function PortfolioReviewsPage() {
   useAdminCleanup(resetState);
 
   const { data, content, isLoading, filters, operations, dispatch } = usePortfolioReviewsState();
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
-  const [deleteTarget, setDeleteTarget] = useState<PortfolioReviewAdmin | null>(null);
+  const [detailModalState, setDetailModalState] = useState<{
+    isOpen: boolean;
+    review: PortfolioReviewAdmin | null;
+  }>({
+    isOpen: false,
+    review: null,
+  });
 
-  const pageSize = AppDefault.PAGE_SIZE;
+  const [deleteState, setDeleteState] = useState<{
+    isOpen: boolean;
+    review: PortfolioReviewAdmin | null;
+  }>({
+    isOpen: false,
+    review: null,
+  });
 
   useEffect(() => {
     dispatch(
       fetchPortfolioReviewsThunk({
         pageNo: filters.pageNo,
-        pageSize,
+        pageSize: globalPageSize,
         search: debouncedSearch || undefined,
       })
     );
-  }, [dispatch, filters.pageNo, debouncedSearch]);
+  }, [dispatch, filters.pageNo, debouncedSearch, globalPageSize]);
 
-  async function handleDelete() {
-    if (!deleteTarget) return;
-    const result = await dispatch(deleteReviewThunk(deleteTarget.id));
+  const handleViewDetail = (review: PortfolioReviewAdmin) =>
+    setDetailModalState({ isOpen: true, review });
+
+  const handleDeleteReview = (review: PortfolioReviewAdmin) =>
+    setDeleteState({ isOpen: true, review });
+
+  const tableHandlers = useMemo(
+    () => ({ handleViewDetail, handleDeleteReview }),
+    []
+  );
+
+  const columns = useMemo(
+    (): TableColumn<PortfolioReviewAdmin>[] => [
+      {
+        key: "customerName",
+        label: "Name",
+        render: (r) => (
+          <span className="text-sm font-medium text-foreground">
+            {r.customerName || "—"}
+          </span>
+        ),
+      },
+      {
+        key: "customerPhone",
+        label: "Phone Number",
+        render: (r) => (
+          <span className="text-xs text-muted-foreground">
+            {r.customerPhone || "—"}
+          </span>
+        ),
+      },
+      {
+        key: "rating",
+        label: "Rating",
+        render: (r) => <StarRating rating={r.rating} />,
+      },
+      {
+        key: "comment",
+        label: "Review",
+        render: (r) => (
+          <div className="max-w-xs">
+            <p className="text-xs text-muted-foreground line-clamp-2">{r.comment || "—"}</p>
+          </div>
+        ),
+      },
+      {
+        key: "createdAt",
+        label: "Submitted At",
+        render: (r) => (
+          <span className="text-xs text-muted-foreground">
+            {r.createdAt ? dateTimeFormat(r.createdAt) : "—"}
+          </span>
+        ),
+      },
+      {
+        key: "actions",
+        label: "Actions",
+        render: (r) => (
+          <div className="flex items-center gap-2">
+            <ActionButton
+              icon={<Eye className="w-4 h-4" />}
+              tooltip="View Details"
+              onClick={() => tableHandlers.handleViewDetail(r)}
+            />
+            <ActionButton
+              icon={<Trash className="w-4 h-4" />}
+              tooltip="Delete Review"
+              onClick={() => tableHandlers.handleDeleteReview(r)}
+              variant="destructive"
+            />
+          </div>
+        ),
+      },
+    ],
+    [tableHandlers]
+  );
+
+  const handlePageSizeChange = (size: number) => {
+    dispatch(setGlobalPageSize(size));
+    dispatch(setPageNo(1));
+  };
+
+  const handleDelete = async () => {
+    if (!deleteState.review) return;
+    const result = await dispatch(deleteReviewThunk(deleteState.review.id));
     if (deleteReviewThunk.fulfilled.match(result)) {
-      showToast.success("Review deleted");
-      setDeleteTarget(null);
+      showToast.success("Review deleted successfully");
+      setDeleteState({ isOpen: false, review: null });
     } else {
       showToast.error("Failed to delete review");
     }
-  }
-
-  const columns: TableColumn<PortfolioReviewAdmin>[] = [
-    {
-      key: "customer",
-      label: "Customer",
-      render: (r) => (
-        <div>
-          <p className="text-sm font-medium text-foreground">{r.customerName}</p>
-          {r.customerPhone && (
-            <p className="text-xs text-muted-foreground">{r.customerPhone}</p>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: "rating",
-      label: "Rating",
-      render: (r) => <StarRating rating={r.rating} />,
-    },
-    {
-      key: "review",
-      label: "Review",
-      render: (r) => (
-        <div className="max-w-xs">
-          <p className="text-xs text-muted-foreground line-clamp-2">{r.comment}</p>
-        </div>
-      ),
-    },
-    {
-      key: "date",
-      label: "Date",
-      render: (r) => (
-        <span className="text-xs text-muted-foreground">
-          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
-        </span>
-      ),
-    },
-    {
-      key: "actions",
-      label: "Actions",
-      render: (r) => (
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 px-2 text-destructive border-destructive/30 hover:bg-destructive/5"
-          disabled={operations.isDeleting}
-          onClick={(e) => {
-            e.stopPropagation();
-            setDeleteTarget(r);
-          }}
-        >
-          <Trash2 className="w-3 h-3" />
-        </Button>
-      ),
-    },
-  ];
+  };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2 pb-8">
-      <CardHeaderSection title="Customer Reviews" />
+    <div className="flex flex-1 flex-col gap-4 px-2">
+      <div className="space-y-4">
+        <CardHeaderSection
+          title="Customer Reviews"
+          searchValue={filters.search}
+          searchPlaceholder="Search by customer name..."
+          onSearchChange={(e) => dispatch(setSearchFilter(e.target.value))}
+        />
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by customer name..."
-            value={filters.search}
-            onChange={(e) => {
-              dispatch(setSearchFilter(e.target.value));
-            }}
-            className="pl-9"
-          />
-        </div>
+        <DataTableWithPagination
+          data={content}
+          columns={columns}
+          loading={isLoading}
+          emptyMessage="No reviews found"
+          getRowKey={(r) => r.id}
+          currentPage={filters.pageNo}
+          totalElements={data?.totalElements ?? 0}
+          totalPages={data?.totalPages ?? 1}
+          onPageChange={(page) => dispatch(setPageNo(page))}
+          pageSize={globalPageSize}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
+        />
       </div>
 
-      <DataTableWithPagination
-        data={content}
-        columns={columns}
-        loading={isLoading}
-        emptyMessage="No reviews found"
-        currentPage={filters.pageNo}
-        totalPages={data?.totalPages ?? 1}
-        totalElements={data?.totalElements ?? 0}
-        pageSize={pageSize}
-        onPageChange={(page) => dispatch(setPageNo(page))}
-        getRowKey={(r) => r.id}
-        showPageSizeSelector={false}
+      <PortfolioReviewDetailModal
+        review={detailModalState.review}
+        isOpen={detailModalState.isOpen}
+        onClose={() => setDetailModalState({ isOpen: false, review: null })}
       />
 
       <DeleteConfirmationModal
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
+        isOpen={deleteState.isOpen}
+        onClose={() => setDeleteState({ isOpen: false, review: null })}
         onDelete={handleDelete}
         title="Delete Review"
-        description={`Are you sure you want to delete the review from "${deleteTarget?.customerName}"? This action cannot be undone.`}
+        description={`Are you sure you want to delete the review from "${deleteState.review?.customerName}"? This action cannot be undone.`}
         isSubmitting={operations.isDeleting}
       />
     </div>
