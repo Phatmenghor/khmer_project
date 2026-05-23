@@ -5,14 +5,6 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Loader2, Unlink, Link2 } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { TelegramIcon, TelegramLoginButton } from "./telegram-login-widget";
@@ -27,6 +19,7 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { SocialAuthConfig } from "@/constants/app-resource/default/default";
 import { formatDistanceToNow } from "date-fns";
 import { getAdminUserInfo, getUserInfo } from "@/utils/local-storage/userInfo";
+import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 
 function getUserTypeFromStorage(): string {
   return (
@@ -225,39 +218,19 @@ export function TelegramSyncCard() {
         </CardContent>
       </Card>
 
-      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Disconnect Telegram</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to disconnect
-              {socialSync?.telegramUsername ? ` @${socialSync.telegramUsername}` : " your Telegram account"}?
-              You will no longer be able to use Telegram to sign in.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsConfirmDialogOpen(false)}
-              disabled={isSocialLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleTelegramUnsync}
-              disabled={isSocialLoading}
-            >
-              {isSocialLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Unlink className="h-4 w-4 mr-2" />
-              )}
-              Disconnect
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteConfirmationModal
+        isOpen={isConfirmDialogOpen}
+        onClose={() => setIsConfirmDialogOpen(false)}
+        onDelete={handleTelegramUnsync}
+        title="Disconnect Telegram"
+        description={`Are you sure you want to disconnect your Telegram account? You will no longer be able to use Telegram to sign in.`}
+        itemName={
+          socialSync?.telegramUsername
+            ? `@${socialSync.telegramUsername}`
+            : undefined
+        }
+        isSubmitting={isSocialLoading}
+      />
     </>
   );
 }
