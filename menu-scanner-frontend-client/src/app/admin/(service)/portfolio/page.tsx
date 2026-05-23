@@ -752,46 +752,40 @@ export default function PortfolioPage() {
             {servicesFields.length > 0 ? (
               <div className="space-y-3">
                 {servicesFields.map((field, index) => (
-                  <div key={field.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition-shadow">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold shrink-0">
-                          {index + 1}
-                        </div>
+                  <div key={field.id} className="border rounded-lg p-4 relative hover:shadow-sm transition-shadow">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => removeService(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Service Name <span className="text-red-500">*</span></Label>
+                        <Input
+                          placeholder="Service name..."
+                          {...form.register(`services.${index}.name`)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Description</Label>
                         <Controller
-                          name={`services.${index}.name`}
+                          name={`services.${index}.description`}
                           control={form.control}
                           render={({ field: f }) => (
-                            <Input
-                              placeholder="Service name... *"
-                              className="font-semibold border-0 p-0 h-auto text-sm focus-visible:ring-0"
+                            <Textarea
+                              placeholder="Describe what this service includes..."
+                              rows={2}
+                              className="resize-none text-sm"
                               {...f}
                             />
                           )}
                         />
                       </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
-                        onClick={() => removeService(index)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
                     </div>
-                    <Controller
-                      name={`services.${index}.description`}
-                      control={form.control}
-                      render={({ field: f }) => (
-                        <Textarea
-                          placeholder="Describe what this service includes..."
-                          rows={2}
-                          className="resize-none text-sm"
-                          {...f}
-                        />
-                      )}
-                    />
                   </div>
                 ))}
               </div>
