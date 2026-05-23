@@ -9,7 +9,10 @@ import {
   fetchHomeFeaturedProducts,
 } from "@/features/main/store/thunks/home-thunks";
 
-import { setInitialLoadComplete } from "@/features/main/store/slice/home-slice";
+import {
+  setInitialLoadComplete,
+  restoreHomeSnapshot,
+} from "@/features/main/store/slice/home-slice";
 
 import { useHomeState } from "@/features/main/store/state/home-state";
 
@@ -19,6 +22,7 @@ import { PromotionsSection } from "@/features/main/components/home/promotions-se
 import { ProductsSection } from "@/features/main/components/home/products-section";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
+import { saveHomeSnapshot, loadHomeSnapshot } from "@/utils/common/home-cache";
 
 export default function HomePage() {
   const {
@@ -49,6 +53,33 @@ export default function HomePage() {
       return 15;
     };
   }, []);
+
+  // On mount: restore sessionStorage snapshot into Redux immediately so
+  // back-navigation shows stale content while the API re-validates.
+  useEffect(() => {
+    const allEmpty =
+      !bannersSection.loaded &&
+      !categoriesSection.loaded &&
+      !promotionProductsSection.loaded &&
+      !featuredProductsSection.loaded;
+
+    if (allEmpty) {
+      const snapshot = loadHomeSnapshot();
+      if (snapshot) {
+        dispatch(
+          restoreHomeSnapshot({
+            banners: snapshot.banners as never,
+            categories: snapshot.categories as never,
+            promotionProducts: snapshot.promotionProducts as never,
+            featuredProducts: snapshot.featuredProducts as never,
+            brands: snapshot.brands as never,
+            featuredPagination: snapshot.featuredPagination,
+          })
+        );
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // only on initial mount
 
   const isInitialFeaturedLoading =
     featuredProductsSection.loading &&
@@ -93,6 +124,38 @@ export default function HomePage() {
     promotionProductsSection.loaded,
     featuredProductsSection.loaded,
   ]);
+
+  // Save snapshot to sessionStorage once all sections are loaded so it
+  // survives hard navigations (URL-bar change, server redirect + back).
+  useEffect(() => {
+    if (
+      bannersSection.loaded &&
+      categoriesSection.loaded &&
+      promotionProductsSection.loaded &&
+      featuredProductsSection.loaded &&
+      (banners.length > 0 || categories.length > 0)
+    ) {
+      saveHomeSnapshot({
+        banners,
+        categories,
+        promotionProducts,
+        featuredProducts,
+        brands: [],
+        featuredPagination,
+      });
+    }
+  }, [
+    bannersSection.loaded,
+    categoriesSection.loaded,
+    promotionProductsSection.loaded,
+    featuredProductsSection.loaded,
+    banners,
+    categories,
+    promotionProducts,
+    featuredProducts,
+    featuredPagination,
+  ]);
+
   const handleLoadMoreFeatured = useCallback(() => {
     if (
       featuredPagination.hasMore &&

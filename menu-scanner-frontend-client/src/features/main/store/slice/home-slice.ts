@@ -135,6 +135,32 @@ const homeSlice = createSlice({
     },
 
     resetHomeState: () => initialState,
+
+    restoreHomeSnapshot: (
+      state,
+      action: PayloadAction<{
+        banners: BannerResponseModel[];
+        categories: CategoriesResponseModel[];
+        promotionProducts: ProductDetailResponseModel[];
+        featuredProducts: ProductDetailResponseModel[];
+        brands: BrandResponseModel[];
+        featuredPagination: { currentPage: number; hasMore: boolean; totalPages: number };
+      }>
+    ) => {
+      const p = action.payload;
+      state.banners = p.banners;
+      state.categories = p.categories;
+      state.promotionProducts = p.promotionProducts;
+      state.featuredProducts = p.featuredProducts;
+      state.brands = p.brands;
+      state.featuredPagination = p.featuredPagination;
+      // Mark sections as loaded so no re-fetch fires for cached data
+      state.sections.banners.loaded = p.banners.length > 0;
+      state.sections.categories.loaded = p.categories.length > 0;
+      state.sections.promotionProducts.loaded = p.promotionProducts.length > 0;
+      state.sections.featuredProducts.loaded = p.featuredProducts.length > 0;
+      state.sections.brands.loaded = p.brands.length > 0;
+    },
   },
 
   extraReducers: (builder) => {
@@ -206,6 +232,7 @@ export const {
   resetFeaturedPagination,
   forceRefresh,
   resetHomeState,
+  restoreHomeSnapshot,
 } = homeSlice.actions;
 
 export default homeSlice.reducer;
