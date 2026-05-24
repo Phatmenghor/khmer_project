@@ -68,26 +68,30 @@ export default function HomePage() {
     featuredLoaded: featuredProductsSection.loaded,
   };
 
-  // ── bfcache handler ──────────────────────────────────────────────────────
-  // When the browser restores this page from bfcache (Back button after a
-  // full-document navigation), React components are NOT remounted and
-  // useEffect([]) does NOT re-run. If a fetch was in-flight at freeze-time
-  // it gets cancelled, leaving Redux as loading=false, loaded=false, data=[].
+  // ── pageshow / bfcache / Router-Cache handler ────────────────────────────
+  // Covers two "re-show" scenarios where useEffect([]) does NOT re-run:
   //
-  // Strategy (in priority order):
-  //  1. If all sections already have data in the frozen Redux state → nothing to do.
-  //  2. sessionStorage snapshot → restore instantly (same path as normal mount).
-  //  3. No snapshot → re-fetch from API so at least skeletons appear.
+  //  A. bfcache (persisted=true): browser froze the full document; React is
+  //     NOT remounted.  Any in-flight fetch was cancelled → Redux may be empty.
+  //
+  //  B. Next.js Router Cache (persisted=false): the router reuses the cached
+  //     React tree without remounting, so useEffect([]) is skipped too.
+  //     pageshow still fires with persisted=false on every page visit.
+  //
+  // Strategy (same for both cases):
+  //  1. All sections already populated → nothing to do.
+  //  2. sessionStorage snapshot exists → restore instantly, no API call.
+  //  3. No snapshot (only relevant for bfcache) → re-fetch from API.
+  //     For persisted=false without a snapshot the normal fetch useEffect
+  //     will handle it on a fresh mount, so we skip the API call there.
   useEffect(() => {
     const handlePageShow = (e: PageTransitionEvent) => {
-      if (!e.persisted) return; // normal page load, not bfcache
-
       const s = sectionsRef.current;
       if (s.bannersLoaded && s.categoriesLoaded && s.promotionsLoaded && s.featuredLoaded) {
-        return; // all data present in frozen Redux state — nothing to do
+        return; // data already present — nothing to do
       }
 
-      // Try snapshot first — gives instant content without triggering a fetch
+      // Try snapshot for BOTH bfcache and Router-Cache restores
       const snapshot = loadHomeSnapshot();
       if (snapshot && (snapshot.banners.length > 0 || snapshot.categories.length > 0)) {
         dispatch(
@@ -100,10 +104,12 @@ export default function HomePage() {
             featuredPagination: snapshot.featuredPagination,
           })
         );
-        return; // snapshot covers all sections — skip API call to avoid duplicates
+        return; // snapshot covers all sections
       }
 
-      // No snapshot available: re-fetch missing sections from the API
+      // No snapshot — always re-fetch missing sections.
+      // Covers both bfcache (persisted=true) and Router-Cache (persisted=false)
+      // restores where useEffect([]) did not re-run.
       const pageSize = getPageSize();
       const fetches: Promise<unknown>[] = [];
       if (!s.bannersLoaded) fetches.push(dispatch(fetchHomeBanners({})) as Promise<unknown>);
@@ -190,12 +196,12 @@ export default function HomePage() {
   ]);
 
   // ── persist snapshot ─────────────────────────────────────────────────────
+  // Save as soon as banners + categories are loaded — don't wait for all
+  // sections, because the user may navigate away before featured products finish.
   useEffect(() => {
     if (
       bannersSection.loaded &&
       categoriesSection.loaded &&
-      promotionProductsSection.loaded &&
-      featuredProductsSection.loaded &&
       (banners.length > 0 || categories.length > 0)
     ) {
       saveHomeSnapshot({
@@ -210,8 +216,6 @@ export default function HomePage() {
   }, [
     bannersSection.loaded,
     categoriesSection.loaded,
-    promotionProductsSection.loaded,
-    featuredProductsSection.loaded,
     banners,
     categories,
     promotionProducts,
