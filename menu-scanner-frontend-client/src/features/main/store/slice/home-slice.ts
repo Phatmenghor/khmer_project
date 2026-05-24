@@ -154,12 +154,18 @@ const homeSlice = createSlice({
       state.featuredProducts = p.featuredProducts;
       state.brands = p.brands;
       state.featuredPagination = p.featuredPagination;
-      // Mark sections as loaded so no re-fetch fires for cached data
-      state.sections.banners.loaded = p.banners.length > 0;
-      state.sections.categories.loaded = p.categories.length > 0;
-      state.sections.promotionProducts.loaded = p.promotionProducts.length > 0;
-      state.sections.featuredProducts.loaded = p.featuredProducts.length > 0;
-      state.sections.brands.loaded = p.brands.length > 0;
+      // Mark sections as loaded and clear any stale error/loading state so
+      // that components render snapshot data rather than returning null.
+      const applySection = (key: keyof HomePageState["sections"], hasData: boolean) => {
+        state.sections[key].loaded = hasData;
+        state.sections[key].loading = false;
+        state.sections[key].error = null;
+      };
+      applySection("banners", p.banners.length > 0);
+      applySection("categories", p.categories.length > 0);
+      applySection("promotionProducts", p.promotionProducts.length > 0);
+      applySection("featuredProducts", p.featuredProducts.length > 0);
+      applySection("brands", p.brands.length > 0);
     },
   },
 

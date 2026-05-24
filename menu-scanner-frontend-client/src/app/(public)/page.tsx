@@ -69,21 +69,41 @@ export default function HomePage() {
   };
 
   // ── bfcache handler ──────────────────────────────────────────────────────
-  // When the browser presses Back and restores this page from bfcache,
-  // React components are NOT remounted and useEffect with [] does NOT re-run.
-  // Any in-flight API call at freeze-time gets cancelled, leaving the Redux
-  // state as loading=false, loaded=false, data=[] → sections show nothing.
-  // The pageshow event (persisted=true) lets us detect this and re-fetch.
+  // When the browser restores this page from bfcache (Back button after a
+  // full-document navigation), React components are NOT remounted and
+  // useEffect([]) does NOT re-run. If a fetch was in-flight at freeze-time
+  // it gets cancelled, leaving Redux as loading=false, loaded=false, data=[].
+  //
+  // Strategy (in priority order):
+  //  1. If all sections already have data in the frozen Redux state → nothing to do.
+  //  2. sessionStorage snapshot → restore instantly (same path as normal mount).
+  //  3. No snapshot → re-fetch from API so at least skeletons appear.
   useEffect(() => {
     const handlePageShow = (e: PageTransitionEvent) => {
-      if (!e.persisted) return; // normal load, not bfcache
+      if (!e.persisted) return; // normal page load, not bfcache
 
       const s = sectionsRef.current;
       if (s.bannersLoaded && s.categoriesLoaded && s.promotionsLoaded && s.featuredLoaded) {
-        return; // all data already present in frozen state
+        return; // all data present in frozen Redux state — nothing to do
       }
 
-      // Re-fetch whatever is missing
+      // Try snapshot first — gives instant content without triggering a fetch
+      const snapshot = loadHomeSnapshot();
+      if (snapshot && (snapshot.banners.length > 0 || snapshot.categories.length > 0)) {
+        dispatch(
+          restoreHomeSnapshot({
+            banners: snapshot.banners as never,
+            categories: snapshot.categories as never,
+            promotionProducts: snapshot.promotionProducts as never,
+            featuredProducts: snapshot.featuredProducts as never,
+            brands: snapshot.brands as never,
+            featuredPagination: snapshot.featuredPagination,
+          })
+        );
+        return; // snapshot covers all sections — skip API call to avoid duplicates
+      }
+
+      // No snapshot available: re-fetch missing sections from the API
       const pageSize = getPageSize();
       const fetches: Promise<unknown>[] = [];
       if (!s.bannersLoaded) fetches.push(dispatch(fetchHomeBanners({})) as Promise<unknown>);
