@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Minus, Plus } from "lucide-react";
-import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 
 interface QuantitySelectorProps {
@@ -12,7 +11,6 @@ interface QuantitySelectorProps {
   max?: number;
   size?: "sm" | "md";
   className?: string;
-
   pending?: boolean;
 }
 
@@ -30,14 +28,12 @@ export function QuantitySelector({
   const latestCommittedRef = useRef(value);
   const isTypingRef = useRef(false);
 
-
   useEffect(() => {
     latestCommittedRef.current = value;
     if (!isTypingRef.current) {
       setInputText(String(value));
     }
   }, [value]);
-
 
   useEffect(() => {
     return () => {
@@ -55,7 +51,7 @@ export function QuantitySelector({
       isTypingRef.current = false;
       onChange(clamped);
     },
-    [min, max, onChange],
+    [min, max, onChange], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const handleDecrement = () => {
@@ -76,21 +72,14 @@ export function QuantitySelector({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
-
-
     if (raw === "") {
       setInputText("");
       isTypingRef.current = true;
       return;
     }
-
-
     if (!/^\d{1,3}$/.test(raw)) return;
-
     setInputText(raw);
     isTypingRef.current = true;
-
-
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       commitValue(parseInt(raw, 10));
@@ -111,21 +100,27 @@ export function QuantitySelector({
 
   const isSmall = size === "sm";
   const displayValue = latestCommittedRef.current;
+  const canDecrement = displayValue > min;
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <CustomButton
-        variant="outline"
-        size="icon"
+    <div className={cn("flex items-center", className)}>
+      {/* Decrement button */}
+      <button
+        type="button"
         onClick={handleDecrement}
+        disabled={!canDecrement}
         className={cn(
-          isSmall ? "h-8 w-8" : "h-10 w-10",
-          displayValue <= min && "opacity-40",
+          "flex items-center justify-center rounded-l-xl border border-r-0 transition-all duration-150",
+          isSmall ? "h-9 w-9" : "h-10 w-10",
+          canDecrement
+            ? "bg-primary text-primary-foreground border-primary hover:bg-primary/80 active:scale-95"
+            : "bg-muted text-muted-foreground/40 border-border cursor-not-allowed",
         )}
       >
         <Minus className={cn(isSmall ? "h-3 w-3" : "h-4 w-4")} />
-      </CustomButton>
+      </button>
 
+      {/* Input */}
       <input
         type="text"
         inputMode="numeric"
@@ -135,22 +130,29 @@ export function QuantitySelector({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         className={cn(
-          "text-center font-bold rounded border focus:outline-none focus:ring-2",
+          "text-center font-bold border-y focus:outline-none focus:ring-0 border-x-0",
           pending
-            ? "bg-amber-50 text-amber-600 border-amber-200 focus:ring-amber-300 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800"
-            : "bg-primary/10 text-primary border-primary/20 focus:ring-primary/30",
-          isSmall ? "w-12 h-8 text-sm" : "w-16 h-10 text-lg",
+            ? "bg-amber-50 text-amber-600 border-amber-300 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800"
+            : "bg-background text-primary border-primary/30",
+          isSmall ? "w-12 h-9 text-sm" : "w-14 h-10 text-base",
         )}
       />
 
-      <CustomButton
-        variant="outline"
-        size="icon"
+      {/* Increment button */}
+      <button
+        type="button"
         onClick={handleIncrement}
-        className={cn(isSmall ? "h-8 w-8" : "h-10 w-10")}
+        disabled={displayValue >= max}
+        className={cn(
+          "flex items-center justify-center rounded-r-xl border border-l-0 transition-all duration-150",
+          isSmall ? "h-9 w-9" : "h-10 w-10",
+          displayValue < max
+            ? "bg-primary text-primary-foreground border-primary hover:bg-primary/80 active:scale-95"
+            : "bg-muted text-muted-foreground/40 border-border cursor-not-allowed",
+        )}
       >
         <Plus className={cn(isSmall ? "h-3 w-3" : "h-4 w-4")} />
-      </CustomButton>
+      </button>
     </div>
   );
 }

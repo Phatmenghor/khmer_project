@@ -23,9 +23,9 @@ function QuantityControlComponent({
   const showClearButton = currentQuantity > 0 || selectedSizeQuantity > 0;
 
   return (
-    <div className="mb-4 p-3 bg-muted/30 rounded-lg border">
-      <h4 className="font-semibold mb-3 text-sm">Quantity</h4>
-      <div className="flex items-center gap-2">
+    <div className="mb-4 p-3.5 bg-muted/30 rounded-xl border">
+      <h4 className="font-semibold mb-3 text-sm text-foreground">Quantity</h4>
+      <div className="flex items-center gap-3">
         <QuantitySelector
           value={quantity}
           onChange={onQuantityChange}
@@ -36,11 +36,11 @@ function QuantityControlComponent({
           <CustomButton
             variant="outline"
             size="sm"
-            className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors"
+            className="h-9 px-3 text-rose-600 border-rose-200 hover:bg-rose-50 hover:border-rose-300 dark:text-rose-400 dark:border-rose-800 dark:hover:bg-rose-950/30 transition-colors gap-1.5"
             onClick={onClear}
             title="Remove this size and customizations from cart"
           >
-            <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+            <Trash2 className="h-3.5 w-3.5" />
             Clear
           </CustomButton>
         )}
