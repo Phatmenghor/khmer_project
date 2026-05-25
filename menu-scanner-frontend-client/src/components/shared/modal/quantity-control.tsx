@@ -1,9 +1,9 @@
 "use client";
 
 import { memo } from "react";
-import { Trash2 } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { QuantitySelector } from "@/components/shared/input/quantity-selector";
+import { cn } from "@/lib/utils";
 
 interface QuantityControlProps {
   quantity: number;
@@ -25,23 +25,44 @@ function QuantityControlComponent({
   return (
     <div className="mb-4 p-3.5 bg-muted/30 rounded-xl border">
       <h4 className="font-semibold mb-3 text-sm text-foreground">Quantity</h4>
-      <div className="flex items-center gap-3">
-        <QuantitySelector
-          value={quantity}
-          onChange={onQuantityChange}
-          min={0}
-          size="sm"
-        />
-        {showClearButton && (
+      <div className="flex items-center gap-2">
+        <CustomButton
+          size="icon"
+          variant="outline"
+          className={cn(
+            "h-9 w-9 shrink-0 transition-all duration-150",
+            quantity > 0
+              ? "hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+              : "opacity-40 cursor-not-allowed",
+          )}
+          onClick={() => quantity > 0 && onQuantityChange(quantity - 1)}
+          disabled={quantity <= 0}
+        >
+          <Minus className="h-3.5 w-3.5" />
+        </CustomButton>
+
+        <div className="w-14 h-9 bg-primary/10 text-primary font-bold text-sm rounded-lg border border-primary/20 flex items-center justify-center select-none">
+          {quantity}
+        </div>
+
+        <CustomButton
+          size="icon"
+          variant="outline"
+          className="h-9 w-9 shrink-0 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-150"
+          onClick={() => onQuantityChange(quantity + 1)}
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </CustomButton>
+
+        {showClearButton && quantity === 0 && (
           <CustomButton
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="h-9 px-3 text-rose-600 border-rose-200 hover:bg-rose-50 hover:border-rose-300 dark:text-rose-400 dark:border-rose-800 dark:hover:bg-rose-950/30 transition-colors gap-1.5"
+            className="h-9 px-3 text-muted-foreground hover:text-destructive transition-colors text-xs"
             onClick={onClear}
-            title="Remove this size and customizations from cart"
+            title="Remove this size from cart"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-            Clear
+            Remove
           </CustomButton>
         )}
       </div>
