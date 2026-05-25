@@ -112,7 +112,6 @@ const BannerSectionComponent = ({
                       loadedImages.has(index) ? "opacity-100" : "opacity-0",
                     )}
                     onLoad={() => handleImageLoad(index)}
-                    priority={index === 0}
                     loading="eager"
                   />
                 </div>
