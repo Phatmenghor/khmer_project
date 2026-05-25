@@ -1007,12 +1007,12 @@ INSERT INTO order_items (
 )
 -- Item 1
 SELECT
-  gen_random_uuid(), o.id, p1.id, NULL,
+  gen_random_uuid(), o.id, p1.id, NULL::uuid,
   p1.name, p1.main_image_url, 'Standard', p1.sku, p1.barcode,
   (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3)::int,
   p1.price, p1.price, p1.price,
   p1.price * (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3),
-  false, NULL, NULL, NULL, NULL,
+  false, NULL, NULL, NULL::date, NULL::date,
   0.00, '[]'::json,
   0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
@@ -1021,10 +1021,10 @@ WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
 UNION ALL
 -- Item 2 (different product offset by 50)
 SELECT
-  gen_random_uuid(), o.id, p2.id, NULL,
+  gen_random_uuid(), o.id, p2.id, NULL::uuid,
   p2.name, p2.main_image_url, 'Standard', p2.sku, p2.barcode,
   1, p2.price, p2.price, p2.price, p2.price,
-  false, NULL, NULL, NULL, NULL,
+  false, NULL, NULL, NULL::date, NULL::date,
   0.00, '[]'::json,
   0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
