@@ -38,7 +38,7 @@ interface RegisterModalProps {
 const registerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email address"),
+  userIdentifier: z.string().min(3, "Email or username must be at least 3 characters"),
   phone: z.string().min(1, "Phone number is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string().min(6, "Password confirmation is required"),
@@ -74,15 +74,15 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
 
   const registerForm = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "" },
+    defaultValues: { firstName: "", lastName: "", userIdentifier: "", phone: "", password: "", confirmPassword: "" },
   });
 
   async function onRegisterSubmit(values: RegisterFormData) {
     try {
       const result = await dispatch(
         registerCustomerService({
-          userIdentifier: values.email,
-          email: values.email,
+          userIdentifier: values.userIdentifier,
+          email: values.userIdentifier,
           password: values.password,
           firstName: values.firstName,
           lastName: values.lastName,
@@ -175,11 +175,11 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
           </div>
 
           <TextField
-            name="email"
-            label="Email"
-            placeholder="name@example.com"
+            name="userIdentifier"
+            label="Email or Username"
+            placeholder="Email or username"
             control={registerForm.control}
-            error={registerForm.formState.errors.email}
+            error={registerForm.formState.errors.userIdentifier}
             disabled={isAnyLoading}
             required
           />
