@@ -1,7 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { selectBusinessSettings, selectBusinessSettingsLoading } from "@/features/business/store/selectors/business-settings-selector";
+import {
+  selectBusinessSettings,
+  selectBusinessSettingsLoading,
+  selectBusinessSettingsError,
+} from "@/features/business/store/selectors/business-settings-selector";
 import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { BusinessSettingsResponse } from "@/features/business/store/services/business-settings-service";
@@ -67,77 +71,78 @@ function syncWindowCache(settings: {
   }
 }
 
+function applyColors(primaryColor?: string) {
+  const primary = primaryColor || DEFAULT_COLORS.primary;
+  if (primary) {
+    document.documentElement.style.setProperty("--primary", hexToHsl(primary));
+  }
+}
+
 export function useBusinessTheme() {
   const dispatch = useAppDispatch();
   const businessSettings = useAppSelector(selectBusinessSettings);
   const isLoading = useAppSelector(selectBusinessSettingsLoading);
+  const error = useAppSelector(selectBusinessSettingsError);
   const pathname = usePathname();
 
+  // Tracks whether a fetch has been dispatched — prevents retry loops on failure.
+  // This ref lives as long as the ThemeInitializer component (global provider), so
+  // it effectively means "try once per session". Page reload resets it.
+  const fetchAttemptedRef = useRef(false);
+
+  // Effect 1: Apply theme colors on every navigation.
+  // Uses cache first for instant paint, then overrides with live Redux data.
   useEffect(() => {
-    // Always try to apply colors from cache immediately (fast path)
-    const businessId = (typeof window !== "undefined" && localStorage.getItem("businessId")) || AppDefault.BUSINESS_ID;
+    const businessId =
+      (typeof window !== "undefined" && localStorage.getItem("businessId")) ||
+      AppDefault.BUSINESS_ID;
     const cachedColors = getCachedThemeColors(businessId);
     if (cachedColors?.primaryColor) {
       applyColors(cachedColors.primaryColor);
     }
+    if (businessSettings?.primaryColor) {
+      applyColors(businessSettings.primaryColor);
+    }
+  }, [pathname, businessSettings]);
 
-    // If we already have Redux data, apply it and keep window cache in sync
-    if (businessSettings) {
-      localStorage.setItem("businessId", businessSettings.businessId);
+  // Effect 2: Sync localStorage + color cache when settings first arrive from API.
+  useEffect(() => {
+    if (!businessSettings) return;
 
-      const currentData = {
-        primaryColor: businessSettings.primaryColor || "",
-        businessName: businessSettings.businessName,
-        logoBusinessUrl: businessSettings.logoBusinessUrl,
-        taxPercentage: businessSettings.taxPercentage ?? undefined,
-      };
+    localStorage.setItem("businessId", businessSettings.businessId);
 
-      if (hasThemeChanged(cachedColors, currentData)) {
-        cacheThemeColors(businessSettings.businessId, currentData);
-      }
+    const currentData = {
+      primaryColor: businessSettings.primaryColor || "",
+      businessName: businessSettings.businessName,
+      logoBusinessUrl: businessSettings.logoBusinessUrl,
+      taxPercentage: businessSettings.taxPercentage ?? undefined,
+    };
 
-      if (businessSettings.primaryColor) {
-        applyColors(businessSettings.primaryColor);
-      }
+    const cachedColors = getCachedThemeColors(businessSettings.businessId);
+    if (hasThemeChanged(cachedColors, currentData)) {
+      cacheThemeColors(businessSettings.businessId, currentData);
+    }
 
-      // Keep window cache in sync with latest Redux data
-      syncWindowCache(businessSettings);
+    if (businessSettings.primaryColor) {
+      applyColors(businessSettings.primaryColor);
+    }
+
+    syncWindowCache(businessSettings);
+  }, [businessSettings]);
+
+  // Effect 3: Fetch business settings exactly once.
+  // Guards: already have data, already loading, already failed, or already dispatched.
+  // On any error the ref stays true so no retry loop occurs.
+  useEffect(() => {
+    if (
+      businessSettings ||
+      isLoading ||
+      error ||
+      fetchAttemptedRef.current
+    ) {
       return;
     }
-
-    // No Redux data yet — dispatch fetch if not already in flight
-    if (!isLoading) {
-      dispatch(fetchBusinessSettingsThunk()).then((action) => {
-        if (action.meta.requestStatus === "fulfilled" && action.payload) {
-          const payload = action.payload as BusinessSettingsResponse;
-
-          localStorage.setItem("businessId", payload.businessId);
-
-          const apiData = {
-            primaryColor: payload.primaryColor || "",
-            businessName: payload.businessName,
-            logoBusinessUrl: payload.logoBusinessUrl,
-            taxPercentage: payload.taxPercentage ?? undefined,
-          };
-
-          const existingCache = getCachedThemeColors(payload.businessId);
-          if (hasThemeChanged(existingCache, apiData)) {
-            cacheThemeColors(payload.businessId, apiData);
-          }
-
-          applyColors(payload.primaryColor);
-          syncWindowCache(payload);
-        }
-      });
-    }
-  }, [dispatch, businessSettings, isLoading, pathname]);
-}
-
-
-function applyColors(primaryColor?: string) {
-  const primary = primaryColor || DEFAULT_COLORS.primary;
-
-  if (primary) {
-    document.documentElement.style.setProperty("--primary", hexToHsl(primary));
-  }
+    fetchAttemptedRef.current = true;
+    dispatch(fetchBusinessSettingsThunk());
+  }, [dispatch, businessSettings, isLoading, error]);
 }
