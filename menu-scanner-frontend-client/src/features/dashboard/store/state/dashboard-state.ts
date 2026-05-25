@@ -12,7 +12,6 @@ import {
   selectDashboardSales,
   selectDashboardStock,
   selectDashboardSummary,
-  selectDashboardTarget,
   selectDashboardTopProducts,
 } from "../selectors/dashboard-selectors";
 
@@ -29,7 +28,6 @@ export const useDashboardState = () => {
   const topProducts = useAppSelector(selectDashboardTopProducts);
   const hourlySales = useAppSelector(selectDashboardHourlySales);
   const customerStats = useAppSelector(selectDashboardCustomerStats);
-  const target = useAppSelector(selectDashboardTarget);
   const promotions = useAppSelector(selectDashboardPromotions);
   const loading = useAppSelector(selectDashboardLoading);
   const error = useAppSelector(selectDashboardError);
@@ -45,7 +43,6 @@ export const useDashboardState = () => {
     topProducts,
     hourlySales,
     customerStats,
-    target,
     promotions,
     loading,
     error,

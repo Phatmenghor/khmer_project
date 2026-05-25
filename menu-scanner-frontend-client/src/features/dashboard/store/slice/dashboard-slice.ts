@@ -10,7 +10,6 @@ import {
   DashboardSalesResponse,
   DashboardStockResponse,
   DashboardSummaryResponse,
-  DashboardTargetResponse,
   DashboardTopProductsResponse,
 } from "../models/response/dashboard-response";
 import {
@@ -23,7 +22,6 @@ import {
   fetchDashboardSalesService,
   fetchDashboardStockService,
   fetchDashboardSummaryService,
-  fetchDashboardTargetService,
   fetchDashboardTopProductsService,
 } from "../thunks/dashboard-thunks";
 
@@ -39,7 +37,6 @@ interface DashboardState {
   topProducts: DashboardTopProductsResponse | null;
   hourlySales: DashboardHourlySalesResponse | null;
   customerStats: DashboardCustomerStatsResponse | null;
-  target: DashboardTargetResponse | null;
   promotions: DashboardPromotionsResponse | null;
 
   loading: {
@@ -52,7 +49,6 @@ interface DashboardState {
     topProducts: boolean;
     hourlySales: boolean;
     customerStats: boolean;
-    target: boolean;
     promotions: boolean;
   };
 
@@ -71,7 +67,6 @@ const initialState: DashboardState = {
   topProducts: null,
   hourlySales: null,
   customerStats: null,
-  target: null,
   promotions: null,
 
   loading: {
@@ -84,7 +79,6 @@ const initialState: DashboardState = {
     topProducts: true,
     hourlySales: true,
     customerStats: true,
-    target: true,
     promotions: true,
   },
 
@@ -148,11 +142,6 @@ const dashboardSlice = createSlice({
       .addCase(fetchDashboardCustomerStatsService.pending, (state) => { state.loading.customerStats = true; })
       .addCase(fetchDashboardCustomerStatsService.fulfilled, (state, action) => { state.customerStats = action.payload; state.loading.customerStats = false; })
       .addCase(fetchDashboardCustomerStatsService.rejected, (state) => { state.loading.customerStats = false; });
-
-    builder
-      .addCase(fetchDashboardTargetService.pending, (state) => { state.loading.target = true; })
-      .addCase(fetchDashboardTargetService.fulfilled, (state, action) => { state.target = action.payload; state.loading.target = false; })
-      .addCase(fetchDashboardTargetService.rejected, (state) => { state.loading.target = false; });
 
     builder
       .addCase(fetchDashboardPromotionsService.pending, (state) => { state.loading.promotions = true; })

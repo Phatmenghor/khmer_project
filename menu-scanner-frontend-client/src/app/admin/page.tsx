@@ -15,7 +15,6 @@ import {
   Award,
   BarChart2,
   Users,
-  Target,
   Tag,
   ScanLine,
   ClipboardList,
@@ -65,13 +64,18 @@ import {
   fetchDashboardTopProductsService,
   fetchDashboardHourlySalesService,
   fetchDashboardCustomerStatsService,
-  fetchDashboardTargetService,
   fetchDashboardPromotionsService,
 } from "@/features/dashboard/store/thunks/dashboard-thunks";
 import {
   DashboardPeriod,
   StockStatus,
 } from "@/features/dashboard/store/models/response/dashboard-response";
+
+// Only CASH and BANK are supported payment methods
+const PAYMENT_COLORS: Record<string, string> = {
+  CASH: "hsl(var(--chart-1))",
+  BANK: "hsl(var(--chart-2))",
+};
 import { OrderStatus } from "@/enums/order-status.enum";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { cn } from "@/lib/utils";
@@ -86,13 +90,6 @@ const PERIOD_OPTIONS: { label: string; value: DashboardPeriod }[] = [
   { label: "90 Days", value: "90D" },
 ];
 
-const PIE_COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
-];
 
 const STOCK_STATUS_CONFIG: Record<
   StockStatus,
@@ -282,7 +279,6 @@ export default function AdminDashboardPage() {
     topProducts,
     hourlySales,
     customerStats,
-    target,
     promotions,
     loading,
     error,
@@ -303,7 +299,6 @@ export default function AdminDashboardPage() {
       dispatch(fetchDashboardTopProductsService({ period: p }));
       dispatch(fetchDashboardHourlySalesService({ period: p }));
       dispatch(fetchDashboardCustomerStatsService({ period: p }));
-      dispatch(fetchDashboardTargetService({ period: p }));
       dispatch(fetchDashboardPromotionsService({ period: p }));
     },
     [dispatch]
@@ -322,12 +317,6 @@ export default function AdminDashboardPage() {
   const handleRefresh = () => fetchAll(period);
 
   const today = format(new Date(), "EEEE, MMM d yyyy");
-
-  // Revenue target %
-  const targetPct = target
-    ? Math.min(Math.round(target.percentage), 100)
-    : 0;
-  const targetOver = target ? target.percentage > 100 : false;
 
   // Hourly data with hour labels
   const hourlyData = hourlySales?.data.map((d) => ({
@@ -385,75 +374,6 @@ export default function AdminDashboardPage() {
           </Link>
         ))}
       </div>
-
-      {/* ── Revenue Target ── */}
-      {(loading.target || target) && (
-        <Card>
-          <CardContent className="p-6">
-            {loading.target ? (
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-4 w-24" />
-                </div>
-                <Skeleton className="h-3 w-full rounded-full" />
-                <Skeleton className="h-3 w-48" />
-              </div>
-            ) : target ? (
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Target className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold text-foreground">Revenue Target</span>
-                      <Badge
-                        variant={targetOver ? "default" : "outline"}
-                        className={cn(
-                          "text-xs",
-                          targetOver
-                            ? "bg-emerald-500 text-white border-0"
-                            : "text-muted-foreground"
-                        )}
-                      >
-                        {target.daysRemaining > 0
-                          ? `${target.daysRemaining}d left`
-                          : "Period ended"}
-                      </Badge>
-                    </div>
-                    <span className="text-sm font-bold text-foreground tabular-nums">
-                      {formatCurrency(target.currentRevenue)}
-                      <span className="text-muted-foreground font-normal"> / {formatCurrency(target.targetRevenue)}</span>
-                    </span>
-                  </div>
-                  <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
-                    <div
-                      className={cn(
-                        "h-full rounded-full transition-all duration-700",
-                        targetOver ? "bg-emerald-500" : targetPct >= 75 ? "bg-primary" : targetPct >= 50 ? "bg-amber-500" : "bg-rose-500"
-                      )}
-                      style={{ width: `${targetPct}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1.5">
-                    {targetOver
-                      ? `🎉 Target exceeded by ${formatCurrency(target.currentRevenue - target.targetRevenue)}`
-                      : `${formatCurrency(target.targetRevenue - target.currentRevenue)} remaining to hit target`}
-                  </p>
-                </div>
-                <div className="text-center shrink-0">
-                  <p className={cn(
-                    "text-3xl font-bold tabular-nums",
-                    targetOver ? "text-emerald-500" : targetPct >= 75 ? "text-primary" : "text-amber-500"
-                  )}>
-                    {target.percentage.toFixed(0)}%
-                  </p>
-                  <p className="text-xs text-muted-foreground">achieved</p>
-                </div>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
-      )}
 
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
@@ -592,8 +512,11 @@ export default function AdminDashboardPage() {
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
                     <Pie data={payments.data} dataKey="amount" nameKey="method" cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={3}>
-                      {payments.data.map((_, i) => (
-                        <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                      {payments.data.map((item) => (
+                        <Cell
+                          key={item.method}
+                          fill={PAYMENT_COLORS[item.method] ?? "hsl(var(--chart-3))"}
+                        />
                       ))}
                     </Pie>
                     <Tooltip content={<PieTooltip />} />
@@ -601,13 +524,19 @@ export default function AdminDashboardPage() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="mt-2 space-y-1.5">
-                  {payments.data.slice(0, 3).map((item, i) => (
+                  {payments.data.map((item) => (
                     <div key={item.method} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
-                        <span className="text-muted-foreground truncate max-w-[100px]">{item.method}</span>
+                        <div
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: PAYMENT_COLORS[item.method] ?? "hsl(var(--chart-3))" }}
+                        />
+                        <span className="text-muted-foreground">{item.method}</span>
                       </div>
-                      <span className="font-medium text-foreground tabular-nums">{item.percentage?.toFixed(0)}%</span>
+                      <div className="text-right">
+                        <span className="font-medium text-foreground tabular-nums">{item.percentage?.toFixed(0)}%</span>
+                        <span className="ml-2 text-xs text-muted-foreground tabular-nums">{formatCurrency(item.amount)}</span>
+                      </div>
                     </div>
                   ))}
                 </div>

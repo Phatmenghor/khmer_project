@@ -237,6 +237,20 @@ VALUES (
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
+INSERT INTO payment_options (id, business_id, name, payment_option_type, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT
+  gen_random_uuid(),
+  '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
+  'Bank Transfer',
+  'BANK',
+  'ACTIVE',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+WHERE NOT EXISTS (
+  SELECT 1 FROM payment_options
+  WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+    AND payment_option_type = 'BANK'
+);
+
 
 -- ============================================================================
 -- 4. CREATE USERS (101+ for Mega Store)
@@ -845,228 +859,306 @@ WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
 
 
 -- ============================================================================
--- 13. CREATE COMPREHENSIVE ORDERS (30 total: 15 CUSTOMER + 15 BUSINESS)
--- All fields populated, no NULLs, 5-10 status history entries per order
-
+-- 4b. CREATE 30 CUSTOMER USERS (deterministic IDs for returning-customer tracking)
 -- ============================================================================
 
-INSERT INTO orders (id, order_number, business_id, customer_id, customer_name, customer_phone, customer_email, customer_note, business_note, order_status, source, order_from, subtotal, customization_total, delivery_fee, discount_amount, discount_type, discount_reason, tax_percentage, tax_amount, total_amount, payment_method, payment_status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id,
+  version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
-  order_id, order_number, business_id, customer_id, customer_name, customer_phone,
-  customer_email, customer_note, business_note, order_status, source, order_from,
-  subtotal, customization_total, delivery_fee, discount_amount, discount_type,
-  discount_reason, tax_percentage, tax_amount, total_amount,
-  payment_method, payment_status, 0, false, created_at, created_at, 'admin', 'admin'
+  ('c0000000-0000-0000-0000-' || LPAD(i::text, 12, '0'))::uuid,
+  'cust' || i || '@megastore.com',
+  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
+  'CUSTOMER', 'ACTIVE', 'ACTIVE', NULL,
+  0, false,
+  ('2025-01-01'::timestamp + ((i - 1) * INTERVAL '15 days')),
+  ('2025-01-01'::timestamp + ((i - 1) * INTERVAL '15 days')),
+  'admin', 'admin'
+FROM generate_series(1, 30) t(i)
+ON CONFLICT DO NOTHING;
+
+-- ============================================================================
+-- 13. COMPREHENSIVE ORDERS  2025-01-01 → 2027-05-25
+-- Day-by-day, time-by-time: ~4,600 orders, CASH + BANK, all statuses
+-- ============================================================================
+
+-- Remove any existing orders for this business before regenerating
+DELETE FROM order_status_history
+  WHERE order_id IN (SELECT id FROM orders WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
+DELETE FROM order_items
+  WHERE order_id IN (SELECT id FROM orders WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
+DELETE FROM order_delivery_options
+  WHERE order_id IN (SELECT id FROM orders WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
+DELETE FROM order_delivery_addresses
+  WHERE order_id IN (SELECT id FROM orders WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
+DELETE FROM orders WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
+
+INSERT INTO orders (
+  id, order_number, business_id,
+  customer_id, customer_name, customer_phone, customer_email,
+  customer_note, business_note,
+  order_status, source, order_from,
+  subtotal, customization_total, delivery_fee,
+  discount_amount, discount_type, discount_reason,
+  tax_percentage, tax_amount, total_amount,
+  payment_method, payment_status,
+  version, is_deleted, created_at, updated_at, created_by, updated_by
+)
+SELECT
+  gen_random_uuid(),
+  'ORD-' || TO_CHAR(ts, 'YYYYMMDD') || '-' || LPAD(rn::text, 5, '0'),
+  '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
+
+  -- 75 % have a known customer ID, 25 % are guest
+  CASE WHEN rn % 4 = 0 THEN NULL
+       ELSE ('c0000000-0000-0000-0000-' || LPAD(((rn % 30) + 1)::text, 12, '0'))::uuid
+  END,
+  CASE WHEN rn % 4 = 0 THEN 'Guest Customer ' || (rn % 20 + 1)
+       ELSE 'Customer ' || ((rn % 30) + 1)
+  END,
+  '+855-' || (10 + rn % 80) || '-' || LPAD((100000 + rn * 7 % 900000)::text, 6, '0'),
+  CASE WHEN rn % 4 = 0 THEN 'guest' || rn || '@example.com'
+       ELSE 'cust' || ((rn % 30) + 1) || '@megastore.com'
+  END,
+  NULL,
+  NULL,
+
+  -- Status: COMPLETED 65 %, CONFIRMED 15 %, PENDING 10 %, CANCELLED 10 %
+  CASE (rn * 11 + doy) % 20
+    WHEN 0, 1    THEN 'PENDING'
+    WHEN 2, 3    THEN 'CONFIRMED'
+    WHEN 4       THEN 'CANCELLED'
+    ELSE              'COMPLETED'
+  END,
+
+  -- Source: POS 35 %, PUBLIC 65 %
+  CASE slot % 10 WHEN 0,1,2,3 THEN 'POS' ELSE 'PUBLIC' END,
+  CASE slot % 10 WHEN 0,1,2,3 THEN 'BUSINESS' ELSE 'CUSTOMER' END,
+
+  subtotal,
+  cust_total,
+  CASE WHEN slot % 10 >= 4 THEN 5.00::numeric ELSE 0.00::numeric END,
+  discount,
+  disc_type,
+  disc_reason,
+  10.0,
+  ROUND((subtotal + cust_total) * 0.10, 2),
+  ROUND(subtotal + cust_total
+        + CASE WHEN slot % 10 >= 4 THEN 5.00::numeric ELSE 0.00::numeric END
+        - discount
+        + (subtotal + cust_total) * 0.10, 2),
+
+  -- Payment: CASH 55 %, BANK 45 %
+  CASE WHEN (rn + slot) % 20 < 11 THEN 'CASH' ELSE 'BANK' END,
+  CASE WHEN (rn * 11 + doy) % 20 NOT IN (0,1,2,3,4) THEN 'PAID' ELSE 'UNPAID' END,
+
+  0, false, ts, ts, 'system', 'system'
+
 FROM (
   SELECT
-    gen_random_uuid() as order_id,
-    'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' || LPAD(order_num::text, 5, '0') as order_number,
-    '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid as business_id,
-    CASE WHEN order_num <= 15
-      THEN '660e8400-e29b-41d4-a716-446655440001'::uuid
-      ELSE '660e8400-e29b-41d4-a716-446655440002'::uuid
-    END as customer_id,
-    'Customer Name ' || order_num || ' ' || CHR(64 + (order_num % 26)) as customer_name,
-    '+855-' || (10 + (order_num % 80)) || '-' || LPAD((100000 + order_num * 5000)::text, 6, '0') as customer_phone,
-    'customer' || order_num || '@ecommerce.com' as customer_email,
-    CASE WHEN order_num <= 15
-      THEN 'Please deliver to door #' || (100 + order_num)
-      ELSE 'POS staff note - verified payment'
-    END as customer_note,
-    CASE WHEN order_num <= 15
-      THEN 'VIP customer #' || order_num || ' - Priority delivery'
-      ELSE 'POS Order - Cashier: User' || ((order_num - 15) % 3 + 1)
-    END as business_note,
-    CASE WHEN order_num % 4 = 0 THEN 'COMPLETED'
-         WHEN order_num % 4 = 1 THEN 'PENDING'
-         WHEN order_num % 4 = 2 THEN 'CONFIRMED'
-         ELSE 'CANCELLED'
-    END as order_status,
-    CASE WHEN order_num <= 15 THEN 'PUBLIC' ELSE 'POS' END as source,
-    CASE WHEN order_num <= 15 THEN 'CUSTOMER' ELSE 'BUSINESS' END as order_from,
-    (500 + order_num * 75)::numeric(10,2) as subtotal,
-    (50 + order_num * 8)::numeric(10,2) as customization_total,
-    CASE WHEN order_num <= 15 THEN 5.00::numeric(10,2) ELSE 0.00::numeric(10,2) END as delivery_fee,
-    ((500 + order_num * 75) * 0.08)::numeric(10,2) as discount_amount,
-    CASE WHEN order_num % 5 != 0 THEN 'percentage' ELSE 'fixed' END as discount_type,
-    CASE WHEN order_num % 5 != 0 THEN '8% Seasonal Discount' ELSE 'Flash Sale - $' || (10 + order_num % 20) END as discount_reason,
-    10.00::numeric(5,2) as tax_percentage,
-    (((500 + order_num * 75) + (50 + order_num * 8)) * 0.10)::numeric(10,2) as tax_amount,
-    ((500 + order_num * 75) + (50 + order_num * 8) + CASE WHEN order_num <= 15 THEN 5.00 ELSE 0.00 END - ((500 + order_num * 75) * 0.08) + (((500 + order_num * 75) + (50 + order_num * 8)) * 0.10))::numeric(10,2) as total_amount,
-    'CASH' as payment_method,
-    CASE WHEN order_num % 2 = 0 THEN 'PAID' ELSE 'UNPAID' END as payment_status,
-    NOW() - INTERVAL '1 day' * (365 - (order_num * 12) % 365) as created_at
-  FROM generate_series(1, 30) AS t(order_num)
-) orders_data;
+    -- Realistic hourly timestamps spread across business day
+    (d::timestamp + CASE slot % 12
+       WHEN 0  THEN INTERVAL '9 hours 10 minutes'
+       WHEN 1  THEN INTERVAL '10 hours 25 minutes'
+       WHEN 2  THEN INTERVAL '11 hours 40 minutes'
+       WHEN 3  THEN INTERVAL '12 hours 15 minutes'
+       WHEN 4  THEN INTERVAL '13 hours 5 minutes'
+       WHEN 5  THEN INTERVAL '14 hours 45 minutes'
+       WHEN 6  THEN INTERVAL '15 hours 30 minutes'
+       WHEN 7  THEN INTERVAL '16 hours 50 minutes'
+       WHEN 8  THEN INTERVAL '17 hours 20 minutes'
+       WHEN 9  THEN INTERVAL '18 hours 35 minutes'
+       WHEN 10 THEN INTERVAL '19 hours 10 minutes'
+       WHEN 11 THEN INTERVAL '20 hours 25 minutes'
+     END + ((slot * 7) % 55) * INTERVAL '1 minute')  AS ts,
+    slot,
+    ROW_NUMBER() OVER (ORDER BY d, slot)              AS rn,
+    EXTRACT(DOY FROM d)::int                          AS doy,
+
+    -- Revenue grows gradually over time + per-day variation
+    ROUND((
+      50
+      + GREATEST(0, (d - '2025-01-01'::date)::int * 0.08)
+      + ((slot * 23 + EXTRACT(DOY FROM d)::int * 17) % 300)
+    )::numeric, 2) AS subtotal,
+
+    ROUND(((slot * 5 + EXTRACT(DOY FROM d)::int * 3) % 30)::numeric, 2) AS cust_total,
+
+    -- 20 % of orders get an 8 % discount
+    ROUND(CASE WHEN (slot + EXTRACT(DOY FROM d)::int) % 5 = 0
+      THEN GREATEST(0,
+             50
+             + (d - '2025-01-01'::date)::int * 0.08
+             + ((slot * 23 + EXTRACT(DOY FROM d)::int * 17) % 300)
+           )::numeric * 0.08
+      ELSE 0::numeric END, 2) AS discount,
+    CASE WHEN (slot + EXTRACT(DOY FROM d)::int) % 5 = 0 THEN 'percentage' ELSE NULL END AS disc_type,
+    CASE WHEN (slot + EXTRACT(DOY FROM d)::int) % 5 = 0 THEN '8% Seasonal Discount' ELSE NULL END AS disc_reason
+
+  FROM generate_series('2025-01-01'::date, '2027-05-25'::date, '1 day'::interval) d
+  CROSS JOIN generate_series(0,
+    CASE WHEN EXTRACT(ISODOW FROM d) IN (6,7) THEN 11 ELSE 7 END
+  ) slot
+) order_data;
 
 
 -- ============================================================================
--- 14. CREATE DELIVERY ADDRESSES FOR ALL ORDERS
-
+-- 14. DELIVERY ADDRESSES for PUBLIC (non-POS) orders
 -- ============================================================================
-INSERT INTO order_delivery_addresses (id, order_id, house_number, street_number, village, commune, district, province, latitude, longitude, note, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO order_delivery_addresses (
+  id, order_id, house_number, street_number, village, commune, district, province,
+  latitude, longitude, note,
+  version, is_deleted, created_at, updated_at, created_by, updated_by
+)
 SELECT
   gen_random_uuid(),
   o.id,
-  LPAD(ROW_NUMBER() OVER (ORDER BY o.id)::text, 3, '0'),
-  LPAD((10 + (ROW_NUMBER() OVER (ORDER BY o.id) % 100))::text, 3, '0'),
-  'Village ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 25) + 1)::text,
-  'Commune ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 20) + 1)::text,
-  CASE WHEN ROW_NUMBER() OVER (ORDER BY o.id) % 5 = 0 THEN 'Chbar Ampov'
-       WHEN ROW_NUMBER() OVER (ORDER BY o.id) % 5 = 1 THEN 'Russei Keo'
-       WHEN ROW_NUMBER() OVER (ORDER BY o.id) % 5 = 2 THEN 'Sen Sok'
-       WHEN ROW_NUMBER() OVER (ORDER BY o.id) % 5 = 3 THEN 'Pur Senchey'
-       ELSE 'Chamcar Mon' END,
+  LPAD((10 + (ROW_NUMBER() OVER (ORDER BY o.id) % 200))::text, 3, '0'),
+  LPAD((100 + (ROW_NUMBER() OVER (ORDER BY o.id) % 300))::text, 3, '0'),
+  'Village ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 25) + 1),
+  'Commune ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 20) + 1),
+  CASE (ROW_NUMBER() OVER (ORDER BY o.id) % 5)::int
+    WHEN 0 THEN 'Chbar Ampov'
+    WHEN 1 THEN 'Russei Keo'
+    WHEN 2 THEN 'Sen Sok'
+    WHEN 3 THEN 'Pur Senchey'
+    ELSE        'Chamcar Mon'
+  END,
   'Phnom Penh',
   (11.50 + (ROW_NUMBER() OVER (ORDER BY o.id)::numeric % 100) / 1000)::numeric(10,8),
   (104.80 + (ROW_NUMBER() OVER (ORDER BY o.id)::numeric % 100) / 1000)::numeric(11,8),
-  'Delivery: Ring doorbell twice. Building #' || (ROW_NUMBER() OVER (ORDER BY o.id)) || ' Floor ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 5) + 1),
-  0, false, o.created_at, o.created_at, 'admin', 'admin'
+  'Building #' || (ROW_NUMBER() OVER (ORDER BY o.id)) || ', Floor ' || ((ROW_NUMBER() OVER (ORDER BY o.id) % 5) + 1),
+  0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
-WHERE o.created_at >= NOW() - INTERVAL '365 days'
-AND NOT EXISTS (SELECT 1 FROM order_delivery_addresses WHERE order_id = o.id);
+WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND o.source = 'PUBLIC'
+  AND NOT EXISTS (SELECT 1 FROM order_delivery_addresses WHERE order_id = o.id);
 
 
 -- ============================================================================
--- 15. CREATE DELIVERY OPTIONS FOR ALL ORDERS
-
+-- 15. DELIVERY OPTIONS for all orders
 -- ============================================================================
-INSERT INTO order_delivery_options (id, order_id, name, description, price, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO order_delivery_options (
+  id, order_id, name, description, price,
+  version, is_deleted, created_at, updated_at, created_by, updated_by
+)
 SELECT
   gen_random_uuid(),
   o.id,
-  CASE WHEN o.order_from = 'CUSTOMER' THEN 'Standard Delivery (24h)' ELSE 'POS In-Store Pickup' END,
-  CASE WHEN o.order_from = 'CUSTOMER'
-    THEN 'Standard delivery within 24 hours - Free for orders over $100'
-    ELSE 'Pickup from our store location - Available immediately after order'
+  CASE WHEN o.source = 'POS' THEN 'In-Store Pickup' ELSE 'Standard Delivery (24h)' END,
+  CASE WHEN o.source = 'POS'
+    THEN 'Pickup from our store — available immediately'
+    ELSE 'Standard delivery within 24 hours'
   END,
-  CASE WHEN o.order_from = 'CUSTOMER' THEN 5.00::numeric(10,2) ELSE 0.00::numeric(10,2) END,
-  0, false, o.created_at, o.created_at, 'admin', 'admin'
+  CASE WHEN o.source = 'POS' THEN 0.00::numeric(10,2) ELSE 5.00::numeric(10,2) END,
+  0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
-WHERE o.created_at >= NOW() - INTERVAL '365 days'
-AND NOT EXISTS (SELECT 1 FROM order_delivery_options WHERE order_id = o.id);
+WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND NOT EXISTS (SELECT 1 FROM order_delivery_options WHERE order_id = o.id);
 
 
 -- ============================================================================
--- 16. CREATE ORDER ITEMS WITH PROMOTIONS AND CUSTOMIZATIONS
-
+-- 16. ORDER ITEMS  (2 line items per order, varied products)
 -- ============================================================================
-INSERT INTO order_items (id, order_id, product_id, product_size_id, product_name, product_image_url, size_name, sku, barcode, quantity, current_price, final_price, unit_price, total_price, has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date, customization_total, customizations, version, is_deleted, created_at, updated_at, created_by, updated_by)
+
+-- First item per order
+INSERT INTO order_items (
+  id, order_id, product_id, product_size_id,
+  product_name, product_image_url, size_name, sku, barcode,
+  quantity, current_price, final_price, unit_price, total_price,
+  has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date,
+  customization_total, customizations,
+  version, is_deleted, created_at, updated_at, created_by, updated_by
+)
 SELECT
-  gen_random_uuid(),
-  o.id,
-  COALESCE(p.id, gen_random_uuid()),
-  NULL,
-  COALESCE(p.name, 'Product ' || ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id)),
-  COALESCE(p.main_image_url, 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
-  'Standard Size',
-  COALESCE(p.sku, 'SKU-' || LPAD(ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id)::text, 5, '0')),
-  COALESCE(p.barcode, '10000000000000' || LPAD(ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY p.id)::text, 3, '0')),
-  (1 + (item_row % 4))::int,
-  COALESCE(p.price, 50.00)::numeric(10,2),
-  CASE WHEN item_row % 5 = 0 THEN (COALESCE(p.price, 50.00) * 0.80)::numeric(10,2)
-       WHEN item_row % 5 = 1 THEN (COALESCE(p.price, 50.00) * 0.85)::numeric(10,2)
-       WHEN item_row % 5 = 2 THEN (COALESCE(p.price, 50.00) * 0.90)::numeric(10,2)
-       ELSE COALESCE(p.price, 50.00)::numeric(10,2)
-  END,
-  CASE WHEN item_row % 5 = 0 THEN (COALESCE(p.price, 50.00) * 0.80)::numeric(10,2)
-       WHEN item_row % 5 = 1 THEN (COALESCE(p.price, 50.00) * 0.85)::numeric(10,2)
-       WHEN item_row % 5 = 2 THEN (COALESCE(p.price, 50.00) * 0.90)::numeric(10,2)
-       ELSE COALESCE(p.price, 50.00)::numeric(10,2)
-  END,
-  (CASE WHEN item_row % 5 = 0 THEN (COALESCE(p.price, 50.00) * 0.80)::numeric(10,2)
-        WHEN item_row % 5 = 1 THEN (COALESCE(p.price, 50.00) * 0.85)::numeric(10,2)
-        WHEN item_row % 5 = 2 THEN (COALESCE(p.price, 50.00) * 0.90)::numeric(10,2)
-        ELSE COALESCE(p.price, 50.00)::numeric(10,2)
-   END) * (1 + (item_row % 4))::int,
-  (item_row % 5 != 3 AND item_row % 5 != 4),
-  CASE WHEN item_row % 5 = 0 THEN 'PERCENTAGE'
-       WHEN item_row % 5 = 1 THEN 'PERCENTAGE'
-       WHEN item_row % 5 = 2 THEN 'FIXED_AMOUNT'
-       ELSE NULL
-  END,
-  CASE WHEN item_row % 5 = 0 THEN 20.00::numeric(10,2)
-       WHEN item_row % 5 = 1 THEN 15.00::numeric(10,2)
-       WHEN item_row % 5 = 2 THEN 5.00::numeric(10,2)
-       ELSE NULL
-  END,
-  CASE WHEN item_row % 5 < 3 THEN NOW() - INTERVAL '14 days' ELSE NULL END,
-  CASE WHEN item_row % 5 < 3 THEN NOW() + INTERVAL '60 days' ELSE NULL END,
-  CASE WHEN item_row % 3 = 0 THEN 12.50::numeric(10,2)
-       WHEN item_row % 3 = 1 THEN 8.75::numeric(10,2)
-       ELSE 0.00::numeric(10,2)
-  END,
-  CASE WHEN item_row % 3 = 0 THEN
-    ('[{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Premium Add-ons Pack","priceAdjustment":12.50},' ||
-    '{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Gift Wrap","priceAdjustment":0.00}]')::json
-  WHEN item_row % 3 = 1 THEN
-    ('[{"productCustomizationId":"' || gen_random_uuid()::text || '","name":"Extra Serving","priceAdjustment":8.75}]')::json
-  ELSE '[]'::json
-  END,
-  0, false, o.created_at, o.created_at, 'admin', 'admin'
+  gen_random_uuid(), o.id, p.id, NULL,
+  p.name, p.main_image_url, 'Standard', p.sku, p.barcode,
+  (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3)::int,
+  p.price, p.price, p.price,
+  p.price * (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3),
+  false, NULL, NULL, NULL, NULL,
+  0.00, '[]'::json,
+  0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
-CROSS JOIN LATERAL (
+JOIN LATERAL (
   SELECT id, name, sku, barcode, main_image_url, price
   FROM products
-  WHERE business_id = o.business_id AND price > 0
-  ORDER BY created_at
-  LIMIT 7
-) p
-CROSS JOIN generate_series(1, 8) AS item(item_row)
-WHERE o.created_at >= NOW() - INTERVAL '365 days'
-AND NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = o.id);
+  WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+    AND is_deleted = false AND price > 0
+  ORDER BY id
+  LIMIT 1
+  OFFSET ((EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) % 9500)
+) p ON true
+WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = o.id);
 
-
--- ============================================================================
--- 17. CREATE ORDER STATUS HISTORY (5-10 entries per order GUARANTEED)
-
--- ============================================================================
-INSERT INTO order_status_history (id, order_id, order_status, note, changed_by_user_id, changed_by_name, version, is_deleted, created_at, updated_at, created_by, updated_by)
+-- Second item per order (different product)
+INSERT INTO order_items (
+  id, order_id, product_id, product_size_id,
+  product_name, product_image_url, size_name, sku, barcode,
+  quantity, current_price, final_price, unit_price, total_price,
+  has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date,
+  customization_total, customizations,
+  version, is_deleted, created_at, updated_at, created_by, updated_by
+)
 SELECT
-  gen_random_uuid(),
-  o.id,
-  CASE WHEN sh.status_seq = 1 THEN 'PENDING'
-       WHEN sh.status_seq = 2 THEN 'CONFIRMED'
-       WHEN sh.status_seq = 3 THEN 'CONFIRMED'
-       WHEN sh.status_seq = 4 THEN 'CONFIRMED'
-       WHEN sh.status_seq = 5 THEN 'COMPLETED'
-       WHEN sh.status_seq = 6 THEN 'COMPLETED'
-       WHEN sh.status_seq = 7 THEN 'COMPLETED'
-       WHEN sh.status_seq = 8 THEN 'COMPLETED'
-       WHEN sh.status_seq = 9 THEN 'PENDING'
-       ELSE 'CANCELLED'
-  END,
-  'Status Change #' || sh.status_seq || ': ' ||
-  CASE WHEN sh.status_seq = 1 THEN 'Order placed successfully'
-       WHEN sh.status_seq = 2 THEN 'Payment verified and confirmed'
-       WHEN sh.status_seq = 3 THEN 'Order accepted by seller'
-       WHEN sh.status_seq = 4 THEN 'Items being prepared'
-       WHEN sh.status_seq = 5 THEN 'Order ready for delivery'
-       WHEN sh.status_seq = 6 THEN 'Picked up for shipping'
-       WHEN sh.status_seq = 7 THEN 'In transit to customer'
-       WHEN sh.status_seq = 8 THEN 'Delivered to customer'
-       WHEN sh.status_seq = 9 THEN 'Customer received and verified'
-       ELSE 'Order cancelled'
-  END,
-  NULL,
-  CASE WHEN sh.status_seq % 3 = 0 THEN 'Admin Manager'
-       WHEN sh.status_seq % 3 = 1 THEN 'System Processor'
-       ELSE 'Operations Staff'
-  END,
-  0, false,
-  o.created_at + (INTERVAL '1 hour' * sh.status_seq) + (INTERVAL '30 minutes' * sh.status_seq),
-  o.created_at + (INTERVAL '1 hour' * sh.status_seq) + (INTERVAL '30 minutes' * sh.status_seq),
-  'admin', 'admin'
+  gen_random_uuid(), o.id, p.id, NULL,
+  p.name, p.main_image_url, 'Standard', p.sku, p.barcode,
+  1,
+  p.price, p.price, p.price, p.price,
+  false, NULL, NULL, NULL, NULL,
+  0.00, '[]'::json,
+  0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
-CROSS JOIN LATERAL (
-  SELECT ROW_NUMBER() OVER (ORDER BY idx) as status_seq
-  FROM generate_series(1, 10) idx
-) sh(status_seq)
-WHERE o.created_at >= NOW() - INTERVAL '365 days'
-AND sh.status_seq >= 1 AND sh.status_seq <= 5 + (ABS(hashtext(o.id::text)) % 5)
-AND NOT EXISTS (
-  SELECT 1 FROM order_status_history WHERE order_id = o.id AND order_status = 'PENDING'
-);
+JOIN LATERAL (
+  SELECT id, name, sku, barcode, main_image_url, price
+  FROM products
+  WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+    AND is_deleted = false AND price > 0
+  ORDER BY id
+  LIMIT 1
+  OFFSET (((EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) + 4500) % 9500)
+) p ON true
+WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
+
+
+-- ============================================================================
+-- 17. ORDER STATUS HISTORY (PENDING on create + COMPLETED for completed orders)
+-- ============================================================================
+INSERT INTO order_status_history (
+  id, order_id, order_status, note,
+  changed_by_user_id, changed_by_name,
+  version, is_deleted, created_at, updated_at, created_by, updated_by
+)
+SELECT
+  gen_random_uuid(), o.id,
+  'PENDING', 'Order placed',
+  NULL, 'System',
+  0, false, o.created_at, o.created_at, 'system', 'system'
+FROM orders o
+WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND NOT EXISTS (
+    SELECT 1 FROM order_status_history WHERE order_id = o.id AND order_status = 'PENDING'
+  );
+
+INSERT INTO order_status_history (
+  id, order_id, order_status, note,
+  changed_by_user_id, changed_by_name,
+  version, is_deleted, created_at, updated_at, created_by, updated_by
+)
+SELECT
+  gen_random_uuid(), o.id,
+  'COMPLETED', 'Order fulfilled and payment confirmed',
+  NULL, 'System',
+  0, false,
+  o.created_at + INTERVAL '2 hours',
+  o.created_at + INTERVAL '2 hours',
+  'system', 'system'
+FROM orders o
+WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+  AND o.order_status = 'COMPLETED'
+  AND NOT EXISTS (
+    SELECT 1 FROM order_status_history WHERE order_id = o.id AND order_status = 'COMPLETED'
+  );
 
 
 -- ============================================================================
