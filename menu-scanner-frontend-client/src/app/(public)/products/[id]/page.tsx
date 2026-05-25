@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -17,14 +17,11 @@ import {
   addLocalCartItem,
   updateLocalCartItem,
 } from "@/features/main/store/slice/cart-slice";
-import {
-  addToCart,
-  updateCartItem,
-} from "@/features/main/store/thunks/cart-thunks";
+import { addToCart, updateCartItem } from "@/features/main/store/thunks/cart-thunks";
 import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { LoginModal } from "@/components/shared/modal/login-modal";
-import { QuantitySelector } from "@/components/shared/input/quantity-selector";
+import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
 import { showToast } from "@/components/shared/common/show-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,17 +32,16 @@ import {
   Share2,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   Loader2,
   Store,
   Tag,
   Eye,
   ZoomIn,
   X,
-  Check,
-  Trash2,
-  Package,
-  Layers,
-  Barcode,
+  ShoppingCart,
+  Pencil,
 } from "lucide-react";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { sanitizeImageUrl } from "@/utils/common/common";
@@ -60,7 +56,8 @@ import { cn } from "@/lib/utils";
 import { useScrollToTop } from "@/hooks/use-scroll-restoration";
 import { getSizeQuantity } from "@/utils/common/quantity-utils";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const CUSTOMIZATION_LIMIT = 4;
+const MAX_VISIBLE_THUMBS = 4;
 
 function formatStockStatus(status: string): { label: string; className: string } {
   const map: Record<string, { label: string; className: string }> = {
@@ -71,158 +68,9 @@ function formatStockStatus(status: string): { label: string; className: string }
     DISABLED: { label: "Unavailable", className: "bg-slate-500 hover:bg-slate-600" },
   };
   return (
-    map[status] ?? {
-      label: status.replace(/_/g, " "),
-      className: "bg-slate-500 hover:bg-slate-600",
-    }
+    map[status] ?? { label: status.replace(/_/g, " "), className: "bg-slate-500 hover:bg-slate-600" }
   );
 }
-
-// ─── Product Details Card ─────────────────────────────────────────────────────
-
-function ProductDetailsCard({ product }: { product: ProductDetailResponseModel }) {
-  const stockStatus = formatStockStatus(
-    product.stockStatus || (product.status === "OUT_OF_STOCK" ? "OUT_OF_STOCK" : "IN_STOCK"),
-  );
-
-  const infoRows = [
-    { label: "SKU", value: product.sku || "—", mono: true },
-    { label: "Barcode", value: product.barcode || "—", mono: true },
-    { label: "Business", value: product.businessName || "—" },
-    { label: "Category", value: product.categoryName || "—" },
-    { label: "Brand", value: product.brandName || "—" },
-  ];
-
-  const stockRows = [
-    { label: "Total Stock", value: product.totalStock, display: product.totalStock != null },
-    { label: "Available", value: product.quantityAvailable, display: product.quantityAvailable != null },
-    { label: "Reserved", value: product.quantityReserved, display: product.quantityReserved != null },
-    { label: "On Hand", value: product.quantityOnHand, display: product.quantityOnHand != null },
-  ].filter((r) => r.display || product.totalStock != null);
-
-  return (
-    <div className="mb-12 border rounded-2xl overflow-hidden">
-      <div className="px-5 py-3.5 bg-muted/50 border-b flex items-center gap-2">
-        <Package className="h-4 w-4 text-muted-foreground" />
-        <h3 className="font-semibold text-sm">Product Details</h3>
-      </div>
-
-      <div className="divide-y sm:divide-y-0 sm:grid sm:grid-cols-2 sm:divide-x">
-        <div className="divide-y px-5">
-          {infoRows.map(({ label, value, mono }) => (
-            <div key={label} className="flex items-center justify-between py-3 text-sm gap-4">
-              <span className="text-muted-foreground shrink-0">{label}</span>
-              <span
-                className={cn(
-                  "font-medium text-right truncate",
-                  mono && "font-mono text-xs tracking-wide",
-                )}
-              >
-                {value}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        <div className="divide-y px-5">
-          <div className="flex items-center justify-between py-3 text-sm gap-4">
-            <span className="text-muted-foreground shrink-0">Stock Status</span>
-            <Badge className={cn("text-xs", stockStatus.className)}>{stockStatus.label}</Badge>
-          </div>
-          {stockRows.map(({ label, value }) => (
-            <div key={label} className="flex items-center justify-between py-3 text-sm gap-4">
-              <span className="text-muted-foreground shrink-0">{label}</span>
-              <span className="font-medium tabular-nums">
-                {value != null ? value.toLocaleString() : "—"}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Per-size breakdown — only render when sizes have meaningful stock/identifier data */}
-      {product.hasSizes && product.sizes && product.sizes.length > 0 &&
-        product.sizes.some(
-          (s) =>
-            s.sku ||
-            s.barcode ||
-            s.totalStock != null ||
-            s.quantityAvailable != null ||
-            s.quantityReserved != null,
-        ) && (
-          <>
-            <div className="px-5 py-3.5 bg-muted/50 border-t flex items-center gap-2">
-              <Layers className="h-4 w-4 text-muted-foreground" />
-              <h3 className="font-semibold text-sm">Size Details</h3>
-            </div>
-            <div className="px-5 divide-y">
-              {product.sizes.map((size) => (
-                <div key={size.id} className="py-3.5 text-sm space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">{size.name}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-primary">
-                        {formatCurrency(size.finalPrice)}
-                      </span>
-                      {size.hasPromotion && (
-                        <span className="text-xs text-muted-foreground line-through">
-                          {formatCurrency(size.price)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    {size.sku && (
-                      <span>
-                        SKU:{" "}
-                        <span className="font-mono text-foreground/80 tracking-wide">
-                          {size.sku}
-                        </span>
-                      </span>
-                    )}
-                    {size.barcode && (
-                      <span>
-                        Barcode:{" "}
-                        <span className="font-mono text-foreground/80 tracking-wide">
-                          {size.barcode}
-                        </span>
-                      </span>
-                    )}
-                    {size.totalStock != null && (
-                      <span>
-                        Total:{" "}
-                        <span className="font-medium text-foreground">
-                          {size.totalStock.toLocaleString()}
-                        </span>
-                      </span>
-                    )}
-                    {size.quantityAvailable != null && (
-                      <span>
-                        Available:{" "}
-                        <span className="font-medium text-foreground">
-                          {size.quantityAvailable.toLocaleString()}
-                        </span>
-                      </span>
-                    )}
-                    {size.quantityReserved != null && (
-                      <span>
-                        Reserved:{" "}
-                        <span className="font-medium text-foreground">
-                          {size.quantityReserved.toLocaleString()}
-                        </span>
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-    </div>
-  );
-}
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -248,10 +96,9 @@ export default function ProductDetailPage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [pendingQuantities, setPendingQuantities] = useState<Map<string, number>>(new Map());
-  const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
-  const [isSaving, setIsSaving] = useState(false);
-  const [clearingSize, setClearingSize] = useState<string | null>(null);
+  const [thumbOffset, setThumbOffset] = useState(0);
+  const [showAllCustomizations, setShowAllCustomizations] = useState(false);
+  const [sizePickerOpen, setSizePickerOpen] = useState(false);
 
   const isFavoritedFromStore =
     favLoaded && product
@@ -278,20 +125,6 @@ export default function ProductDetailPage() {
     [cartItems, product],
   );
 
-  const getDisplayQuantity = useCallback(
-    (sizeId: string | null) => {
-      const key = sizeId || "no_size";
-      if (pendingQuantities.has(key)) return pendingQuantities.get(key)!;
-      return getQuantityForSize(sizeId);
-    },
-    [pendingQuantities, getQuantityForSize],
-  );
-
-  useEffect(() => {
-    setPendingQuantities(new Map());
-    setModifiedSizes(new Set());
-  }, [product?.id]);
-
   const allImages = product
     ? [
         { id: "main", imageUrl: sanitizeImageUrl(product.mainImageUrl, appImages.NoImage) },
@@ -316,6 +149,8 @@ export default function ProductDetailPage() {
     setCurrentImageIndex(0);
     setImageLoaded(false);
     setSelectedSize(product.hasSizes && product.sizes?.length ? product.sizes[0] : null);
+    setThumbOffset(0);
+    setShowAllCustomizations(false);
   }, [product?.id]);
 
   const fetchedSimilarRef = useRef<string | null>(null);
@@ -341,6 +176,8 @@ export default function ProductDetailPage() {
       .catch(() => {});
   }, [product?.id, product?.categoryId, productId, dispatch]);
 
+  // ─── Image nav ────────────────────────────────────────────────────────────
+
   const selectImage = (url: string, index: number) => {
     setCurrentImageIndex(index);
     if (url !== selectedImage) {
@@ -348,17 +185,14 @@ export default function ProductDetailPage() {
       setImageLoaded(false);
     }
   };
-
   const prevImage = () => {
     const idx = currentImageIndex === 0 ? allImages.length - 1 : currentImageIndex - 1;
     selectImage(allImages[idx].imageUrl, idx);
   };
-
   const nextImage = () => {
     const idx = currentImageIndex === allImages.length - 1 ? 0 : currentImageIndex + 1;
     selectImage(allImages[idx].imageUrl, idx);
   };
-
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
@@ -368,107 +202,84 @@ export default function ProductDetailPage() {
   const nextLightbox = () =>
     setLightboxIndex((i) => (i === allImages.length - 1 ? 0 : i + 1));
 
-  const getDisplayPrice = () => selectedSize?.finalPrice ?? product?.displayPrice ?? 0;
-  const getOriginalPrice = () => {
-    if (selectedSize?.hasPromotion) return selectedSize.price;
-    if (product?.hasPromotion && product.displayOriginPrice) return product.displayOriginPrice;
-    return null;
-  };
+  // ─── Vertical thumb nav ───────────────────────────────────────────────────
+
+  const canScrollUp = thumbOffset > 0;
+  const canScrollDown = thumbOffset + MAX_VISIBLE_THUMBS < allImages.length;
+  const scrollThumbsUp = () => setThumbOffset((o) => Math.max(0, o - 1));
+  const scrollThumbsDown = () =>
+    setThumbOffset((o) => Math.min(allImages.length - MAX_VISIBLE_THUMBS, o + 1));
+  const visibleThumbs = allImages.slice(thumbOffset, thumbOffset + MAX_VISIBLE_THUMBS);
+
+  // ─── Price display ────────────────────────────────────────────────────────
+
+  const displayPrice = selectedSize?.finalPrice ?? product?.displayPrice ?? 0;
+  const originalPrice = selectedSize?.hasPromotion
+    ? selectedSize.price
+    : product?.hasPromotion && product.displayOriginPrice
+      ? product.displayOriginPrice
+      : null;
   const hasDiscount = selectedSize ? selectedSize.hasPromotion : product?.hasPromotion;
-  const discountPercent = (() => {
-    const orig = getOriginalPrice();
-    if (!orig) return 0;
-    return Math.round(((orig - getDisplayPrice()) / orig) * 100);
-  })();
+  const discountPercent = originalPrice
+    ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100)
+    : 0;
 
-  const handlePendingQtyChange = useCallback(
-    (sizeId: string | null, newQty: number) => {
-      if (!isAuthenticated) {
-        setShowLoginModal(true);
-        return;
-      }
-      const key = sizeId || "no_size";
-      const currentQuantity = getQuantityForSize(sizeId);
-      setPendingQuantities((prev) => {
-        const n = new Map(prev);
-        n.set(key, newQty);
-        return n;
-      });
-      setModifiedSizes((prev) => {
-        const n = new Set(prev);
-        if (newQty === currentQuantity) n.delete(key);
-        else n.add(key);
-        return n;
-      });
-    },
-    [isAuthenticated, getQuantityForSize],
-  );
+  // ─── Cart status ──────────────────────────────────────────────────────────
 
-  const handleClearSize = useCallback(
-    async (sizeId: string | null) => {
-      if (!product) return;
-      const key = sizeId || "no_size";
-      const currentQty = getQuantityForSize(sizeId);
-      if (currentQty === 0) {
-        setPendingQuantities((prev) => {
-          const n = new Map(prev);
-          n.delete(key);
-          return n;
-        });
-        setModifiedSizes((prev) => {
-          const n = new Set(prev);
-          n.delete(key);
-          return n;
-        });
-        return;
-      }
-      cartDispatch(
-        updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: 0 }),
-      );
-      setPendingQuantities((prev) => {
-        const n = new Map(prev);
-        n.delete(key);
-        return n;
-      });
-      setModifiedSizes((prev) => {
-        const n = new Set(prev);
-        n.delete(key);
-        return n;
-      });
-      setClearingSize(key);
-      try {
-        await cartDispatch(
-          updateCartItem({ productId: product.id, productSizeId: sizeId, quantity: 0 }),
-        ).unwrap();
-        showToast.success(Messages.cart.removed);
-      } catch (err: unknown) {
-        showToast.error((err as { message?: string })?.message || "Failed to remove");
-      } finally {
-        setClearingSize(null);
-      }
-    },
-    [product, cartDispatch, getQuantityForSize],
-  );
+  const totalCartQty = product?.hasSizes
+    ? (product.sizes?.reduce((sum, s) => sum + getQuantityForSize(s.id), 0) ?? 0)
+    : getQuantityForSize(null);
+  const totalCartValue = product?.hasSizes
+    ? (product.sizes?.reduce(
+        (sum, s) => sum + s.finalPrice * getQuantityForSize(s.id),
+        0,
+      ) ?? 0)
+    : (product?.displayPrice ?? 0) * getQuantityForSize(null);
 
-  const handleSave = useCallback(async () => {
-    if (!product || modifiedSizes.size === 0) return;
+  // ─── Modal initial quantities ─────────────────────────────────────────────
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const initialQuantities = useMemo(() => {
+    const map = new Map<string, number>();
+    if (!product) return map;
+    if (product.hasSizes && product.sizes) {
+      product.sizes.forEach((s) => {
+        const qty = getQuantityForSize(s.id);
+        if (qty > 0) map.set(s.id, qty);
+      });
+    } else {
+      const qty = getQuantityForSize(null);
+      if (qty > 0) map.set("__no_size__", qty);
+    }
+    return map;
+  }, [product?.id, cartItems]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Handlers ─────────────────────────────────────────────────────────────
+
+  const handleAddToCart = () => {
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }
-    setIsSaving(true);
-    try {
-      const promises: Promise<unknown>[] = [];
+    setSizePickerOpen(true);
+  };
+
+  const handleSizeSelect = useCallback(
+    async (
+      _prod: ProductDetailResponseModel,
+      size?: ProductSize,
+      quantity?: number,
+      _customizationIds?: string[],
+    ) => {
+      if (!product) return;
+      const sizeId = size?.id ?? null;
+      const newQty = quantity ?? 0;
+      const currentQty = getQuantityForSize(sizeId);
+      if (newQty === currentQty) return;
       const ts = Date.now();
-      for (const key of modifiedSizes) {
-        const sizeId = key === "no_size" ? null : key;
-        const newQty = pendingQuantities.get(key) ?? getQuantityForSize(sizeId);
-        const currentQuantity = getQuantityForSize(sizeId);
-        if (newQty === currentQuantity) continue;
-        if (currentQuantity === 0 && newQty > 0) {
-          const size = product.sizes?.find((s) => s.id === sizeId);
+      try {
+        if (currentQty === 0 && newQty > 0) {
           const finalPrice = size?.finalPrice ?? product.displayPrice ?? 0;
-          const isPromo = size ? size.hasPromotion : (product.hasPromotion ?? false);
           cartDispatch(
             addLocalCartItem({
               productId: product.id,
@@ -481,7 +292,7 @@ export default function ProductDetailPage() {
               currentPrice: size?.hasPromotion
                 ? size.price
                 : (product.displayOriginPrice ?? finalPrice),
-              hasPromotion: isPromo,
+              hasPromotion: size ? size.hasPromotion : (product.hasPromotion ?? false),
               promotionType: size?.promotionType ?? product.displayPromotionType ?? null,
               promotionValue: size?.promotionValue ?? product.displayPromotionValue ?? null,
               promotionFromDate:
@@ -490,16 +301,15 @@ export default function ProductDetailPage() {
               optimisticTimestamp: ts,
             }),
           );
-          promises.push(
-            cartDispatch(
-              addToCart({
-                productId: product.id,
-                productSizeId: sizeId,
-                quantity: newQty,
-                optimisticTimestamp: ts,
-              }),
-            ).unwrap(),
-          );
+          await cartDispatch(
+            addToCart({
+              productId: product.id,
+              productSizeId: sizeId,
+              quantity: newQty,
+              optimisticTimestamp: ts,
+            }),
+          ).unwrap();
+          showToast.success(Messages.cart.updated);
         } else {
           cartDispatch(
             updateLocalCartItem({
@@ -509,28 +319,22 @@ export default function ProductDetailPage() {
               optimisticTimestamp: ts,
             }),
           );
-          promises.push(
-            cartDispatch(
-              updateCartItem({
-                productId: product.id,
-                productSizeId: sizeId,
-                quantity: newQty,
-                optimisticTimestamp: ts,
-              }),
-            ).unwrap(),
-          );
+          await cartDispatch(
+            updateCartItem({
+              productId: product.id,
+              productSizeId: sizeId,
+              quantity: newQty,
+              optimisticTimestamp: ts,
+            }),
+          ).unwrap();
+          showToast.success(newQty === 0 ? Messages.cart.removed : Messages.cart.updated);
         }
+      } catch (err: unknown) {
+        showToast.error((err as { message?: string })?.message || Messages.cart.updateFailed);
       }
-      await Promise.all(promises);
-      showToast.success(Messages.cart.updated);
-      setPendingQuantities(new Map());
-      setModifiedSizes(new Set());
-    } catch (err: unknown) {
-      showToast.error((err as { message?: string })?.message || Messages.cart.updateFailed);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [product, isAuthenticated, modifiedSizes, pendingQuantities, cartDispatch, getQuantityForSize]);
+    },
+    [product, cartDispatch, getQuantityForSize],
+  );
 
   const handleToggleFavorite = () => {
     if (!product) return;
@@ -542,9 +346,7 @@ export default function ProductDetailPage() {
     setIsTogglingFavorite(true);
     favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited }))
       .unwrap()
-      .then(() => {
-        setIsTogglingFavorite(false);
-      })
+      .then(() => setIsTogglingFavorite(false))
       .catch((err: unknown) => {
         setIsFavorited((prev) => !prev);
         setIsTogglingFavorite(false);
@@ -565,194 +367,6 @@ export default function ProductDetailPage() {
     }
   };
 
-  // ─── Cart section ─────────────────────────────────────────────────────────
-
-  function renderCartSection() {
-    if (!product) return null;
-
-    const sizeId: string | null = product.hasSizes ? (selectedSize?.id ?? null) : null;
-    const displayQty = getDisplayQuantity(sizeId);
-    const cartQty = getQuantityForSize(sizeId);
-    const unitPrice =
-      (product.hasSizes ? selectedSize?.finalPrice : null) ?? product.displayPrice ?? 0;
-    const clearKey = sizeId || "no_size";
-    const showQtySection = !product.hasSizes || !!selectedSize;
-
-    const totalCartQtyAllSizes = product.hasSizes
-      ? (product.sizes?.reduce((sum, s) => sum + getQuantityForSize(s.id), 0) ?? 0)
-      : getQuantityForSize(null);
-    const totalCartValueAllSizes = product.hasSizes
-      ? (product.sizes?.reduce((sum, s) => sum + s.finalPrice * getQuantityForSize(s.id), 0) ?? 0)
-      : unitPrice * getQuantityForSize(null);
-    const totalDisplayValueAllSizes = product.hasSizes
-      ? (product.sizes?.reduce(
-          (sum, s) => sum + s.finalPrice * getDisplayQuantity(s.id),
-          0,
-        ) ?? 0)
-      : unitPrice * displayQty;
-    const totalOrigValueAllSizes = product.hasSizes
-      ? (product.sizes?.reduce(
-          (sum, s) =>
-            sum + (s.hasPromotion ? s.price : s.finalPrice) * getDisplayQuantity(s.id),
-          0,
-        ) ?? 0)
-      : (getOriginalPrice() ?? unitPrice) * displayQty;
-    const hasAnyPromotion = product.hasSizes
-      ? (product.sizes?.some((s) => s.hasPromotion && getDisplayQuantity(s.id) > 0) ?? false)
-      : !!(getOriginalPrice() && displayQty > 0);
-
-    return (
-      <div className="space-y-3">
-        {/* Sizes */}
-        {product.hasSizes && product.sizes && product.sizes.length > 0 && (
-          <>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Choose Size
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {product.sizes.map((size) => {
-                const szQty = getDisplayQuantity(size.id);
-                const isModified =
-                  modifiedSizes.has(size.id) && szQty !== getQuantityForSize(size.id);
-                const isActive = selectedSize?.id === size.id;
-                const isOutOfStock =
-                  size.quantityAvailable != null && size.quantityAvailable === 0;
-                return (
-                  <button
-                    key={size.id}
-                    onClick={() => !isOutOfStock && setSelectedSize(size)}
-                    disabled={isOutOfStock}
-                    className={cn(
-                      "relative border-2 rounded-xl px-4 py-2.5 text-left min-w-[76px] transition-all",
-                      isOutOfStock
-                        ? "border-border opacity-40 cursor-not-allowed"
-                        : isActive
-                          ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-sm"
-                          : "border-border hover:border-primary/50 hover:bg-muted/40",
-                    )}
-                  >
-                    {isActive && !isOutOfStock && (
-                      <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
-                        <Check className="h-2.5 w-2.5" />
-                      </div>
-                    )}
-                    <div className="font-semibold text-sm">{size.name}</div>
-                    <div className="text-primary font-bold text-sm">
-                      {formatCurrency(size.finalPrice)}
-                    </div>
-                    {size.hasPromotion && (
-                      <div className="text-[10px] text-muted-foreground line-through">
-                        {formatCurrency(size.price)}
-                      </div>
-                    )}
-                    {isOutOfStock && (
-                      <div className="text-[10px] text-rose-500 font-medium mt-0.5">
-                        Out of stock
-                      </div>
-                    )}
-                    {!isOutOfStock &&
-                      size.quantityAvailable != null &&
-                      size.quantityAvailable > 0 &&
-                      size.quantityAvailable <= 5 && (
-                        <div className="text-[10px] text-amber-600 font-medium mt-0.5">
-                          Only {size.quantityAvailable} left
-                        </div>
-                      )}
-                    {szQty > 0 && (
-                      <div
-                        className={cn(
-                          "absolute -top-2 -left-2 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold",
-                          isModified ? "bg-amber-500" : "bg-primary",
-                        )}
-                      >
-                        {szQty}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {/* Quantity */}
-        {showQtySection && (() => {
-          const key = sizeId || "no_size";
-          const isPending = modifiedSizes.has(key) && displayQty !== cartQty;
-          return (
-            <div className="space-y-3">
-              <h4 className="font-semibold text-sm">Quantity</h4>
-              <div className="flex items-center gap-2">
-                <QuantitySelector
-                  value={displayQty}
-                  onChange={(qty) => handlePendingQtyChange(sizeId, qty)}
-                  min={0}
-                  size="sm"
-                  pending={isPending}
-                />
-                {(displayQty > 0 || cartQty > 0) && (
-                  <CustomButton
-                    variant="outline"
-                    size="sm"
-                    className="h-8 px-2 shrink-0 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
-                    disabled={clearingSize === clearKey}
-                    onClick={() => handleClearSize(sizeId)}
-                  >
-                    {clearingSize === clearKey ? (
-                      <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-3.5 w-3.5 mr-1" />
-                    )}
-                    Clear
-                  </CustomButton>
-                )}
-                <div className="flex-1" />
-                {totalCartQtyAllSizes > 0 && (
-                  <div className="h-8 shrink-0 flex items-center px-3 text-sm font-medium rounded-md border border-border text-muted-foreground">
-                    {`In Cart · ${formatCurrency(totalCartValueAllSizes)}`}
-                  </div>
-                )}
-                {(modifiedSizes.size > 0 || totalCartQtyAllSizes === 0) && (
-                  <CustomButton
-                    size="sm"
-                    className="h-8 shrink-0 gap-1.5"
-                    variant={modifiedSizes.size > 0 ? "default" : "secondary"}
-                    disabled={
-                      isSaving ||
-                      modifiedSizes.size === 0 ||
-                      product.stockStatus === "OUT_OF_STOCK"
-                    }
-                    onClick={handleSave}
-                  >
-                    {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    {modifiedSizes.size > 0 && totalCartQtyAllSizes > 0
-                      ? "Update Cart"
-                      : "Add to Cart"}
-                  </CustomButton>
-                )}
-              </div>
-
-              {/* Total */}
-              <div className="flex justify-between items-center py-3 border-t">
-                <span className="text-sm text-muted-foreground">Total</span>
-                <div className="flex items-center gap-2">
-                  {hasAnyPromotion && (
-                    <span className="text-sm text-red-500 line-through">
-                      {formatCurrency(totalOrigValueAllSizes)}
-                    </span>
-                  )}
-                  <span className="text-xl font-bold text-primary">
-                    {formatCurrency(totalDisplayValueAllSizes)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-      </div>
-    );
-  }
-
   // ─── Guards ───────────────────────────────────────────────────────────────
 
   if (isLoading || (!product && !error.detail)) return <ProductDetailSkeleton />;
@@ -769,6 +383,12 @@ export default function ProductDetailPage() {
   const stockStatusInfo = formatStockStatus(
     product.stockStatus || (product.status === "OUT_OF_STOCK" ? "OUT_OF_STOCK" : "IN_STOCK"),
   );
+  const isOutOfStock =
+    product.stockStatus === "OUT_OF_STOCK" || product.stockStatus === "DISABLED";
+  const hasSizes = !!(product.hasSizes && product.sizes && product.sizes.length > 0);
+  const hasCustomizations = !!(product.customizations && product.customizations.length > 0);
+
+  const addToCartLabel = hasSizes ? "Choose Size" : hasCustomizations ? "Choose Add-ons" : "Add to Cart";
 
   return (
     <div className="min-h-screen bg-background">
@@ -779,97 +399,158 @@ export default function ProductDetailPage() {
           variant="ghost"
           size="sm"
           onClick={() => router.back()}
-          className="mb-5 -ml-1 gap-1.5 text-muted-foreground hover:text-foreground"
+          className="mb-5 -ml-1 w-fit gap-1.5 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
         </CustomButton>
 
-        {/* Main grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-[9fr_11fr] gap-8 lg:gap-10 mb-10">
+        {/* ── Main grid ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-[9fr_11fr] gap-8 lg:gap-10 mb-12">
 
-          {/* ── Left: Image gallery ── */}
+          {/* Left: image gallery */}
           <div className="space-y-3">
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted group shadow-sm">
-              {!imageLoaded && <Skeleton className="absolute inset-0 rounded-2xl" />}
-              <Image
-                key={`main-${currentImageIndex}`}
-                src={selectedImage || appImages.NoImage}
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 60vw"
-                className={cn(
-                  "object-cover transition-opacity duration-300",
-                  imageLoaded ? "opacity-100" : "opacity-0",
-                )}
-                onLoad={() => setImageLoaded(true)}
-                priority
-              />
 
-              {hasDiscount && discountPercent > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute top-3 left-3 text-sm font-bold px-3 py-1.5 shadow"
-                >
-                  -{discountPercent}%
-                </Badge>
-              )}
+            {/* Desktop: thumb strip left + main image */}
+            <div className="flex gap-2.5">
 
-              <button
-                onClick={() => openLightbox(currentImageIndex)}
-                className="absolute bottom-3 right-3 bg-background/75 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow cursor-zoom-in hover:bg-background"
-              >
-                <ZoomIn className="h-4 w-4 text-foreground/70" />
-              </button>
-
+              {/* Vertical thumb strip — desktop only */}
               {allImages.length > 1 && (
-                <>
+                <div className="hidden lg:flex flex-col items-center gap-1.5 w-[76px] shrink-0">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      prevImage();
-                    }}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md"
+                    onClick={scrollThumbsUp}
+                    disabled={!canScrollUp}
+                    className={cn(
+                      "w-full h-7 rounded-lg flex items-center justify-center transition-colors",
+                      canScrollUp
+                        ? "hover:bg-muted text-foreground cursor-pointer"
+                        : "text-muted-foreground/20 cursor-default",
+                    )}
                   >
-                    <ChevronLeft className="h-5 w-5" />
+                    <ChevronUp className="h-4 w-4" />
                   </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      nextImage();
-                    }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </>
-              )}
 
-              {allImages.length > 1 && (
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow">
-                  {currentImageIndex + 1} / {allImages.length}
+                  {visibleThumbs.map((img, i) => {
+                    const idx = thumbOffset + i;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => selectImage(img.imageUrl, idx)}
+                        className={cn(
+                          "relative w-[76px] h-[76px] rounded-xl overflow-hidden shrink-0 transition-all duration-150",
+                          idx === currentImageIndex
+                            ? "ring-2 ring-primary ring-offset-2 shadow-sm opacity-100"
+                            : "opacity-40 hover:opacity-100 hover:ring-1 hover:ring-primary/40",
+                        )}
+                      >
+                        <Image
+                          src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)}
+                          alt={`View ${idx + 1}`}
+                          fill
+                          sizes="76px"
+                          className="object-cover"
+                        />
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    onClick={scrollThumbsDown}
+                    disabled={!canScrollDown}
+                    className={cn(
+                      "w-full h-7 rounded-lg flex items-center justify-center transition-colors",
+                      canScrollDown
+                        ? "hover:bg-muted text-foreground cursor-pointer"
+                        : "text-muted-foreground/20 cursor-default",
+                    )}
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
                 </div>
               )}
+
+              {/* Main image */}
+              <div
+                className={cn(
+                  "relative rounded-2xl overflow-hidden bg-muted group shadow-sm flex-1",
+                  "aspect-[4/3] lg:aspect-auto lg:h-[420px]",
+                )}
+              >
+                {!imageLoaded && <Skeleton className="absolute inset-0 rounded-2xl" />}
+                <Image
+                  key={`main-${currentImageIndex}`}
+                  src={selectedImage || appImages.NoImage}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 55vw"
+                  className={cn(
+                    "object-cover transition-opacity duration-300",
+                    imageLoaded ? "opacity-100" : "opacity-0",
+                  )}
+                  onLoad={() => setImageLoaded(true)}
+                  priority
+                />
+
+                {hasDiscount && discountPercent > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute top-3 left-3 text-sm font-bold px-3 py-1.5 shadow"
+                  >
+                    -{discountPercent}%
+                  </Badge>
+                )}
+
+                <button
+                  onClick={() => openLightbox(currentImageIndex)}
+                  className="absolute bottom-3 right-3 bg-background/75 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow cursor-zoom-in hover:bg-background"
+                >
+                  <ZoomIn className="h-4 w-4 text-foreground/70" />
+                </button>
+
+                {allImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-2 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-2 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </>
+                )}
+
+                {allImages.length > 1 && (
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow">
+                    {currentImageIndex + 1} / {allImages.length}
+                  </div>
+                )}
+              </div>
             </div>
 
+            {/* Mobile: horizontal thumb strip */}
             {allImages.length > 1 && (
-              <div className="flex gap-2.5 overflow-x-auto pb-1">
+              <div className="flex lg:hidden gap-2 overflow-x-auto pb-1">
                 {allImages.map((img, i) => (
                   <button
-                    key={`thumb-${i}`}
+                    key={`mob-${i}`}
                     onClick={() => selectImage(img.imageUrl, i)}
                     className={cn(
-                      "relative flex-shrink-0 w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-xl overflow-hidden transition-all duration-150",
+                      "relative flex-shrink-0 w-[68px] h-[68px] rounded-xl overflow-hidden transition-all duration-150",
                       i === currentImageIndex
                         ? "ring-2 ring-primary ring-offset-2 shadow-sm"
-                        : "opacity-55 hover:opacity-100 hover:ring-2 hover:ring-primary/40 hover:ring-offset-1",
+                        : "opacity-40 hover:opacity-100 hover:ring-1 hover:ring-primary/30",
                     )}
                   >
                     <Image
                       src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)}
                       alt={`View ${i + 1}`}
                       fill
-                      sizes="80px"
+                      sizes="68px"
                       className="object-cover"
                     />
                   </button>
@@ -878,8 +559,8 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* ── Right: Product info ── */}
-          <div className="flex flex-col gap-4">
+          {/* Right: product info */}
+          <div className="flex flex-col gap-5">
 
             {/* Badges */}
             <div className="flex flex-wrap items-center gap-2">
@@ -901,22 +582,22 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Name */}
-            <h1 className="text-2xl sm:text-3xl font-bold leading-snug tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold leading-snug tracking-tight -mt-1">
               {product.name}
             </h1>
 
             {/* Price */}
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-3xl sm:text-4xl font-bold text-primary leading-none">
-                {formatCurrency(getDisplayPrice())}
+                {formatCurrency(displayPrice)}
               </span>
-              {getOriginalPrice() && (
+              {originalPrice && (
                 <>
                   <span className="text-lg text-muted-foreground line-through leading-none">
-                    {formatCurrency(getOriginalPrice()!)}
+                    {formatCurrency(originalPrice)}
                   </span>
                   <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
-                    Save {formatCurrency(getOriginalPrice()! - getDisplayPrice())}
+                    Save {formatCurrency(originalPrice - displayPrice)}
                   </span>
                 </>
               )}
@@ -929,36 +610,61 @@ export default function ProductDetailPage() {
               </p>
             )}
 
-            {/* Customizations */}
-            {product.customizations && product.customizations.length > 0 && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5">
-                  <Layers className="h-3.5 w-3.5 text-muted-foreground" />
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Customizations
-                  </p>
-                </div>
-                <div className="rounded-xl border overflow-hidden">
-                  {product.customizations.map((customization, idx) => (
-                    <div
-                      key={customization.id}
+            {/* Sizes — preview / price exploration */}
+            {hasSizes && (
+              <div className="space-y-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Available Sizes
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes!.map((size) => (
+                    <button
+                      key={size.id}
+                      onClick={() => setSelectedSize(size)}
                       className={cn(
-                        "flex items-center justify-between px-4 py-2.5 text-sm",
-                        idx < product.customizations.length - 1 && "border-b",
+                        "border-2 rounded-xl px-3.5 py-2.5 text-left transition-all min-w-[64px]",
+                        selectedSize?.id === size.id
+                          ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-sm"
+                          : "border-border hover:border-primary/40 hover:bg-muted/40",
                       )}
                     >
-                      <span className="font-medium">{customization.name}</span>
-                      {customization.priceAdjustment !== 0 ? (
-                        <span
-                          className={cn(
-                            "font-semibold text-xs px-2 py-0.5 rounded-full",
-                            customization.priceAdjustment > 0
-                              ? "text-primary bg-primary/10"
-                              : "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30",
-                          )}
-                        >
-                          {customization.priceAdjustment > 0 ? "+" : ""}
-                          {formatCurrency(customization.priceAdjustment)}
+                      <div className="font-semibold text-sm">{size.name}</div>
+                      <div className="text-primary font-bold text-xs">
+                        {formatCurrency(size.finalPrice)}
+                      </div>
+                      {size.hasPromotion && (
+                        <div className="text-[10px] text-muted-foreground line-through">
+                          {formatCurrency(size.price)}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Customizations — read-only list, collapsible if >4 */}
+            {hasCustomizations && (
+              <div className="space-y-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Add-ons Available
+                </p>
+                <div className="border rounded-xl overflow-hidden">
+                  {(showAllCustomizations
+                    ? product.customizations
+                    : product.customizations.slice(0, CUSTOMIZATION_LIMIT)
+                  ).map((c, idx, arr) => (
+                    <div
+                      key={c.id}
+                      className={cn(
+                        "flex items-center justify-between px-4 py-2.5 text-sm",
+                        idx < arr.length - 1 && "border-b",
+                      )}
+                    >
+                      <span className="text-foreground/90">{c.name}</span>
+                      {c.priceAdjustment !== 0 ? (
+                        <span className="font-semibold text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                          +{formatCurrency(c.priceAdjustment)}
                         </span>
                       ) : (
                         <span className="text-xs text-muted-foreground">Included</span>
@@ -966,19 +672,63 @@ export default function ProductDetailPage() {
                     </div>
                   ))}
                 </div>
+                {product.customizations.length > CUSTOMIZATION_LIMIT && (
+                  <button
+                    onClick={() => setShowAllCustomizations((v) => !v)}
+                    className="text-xs text-primary font-semibold hover:underline"
+                  >
+                    {showAllCustomizations
+                      ? "Show less"
+                      : `+${product.customizations.length - CUSTOMIZATION_LIMIT} more add-ons`}
+                  </button>
+                )}
               </div>
             )}
 
-            {/* Cart section */}
-            {renderCartSection()}
+            {/* Cart status pill */}
+            {totalCartQty > 0 && (
+              <div className="flex items-center justify-between p-4 rounded-xl border border-primary/20 bg-primary/5">
+                <div>
+                  <p className="text-sm font-semibold text-primary">In your cart</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {totalCartQty} {totalCartQty === 1 ? "item" : "items"} ·{" "}
+                    {formatCurrency(totalCartValue)}
+                  </p>
+                </div>
+                <CustomButton
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAddToCart}
+                  className="gap-1.5 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Edit
+                </CustomButton>
+              </div>
+            )}
 
-            {/* Actions */}
+            {/* Add to Cart CTA */}
+            <CustomButton
+              size="lg"
+              className="h-12 rounded-xl gap-2.5 font-semibold text-base"
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+            >
+              <ShoppingCart className="h-5 w-5" />
+              {isOutOfStock
+                ? "Out of Stock"
+                : totalCartQty > 0
+                  ? "Update Cart"
+                  : addToCartLabel}
+            </CustomButton>
+
+            {/* Secondary actions */}
             <div className="grid grid-cols-2 gap-3">
               <CustomButton
                 size="lg"
                 variant="outline"
                 className={cn(
-                  "h-11 rounded-xl gap-2 transition-all font-medium",
+                  "h-11 rounded-xl gap-2 font-medium transition-all",
                   isFavorited
                     ? "bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/30 dark:border-rose-800 dark:text-rose-400"
                     : "",
@@ -1004,7 +754,7 @@ export default function ProductDetailPage() {
               </CustomButton>
             </div>
 
-            {/* Stats + SKU */}
+            {/* Stats */}
             <div className="flex items-center gap-6 pt-4 border-t text-muted-foreground">
               <div className="flex items-center gap-1.5 text-sm">
                 <Eye className="h-4 w-4" />
@@ -1017,18 +767,13 @@ export default function ProductDetailPage() {
                 <span className="text-xs">saves</span>
               </div>
               {product.sku && (
-                <div className="ml-auto flex items-center gap-1 text-xs font-mono text-muted-foreground/70">
-                  <Barcode className="h-3.5 w-3.5" />
+                <div className="ml-auto text-xs font-mono text-muted-foreground/60">
                   {product.sku}
                 </div>
               )}
             </div>
-
           </div>
         </div>
-
-        {/* Product Details card */}
-        <ProductDetailsCard product={product} />
 
         {/* Similar products */}
         {similarProducts.length > 0 && (
@@ -1074,7 +819,7 @@ export default function ProductDetailPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              key={`lightbox-${lightboxIndex}`}
+              key={`lb-${lightboxIndex}`}
               src={allImages[lightboxIndex]?.imageUrl || appImages.NoImage}
               alt={product.name}
               className="max-w-[90vw] max-h-[80vh] object-contain rounded-lg select-none"
@@ -1103,7 +848,7 @@ export default function ProductDetailPage() {
           >
             {allImages.map((img, i) => (
               <button
-                key={`lb-thumb-${i}`}
+                key={`lb-th-${i}`}
                 onClick={() => setLightboxIndex(i)}
                 className={cn(
                   "relative flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden transition-all",
@@ -1121,6 +866,15 @@ export default function ProductDetailPage() {
         </div>
       )}
 
+      <SizePickerModal
+        product={product}
+        open={sizePickerOpen}
+        onOpenChange={setSizePickerOpen}
+        onSizeSelect={handleSizeSelect}
+        isEditing={totalCartQty > 0}
+        initialQuantities={initialQuantities}
+      />
+
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
     </div>
   );
@@ -1132,10 +886,17 @@ function ProductDetailSkeleton() {
       <Skeleton className="h-9 w-20 mb-5 rounded-xl" />
       <div className="grid grid-cols-1 lg:grid-cols-[9fr_11fr] gap-10">
         <div className="space-y-3">
-          <Skeleton className="aspect-[4/3] w-full rounded-2xl" />
           <div className="flex gap-2.5">
+            <div className="hidden lg:flex flex-col gap-1.5 w-[76px]">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="w-[76px] h-[76px] rounded-xl" />
+              ))}
+            </div>
+            <Skeleton className="flex-1 aspect-[4/3] lg:aspect-auto lg:h-[420px] rounded-2xl" />
+          </div>
+          <div className="flex lg:hidden gap-2">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-xl flex-shrink-0" />
+              <Skeleton key={i} className="w-[68px] h-[68px] rounded-xl flex-shrink-0" />
             ))}
           </div>
         </div>
@@ -1148,12 +909,11 @@ function ProductDetailSkeleton() {
           <Skeleton className="h-12 w-40 rounded-lg" />
           <Skeleton className="h-16 w-full rounded-xl" />
           <div className="flex gap-2">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-16 w-20 rounded-xl" />
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-[68px] w-[64px] rounded-xl" />
             ))}
           </div>
-          <Skeleton className="h-9 w-24 rounded-lg" />
-          <Skeleton className="h-px w-full" />
+          <Skeleton className="h-12 w-full rounded-xl" />
           <div className="grid grid-cols-2 gap-3">
             <Skeleton className="h-11 rounded-xl" />
             <Skeleton className="h-11 rounded-xl" />
@@ -1165,7 +925,6 @@ function ProductDetailSkeleton() {
           </div>
         </div>
       </div>
-      <Skeleton className="h-[220px] w-full rounded-2xl mt-10" />
     </PageContainer>
   );
 }
