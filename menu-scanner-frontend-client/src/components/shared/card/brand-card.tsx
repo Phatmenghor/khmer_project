@@ -43,7 +43,6 @@ function BrandCardComponent({ brand, className, loading = "lazy" }: BrandCardPro
                   src={brand.imageUrl}
                   alt={brand.name}
                   fill
-                  sizes="(max-width: 640px) 64px, 80px"
                   loading={loading}
                   className={cn(
                     "object-cover transition-all duration-300 group-hover:scale-105",

@@ -44,7 +44,6 @@ function CategoryCardComponent({ category, className, loading = "lazy" }: Catego
                   src={category.imageUrl}
                   alt={category.name}
                   fill
-                  sizes="(max-width: 640px) 64px, 80px"
                   loading={loading}
                   className={cn(
                     "object-cover transition-all duration-300 group-hover:scale-105",
