@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { ClientProviders } from "@/providers/client-provider";
 import { getMessages } from "next-intl/server";
 import localFont from "next/font/local";
@@ -11,6 +12,8 @@ import { ThemeInitializer } from "@/components/shared/theme/theme-initializer";
 import { defaultLocale, type Locale } from "@/i18n/request";
 import { buildMetadata } from "@/utils/metadata/metadata-builder";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 
 declare global {
@@ -75,6 +78,25 @@ if(cached.primaryColor){var hex=cached.primaryColor.replace('#','');var r=parseI
         />
       </head>
       <body className="antialiased">
+        {/* Google Analytics — only loads when NEXT_PUBLIC_GA_MEASUREMENT_ID is set */}
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        )}
         <ThemeInitializer />
         <LocaleProvider initialLocale={locale} initialMessages={messages}>
           <ClientProviders>
