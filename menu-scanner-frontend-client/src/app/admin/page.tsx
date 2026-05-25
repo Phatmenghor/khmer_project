@@ -309,37 +309,22 @@ export default function AdminDashboardPage() {
 
   const today = format(new Date(), "EEEE, MMM d yyyy");
 
-  // Get current Cambodia hour via Intl API — independent of browser/OS timezone.
-  const cambodiaCurrentHour = (() => {
-    try {
-      const h = new Intl.DateTimeFormat("en-US", {
-        timeZone: "Asia/Phnom_Penh",
-        hour: "numeric",
-        hour12: false,
-      }).format(new Date());
-      return parseInt(h, 10) % 24;
-    } catch {
-      return hourlySales?.currentHour ?? new Date().getHours();
-    }
-  })();
+  // Current Cambodia hour comes from the backend (JVM is Asia/Phnom_Penh).
+  const cambodiaCurrentHour = hourlySales?.currentHour ?? 0;
 
-  // Show all 24 hours — no clipping. Current Cambodia hour is highlighted.
+  // Show all 24 hours — no filtering. Current hour bar is highlighted.
   const hourlyData = (hourlySales?.data ?? []).map(d => ({
     ...d,
     label: formatHour(d.hour),
     isCurrent: period === "TODAY" && d.hour === cambodiaCurrentHour,
   }));
 
-  // Derive peak from all visible data.
+  // Peak from visible data.
   const localPeakHour: number = hourlyData.reduce(
     (best, d) => (d.revenue > (hourlyData[best]?.revenue ?? 0) ? d.hour : best),
     hourlyData[0]?.hour ?? 0
   );
 
-  // X-axis: every 4-hour mark (12am,4am,8am,12pm,4pm,8pm) + current hour.
-  const hourlyAxisTicks = hourlyData
-    .filter(d => d.hour % 4 === 0 || d.isCurrent)
-    .map(d => d.label);
 
   // ────────────────────────────────────────────────────────────────────────────
 
@@ -721,8 +706,7 @@ export default function AdminDashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis
                   dataKey="label"
-                  ticks={hourlyAxisTicks}
-                  interval={0}
+                  interval={2}
                   tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   tickLine={false}
                   axisLine={false}

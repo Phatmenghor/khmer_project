@@ -912,7 +912,7 @@ FROM (
   -- Past/future days: all 24 hours. Today: only up to current hour
   CROSS JOIN generate_series(0,
     CASE WHEN d::date = CURRENT_DATE
-      THEN EXTRACT(HOUR FROM NOW())::int
+      THEN EXTRACT(HOUR FROM NOW() AT TIME ZONE 'Asia/Phnom_Penh')::int
       ELSE 23
     END
   ) slot
