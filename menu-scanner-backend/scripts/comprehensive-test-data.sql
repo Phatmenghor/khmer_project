@@ -270,13 +270,13 @@ DO $$ BEGIN RAISE NOTICE ' 10%% [██░░░░░░░░░░░░░�
 
 -- ── 3 MAIN USERS ONLY ────────────────────────────────────────────────────────
 
--- phatmenghor19 — PLATFORM_OWNER (super admin, no business)
+-- phatmenghor19 — PLATFORM_USER type, assigned PLATFORM_OWNER role (super admin, no business)
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '550e8400-e29b-41d4-a716-446655440019',
   'phatmenghor19@gmail.com',
   '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
-  'PLATFORM_OWNER',
+  'PLATFORM_USER',
   'ACTIVE', 'ACTIVE',
   NULL,
   0, false, NOW(), NOW(), 'admin', 'admin'
