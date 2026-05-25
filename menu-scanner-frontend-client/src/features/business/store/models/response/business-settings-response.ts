@@ -39,4 +39,5 @@ export interface BusinessSettingsResponse {
   useSubcategories?: boolean;
   useBrands?: boolean;
   lowStockThreshold?: number;
+  telegramGroupChatId?: string;
 }

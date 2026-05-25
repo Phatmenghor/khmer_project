@@ -75,4 +75,7 @@ public class BusinessSetting extends BaseUUIDEntity {
 
     @Column(name = "low_stock_threshold")
     private Integer lowStockThreshold;
+
+    @Column(name = "telegram_group_chat_id", length = 50)
+    private String telegramGroupChatId;
 }

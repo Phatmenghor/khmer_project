@@ -35,6 +35,7 @@ export interface BusinessSettingsResponse {
   useSubcategories?: boolean;
   useBrands?: boolean;
   lowStockThreshold?: number;
+  telegramGroupChatId?: string;
 }
 
 export interface UpdateBusinessSettingsRequest {
@@ -52,6 +53,7 @@ export interface UpdateBusinessSettingsRequest {
   useSubcategories?: boolean;
   useBrands?: boolean;
   lowStockThreshold?: number;
+  telegramGroupChatId?: string;
 }
 
 const API_BASE_URL = "/api/v1/business-settings";

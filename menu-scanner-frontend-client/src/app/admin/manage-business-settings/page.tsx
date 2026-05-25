@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { showToast } from "@/components/shared/common/show-toast";
-import { Loader2, Save, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Save, Plus, Trash2, Eye, EyeOff, Send } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -61,6 +61,7 @@ function convertResponseToFormData(
     useCategories: response.useCategories ?? true,
     useBrands: response.useBrands ?? false,
     lowStockThreshold: response.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
+    telegramGroupChatId: response.telegramGroupChatId ?? "",
   };
 }
 
@@ -88,6 +89,7 @@ export default function BusinessSettingsPage() {
       useCategories: true,
       useBrands: false,
       lowStockThreshold: BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
+      telegramGroupChatId: "",
     },
   });
 
@@ -217,6 +219,7 @@ export default function BusinessSettingsPage() {
         useCategories: data.useCategories,
         useBrands: data.useBrands,
         lowStockThreshold: data.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
+        telegramGroupChatId: data.telegramGroupChatId || null,
       };
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
@@ -845,7 +848,43 @@ export default function BusinessSettingsPage() {
           )}
         </div>
 
-        {}
+        {/* Telegram Monitoring */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Send className="h-4 w-4 text-sky-500" />
+              <CardTitle>Telegram Monitoring</CardTitle>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              Receive order alerts and system notifications in your Telegram group
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="telegramGroupChatId">Group Chat ID</Label>
+              <Input
+                id="telegramGroupChatId"
+                placeholder="-1002784141362"
+                {...form.register("telegramGroupChatId")}
+                disabled={isSaving}
+              />
+              <p className="text-xs text-muted-foreground">
+                Add <span className="font-medium text-foreground">@CambodiaEMenuBot</span> to your Telegram group,
+                then paste the Group Chat ID here (starts with <code className="bg-muted px-1 rounded">-100...</code>).
+                To get the Chat ID: forward any group message to <span className="font-medium text-foreground">@userinfobot</span>.
+              </p>
+            </div>
+            {form.watch("telegramGroupChatId") && (
+              <div className="flex items-center gap-2 p-3 bg-sky-50 dark:bg-sky-950/20 rounded-lg border border-sky-200 dark:border-sky-800">
+                <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
+                <p className="text-xs text-sky-700 dark:text-sky-400">
+                  Monitoring group configured — notifications will be sent to chat <span className="font-mono font-medium">{form.watch("telegramGroupChatId")}</span>
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <div className="flex gap-3 justify-end pt-4 border-t">
           <Button
             type="button"

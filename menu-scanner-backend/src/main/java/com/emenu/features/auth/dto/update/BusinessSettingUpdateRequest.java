@@ -37,4 +37,6 @@ public class BusinessSettingUpdateRequest {
 
     @Min(value = 1, message = "Low stock threshold must be at least 1")
     private Integer lowStockThreshold;
+
+    private String telegramGroupChatId;
 }
