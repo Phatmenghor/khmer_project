@@ -420,15 +420,20 @@ public class DashboardServiceImpl implements DashboardService {
             .setParameter("end",   range[1])
             .getResultList();
 
-        // Fill all 24 hours even if some are zero
         Map<Integer, Object[]> byHour = new LinkedHashMap<>();
         for (Object[] r : rows) byHour.put(toInt(r[0]), r);
+
+        // For a period that includes right now (e.g. TODAY), only show hours
+        // up to and including the current hour — no future $0 bars.
+        int nowHour = LocalDateTime.now().getHour();
+        boolean includesNow = range[1].isAfter(LocalDateTime.now());
+        int maxHour = includesNow ? nowHour : 23;
 
         List<DashboardHourlySalesResponse.HourlySalesPoint> points = new ArrayList<>();
         int peakHour = 0;
         BigDecimal peakRev = BigDecimal.ZERO;
 
-        for (int h = 0; h < 24; h++) {
+        for (int h = 0; h <= maxHour; h++) {
             BigDecimal rev;
             long orders;
             if (byHour.containsKey(h)) {
@@ -447,6 +452,7 @@ public class DashboardServiceImpl implements DashboardService {
         return DashboardHourlySalesResponse.builder()
             .data(points)
             .peakHour(peakHour)
+            .currentHour(nowHour)
             .build();
     }
 

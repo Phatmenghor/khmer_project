@@ -309,10 +309,12 @@ export default function AdminDashboardPage() {
 
   const today = format(new Date(), "EEEE, MMM d yyyy");
 
-  // Hourly data with hour labels
+  // Hourly data — mark the current hour so the bar can be highlighted
+  const currentHour = hourlySales?.currentHour ?? new Date().getHours();
   const hourlyData = hourlySales?.data.map((d) => ({
     ...d,
     label: formatHour(d.hour),
+    isCurrent: d.hour === currentHour,
   })) ?? [];
 
   // ────────────────────────────────────────────────────────────────────────────
@@ -674,7 +676,7 @@ export default function AdminDashboardPage() {
               <CardTitle className="text-base">Hourly Sales Pattern</CardTitle>
               <CardDescription>
                 {period === "TODAY"
-                  ? "Today's revenue by hour — future hours show $0"
+                  ? `Today's revenue by hour (up to ${formatHour(currentHour)})`
                   : "Revenue aggregated by hour across the period"}
               </CardDescription>
             </div>
@@ -714,10 +716,18 @@ export default function AdminDashboardPage() {
                 <Tooltip content={<HourlyTooltip />} />
                 <Bar
                   dataKey="revenue"
-                  fill="hsl(var(--primary))"
                   radius={[3, 3, 0, 0]}
                   maxBarSize={28}
-                />
+                >
+                  {hourlyData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.isCurrent
+                        ? "hsl(var(--primary))"
+                        : "hsl(var(--primary) / 0.45)"}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}

@@ -124,6 +124,7 @@ export interface HourlySalesPoint {
 export interface DashboardHourlySalesResponse {
   data: HourlySalesPoint[];
   peakHour: number;
+  currentHour: number;
 }
 
 // ─── Customer Stats ───────────────────────────────────────────────────────────

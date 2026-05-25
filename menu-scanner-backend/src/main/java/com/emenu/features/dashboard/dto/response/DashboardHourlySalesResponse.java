@@ -16,6 +16,7 @@ public class DashboardHourlySalesResponse {
 
     private List<HourlySalesPoint> data;
     private int peakHour;
+    private int currentHour;
 
     @Data
     @Builder
