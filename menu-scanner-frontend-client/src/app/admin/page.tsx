@@ -672,7 +672,11 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base">Hourly Sales Pattern</CardTitle>
-              <CardDescription>Revenue distribution by hour of day</CardDescription>
+              <CardDescription>
+                {period === "TODAY"
+                  ? "Today's revenue by hour — future hours show $0"
+                  : "Revenue aggregated by hour across the period"}
+              </CardDescription>
             </div>
             {hourlySales?.peakHour !== undefined && (
               <Badge variant="outline" className="gap-1.5 text-xs">
@@ -698,7 +702,7 @@ export default function AdminDashboardPage() {
                   tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   tickLine={false}
                   axisLine={false}
-                  interval={1}
+                  interval={3}
                 />
                 <YAxis
                   tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}

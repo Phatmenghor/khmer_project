@@ -851,9 +851,20 @@ SELECT
   p.business_id,
   p.id,
   NULL,
-  100,
+  -- ~10% out of stock, ~20% low stock, rest healthy
+  CASE (ROW_NUMBER() OVER (ORDER BY p.id) % 10)::int
+    WHEN 9 THEN 0    -- out of stock
+    WHEN 8 THEN 2    -- critically low
+    WHEN 7 THEN 4    -- low stock (< threshold of 5)
+    ELSE 100
+  END,
   0,
-  100,
+  CASE (ROW_NUMBER() OVER (ORDER BY p.id) % 10)::int
+    WHEN 9 THEN 0
+    WHEN 8 THEN 2
+    WHEN 7 THEN 4
+    ELSE 100
+  END,
   (COALESCE(p.price, 50) * 0.6)::numeric(19,4),
   NOW() - INTERVAL '30 days',
   'ACTIVE',
@@ -995,21 +1006,11 @@ SELECT
 
 FROM (
   SELECT
-    -- Realistic hourly timestamps spread across business day
-    (d::timestamp + CASE slot % 12
-       WHEN 0  THEN INTERVAL '9 hours 10 minutes'
-       WHEN 1  THEN INTERVAL '10 hours 25 minutes'
-       WHEN 2  THEN INTERVAL '11 hours 40 minutes'
-       WHEN 3  THEN INTERVAL '12 hours 15 minutes'
-       WHEN 4  THEN INTERVAL '13 hours 5 minutes'
-       WHEN 5  THEN INTERVAL '14 hours 45 minutes'
-       WHEN 6  THEN INTERVAL '15 hours 30 minutes'
-       WHEN 7  THEN INTERVAL '16 hours 50 minutes'
-       WHEN 8  THEN INTERVAL '17 hours 20 minutes'
-       WHEN 9  THEN INTERVAL '18 hours 35 minutes'
-       WHEN 10 THEN INTERVAL '19 hours 10 minutes'
-       WHEN 11 THEN INTERVAL '20 hours 25 minutes'
-     END + ((slot * 7) % 55) * INTERVAL '1 minute')  AS ts,
+    -- All 24 hours covered — 1 order per hour per day
+    (d::timestamp
+      + slot * INTERVAL '1 hour'
+      + ((slot * 7 + EXTRACT(DOY FROM d)::int * 3) % 55) * INTERVAL '1 minute'
+    ) AS ts,
     slot,
     ROW_NUMBER() OVER (ORDER BY d, slot)              AS rn,
     EXTRACT(DOY FROM d)::int                          AS doy,
@@ -1035,14 +1036,12 @@ FROM (
     CASE WHEN (slot + EXTRACT(DOY FROM d)::int) % 5 = 0 THEN '8% Seasonal Discount' ELSE NULL END AS disc_reason
 
   FROM generate_series('2025-01-01'::date, '2027-05-25'::date, '1 day'::interval) d
-  CROSS JOIN generate_series(0,
-    CASE WHEN EXTRACT(ISODOW FROM d) IN (6,7) THEN 11 ELSE 7 END
-  ) slot
+  CROSS JOIN generate_series(0, 23) slot
 ) order_data;
 
 
 -- ============================================================================
-DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] ~4600 orders inserted (2025-2027)'; END $$;
+DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] ~21000 orders inserted (2025-2027, all 24 hrs/day)'; END $$;
 
 -- 14. DELIVERY ADDRESSES for PUBLIC (non-POS) orders
 -- ============================================================================
