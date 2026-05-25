@@ -923,16 +923,16 @@ SELECT
   NULL,
 
   -- Status: COMPLETED 65 %, CONFIRMED 15 %, PENDING 10 %, CANCELLED 10 %
-  CASE (rn * 11 + doy) % 20
-    WHEN 0, 1    THEN 'PENDING'
-    WHEN 2, 3    THEN 'CONFIRMED'
-    WHEN 4       THEN 'CANCELLED'
-    ELSE              'COMPLETED'
+  CASE
+    WHEN (rn * 11 + doy) % 20 IN (0, 1) THEN 'PENDING'
+    WHEN (rn * 11 + doy) % 20 IN (2, 3) THEN 'CONFIRMED'
+    WHEN (rn * 11 + doy) % 20 = 4       THEN 'CANCELLED'
+    ELSE                                      'COMPLETED'
   END,
 
   -- Source: POS 35 %, PUBLIC 65 %
-  CASE slot % 10 WHEN 0,1,2,3 THEN 'POS' ELSE 'PUBLIC' END,
-  CASE slot % 10 WHEN 0,1,2,3 THEN 'BUSINESS' ELSE 'CUSTOMER' END,
+  CASE WHEN slot % 10 IN (0,1,2,3) THEN 'POS' ELSE 'PUBLIC' END,
+  CASE WHEN slot % 10 IN (0,1,2,3) THEN 'BUSINESS' ELSE 'CUSTOMER' END,
 
   subtotal,
   cust_total,
