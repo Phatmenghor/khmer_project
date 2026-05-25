@@ -68,12 +68,6 @@ import {
   DashboardPeriod,
   StockStatus,
 } from "@/features/dashboard/store/models/response/dashboard-response";
-
-// Only CASH and BANK are supported payment methods
-const PAYMENT_COLORS: Record<string, string> = {
-  CASH: "hsl(var(--chart-1))",
-  BANK: "hsl(var(--chart-2))",
-};
 import { OrderStatus } from "@/enums/order-status.enum";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { cn } from "@/lib/utils";
@@ -81,13 +75,17 @@ import { format } from "date-fns";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
+const PAYMENT_COLORS: Record<string, string> = {
+  CASH: "hsl(var(--chart-1))",
+  BANK: "hsl(var(--chart-2))",
+};
+
 const PERIOD_OPTIONS: { label: string; value: DashboardPeriod }[] = [
   { label: "Today", value: "TODAY" },
   { label: "7 Days", value: "7D" },
   { label: "30 Days", value: "30D" },
   { label: "90 Days", value: "90D" },
 ];
-
 
 const STOCK_STATUS_CONFIG: Record<StockStatus, { label: string; badgeClass: string; barClass: string }> = {
   IN_STOCK:     { label: "In Stock",    badgeClass: "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800", barClass: "bg-emerald-400" },
@@ -318,7 +316,6 @@ export default function AdminDashboardPage() {
   }));
 
   const peakHour = hourlySales?.peakHour ?? 0;
-
 
   // ────────────────────────────────────────────────────────────────────────────
 
@@ -765,7 +762,7 @@ export default function AdminDashboardPage() {
             ) : !promotions?.data?.length ? (
               <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
                 <Tag className="h-8 w-8 opacity-30" />
-                <p className="text-sm">No promotions this period</p>
+                <p className="text-sm">No promotions today</p>
               </div>
             ) : (
               <div className="divide-y">
@@ -942,28 +939,24 @@ export default function AdminDashboardPage() {
               <CardDescription>Items requiring attention</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-            {stock && (
-              <div className="flex items-center gap-2">
-                {stock.outOfStockCount > 0 && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block" />
-                    {stock.outOfStockCount} out of stock
-                  </span>
-                )}
-                {stock.lowStockCount > 0 && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
-                    {stock.lowStockCount} low stock
-                  </span>
-                )}
-              </div>
-            )}
-            <Link href={ROUTES.MANAGE_STOCK.STOCK_ITEMS}>
-              <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground">
-                View all
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </Button>
-            </Link>
+              {stock?.outOfStockCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block" />
+                  {stock.outOfStockCount} out of stock
+                </span>
+              )}
+              {stock?.lowStockCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+                  {stock.lowStockCount} low stock
+                </span>
+              )}
+              <Link href={ROUTES.MANAGE_STOCK.STOCK_ITEMS}>
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground">
+                  View all
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
             </div>
           </div>
         </CardHeader>
