@@ -984,7 +984,7 @@ FROM (
     -- Revenue grows gradually over time + per-day variation
     ROUND((
       50
-      + GREATEST(0, (d - '2025-01-01'::date)::int * 0.08)
+      + GREATEST(0, (d::date - '2025-01-01'::date) * 0.08)
       + ((slot * 23 + EXTRACT(DOY FROM d)::int * 17) % 300)
     )::numeric, 2) AS subtotal,
 
@@ -994,7 +994,7 @@ FROM (
     ROUND(CASE WHEN (slot + EXTRACT(DOY FROM d)::int) % 5 = 0
       THEN GREATEST(0,
              50
-             + (d - '2025-01-01'::date)::int * 0.08
+             + (d::date - '2025-01-01'::date) * 0.08
              + ((slot * 23 + EXTRACT(DOY FROM d)::int * 17) % 300)
            )::numeric * 0.08
       ELSE 0::numeric END, 2) AS discount,
