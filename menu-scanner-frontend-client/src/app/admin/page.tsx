@@ -924,7 +924,7 @@ export default function AdminDashboardPage() {
                 <span className="text-center">Status</span>
               </div>
               <div className="divide-y">
-                {orders.data.map((order) => (
+                {orders.data.slice(0, 10).map((order) => (
                   <div key={order.id} className="grid grid-cols-[140px_1fr_100px_120px] gap-4 px-6 py-3 items-center hover:bg-muted/20 transition-colors">
                     <span className="text-sm font-mono font-medium text-primary truncate">{order.orderCode}</span>
                     <div className="min-w-0">
@@ -956,6 +956,7 @@ export default function AdminDashboardPage() {
               <CardTitle className="text-base">Inventory Status</CardTitle>
               <CardDescription>Items requiring attention</CardDescription>
             </div>
+            <div className="flex items-center gap-2">
             {stock && (
               <div className="flex items-center gap-2">
                 {stock.outOfStockCount > 0 && (
@@ -972,6 +973,13 @@ export default function AdminDashboardPage() {
                 )}
               </div>
             )}
+            <Link href={ROUTES.MANAGE_STOCK.STOCK_ITEMS}>
+              <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground">
+                View all
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </Button>
+            </Link>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -995,7 +1003,7 @@ export default function AdminDashboardPage() {
             </div>
           ) : (
             <div className="divide-y">
-              {stock.data.slice(0, 9).map((item) => {
+              {stock.data.slice(0, 10).map((item) => {
                 const cfg = STOCK_STATUS_CONFIG[item.status];
                 const pct = Math.min(100, Math.round((item.quantity / Math.max(item.minStock * 2, 1)) * 100));
                 return (
