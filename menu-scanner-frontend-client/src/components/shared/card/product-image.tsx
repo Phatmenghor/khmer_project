@@ -17,6 +17,7 @@ interface ProductImageProps {
   imageError: boolean;
   isOutOfStock: boolean;
   isFavorited: boolean;
+  loading?: "eager" | "lazy";
   onImageLoad: () => void;
   onImageError: () => void;
   onToggleFavorite: (e: React.MouseEvent) => void;
@@ -29,6 +30,7 @@ function ProductImageComponent({
   imageError,
   isOutOfStock,
   isFavorited,
+  loading = "lazy",
   onImageLoad,
   onImageError,
   onToggleFavorite,
@@ -41,8 +43,7 @@ function ProductImageComponent({
         src={imageError ? "/assets/image/no-image.png" : imageUrl}
         alt={product.name || "Product Image"}
         fill
-        priority={false}
-        loading="lazy"
+        loading={loading}
         className={cn(
           "object-cover transition-all duration-300 group-hover:scale-105",
           imageLoaded ? "opacity-100" : "opacity-0"

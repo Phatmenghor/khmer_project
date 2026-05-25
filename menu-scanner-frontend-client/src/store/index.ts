@@ -15,7 +15,8 @@ const store = configureStore({
       serializableCheck: {
         ignoredActions: ["users/fetchAll/pending"],
         ignoredActionPaths: ["meta.arg", "payload.timestamp"],
-        ignoredPaths: ["users.data"],
+        ignoredPaths: ["users.data", "home.banners", "home.categories", "home.promotionProducts", "home.featuredProducts"],
+        warnAfter: 128,
       },
     }).concat([
       autoFetchProfileMiddleware,

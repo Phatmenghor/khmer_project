@@ -36,12 +36,13 @@ import { ProductActions } from "./product-actions";
 interface ProductCardProps {
   product: ProductDetailResponseModel;
   className?: string;
+  imageLoading?: "eager" | "lazy";
 }
 
 
 const imageLoadedCache = new Set<string>();
 
-function ProductCardComponent({ product, className }: ProductCardProps) {
+function ProductCardComponent({ product, className, imageLoading = "lazy" }: ProductCardProps) {
   const { dispatch: cartDispatch, items: cartItems } = useCartState();
   const { dispatch: favoriteDispatch, items: favoriteItems, loaded: favLoaded } = useFavoriteState();
   const { isAuthenticated } = useAuthState();
@@ -375,6 +376,7 @@ function ProductCardComponent({ product, className }: ProductCardProps) {
             imageError={imageError}
             isOutOfStock={isOutOfStock}
             isFavorited={isFavorited}
+            loading={imageLoading}
             onImageLoad={handleImageLoad}
             onImageError={handleImageError}
             onToggleFavorite={handleToggleFavorite}
