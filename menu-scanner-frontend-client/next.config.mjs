@@ -55,16 +55,6 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: "10mb",
     },
-    // Setting staleTimes to 0 disables the Next.js client-side Router Cache.
-    // Without this, navigating back from a different layout group (auth → public,
-    // public → admin, etc.) restores a frozen React tree WITHOUT remounting, so
-    // useEffect([]) never re-runs and pages appear empty.
-    // With 0, every back/forward navigation remounts the component and triggers
-    // normal data-fetching + snapshot-restore logic on ALL routes.
-    staleTimes: {
-      dynamic: 0,
-      static: 30,
-    },
   },
 };
 

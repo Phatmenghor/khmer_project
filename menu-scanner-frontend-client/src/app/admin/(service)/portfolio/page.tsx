@@ -118,15 +118,12 @@ export default function PortfolioPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log("## [PortfolioPage] profile from Redux state:", profile);
     if (profile) {
       try {
         const formData = buildFormFromProfile(profile);
-        console.log("## [PortfolioPage] built formData from profile:", formData);
         form.reset(formData);
-        console.log("## [PortfolioPage] form.getValues() after reset:", form.getValues());
       } catch (err) {
-        console.error("## [PortfolioPage] error building form from profile:", err);
+        console.error("Error building portfolio form from profile:", err);
         showToast.error("Error loading portfolio data");
       }
     }

@@ -47,7 +47,7 @@ export default function CategoriesPage() {
         isLoadingRef.current = false;
       });
     }
-  }, [isLoadingMore, hasMore, pagination.currentPage, fetchCategories]);
+  }, [isLoadingMore, hasMore, pagination.currentPage, fetchCategories, search]);
 
   const { observerTarget } = useInfiniteScroll({
     onLoadMore: handleLoadMore,

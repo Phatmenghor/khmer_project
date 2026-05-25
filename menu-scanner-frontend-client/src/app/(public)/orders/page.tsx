@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
@@ -42,11 +42,6 @@ import { cancelOrderService } from "@/features/main/store/thunks/my-orders-thunk
 
 type Order = OrderResponse;
 
-interface StatusTab {
-  value: string;
-  label: string;
-}
-
 interface FilterState {
   status: string;
   paymentStatus: string;
@@ -63,7 +58,6 @@ export default function OrdersPage() {
     pagination,
     loading,
     error,
-    statusTabs,
     loadedFilters,
   } = useMyOrdersState();
 
@@ -76,7 +70,6 @@ export default function OrdersPage() {
   });
 
   const [mounted, setMounted] = useState(false);
-  const [displayTabs, setDisplayTabs] = useState<StatusTab[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -102,24 +95,16 @@ export default function OrdersPage() {
   });
 
 
-  const currentFilters = JSON.stringify({
-    status: filters.status,
-    paymentStatus: filters.paymentStatus,
-    search: filters.search,
-    businessId: profile?.businessId || AppDefault.BUSINESS_ID,
-  });
-
-
-  useEffect(() => {
-    const tabs: StatusTab[] = [
-      { value: "", label: "All Orders" },
-      ...(statusTabs || []).map((status: any) => ({
-        value: status.name,
-        label: status.name,
-      })),
-    ];
-    setDisplayTabs(tabs);
-  }, [statusTabs]);
+  const currentFilters = useMemo(
+    () =>
+      JSON.stringify({
+        status: filters.status,
+        paymentStatus: filters.paymentStatus,
+        search: filters.search,
+        businessId: profile?.businessId || AppDefault.BUSINESS_ID,
+      }),
+    [filters.status, filters.paymentStatus, filters.search, profile?.businessId]
+  );
 
 
   const loadOrders = async (pageNo: number) => {
@@ -169,24 +154,21 @@ export default function OrdersPage() {
     mounted,
   ]);
 
-  const handleViewOrder = (order: Order) => {
+  const handleViewOrder = useCallback((order: Order) => {
     setDetailModalState({ isOpen: true, orderId: order.id });
-  };
+  }, []);
 
-  const handleCancelOrder = (order: Order) => {
-
+  const handleCancelOrder = useCallback((order: Order) => {
     if (order.orderStatus !== "PENDING") {
       showToast.error(Messages.orders.pendingOnly);
       return;
     }
-
-
     setCancelModalState({
       isOpen: true,
       orderId: order.id,
       orderNumber: order.orderNumber || "",
     });
-  };
+  }, []);
 
   const handleConfirmCancel = async (data: {
     status: "CANCELLED";
@@ -245,7 +227,7 @@ export default function OrdersPage() {
 
   const tableColumns = useMemo(
     () => createOrderTableColumns(handleViewOrder, handleCancelOrder, cancelingOrderId, pagination),
-    [cancelingOrderId, pagination]
+    [handleViewOrder, handleCancelOrder, cancelingOrderId, pagination]
   );
 
   const totalOrders = pagination.totalElements;
@@ -411,25 +393,7 @@ export default function OrdersPage() {
       </div>
 
       {}
-      {!isAuthenticated ? (
-        <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-6">
-          <div className="flex items-start gap-4">
-            <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-red-900 dark:text-red-200">Sign In Required</h3>
-              <p className="text-red-800 dark:text-red-300 text-sm mt-1">
-                Please sign in to view your orders.
-              </p>
-              <CustomButton
-                onClick={() => router.push("/login")}
-                className="mt-4 h-10 rounded-lg"
-              >
-                Sign In
-              </CustomButton>
-            </div>
-          </div>
-        </div>
-      ) : error.list ? (
+      {error.list ? (
         <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-6">
           <div className="flex items-start gap-4">
             <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />

@@ -165,15 +165,10 @@ export function ProductListPage({
   ]);
 
 
-  const handleLoadMoreWithScroll = useCallback(() => {
-    handleLoadMore();
-  }, [handleLoadMore]);
-
-
   const { handleLoadMore: debouncedLoadMore } = usePaginationLoadMore(
-    handleLoadMoreWithScroll,
+    handleLoadMore,
     pagination.hasMore && !loading.list,
-    [pagination.hasMore, loading.list, handleLoadMoreWithScroll],
+    [pagination.hasMore, loading.list, handleLoadMore],
   );
 
 

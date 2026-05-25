@@ -49,7 +49,7 @@ export default function BrandsPage() {
         isLoadingRef.current = false;
       });
     }
-  }, [isLoadingMore, hasMore, pagination.currentPage, fetchBrands]);
+  }, [isLoadingMore, hasMore, pagination.currentPage, fetchBrands, search]);
 
   const { observerTarget } = useInfiniteScroll({
     onLoadMore: handleLoadMore,
