@@ -253,7 +253,13 @@ export function SizePickerModal({
         }
         setQuantity(Math.max(1, initialQty));
       }
-    } else if (!open) {
+    }
+  }, [open, product?.id, initialQuantities, initialCustomizations, isEditing, editingId, cartItems]);
+
+  // Reset all local state when the modal closes — kept separate so cart item
+  // updates don't re-trigger this cleanup via the broader dep array above.
+  useEffect(() => {
+    if (!open) {
       setSelectedSize(null);
       setQuantity(1);
       setPendingQuantities(new Map());
@@ -261,7 +267,7 @@ export function SizePickerModal({
       setOriginalQuantities(new Map());
       setCustomizationsBySize(new Map());
     }
-  }, [open, product?.id, initialQuantities, initialCustomizations, isEditing, editingId, cartItems]);
+  }, [open]);
 
   const handleQuantityChange = useCallback(
     (newQuantity: number) => {

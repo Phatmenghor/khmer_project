@@ -42,6 +42,7 @@ import {
   X,
   ShoppingCart,
   Pencil,
+  Check,
 } from "lucide-react";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { sanitizeImageUrl } from "@/utils/common/common";
@@ -99,6 +100,7 @@ export default function ProductDetailPage() {
   const [thumbOffset, setThumbOffset] = useState(0);
   const [showAllCustomizations, setShowAllCustomizations] = useState(false);
   const [sizePickerOpen, setSizePickerOpen] = useState(false);
+  const [selectedCustomizationIds, setSelectedCustomizationIds] = useState<Set<string>>(new Set());
 
   const isFavoritedFromStore =
     favLoaded && product
@@ -151,6 +153,7 @@ export default function ProductDetailPage() {
     setSelectedSize(product.hasSizes && product.sizes?.length ? product.sizes[0] : null);
     setThumbOffset(0);
     setShowAllCustomizations(false);
+    setSelectedCustomizationIds(new Set());
   }, [product?.id]);
 
   const fetchedSimilarRef = useRef<string | null>(null);
@@ -255,6 +258,15 @@ export default function ProductDetailPage() {
   }, [product?.id, cartItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
+
+  const toggleCustomization = useCallback((id: string) => {
+    setSelectedCustomizationIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {
@@ -439,8 +451,8 @@ export default function ProductDetailPage() {
                         className={cn(
                           "relative w-[76px] h-[76px] rounded-xl overflow-hidden shrink-0 transition-all duration-150",
                           idx === currentImageIndex
-                            ? "ring-2 ring-primary ring-offset-2 shadow-sm opacity-100"
-                            : "opacity-40 hover:opacity-100 hover:ring-1 hover:ring-primary/40",
+                            ? "ring-2 ring-primary ring-offset-2 shadow-sm"
+                            : "ring-1 ring-border hover:ring-primary/50",
                         )}
                       >
                         <Image
@@ -543,7 +555,7 @@ export default function ProductDetailPage() {
                       "relative flex-shrink-0 w-[68px] h-[68px] rounded-xl overflow-hidden transition-all duration-150",
                       i === currentImageIndex
                         ? "ring-2 ring-primary ring-offset-2 shadow-sm"
-                        : "opacity-40 hover:opacity-100 hover:ring-1 hover:ring-primary/30",
+                        : "ring-1 ring-border hover:ring-primary/50",
                     )}
                   >
                     <Image
@@ -643,34 +655,64 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* Customizations — read-only list, collapsible if >4 */}
+            {/* Customizations — selectable, collapsible if >4 */}
             {hasCustomizations && (
               <div className="space-y-2.5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Add-ons Available
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Add-ons Available
+                  </p>
+                  {selectedCustomizationIds.size > 0 && (
+                    <span className="text-xs text-primary font-medium">
+                      {selectedCustomizationIds.size} selected
+                    </span>
+                  )}
+                </div>
                 <div className="border rounded-xl overflow-hidden">
                   {(showAllCustomizations
                     ? product.customizations
                     : product.customizations.slice(0, CUSTOMIZATION_LIMIT)
-                  ).map((c, idx, arr) => (
-                    <div
-                      key={c.id}
-                      className={cn(
-                        "flex items-center justify-between px-4 py-2.5 text-sm",
-                        idx < arr.length - 1 && "border-b",
-                      )}
-                    >
-                      <span className="text-foreground/90">{c.name}</span>
-                      {c.priceAdjustment !== 0 ? (
-                        <span className="font-semibold text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                          +{formatCurrency(c.priceAdjustment)}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Included</span>
-                      )}
-                    </div>
-                  ))}
+                  ).map((c, idx, arr) => {
+                    const isSelected = selectedCustomizationIds.has(c.id);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => toggleCustomization(c.id)}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left transition-colors",
+                          idx < arr.length - 1 && "border-b",
+                          isSelected ? "bg-primary/5" : "hover:bg-muted/40",
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors",
+                            isSelected
+                              ? "border-primary bg-primary"
+                              : "border-border bg-background",
+                          )}
+                        >
+                          {isSelected && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
+                        </div>
+                        <span className="flex-1 text-foreground/90">{c.name}</span>
+                        {c.priceAdjustment !== 0 ? (
+                          <span
+                            className={cn(
+                              "font-semibold text-xs px-2 py-0.5 rounded-full shrink-0",
+                              isSelected
+                                ? "text-primary bg-primary/10"
+                                : "text-muted-foreground bg-muted/60",
+                            )}
+                          >
+                            +{formatCurrency(c.priceAdjustment)}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground shrink-0">Free</span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
                 {product.customizations.length > CUSTOMIZATION_LIMIT && (
                   <button
@@ -873,6 +915,7 @@ export default function ProductDetailPage() {
         onSizeSelect={handleSizeSelect}
         isEditing={totalCartQty > 0}
         initialQuantities={initialQuantities}
+        initialCustomizations={Array.from(selectedCustomizationIds)}
       />
 
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
