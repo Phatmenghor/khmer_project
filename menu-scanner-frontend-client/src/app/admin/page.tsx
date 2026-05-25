@@ -16,8 +16,6 @@ import {
   BarChart2,
   Users,
   Tag,
-  ScanLine,
-  ClipboardList,
   ArrowUpRight,
   Flame,
   RotateCcw,
@@ -111,14 +109,6 @@ const ORDER_STATUS_STYLE: Record<string, string> = {
     "bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400",
 };
 
-const QUICK_ACTIONS = [
-  { label: "POS Terminal", href: ROUTES.ADMIN.POS, icon: ScanLine, color: "text-primary bg-primary/10" },
-  { label: "Pending Orders", href: ROUTES.ADMIN.ORDERS_PENDING, icon: ClipboardList, color: "text-amber-600 bg-amber-100 dark:bg-amber-950/40" },
-  { label: "All Orders", href: ROUTES.ADMIN.ORDERS, icon: ShoppingCart, color: "text-sky-600 bg-sky-100 dark:bg-sky-950/40" },
-  { label: "Products", href: ROUTES.ADMIN.PRODUCTS, icon: Package, color: "text-violet-600 bg-violet-100 dark:bg-violet-950/40" },
-  { label: "Promotions", href: ROUTES.ADMIN.PRODUCTS_PROMOTION, icon: Tag, color: "text-rose-600 bg-rose-100 dark:bg-rose-950/40" },
-  { label: "Stock", href: ROUTES.MANAGE_STOCK.PRODUCTS_STOCK, icon: Store, color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-950/40" },
-];
 
 // ─── Skeleton helpers ─────────────────────────────────────────────────────────
 
@@ -357,22 +347,6 @@ export default function AdminDashboardPage() {
             Refresh
           </Button>
         </div>
-      </div>
-
-      {/* ── Quick Actions ── */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-        {QUICK_ACTIONS.map((action) => (
-          <Link key={action.href} href={action.href}>
-            <div className="flex flex-col items-center gap-2 p-3 rounded-xl border bg-card hover:shadow-md transition-all duration-150 cursor-pointer group">
-              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", action.color)}>
-                <action.icon className="h-5 w-5" />
-              </div>
-              <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                {action.label}
-              </span>
-            </div>
-          </Link>
-        ))}
       </div>
 
       {/* ── KPI Cards ── */}
