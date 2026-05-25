@@ -3,8 +3,8 @@
 export interface DashboardSummaryResponse {
   totalSalesToday: number;
   totalOrdersToday: number;
-  totalOrdersChange: number;     // % vs yesterday (positive = up)
-  totalSalesChange: number;      // % vs yesterday
+  totalOrdersChange: number;
+  totalSalesChange: number;
   lowStockItems: number;
   systemAlerts: number;
   activeStaff: number;
@@ -14,7 +14,7 @@ export interface DashboardSummaryResponse {
 // ─── Sales Analytics ─────────────────────────────────────────────────────────
 
 export interface SalesDataPoint {
-  date: string;   // "2024-01-15"
+  date: string;
   revenue: number;
   orders: number;
 }
@@ -89,12 +89,77 @@ export interface BranchPerformance {
   revenue: number;
   orders: number;
   rank: number;
-  revenueChange: number; // % vs previous period
+  revenueChange: number;
 }
 
 export interface DashboardBranchesResponse {
   data: BranchPerformance[];
   topBranchId: string;
+}
+
+// ─── Top Products ─────────────────────────────────────────────────────────────
+
+export interface DashboardTopProduct {
+  id: string;
+  name: string;
+  unitsSold: number;
+  revenue: number;
+  category: string;
+  imageUrl?: string;
+}
+
+export interface DashboardTopProductsResponse {
+  data: DashboardTopProduct[];
+  period: string;
+}
+
+// ─── Hourly Sales ─────────────────────────────────────────────────────────────
+
+export interface HourlySalesPoint {
+  hour: number;
+  revenue: number;
+  orders: number;
+}
+
+export interface DashboardHourlySalesResponse {
+  data: HourlySalesPoint[];
+  peakHour: number;
+}
+
+// ─── Customer Stats ───────────────────────────────────────────────────────────
+
+export interface DashboardCustomerStatsResponse {
+  newCustomers: number;
+  returningCustomers: number;
+  returnRate: number;
+  totalCustomers: number;
+  avgOrderValue: number;
+}
+
+// ─── Revenue Target ───────────────────────────────────────────────────────────
+
+export interface DashboardTargetResponse {
+  targetRevenue: number;
+  currentRevenue: number;
+  percentage: number;
+  period: string;
+  daysRemaining: number;
+}
+
+// ─── Promotion Performance ────────────────────────────────────────────────────
+
+export interface DashboardPromotion {
+  id: string;
+  name: string;
+  type: string;
+  timesUsed: number;
+  revenueGenerated: number;
+  discountGiven: number;
+  status: string;
+}
+
+export interface DashboardPromotionsResponse {
+  data: DashboardPromotion[];
 }
 
 // ─── Period Filter ────────────────────────────────────────────────────────────
