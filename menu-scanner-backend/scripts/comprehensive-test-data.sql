@@ -921,8 +921,8 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 DO $$ BEGIN RAISE NOTICE ' 65%% [█████████████░░░░░░░] Customer users done - starting orders'; END $$;
 
--- 13. COMPREHENSIVE ORDERS  2025-01-01 → 2027-05-25
--- Day-by-day, time-by-time: ~4,600 orders, CASH + BANK, all statuses
+-- 13. COMPREHENSIVE ORDERS  2025-01-01 → CURRENT_DATE (dynamic)
+-- Day-by-day, 24 hrs/day for past dates; today only up to current hour
 -- ============================================================================
 
 -- Widen orders.payment_method check constraint to include BANK
@@ -1057,13 +1057,19 @@ FROM (
       ELSE NULL
     END AS disc_reason
 
-  FROM generate_series('2025-01-01'::date, '2027-05-25'::date, '1 day'::interval) d
-  CROSS JOIN generate_series(0, 23) slot
+  FROM generate_series('2025-01-01'::date, CURRENT_DATE, '1 day'::interval) d
+  -- Past days: all 24 hours. Today: only up to the current hour so data matches NOW()
+  CROSS JOIN generate_series(0,
+    CASE WHEN d::date = CURRENT_DATE
+      THEN EXTRACT(HOUR FROM NOW())::int
+      ELSE 23
+    END
+  ) slot
 ) order_data;
 
 
 -- ============================================================================
-DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] ~21000 orders inserted (2025-2027, all 24 hrs/day)'; END $$;
+DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] Orders inserted up to current date/hour'; END $$;
 
 -- 14. DELIVERY ADDRESSES for PUBLIC (non-POS) orders
 -- ============================================================================
