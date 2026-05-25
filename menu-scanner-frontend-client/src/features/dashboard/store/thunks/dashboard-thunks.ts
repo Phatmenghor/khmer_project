@@ -11,7 +11,6 @@ import {
   DashboardSalesResponse,
   DashboardStockResponse,
   DashboardSummaryResponse,
-  DashboardTargetResponse,
   DashboardTopProductsResponse,
 } from "../models/response/dashboard-response";
 
@@ -84,14 +83,6 @@ export const fetchDashboardCustomerStatsService = createApiThunk<
   DashboardPeriodParams
 >("dashboard/fetchCustomerStats", async (params) => {
   const response = await axiosClientWithAuth.get("/api/admin/dashboard/customers", { params });
-  return response.data.data;
-});
-
-export const fetchDashboardTargetService = createApiThunk<
-  DashboardTargetResponse,
-  DashboardPeriodParams
->("dashboard/fetchTarget", async (params) => {
-  const response = await axiosClientWithAuth.get("/api/admin/dashboard/target", { params });
   return response.data.data;
 });
 

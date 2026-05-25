@@ -127,18 +127,6 @@ public class DashboardController {
         return ResponseEntity.ok(ApiResponse.success("Customer stats retrieved", data));
     }
 
-    // ── Revenue Target ─────────────────────────────────────────────────────────
-
-    @GetMapping("/target")
-    public ResponseEntity<ApiResponse<DashboardTargetResponse>> getTarget(
-            @RequestParam(defaultValue = "TODAY") String period) {
-
-        UUID businessId = getBusinessId();
-        log.info("Endpoint: dashboard/target - business={}", businessId);
-        DashboardTargetResponse data = dashboardService.getTarget(businessId, period);
-        return ResponseEntity.ok(ApiResponse.success("Revenue target retrieved", data));
-    }
-
     // ── Promotion Performance ──────────────────────────────────────────────────
 
     @GetMapping("/promotions")

@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -26,8 +25,8 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class DashboardServiceImpl implements DashboardService {
 
-    private static final int RECENT_ORDERS_LIMIT = 20;
-    private static final int TOP_PRODUCTS_LIMIT  = 10;
+    private static final int RECENT_ORDERS_LIMIT = 10;
+    private static final int TOP_PRODUCTS_LIMIT  = 8;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DT_FMT   = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -196,7 +195,7 @@ public class DashboardServiceImpl implements DashboardService {
             "  AND p.is_deleted  = false " +
             "  AND ps.quantity_available < :threshold " +
             "ORDER BY ps.quantity_available ASC " +
-            "LIMIT 30")
+            "LIMIT 10")
             .setParameter("bid",       businessId)
             .setParameter("threshold", threshold * 2)
             .getResultList();
@@ -423,18 +422,13 @@ public class DashboardServiceImpl implements DashboardService {
         Map<Integer, Object[]> byHour = new LinkedHashMap<>();
         for (Object[] r : rows) byHour.put(toInt(r[0]), r);
 
-        // Always return all 24 hours. The frontend filters to the user's
-        // local current hour, which avoids server/client timezone mismatches.
         int nowHour = LocalDateTime.now().getHour();
-        int maxHour = 23;
-        log.info("[Dashboard] getHourlySales — JVM timezone={}, LocalDateTime.now()={}, nowHour={}",
-                java.util.TimeZone.getDefault().getID(), LocalDateTime.now(), nowHour);
 
         List<DashboardHourlySalesResponse.HourlySalesPoint> points = new ArrayList<>();
         int peakHour = 0;
         BigDecimal peakRev = BigDecimal.ZERO;
 
-        for (int h = 0; h <= maxHour; h++) {
+        for (int h = 0; h <= 23; h++) {
             BigDecimal rev;
             long orders;
             if (byHour.containsKey(h)) {
@@ -511,39 +505,6 @@ public class DashboardServiceImpl implements DashboardService {
             .returningCustomers(returning)
             .returnRate(rate)
             .avgOrderValue(avg)
-            .build();
-    }
-
-    // ─── Revenue Target ───────────────────────────────────────────────────────
-
-    @Override
-    public DashboardTargetResponse getTarget(UUID businessId, String period) {
-        // Compute target as: 30-day rolling avg daily revenue × days remaining in month
-        LocalDateTime[] last30 = new LocalDateTime[]{
-            LocalDateTime.now().minusDays(30), LocalDateTime.now()
-        };
-        BigDecimal rev30 = queryRevenue(businessId, last30[0], last30[1]);
-        BigDecimal dailyAvg = rev30.divide(BigDecimal.valueOf(30), 2, RoundingMode.HALF_UP);
-
-        YearMonth month  = YearMonth.now();
-        int daysInMonth  = month.lengthOfMonth();
-        int dayOfMonth   = LocalDate.now().getDayOfMonth();
-        int daysLeft     = daysInMonth - dayOfMonth;
-
-        BigDecimal target  = dailyAvg.multiply(BigDecimal.valueOf(daysInMonth));
-        BigDecimal current = queryRevenue(businessId,
-            month.atDay(1).atStartOfDay(), LocalDateTime.now());
-
-        double pct = target.compareTo(BigDecimal.ZERO) == 0 ? 0.0
-            : current.divide(target, 4, RoundingMode.HALF_UP)
-                     .multiply(BigDecimal.valueOf(100)).doubleValue();
-
-        return DashboardTargetResponse.builder()
-            .targetRevenue(target)
-            .currentRevenue(current)
-            .percentage(pct)
-            .period("MONTHLY")
-            .daysRemaining(daysLeft)
             .build();
     }
 

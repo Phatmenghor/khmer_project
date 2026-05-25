@@ -309,20 +309,15 @@ export default function AdminDashboardPage() {
   // Current Cambodia hour comes from the backend (JVM is Asia/Phnom_Penh).
   const cambodiaCurrentHour = hourlySales?.currentHour ?? 0;
 
-  const activePromoCount = promotions?.data?.filter(p => p.status === "ACTIVE").length ?? 0;
+  const activePromoCount = promotions?.data?.length ?? 0;
 
-  // Show all 24 hours — no filtering. Current hour bar is highlighted.
   const hourlyData = (hourlySales?.data ?? []).map(d => ({
     ...d,
     label: formatHour(d.hour),
     isCurrent: period === "TODAY" && d.hour === cambodiaCurrentHour,
   }));
 
-  // Peak from visible data.
-  const localPeakHour: number = hourlyData.reduce(
-    (best, d) => (d.revenue > (hourlyData[best]?.revenue ?? 0) ? d.hour : best),
-    hourlyData[0]?.hour ?? 0
-  );
+  const peakHour = hourlySales?.peakHour ?? 0;
 
 
   // ────────────────────────────────────────────────────────────────────────────
@@ -550,7 +545,7 @@ export default function AdminDashboardPage() {
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart
-                  data={topProducts.data.slice(0, 8)}
+                  data={topProducts.data}
                   layout="vertical"
                   margin={{ top: 0, right: 12, left: 0, bottom: 0 }}
                 >
@@ -687,7 +682,7 @@ export default function AdminDashboardPage() {
             {hourlyData.length > 0 && (
               <Badge variant="outline" className="gap-1.5 text-xs">
                 <Flame className="h-3 w-3 text-rose-500" />
-                Peak: {formatHour(localPeakHour)}
+                Peak: {formatHour(peakHour)}
               </Badge>
             )}
           </div>
@@ -924,7 +919,7 @@ export default function AdminDashboardPage() {
                 <span className="text-center">Status</span>
               </div>
               <div className="divide-y">
-                {orders.data.slice(0, 10).map((order) => (
+                {orders.data.map((order) => (
                   <div key={order.id} className="grid grid-cols-[140px_1fr_100px_120px] gap-4 px-6 py-3 items-center hover:bg-muted/20 transition-colors">
                     <span className="text-sm font-mono font-medium text-primary truncate">{order.orderCode}</span>
                     <div className="min-w-0">
@@ -1003,7 +998,7 @@ export default function AdminDashboardPage() {
             </div>
           ) : (
             <div className="divide-y">
-              {stock.data.slice(0, 10).map((item) => {
+              {stock.data.map((item) => {
                 const cfg = STOCK_STATUS_CONFIG[item.status];
                 const pct = Math.min(100, Math.round((item.quantity / Math.max(item.minStock * 2, 1)) * 100));
                 return (

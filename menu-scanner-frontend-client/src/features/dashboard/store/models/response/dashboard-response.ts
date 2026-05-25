@@ -137,16 +137,6 @@ export interface DashboardCustomerStatsResponse {
   avgOrderValue: number;
 }
 
-// ─── Revenue Target ───────────────────────────────────────────────────────────
-
-export interface DashboardTargetResponse {
-  targetRevenue: number;
-  currentRevenue: number;
-  percentage: number;
-  period: string;
-  daysRemaining: number;
-}
-
 // ─── Promotion Performance ────────────────────────────────────────────────────
 
 export interface DashboardPromotion {
