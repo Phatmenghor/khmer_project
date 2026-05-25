@@ -526,7 +526,8 @@ public class DashboardServiceImpl implements DashboardService {
             "  AND discount_type IS NOT NULL " +
             "  AND is_deleted = false " +
             "GROUP BY discount_type " +
-            "ORDER BY times_used DESC")
+            "ORDER BY times_used DESC " +
+            "LIMIT 10")
             .setParameter("bid",   businessId)
             .setParameter("start", range[0])
             .setParameter("end",   range[1])
