@@ -19,6 +19,7 @@ spring:
       hibernate:
         jdbc:
           batch_size: 50
+          time_zone: Asia/Phnom_Penh
 
   # Cache
   cache:
