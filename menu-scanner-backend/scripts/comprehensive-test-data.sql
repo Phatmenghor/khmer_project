@@ -1006,10 +1006,11 @@ SELECT
 
 FROM (
   SELECT
-    -- All 24 hours covered — 1 order per hour per day
+    -- All 24 hours covered — order lands within first 3 min of each hour
+    -- so the current hour is always visible once the clock ticks past HH:03
     (d::timestamp
       + slot * INTERVAL '1 hour'
-      + ((slot * 7 + EXTRACT(DOY FROM d)::int * 3) % 55) * INTERVAL '1 minute'
+      + ((slot * 7 + EXTRACT(DOY FROM d)::int * 3) % 3) * INTERVAL '1 minute'
     ) AS ts,
     slot,
     ROW_NUMBER() OVER (ORDER BY d, slot)              AS rn,
