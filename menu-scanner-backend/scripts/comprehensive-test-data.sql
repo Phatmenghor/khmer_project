@@ -316,12 +316,21 @@ DO $$ BEGIN RAISE NOTICE ' 15%% [███░░░░░░░░░░░░�
 
 -- ============================================================================
 
--- Profiles for the 3 main users only
+-- Profiles for the 3 main users — look up actual user IDs by email so the
+-- script works whether DataInitializationService already created the user or not.
 INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES
-  (gen_random_uuid(), '550e8400-e29b-41d4-a716-446655440019', 'phatmenghor19@gmail.com', 'Phatmenghor', 'Nineteen',   '+855-19-000-019', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  (gen_random_uuid(), '660e8400-e29b-41d4-a716-446655440001', 'phatmenghor20@gmail.com', 'Phatmenghor', 'Twenty',     '+855-12-345-678', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  (gen_random_uuid(), '660e8400-e29b-41d4-a716-446655440002', 'phatmenghor21@gmail.com', 'Phatmenghor', 'Twenty-One', '+855-87-654-321', 0, false, NOW(), NOW(), 'admin', 'admin')
+SELECT gen_random_uuid(), u.id, 'phatmenghor19@gmail.com', 'Phatmenghor', 'Nineteen', '+855-19-000-019', 0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u WHERE u.user_identifier = 'phatmenghor19@gmail.com' AND u.is_deleted = false
+ON CONFLICT DO NOTHING;
+
+INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT gen_random_uuid(), u.id, 'phatmenghor20@gmail.com', 'Phatmenghor', 'Twenty', '+855-12-345-678', 0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u WHERE u.user_identifier = 'phatmenghor20@gmail.com' AND u.is_deleted = false
+ON CONFLICT DO NOTHING;
+
+INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT gen_random_uuid(), u.id, 'phatmenghor21@gmail.com', 'Phatmenghor', 'Twenty-One', '+855-87-654-321', 0, false, NOW(), NOW(), 'admin', 'admin'
+FROM users u WHERE u.user_identifier = 'phatmenghor21@gmail.com' AND u.is_deleted = false
 ON CONFLICT DO NOTHING;
 
 
@@ -336,7 +345,7 @@ DO $$ BEGIN RAISE NOTICE ' 20%% [████░░░░░░░░░░░�
 INSERT INTO customer_addresses (id, user_id, village, commune, district, province, country, street_number, house_number, note, latitude, longitude, is_default, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
-  '660e8400-e29b-41d4-a716-446655440001',
+  u.id,
   'Phum Svay Dangkum',
   'Sangkat Svay Dangkum',
   'Krong Siem Reap',
@@ -351,13 +360,14 @@ SELECT
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 3) AS t(addr_num);
+FROM generate_series(1, 3) AS t(addr_num)
+CROSS JOIN (SELECT id FROM users WHERE user_identifier = 'phatmenghor20@gmail.com' AND is_deleted = false) u;
 
 -- Addresses for phatmenghor21
 INSERT INTO customer_addresses (id, user_id, village, commune, district, province, country, street_number, house_number, note, latitude, longitude, is_default, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
-  '660e8400-e29b-41d4-a716-446655440002',
+  u.id,
   'Phum Kandal',
   'Sangkat Kandal',
   'Krong Siem Reap',
@@ -372,7 +382,8 @@ SELECT
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 2) AS t(addr_num);
+FROM generate_series(1, 2) AS t(addr_num)
+CROSS JOIN (SELECT id FROM users WHERE user_identifier = 'phatmenghor21@gmail.com' AND is_deleted = false) u;
 
 
 -- ============================================================================
