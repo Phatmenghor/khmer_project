@@ -10,7 +10,7 @@ spring:
   application:
     name: cambodia-emenu-platform
   profiles:
-    active: local # change to "local" or "dev" as needed
+    active: prod # change to "local" or "dev" as needed
 
   # JPA - common settings (ddl-auto overridden per profile)
   jpa:
@@ -28,7 +28,7 @@ spring:
 
 # Server
 server:
-  port: 8080
+  port: 7070
 
 # JWT
 jwt:
