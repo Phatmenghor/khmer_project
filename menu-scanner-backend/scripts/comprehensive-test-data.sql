@@ -921,8 +921,8 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 DO $$ BEGIN RAISE NOTICE ' 65%% [█████████████░░░░░░░] Customer users done - starting orders'; END $$;
 
--- 13. COMPREHENSIVE ORDERS  2025-01-01 → CURRENT_DATE (dynamic)
--- Day-by-day, 24 hrs/day for past dates; today only up to current hour
+-- 13. COMPREHENSIVE ORDERS  2025-01-01 → CURRENT_DATE+1yr (dynamic)
+-- Past/future days: 24 hrs/day; today: only up to current hour
 -- ============================================================================
 
 -- Widen orders.payment_method check constraint to include BANK
@@ -1057,8 +1057,8 @@ FROM (
       ELSE NULL
     END AS disc_reason
 
-  FROM generate_series('2025-01-01'::date, CURRENT_DATE, '1 day'::interval) d
-  -- Past days: all 24 hours. Today: only up to the current hour so data matches NOW()
+  FROM generate_series('2025-01-01'::date, CURRENT_DATE + INTERVAL '1 year', '1 day'::interval) d
+  -- Past/future days: all 24 hours. Today: only up to current hour so data matches NOW()
   CROSS JOIN generate_series(0,
     CASE WHEN d::date = CURRENT_DATE
       THEN EXTRACT(HOUR FROM NOW())::int
