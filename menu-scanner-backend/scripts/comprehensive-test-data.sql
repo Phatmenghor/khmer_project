@@ -1132,12 +1132,20 @@ WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
 
 
 -- ============================================================================
-DO $$ BEGIN RAISE NOTICE ' 80%% [████████████████░░░░] Order items done'; END $$;
+DO $$ BEGIN RAISE NOTICE ' 80%% [████████████████░░░░] Delivery options done — inserting order items'; END $$;
 
--- 16. ORDER ITEMS  (2 line items per order, varied products)
+-- 16. ORDER ITEMS  (exactly 2 per order)
+-- Products pre-numbered 0-199 in a CTE so items are picked by hash-join
+-- instead of LATERAL+OFFSET scanning — much faster for large order sets.
 -- ============================================================================
-
--- First item per order
+WITH prods AS (
+  SELECT id, name, sku, barcode, main_image_url, price,
+         ((ROW_NUMBER() OVER (ORDER BY id)) - 1)::int AS idx
+  FROM products
+  WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
+    AND is_deleted = false AND price > 0
+  LIMIT 200
+)
 INSERT INTO order_items (
   id, order_id, product_id, product_size_id,
   product_name, product_image_url, size_name, sku, barcode,
@@ -1146,55 +1154,30 @@ INSERT INTO order_items (
   customization_total, customizations,
   version, is_deleted, created_at, updated_at, created_by, updated_by
 )
+-- Item 1
 SELECT
-  gen_random_uuid(), o.id, p.id, NULL,
-  p.name, p.main_image_url, 'Standard', p.sku, p.barcode,
+  gen_random_uuid(), o.id, p1.id, NULL,
+  p1.name, p1.main_image_url, 'Standard', p1.sku, p1.barcode,
   (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3)::int,
-  p.price, p.price, p.price,
-  p.price * (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3),
+  p1.price, p1.price, p1.price,
+  p1.price * (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3),
   false, NULL, NULL, NULL, NULL,
   0.00, '[]'::json,
   0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
-JOIN LATERAL (
-  SELECT id, name, sku, barcode, main_image_url, price
-  FROM products
-  WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
-    AND is_deleted = false AND price > 0
-  ORDER BY id
-  LIMIT 1
-  OFFSET ((EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) % 100)
-) p ON true
+JOIN prods p1 ON p1.idx = (EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) % 100
 WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
-  AND NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = o.id);
-
--- Second item per order (different product)
-INSERT INTO order_items (
-  id, order_id, product_id, product_size_id,
-  product_name, product_image_url, size_name, sku, barcode,
-  quantity, current_price, final_price, unit_price, total_price,
-  has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date,
-  customization_total, customizations,
-  version, is_deleted, created_at, updated_at, created_by, updated_by
-)
+UNION ALL
+-- Item 2 (different product offset by 50)
 SELECT
-  gen_random_uuid(), o.id, p.id, NULL,
-  p.name, p.main_image_url, 'Standard', p.sku, p.barcode,
-  1,
-  p.price, p.price, p.price, p.price,
+  gen_random_uuid(), o.id, p2.id, NULL,
+  p2.name, p2.main_image_url, 'Standard', p2.sku, p2.barcode,
+  1, p2.price, p2.price, p2.price, p2.price,
   false, NULL, NULL, NULL, NULL,
   0.00, '[]'::json,
   0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
-JOIN LATERAL (
-  SELECT id, name, sku, barcode, main_image_url, price
-  FROM products
-  WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
-    AND is_deleted = false AND price > 0
-  ORDER BY id
-  LIMIT 1
-  OFFSET (((EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) + 50) % 100)
-) p ON true
+JOIN prods p2 ON p2.idx = ((EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) + 50) % 100
 WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
 
 
