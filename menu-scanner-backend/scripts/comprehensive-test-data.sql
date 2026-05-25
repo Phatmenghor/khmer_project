@@ -921,8 +921,8 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 DO $$ BEGIN RAISE NOTICE ' 65%% [█████████████░░░░░░░] Customer users done - starting orders'; END $$;
 
--- 13. COMPREHENSIVE ORDERS  2025-01-01 → CURRENT_DATE+1yr (fully dynamic)
--- 2-20 orders/hr (random per hour) × 24 hrs × ~1095 days ≈ 200k+ orders
+-- 13. COMPREHENSIVE ORDERS  CURRENT_DATE-4mo → CURRENT_DATE+4mo (fully dynamic)
+-- 2-20 orders/hr × 24 hrs × ~240 days ≈ 30-60k orders — fast to generate
 -- Today: slots capped at current hour so chart always matches real time
 -- ============================================================================
 
@@ -1057,7 +1057,7 @@ FROM (
       ELSE NULL
     END AS disc_reason
 
-  FROM generate_series('2025-01-01'::date, CURRENT_DATE + INTERVAL '1 year', '1 day'::interval) d
+  FROM generate_series(CURRENT_DATE - INTERVAL '4 months', CURRENT_DATE + INTERVAL '4 months', '1 day'::interval) d
   -- Past/future days: all 24 hours. Today: only up to current hour
   CROSS JOIN generate_series(0,
     CASE WHEN d::date = CURRENT_DATE
@@ -1073,7 +1073,7 @@ FROM (
 
 
 -- ============================================================================
-DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] ~200k+ orders inserted (2-20/hr, 2025 to +1yr)'; END $$;
+DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] Orders inserted (-4mo to +4mo from today)'; END $$;
 
 -- 14. DELIVERY ADDRESSES for PUBLIC (non-POS) orders
 -- ============================================================================
