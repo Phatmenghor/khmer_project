@@ -1024,16 +1024,28 @@ FROM (
 
     ROUND(((slot * 5 + EXTRACT(DOY FROM d)::int * 3) % 30)::numeric, 2) AS cust_total,
 
-    -- 20 % of orders get an 8 % discount
-    ROUND(CASE WHEN (slot + EXTRACT(DOY FROM d)::int) % 5 = 0
-      THEN GREATEST(0,
-             50
-             + (d::date - '2025-01-01'::date) * 0.08
-             + ((slot * 23 + EXTRACT(DOY FROM d)::int * 17) % 300)
-           )::numeric * 0.08
-      ELSE 0::numeric END, 2) AS discount,
-    CASE WHEN (slot + EXTRACT(DOY FROM d)::int) % 5 = 0 THEN 'percentage' ELSE NULL END AS disc_type,
-    CASE WHEN (slot + EXTRACT(DOY FROM d)::int) % 5 = 0 THEN '8% Seasonal Discount' ELSE NULL END AS disc_reason
+    -- ~10% PERCENTAGE discount, ~10% FIXED_AMOUNT discount, rest none
+    ROUND(CASE
+      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 0
+        THEN GREATEST(0,
+               50
+               + (d::date - '2025-01-01'::date) * 0.08
+               + ((slot * 23 + EXTRACT(DOY FROM d)::int * 17) % 300)
+             )::numeric * 0.08
+      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 5
+        THEN 5.00::numeric
+      ELSE 0::numeric
+    END, 2) AS discount,
+    CASE
+      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 0 THEN 'PERCENTAGE'
+      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 5 THEN 'FIXED_AMOUNT'
+      ELSE NULL
+    END AS disc_type,
+    CASE
+      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 0 THEN '8% Seasonal Discount'
+      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 5 THEN '$5 Off Promotion'
+      ELSE NULL
+    END AS disc_reason
 
   FROM generate_series('2025-01-01'::date, '2027-05-25'::date, '1 day'::interval) d
   CROSS JOIN generate_series(0, 23) slot
