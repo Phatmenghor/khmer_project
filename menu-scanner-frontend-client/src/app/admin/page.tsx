@@ -280,10 +280,9 @@ export default function AdminDashboardPage() {
 
   const fetchAll = useCallback(
     (p: DashboardPeriod) => {
-      // Sales Analytics always shows minimum 7 days — "Today" is too narrow for a trend chart
-      const salesPeriod: DashboardPeriod = p === "TODAY" ? "7D" : p;
       dispatch(fetchDashboardSummaryService({ period: p }));
-      dispatch(fetchDashboardSalesService({ period: salesPeriod }));
+      // Sales Analytics is always fixed to last 7 days regardless of the period filter
+      dispatch(fetchDashboardSalesService({ period: "7D" }));
       dispatch(fetchDashboardPaymentsService({ period: p }));
       dispatch(fetchDashboardStockService());
       dispatch(fetchDashboardOrdersService({ period: p }));
@@ -417,9 +416,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-base">Sales Analytics</CardTitle>
-                <CardDescription>
-                  {period === "TODAY" ? "Last 7 days — daily view always shows 7d minimum" : "Revenue & orders over time"}
-                </CardDescription>
+                <CardDescription>Revenue &amp; orders over time — last 7 days</CardDescription>
               </div>
               {sales && (
                 <div className="text-right">
