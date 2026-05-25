@@ -285,7 +285,7 @@ export default function AdminDashboardPage() {
       dispatch(fetchDashboardOrdersService({ period: p }));
       dispatch(fetchDashboardBranchesService({ period: p }));
       dispatch(fetchDashboardTopProductsService({ period: p }));
-      dispatch(fetchDashboardHourlySalesService({ period: p }));
+      dispatch(fetchDashboardHourlySalesService({ period: "TODAY" }));
       dispatch(fetchDashboardCustomerStatsService({ period: p }));
       dispatch(fetchDashboardPromotionsService({ period: p }));
     },
@@ -314,7 +314,7 @@ export default function AdminDashboardPage() {
   const hourlyData = (hourlySales?.data ?? []).map(d => ({
     ...d,
     label: formatHour(d.hour),
-    isCurrent: period === "TODAY" && d.hour === cambodiaCurrentHour,
+    isCurrent: d.hour === cambodiaCurrentHour,
   }));
 
   const peakHour = hourlySales?.peakHour ?? 0;
@@ -674,9 +674,7 @@ export default function AdminDashboardPage() {
             <div>
               <CardTitle className="text-base">Hourly Sales Pattern</CardTitle>
               <CardDescription>
-                {period === "TODAY"
-                  ? `Today's revenue by hour (current: ${formatHour(cambodiaCurrentHour)})`
-                  : "Revenue aggregated by hour across the period"}
+                Today's revenue by hour (current: {formatHour(cambodiaCurrentHour)})
               </CardDescription>
             </div>
             {hourlyData.length > 0 && (
