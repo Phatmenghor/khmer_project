@@ -309,28 +309,34 @@ export default function AdminDashboardPage() {
 
   const today = format(new Date(), "EEEE, MMM d yyyy");
 
-  // Use the browser's local clock — not the server's — to decide the cutoff.
-  // This avoids timezone mismatches between server and client.
-  const localCurrentHour = new Date().getHours();
+  // Get current Cambodia hour via Intl API — independent of browser/OS timezone.
+  const cambodiaCurrentHour = (() => {
+    try {
+      const h = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Phnom_Penh",
+        hour: "numeric",
+        hour12: false,
+      }).format(new Date());
+      return parseInt(h, 10) % 24;
+    } catch {
+      return hourlySales?.currentHour ?? new Date().getHours();
+    }
+  })();
 
-  // For TODAY, clip to hours 0…localCurrentHour so future $0 bars never appear.
-  // For multi-day periods show all 24 aggregate hours.
-  const hourlyData = (hourlySales?.data ?? [])
-    .filter(d => period !== "TODAY" || d.hour <= localCurrentHour)
-    .map(d => ({
-      ...d,
-      label: formatHour(d.hour),
-      isCurrent: period === "TODAY" && d.hour === localCurrentHour,
-    }));
+  // Show all 24 hours — no clipping. Current Cambodia hour is highlighted.
+  const hourlyData = (hourlySales?.data ?? []).map(d => ({
+    ...d,
+    label: formatHour(d.hour),
+    isCurrent: period === "TODAY" && d.hour === cambodiaCurrentHour,
+  }));
 
-  // Re-derive peak from the visible data so it respects the local cutoff.
+  // Derive peak from all visible data.
   const localPeakHour: number = hourlyData.reduce(
     (best, d) => (d.revenue > (hourlyData[best]?.revenue ?? 0) ? d.hour : best),
     hourlyData[0]?.hour ?? 0
   );
 
-  // X-axis: every 4-hour mark + current hour, passed as explicit ticks
-  // with interval={0} so recharts shows all of them without auto-filtering.
+  // X-axis: every 4-hour mark (12am,4am,8am,12pm,4pm,8pm) + current hour.
   const hourlyAxisTicks = hourlyData
     .filter(d => d.hour % 4 === 0 || d.isCurrent)
     .map(d => d.label);
@@ -690,7 +696,7 @@ export default function AdminDashboardPage() {
               <CardTitle className="text-base">Hourly Sales Pattern</CardTitle>
               <CardDescription>
                 {period === "TODAY"
-                  ? `Today's revenue by hour (up to ${formatHour(localCurrentHour)})`
+                  ? `Today's revenue by hour (current: ${formatHour(cambodiaCurrentHour)})`
                   : "Revenue aggregated by hour across the period"}
               </CardDescription>
             </div>
