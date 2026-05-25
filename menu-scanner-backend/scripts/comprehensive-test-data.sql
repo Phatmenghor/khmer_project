@@ -1025,15 +1025,20 @@ FROM (
     ROUND(((slot * 5 + EXTRACT(DOY FROM d)::int * 3) % 30)::numeric, 2) AS cust_total,
 
     -- ~10% PERCENTAGE discount, ~10% FIXED_AMOUNT discount, rest none
+    -- Both are fully dynamic — percentage varies 5–20%, fixed amount varies $2–$20
     ROUND(CASE
       WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 0
+        -- Dynamic percentage: 5%, 8%, 10%, 12%, 15%, or 20% based on day+slot
         THEN GREATEST(0,
                50
                + (d::date - '2025-01-01'::date) * 0.08
                + ((slot * 23 + EXTRACT(DOY FROM d)::int * 17) % 300)
-             )::numeric * 0.08
+             )::numeric
+             * (ARRAY[5,8,10,12,15,20])[ 1 + (slot * 7 + EXTRACT(DOY FROM d)::int * 13) % 6 ]
+             / 100.0
       WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 5
-        THEN 5.00::numeric
+        -- Dynamic fixed amount: $2, $3, $5, $7, $10, or $15 based on day+slot
+        THEN (ARRAY[2,3,5,7,10,15])[ 1 + (slot * 11 + EXTRACT(DOY FROM d)::int * 7) % 6 ]::numeric
       ELSE 0::numeric
     END, 2) AS discount,
     CASE
@@ -1042,8 +1047,12 @@ FROM (
       ELSE NULL
     END AS disc_type,
     CASE
-      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 0 THEN '8% Seasonal Discount'
-      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 5 THEN '$5 Off Promotion'
+      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 0
+        THEN (ARRAY['5% Member Discount','8% Seasonal Sale','10% Loyalty Reward','12% Weekend Deal','15% Flash Sale','20% VIP Offer'])[
+               1 + (slot * 7 + EXTRACT(DOY FROM d)::int * 13) % 6 ]
+      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 5
+        THEN (ARRAY['$2 First Order','$3 Happy Hour','$5 Promo Code','$7 Bundle Deal','$10 Birthday Offer','$15 Special Event'])[
+               1 + (slot * 11 + EXTRACT(DOY FROM d)::int * 7) % 6 ]
       ELSE NULL
     END AS disc_reason
 
