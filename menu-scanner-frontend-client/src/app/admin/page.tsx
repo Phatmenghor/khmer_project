@@ -317,13 +317,12 @@ export default function AdminDashboardPage() {
     isCurrent: d.hour === currentHour,
   })) ?? [];
 
-  // Build a Set of labels that should be visible on the x-axis:
-  // every 4-hour mark (12am, 4am, 8am…) + the current hour
-  const visibleHourLabels = new Set(
-    hourlyData
-      .filter(d => d.hour % 4 === 0 || d.isCurrent)
-      .map(d => d.label)
-  );
+  // X-axis: show every 4-hour mark + the current hour.
+  // Pass as `ticks` so recharts only renders those positions,
+  // then `interval={0}` ensures all of them are shown without any auto-skip.
+  const hourlyAxisTicks = hourlyData
+    .filter(d => d.hour % 4 === 0 || d.isCurrent)
+    .map(d => d.label);
 
   // ────────────────────────────────────────────────────────────────────────────
 
@@ -705,13 +704,11 @@ export default function AdminDashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis
                   dataKey="label"
+                  ticks={hourlyAxisTicks}
                   interval={0}
                   tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(label: string) =>
-                    visibleHourLabels.has(label) ? label : ""
-                  }
                 />
                 <YAxis
                   tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
