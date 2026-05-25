@@ -427,6 +427,8 @@ public class DashboardServiceImpl implements DashboardService {
         // local current hour, which avoids server/client timezone mismatches.
         int nowHour = LocalDateTime.now().getHour();
         int maxHour = 23;
+        log.info("[Dashboard] getHourlySales — JVM timezone={}, LocalDateTime.now()={}, nowHour={}",
+                java.util.TimeZone.getDefault().getID(), LocalDateTime.now(), nowHour);
 
         List<DashboardHourlySalesResponse.HourlySalesPoint> points = new ArrayList<>();
         int peakHour = 0;
