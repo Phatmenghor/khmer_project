@@ -532,12 +532,9 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <Flame className="h-4 w-4 text-rose-500" />
-              <div>
-                <CardTitle className="text-base">Top Selling Products</CardTitle>
-                <CardDescription>Best performers this period</CardDescription>
-              </div>
+            <div>
+              <CardTitle className="text-base">Top Selling Products</CardTitle>
+              <CardDescription>Best performers this period</CardDescription>
             </div>
           </CardHeader>
           <CardContent>
