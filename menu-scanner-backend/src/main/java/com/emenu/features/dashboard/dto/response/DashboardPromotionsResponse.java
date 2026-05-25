@@ -22,11 +22,10 @@ public class DashboardPromotionsResponse {
     @AllArgsConstructor
     public static class DashboardPromotion {
         private String     id;
-        private String     name;           // discount_type (PERCENTAGE / FIXED_AMOUNT)
+        private String     name;
         private String     type;
         private long       timesUsed;
         private BigDecimal revenueGenerated;
         private BigDecimal discountGiven;
-        private String     status;
     }
 }

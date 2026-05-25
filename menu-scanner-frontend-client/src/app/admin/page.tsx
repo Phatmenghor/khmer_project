@@ -779,14 +779,6 @@ export default function AdminDashboardPage() {
                       <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatCurrency(promo.revenueGenerated)}</p>
                       <p className="text-xs text-rose-400 tabular-nums">-{formatCurrency(promo.discountGiven)}</p>
                     </div>
-                    <span className={cn(
-                      "shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-                      promo.status === "ACTIVE"
-                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-                        : "bg-muted text-muted-foreground"
-                    )}>
-                      {promo.status}
-                    </span>
                   </div>
                 ))}
               </div>

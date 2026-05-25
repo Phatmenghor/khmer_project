@@ -146,7 +146,6 @@ export interface DashboardPromotion {
   timesUsed: number;
   revenueGenerated: number;
   discountGiven: number;
-  status: string;
 }
 
 export interface DashboardPromotionsResponse {

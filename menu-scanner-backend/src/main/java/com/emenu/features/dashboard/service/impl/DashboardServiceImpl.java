@@ -543,7 +543,6 @@ public class DashboardServiceImpl implements DashboardService {
                 .timesUsed(toLong(row[1]))
                 .revenueGenerated(toBigDecimal(row[2]))
                 .discountGiven(toBigDecimal(row[3]))
-                .status("ACTIVE")
                 .build());
         }
 
