@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 import { buildCustomizationMapKey, getQuantityForCombo } from "@/utils/common/customization-utils";
 import {
@@ -180,81 +180,88 @@ export function SizePickerModal({
     }
   }, [selectedSize, initialCustomizations, originalQuantities]);
 
+  // Track previous open state so initialization only runs on open transition
+  const prevOpenRef = useRef(false);
+
   useEffect(() => {
-    if (open && product) {
-      const hasSizes = product.sizes && product.sizes.length > 0;
-      const hasCustomizations = product.customizations && product.customizations.length > 0;
+    const justOpened = open && !prevOpenRef.current;
+    prevOpenRef.current = open;
 
-      let editingItem = null;
-      if (isEditing && editingId) {
-        editingItem = cartItems?.find((item) => item.id === editingId);
-      }
+    if (!justOpened || !product) return;
 
-      if (hasSizes) {
+    const hasSizes = product.sizes && product.sizes.length > 0;
+    const hasCustomizations = product.customizations && product.customizations.length > 0;
 
-        let selectedSizeForInit = product.sizes![0];
-        if (editingItem && editingItem.productSizeId) {
-          const editingSizeId = editingItem.productSizeId;
-          const editingSize = product.sizes!.find((s) => s.id === editingSizeId);
-          if (editingSize) {
-            selectedSizeForInit = editingSize;
-          }
-        }
-
-        setSelectedSize(selectedSizeForInit);
-        setPendingQuantities(new Map());
-        setModifiedSizes(new Set());
-
-        const customsBySize = new Map<string, Set<string>>();
-        if (initialCustomizations && initialCustomizations.length > 0) {
-
-          const targetSizeId = editingItem?.productSizeId || selectedSizeForInit.id;
-          customsBySize.set(targetSizeId, new Set(initialCustomizations));
-        }
-        setCustomizationsBySize(customsBySize);
-
-        const origQties = new Map(initialQuantities || new Map());
-        setOriginalQuantities(origQties);
-
-        let sizeQty = 0;
-        const selectedSizeId = selectedSizeForInit.id;
-        if (initialCustomizations && initialCustomizations.length > 0) {
-          const customKey = `-${[...initialCustomizations].sort().join("-")}`;
-          const mapKey = `${selectedSizeId}${customKey}`;
-          sizeQty = initialQuantities?.get(mapKey) ?? 0;
-        } else {
-          sizeQty = initialQuantities?.get(selectedSizeId) ?? 0;
-        }
-        setQuantity(sizeQty);
-      } else if (hasCustomizations) {
-
-        const noSizeId = "__no_size__";
-        const newSize = { id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as unknown as ProductSize;
-        setSelectedSize(newSize);
-        setPendingQuantities(new Map());
-        setModifiedSizes(new Set([noSizeId]));
-
-        const customsBySize = new Map<string, Set<string>>();
-        if (initialCustomizations && initialCustomizations.length > 0) {
-          customsBySize.set(noSizeId, new Set(initialCustomizations));
-        }
-        setCustomizationsBySize(customsBySize);
-
-        const origQties = new Map(initialQuantities || new Map());
-        setOriginalQuantities(origQties);
-
-        let initialQty = 0;
-        if (initialCustomizations && initialCustomizations.length > 0) {
-          const customKey = `-${[...initialCustomizations].sort().join("-")}`;
-          const mapKey = `${noSizeId}${customKey}`;
-          initialQty = initialQuantities?.get(mapKey) ?? 0;
-        } else {
-          initialQty = initialQuantities?.get(noSizeId) ?? 0;
-        }
-        setQuantity(Math.max(1, initialQty));
-      }
+    let editingItem = null;
+    if (isEditing && editingId) {
+      editingItem = cartItems?.find((item) => item.id === editingId);
     }
-  }, [open, product?.id, initialQuantities, initialCustomizations, isEditing, editingId, cartItems]);
+
+    if (hasSizes) {
+
+      let selectedSizeForInit = product.sizes![0];
+      if (editingItem && editingItem.productSizeId) {
+        const editingSizeId = editingItem.productSizeId;
+        const editingSize = product.sizes!.find((s) => s.id === editingSizeId);
+        if (editingSize) {
+          selectedSizeForInit = editingSize;
+        }
+      }
+
+      setSelectedSize(selectedSizeForInit);
+      setPendingQuantities(new Map());
+      setModifiedSizes(new Set());
+
+      const customsBySize = new Map<string, Set<string>>();
+      if (initialCustomizations && initialCustomizations.length > 0) {
+
+        const targetSizeId = editingItem?.productSizeId || selectedSizeForInit.id;
+        customsBySize.set(targetSizeId, new Set(initialCustomizations));
+      }
+      setCustomizationsBySize(customsBySize);
+
+      const origQties = new Map(initialQuantities || new Map());
+      setOriginalQuantities(origQties);
+
+      let sizeQty = 0;
+      const selectedSizeId = selectedSizeForInit.id;
+      if (initialCustomizations && initialCustomizations.length > 0) {
+        const customKey = `-${[...initialCustomizations].sort().join("-")}`;
+        const mapKey = `${selectedSizeId}${customKey}`;
+        sizeQty = initialQuantities?.get(mapKey) ?? 0;
+      } else {
+        sizeQty = initialQuantities?.get(selectedSizeId) ?? 0;
+      }
+      setQuantity(sizeQty);
+    } else if (hasCustomizations) {
+
+      const noSizeId = "__no_size__";
+      const newSize = { id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as unknown as ProductSize;
+      setSelectedSize(newSize);
+      setPendingQuantities(new Map());
+      setModifiedSizes(new Set([noSizeId]));
+
+      const customsBySize = new Map<string, Set<string>>();
+      if (initialCustomizations && initialCustomizations.length > 0) {
+        customsBySize.set(noSizeId, new Set(initialCustomizations));
+      }
+      setCustomizationsBySize(customsBySize);
+
+      const origQties = new Map(initialQuantities || new Map());
+      setOriginalQuantities(origQties);
+
+      let initialQty = 0;
+      if (initialCustomizations && initialCustomizations.length > 0) {
+        const customKey = `-${[...initialCustomizations].sort().join("-")}`;
+        const mapKey = `${noSizeId}${customKey}`;
+        initialQty = initialQuantities?.get(mapKey) ?? 0;
+      } else {
+        initialQty = initialQuantities?.get(noSizeId) ?? 0;
+      }
+      setQuantity(Math.max(1, initialQty));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, product?.id]);
 
   // Reset all local state when the modal closes — kept separate so cart item
   // updates don't re-trigger this cleanup via the broader dep array above.

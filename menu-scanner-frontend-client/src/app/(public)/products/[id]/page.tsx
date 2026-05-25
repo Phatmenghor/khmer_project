@@ -249,6 +249,12 @@ export default function ProductDetailPage() {
 
   // ─── Modal initial quantities ─────────────────────────────────────────────
 
+  // Stable array reference — avoid recreating on every render (would retrigger modal's open effect)
+  const initialCustomizationsForModal = useMemo(
+    () => Array.from(selectedCustomizationIds),
+    [selectedCustomizationIds],
+  );
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const initialQuantities = useMemo(() => {
     const map = new Map<string, number>();
@@ -1056,7 +1062,7 @@ export default function ProductDetailPage() {
         onSizeSelect={handleSizeSelect}
         isEditing={totalCartQty > 0}
         initialQuantities={initialQuantities}
-        initialCustomizations={Array.from(selectedCustomizationIds)}
+        initialCustomizations={initialCustomizationsForModal}
       />
 
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
