@@ -585,7 +585,6 @@ export default function AdminDashboardPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Exchange Rates</CardTitle>
-              <CardDescription>Active rates</CardDescription>
             </CardHeader>
             <CardContent>
               {!activeRate ? (
