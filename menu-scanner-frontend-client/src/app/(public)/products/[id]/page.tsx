@@ -104,7 +104,6 @@ export default function ProductDetailPage() {
   const [sizePickerOpen, setSizePickerOpen] = useState(false);
   const [selectedCustomizationIds, setSelectedCustomizationIds] = useState<Set<string>>(new Set());
   const [pageQuantity, setPageQuantity] = useState(0);
-  const [isInlineUpdating, setIsInlineUpdating] = useState(false);
 
   const isFavoritedFromStore =
     favLoaded && product
@@ -357,29 +356,52 @@ export default function ProductDetailPage() {
     [product, cartDispatch, getQuantityForSize],
   );
 
-  const handleInlineMinus = useCallback(async () => {
-    if (!isAuthenticated) { setShowLoginModal(true); return; }
-    if (!product || pageQuantity <= 0) return;
-    const newQty = pageQuantity - 1;
-    setIsInlineUpdating(true);
-    try {
-      await handleSizeSelect(product, selectedSize ?? undefined, newQty);
-    } finally {
-      setIsInlineUpdating(false);
-    }
-  }, [isAuthenticated, product, pageQuantity, selectedSize, handleSizeSelect]);
-
-  const handleInlinePlus = useCallback(async () => {
+  const handleInlineQuantityChange = useCallback((newQty: number) => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!product) return;
-    const newQty = pageQuantity + 1;
-    setIsInlineUpdating(true);
-    try {
-      await handleSizeSelect(product, selectedSize ?? undefined, newQty);
-    } finally {
-      setIsInlineUpdating(false);
+
+    const sizeId = selectedSize?.id ?? null;
+    const currentQty = getQuantityForSize(sizeId);
+    if (newQty === currentQty) return;
+
+    const ts = Date.now();
+
+    if (currentQty === 0 && newQty > 0) {
+      const finalPrice = selectedSize?.finalPrice ?? product.displayPrice ?? 0;
+      cartDispatch(
+        addLocalCartItem({
+          productId: product.id,
+          productSizeId: sizeId,
+          quantity: newQty,
+          productName: product.name,
+          productImageUrl: product.mainImageUrl,
+          sizeName: selectedSize?.name ?? null,
+          finalPrice,
+          currentPrice: selectedSize?.hasPromotion
+            ? selectedSize.price
+            : (product.displayOriginPrice ?? finalPrice),
+          hasPromotion: selectedSize ? selectedSize.hasPromotion : (product.hasPromotion ?? false),
+          promotionType: selectedSize?.promotionType ?? product.displayPromotionType ?? null,
+          promotionValue: selectedSize?.promotionValue ?? product.displayPromotionValue ?? null,
+          promotionFromDate: selectedSize?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
+          promotionToDate: selectedSize?.promotionToDate ?? product.displayPromotionToDate ?? null,
+          optimisticTimestamp: ts,
+        }),
+      );
+      cartDispatch(addToCart({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts }))
+        .unwrap()
+        .catch((err: unknown) =>
+          showToast.error((err as { message?: string })?.message || Messages.cart.updateFailed),
+        );
+    } else {
+      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts }));
+      cartDispatch(updateCartItem({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts }))
+        .unwrap()
+        .catch((err: unknown) =>
+          showToast.error((err as { message?: string })?.message || Messages.cart.updateFailed),
+        );
     }
-  }, [isAuthenticated, product, pageQuantity, selectedSize, handleSizeSelect]);
+  }, [isAuthenticated, product, selectedSize, cartDispatch, getQuantityForSize]);
 
   const handleToggleFavorite = () => {
     if (!product) return;
@@ -718,6 +740,50 @@ export default function ProductDetailPage() {
               </div>
             )}
 
+            {/* Inline quantity — product-card style, background API */}
+            {!isOutOfStock && (
+              <div className="space-y-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {hasSizes && selectedSize ? `Quantity — ${selectedSize.name}` : "Quantity"}
+                </p>
+                <div className="flex items-center gap-2">
+                  <CustomButton
+                    size="icon"
+                    variant="outline"
+                    className={cn(
+                      "h-10 w-10 shrink-0 transition-all duration-150",
+                      pageQuantity > 0
+                        ? "hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+                        : "opacity-40 cursor-not-allowed",
+                    )}
+                    onClick={() => pageQuantity > 0 && handleInlineQuantityChange(pageQuantity - 1)}
+                    disabled={pageQuantity <= 0}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </CustomButton>
+
+                  <div className="w-16 h-10 bg-primary/10 text-primary font-bold text-base rounded-lg border border-primary/20 flex items-center justify-center select-none">
+                    {pageQuantity}
+                  </div>
+
+                  <CustomButton
+                    size="icon"
+                    variant="outline"
+                    className="h-10 w-10 shrink-0 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-150"
+                    onClick={() => handleInlineQuantityChange(pageQuantity + 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </CustomButton>
+
+                  {pageQuantity > 0 && displayPrice > 0 && (
+                    <span className="text-sm text-muted-foreground ml-1">
+                      = <span className="font-semibold text-foreground">{formatCurrency(displayPrice * pageQuantity)}</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Customizations — selectable, collapsible if >4 */}
             {hasCustomizations && (
               <div className="space-y-2.5">
@@ -790,52 +856,6 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* Inline quantity control */}
-            {!isOutOfStock && (
-              <div className="space-y-2.5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {hasSizes && selectedSize ? `Quantity — ${selectedSize.name}` : "Quantity"}
-                </p>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center rounded-xl overflow-hidden border border-primary/30 shadow-sm">
-                    <button
-                      onClick={handleInlineMinus}
-                      disabled={pageQuantity <= 0 || isInlineUpdating}
-                      className={cn(
-                        "w-11 h-11 flex items-center justify-center transition-all duration-150",
-                        pageQuantity > 0 && !isInlineUpdating
-                          ? "bg-primary text-primary-foreground hover:bg-primary/80 active:scale-95"
-                          : "bg-muted text-muted-foreground/40 cursor-not-allowed",
-                      )}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </button>
-                    <div className="min-w-[56px] h-11 flex items-center justify-center border-x border-primary/20 bg-background font-bold text-lg text-primary select-none">
-                      {isInlineUpdating
-                        ? <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        : pageQuantity}
-                    </div>
-                    <button
-                      onClick={handleInlinePlus}
-                      disabled={isInlineUpdating}
-                      className={cn(
-                        "w-11 h-11 bg-primary text-primary-foreground flex items-center justify-center transition-all duration-150",
-                        !isInlineUpdating && "hover:bg-primary/80 active:scale-95",
-                        isInlineUpdating && "opacity-60 cursor-not-allowed",
-                      )}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
-                  </div>
-                  {pageQuantity > 0 && displayPrice > 0 && (
-                    <p className="text-sm text-muted-foreground">
-                      = <span className="font-semibold text-foreground">{formatCurrency(displayPrice * pageQuantity)}</span>
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* Cart status pill */}
             {totalCartQty > 0 && (
               <div className="flex items-center justify-between p-4 rounded-xl border border-primary/20 bg-primary/5">
@@ -866,13 +886,9 @@ export default function ProductDetailPage() {
                 totalCartQty > 0 && "shadow-md",
               )}
               onClick={handleAddToCart}
-              disabled={isOutOfStock || isInlineUpdating}
+              disabled={isOutOfStock}
             >
-              {isInlineUpdating ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <ShoppingCart className="h-5 w-5" />
-              )}
+              <ShoppingCart className="h-5 w-5" />
               {isOutOfStock
                 ? "Out of Stock"
                 : hasSizes
