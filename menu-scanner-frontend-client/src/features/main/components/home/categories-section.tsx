@@ -87,10 +87,11 @@ const CategoriesSectionComponent = ({
 
       {}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-        {displayCategories.map((category) => (
+        {displayCategories.map((category, index) => (
           <CategoryCard
             key={`category-${category.id}`}
             category={category}
+            loading={index < 6 ? "eager" : "lazy"}
           />
         ))}
       </div>

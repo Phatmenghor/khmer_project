@@ -19,6 +19,7 @@ export interface GenericCardProps {
   className?: string;
   countSingular?: string;
   countPlural?: string;
+  loading?: "eager" | "lazy";
 }
 
 /**
@@ -46,6 +47,7 @@ function GenericCardComponent({
   className,
   countSingular = "item",
   countPlural = "items",
+  loading = "lazy",
 }: GenericCardProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -76,10 +78,11 @@ function GenericCardComponent({
                 <Image
                   src={imageUrl}
                   alt={name}
-                  width={80}
-                  height={80}
+                  fill
+                  sizes="(max-width: 640px) 64px, 80px"
+                  loading={loading}
                   className={cn(
-                    "w-full h-full object-cover transition-all duration-300 group-hover:scale-105",
+                    "object-cover transition-all duration-300 group-hover:scale-105",
                     imageLoaded ? "opacity-100" : "opacity-0"
                   )}
                   onLoad={() => setImageLoaded(true)}

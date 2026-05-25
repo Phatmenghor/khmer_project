@@ -12,10 +12,11 @@ import { CategoriesResponseModel } from "@/features/master-data/store/models/res
 interface CategoryCardProps {
   category: CategoriesResponseModel;
   className?: string;
+  loading?: "eager" | "lazy";
 }
 
 
-function CategoryCardComponent({ category, className }: CategoryCardProps) {
+function CategoryCardComponent({ category, className, loading = "lazy" }: CategoryCardProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -42,10 +43,11 @@ function CategoryCardComponent({ category, className }: CategoryCardProps) {
                 <Image
                   src={category.imageUrl}
                   alt={category.name}
-                  width={80}
-                  height={80}
+                  fill
+                  sizes="(max-width: 640px) 64px, 80px"
+                  loading={loading}
                   className={cn(
-                    "w-full h-full object-cover transition-all duration-300 group-hover:scale-105",
+                    "object-cover transition-all duration-300 group-hover:scale-105",
                     imageLoaded ? "opacity-100" : "opacity-0"
                   )}
                   onLoad={() => setImageLoaded(true)}

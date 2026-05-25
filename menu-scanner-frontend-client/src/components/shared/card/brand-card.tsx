@@ -12,9 +12,10 @@ import { BrandResponseModel } from "@/features/master-data/store/models/response
 interface BrandCardProps {
   brand: BrandResponseModel;
   className?: string;
+  loading?: "eager" | "lazy";
 }
 
-function BrandCardComponent({ brand, className }: BrandCardProps) {
+function BrandCardComponent({ brand, className, loading = "lazy" }: BrandCardProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -41,10 +42,11 @@ function BrandCardComponent({ brand, className }: BrandCardProps) {
                 <Image
                   src={brand.imageUrl}
                   alt={brand.name}
-                  width={80}
-                  height={80}
+                  fill
+                  sizes="(max-width: 640px) 64px, 80px"
+                  loading={loading}
                   className={cn(
-                    "w-full h-full object-cover transition-all duration-300 group-hover:scale-105",
+                    "object-cover transition-all duration-300 group-hover:scale-105",
                     imageLoaded ? "opacity-100" : "opacity-0"
                   )}
                   onLoad={() => setImageLoaded(true)}

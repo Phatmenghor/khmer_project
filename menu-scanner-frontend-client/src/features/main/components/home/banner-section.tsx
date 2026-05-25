@@ -107,12 +107,13 @@ const BannerSectionComponent = ({
                     src={banner.imageUrl || appImages.NoImage}
                     alt={banner.businessName || "Banner"}
                     fill
+                    sizes="100vw"
+                    loading="eager"
                     className={cn(
                       "object-cover transition-opacity duration-300",
                       loadedImages.has(index) ? "opacity-100" : "opacity-0",
                     )}
                     onLoad={() => handleImageLoad(index)}
-                    loading="eager"
                   />
                 </div>
               </CarouselItem>
