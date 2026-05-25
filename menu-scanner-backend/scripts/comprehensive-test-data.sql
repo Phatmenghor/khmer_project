@@ -1132,7 +1132,7 @@ JOIN LATERAL (
     AND is_deleted = false AND price > 0
   ORDER BY id
   LIMIT 1
-  OFFSET ((EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) % 9500)
+  OFFSET ((EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) % 100)
 ) p ON true
 WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM order_items WHERE order_id = o.id);
@@ -1162,7 +1162,7 @@ JOIN LATERAL (
     AND is_deleted = false AND price > 0
   ORDER BY id
   LIMIT 1
-  OFFSET (((EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) + 4500) % 9500)
+  OFFSET (((EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) + 50) % 100)
 ) p ON true
 WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
 

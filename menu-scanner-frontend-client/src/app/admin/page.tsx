@@ -553,7 +553,9 @@ export default function AdminDashboardPage() {
                     tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                    tickFormatter={(v) =>
+                      v >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${Math.round(v)}`
+                    }
                   />
                   <YAxis
                     type="category"
