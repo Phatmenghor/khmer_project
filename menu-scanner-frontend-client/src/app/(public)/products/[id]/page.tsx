@@ -41,7 +41,6 @@ import {
   ZoomIn,
   X,
   ShoppingCart,
-  Pencil,
   Check,
   Minus,
   Plus,
@@ -240,13 +239,6 @@ export default function ProductDetailPage() {
   const totalCartQty = product?.hasSizes
     ? (product.sizes?.reduce((sum, s) => sum + getQuantityForSize(s.id), 0) ?? 0)
     : getQuantityForSize(null);
-  const totalCartValue = product?.hasSizes
-    ? (product.sizes?.reduce(
-        (sum, s) => sum + s.finalPrice * getQuantityForSize(s.id),
-        0,
-      ) ?? 0)
-    : (product?.displayPrice ?? 0) * getQuantityForSize(null);
-
   // ─── Modal initial quantities ─────────────────────────────────────────────
 
   // Stable array reference — avoid recreating on every render (would retrigger modal's open effect)
@@ -859,28 +851,6 @@ export default function ProductDetailPage() {
                       : `+${product.customizations.length - CUSTOMIZATION_LIMIT} more add-ons`}
                   </button>
                 )}
-              </div>
-            )}
-
-            {/* Cart status pill */}
-            {totalCartQty > 0 && (
-              <div className="flex items-center justify-between p-4 rounded-xl border border-primary/20 bg-primary/5">
-                <div>
-                  <p className="text-sm font-semibold text-primary">In your cart</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {totalCartQty} {totalCartQty === 1 ? "item" : "items"} ·{" "}
-                    {formatCurrency(totalCartValue)}
-                  </p>
-                </div>
-                <CustomButton
-                  size="sm"
-                  variant="outline"
-                  onClick={handleAddToCart}
-                  className="gap-1.5 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  Edit
-                </CustomButton>
               </div>
             )}
 

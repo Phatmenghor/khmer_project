@@ -87,98 +87,92 @@ export function SizePickerModal({
     ? getDisplayQuantity(selectedSize.id)
     : 0;
 
+  // Ref so handleSizeButtonClick can read pendingQuantities without stale closure
+  const pendingQuantitiesRef = useRef(pendingQuantities);
+  pendingQuantitiesRef.current = pendingQuantities;
+
   const toggleCustomization = useCallback((customizationId: string) => {
     if (!selectedSize) return;
 
+    const sizeId = selectedSize.id;
+    const currentCustoms = customizationsBySize.get(sizeId) ?? new Set<string>();
+
+    // Compute new set synchronously so quantity can be synced in the same batch
+    const newSizeCustoms = new Set(currentCustoms);
+    if (newSizeCustoms.has(customizationId)) {
+      newSizeCustoms.delete(customizationId);
+    } else {
+      newSizeCustoms.add(customizationId);
+    }
+
     setCustomizationsBySize((prev) => {
       const next = new Map(prev);
-      const sizeCustoms = next.get(selectedSize.id) ?? new Set();
-      const newSizeCustoms = new Set(sizeCustoms);
-
-      if (newSizeCustoms.has(customizationId)) {
-        newSizeCustoms.delete(customizationId);
-      } else {
-        newSizeCustoms.add(customizationId);
-      }
-
       if (newSizeCustoms.size > 0) {
-        next.set(selectedSize.id, newSizeCustoms);
+        next.set(sizeId, newSizeCustoms);
       } else {
-        next.delete(selectedSize.id);
+        next.delete(sizeId);
       }
       return next;
     });
-  }, [selectedSize]);
 
-  useEffect(() => {
-    if (!selectedSize) return;
-
-    const sizeId = selectedSize.id;
-    const selectedSizeCustoms = customizationsBySize.get(sizeId) ?? new Set();
-
-    const qtyForCombo = getQuantityForSize(sizeId, selectedSizeCustoms);
-
-    if (qtyForCombo > 0) {
-
-      setQuantity(qtyForCombo);
-
+    // Sync quantity for the new combo — replaces Effect 1 (customization-toggle path)
+    const qtyForNewCombo = getQuantityForSize(sizeId, newSizeCustoms.size > 0 ? newSizeCustoms : undefined);
+    if (qtyForNewCombo > 0) {
+      setQuantity(qtyForNewCombo);
       setPendingQuantities((prev) => {
         const next = new Map(prev);
         next.delete(sizeId);
         return next;
       });
     } else {
-
       setQuantity(0);
     }
-  }, [selectedSize?.id, customizationsBySize]);
+  }, [selectedSize, customizationsBySize, getQuantityForSize]);
 
-  useEffect(() => {
-    if (!selectedSize || !product?.id) return;
+  // Handles size button click — replaces Effects 1, 2, 3 by syncing customizations
+  // and quantity in the same event-handler batch (no cascading re-renders).
+  const handleSizeButtonClick = useCallback((size: ProductSize) => {
+    const sizeId = size.id;
+    setSelectedSize(size);
 
-    if (!product.customizations || product.customizations.length === 0) return;
-
-    const sizeId = selectedSize.id;
-
-    const cartItem = cartItems?.find(
-      item => item.productId === product.id &&
-      (item.productSizeId === sizeId || (sizeId === "__no_size__" && item.productSizeId === null))
-    );
-
-    if (cartItem?.customizations && cartItem.customizations.length > 0) {
-
-      const customIds = new Set(
-        cartItem.customizations.map(c => c.productCustomizationId)
+    // Load cart customizations for this size (replaces Effect 2)
+    let newCustoms = new Set<string>();
+    if (product?.customizations && product.customizations.length > 0) {
+      const cartItem = cartItems?.find(
+        (item) =>
+          item.productId === product!.id &&
+          (item.productSizeId === sizeId ||
+            (sizeId === "__no_size__" && item.productSizeId === null)),
       );
-      setCustomizationsBySize(prev => {
-        const next = new Map(prev);
-        next.set(sizeId, customIds);
-        return next;
-      });
-    } else {
+      if (cartItem?.customizations && cartItem.customizations.length > 0) {
+        newCustoms = new Set(cartItem.customizations.map((c) => c.productCustomizationId));
+      }
+    }
 
-      setCustomizationsBySize(prev => {
+    setCustomizationsBySize((prev) => {
+      const next = new Map(prev);
+      if (newCustoms.size > 0) {
+        next.set(sizeId, newCustoms);
+      } else {
+        next.delete(sizeId);
+      }
+      return next;
+    });
+
+    // Sync quantity for the new size + its customizations (replaces Effects 1 & 3)
+    const qtyForCombo = getQuantityForSize(sizeId, newCustoms.size > 0 ? newCustoms : undefined);
+    if (qtyForCombo > 0) {
+      setQuantity(qtyForCombo);
+      setPendingQuantities((prev) => {
         const next = new Map(prev);
         next.delete(sizeId);
         return next;
       });
+    } else {
+      const pendingQty = pendingQuantitiesRef.current.get(sizeId);
+      setQuantity(pendingQty !== undefined ? pendingQty : 0);
     }
-  }, [selectedSize?.id, product?.id, product?.customizations?.length, cartItems]);
-
-  useEffect(() => {
-    if (!selectedSize || !initialCustomizations || initialCustomizations.length === 0) {
-      return;
-    }
-
-    const sizeId = selectedSize.id;
-
-    const initialCustomSet = new Set(initialCustomizations);
-    const qtyForCustoms = getQuantityForSize(sizeId, initialCustomSet);
-
-    if (qtyForCustoms > 0) {
-      setQuantity(qtyForCustoms);
-    }
-  }, [selectedSize, initialCustomizations, originalQuantities]);
+  }, [product, cartItems, getQuantityForSize]);
 
   // Track previous open state so initialization only runs on open transition
   const prevOpenRef = useRef(false);
@@ -514,7 +508,7 @@ export function SizePickerModal({
             <SizeSelector
               sizes={activeSizes}
               selectedSize={selectedSize}
-              onSizeSelect={setSelectedSize}
+              onSizeSelect={handleSizeButtonClick}
               getDisplayQuantity={getDisplayQuantity}
               getQuantityForSize={getQuantityForSize}
               modifiedSizes={modifiedSizes}
