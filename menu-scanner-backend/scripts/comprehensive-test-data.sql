@@ -888,6 +888,13 @@ ON CONFLICT DO NOTHING;
 -- Day-by-day, time-by-time: ~4,600 orders, CASH + BANK, all statuses
 -- ============================================================================
 
+-- Widen orders.payment_method check constraint to include BANK
+ALTER TABLE orders
+  DROP CONSTRAINT IF EXISTS orders_payment_method_check;
+ALTER TABLE orders
+  ADD CONSTRAINT orders_payment_method_check
+  CHECK (payment_method IN ('CASH', 'BANK'));
+
 -- Remove any existing orders for this business before regenerating
 DELETE FROM order_status_history
   WHERE order_id IN (SELECT id FROM orders WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');

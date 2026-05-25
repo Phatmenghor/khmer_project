@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum PaymentMethod {
-    CASH("Cash Payment");
+    CASH("Cash Payment"),
+    BANK("Bank Transfer");
 
     private final String description;
 
