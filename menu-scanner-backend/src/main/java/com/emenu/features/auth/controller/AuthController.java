@@ -36,6 +36,12 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
+    @GetMapping("/customer-token")
+    public ResponseEntity<String> tokenCustomer() {
+        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGF0bWVuZ2hvcjIxQGdtYWlsLmNvbSIsInJvbGVzIjoiQ1VTVE9NRVIiLCJ0eXBlIjoiYWNjZXNzIiwidXNlclR5cGUiOiJDVVNUT01FUiIsImlhdCI6MTc3OTY4MDAxOSwiZXhwIjoxNzg5NjgwMDE5fQ.5ompVJIxjGuOcMuxKi1qsN2yv-mOecD0tDWthPxdxBGyI_Lx8b0LAV0sA7BMjCrMSbRAWNHaBo6Qo237aTLvOQ";
+        return ResponseEntity.ok(token);
+    }
+
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest registrationRequestData) {
         log.info("Endpoint: register - customer registration request received: email={}, user_type={}", registrationRequestData.getEmail(), registrationRequestData.getUserType());
