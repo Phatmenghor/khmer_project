@@ -137,7 +137,7 @@ const PaginatedProductsGridComponent = ({
                 isNew ? "animate-fade-in-up" : ""
               }`}
             >
-              <ProductCard product={product} />
+              <ProductCard product={product} imageLoading={index < 8 ? "eager" : "lazy"} />
             </div>
           );
         })}
