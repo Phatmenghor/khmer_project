@@ -877,7 +877,8 @@ export default function AdminDashboardPage() {
         </Card>
       </div>
 
-      {/* ── Recent Orders ── */}
+      {/* ── Recent Orders + Inventory Status ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -906,7 +907,6 @@ export default function AdminDashboardPage() {
                   <Skeleton className="h-4 w-28 flex-1" />
                   <Skeleton className="h-4 w-16" />
                   <Skeleton className="h-5 w-20 rounded-full" />
-                  <Skeleton className="h-4 w-20" />
                 </div>
               ))}
             </div>
@@ -917,16 +917,15 @@ export default function AdminDashboardPage() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-[140px_1fr_100px_120px_100px] gap-4 px-6 py-2.5 bg-muted/30 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="grid grid-cols-[140px_1fr_100px_120px] gap-4 px-6 py-2.5 bg-muted/30 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <span>Order</span>
                 <span>Customer</span>
                 <span className="text-right">Amount</span>
                 <span className="text-center">Status</span>
-                <span className="text-right">Date</span>
               </div>
               <div className="divide-y">
                 {orders.data.map((order) => (
-                  <div key={order.id} className="grid grid-cols-[140px_1fr_100px_120px_100px] gap-4 px-6 py-3 items-center hover:bg-muted/20 transition-colors">
+                  <div key={order.id} className="grid grid-cols-[140px_1fr_100px_120px] gap-4 px-6 py-3 items-center hover:bg-muted/20 transition-colors">
                     <span className="text-sm font-mono font-medium text-primary truncate">{order.orderCode}</span>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{order.customerName}</p>
@@ -941,9 +940,6 @@ export default function AdminDashboardPage() {
                         {order.status}
                       </span>
                     </div>
-                    <span className="text-xs text-muted-foreground text-right tabular-nums">
-                      {(() => { try { return format(new Date(order.createdAt), "MMM d, HH:mm"); } catch { return order.createdAt; } })()}
-                    </span>
                   </div>
                 ))}
               </div>
@@ -952,7 +948,7 @@ export default function AdminDashboardPage() {
         </CardContent>
       </Card>
 
-      {/* ── Inventory Status ── */}
+      {/* ── Inventory Status (right column) ── */}
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -1029,6 +1025,7 @@ export default function AdminDashboardPage() {
           )}
         </CardContent>
       </Card>
+      </div>
 
     </div>
   );
