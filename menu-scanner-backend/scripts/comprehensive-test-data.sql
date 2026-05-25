@@ -118,6 +118,8 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 
+DO $$ BEGIN RAISE NOTICE '  5%% [█░░░░░░░░░░░░░░░░░░░] Businesses, settings & banners done'; END $$;
+
 -- ============================================================================
 -- 3. CREATE BANNERS (8 Active, 20 Inactive)
 
@@ -259,6 +261,8 @@ WHERE NOT EXISTS (
 );
 
 
+DO $$ BEGIN RAISE NOTICE ' 10%% [██░░░░░░░░░░░░░░░░░░] Roles, exchange rates, delivery & payment options done'; END $$;
+
 -- ============================================================================
 -- 4. CREATE USERS (101+ for Mega Store)
 
@@ -378,6 +382,8 @@ FROM generate_series(1, 10) AS t(i)
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'staff' || i || '@fashionhub.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
 
 
+DO $$ BEGIN RAISE NOTICE ' 15%% [███░░░░░░░░░░░░░░░░░] Users created'; END $$;
+
 -- ============================================================================
 -- 3b. CREATE USER PROFILES (with emails)
 
@@ -478,6 +484,8 @@ CROSS JOIN generate_series(1, 10) AS t(i)
 WHERE u.user_identifier = 'staff' || i || '@fashionhub.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
 
+
+DO $$ BEGIN RAISE NOTICE ' 20%% [████░░░░░░░░░░░░░░░░] User profiles done'; END $$;
 
 -- ============================================================================
 -- 4. CREATE CUSTOMER ADDRESSES (for main users)
@@ -651,6 +659,8 @@ WHERE u.user_identifier = 'phatmenghor21@gmail.com'
   AND r.user_type = 'CUSTOMER'
   AND NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = u.id AND role_id = r.id)
 ON CONFLICT DO NOTHING;
+DO $$ BEGIN RAISE NOTICE ' 25%% [█████░░░░░░░░░░░░░░░] User addresses, updates & roles done'; END $$;
+
 -- 7. CREATE CATEGORIES (18 for Mega Store)
 
 -- ============================================================================
@@ -669,6 +679,8 @@ WHERE NOT EXISTS (SELECT 1 FROM categories WHERE business_id = '550cad56-cafd-4a
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 30%% [██████░░░░░░░░░░░░░░] Categories done'; END $$;
+
 -- 8. CREATE BRANDS (18)
 
 -- ============================================================================
@@ -688,6 +700,8 @@ WHERE NOT EXISTS (SELECT 1 FROM brands WHERE business_id = '550cad56-cafd-4aba-b
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 35%% [███████░░░░░░░░░░░░░] Brands done - inserting 10000 products...'; END $$;
+
 -- 8. CREATE 10,000 PRODUCTS (555 per category)
 
 -- ============================================================================
@@ -730,6 +744,8 @@ FROM generate_series(1, 10000) AS t(i);
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 40%% [████████░░░░░░░░░░░░] 10000 products inserted'; END $$;
+
 -- 9. CREATE PRODUCT SIZES (34% of products = 3,400 products × 9 sizes = 30,600)
 -- 40% of product sizes have promotions
 
@@ -765,6 +781,8 @@ WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 45%% [█████████░░░░░░░░░░░] Product sizes done'; END $$;
+
 -- 10. CREATE PRODUCT CUSTOMIZATIONS (Only for 67% of products)
 -- 33% with no sizes (middle third) + 34% with sizes (last third) = 10 customizations each
 -- 40% of products with customizations have promotions
@@ -801,6 +819,8 @@ WHERE -- Only create customizations for products in middle 33% (no size) and las
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 50%% [██████████░░░░░░░░░░] Product customizations done'; END $$;
+
 -- 11. CREATE PRODUCT IMAGES (5 per product = 50,000 total)
 
 -- ============================================================================
@@ -818,6 +838,8 @@ WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 55%% [███████████░░░░░░░░░] Product images done'; END $$;
+
 -- 12. CREATE PRODUCT STOCK (Full stock for all products)
 
 -- ============================================================================
@@ -866,6 +888,8 @@ WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 60%% [████████████░░░░░░░░] Product stock done'; END $$;
+
 -- 4b. CREATE 30 CUSTOMER USERS (deterministic IDs for returning-customer tracking)
 -- ============================================================================
 
@@ -884,6 +908,8 @@ FROM generate_series(1, 30) t(i)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 65%% [█████████████░░░░░░░] Customer users done - starting orders'; END $$;
+
 -- 13. COMPREHENSIVE ORDERS  2025-01-01 → 2027-05-25
 -- Day-by-day, time-by-time: ~4,600 orders, CASH + BANK, all statuses
 -- ============================================================================
@@ -1016,6 +1042,8 @@ FROM (
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] ~4600 orders inserted (2025-2027)'; END $$;
+
 -- 14. DELIVERY ADDRESSES for PUBLIC (non-POS) orders
 -- ============================================================================
 INSERT INTO order_delivery_addresses (
@@ -1050,6 +1078,8 @@ WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
 
 -- ============================================================================
 -- 15. DELIVERY OPTIONS for all orders
+DO $$ BEGIN RAISE NOTICE ' 75%% [███████████████░░░░░] Delivery addresses done'; END $$;
+
 -- ============================================================================
 INSERT INTO order_delivery_options (
   id, order_id, name, description, price,
@@ -1071,6 +1101,8 @@ WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 80%% [████████████████░░░░] Order items done'; END $$;
+
 -- 16. ORDER ITEMS  (2 line items per order, varied products)
 -- ============================================================================
 
@@ -1136,6 +1168,8 @@ WHERE o.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0';
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 85%% [█████████████████░░░] Order status history done'; END $$;
+
 -- 17. ORDER STATUS HISTORY (PENDING on create + COMPLETED for completed orders)
 -- ============================================================================
 INSERT INTO order_status_history (
@@ -1288,6 +1322,8 @@ SELECT COUNT(*) as total_orders FROM orders WHERE business_id = '550cad56-cafd-4
 
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE ' 90%% [██████████████████░░] User HR data done'; END $$;
+
 -- 7. USER RELATIONSHIPS (Employment, Telegram, Address, Emergency Contact, Documents, Education)
 -- ============================================================================
 
@@ -1429,6 +1465,8 @@ FROM users u
 WHERE NOT EXISTS (SELECT 1 FROM user_educations WHERE user_id = u.id AND level = 'HIGH_SCHOOL');
 
 -- ============================================================================
+
+DO $$ BEGIN RAISE NOTICE ' 95%% [███████████████████░] Portfolio data done'; END $$;
 
 -- PORTFOLIO PROFILES (Updated Schema with Dynamic Data)
 INSERT INTO portfolio_profile (
@@ -1696,6 +1734,8 @@ FROM (
 ) data;
 
 -- ============================================================================
+DO $$ BEGIN RAISE NOTICE '100%% [████████████████████] All done! ~4600 orders + 10k products + portfolio complete'; END $$;
+
 
 SELECT '=== PORTFOLIO PROFILES ===' AS info;
 SELECT id, business_name, description
