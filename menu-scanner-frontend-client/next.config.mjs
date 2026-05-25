@@ -68,7 +68,7 @@ const nextConfig = {
     // normal data-fetching + snapshot-restore logic on ALL routes.
     staleTimes: {
       dynamic: 0,
-      static: 0,
+      static: 30,
     },
   },
 };

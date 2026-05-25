@@ -113,6 +113,7 @@ const BannerSectionComponent = ({
                     )}
                     onLoad={() => handleImageLoad(index)}
                     priority={index === 0}
+                    loading={index === 0 ? "eager" : "lazy"}
                   />
                 </div>
               </CarouselItem>
