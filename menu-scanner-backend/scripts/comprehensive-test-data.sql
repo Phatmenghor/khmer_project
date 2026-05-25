@@ -1012,7 +1012,7 @@ SELECT
   (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3)::int,
   p1.price, p1.price, p1.price,
   p1.price * (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3),
-  false, NULL, NULL, NULL::date, NULL::date,
+  false, NULL, NULL::numeric, NULL::date, NULL::date,
   0.00, '[]'::json,
   0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
@@ -1024,7 +1024,7 @@ SELECT
   gen_random_uuid(), o.id, p2.id, NULL::uuid,
   p2.name, p2.main_image_url, 'Standard', p2.sku, p2.barcode,
   1, p2.price, p2.price, p2.price, p2.price,
-  false, NULL, NULL, NULL::date, NULL::date,
+  false, NULL, NULL::numeric, NULL::date, NULL::date,
   0.00, '[]'::json,
   0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
