@@ -21,7 +21,7 @@ import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { loginService } from "@/features/auth/store/thunks/auth-thunks";
 import { telegramAuthenticateService } from "@/features/auth/store/thunks/social-auth-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
-import { TelegramLoginButton, TelegramIcon } from "@/components/shared/telegram/telegram-login-widget";
+import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
 import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 import { SocialAuthConfig } from "@/constants/app-resource/default/default";
 import { useAppSelector } from "@/store";
@@ -114,7 +114,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-md p-0 flex flex-col gap-0">
+      <DialogContent className="sm:max-w-xl p-0 flex flex-col gap-0">
         {/* Header — matches FormHeader admin style */}
         <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
           <div className="flex items-start gap-4">
@@ -178,10 +178,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               disabled={isAnyLoading}
               loading={isTelegramLoading}
               className="w-full h-10"
-            >
-              <TelegramIcon className="h-4 w-4" />
-              Continue with Telegram
-            </TelegramLoginButton>
+            />
           </FormBody>
 
           {/* Footer — matches FormFooter admin style */}
