@@ -29,7 +29,24 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Heart, Share2, ChevronLeft, ChevronRight, Loader2, Store, Tag, Eye, ZoomIn, X, Check, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Heart,
+  Share2,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Store,
+  Tag,
+  Eye,
+  ZoomIn,
+  X,
+  Check,
+  Trash2,
+  Package,
+  Layers,
+  Barcode,
+} from "lucide-react";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { sanitizeImageUrl } from "@/utils/common/common";
 import { appImages } from "@/constants/app-resource/icons/app-images";
@@ -42,6 +59,170 @@ import { PageContainer } from "@/components/shared/common/page-container";
 import { cn } from "@/lib/utils";
 import { useScrollToTop } from "@/hooks/use-scroll-restoration";
 import { getSizeQuantity } from "@/utils/common/quantity-utils";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatStockStatus(status: string): { label: string; className: string } {
+  const map: Record<string, { label: string; className: string }> = {
+    ENABLED: { label: "Available", className: "bg-emerald-500 hover:bg-emerald-600" },
+    IN_STOCK: { label: "In Stock", className: "bg-emerald-500 hover:bg-emerald-600" },
+    LOW_STOCK: { label: "Low Stock", className: "bg-amber-500 hover:bg-amber-600" },
+    OUT_OF_STOCK: { label: "Out of Stock", className: "bg-rose-500 hover:bg-rose-600" },
+    DISABLED: { label: "Unavailable", className: "bg-slate-500 hover:bg-slate-600" },
+  };
+  return (
+    map[status] ?? {
+      label: status.replace(/_/g, " "),
+      className: "bg-slate-500 hover:bg-slate-600",
+    }
+  );
+}
+
+// ─── Product Details Card ─────────────────────────────────────────────────────
+
+function ProductDetailsCard({ product }: { product: ProductDetailResponseModel }) {
+  const stockStatus = formatStockStatus(
+    product.stockStatus || (product.status === "OUT_OF_STOCK" ? "OUT_OF_STOCK" : "IN_STOCK"),
+  );
+
+  const infoRows = [
+    { label: "SKU", value: product.sku || "—", mono: true },
+    { label: "Barcode", value: product.barcode || "—", mono: true },
+    { label: "Business", value: product.businessName || "—" },
+    { label: "Category", value: product.categoryName || "—" },
+    { label: "Brand", value: product.brandName || "—" },
+  ];
+
+  const stockRows = [
+    { label: "Total Stock", value: product.totalStock, display: product.totalStock != null },
+    { label: "Available", value: product.quantityAvailable, display: product.quantityAvailable != null },
+    { label: "Reserved", value: product.quantityReserved, display: product.quantityReserved != null },
+    { label: "On Hand", value: product.quantityOnHand, display: product.quantityOnHand != null },
+  ].filter((r) => r.display || product.totalStock != null);
+
+  return (
+    <div className="mb-12 border rounded-2xl overflow-hidden">
+      <div className="px-5 py-3.5 bg-muted/50 border-b flex items-center gap-2">
+        <Package className="h-4 w-4 text-muted-foreground" />
+        <h3 className="font-semibold text-sm">Product Details</h3>
+      </div>
+
+      <div className="divide-y sm:divide-y-0 sm:grid sm:grid-cols-2 sm:divide-x">
+        <div className="divide-y px-5">
+          {infoRows.map(({ label, value, mono }) => (
+            <div key={label} className="flex items-center justify-between py-3 text-sm gap-4">
+              <span className="text-muted-foreground shrink-0">{label}</span>
+              <span
+                className={cn(
+                  "font-medium text-right truncate",
+                  mono && "font-mono text-xs tracking-wide",
+                )}
+              >
+                {value}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="divide-y px-5">
+          <div className="flex items-center justify-between py-3 text-sm gap-4">
+            <span className="text-muted-foreground shrink-0">Stock Status</span>
+            <Badge className={cn("text-xs", stockStatus.className)}>{stockStatus.label}</Badge>
+          </div>
+          {stockRows.map(({ label, value }) => (
+            <div key={label} className="flex items-center justify-between py-3 text-sm gap-4">
+              <span className="text-muted-foreground shrink-0">{label}</span>
+              <span className="font-medium tabular-nums">
+                {value != null ? value.toLocaleString() : "—"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Per-size breakdown — only render when sizes have meaningful stock/identifier data */}
+      {product.hasSizes && product.sizes && product.sizes.length > 0 &&
+        product.sizes.some(
+          (s) =>
+            s.sku ||
+            s.barcode ||
+            s.totalStock != null ||
+            s.quantityAvailable != null ||
+            s.quantityReserved != null,
+        ) && (
+          <>
+            <div className="px-5 py-3.5 bg-muted/50 border-t flex items-center gap-2">
+              <Layers className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-semibold text-sm">Size Details</h3>
+            </div>
+            <div className="px-5 divide-y">
+              {product.sizes.map((size) => (
+                <div key={size.id} className="py-3.5 text-sm space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">{size.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-primary">
+                        {formatCurrency(size.finalPrice)}
+                      </span>
+                      {size.hasPromotion && (
+                        <span className="text-xs text-muted-foreground line-through">
+                          {formatCurrency(size.price)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    {size.sku && (
+                      <span>
+                        SKU:{" "}
+                        <span className="font-mono text-foreground/80 tracking-wide">
+                          {size.sku}
+                        </span>
+                      </span>
+                    )}
+                    {size.barcode && (
+                      <span>
+                        Barcode:{" "}
+                        <span className="font-mono text-foreground/80 tracking-wide">
+                          {size.barcode}
+                        </span>
+                      </span>
+                    )}
+                    {size.totalStock != null && (
+                      <span>
+                        Total:{" "}
+                        <span className="font-medium text-foreground">
+                          {size.totalStock.toLocaleString()}
+                        </span>
+                      </span>
+                    )}
+                    {size.quantityAvailable != null && (
+                      <span>
+                        Available:{" "}
+                        <span className="font-medium text-foreground">
+                          {size.quantityAvailable.toLocaleString()}
+                        </span>
+                      </span>
+                    )}
+                    {size.quantityReserved != null && (
+                      <span>
+                        Reserved:{" "}
+                        <span className="font-medium text-foreground">
+                          {size.quantityReserved.toLocaleString()}
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -67,46 +248,43 @@ export default function ProductDetailPage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-
   const [pendingQuantities, setPendingQuantities] = useState<Map<string, number>>(new Map());
   const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
   const [isSaving, setIsSaving] = useState(false);
   const [clearingSize, setClearingSize] = useState<string | null>(null);
 
-  const isFavoritedFromStore = favLoaded && product
-    ? favoriteItems.some((item) => item.id === product.id)
-    : product?.isFavorited ?? false;
+  const isFavoritedFromStore =
+    favLoaded && product
+      ? favoriteItems.some((item) => item.id === product.id)
+      : (product?.isFavorited ?? false);
   const [isFavorited, setIsFavorited] = useState(false);
-  useEffect(() => { setIsFavorited(isFavoritedFromStore); }, [isFavoritedFromStore]);
+  useEffect(() => {
+    setIsFavorited(isFavoritedFromStore);
+  }, [isFavoritedFromStore]);
 
   const getQuantityForSize = useCallback(
     (sizeId: string | null) => {
       if (!product) return 0;
       const cartItem = cartItems.find(
-        (item) => item.productId === product.id && item.productSizeId === sizeId
+        (item) => item.productId === product.id && item.productSizeId === sizeId,
       );
-
       if (cartItem) return cartItem.quantity;
-
       if (sizeId) {
         const size = product.sizes?.find((s) => s.id === sizeId);
         return getSizeQuantity(size as unknown as Record<string, unknown>);
       }
-
       return 0;
     },
-    [cartItems, product]
+    [cartItems, product],
   );
 
   const getDisplayQuantity = useCallback(
     (sizeId: string | null) => {
       const key = sizeId || "no_size";
-
       if (pendingQuantities.has(key)) return pendingQuantities.get(key)!;
-
       return getQuantityForSize(sizeId);
     },
-    [pendingQuantities, getQuantityForSize]
+    [pendingQuantities, getQuantityForSize],
   );
 
   useEffect(() => {
@@ -144,10 +322,21 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (!product?.id || fetchedSimilarRef.current === product.id) return;
     fetchedSimilarRef.current = product.id;
-    dispatch(fetchPublicProducts({ pageNo: 1, pageSize: 6, categoryId: product.categoryId || undefined, statuses: ["ACTIVE"] }))
+    dispatch(
+      fetchPublicProducts({
+        pageNo: 1,
+        pageSize: 6,
+        categoryId: product.categoryId || undefined,
+        statuses: ["ACTIVE"],
+      }),
+    )
       .unwrap()
       .then((res) => {
-        setSimilarProducts((res.content || []).filter((p: any) => p.id !== productId).slice(0, 4));
+        setSimilarProducts(
+          (res.content as ProductDetailResponseModel[])
+            .filter((p) => p.id !== productId)
+            .slice(0, 4),
+        );
       })
       .catch(() => {});
   }, [product?.id, product?.categoryId, productId, dispatch]);
@@ -170,9 +359,14 @@ export default function ProductDetailPage() {
     selectImage(allImages[idx].imageUrl, idx);
   };
 
-  const openLightbox = (index: number) => { setLightboxIndex(index); setLightboxOpen(true); };
-  const prevLightbox = () => setLightboxIndex((i) => (i === 0 ? allImages.length - 1 : i - 1));
-  const nextLightbox = () => setLightboxIndex((i) => (i === allImages.length - 1 ? 0 : i + 1));
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+  const prevLightbox = () =>
+    setLightboxIndex((i) => (i === 0 ? allImages.length - 1 : i - 1));
+  const nextLightbox = () =>
+    setLightboxIndex((i) => (i === allImages.length - 1 ? 0 : i + 1));
 
   const getDisplayPrice = () => selectedSize?.finalPrice ?? product?.displayPrice ?? 0;
   const getOriginalPrice = () => {
@@ -189,17 +383,25 @@ export default function ProductDetailPage() {
 
   const handlePendingQtyChange = useCallback(
     (sizeId: string | null, newQty: number) => {
-      if (!isAuthenticated) { setShowLoginModal(true); return; }
+      if (!isAuthenticated) {
+        setShowLoginModal(true);
+        return;
+      }
       const key = sizeId || "no_size";
       const currentQuantity = getQuantityForSize(sizeId);
-      setPendingQuantities((prev) => { const n = new Map(prev); n.set(key, newQty); return n; });
+      setPendingQuantities((prev) => {
+        const n = new Map(prev);
+        n.set(key, newQty);
+        return n;
+      });
       setModifiedSizes((prev) => {
         const n = new Set(prev);
-        if (newQty === currentQuantity) n.delete(key); else n.add(key);
+        if (newQty === currentQuantity) n.delete(key);
+        else n.add(key);
         return n;
       });
     },
-    [isAuthenticated, getQuantityForSize]
+    [isAuthenticated, getQuantityForSize],
   );
 
   const handleClearSize = useCallback(
@@ -208,16 +410,36 @@ export default function ProductDetailPage() {
       const key = sizeId || "no_size";
       const currentQty = getQuantityForSize(sizeId);
       if (currentQty === 0) {
-        setPendingQuantities((prev) => { const n = new Map(prev); n.delete(key); return n; });
-        setModifiedSizes((prev) => { const n = new Set(prev); n.delete(key); return n; });
+        setPendingQuantities((prev) => {
+          const n = new Map(prev);
+          n.delete(key);
+          return n;
+        });
+        setModifiedSizes((prev) => {
+          const n = new Set(prev);
+          n.delete(key);
+          return n;
+        });
         return;
       }
-      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: 0 }));
-      setPendingQuantities((prev) => { const n = new Map(prev); n.delete(key); return n; });
-      setModifiedSizes((prev) => { const n = new Set(prev); n.delete(key); return n; });
+      cartDispatch(
+        updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: 0 }),
+      );
+      setPendingQuantities((prev) => {
+        const n = new Map(prev);
+        n.delete(key);
+        return n;
+      });
+      setModifiedSizes((prev) => {
+        const n = new Set(prev);
+        n.delete(key);
+        return n;
+      });
       setClearingSize(key);
       try {
-        await cartDispatch(updateCartItem({ productId: product.id, productSizeId: sizeId, quantity: 0 })).unwrap();
+        await cartDispatch(
+          updateCartItem({ productId: product.id, productSizeId: sizeId, quantity: 0 }),
+        ).unwrap();
         showToast.success(Messages.cart.removed);
       } catch (err: unknown) {
         showToast.error((err as { message?: string })?.message || "Failed to remove");
@@ -225,20 +447,18 @@ export default function ProductDetailPage() {
         setClearingSize(null);
       }
     },
-    [product, cartDispatch, getQuantityForSize]
+    [product, cartDispatch, getQuantityForSize],
   );
-
-  const handleDiscard = useCallback(() => {
-    setPendingQuantities(new Map());
-    setModifiedSizes(new Set());
-  }, []);
 
   const handleSave = useCallback(async () => {
     if (!product || modifiedSizes.size === 0) return;
-    if (!isAuthenticated) { setShowLoginModal(true); return; }
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
     setIsSaving(true);
     try {
-      const promises: Promise<any>[] = [];
+      const promises: Promise<unknown>[] = [];
       const ts = Date.now();
       for (const key of modifiedSizes) {
         const sizeId = key === "no_size" ? null : key;
@@ -249,22 +469,56 @@ export default function ProductDetailPage() {
           const size = product.sizes?.find((s) => s.id === sizeId);
           const finalPrice = size?.finalPrice ?? product.displayPrice ?? 0;
           const isPromo = size ? size.hasPromotion : (product.hasPromotion ?? false);
-          cartDispatch(addLocalCartItem({
-            productId: product.id, productSizeId: sizeId, quantity: newQty,
-            productName: product.name, productImageUrl: product.mainImageUrl,
-            sizeName: size?.name ?? null, finalPrice,
-            currentPrice: size?.hasPromotion ? size.price : (product.displayOriginPrice ?? finalPrice),
-            hasPromotion: isPromo,
-            promotionType: size?.promotionType ?? product.displayPromotionType ?? null,
-            promotionValue: size?.promotionValue ?? product.displayPromotionValue ?? null,
-            promotionFromDate: size?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
-            promotionToDate: size?.promotionToDate ?? product.displayPromotionToDate ?? null,
-            optimisticTimestamp: ts,
-          }));
-          promises.push(cartDispatch(addToCart({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts })).unwrap());
+          cartDispatch(
+            addLocalCartItem({
+              productId: product.id,
+              productSizeId: sizeId,
+              quantity: newQty,
+              productName: product.name,
+              productImageUrl: product.mainImageUrl,
+              sizeName: size?.name ?? null,
+              finalPrice,
+              currentPrice: size?.hasPromotion
+                ? size.price
+                : (product.displayOriginPrice ?? finalPrice),
+              hasPromotion: isPromo,
+              promotionType: size?.promotionType ?? product.displayPromotionType ?? null,
+              promotionValue: size?.promotionValue ?? product.displayPromotionValue ?? null,
+              promotionFromDate:
+                size?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
+              promotionToDate: size?.promotionToDate ?? product.displayPromotionToDate ?? null,
+              optimisticTimestamp: ts,
+            }),
+          );
+          promises.push(
+            cartDispatch(
+              addToCart({
+                productId: product.id,
+                productSizeId: sizeId,
+                quantity: newQty,
+                optimisticTimestamp: ts,
+              }),
+            ).unwrap(),
+          );
         } else {
-          cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts }));
-          promises.push(cartDispatch(updateCartItem({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts })).unwrap());
+          cartDispatch(
+            updateLocalCartItem({
+              productId: product.id,
+              productSizeId: sizeId,
+              quantity: newQty,
+              optimisticTimestamp: ts,
+            }),
+          );
+          promises.push(
+            cartDispatch(
+              updateCartItem({
+                productId: product.id,
+                productSizeId: sizeId,
+                quantity: newQty,
+                optimisticTimestamp: ts,
+              }),
+            ).unwrap(),
+          );
         }
       }
       await Promise.all(promises);
@@ -280,33 +534,226 @@ export default function ProductDetailPage() {
 
   const handleToggleFavorite = () => {
     if (!product) return;
-    if (!isAuthenticated) { setShowLoginModal(true); return; }
-
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
     setIsFavorited((prev) => !prev);
     setIsTogglingFavorite(true);
-
     favoriteDispatch(toggleFavorite({ productId: product.id, isFavorited }))
       .unwrap()
       .then(() => {
-
         setIsTogglingFavorite(false);
       })
       .catch((err: unknown) => {
-
         setIsFavorited((prev) => !prev);
         setIsTogglingFavorite(false);
-        showToast.error((err as { message?: string })?.message || Messages.favorites.updateFailed);
+        showToast.error(
+          (err as { message?: string })?.message || Messages.favorites.updateFailed,
+        );
       });
   };
 
   const handleShare = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: product?.name || "Product", url: window.location.href }); } catch {  }
+      try {
+        await navigator.share({ title: product?.name || "Product", url: window.location.href });
+      } catch {}
     } else {
       navigator.clipboard.writeText(window.location.href);
       showToast.success(Messages.clipboard.linkCopied);
     }
   };
+
+  // ─── Cart section ─────────────────────────────────────────────────────────
+
+  function renderCartSection() {
+    if (!product) return null;
+
+    const sizeId: string | null = product.hasSizes ? (selectedSize?.id ?? null) : null;
+    const displayQty = getDisplayQuantity(sizeId);
+    const cartQty = getQuantityForSize(sizeId);
+    const unitPrice =
+      (product.hasSizes ? selectedSize?.finalPrice : null) ?? product.displayPrice ?? 0;
+    const clearKey = sizeId || "no_size";
+    const showQtySection = !product.hasSizes || !!selectedSize;
+
+    const totalCartQtyAllSizes = product.hasSizes
+      ? (product.sizes?.reduce((sum, s) => sum + getQuantityForSize(s.id), 0) ?? 0)
+      : getQuantityForSize(null);
+    const totalCartValueAllSizes = product.hasSizes
+      ? (product.sizes?.reduce((sum, s) => sum + s.finalPrice * getQuantityForSize(s.id), 0) ?? 0)
+      : unitPrice * getQuantityForSize(null);
+    const totalDisplayValueAllSizes = product.hasSizes
+      ? (product.sizes?.reduce(
+          (sum, s) => sum + s.finalPrice * getDisplayQuantity(s.id),
+          0,
+        ) ?? 0)
+      : unitPrice * displayQty;
+    const totalOrigValueAllSizes = product.hasSizes
+      ? (product.sizes?.reduce(
+          (sum, s) =>
+            sum + (s.hasPromotion ? s.price : s.finalPrice) * getDisplayQuantity(s.id),
+          0,
+        ) ?? 0)
+      : (getOriginalPrice() ?? unitPrice) * displayQty;
+    const hasAnyPromotion = product.hasSizes
+      ? (product.sizes?.some((s) => s.hasPromotion && getDisplayQuantity(s.id) > 0) ?? false)
+      : !!(getOriginalPrice() && displayQty > 0);
+
+    return (
+      <div className="space-y-3">
+        {/* Sizes */}
+        {product.hasSizes && product.sizes && product.sizes.length > 0 && (
+          <>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Choose Size
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {product.sizes.map((size) => {
+                const szQty = getDisplayQuantity(size.id);
+                const isModified =
+                  modifiedSizes.has(size.id) && szQty !== getQuantityForSize(size.id);
+                const isActive = selectedSize?.id === size.id;
+                const isOutOfStock =
+                  size.quantityAvailable != null && size.quantityAvailable === 0;
+                return (
+                  <button
+                    key={size.id}
+                    onClick={() => !isOutOfStock && setSelectedSize(size)}
+                    disabled={isOutOfStock}
+                    className={cn(
+                      "relative border-2 rounded-xl px-4 py-2.5 text-left min-w-[76px] transition-all",
+                      isOutOfStock
+                        ? "border-border opacity-40 cursor-not-allowed"
+                        : isActive
+                          ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-sm"
+                          : "border-border hover:border-primary/50 hover:bg-muted/40",
+                    )}
+                  >
+                    {isActive && !isOutOfStock && (
+                      <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
+                        <Check className="h-2.5 w-2.5" />
+                      </div>
+                    )}
+                    <div className="font-semibold text-sm">{size.name}</div>
+                    <div className="text-primary font-bold text-sm">
+                      {formatCurrency(size.finalPrice)}
+                    </div>
+                    {size.hasPromotion && (
+                      <div className="text-[10px] text-muted-foreground line-through">
+                        {formatCurrency(size.price)}
+                      </div>
+                    )}
+                    {isOutOfStock && (
+                      <div className="text-[10px] text-rose-500 font-medium mt-0.5">
+                        Out of stock
+                      </div>
+                    )}
+                    {!isOutOfStock &&
+                      size.quantityAvailable != null &&
+                      size.quantityAvailable > 0 &&
+                      size.quantityAvailable <= 5 && (
+                        <div className="text-[10px] text-amber-600 font-medium mt-0.5">
+                          Only {size.quantityAvailable} left
+                        </div>
+                      )}
+                    {szQty > 0 && (
+                      <div
+                        className={cn(
+                          "absolute -top-2 -left-2 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold",
+                          isModified ? "bg-amber-500" : "bg-primary",
+                        )}
+                      >
+                        {szQty}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* Quantity */}
+        {showQtySection && (() => {
+          const key = sizeId || "no_size";
+          const isPending = modifiedSizes.has(key) && displayQty !== cartQty;
+          return (
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">Quantity</h4>
+              <div className="flex items-center gap-2">
+                <QuantitySelector
+                  value={displayQty}
+                  onChange={(qty) => handlePendingQtyChange(sizeId, qty)}
+                  min={0}
+                  size="sm"
+                  pending={isPending}
+                />
+                {(displayQty > 0 || cartQty > 0) && (
+                  <CustomButton
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2 shrink-0 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
+                    disabled={clearingSize === clearKey}
+                    onClick={() => handleClearSize(sizeId)}
+                  >
+                    {clearingSize === clearKey ? (
+                      <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />
+                    )}
+                    Clear
+                  </CustomButton>
+                )}
+                <div className="flex-1" />
+                {totalCartQtyAllSizes > 0 && (
+                  <div className="h-8 shrink-0 flex items-center px-3 text-sm font-medium rounded-md border border-border text-muted-foreground">
+                    {`In Cart · ${formatCurrency(totalCartValueAllSizes)}`}
+                  </div>
+                )}
+                {(modifiedSizes.size > 0 || totalCartQtyAllSizes === 0) && (
+                  <CustomButton
+                    size="sm"
+                    className="h-8 shrink-0 gap-1.5"
+                    variant={modifiedSizes.size > 0 ? "default" : "secondary"}
+                    disabled={
+                      isSaving ||
+                      modifiedSizes.size === 0 ||
+                      product.stockStatus === "OUT_OF_STOCK"
+                    }
+                    onClick={handleSave}
+                  >
+                    {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    {modifiedSizes.size > 0 && totalCartQtyAllSizes > 0
+                      ? "Update Cart"
+                      : "Add to Cart"}
+                  </CustomButton>
+                )}
+              </div>
+
+              {/* Total */}
+              <div className="flex justify-between items-center py-3 border-t">
+                <span className="text-sm text-muted-foreground">Total</span>
+                <div className="flex items-center gap-2">
+                  {hasAnyPromotion && (
+                    <span className="text-sm text-red-500 line-through">
+                      {formatCurrency(totalOrigValueAllSizes)}
+                    </span>
+                  )}
+                  <span className="text-xl font-bold text-primary">
+                    {formatCurrency(totalDisplayValueAllSizes)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+    );
+  }
+
+  // ─── Guards ───────────────────────────────────────────────────────────────
 
   if (isLoading || (!product && !error.detail)) return <ProductDetailSkeleton />;
 
@@ -319,11 +766,15 @@ export default function ProductDetailPage() {
     );
   }
 
+  const stockStatusInfo = formatStockStatus(
+    product.stockStatus || (product.status === "OUT_OF_STOCK" ? "OUT_OF_STOCK" : "IN_STOCK"),
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <PageContainer className="min-h-screen flex flex-col py-4 sm:py-6">
 
-        {}
+        {/* Back */}
         <CustomButton
           variant="ghost"
           size="sm"
@@ -334,13 +785,11 @@ export default function ProductDetailPage() {
           Back
         </CustomButton>
 
-        {}
-        <div className="grid grid-cols-1 lg:grid-cols-[9fr_11fr] gap-8 lg:gap-10 mb-16">
+        {/* Main grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-[9fr_11fr] gap-8 lg:gap-10 mb-10">
 
-          {}
+          {/* ── Left: Image gallery ── */}
           <div className="space-y-3">
-
-            {}
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted group shadow-sm">
               {!imageLoaded && <Skeleton className="absolute inset-0 rounded-2xl" />}
               <Image
@@ -349,19 +798,23 @@ export default function ProductDetailPage() {
                 alt={product.name}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 60vw"
-                className={cn("object-cover transition-opacity duration-300", imageLoaded ? "opacity-100" : "opacity-0")}
+                className={cn(
+                  "object-cover transition-opacity duration-300",
+                  imageLoaded ? "opacity-100" : "opacity-0",
+                )}
                 onLoad={() => setImageLoaded(true)}
                 priority
               />
 
-              {}
               {hasDiscount && discountPercent > 0 && (
-                <Badge variant="destructive" className="absolute top-3 left-3 text-sm font-bold px-3 py-1.5 shadow">
+                <Badge
+                  variant="destructive"
+                  className="absolute top-3 left-3 text-sm font-bold px-3 py-1.5 shadow"
+                >
                   -{discountPercent}%
                 </Badge>
               )}
 
-              {}
               <button
                 onClick={() => openLightbox(currentImageIndex)}
                 className="absolute bottom-3 right-3 bg-background/75 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow cursor-zoom-in hover:bg-background"
@@ -369,17 +822,22 @@ export default function ProductDetailPage() {
                 <ZoomIn className="h-4 w-4 text-foreground/70" />
               </button>
 
-              {}
               {allImages.length > 1 && (
                 <>
                   <button
-                    onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      prevImage();
+                    }}
                     className="absolute left-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
                   <button
-                    onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextImage();
+                    }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md"
                   >
                     <ChevronRight className="h-5 w-5" />
@@ -387,7 +845,6 @@ export default function ProductDetailPage() {
                 </>
               )}
 
-              {}
               {allImages.length > 1 && (
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow">
                   {currentImageIndex + 1} / {allImages.length}
@@ -395,7 +852,6 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {}
             {allImages.length > 1 && (
               <div className="flex gap-2.5 overflow-x-auto pb-1">
                 {allImages.map((img, i) => (
@@ -406,42 +862,50 @@ export default function ProductDetailPage() {
                       "relative flex-shrink-0 w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-xl overflow-hidden transition-all duration-150",
                       i === currentImageIndex
                         ? "ring-2 ring-primary ring-offset-2 shadow-sm"
-                        : "opacity-55 hover:opacity-100 hover:ring-2 hover:ring-primary/40 hover:ring-offset-1"
+                        : "opacity-55 hover:opacity-100 hover:ring-2 hover:ring-primary/40 hover:ring-offset-1",
                     )}
                   >
-                    <Image src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)} alt={`View ${i + 1}`} fill sizes="80px" className="object-cover" />
+                    <Image
+                      src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)}
+                      alt={`View ${i + 1}`}
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                    />
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {}
+          {/* ── Right: Product info ── */}
           <div className="flex flex-col gap-4">
 
-            {}
+            {/* Badges */}
             <div className="flex flex-wrap items-center gap-2">
               {product.categoryName && (
                 <Badge variant="secondary" className="gap-1 text-xs">
-                  <Tag className="h-3 w-3" />{product.categoryName}
+                  <Tag className="h-3 w-3" />
+                  {product.categoryName}
                 </Badge>
               )}
               {product.brandName && (
                 <Badge variant="outline" className="gap-1 text-xs">
-                  <Store className="h-3 w-3" />{product.brandName}
+                  <Store className="h-3 w-3" />
+                  {product.brandName}
                 </Badge>
               )}
-              <Badge className={cn("text-xs", product.status === "OUT_OF_STOCK" ? "bg-rose-500 hover:bg-rose-600" : "bg-emerald-500 hover:bg-emerald-600")}>
-                {product.status === "OUT_OF_STOCK" ? "Out of Stock" : "In Stock"}
+              <Badge className={cn("text-xs", stockStatusInfo.className)}>
+                {stockStatusInfo.label}
               </Badge>
             </div>
 
-            {}
+            {/* Name */}
             <h1 className="text-2xl sm:text-3xl font-bold leading-snug tracking-tight">
               {product.name}
             </h1>
 
-            {}
+            {/* Price */}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <span className="text-3xl sm:text-4xl font-bold text-primary leading-none">
                 {formatCurrency(getDisplayPrice())}
@@ -458,185 +922,89 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {}
+            {/* Description */}
             {product.description && (
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                 {product.description}
               </p>
             )}
 
-            {}
-            {(() => {
-              const sizeId: string | null = product.hasSizes ? (selectedSize?.id ?? null) : null;
-              const displayQty = getDisplayQuantity(sizeId);
-              const cartQty = getQuantityForSize(sizeId);
-              const unitPrice = (product.hasSizes ? selectedSize?.finalPrice : null) ?? product.displayPrice ?? 0;
-              const clearKey = sizeId || "no_size";
-              const showQtySection = !product.hasSizes || !!selectedSize;
-
-              const totalCartQtyAllSizes = product.hasSizes
-                ? (product.sizes?.reduce((sum, s) => sum + getQuantityForSize(s.id), 0) ?? 0)
-                : getQuantityForSize(null);
-              const totalCartValueAllSizes = product.hasSizes
-                ? (product.sizes?.reduce((sum, s) => sum + s.finalPrice * getQuantityForSize(s.id), 0) ?? 0)
-                : unitPrice * getQuantityForSize(null);
-              const totalDisplayValueAllSizes = product.hasSizes
-                ? (product.sizes?.reduce((sum, s) => sum + s.finalPrice * getDisplayQuantity(s.id), 0) ?? 0)
-                : unitPrice * displayQty;
-              const totalOrigValueAllSizes = product.hasSizes
-                ? (product.sizes?.reduce((sum, s) => sum + (s.hasPromotion ? s.price : s.finalPrice) * getDisplayQuantity(s.id), 0) ?? 0)
-                : (getOriginalPrice() ?? unitPrice) * displayQty;
-              const hasAnyPromotion = product.hasSizes
-                ? (product.sizes?.some(s => s.hasPromotion && getDisplayQuantity(s.id) > 0) ?? false)
-                : !!(getOriginalPrice() && displayQty > 0);
-
-              return (
-                <div className="space-y-3">
-
-                  {}
-                  {product.hasSizes && product.sizes && product.sizes.length > 0 && (
-                    <>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Choose Size
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {product.sizes.map((size) => {
-                          const szQty = getDisplayQuantity(size.id);
-                          const isModified = modifiedSizes.has(size.id) && szQty !== getQuantityForSize(size.id);
-                          const isActive = selectedSize?.id === size.id;
-                          return (
-                            <button
-                              key={size.id}
-                              onClick={() => setSelectedSize(size)}
-                              className={cn(
-                                "relative border-2 rounded-xl px-4 py-2.5 text-left min-w-[76px] transition-all",
-                                isActive
-                                  ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-sm"
-                                  : "border-border hover:border-primary/50 hover:bg-muted/40"
-                              )}
-                            >
-                              {isActive && (
-                                <div className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
-                                  <Check className="h-2.5 w-2.5" />
-                                </div>
-                              )}
-                              <div className="font-semibold text-sm">{size.name}</div>
-                              <div className="text-primary font-bold text-sm">{formatCurrency(size.finalPrice)}</div>
-                              {size.hasPromotion && (
-                                <div className="text-[10px] text-muted-foreground line-through">{formatCurrency(size.price)}</div>
-                              )}
-                              {szQty > 0 && (
-                                <div className={cn(
-                                  "absolute -top-2 -left-2 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold",
-                                  isModified ? "bg-amber-500" : "bg-primary"
-                                )}>
-                                  {szQty}
-                                </div>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
-
-                  {}
-                  {showQtySection && (() => {
-                    const key = sizeId || "no_size";
-                    const isPending = modifiedSizes.has(key) && displayQty !== cartQty;
-                    return (
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-sm">Quantity</h4>
-                      <div className="flex items-center gap-2">
-                        <QuantitySelector
-                          value={displayQty}
-                          onChange={(qty) => handlePendingQtyChange(sizeId, qty)}
-                          min={0}
-                          size="sm"
-                          pending={isPending}
-                        />
-                        {(displayQty > 0 || cartQty > 0) && (
-                          <CustomButton
-                            variant="outline"
-                            size="sm"
-                            className="h-8 px-2 shrink-0 text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
-                            disabled={clearingSize === clearKey}
-                            onClick={() => handleClearSize(sizeId)}
-                          >
-                            {clearingSize === clearKey
-                              ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
-                              : <Trash2 className="h-3.5 w-3.5 mr-1" />}
-                            Clear
-                          </CustomButton>
-                        )}
-                        <div className="flex-1" />
-                        {}
-                        {totalCartQtyAllSizes > 0 && (
-                          <div className="h-8 shrink-0 flex items-center px-3 text-sm font-medium rounded-md border border-border text-muted-foreground">
-                            {`In Cart · ${formatCurrency(totalCartValueAllSizes)}`}
-                          </div>
-                        )}
-                        {}
-                        {(modifiedSizes.size > 0 || totalCartQtyAllSizes === 0) && (
-                          <CustomButton
-                            size="sm"
-                            className="h-8 shrink-0 gap-1.5"
-                            variant={modifiedSizes.size > 0 ? "default" : "secondary"}
-                            disabled={isSaving || modifiedSizes.size === 0 || product.status === "OUT_OF_STOCK"}
-                            onClick={handleSave}
-                          >
-                            {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                            {modifiedSizes.size > 0 && totalCartQtyAllSizes > 0 ? "Update Cart" : "Add to Cart"}
-                          </CustomButton>
-                        )}
-                      </div>
-
-                      {}
-                      <div className="flex justify-between items-center py-3 border-t">
-                        <span className="text-sm text-muted-foreground">Total</span>
-                        <div className="flex items-center gap-2">
-                          {hasAnyPromotion && (
-                            <span className="text-sm text-red-500 line-through">
-                              {formatCurrency(totalOrigValueAllSizes)}
-                            </span>
-                          )}
-                          <span className="text-xl font-bold text-primary">
-                            {formatCurrency(totalDisplayValueAllSizes)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                  })()}
-
+            {/* Customizations */}
+            {product.customizations && product.customizations.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Customizations
+                  </p>
                 </div>
-              );
-            })()}
+                <div className="rounded-xl border overflow-hidden">
+                  {product.customizations.map((customization, idx) => (
+                    <div
+                      key={customization.id}
+                      className={cn(
+                        "flex items-center justify-between px-4 py-2.5 text-sm",
+                        idx < product.customizations.length - 1 && "border-b",
+                      )}
+                    >
+                      <span className="font-medium">{customization.name}</span>
+                      {customization.priceAdjustment !== 0 ? (
+                        <span
+                          className={cn(
+                            "font-semibold text-xs px-2 py-0.5 rounded-full",
+                            customization.priceAdjustment > 0
+                              ? "text-primary bg-primary/10"
+                              : "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30",
+                          )}
+                        >
+                          {customization.priceAdjustment > 0 ? "+" : ""}
+                          {formatCurrency(customization.priceAdjustment)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Included</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-            {}
+            {/* Cart section */}
+            {renderCartSection()}
+
+            {/* Actions */}
             <div className="grid grid-cols-2 gap-3">
               <CustomButton
                 size="lg"
                 variant="outline"
                 className={cn(
                   "h-11 rounded-xl gap-2 transition-all font-medium",
-                  isFavorited ? "bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/30 dark:border-rose-800 dark:text-rose-400" : ""
+                  isFavorited
+                    ? "bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/30 dark:border-rose-800 dark:text-rose-400"
+                    : "",
                 )}
                 onClick={handleToggleFavorite}
                 disabled={isTogglingFavorite}
               >
-                {isTogglingFavorite
-                  ? <Loader2 className="h-5 w-5 animate-spin" />
-                  : <Heart className={cn("h-5 w-5", isFavorited && "fill-current")} />}
+                {isTogglingFavorite ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Heart className={cn("h-5 w-5", isFavorited && "fill-current")} />
+                )}
                 {isFavorited ? "Saved" : "Wishlist"}
               </CustomButton>
-              <CustomButton size="lg" variant="outline" className="h-11 rounded-xl gap-2 font-medium" onClick={handleShare}>
+              <CustomButton
+                size="lg"
+                variant="outline"
+                className="h-11 rounded-xl gap-2 font-medium"
+                onClick={handleShare}
+              >
                 <Share2 className="h-5 w-5" />
                 Share
               </CustomButton>
             </div>
 
-            {}
+            {/* Stats + SKU */}
             <div className="flex items-center gap-6 pt-4 border-t text-muted-foreground">
               <div className="flex items-center gap-1.5 text-sm">
                 <Eye className="h-4 w-4" />
@@ -648,17 +1016,23 @@ export default function ProductDetailPage() {
                 <span>{product.favoriteCount.toLocaleString()}</span>
                 <span className="text-xs">saves</span>
               </div>
-              <div className="ml-auto text-xs font-mono text-muted-foreground/70">
-                SKU: {product.id.slice(0, 8).toUpperCase()}
-              </div>
+              {product.sku && (
+                <div className="ml-auto flex items-center gap-1 text-xs font-mono text-muted-foreground/70">
+                  <Barcode className="h-3.5 w-3.5" />
+                  {product.sku}
+                </div>
+              )}
             </div>
 
           </div>
         </div>
 
-        {}
+        {/* Product Details card */}
+        <ProductDetailsCard product={product} />
+
+        {/* Similar products */}
         {similarProducts.length > 0 && (
-          <div>
+          <div className="mb-12">
             <div className="flex items-center gap-2 mb-5">
               <h2 className="text-xl sm:text-2xl font-bold">You May Also Like</h2>
               <span className="text-xs font-semibold bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
@@ -674,21 +1048,31 @@ export default function ProductDetailPage() {
         )}
       </PageContainer>
 
-      {}
+      {/* Lightbox */}
       {lightboxOpen && (
         <div
           className="fixed inset-0 z-[200] bg-black/95 flex flex-col items-center justify-between"
           onClick={() => setLightboxOpen(false)}
         >
-          <div className="w-full flex items-center justify-between px-4 py-3 shrink-0" onClick={(e) => e.stopPropagation()}>
-            <span className="text-white/70 text-sm font-medium">{lightboxIndex + 1} / {allImages.length}</span>
-            <button onClick={() => setLightboxOpen(false)} className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-colors">
+          <div
+            className="w-full flex items-center justify-between px-4 py-3 shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="text-white/70 text-sm font-medium">
+              {lightboxIndex + 1} / {allImages.length}
+            </span>
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-colors"
+            >
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          <div className="relative flex-1 w-full flex items-center justify-center px-14" onClick={(e) => e.stopPropagation()}>
-            {}
+          <div
+            className="relative flex-1 w-full flex items-center justify-center px-14"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               key={`lightbox-${lightboxIndex}`}
               src={allImages[lightboxIndex]?.imageUrl || appImages.NoImage}
@@ -697,28 +1081,40 @@ export default function ProductDetailPage() {
             />
             {allImages.length > 1 && (
               <>
-                <button onClick={prevLightbox} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-3 rounded-full transition-colors">
+                <button
+                  onClick={prevLightbox}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-3 rounded-full transition-colors"
+                >
                   <ChevronLeft className="h-6 w-6" />
                 </button>
-                <button onClick={nextLightbox} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-3 rounded-full transition-colors">
+                <button
+                  onClick={nextLightbox}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-3 rounded-full transition-colors"
+                >
                   <ChevronRight className="h-6 w-6" />
                 </button>
               </>
             )}
           </div>
 
-          <div className="w-full flex justify-center gap-2 px-4 py-3 overflow-x-auto shrink-0" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="w-full flex justify-center gap-2 px-4 py-3 overflow-x-auto shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
             {allImages.map((img, i) => (
               <button
                 key={`lb-thumb-${i}`}
                 onClick={() => setLightboxIndex(i)}
                 className={cn(
                   "relative flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden transition-all",
-                  i === lightboxIndex ? "ring-2 ring-white scale-110" : "opacity-40 hover:opacity-80"
+                  i === lightboxIndex ? "ring-2 ring-white scale-110" : "opacity-40 hover:opacity-80",
                 )}
               >
-                {}
-                <img src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)} alt={`${i + 1}`} className="w-full h-full object-cover" />
+                <img
+                  src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)}
+                  alt={`${i + 1}`}
+                  className="w-full h-full object-cover"
+                />
               </button>
             ))}
           </div>
@@ -752,21 +1148,24 @@ function ProductDetailSkeleton() {
           <Skeleton className="h-12 w-40 rounded-lg" />
           <Skeleton className="h-16 w-full rounded-xl" />
           <div className="flex gap-2">
-            {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-20 rounded-xl" />)}
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-16 w-20 rounded-xl" />
+            ))}
           </div>
           <Skeleton className="h-9 w-24 rounded-lg" />
-          <div className="flex gap-2"><Skeleton className="h-8 w-28 rounded" /></div>
           <Skeleton className="h-px w-full" />
-          <div className="flex gap-3">
-            <Skeleton className="flex-1 h-11 rounded-xl" />
-            <Skeleton className="flex-1 h-11 rounded-xl" />
-          </div>
           <div className="grid grid-cols-2 gap-3">
             <Skeleton className="h-11 rounded-xl" />
             <Skeleton className="h-11 rounded-xl" />
           </div>
+          <Skeleton className="h-px w-full" />
+          <div className="flex gap-3">
+            <Skeleton className="h-5 w-16 rounded" />
+            <Skeleton className="h-5 w-16 rounded" />
+          </div>
         </div>
       </div>
+      <Skeleton className="h-[220px] w-full rounded-2xl mt-10" />
     </PageContainer>
   );
 }
