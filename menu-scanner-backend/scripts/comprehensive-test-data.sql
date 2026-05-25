@@ -921,8 +921,9 @@ ON CONFLICT DO NOTHING;
 -- ============================================================================
 DO $$ BEGIN RAISE NOTICE ' 65%% [█████████████░░░░░░░] Customer users done - starting orders'; END $$;
 
--- 13. COMPREHENSIVE ORDERS  2025-01-01 → CURRENT_DATE+1yr (dynamic)
--- Past/future days: 24 hrs/day; today: only up to current hour
+-- 13. COMPREHENSIVE ORDERS  2025-01-01 → CURRENT_DATE+1yr (fully dynamic)
+-- 4 orders/hr × 24 hrs × ~730 past days + ~365 future days ≈ 100k+ orders
+-- Today: slots capped at current hour so chart always matches real time
 -- ============================================================================
 
 -- Widen orders.payment_method check constraint to include BANK
@@ -1006,70 +1007,70 @@ SELECT
 
 FROM (
   SELECT
-    -- All 24 hours covered — order lands within first 3 min of each hour
-    -- so the current hour is always visible once the clock ticks past HH:03
+    -- 4 orders per hour, evenly spread across the hour
+    -- n=1 lands at 0-14 min, n=2 at 15-29, n=3 at 30-44, n=4 at 45-59
     (d::timestamp
       + slot * INTERVAL '1 hour'
-      + ((slot * 7 + EXTRACT(DOY FROM d)::int * 3) % 3) * INTERVAL '1 minute'
+      + ((n - 1) * 15 + (slot * 7 + EXTRACT(DOY FROM d)::int * 3 + n * 11) % 15) * INTERVAL '1 minute'
     ) AS ts,
     slot,
-    ROW_NUMBER() OVER (ORDER BY d, slot)              AS rn,
+    n,
+    ROW_NUMBER() OVER (ORDER BY d, slot, n)           AS rn,
     EXTRACT(DOY FROM d)::int                          AS doy,
 
-    -- Revenue grows gradually over time + per-day variation
+    -- Revenue grows gradually over time + per-order variation
     ROUND((
       50
       + GREATEST(0, (d::date - '2025-01-01'::date) * 0.08)
-      + ((slot * 23 + EXTRACT(DOY FROM d)::int * 17) % 300)
+      + ((slot * 23 + n * 37 + EXTRACT(DOY FROM d)::int * 17) % 300)
     )::numeric, 2) AS subtotal,
 
-    ROUND(((slot * 5 + EXTRACT(DOY FROM d)::int * 3) % 30)::numeric, 2) AS cust_total,
+    ROUND(((slot * 5 + n * 13 + EXTRACT(DOY FROM d)::int * 3) % 30)::numeric, 2) AS cust_total,
 
     -- ~10% PERCENTAGE discount, ~10% FIXED_AMOUNT discount, rest none
-    -- Both are fully dynamic — percentage varies 5–20%, fixed amount varies $2–$20
     ROUND(CASE
-      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 0
-        -- Dynamic percentage: 5%, 8%, 10%, 12%, 15%, or 20% based on day+slot
+      WHEN (slot + n + EXTRACT(DOY FROM d)::int) % 10 = 0
         THEN GREATEST(0,
                50
                + (d::date - '2025-01-01'::date) * 0.08
-               + ((slot * 23 + EXTRACT(DOY FROM d)::int * 17) % 300)
+               + ((slot * 23 + n * 37 + EXTRACT(DOY FROM d)::int * 17) % 300)
              )::numeric
-             * (ARRAY[5,8,10,12,15,20])[ 1 + (slot * 7 + EXTRACT(DOY FROM d)::int * 13) % 6 ]
+             * (ARRAY[5,8,10,12,15,20])[ 1 + (slot * 7 + n * 3 + EXTRACT(DOY FROM d)::int * 13) % 6 ]
              / 100.0
-      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 5
-        -- Dynamic fixed amount: $2, $3, $5, $7, $10, or $15 based on day+slot
-        THEN (ARRAY[2,3,5,7,10,15])[ 1 + (slot * 11 + EXTRACT(DOY FROM d)::int * 7) % 6 ]::numeric
+      WHEN (slot + n + EXTRACT(DOY FROM d)::int) % 10 = 5
+        THEN (ARRAY[2,3,5,7,10,15])[ 1 + (slot * 11 + n * 5 + EXTRACT(DOY FROM d)::int * 7) % 6 ]::numeric
       ELSE 0::numeric
     END, 2) AS discount,
     CASE
-      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 0 THEN 'PERCENTAGE'
-      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 5 THEN 'FIXED_AMOUNT'
+      WHEN (slot + n + EXTRACT(DOY FROM d)::int) % 10 = 0 THEN 'PERCENTAGE'
+      WHEN (slot + n + EXTRACT(DOY FROM d)::int) % 10 = 5 THEN 'FIXED_AMOUNT'
       ELSE NULL
     END AS disc_type,
     CASE
-      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 0
+      WHEN (slot + n + EXTRACT(DOY FROM d)::int) % 10 = 0
         THEN (ARRAY['5% Member Discount','8% Seasonal Sale','10% Loyalty Reward','12% Weekend Deal','15% Flash Sale','20% VIP Offer'])[
-               1 + (slot * 7 + EXTRACT(DOY FROM d)::int * 13) % 6 ]
-      WHEN (slot + EXTRACT(DOY FROM d)::int) % 10 = 5
+               1 + (slot * 7 + n * 3 + EXTRACT(DOY FROM d)::int * 13) % 6 ]
+      WHEN (slot + n + EXTRACT(DOY FROM d)::int) % 10 = 5
         THEN (ARRAY['$2 First Order','$3 Happy Hour','$5 Promo Code','$7 Bundle Deal','$10 Birthday Offer','$15 Special Event'])[
-               1 + (slot * 11 + EXTRACT(DOY FROM d)::int * 7) % 6 ]
+               1 + (slot * 11 + n * 5 + EXTRACT(DOY FROM d)::int * 7) % 6 ]
       ELSE NULL
     END AS disc_reason
 
   FROM generate_series('2025-01-01'::date, CURRENT_DATE + INTERVAL '1 year', '1 day'::interval) d
-  -- Past/future days: all 24 hours. Today: only up to current hour so data matches NOW()
+  -- Past/future days: all 24 hours. Today: only up to current hour
   CROSS JOIN generate_series(0,
     CASE WHEN d::date = CURRENT_DATE
       THEN EXTRACT(HOUR FROM NOW())::int
       ELSE 23
     END
   ) slot
+  -- 4 orders per hour — lots of data for every period filter
+  CROSS JOIN generate_series(1, 4) n
 ) order_data;
 
 
 -- ============================================================================
-DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] Orders inserted up to current date/hour'; END $$;
+DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] ~100k+ orders inserted (2025-01-01 to +1yr, 4/hr)'; END $$;
 
 -- 14. DELIVERY ADDRESSES for PUBLIC (non-POS) orders
 -- ============================================================================
