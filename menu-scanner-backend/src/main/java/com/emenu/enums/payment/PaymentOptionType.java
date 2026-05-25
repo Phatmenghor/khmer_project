@@ -1,7 +1,8 @@
 package com.emenu.enums.payment;
 
 public enum PaymentOptionType {
-    CASH("Cash");
+    CASH("Cash"),
+    BANK("Bank Transfer");
 
     private final String displayName;
 

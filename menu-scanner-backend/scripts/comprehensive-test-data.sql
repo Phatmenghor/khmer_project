@@ -237,6 +237,13 @@ VALUES (
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
+-- Widen the check constraint so BANK is a valid payment_option_type
+ALTER TABLE payment_options
+  DROP CONSTRAINT IF EXISTS payment_options_payment_option_type_check;
+ALTER TABLE payment_options
+  ADD CONSTRAINT payment_options_payment_option_type_check
+  CHECK (payment_option_type IN ('CASH', 'BANK'));
+
 INSERT INTO payment_options (id, business_id, name, payment_option_type, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
