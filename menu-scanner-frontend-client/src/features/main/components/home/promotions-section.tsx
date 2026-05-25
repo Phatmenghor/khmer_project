@@ -107,7 +107,7 @@ const PromotionsSectionComponent = ({
           <ProductCard
             key={`promotion-product-${product.id}`}
             product={product}
-            imageLoading={index < 6 ? "eager" : "lazy"}
+            imageLoading="eager"
           />
         ))}
       </div>

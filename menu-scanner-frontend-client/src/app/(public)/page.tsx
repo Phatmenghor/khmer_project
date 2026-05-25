@@ -280,6 +280,7 @@ export default function HomePage() {
             hasMore={featuredPagination.hasMore}
             onLoadMore={handleLoadMoreFeatured}
             isInitialLoading={isInitialFeaturedLoading}
+            imageLoading="eager"
           />
         </PageContainer>
       </div>

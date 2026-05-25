@@ -21,6 +21,7 @@ interface ProductsSectionProps {
   hasMore: boolean;
   onLoadMore: () => void;
   isInitialLoading?: boolean;
+  imageLoading?: "eager" | "lazy";
 }
 
 
@@ -34,6 +35,7 @@ const ProductsSectionComponent = ({
   hasMore,
   onLoadMore,
   isInitialLoading = false,
+  imageLoading = "lazy",
 }: ProductsSectionProps) => {
 
   if (error) {
@@ -61,6 +63,7 @@ const ProductsSectionComponent = ({
         onLoadMore={onLoadMore}
         isInitialLoading={isInitialLoading}
         sectionKey="featured"
+        imageLoading={imageLoading}
       />
 
       {}

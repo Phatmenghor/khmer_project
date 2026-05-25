@@ -91,7 +91,7 @@ const CategoriesSectionComponent = ({
           <CategoryCard
             key={`category-${category.id}`}
             category={category}
-            loading={index < 6 ? "eager" : "lazy"}
+            loading="eager"
           />
         ))}
       </div>
