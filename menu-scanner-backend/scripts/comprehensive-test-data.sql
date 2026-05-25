@@ -1,8 +1,8 @@
 
 -- ============================================================================
--- COMPREHENSIVE MEGA TEST DATA GENERATION SCRIPT
--- Complete E-Commerce System with Orders, Stock & 10,000 Products
--- 2 Businesses, 101+ Users with Full Order History
+-- COMPREHENSIVE TEST DATA GENERATION SCRIPT
+-- 2 Businesses · 3 Main Users · 300 Products · ±4 months orders
+-- Users: phatmenghor19 (PLATFORM_OWNER) | phatmenghor20 (Mega Store) | phatmenghor21 (Fashion Hub)
 
 -- ============================================================================
 
@@ -268,118 +268,45 @@ DO $$ BEGIN RAISE NOTICE ' 10%% [██░░░░░░░░░░░░░�
 
 -- ============================================================================
 
--- If user registered via app with null business_id, patch it to the correct business
-UPDATE users
-SET business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    account_status = 'ACTIVE', status = 'ACTIVE', updated_at = NOW()
-WHERE user_identifier = 'phatmenghor20@gmail.com' AND business_id IS NULL;
+-- ── 3 MAIN USERS ONLY ────────────────────────────────────────────────────────
 
-UPDATE users
-SET business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    account_status = 'ACTIVE', status = 'ACTIVE', updated_at = NOW()
-WHERE user_identifier = 'phatmenghor21@gmail.com' AND business_id IS NULL;
-
--- Main User 1: BUSINESS_USER with Business Owner role (phatmenghor20@gmail.com) - Mega Store
-INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  '660e8400-e29b-41d4-a716-446655440001',
-  'phatmenghor20@gmail.com',
-  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
-  'BUSINESS_USER',
-  'ACTIVE', 'ACTIVE',
-  '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'phatmenghor20@gmail.com');
-
--- Main User 2: BUSINESS_USER with Business Owner role (phatmenghor21@gmail.com) - Fashion Hub
-INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  '660e8400-e29b-41d4-a716-446655440002',
-  'phatmenghor21@gmail.com',
-  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
-  'BUSINESS_USER',
-  'ACTIVE', 'ACTIVE',
-  '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'phatmenghor21@gmail.com');
-
--- 5 Admin Users for Mega Store
-INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  'admin' || i || '@megastore.com',
-  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
-  'BUSINESS_USER',
-  'ACTIVE', 'ACTIVE',
-  '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 5) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'admin' || i || '@megastore.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
-
--- 15 Manager Users for Mega Store
-INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  'manager' || i || '@megastore.com',
-  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
-  'BUSINESS_USER',
-  'ACTIVE', 'ACTIVE',
-  '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 15) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'manager' || i || '@megastore.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
-
--- 80 Staff Users for Mega Store
-INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  'staff' || i || '@megastore.com',
-  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
-  'BUSINESS_USER',
-  'ACTIVE', 'ACTIVE',
-  '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 80) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'staff' || i || '@megastore.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
-
--- 3 Admin Users for Fashion Hub
-INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  'admin' || i || '@fashionhub.com',
-  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
-  'BUSINESS_USER',
-  'ACTIVE', 'ACTIVE',
-  '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 3) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'admin' || i || '@fashionhub.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
-
-
-
--- CUSTOMER User: phatmenghor21@gmail.com
+-- phatmenghor19 — PLATFORM_OWNER (super admin, no business)
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
-  '770e8400-e29b-41d4-a716-446655440010',
-  'phatmenghor21@gmail.com',
+  '550e8400-e29b-41d4-a716-446655440019',
+  'phatmenghor19@gmail.com',
   '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
-  'CUSTOMER',
+  'PLATFORM_OWNER',
   'ACTIVE', 'ACTIVE',
   NULL,
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
--- 10 Staff Users for Fashion Hub
+
+-- phatmenghor20 — BUSINESS_USER, owner of Mega Store
+UPDATE users SET business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0',
+  account_status = 'ACTIVE', status = 'ACTIVE', updated_at = NOW()
+WHERE user_identifier = 'phatmenghor20@gmail.com' AND business_id IS NULL;
+
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  'staff' || i || '@fashionhub.com',
+SELECT '660e8400-e29b-41d4-a716-446655440001', 'phatmenghor20@gmail.com',
   '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
-  'BUSINESS_USER',
-  'ACTIVE', 'ACTIVE',
+  'BUSINESS_USER', 'ACTIVE', 'ACTIVE',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   0, false, NOW(), NOW(), 'admin', 'admin'
-FROM generate_series(1, 10) AS t(i)
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'staff' || i || '@fashionhub.com' AND business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0');
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'phatmenghor20@gmail.com');
+
+-- phatmenghor21 — BUSINESS_USER, owner of Fashion Hub
+UPDATE users SET business_id = '660cad56-cafd-4aba-baef-c4dcd53940d0',
+  account_status = 'ACTIVE', status = 'ACTIVE', updated_at = NOW()
+WHERE user_identifier = 'phatmenghor21@gmail.com' AND business_id IS NULL;
+
+INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT '660e8400-e29b-41d4-a716-446655440002', 'phatmenghor21@gmail.com',
+  '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
+  'BUSINESS_USER', 'ACTIVE', 'ACTIVE',
+  '660cad56-cafd-4aba-baef-c4dcd53940d0',
+  0, false, NOW(), NOW(), 'admin', 'admin'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'phatmenghor21@gmail.com');
 
 
 DO $$ BEGIN RAISE NOTICE ' 15%% [███░░░░░░░░░░░░░░░░░] Users created'; END $$;
@@ -389,100 +316,13 @@ DO $$ BEGIN RAISE NOTICE ' 15%% [███░░░░░░░░░░░░�
 
 -- ============================================================================
 
--- Profile for phatmenghor20
+-- Profiles for the 3 main users only
 INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
-  gen_random_uuid(),
-  '660e8400-e29b-41d4-a716-446655440001',
-  'phatmenghor20@gmail.com',
-  'Phatmenghor',
-  'Twenty',
-  '+855-12-345-678',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT DO NOTHING;
-
--- Profile for phatmenghor21
-INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
-  gen_random_uuid(),
-  '660e8400-e29b-41d4-a716-446655440002',
-  'phatmenghor21@gmail.com',
-  'Phatmenghor',
-  'Twenty-One',
-  '+855-87-654-321',
-  0, false, NOW(), NOW(), 'admin', 'admin'
-) ON CONFLICT DO NOTHING;
-
--- Profiles for Admin Users (Mega Store)
-INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  u.id,
-  u.user_identifier,
-  'Admin ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
-  'Mega Store',
-  '+855-' || LPAD((10000000 + (ABS(HASHTEXT(u.user_identifier)::bigint) % 9000000))::text, 10, '0'),
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM users u
-WHERE u.user_identifier LIKE 'admin%@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
-  AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
-
--- Profiles for Manager Users (Mega Store)
-INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  u.id,
-  u.user_identifier,
-  'Manager ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
-  'Mega Store',
-  '+855-' || LPAD((20000000 + (ABS(HASHTEXT(u.user_identifier)::bigint) % 9000000))::text, 10, '0'),
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM users u
-WHERE u.user_identifier LIKE 'manager%@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
-  AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
-
--- Profiles for Staff Users (Mega Store)
-INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  u.id,
-  u.user_identifier,
-  'Staff ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
-  'Mega Store',
-  '+855-' || LPAD((30000000 + (ABS(HASHTEXT(u.user_identifier)::bigint) % 9000000))::text, 10, '0'),
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM users u
-WHERE u.user_identifier LIKE 'staff%@megastore.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
-  AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
-
--- Profiles for Admin Users (Fashion Hub)
-INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  u.id,
-  u.user_identifier,
-  'Admin FH ' || SUBSTRING(u.user_identifier FROM 1 FOR POSITION('@' IN u.user_identifier) - 1),
-  'Fashion Hub',
-  '+855-' || LPAD((40000000 + (ABS(HASHTEXT(u.user_identifier)::bigint) % 9000000))::text, 10, '0'),
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM users u
-WHERE u.user_identifier LIKE 'admin%@fashionhub.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
-  AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
-
--- Profiles for Staff Users (Fashion Hub)
-INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT
-  gen_random_uuid(),
-  u.id,
-  'staff' || i || '@fashionhub.com',
-  'Staff FH',
-  i::text,
-  '+855-' || (50000000 + i * 1000000)::text,
-  0, false, NOW(), NOW(), 'admin', 'admin'
-FROM users u
-CROSS JOIN generate_series(1, 10) AS t(i)
-WHERE u.user_identifier = 'staff' || i || '@fashionhub.com' AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
-  AND NOT EXISTS (SELECT 1 FROM user_profiles WHERE user_id = u.id);
+VALUES
+  (gen_random_uuid(), '550e8400-e29b-41d4-a716-446655440019', 'phatmenghor19@gmail.com', 'Phatmenghor', 'Nineteen',   '+855-19-000-019', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '660e8400-e29b-41d4-a716-446655440001', 'phatmenghor20@gmail.com', 'Phatmenghor', 'Twenty',     '+855-12-345-678', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  (gen_random_uuid(), '660e8400-e29b-41d4-a716-446655440002', 'phatmenghor21@gmail.com', 'Phatmenghor', 'Twenty-One', '+855-87-654-321', 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
 
 
 DO $$ BEGIN RAISE NOTICE ' 20%% [████░░░░░░░░░░░░░░░░] User profiles done'; END $$;
@@ -700,9 +540,9 @@ WHERE NOT EXISTS (SELECT 1 FROM brands WHERE business_id = '550cad56-cafd-4aba-b
 
 
 -- ============================================================================
-DO $$ BEGIN RAISE NOTICE ' 35%% [███████░░░░░░░░░░░░░] Brands done - inserting 10000 products...'; END $$;
+DO $$ BEGIN RAISE NOTICE ' 35%% [███████░░░░░░░░░░░░░] Brands done - inserting 300 products...'; END $$;
 
--- 8. CREATE 10,000 PRODUCTS (555 per category)
+-- 8. CREATE 300 PRODUCTS (30 per category × 10 categories)
 
 -- ============================================================================
 INSERT INTO products (
@@ -729,8 +569,8 @@ SELECT
   (i % 100) >= 66,
   (i % 100),
   (i % 50),
-  'Category ' || ((i - 1) / 555 + 1),
-  'Brand ' || (((i - 1) / 555) % 18 + 1),
+  'Category ' || ((i - 1) / 30 + 1),
+  'Brand ' || (((i - 1) / 30) % 18 + 1),
   'Mega Store',
   0,
   false,
@@ -740,13 +580,13 @@ SELECT
   CASE WHEN (i % 10) < 4 THEN CASE WHEN (i % 2) = 0 THEN (10 + (i % 40))::numeric ELSE (5 + (i % 20))::numeric END ELSE NULL END,
   CASE WHEN (i % 10) < 4 THEN DATE_TRUNC('day', NOW() - INTERVAL '1 day' * (FLOOR((i * 7919) % 30))) ELSE NULL END,
   CASE WHEN (i % 10) < 4 THEN DATE_TRUNC('day', NOW() + INTERVAL '1 month' * (6 + (i % 19))) ELSE NULL END
-FROM generate_series(1, 10000) AS t(i);
+FROM generate_series(1, 300) AS t(i);
 
 
 -- ============================================================================
-DO $$ BEGIN RAISE NOTICE ' 40%% [████████░░░░░░░░░░░░] 10000 products inserted'; END $$;
+DO $$ BEGIN RAISE NOTICE ' 40%% [████████░░░░░░░░░░░░] 300 products inserted'; END $$;
 
--- 9. CREATE PRODUCT SIZES (34% of products = 3,400 products × 9 sizes = 30,600)
+-- 9. CREATE PRODUCT SIZES (34% of products = ~102 products × 9 sizes = ~918)
 -- 40% of product sizes have promotions
 
 -- ============================================================================
@@ -915,11 +755,11 @@ SELECT
   ('2025-01-01'::timestamp + ((i - 1) * INTERVAL '15 days')),
   ('2025-01-01'::timestamp + ((i - 1) * INTERVAL '15 days')),
   'admin', 'admin'
-FROM generate_series(1, 30) t(i)
+FROM generate_series(1, 10) t(i)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
-DO $$ BEGIN RAISE NOTICE ' 65%% [█████████████░░░░░░░] Customer users done - starting orders'; END $$;
+DO $$ BEGIN RAISE NOTICE ' 65%% [█████████████░░░░░░░] 10 customer users done - starting orders'; END $$;
 
 -- 13. COMPREHENSIVE ORDERS  CURRENT_DATE-4mo → CURRENT_DATE+4mo (fully dynamic)
 -- 2-20 orders/hr × 24 hrs × ~240 days ≈ 30-60k orders — fast to generate
@@ -963,14 +803,14 @@ SELECT
 
   -- 75 % have a known customer ID, 25 % are guest
   CASE WHEN rn % 4 = 0 THEN NULL
-       ELSE ('c0000000-0000-0000-0000-' || LPAD(((rn % 30) + 1)::text, 12, '0'))::uuid
+       ELSE ('c0000000-0000-0000-0000-' || LPAD(((rn % 10) + 1)::text, 12, '0'))::uuid
   END,
   CASE WHEN rn % 4 = 0 THEN 'Guest Customer ' || (rn % 20 + 1)
-       ELSE 'Customer ' || ((rn % 30) + 1)
+       ELSE 'Customer ' || ((rn % 10) + 1)
   END,
   '+855-' || (10 + rn % 80) || '-' || LPAD((100000 + rn * 7 % 900000)::text, 6, '0'),
   CASE WHEN rn % 4 = 0 THEN 'guest' || rn || '@example.com'
-       ELSE 'cust' || ((rn % 30) + 1) || '@megastore.com'
+       ELSE 'cust' || ((rn % 10) + 1) || '@megastore.com'
   END,
   NULL,
   NULL,
