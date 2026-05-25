@@ -317,10 +317,13 @@ export default function AdminDashboardPage() {
     isCurrent: d.hour === currentHour,
   })) ?? [];
 
-  // X-axis ticks: every 4 hours + current hour (so "6pm" is always visible)
-  const hourlyTicks = hourlyData.length
-    ? hourlyData.filter(d => d.hour % 4 === 0 || d.isCurrent).map(d => d.label)
-    : [];
+  // Build a Set of labels that should be visible on the x-axis:
+  // every 4-hour mark (12am, 4am, 8am…) + the current hour
+  const visibleHourLabels = new Set(
+    hourlyData
+      .filter(d => d.hour % 4 === 0 || d.isCurrent)
+      .map(d => d.label)
+  );
 
   // ────────────────────────────────────────────────────────────────────────────
 
@@ -702,10 +705,13 @@ export default function AdminDashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis
                   dataKey="label"
-                  ticks={hourlyTicks}
+                  interval={0}
                   tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                   tickLine={false}
                   axisLine={false}
+                  tickFormatter={(label: string) =>
+                    visibleHourLabels.has(label) ? label : ""
+                  }
                 />
                 <YAxis
                   tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
