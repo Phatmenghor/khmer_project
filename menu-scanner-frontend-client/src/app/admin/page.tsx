@@ -89,13 +89,10 @@ const PERIOD_OPTIONS: { label: string; value: DashboardPeriod }[] = [
 ];
 
 
-const STOCK_STATUS_CONFIG: Record<
-  StockStatus,
-  { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
-> = {
-  IN_STOCK: { label: "In Stock", variant: "default" },
-  LOW_STOCK: { label: "Low Stock", variant: "outline" },
-  OUT_OF_STOCK: { label: "Out of Stock", variant: "destructive" },
+const STOCK_STATUS_CONFIG: Record<StockStatus, { label: string; badgeClass: string; barClass: string }> = {
+  IN_STOCK:     { label: "In Stock",    badgeClass: "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800", barClass: "bg-emerald-400" },
+  LOW_STOCK:    { label: "Low Stock",   badgeClass: "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800",           barClass: "bg-amber-400" },
+  OUT_OF_STOCK: { label: "Out of Stock",badgeClass: "bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800",                 barClass: "bg-rose-300" },
 };
 
 const ORDER_STATUS_STYLE: Record<string, string> = {
@@ -311,6 +308,8 @@ export default function AdminDashboardPage() {
 
   // Current Cambodia hour comes from the backend (JVM is Asia/Phnom_Penh).
   const cambodiaCurrentHour = hourlySales?.currentHour ?? 0;
+
+  const activePromoCount = promotions?.data?.filter(p => p.status === "ACTIVE").length ?? 0;
 
   // Show all 24 hours — no filtering. Current hour bar is highlighted.
   const hourlyData = (hourlySales?.data ?? []).map(d => ({
@@ -739,76 +738,64 @@ export default function AdminDashboardPage() {
         </CardContent>
       </Card>
 
-      {/* ── Inventory + Branch Performance ── */}
+      {/* ── Promotion Performance + Branch Performance ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base">Inventory Status</CardTitle>
-                <CardDescription>Items requiring attention</CardDescription>
+                <CardTitle className="text-base">Promotion Performance</CardTitle>
+                <CardDescription>Discount impact this period</CardDescription>
               </div>
-              {stock && (
-                <div className="flex items-center gap-2">
-                  {stock.outOfStockCount > 0 && (
-                    <Badge variant="destructive" className="text-xs">{stock.outOfStockCount} out</Badge>
-                  )}
-                  {stock.lowStockCount > 0 && (
-                    <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">{stock.lowStockCount} low</Badge>
-                  )}
-                </div>
+              {activePromoCount > 0 && (
+                <Badge variant="outline" className="text-xs text-emerald-600 border-emerald-200 gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                  {activePromoCount} active
+                </Badge>
               )}
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            {loading.stock ? (
-              <div className="p-6 space-y-3">
+            {loading.promotions ? (
+              <div className="p-5 space-y-3">
                 {[...Array(4)].map((_, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <Skeleton className="h-8 w-8 rounded-lg shrink-0" />
                     <div className="flex-1 space-y-1.5">
                       <Skeleton className="h-3.5 w-32" />
                       <Skeleton className="h-3 w-20" />
                     </div>
-                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <Skeleton className="h-3.5 w-16" />
+                    <Skeleton className="h-5 w-14 rounded-full" />
                   </div>
                 ))}
               </div>
-            ) : !stock?.data?.length ? (
+            ) : !promotions?.data?.length ? (
               <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
-                <Package className="h-8 w-8 opacity-30" />
-                <p className="text-sm">All items fully stocked</p>
+                <Tag className="h-8 w-8 opacity-30" />
+                <p className="text-sm">No promotions this period</p>
               </div>
             ) : (
               <div className="divide-y">
-                {stock.data.slice(0, 7).map((item) => {
-                  const cfg = STOCK_STATUS_CONFIG[item.status];
-                  const pct = Math.min(100, Math.round((item.quantity / Math.max(item.minStock * 2, 1)) * 100));
-                  return (
-                    <div key={item.id} className="flex items-center gap-3 px-6 py-3 hover:bg-muted/30 transition-colors">
-                      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                        <Package className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <p className="text-xs text-muted-foreground">{item.quantity} / {item.minStock} min</p>
-                          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                "h-full rounded-full transition-all",
-                                item.status === "IN_STOCK" ? "bg-emerald-500" :
-                                item.status === "LOW_STOCK" ? "bg-amber-500" : "bg-rose-500"
-                              )}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <Badge variant={cfg.variant} className="text-xs shrink-0">{cfg.label}</Badge>
+                {promotions.data.map((promo) => (
+                  <div key={promo.id} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{promo.name}</p>
+                      <p className="text-xs text-muted-foreground">{promo.type} · ×{promo.timesUsed} used</p>
                     </div>
-                  );
-                })}
+                    <div className="text-right shrink-0">
+                      <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatCurrency(promo.revenueGenerated)}</p>
+                      <p className="text-xs text-rose-400 tabular-nums">-{formatCurrency(promo.discountGiven)}</p>
+                    </div>
+                    <span className={cn(
+                      "shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+                      promo.status === "ACTIVE"
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      {promo.status}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
@@ -890,76 +877,6 @@ export default function AdminDashboardPage() {
         </Card>
       </div>
 
-      {/* ── Promotion Performance ── */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <Tag className="h-4 w-4 text-rose-500" />
-            <div>
-              <CardTitle className="text-base">Promotion Performance</CardTitle>
-              <CardDescription>Active promotions impact this period</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          {loading.promotions ? (
-            <div className="divide-y">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex items-center gap-4 px-6 py-3">
-                  <Skeleton className="h-4 w-28" />
-                  <Skeleton className="h-4 w-16 flex-1" />
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-4 w-16" />
-                </div>
-              ))}
-            </div>
-          ) : !promotions?.data?.length ? (
-            <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
-              <Tag className="h-8 w-8 opacity-30" />
-              <p className="text-sm">No active promotions this period</p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-[1fr_80px_120px_120px_80px] gap-4 px-6 py-2.5 bg-muted/30 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <span>Promotion</span>
-                <span className="text-center">Used</span>
-                <span className="text-right">Revenue</span>
-                <span className="text-right">Discount Given</span>
-                <span className="text-center">Status</span>
-              </div>
-              <div className="divide-y">
-                {promotions.data.map((promo) => (
-                  <div key={promo.id} className="grid grid-cols-[1fr_80px_120px_120px_80px] gap-4 px-6 py-3 items-center hover:bg-muted/20 transition-colors">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{promo.name}</p>
-                      <p className="text-xs text-muted-foreground">{promo.type}</p>
-                    </div>
-                    <span className="text-sm font-semibold text-foreground text-center tabular-nums">{promo.timesUsed}×</span>
-                    <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 text-right tabular-nums">
-                      {formatCurrency(promo.revenueGenerated)}
-                    </span>
-                    <span className="text-sm text-rose-500 text-right tabular-nums">
-                      -{formatCurrency(promo.discountGiven)}
-                    </span>
-                    <div className="flex justify-center">
-                      <span className={cn(
-                        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-                        promo.status === "ACTIVE"
-                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-                          : "bg-muted text-muted-foreground"
-                      )}>
-                        {promo.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
       {/* ── Recent Orders ── */}
       <Card>
         <CardHeader className="pb-3">
@@ -1031,6 +948,84 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
             </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Inventory Status ── */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base">Inventory Status</CardTitle>
+              <CardDescription>Items requiring attention</CardDescription>
+            </div>
+            {stock && (
+              <div className="flex items-center gap-2">
+                {stock.outOfStockCount > 0 && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block" />
+                    {stock.outOfStockCount} out of stock
+                  </span>
+                )}
+                {stock.lowStockCount > 0 && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+                    {stock.lowStockCount} low stock
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {loading.stock ? (
+            <div className="p-6 space-y-3">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <Skeleton className="h-8 w-8 rounded-lg shrink-0" />
+                  <div className="flex-1 space-y-1.5">
+                    <Skeleton className="h-3.5 w-32" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                </div>
+              ))}
+            </div>
+          ) : !stock?.data?.length ? (
+            <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
+              <Package className="h-8 w-8 opacity-30" />
+              <p className="text-sm">All items fully stocked</p>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {stock.data.slice(0, 9).map((item) => {
+                const cfg = STOCK_STATUS_CONFIG[item.status];
+                const pct = Math.min(100, Math.round((item.quantity / Math.max(item.minStock * 2, 1)) * 100));
+                return (
+                  <div key={item.id} className="flex items-center gap-3 px-6 py-3 hover:bg-muted/30 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                      <Package className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-xs text-muted-foreground">{item.quantity} / {item.minStock} min</p>
+                        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={cn("h-full rounded-full transition-all", cfg.barClass)}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium", cfg.badgeClass)}>
+                      {cfg.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </CardContent>
       </Card>
