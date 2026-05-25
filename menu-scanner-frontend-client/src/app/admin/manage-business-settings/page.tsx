@@ -60,6 +60,7 @@ function convertResponseToFormData(
     businessHours: response.businessHours || [],
     useCategories: response.useCategories ?? true,
     useBrands: response.useBrands ?? false,
+    lowStockThreshold: response.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
   };
 }
 
@@ -86,6 +87,7 @@ export default function BusinessSettingsPage() {
       businessHours: [],
       useCategories: true,
       useBrands: false,
+      lowStockThreshold: BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
     },
   });
 
@@ -214,6 +216,7 @@ export default function BusinessSettingsPage() {
         businessHours: data.businessHours,
         useCategories: data.useCategories,
         useBrands: data.useBrands,
+        lowStockThreshold: data.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
       };
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
@@ -349,6 +352,30 @@ export default function BusinessSettingsPage() {
                 <p className="text-xs text-muted-foreground">
                   Enable or disable stock management system
                 </p>
+              </div>
+
+              {}
+              <div className="space-y-2">
+                <Label htmlFor="lowStockThreshold">Low Stock Threshold</Label>
+                <Input
+                  id="lowStockThreshold"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder={String(BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD)}
+                  disabled={isSaving || form.watch("enableStock") === "DISABLED"}
+                  value={form.watch("lowStockThreshold") ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    form.setValue("lowStockThreshold", isNaN(val) || val < 1 ? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD : val, { shouldDirty: true });
+                  }}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Items with stock below this number are flagged as low stock (default: {BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD})
+                </p>
+                {form.formState.errors.lowStockThreshold && (
+                  <p className="text-xs text-red-500">{form.formState.errors.lowStockThreshold.message}</p>
+                )}
               </div>
             </div>
 

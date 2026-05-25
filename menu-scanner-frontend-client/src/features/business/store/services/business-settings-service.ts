@@ -34,6 +34,7 @@ export interface BusinessSettingsResponse {
   useCategories?: boolean;
   useSubcategories?: boolean;
   useBrands?: boolean;
+  lowStockThreshold?: number;
 }
 
 export interface UpdateBusinessSettingsRequest {
@@ -50,6 +51,7 @@ export interface UpdateBusinessSettingsRequest {
   useCategories?: boolean;
   useSubcategories?: boolean;
   useBrands?: boolean;
+  lowStockThreshold?: number;
 }
 
 const API_BASE_URL = "/api/v1/business-settings";

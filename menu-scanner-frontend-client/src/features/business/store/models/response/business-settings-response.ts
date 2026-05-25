@@ -38,4 +38,5 @@ export interface BusinessSettingsResponse {
   useCategories?: boolean;
   useSubcategories?: boolean;
   useBrands?: boolean;
+  lowStockThreshold?: number;
 }

@@ -72,4 +72,7 @@ public class BusinessSetting extends BaseUUIDEntity {
 
     @Column(name = "use_brands", nullable = false)
     private Boolean useBrands = false;
+
+    @Column(name = "low_stock_threshold")
+    private Integer lowStockThreshold;
 }

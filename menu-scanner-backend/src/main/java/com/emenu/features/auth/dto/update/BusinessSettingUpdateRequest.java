@@ -5,6 +5,7 @@ import com.emenu.features.auth.dto.request.BusinessHoursRequest;
 import com.emenu.enums.common.StockStatus;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 
 import java.util.List;
@@ -33,4 +34,7 @@ public class BusinessSettingUpdateRequest {
     private String contactEmail;
 
     private List<BusinessHoursRequest> businessHours;
+
+    @Min(value = 1, message = "Low stock threshold must be at least 1")
+    private Integer lowStockThreshold;
 }

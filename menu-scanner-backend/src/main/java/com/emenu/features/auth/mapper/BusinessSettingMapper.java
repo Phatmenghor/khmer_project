@@ -23,6 +23,9 @@ public interface BusinessSettingMapper {
         if (response.getPrimaryColor() == null) {
             response.setPrimaryColor(BusinessConstants.DEFAULT_PRIMARY_COLOR);
         }
+        if (response.getLowStockThreshold() == null) {
+            response.setLowStockThreshold(BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD);
+        }
     }
 
     BusinessSetting toEntity(BusinessSettingCreateRequest request);
@@ -40,6 +43,9 @@ public interface BusinessSettingMapper {
         }
         if (businessSetting.getTaxPercentage() == null) {
             businessSetting.setTaxPercentage(BusinessConstants.DEFAULT_TAX_PERCENTAGE);
+        }
+        if (businessSetting.getLowStockThreshold() == null) {
+            businessSetting.setLowStockThreshold(BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD);
         }
     }
 

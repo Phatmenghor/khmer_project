@@ -21,3 +21,6 @@ export const selectBusinessColors = createSelector(
     primary: primaryColor,
   })
 );
+
+export const selectLowStockThreshold = (state: RootState) =>
+  state.businessSettings.data?.lowStockThreshold ?? 5;

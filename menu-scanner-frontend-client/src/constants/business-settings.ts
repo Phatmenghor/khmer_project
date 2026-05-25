@@ -10,4 +10,6 @@ export const BUSINESS_SETTINGS_DEFAULTS = {
 
 
   TAX_PERCENTAGE: 0,
+
+  LOW_STOCK_THRESHOLD: 5,
 } as const;

@@ -29,6 +29,7 @@ export const businessSettingsSchema = z.object({
 
   useCategories: z.boolean().optional(),
   useBrands: z.boolean().optional(),
+  lowStockThreshold: z.number().int().min(1, "Must be at least 1").optional(),
 });
 
 export type BusinessSettingsFormData = z.infer<typeof businessSettingsSchema>;

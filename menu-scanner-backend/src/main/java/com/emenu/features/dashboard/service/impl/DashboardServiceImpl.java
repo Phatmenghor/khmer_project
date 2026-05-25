@@ -1,8 +1,10 @@
 package com.emenu.features.dashboard.service.impl;
 
+import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.dashboard.dto.response.*;
 import com.emenu.features.dashboard.service.DashboardService;
 import com.emenu.features.dashboard.util.DashboardPeriodUtil;
+import com.emenu.shared.constants.BusinessConstants;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +26,12 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class DashboardServiceImpl implements DashboardService {
 
-    private static final int LOW_STOCK_THRESHOLD = 5;
     private static final int RECENT_ORDERS_LIMIT = 20;
     private static final int TOP_PRODUCTS_LIMIT  = 10;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter DT_FMT   = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+    private final BusinessSettingRepository businessSettingRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -44,8 +47,10 @@ public class DashboardServiceImpl implements DashboardService {
         BigDecimal salesYesterday = queryRevenue(businessId, yesterday[0], yesterday[1]);
         long ordersToday     = queryOrderCount(businessId, today[0], today[1]);
         long ordersYesterday = queryOrderCount(businessId, yesterday[0], yesterday[1]);
-        long lowStock   = queryLowStockCount(businessId);
-        long outOfStock = queryOutOfStockCount(businessId);
+        boolean stockEnabled = isStockEnabled(businessId);
+        int threshold   = stockEnabled ? getLowStockThreshold(businessId) : BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD;
+        long lowStock   = stockEnabled ? queryLowStockCount(businessId, threshold) : 0L;
+        long outOfStock = stockEnabled ? queryOutOfStockCount(businessId) : 0L;
 
         BigDecimal avg = ordersToday > 0
             ? salesToday.divide(BigDecimal.valueOf(ordersToday), 2, RoundingMode.HALF_UP)
@@ -170,6 +175,15 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public DashboardStockResponse getStock(UUID businessId) {
+        if (!isStockEnabled(businessId)) {
+            return DashboardStockResponse.builder()
+                .data(new ArrayList<>())
+                .lowStockCount(0L)
+                .outOfStockCount(0L)
+                .build();
+        }
+        int threshold = getLowStockThreshold(businessId);
+
         @SuppressWarnings("unchecked")
         List<Object[]> rows = em.createNativeQuery(
             "SELECT ps.id, p.name, p.sku, " +
@@ -184,7 +198,7 @@ public class DashboardServiceImpl implements DashboardService {
             "ORDER BY ps.quantity_available ASC " +
             "LIMIT 30")
             .setParameter("bid",       businessId)
-            .setParameter("threshold", LOW_STOCK_THRESHOLD * 2)
+            .setParameter("threshold", threshold * 2)
             .getResultList();
 
         List<DashboardStockResponse.DashboardStockItem> items = new ArrayList<>();
@@ -197,7 +211,7 @@ public class DashboardServiceImpl implements DashboardService {
             if (onHand == 0) {
                 status = "OUT_OF_STOCK";
                 outCount++;
-            } else if (available < LOW_STOCK_THRESHOLD) {
+            } else if (available < threshold) {
                 status = "LOW_STOCK";
                 lowCount++;
             } else {
@@ -208,7 +222,7 @@ public class DashboardServiceImpl implements DashboardService {
                 .name(str(row[1]))
                 .sku(str(row[2]))
                 .quantity(onHand)
-                .minStock(LOW_STOCK_THRESHOLD)
+                .minStock(threshold)
                 .status(status)
                 .category("")
                 .imageUrl(str(row[5]))
@@ -594,15 +608,33 @@ public class DashboardServiceImpl implements DashboardService {
         return toLong(result);
     }
 
-    private long queryLowStockCount(UUID businessId) {
+    private long queryLowStockCount(UUID businessId, int threshold) {
         Object result = em.createNativeQuery(
             "SELECT COUNT(DISTINCT product_id) FROM product_stock " +
             "WHERE business_id = :bid AND quantity_on_hand > 0 " +
             "  AND quantity_available < :threshold AND is_deleted = false")
             .setParameter("bid",       businessId)
-            .setParameter("threshold", LOW_STOCK_THRESHOLD)
+            .setParameter("threshold", threshold)
             .getSingleResult();
         return toLong(result);
+    }
+
+    private int getLowStockThreshold(UUID businessId) {
+        return businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
+            .map(setting -> {
+                if (setting.getLowStockThreshold() != null && setting.getLowStockThreshold() > 0) {
+                    return setting.getLowStockThreshold();
+                }
+                return BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD;
+            })
+            .orElse(BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD);
+    }
+
+    private boolean isStockEnabled(UUID businessId) {
+        return businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
+            .map(setting -> setting.getEnableStock() != null &&
+                com.emenu.enums.common.StockStatus.ENABLED.equals(setting.getEnableStock()))
+            .orElse(false);
     }
 
     private long queryOutOfStockCount(UUID businessId) {

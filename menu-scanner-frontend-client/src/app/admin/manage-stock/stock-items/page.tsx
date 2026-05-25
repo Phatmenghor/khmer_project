@@ -33,6 +33,7 @@ import { selectGlobalPageSize } from "@/store/selectors/global-settings-selector
 import { useAppSelector } from "@/store";
 import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
 import { FilterPanelConfig } from "@/features/business/components/filter-types";
+import { selectLowStockThreshold } from "@/features/business/store/selectors/business-settings-selector";
 
 
 const STOCK_STATUS_FILTER = [
@@ -94,6 +95,7 @@ export default function StockItemsPage() {
 
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const businessLowStockThreshold = useAppSelector(selectLowStockThreshold);
 
   const debouncedSearch = useDebounce(filters.search, 400);
   const debouncedLowStockThreshold = useDebounce(filters.lowStockThreshold, 400);
@@ -113,7 +115,7 @@ export default function StockItemsPage() {
       search: debouncedSearch,
       status: filters.status as "ACTIVE" | "INACTIVE" | undefined,
       stockStatus: filters.stockStatus as "ENABLED" | "DISABLED" | undefined,
-      lowStockThreshold: debouncedLowStockThreshold,
+      lowStockThreshold: debouncedLowStockThreshold ?? businessLowStockThreshold,
       hasSizes: filters.hasSizes,
     };
 
@@ -129,6 +131,7 @@ export default function StockItemsPage() {
     debouncedLowStockThreshold,
     filters.hasSizes,
     globalPageSize,
+    businessLowStockThreshold,
   ]);
 
 
@@ -305,11 +308,11 @@ export default function StockItemsPage() {
         {
           id: "lowStockThreshold",
           type: "input-number" as const,
-          label: "Low Stock Threshold",
-          placeholder: "0",
-          value: filters.lowStockThreshold,
+          label: `Low Stock Threshold (default: ${businessLowStockThreshold})`,
+          placeholder: String(businessLowStockThreshold),
+          value: filters.lowStockThreshold ?? businessLowStockThreshold,
           onChange: handleLowStockThresholdChange,
-          min: 0,
+          min: 1,
         },
       ],
 
@@ -326,6 +329,7 @@ export default function StockItemsPage() {
       selectedCategories,
       stockStatusFilterUI,
       hasSizesFilterUI,
+      businessLowStockThreshold,
     ]
   );
 
