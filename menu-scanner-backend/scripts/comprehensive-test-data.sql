@@ -922,7 +922,7 @@ ON CONFLICT DO NOTHING;
 DO $$ BEGIN RAISE NOTICE ' 65%% [█████████████░░░░░░░] Customer users done - starting orders'; END $$;
 
 -- 13. COMPREHENSIVE ORDERS  2025-01-01 → CURRENT_DATE+1yr (fully dynamic)
--- 4 orders/hr × 24 hrs × ~730 past days + ~365 future days ≈ 100k+ orders
+-- 2-20 orders/hr (random per hour) × 24 hrs × ~1095 days ≈ 200k+ orders
 -- Today: slots capped at current hour so chart always matches real time
 -- ============================================================================
 
@@ -1007,11 +1007,11 @@ SELECT
 
 FROM (
   SELECT
-    -- 4 orders per hour, evenly spread across the hour
-    -- n=1 lands at 0-14 min, n=2 at 15-29, n=3 at 30-44, n=4 at 45-59
+    -- Spread up to 20 orders across the 60 min window; n=1 always lands at 0-2 min
+    -- so the current hour is visible in TODAY view as soon as HH:03 is reached
     (d::timestamp
       + slot * INTERVAL '1 hour'
-      + ((n - 1) * 15 + (slot * 7 + EXTRACT(DOY FROM d)::int * 3 + n * 11) % 15) * INTERVAL '1 minute'
+      + ((n - 1) * 3 + (slot * 7 + EXTRACT(DOY FROM d)::int * 3 + n * 11) % 3) * INTERVAL '1 minute'
     ) AS ts,
     slot,
     n,
@@ -1064,13 +1064,15 @@ FROM (
       ELSE 23
     END
   ) slot
-  -- 4 orders per hour — lots of data for every period filter
-  CROSS JOIN generate_series(1, 4) n
+  -- Generate up to 20 slots per hour; keep only n <= random 2-20 for this day+hour
+  -- Uses deterministic "randomness" so re-runs produce the same data
+  CROSS JOIN generate_series(1, 20) n
+  WHERE n <= 2 + (slot * 13 + EXTRACT(DOY FROM d)::int * 7 + EXTRACT(YEAR FROM d)::int * 3) % 19
 ) order_data;
 
 
 -- ============================================================================
-DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] ~100k+ orders inserted (2025-01-01 to +1yr, 4/hr)'; END $$;
+DO $$ BEGIN RAISE NOTICE ' 70%% [██████████████░░░░░░] ~200k+ orders inserted (2-20/hr, 2025 to +1yr)'; END $$;
 
 -- 14. DELIVERY ADDRESSES for PUBLIC (non-POS) orders
 -- ============================================================================
