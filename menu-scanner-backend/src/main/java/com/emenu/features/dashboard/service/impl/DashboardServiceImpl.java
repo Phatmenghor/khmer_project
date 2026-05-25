@@ -423,11 +423,10 @@ public class DashboardServiceImpl implements DashboardService {
         Map<Integer, Object[]> byHour = new LinkedHashMap<>();
         for (Object[] r : rows) byHour.put(toInt(r[0]), r);
 
-        // For a period that includes right now (e.g. TODAY), only show hours
-        // up to and including the current hour — no future $0 bars.
+        // Always return all 24 hours. The frontend filters to the user's
+        // local current hour, which avoids server/client timezone mismatches.
         int nowHour = LocalDateTime.now().getHour();
-        boolean includesNow = range[1].isAfter(LocalDateTime.now());
-        int maxHour = includesNow ? nowHour : 23;
+        int maxHour = 23;
 
         List<DashboardHourlySalesResponse.HourlySalesPoint> points = new ArrayList<>();
         int peakHour = 0;

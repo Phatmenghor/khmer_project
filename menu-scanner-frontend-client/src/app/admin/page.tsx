@@ -309,17 +309,28 @@ export default function AdminDashboardPage() {
 
   const today = format(new Date(), "EEEE, MMM d yyyy");
 
-  // Hourly data — mark the current hour so the bar can be highlighted
-  const currentHour = hourlySales?.currentHour ?? new Date().getHours();
-  const hourlyData = hourlySales?.data.map((d) => ({
-    ...d,
-    label: formatHour(d.hour),
-    isCurrent: d.hour === currentHour,
-  })) ?? [];
+  // Use the browser's local clock — not the server's — to decide the cutoff.
+  // This avoids timezone mismatches between server and client.
+  const localCurrentHour = new Date().getHours();
 
-  // X-axis: show every 4-hour mark + the current hour.
-  // Pass as `ticks` so recharts only renders those positions,
-  // then `interval={0}` ensures all of them are shown without any auto-skip.
+  // For TODAY, clip to hours 0…localCurrentHour so future $0 bars never appear.
+  // For multi-day periods show all 24 aggregate hours.
+  const hourlyData = (hourlySales?.data ?? [])
+    .filter(d => period !== "TODAY" || d.hour <= localCurrentHour)
+    .map(d => ({
+      ...d,
+      label: formatHour(d.hour),
+      isCurrent: period === "TODAY" && d.hour === localCurrentHour,
+    }));
+
+  // Re-derive peak from the visible data so it respects the local cutoff.
+  const localPeakHour: number = hourlyData.reduce(
+    (best, d) => (d.revenue > (hourlyData[best]?.revenue ?? 0) ? d.hour : best),
+    hourlyData[0]?.hour ?? 0
+  );
+
+  // X-axis: every 4-hour mark + current hour, passed as explicit ticks
+  // with interval={0} so recharts shows all of them without auto-filtering.
   const hourlyAxisTicks = hourlyData
     .filter(d => d.hour % 4 === 0 || d.isCurrent)
     .map(d => d.label);
@@ -679,14 +690,14 @@ export default function AdminDashboardPage() {
               <CardTitle className="text-base">Hourly Sales Pattern</CardTitle>
               <CardDescription>
                 {period === "TODAY"
-                  ? `Today's revenue by hour (up to ${formatHour(currentHour)})`
+                  ? `Today's revenue by hour (up to ${formatHour(localCurrentHour)})`
                   : "Revenue aggregated by hour across the period"}
               </CardDescription>
             </div>
-            {hourlySales?.peakHour !== undefined && (
+            {hourlyData.length > 0 && (
               <Badge variant="outline" className="gap-1.5 text-xs">
                 <Flame className="h-3 w-3 text-rose-500" />
-                Peak: {formatHour(hourlySales.peakHour)}
+                Peak: {formatHour(localPeakHour)}
               </Badge>
             )}
           </div>
