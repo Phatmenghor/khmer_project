@@ -957,7 +957,8 @@ INSERT INTO orders (
 )
 SELECT
   gen_random_uuid(),
-  'ORD-' || TO_CHAR(ts, 'YYYYMMDD') || '-' || LPAD(rn::text, 5, '0'),
+  -- slot(0-23)*100+n(1-20) = unique 4-digit suffix per day; immune to row-count changes
+  'ORD-' || TO_CHAR(ts, 'YYYYMMDD') || '-' || LPAD((slot * 100 + n)::text, 4, '0'),
   '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
 
   -- 75 % have a known customer ID, 25 % are guest
