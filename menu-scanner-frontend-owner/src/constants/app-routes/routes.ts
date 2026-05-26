@@ -59,6 +59,10 @@ export const sidebarItems: SidebarItem[] = [
         title: "Payment",
         href: ROUTES.DASHBOARD.PAYMENT,
       },
+      {
+        title: "Roles",
+        href: ROUTES.DASHBOARD.USER_ROLES,
+      },
     ],
   },
   {
@@ -69,10 +73,6 @@ export const sidebarItems: SidebarItem[] = [
       {
         title: "Platform Users",
         href: ROUTES.DASHBOARD.USERS,
-      },
-      {
-        title: "Roles",
-        href: ROUTES.DASHBOARD.USER_ROLES,
       },
       {
         title: "Business Users",
