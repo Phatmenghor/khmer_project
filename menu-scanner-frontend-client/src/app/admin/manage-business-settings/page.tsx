@@ -817,25 +817,47 @@ export default function BusinessSettingsPage() {
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
+
+            {/* Auto-link instructions */}
+            <div className="rounded-lg border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-4 space-y-3">
+              <p className="text-sm font-medium text-sky-800 dark:text-sky-300">How to link your group (2 steps)</p>
+              <ol className="space-y-2 text-sm text-sky-700 dark:text-sky-400">
+                <li className="flex gap-2">
+                  <span className="font-bold shrink-0">1.</span>
+                  <span>Add <span className="font-medium text-foreground">@CambodiaEMenuBot</span> to your Telegram group.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="font-bold shrink-0">2.</span>
+                  <span>
+                    Type this command in the group, replacing with your Business ID below:
+                    <br />
+                    <code className="mt-1 inline-block bg-white dark:bg-sky-900 px-2 py-1 rounded text-xs font-mono border border-sky-200 dark:border-sky-700">
+                      /link {reduxBusinessSettings?.businessId ?? "YOUR_BUSINESS_ID"}
+                    </code>
+                  </span>
+                </li>
+              </ol>
+              <p className="text-xs text-sky-600 dark:text-sky-500">
+                The bot saves the group automatically — no copy-paste needed.
+              </p>
+            </div>
+
+            {/* Manual override */}
             <div className="space-y-2">
-              <Label htmlFor="telegramGroupChatId">Group Chat ID</Label>
+              <Label htmlFor="telegramGroupChatId">Group Chat ID <span className="text-muted-foreground font-normal">(auto-filled by bot, or enter manually)</span></Label>
               <Input
                 id="telegramGroupChatId"
                 placeholder="-1002784141362"
                 {...form.register("telegramGroupChatId")}
                 disabled={isSaving}
               />
-              <p className="text-xs text-muted-foreground">
-                1. Add <span className="font-medium text-foreground">@CambodiaEMenuBot</span> to your Telegram group.&nbsp;
-                2. Type <code className="bg-muted px-1 rounded">/chatid</code> in the group — the bot replies with the ID instantly.&nbsp;
-                3. Paste the ID here (starts with <code className="bg-muted px-1 rounded">-100...</code>).
-              </p>
             </div>
+
             {form.watch("telegramGroupChatId") && (
-              <div className="flex items-center gap-2 p-3 bg-sky-50 dark:bg-sky-950/20 rounded-lg border border-sky-200 dark:border-sky-800">
-                <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
-                <p className="text-xs text-sky-700 dark:text-sky-400">
-                  Monitoring group configured — notifications will be sent to chat <span className="font-mono font-medium">{form.watch("telegramGroupChatId")}</span>
+              <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                <p className="text-xs text-emerald-700 dark:text-emerald-400">
+                  Monitoring group linked — chat <span className="font-mono font-medium">{form.watch("telegramGroupChatId")}</span>
                 </p>
               </div>
             )}
