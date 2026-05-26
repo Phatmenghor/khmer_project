@@ -66,7 +66,7 @@ export default function AdminDashboardPage() {
     fetchAll(period);
   }, [fetchAll, period]);
 
-  useDashboardWebSocket({ businessId: user?.businessId, onOrderEvent: handleOrderEvent, onStockEvent: handleStockEvent });
+  const { isConnected } = useDashboardWebSocket({ businessId: user?.businessId, onOrderEvent: handleOrderEvent, onStockEvent: handleStockEvent });
 
   useEffect(() => {
     fetchAll(period);
@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <DashboardHeader today={today} period={period} onPeriodChange={(p) => dispatch(setPeriod(p))} onRefresh={() => fetchAll(period)} />
+      <DashboardHeader today={today} period={period} isLive={isConnected} onPeriodChange={(p) => dispatch(setPeriod(p))} onRefresh={() => fetchAll(period)} />
       <KpiSection summary={summary} customerStats={customerStats} loading={loading} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <SalesAnalyticsCard sales={sales} loading={loading.sales} />
