@@ -9,10 +9,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -68,6 +70,18 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
         } catch (Exception e) {
             log.warn("[Telegram] Failed to send message to group for business={}: {}", businessId, e.getMessage());
         }
+    }
+
+    @Override
+    @Transactional
+    public String linkGroupToBusinessId(UUID businessId, long chatId) {
+        Optional<BusinessSetting> settingOpt = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId);
+        if (settingOpt.isEmpty()) return null;
+
+        BusinessSetting setting = settingOpt.get();
+        setting.setTelegramGroupChatId(String.valueOf(chatId));
+        businessSettingRepository.save(setting);
+        return setting.getBusinessName();
     }
 
     private String resolveChatId(UUID businessId) {

@@ -4,15 +4,13 @@ import java.util.UUID;
 
 public interface TelegramNotificationService {
 
-    /**
-     * Send a plain-text message to the business's configured Telegram monitoring group.
-     * Does nothing if the business has no group chat ID configured.
-     */
     void sendToGroup(UUID businessId, String message);
 
-    /**
-     * Send an HTML-formatted message to the business's configured Telegram monitoring group.
-     * Does nothing if the business has no group chat ID configured.
-     */
     void sendHtmlToGroup(UUID businessId, String htmlMessage);
+
+    /**
+     * Persist the given Telegram group chat ID to the business settings for the specified business.
+     * Returns the business name on success, null if the business was not found.
+     */
+    String linkGroupToBusinessId(UUID businessId, long chatId);
 }
