@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,20 +27,16 @@ import {
   CreatePaymentRequest,
   UpdatePaymentRequest,
 } from "../store/models/request/payment-request";
-import { BusinessResponseModel } from "@/redux/features/master-data/store/models/response/business-response";
 import {
   selectError,
   selectIsFetchingDetail,
   selectOperations,
 } from "../store/selectors/payment-selector";
-import { SubscriptionResponseModel } from "../store/models/response/subscription-response";
 import {
   createPaymentService,
   fetchPaymentByIdService,
   updatePaymentService,
 } from "../store/thunks/payment-thunks";
-import { ComboboxSelectBusiness } from "@/components/shared/combo-box/combobox-business";
-import { ComboboxSelectSubscription } from "@/components/shared/combo-box/combobox-subscription";
 import {
   PAYMENT_METHOD_CREATE_UPDATE,
   PAYMENT_STATUS_CREATE_UPDATE,
@@ -70,11 +66,6 @@ export default function PaymentModal({
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
-
-  const [selectedBusiness, setSelectedBusiness] =
-    useState<BusinessResponseModel | null>(null);
-  const [selectedSubscription, setSelectedSubscription] =
-    useState<SubscriptionResponseModel | null>(null);
 
   const {
     control,
@@ -125,20 +116,6 @@ export default function PaymentModal({
             notes: response.notes,
           });
 
-          if (response.businessId && response.businessName) {
-            setSelectedBusiness({
-              id: response.businessId,
-              name: response?.businessName || "",
-            } as BusinessResponseModel);
-          }
-
-          if (response.subscriptionId) {
-            setSelectedSubscription({
-              id: response.subscriptionId,
-              businessName: response.businessName || "",
-              planName: response.planName || "",
-            } as SubscriptionResponseModel);
-          }
         }
       } catch (error) {
         console.error("Error fetching payment data:", error);
@@ -162,8 +139,6 @@ export default function PaymentModal({
         referenceNumber: "",
         notes: "",
       });
-      setSelectedBusiness(null);
-      setSelectedSubscription(null);
     }
   }, [isOpen, isCreate, reset]);
 
@@ -250,8 +225,6 @@ export default function PaymentModal({
 
   const handleClose = () => {
     reset();
-    setSelectedBusiness(null);
-    setSelectedSubscription(null);
     dispatch(clearError());
     dispatch(clearSelectedPayment());
     onClose();
@@ -297,44 +270,22 @@ export default function PaymentModal({
 
               {/* Form Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Business Selection - Combobox (needs Controller) */}
-                <Controller
+                <TextField
                   control={control}
                   name="businessId"
-                  render={({ field }) => (
-                    <ComboboxSelectBusiness
-                      dataSelect={selectedBusiness}
-                      onChangeSelected={(business) => {
-                        setSelectedBusiness(business);
-                        field.onChange(business?.id || "");
-                      }}
-                      label="Business"
-                      placeholder="Select a business..."
-                      disabled={isSubmitting}
-                      showAllOption={false}
-                      error={errors.businessId?.message}
-                    />
-                  )}
+                  label="Business ID"
+                  placeholder="Enter business ID (optional)"
+                  disabled={isSubmitting}
+                  error={errors.businessId}
                 />
 
-                {/* Subscription Selection - Combobox (needs Controller) */}
-                <Controller
+                <TextField
                   control={control}
                   name="subscriptionId"
-                  render={({ field }) => (
-                    <ComboboxSelectSubscription
-                      dataSelect={selectedSubscription}
-                      onChangeSelected={(subscription) => {
-                        setSelectedSubscription(subscription);
-                        field.onChange(subscription?.id || "");
-                      }}
-                      label="Subscription"
-                      placeholder="Select a subscription..."
-                      disabled={isSubmitting}
-                      showAllOption={false}
-                      error={errors.subscriptionId?.message}
-                    />
-                  )}
+                  label="Subscription ID"
+                  placeholder="Enter subscription ID (optional)"
+                  disabled={isSubmitting}
+                  error={errors.subscriptionId}
                 />
 
                 {/* Amount */}
