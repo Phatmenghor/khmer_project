@@ -3,6 +3,20 @@ import { NextRequest, NextResponse } from "next/server";
 export default function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // Strip unparseable router state header that causes a 500 on first request
+  // after a Next.js version upgrade (browser still holds old cached state).
+  // Stripping forces Next.js to do a clean full-page render instead.
+  const routerState = req.headers.get("Next-Router-State-Tree");
+  if (routerState) {
+    try {
+      JSON.parse(decodeURIComponent(routerState));
+    } catch {
+      const headers = new Headers(req.headers);
+      headers.delete("Next-Router-State-Tree");
+      return NextResponse.next({ request: { headers } });
+    }
+  }
+
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
