@@ -16,8 +16,7 @@ public class ProductConditionalService {
     private final BusinessSettingService businessSettingService;
 
     public boolean businessUsesCategories(UUID businessId) {
-        BusinessSettingResponse settings = businessSettingService.getBusinessSettingByBusinessId(businessId);
-        return settings != null && (settings.getUseCategories() == null || settings.getUseCategories());
+        return true;
     }
 
     public boolean businessUsesBrands(UUID businessId) {

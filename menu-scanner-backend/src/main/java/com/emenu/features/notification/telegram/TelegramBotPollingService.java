@@ -71,20 +71,20 @@ public class TelegramBotPollingService {
 
     private void handleChatId(long chatId, String type, String title) {
         if ("private".equals(type)) {
-            sendReply(chatId, "This is a private chat. Add me to a group first, then type /chatid there.");
+            sendReply(chatId, "This is a private chat. Add me to a group first, then use /chatid there.");
             return;
         }
         sendReply(chatId,
-            "📋 <b>Chat ID for " + escapeHtml(title) + "</b>\n\n" +
+            "<b>Chat ID for " + escapeHtml(title) + "</b>\n\n" +
             "<code>" + chatId + "</code>\n\n" +
-            "To auto-link this group to your business, type:\n" +
+            "To link this group to your business, type:\n" +
             "<code>/link YOUR_BUSINESS_ID</code>\n\n" +
-            "Find your Business ID in Business Settings → Telegram Monitoring.");
+            "Find your Business ID in Business Settings - Telegram Monitoring.");
     }
 
     private void handleLink(long chatId, String type, String text) {
         if ("private".equals(type)) {
-            sendReply(chatId, "Please add me to a group first, then type /link there.");
+            sendReply(chatId, "Please add me to a group first, then use /link there.");
             return;
         }
 
@@ -93,7 +93,7 @@ public class TelegramBotPollingService {
             sendReply(chatId,
                 "Please include your Business ID:\n" +
                 "<code>/link YOUR_BUSINESS_ID</code>\n\n" +
-                "Find your Business ID in Business Settings → Telegram Monitoring.");
+                "Find your Business ID in Business Settings - Telegram Monitoring.");
             return;
         }
 
@@ -101,21 +101,17 @@ public class TelegramBotPollingService {
         try {
             businessId = UUID.fromString(parts[1].trim());
         } catch (IllegalArgumentException e) {
-            sendReply(chatId, "❌ Invalid Business ID format. Please copy it exactly from Business Settings.");
+            sendReply(chatId, "Invalid Business ID format. Please copy it exactly from Business Settings.");
             return;
         }
 
         String businessName = telegramNotificationService.linkGroupToBusinessId(businessId, chatId);
         if (businessName == null) {
-            sendReply(chatId, "❌ Business not found. Please check your Business ID and try again.");
+            sendReply(chatId, "Business not found. Please check your Business ID and try again.");
             return;
         }
 
-        sendReply(chatId,
-            "✅ <b>Group linked successfully!</b>\n\n" +
-            "This group is now the monitoring channel for <b>" + escapeHtml(businessName) + "</b>.\n" +
-            "Order alerts and system notifications will be sent here.");
-
+        telegramNotificationService.notifyGroupLinked(chatId, businessName);
         log.info("[TelegramBot] Group {} linked to business {}", chatId, businessId);
     }
 

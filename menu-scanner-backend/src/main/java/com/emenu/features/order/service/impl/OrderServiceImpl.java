@@ -42,6 +42,7 @@ import com.emenu.features.order.repository.OrderDeliveryAddressRepository;
 import com.emenu.features.order.repository.OrderDeliveryOptionRepository;
 import com.emenu.features.order.models.OrderStatusHistory;
 import com.emenu.features.location.repository.LocationRepository;
+import com.emenu.features.notification.telegram.TelegramNotificationService;
 import com.emenu.features.order.service.OrderService;
 import com.emenu.features.stock.service.impl.StockServiceImpl;
 import com.emenu.security.SecurityUtils;
@@ -89,6 +90,7 @@ public class OrderServiceImpl implements OrderService {
     private final StockServiceImpl stockService;
     private final ObjectMapper objectMapper;
     private final BusinessSettingRepository businessSettingRepository;
+    private final TelegramNotificationService telegramNotificationService;
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
@@ -175,6 +177,14 @@ public class OrderServiceImpl implements OrderService {
                 response.getOrderNumber(),
                 response.getPricing() != null ? response.getPricing().getFinalTotal() : "N/A",
                 response.getItems().size());
+
+            try {
+                Order orderForNotification = orderRepository.findByIdWithDetails(savedOrder.getId()).orElse(savedOrder);
+                telegramNotificationService.notifyNewCustomerOrder(orderForNotification);
+            } catch (Exception e) {
+                log.warn("[TELEGRAM] Failed to send new order notification: {}", e.getMessage());
+            }
+
             return response;
         } catch (Exception e) {
             log.error("[CHECKOUT ERROR] Failed to create order: {}", e.getMessage(), e);
@@ -330,8 +340,10 @@ public class OrderServiceImpl implements OrderService {
             throw new ValidationException("You can only update orders for your business");
         }
 
+        OrderStatus previousStatus = order.getOrderStatus();
+        PaymentStatus previousPaymentStatus = order.getPaymentStatus();
+
         if (request.getOrderStatus() != null) {
-            OrderStatus previousStatus = order.getOrderStatus();
             order.updateStatus(request.getOrderStatus());
 
             // Deduct stock via FIFO when order moves to CONFIRMED
@@ -466,6 +478,20 @@ public class OrderServiceImpl implements OrderService {
         Order updatedOrder = orderRepository.save(order);
 
         log.info("Order updated: {}", orderId);
+
+        try {
+            if (request.getOrderStatus() != null && updatedOrder.getOrderStatus() != previousStatus) {
+                telegramNotificationService.notifyOrderStatusChanged(updatedOrder);
+            }
+            if (request.getPayment() != null
+                    && updatedOrder.getPaymentStatus() == PaymentStatus.PAID
+                    && previousPaymentStatus != PaymentStatus.PAID) {
+                telegramNotificationService.notifyPaymentReceived(updatedOrder);
+            }
+        } catch (Exception e) {
+            log.warn("[TELEGRAM] Failed to send order update notification: {}", e.getMessage());
+        }
+
         return orderMapper.toResponse(updatedOrder);
     }
 
@@ -977,6 +1003,12 @@ public class OrderServiceImpl implements OrderService {
 
             log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
+
+            try {
+                telegramNotificationService.notifyNewPOSOrder(orderWithItems);
+            } catch (Exception e) {
+                log.warn("[TELEGRAM] Failed to send POS order notification: {}", e.getMessage());
+            }
 
             return POSCheckoutResponse.builder()
                     .id(response.getId())

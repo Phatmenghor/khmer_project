@@ -2,6 +2,7 @@ package com.emenu.features.notification.telegram;
 
 import com.emenu.features.auth.models.BusinessSetting;
 import com.emenu.features.auth.repository.BusinessSettingRepository;
+import com.emenu.features.order.models.Order;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,7 @@ import java.util.UUID;
 @Slf4j
 public class TelegramNotificationServiceImpl implements TelegramNotificationService {
 
-    private static final String TELEGRAM_API = "https://api.telegram.org/bot%s/sendMessage";
+    private static final String SEND_MESSAGE_URL = "https://api.telegram.org/bot%s/sendMessage";
 
     @Value("${telegram.bot.token}")
     private String botToken;
@@ -33,17 +34,64 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     private final BusinessSettingRepository businessSettingRepository;
     private final RestTemplate restTemplate;
 
+    // ── Low-level ─────────────────────────────────────────────────────────────
+
     @Override
     public void sendToGroup(UUID businessId, String message) {
-        send(businessId, message, "MarkdownV2");
+        sendByBusinessId(businessId, message, "MarkdownV2");
     }
 
     @Override
     public void sendHtmlToGroup(UUID businessId, String htmlMessage) {
-        send(businessId, htmlMessage, "HTML");
+        sendByBusinessId(businessId, htmlMessage, "HTML");
     }
 
-    private void send(UUID businessId, String text, String parseMode) {
+    // ── Business / bot management ─────────────────────────────────────────────
+
+    @Override
+    @Transactional
+    public String linkGroupToBusinessId(UUID businessId, long chatId) {
+        Optional<BusinessSetting> opt = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId);
+        if (opt.isEmpty()) return null;
+
+        BusinessSetting setting = opt.get();
+        setting.setTelegramGroupChatId(String.valueOf(chatId));
+        businessSettingRepository.save(setting);
+        return setting.getBusinessName() != null ? setting.getBusinessName() : "your business";
+    }
+
+    // ── Order notifications ───────────────────────────────────────────────────
+
+    @Override
+    public void notifyNewCustomerOrder(Order order) {
+        sendByBusinessId(order.getBusinessId(), TelegramMessageBuilder.newCustomerOrder(order), "HTML");
+    }
+
+    @Override
+    public void notifyNewPOSOrder(Order order) {
+        sendByBusinessId(order.getBusinessId(), TelegramMessageBuilder.newPOSOrder(order), "HTML");
+    }
+
+    @Override
+    public void notifyOrderStatusChanged(Order order) {
+        sendByBusinessId(order.getBusinessId(), TelegramMessageBuilder.orderStatusChanged(order), "HTML");
+    }
+
+    @Override
+    public void notifyPaymentReceived(Order order) {
+        sendByBusinessId(order.getBusinessId(), TelegramMessageBuilder.paymentReceived(order), "HTML");
+    }
+
+    // ── Bot events ────────────────────────────────────────────────────────────
+
+    @Override
+    public void notifyGroupLinked(long chatId, String businessName) {
+        sendToChatId(String.valueOf(chatId), TelegramMessageBuilder.groupLinked(businessName), "HTML");
+    }
+
+    // ── Internal send helpers ─────────────────────────────────────────────────
+
+    private void sendByBusinessId(UUID businessId, String text, String parseMode) {
         if (!enabled) return;
 
         String chatId = resolveChatId(businessId);
@@ -52,8 +100,14 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
             return;
         }
 
+        sendToChatId(chatId, text, parseMode);
+    }
+
+    private void sendToChatId(String chatId, String text, String parseMode) {
+        if (!enabled) return;
+
         try {
-            String url = String.format(TELEGRAM_API, botToken);
+            String url = String.format(SEND_MESSAGE_URL, botToken);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -63,25 +117,11 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
             body.put("text", text);
             body.put("parse_mode", parseMode);
 
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-            restTemplate.postForObject(url, request, String.class);
-
-            log.debug("[Telegram] Message sent to group {} for business={}", chatId, businessId);
+            restTemplate.postForObject(url, new HttpEntity<>(body, headers), String.class);
+            log.debug("[Telegram] Message sent to chat_id={}", chatId);
         } catch (Exception e) {
-            log.warn("[Telegram] Failed to send message to group for business={}: {}", businessId, e.getMessage());
+            log.warn("[Telegram] Failed to send message to chat_id={}: {}", chatId, e.getMessage());
         }
-    }
-
-    @Override
-    @Transactional
-    public String linkGroupToBusinessId(UUID businessId, long chatId) {
-        Optional<BusinessSetting> settingOpt = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId);
-        if (settingOpt.isEmpty()) return null;
-
-        BusinessSetting setting = settingOpt.get();
-        setting.setTelegramGroupChatId(String.valueOf(chatId));
-        businessSettingRepository.save(setting);
-        return setting.getBusinessName();
     }
 
     private String resolveChatId(UUID businessId) {
