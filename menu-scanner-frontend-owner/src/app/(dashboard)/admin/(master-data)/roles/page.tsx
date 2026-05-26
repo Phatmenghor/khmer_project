@@ -65,6 +65,7 @@ export default function RolesPage() {
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: 15,
+        userTypes: ["PLATFORM_USER"],
       }),
     );
   }, [dispatch, debouncedSearch, filters.pageNo]);

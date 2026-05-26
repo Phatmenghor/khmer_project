@@ -10,7 +10,7 @@ export const fetchAllRoleService = createApiThunk<any, AllRoleRequest>(
   "roles/fetchAll",
   async (params) => {
     const response = await axiosClientWithAuth.post(
-      "/api/v1/roles/my-business/all",
+      "/api/v1/roles/all",
       params,
     );
     return response.data.data;
@@ -21,7 +21,7 @@ export const fetchAllRolesListService = createApiThunk<any, AllRoleRequest>(
   "roles/fetchAllList",
   async (params) => {
     const response = await axiosClientWithAuth.post(
-      "/api/v1/roles/my-business/all-list",
+      "/api/v1/roles/all",
       params,
     );
     return response.data.data;
