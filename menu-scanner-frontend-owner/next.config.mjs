@@ -10,27 +10,22 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  images: {
-    unoptimized: false,
-    remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "**",
-      },
-    ],
-  },
-
-  // Remove trailing slashes
   trailingSlash: false,
 
-  // Improve performance
-  swcMinify: true,
+  images: {
+    unoptimized: true,
+  },
 
-  // Configure headers for better performance
+  async rewrites() {
+    const backendUrl = process.env.BACKEND_API_URL || "http://localhost:8080";
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backendUrl}/api/:path*`,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {
@@ -52,9 +47,6 @@ const nextConfig = {
       },
     ];
   },
-
-  // Server Actions are available by default in Next.js 14+
-  // experimental.serverActions is no longer needed
 };
 
 export default nextConfig;
