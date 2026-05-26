@@ -4,7 +4,13 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
-import { getToken } from "../local-storage/token";
+import {
+  getToken,
+  getRefreshToken,
+  storeTokens,
+  clearAllTokens,
+} from "../local-storage/token";
+import { clearUserInfo } from "../local-storage/userInfo";
 import { toast } from "sonner";
 
 // Define types
@@ -17,8 +23,39 @@ type RequestMetadata = {
 declare module "axios" {
   interface InternalAxiosRequestConfig {
     metadata?: RequestMetadata;
+    _retry?: boolean;
   }
 }
+
+// Token refresh state
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+const redirectToLogin = (hadToken: boolean) => {
+  if (typeof window === "undefined") return;
+  const isOnLoginPage = window.location.pathname.includes("/login");
+  if (!isOnLoginPage && hadToken) {
+    toast.error("Session expired. Please login again.");
+    setTimeout(() => {
+      window.location.href = "/login";
+      setTimeout(() => window.location.reload(), 500);
+    }, 1000);
+  }
+};
 
 // Environment detection
 const isBrowser = typeof window !== "undefined";
@@ -439,12 +476,77 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
 
       return response;
     },
-    (error: unknown) => {
+    async (error: unknown) => {
       const err = error as AxiosError;
+      const originalRequest = err.config;
 
-      if (err.response?.status === 401) {
-        toast.message(err.message);
-        window.location.href = "/login";
+      if (err.response?.status === 401 && originalRequest && !originalRequest._retry) {
+        // Refresh endpoint itself returned 401 — clear tokens and redirect
+        if (originalRequest.url?.includes("/api/v1/auth/refresh")) {
+          const hadToken = !!getToken();
+          clearAllTokens();
+          clearUserInfo();
+          redirectToLogin(hadToken);
+          return Promise.reject(error);
+        }
+
+        // Another request already refreshing — queue this one
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((token) => {
+              if (originalRequest.headers) {
+                originalRequest.headers["Authorization"] = `Bearer ${token}`;
+              }
+              return axiosInstance(originalRequest);
+            })
+            .catch((refreshError) => Promise.reject(refreshError));
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        const refreshToken = getRefreshToken();
+
+        if (!refreshToken) {
+          isRefreshing = false;
+          const hadToken = !!getToken();
+          clearAllTokens();
+          clearUserInfo();
+          redirectToLogin(hadToken);
+          return Promise.reject(error);
+        }
+
+        try {
+          const response = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/refresh`,
+            { refreshToken },
+            { headers: { "Content-Type": "application/json" } }
+          );
+
+          const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+            response.data.data;
+
+          storeTokens(newAccessToken, newRefreshToken);
+
+          if (originalRequest.headers) {
+            originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          }
+
+          processQueue(null, newAccessToken);
+          logger.success("Token refreshed successfully");
+          return axiosInstance(originalRequest);
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          const hadToken = !!getToken();
+          clearAllTokens();
+          clearUserInfo();
+          redirectToLogin(hadToken);
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
       }
       // Get request ID from metadata
       const requestId = err.config?.metadata?.requestId || "unknown";

@@ -3,9 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 export default function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Strip unparseable router state header that causes a 500 on first request
+  // Strip unparseable router state header to prevent 500 on first request
   // after a Next.js version upgrade (browser still holds old cached state).
-  // Stripping forces Next.js to do a clean full-page render instead.
   const routerState = req.headers.get("Next-Router-State-Tree");
   if (routerState) {
     try {
@@ -17,37 +16,38 @@ export default function proxy(req: NextRequest) {
     }
   }
 
+  // Skip static assets and API routes
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/.well-known") ||
     pathname.includes(".") ||
-    pathname.startsWith("/favicon") ||
-    pathname === "/login"
+    pathname.startsWith("/favicon")
   ) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get("auth-token")?.value;
+  const token = req.cookies.get("platform-auth-token")?.value;
 
+  // Root: always redirect based on auth state
   if (pathname === "/") {
-    if (token) {
-      return NextResponse.redirect(new URL("/admin/platform-users", req.url));
-    } else {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
+    return token
+      ? NextResponse.redirect(new URL("/admin/platform-users", req.url))
+      : NextResponse.redirect(new URL("/login", req.url));
   }
 
+  // Login page: redirect to dashboard if already authenticated
+  if (pathname === "/login") {
+    return token
+      ? NextResponse.redirect(new URL("/admin/platform-users", req.url))
+      : NextResponse.next();
+  }
+
+  // Protected routes: require token
   if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
-  }
-
-  if (pathname === "/login" && token) {
-    return NextResponse.redirect(
-      new URL("/dashboard/admin/platform-users", req.url)
-    );
   }
 
   return NextResponse.next();
