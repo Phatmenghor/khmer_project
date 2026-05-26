@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,6 +56,8 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
     control: formControl,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isDirty },
   } = useForm<RoleFormData>({
     resolver: zodResolver(isCreate ? createRoleSchema : updateRoleSchema) as any,
