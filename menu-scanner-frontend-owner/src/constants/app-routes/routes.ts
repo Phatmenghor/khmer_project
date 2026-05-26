@@ -16,7 +16,7 @@ export const ROUTES = {
     CALENDAR: "/admin/calendar",
     SECURITY: "/admin/security",
     USER_MANAGEMENT: "/admin/users/manage",
-    USER_ROLES: "/admin/users/roles",
+    USER_ROLES: "/admin/roles",
     PROFILE: "/admin/profile",
     BUSINESS_USER: "/admin/business-users",
     BUSINESS_OWNER: "/admin/business-owner",
