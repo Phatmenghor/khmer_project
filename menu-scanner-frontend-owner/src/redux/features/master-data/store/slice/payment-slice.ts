@@ -15,8 +15,6 @@ import {
   fetchPaymentByIdService,
   updatePaymentService,
 } from "../thunks/payment-thunks";
-import { createBusinessService } from "../thunks/business-thunks";
-
 /**
  * Initial state
  */
@@ -111,27 +109,6 @@ const paymentSlice = createSlice({
       })
       .addCase(fetchPaymentByIdService.rejected, (state, action) => {
         state.operations.isFetchingDetail = false;
-        state.error = action.payload as string;
-      });
-
-    // Create payment handlers
-    builder
-      .addCase(createBusinessService.pending, (state) => {
-        state.operations.isCreating = true;
-        state.error = null;
-      })
-      .addCase(createBusinessService.fulfilled, (state, action) => {
-        state.operations.isCreating = false;
-        if (state.data) {
-          state.data.content = [action.payload, ...state.data.content];
-          state.data.totalElements += 1;
-          state.data.totalPages = Math.ceil(
-            state.data.totalElements / state.data.pageSize
-          );
-        }
-      })
-      .addCase(createBusinessService.rejected, (state, action) => {
-        state.operations.isCreating = false;
         state.error = action.payload as string;
       });
 
