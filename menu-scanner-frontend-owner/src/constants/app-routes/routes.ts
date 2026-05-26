@@ -18,15 +18,8 @@ export const ROUTES = {
     USER_MANAGEMENT: "/admin/users/manage",
     USER_ROLES: "/admin/users/roles",
     PROFILE: "/admin/profile",
-    BUSINESS: "/admin/business",
-    NEW_OWNER: "/admin/new-owner",
-    MANAGE_BUSINESS: "/admin/manage-business",
-    SUBSCRIPTION_PLAN: "/admin/subscription-plan",
     BUSINESS_USER: "/admin/business-users",
     BUSINESS_OWNER: "/admin/business-owner",
-    MY_BUSINESS: "/admin/my-business",
-    SUBSCRIPTION: "/admin/subscription",
-    MY_SUBSCRIPTION: "/admin/my-subscription",
     PAYMENT: "/admin/payment",
     USERS_BUSINESS: "/admin/users",
     CUSTOMER_USER: "/admin/customer-user",
@@ -62,18 +55,6 @@ export const sidebarItems: SidebarItem[] = [
     section: "Master Data",
     icon: Database,
     subroutes: [
-      {
-        title: "Business",
-        href: ROUTES.DASHBOARD.BUSINESS,
-      },
-      {
-        title: "Subscription Plan",
-        href: ROUTES.DASHBOARD.SUBSCRIPTION_PLAN,
-      },
-      {
-        title: "Subscriptions",
-        href: ROUTES.DASHBOARD.SUBSCRIPTION,
-      },
       {
         title: "Payment",
         href: ROUTES.DASHBOARD.PAYMENT,
