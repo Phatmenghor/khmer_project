@@ -1,0 +1,64 @@
+import { axiosClientWithAuth } from "@/utils/axios";
+import { createApiThunk } from "@/utils/axios/apiWrapper";
+import {
+  AllRoleRequest,
+  CreateRoleRequest,
+  UpdateRoleParams,
+} from "../models/request/role-request";
+
+export const fetchAllRoleService = createApiThunk<any, AllRoleRequest>(
+  "roles/fetchAll",
+  async (params) => {
+    const response = await axiosClientWithAuth.post(
+      "/api/v1/roles/my-business/all",
+      params,
+    );
+    return response.data.data;
+  },
+);
+
+export const fetchAllRolesListService = createApiThunk<any, AllRoleRequest>(
+  "roles/fetchAllList",
+  async (params) => {
+    const response = await axiosClientWithAuth.post(
+      "/api/v1/roles/my-business/all-list",
+      params,
+    );
+    return response.data.data;
+  },
+);
+
+export const fetchRoleByIdService = createApiThunk<any, string>(
+  "roles/fetchById",
+  async (roleId) => {
+    const response = await axiosClientWithAuth.get(`/api/v1/roles/${roleId}`);
+    return response.data.data;
+  },
+);
+
+export const createRoleService = createApiThunk<any, CreateRoleRequest>(
+  "roles/create",
+  async (data) => {
+    const response = await axiosClientWithAuth.post("/api/v1/roles", data);
+    return response.data.data;
+  },
+);
+
+export const updateRoleService = createApiThunk<any, UpdateRoleParams>(
+  "roles/update",
+  async ({ roleId, roleData }) => {
+    const response = await axiosClientWithAuth.put(
+      `/api/v1/roles/${roleId}`,
+      roleData,
+    );
+    return response.data.data;
+  },
+);
+
+export const deleteRoleService = createApiThunk<string, string>(
+  "roles/delete",
+  async (roleId) => {
+    await axiosClientWithAuth.delete(`/api/v1/roles/${roleId}`);
+    return roleId;
+  },
+);

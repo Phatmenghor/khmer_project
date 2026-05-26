@@ -18,8 +18,11 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { userPlatformTableColumns } from "@/redux/features/auth/table/users-platform-table";
 import {
   ACCOUNT_STATUS_FILTER,
-  USER_PLATFORM_ROLE_FILTER,
 } from "@/constants/app-resource/status/filter-status";
+import { fetchAllRolesListService } from "@/redux/features/auth/store/thunks/role-thunks";
+import { selectRolesList } from "@/redux/features/auth/store/selectors/role-selectors";
+import { convertEnumOrString } from "@/utils/common/enum-convert";
+import { useAppSelector } from "@/redux/store";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useUsersState } from "@/redux/features/auth/store/state/users-state";
@@ -42,7 +45,6 @@ import { UserResponseModel } from "@/redux/features/auth/store/models/response/u
 export default function UserPage() {
   const searchParams = useSearchParams();
 
-  // Redux state
   const {
     userState,
     usersData,
@@ -53,6 +55,16 @@ export default function UserPage() {
     pagination,
     dispatch,
   } = useUsersState();
+
+  const rolesList = useAppSelector(selectRolesList);
+
+  const roleFilterOptions = [
+    { value: UserRole.ALL, label: "All Roles" },
+    ...rolesList.map((role) => ({
+      value: role.name,
+      label: convertEnumOrString(role.name),
+    })),
+  ];
 
   // Local UI state for modals only
   const [modalState, setModalState] = useState({
@@ -84,11 +96,18 @@ export default function UserPage() {
     defaultPageSize: 15,
   });
 
-  // Initialize URL and Redux state on mount
+  useEffect(() => {
+    dispatch(
+      fetchAllRolesListService({
+        includeAll: false,
+        userTypes: [UserGropeType.PLATFORM_USER],
+      }),
+    );
+  }, [dispatch]);
+
   useEffect(() => {
     const pageParam = searchParams.get("pageNo");
     const pageFromUrl = pageParam ? parseInt(pageParam, 10) : 1;
-
     if (pageFromUrl !== pagination.currentPage) {
       dispatch(setPageNo(pageFromUrl));
     }
@@ -259,10 +278,6 @@ export default function UserPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
-          breadcrumbs={[
-            { label: "Dashboard", href: ROUTES.DASHBOARD.INDEX },
-            { label: "Platform Users", href: "" },
-          ]}
           title="Platform Users"
           searchValue={filters.search}
           searchPlaceholder="Search users platform..."
@@ -283,7 +298,7 @@ export default function UserPage() {
               label="Account Status"
             />
             <CustomSelect
-              options={USER_PLATFORM_ROLE_FILTER}
+              options={roleFilterOptions}
               value={filters.role}
               placeholder="All Roles"
               onValueChange={(value) => handleRoleChange(value as UserRole)}

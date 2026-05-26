@@ -1,4 +1,5 @@
 "use client";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,9 +57,8 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
   return (
     <div>
       <Card>
-        <CardContent className="py-6">
-          {/* Title Section with Back Button */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-start mt-4">
+        <CardContent className="py-3 sm:py-5">
+          <div className="flex items-center gap-2 mb-3">
             {(back || isMobile) && (
               <ActionButton
                 size="icon"
@@ -68,19 +68,14 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                 variant="ghost"
               />
             )}
-
             {title && (
-              <div className="flex flex-col">
-                <h1 className="font-bold mb-1">{title}</h1>
-              </div>
+              <h1 className="text-base sm:text-lg font-bold">{title}</h1>
             )}
           </div>
 
-          {/* Search and Actions Section */}
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-            {/* Search input */}
+          <div className="flex flex-wrap items-end gap-2">
             {onSearchChange && (
-              <div className="flex w-full lg:w-[400px] items-center gap-2">
+              <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
                 <div className="relative w-full group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   <Input
@@ -94,13 +89,24 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
               </div>
             )}
 
-            {/* Right side actions */}
-            <div className="flex flex-col sm:flex-row sm:items-end gap-3 w-full lg:w-auto">
+            <div className="flex flex-wrap items-end gap-2 ml-auto">
               {customSelect && (
-                <div className="[&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200">
+                <div className="flex flex-wrap gap-2 items-end
+                  [&>*]:w-auto [&>*]:flex-shrink-0
+                  [&>*>label]:whitespace-nowrap [&>*>label]:text-xs [&>*>label]:font-medium">
                   {customSelect}
                 </div>
               )}
+
+              {children &&
+                React.Children.map(children, (child) => (
+                  <div className="w-auto flex-shrink-0
+                    [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
+                    [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
+                    [&_.w-full]:!w-auto">
+                    {child}
+                  </div>
+                ))}
 
               {buttonText && buttonHref && (
                 <TooltipProvider>
@@ -124,10 +130,6 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                     )}
                   </Tooltip>
                 </TooltipProvider>
-              )}
-
-              {children && (
-                <div className="w-full [&>*]:text-gray-200">{children}</div>
               )}
 
               {customAddNewButton && <div>{customAddNewButton}</div>}
@@ -159,12 +161,12 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
               )}
             </div>
           </div>
+
           {children1 && (
             <div className="px-0 pb-0 [&>*]:text-gray-200">{children1}</div>
           )}
         </CardContent>
 
-        {/* Tabs Section */}
         {tabs && (
           <div className="border-t border-gray-800 px-6 bg-gray-850">
             <div className="[&>*]:text-gray-300 [&>*:hover]:text-gray-100 [&>*[data-state=active]]:text-pink-400 [&>*[data-state=active]]:border-pink-400">
