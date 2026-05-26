@@ -857,22 +857,6 @@ export default function BusinessSettingsPage() {
               </ol>
             </div>
 
-            {/* Manual override */}
-            <div className="space-y-2">
-              <Label htmlFor="telegramGroupChatId">
-                Group Chat ID{" "}
-                <span className="text-muted-foreground font-normal">
-                  (auto-filled by bot, or enter manually)
-                </span>
-              </Label>
-              <Input
-                id="telegramGroupChatId"
-                placeholder="-1002784141362"
-                {...form.register("telegramGroupChatId")}
-                disabled={isSaving}
-              />
-            </div>
-
             {form.watch("telegramGroupChatId") ? (
               <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
