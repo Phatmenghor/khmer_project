@@ -3,8 +3,8 @@ package com.emenu.features.notification.telegram;
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,14 +14,16 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class TelegramBotPollingService {
 
     private static final String API = "https://api.telegram.org/bot%s/%s";
+    private static final long MAX_BACKOFF_MS = 300_000L; // 5 minutes
+    private static final int LOG_SUPPRESS_AFTER = 5;
 
     @Value("${telegram.bot.token}")
     private String botToken;
@@ -34,10 +36,23 @@ public class TelegramBotPollingService {
     private final TelegramNotificationService telegramNotificationService;
 
     private final AtomicLong offset = new AtomicLong(0);
+    private final AtomicInteger consecutiveFailures = new AtomicInteger(0);
+    private volatile long backoffUntil = 0;
+
+    public TelegramBotPollingService(
+            @Qualifier("telegramRestTemplate") RestTemplate restTemplate,
+            ObjectMapper objectMapper,
+            TelegramNotificationService telegramNotificationService) {
+        this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
+        this.telegramNotificationService = telegramNotificationService;
+    }
 
     @Scheduled(fixedDelay = 3000)
     public void pollUpdates() {
         if (!enabled) return;
+        if (System.currentTimeMillis() < backoffUntil) return;
+
         try {
             String url = String.format(API, botToken, "getUpdates") +
                          "?offset=" + offset.get() + "&timeout=1";
@@ -46,6 +61,11 @@ public class TelegramBotPollingService {
 
             JsonNode root = objectMapper.readTree(response.getBody());
             if (!root.path("ok").asBoolean()) return;
+
+            int prevFailures = consecutiveFailures.getAndSet(0);
+            if (prevFailures > 0) {
+                log.info("[TelegramBot] Connection restored after {} failed attempt(s).", prevFailures);
+            }
 
             for (JsonNode update : root.path("result")) {
                 long updateId = update.path("update_id").asLong();
@@ -66,7 +86,18 @@ public class TelegramBotPollingService {
                 }
             }
         } catch (Exception e) {
-            log.warn("[TelegramBot] Poll error: {}", e.getMessage());
+            int failures = consecutiveFailures.incrementAndGet();
+            long backoffMs = Math.min(3000L * (1L << Math.min(failures, 7)), MAX_BACKOFF_MS);
+            backoffUntil = System.currentTimeMillis() + backoffMs;
+
+            if (failures <= LOG_SUPPRESS_AFTER) {
+                log.warn("[TelegramBot] Poll error #{} (retry in {}s): {}",
+                        failures, backoffMs / 1000, e.getMessage());
+            } else if (failures == LOG_SUPPRESS_AFTER + 1) {
+                log.warn("[TelegramBot] Telegram API unreachable after {} attempts. " +
+                         "Suppressing further warnings. Retrying with {}s backoff.",
+                        failures, MAX_BACKOFF_MS / 1000);
+            }
         }
     }
 

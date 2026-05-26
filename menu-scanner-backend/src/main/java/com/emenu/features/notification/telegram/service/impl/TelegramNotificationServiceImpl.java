@@ -7,8 +7,8 @@ import com.emenu.features.notification.telegram.dto.response.TelegramStatusRespo
 import com.emenu.features.notification.telegram.mapper.TelegramNotificationMapper;
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.emenu.features.order.models.Order;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class TelegramNotificationServiceImpl implements TelegramNotificationService {
 
@@ -40,6 +39,15 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     private final BusinessSettingRepository businessSettingRepository;
     private final TelegramNotificationMapper telegramNotificationMapper;
     private final RestTemplate restTemplate;
+
+    public TelegramNotificationServiceImpl(
+            BusinessSettingRepository businessSettingRepository,
+            TelegramNotificationMapper telegramNotificationMapper,
+            @Qualifier("telegramRestTemplate") RestTemplate restTemplate) {
+        this.businessSettingRepository = businessSettingRepository;
+        this.telegramNotificationMapper = telegramNotificationMapper;
+        this.restTemplate = restTemplate;
+    }
 
     // ── Status & management ───────────────────────────────────────────────────
 
