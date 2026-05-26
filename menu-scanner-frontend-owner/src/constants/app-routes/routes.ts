@@ -1,8 +1,5 @@
 import {
-  Bell,
   Home,
-  Inbox,
-  Settings,
   Users,
   LucideIcon,
   Database,
@@ -30,7 +27,6 @@ export const ROUTES = {
     MY_BUSINESS: "/admin/my-business",
     SUBSCRIPTION: "/admin/subscription",
     MY_SUBSCRIPTION: "/admin/my-subscription",
-    EXCHANGE_RATE: "/admin/exchange-rate",
     PAYMENT: "/admin/payment",
     USERS_BUSINESS: "/admin/users",
     CUSTOMER_USER: "/admin/customer-user",
@@ -38,9 +34,6 @@ export const ROUTES = {
     DISTRICT: "/admin/district",
     VILLAGE: "/admin/village",
     COMMUNE: "/admin/commune",
-
-    ALL_NOTIFICATION: "/admin/all-notification",
-    MY_NOTIFICATION: "/admin/my-notification",
   },
 } as const;
 
@@ -80,10 +73,6 @@ export const sidebarItems: SidebarItem[] = [
       {
         title: "Subscriptions",
         href: ROUTES.DASHBOARD.SUBSCRIPTION,
-      },
-      {
-        title: "Exchange Rates ",
-        href: ROUTES.DASHBOARD.EXCHANGE_RATE,
       },
       {
         title: "Payment",
@@ -149,21 +138,6 @@ export const sidebarItems: SidebarItem[] = [
       {
         title: "village",
         href: ROUTES.DASHBOARD.VILLAGE,
-      },
-    ],
-  },
-  {
-    title: "Notification",
-    section: "Notification",
-    icon: Bell,
-    subroutes: [
-      {
-        title: "My Notification",
-        href: ROUTES.DASHBOARD.MY_NOTIFICATION,
-      },
-      {
-        title: "All Notification",
-        href: ROUTES.DASHBOARD.ALL_NOTIFICATION,
       },
     ],
   },
