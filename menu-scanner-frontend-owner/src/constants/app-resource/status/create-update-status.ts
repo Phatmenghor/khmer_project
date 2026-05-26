@@ -14,6 +14,12 @@ export const GENDER_OPTIONS = [
   { value: "OTHER", label: "Other" },
 ];
 
+export const EMPLOYMENT_TYPE_OPTIONS = [
+  { value: "FULL_TIME", label: "Full Time" },
+  { value: "PART_TIME", label: "Part Time" },
+  { value: "CONTRACT", label: "Contract" },
+];
+
 export const USER_PLATFORM_ROLE_CREATE_UPDATE = [
   { value: UserRole.PLATFORM_OWNER, label: "Platform Owner" },
   { value: UserRole.PLATFORM_ADMIN, label: "Platform Admin" },
