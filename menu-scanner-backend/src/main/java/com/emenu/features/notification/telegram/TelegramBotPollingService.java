@@ -1,5 +1,6 @@
 package com.emenu.features.notification.telegram;
 
+import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

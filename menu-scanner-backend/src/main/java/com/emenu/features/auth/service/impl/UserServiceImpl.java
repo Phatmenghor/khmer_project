@@ -18,7 +18,7 @@ import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.features.auth.service.UserService;
-import com.emenu.features.notification.telegram.TelegramNotificationService;
+import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import com.emenu.shared.dto.PaginationResponse;

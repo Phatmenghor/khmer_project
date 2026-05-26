@@ -42,7 +42,7 @@ import com.emenu.features.order.repository.OrderDeliveryAddressRepository;
 import com.emenu.features.order.repository.OrderDeliveryOptionRepository;
 import com.emenu.features.order.models.OrderStatusHistory;
 import com.emenu.features.location.repository.LocationRepository;
-import com.emenu.features.notification.telegram.TelegramNotificationService;
+import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.emenu.features.order.service.OrderService;
 import com.emenu.features.stock.service.impl.StockServiceImpl;
 import com.emenu.security.SecurityUtils;

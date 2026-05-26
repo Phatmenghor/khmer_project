@@ -1,7 +1,11 @@
-package com.emenu.features.notification.telegram;
+package com.emenu.features.notification.telegram.service.impl;
 
 import com.emenu.features.auth.models.BusinessSetting;
 import com.emenu.features.auth.repository.BusinessSettingRepository;
+import com.emenu.features.notification.telegram.TelegramMessageBuilder;
+import com.emenu.features.notification.telegram.dto.response.TelegramStatusResponse;
+import com.emenu.features.notification.telegram.mapper.TelegramNotificationMapper;
+import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.emenu.features.order.models.Order;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +38,23 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     private boolean enabled;
 
     private final BusinessSettingRepository businessSettingRepository;
+    private final TelegramNotificationMapper telegramNotificationMapper;
     private final RestTemplate restTemplate;
+
+    // ── Status & management ───────────────────────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public TelegramStatusResponse getStatus(UUID businessId) {
+        String chatId = resolveChatId(businessId);
+        return telegramNotificationMapper.toStatusResponse(chatId);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void sendTestMessage(UUID businessId) {
+        sendByBusinessId(businessId, TelegramMessageBuilder.testMessage(), "HTML");
+    }
 
     // ── Low-level send ────────────────────────────────────────────────────────
 
@@ -48,7 +68,7 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
         sendByBusinessId(businessId, htmlMessage, "HTML");
     }
 
-    // ── Business / bot management ─────────────────────────────────────────────
+    // ── Bot management ────────────────────────────────────────────────────────
 
     @Override
     @Transactional
@@ -98,7 +118,7 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
         sendToChatId(String.valueOf(chatId), TelegramMessageBuilder.groupLinked(businessName), "HTML");
     }
 
-    // ── Internal send helpers ─────────────────────────────────────────────────
+    // ── Internal helpers ──────────────────────────────────────────────────────
 
     private void sendByBusinessId(UUID businessId, String text, String parseMode) {
         if (!enabled) return;
@@ -135,8 +155,8 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
 
     private String resolveChatId(UUID businessId) {
         return businessSettingRepository
-            .findByBusinessIdAndIsDeletedFalse(businessId)
-            .map(BusinessSetting::getTelegramGroupChatId)
-            .orElse(null);
+                .findByBusinessIdAndIsDeletedFalse(businessId)
+                .map(BusinessSetting::getTelegramGroupChatId)
+                .orElse(null);
     }
 }

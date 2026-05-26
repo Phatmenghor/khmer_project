@@ -1,5 +1,6 @@
-package com.emenu.features.notification.telegram;
+package com.emenu.features.notification.telegram.service;
 
+import com.emenu.features.notification.telegram.dto.response.TelegramStatusResponse;
 import com.emenu.features.order.models.Order;
 
 import java.util.List;
@@ -7,13 +8,19 @@ import java.util.UUID;
 
 public interface TelegramNotificationService {
 
+    // ── Status & management ───────────────────────────────────────────────────
+
+    TelegramStatusResponse getStatus(UUID businessId);
+
+    void sendTestMessage(UUID businessId);
+
     // ── Low-level send ────────────────────────────────────────────────────────
 
     void sendToGroup(UUID businessId, String message);
 
     void sendHtmlToGroup(UUID businessId, String htmlMessage);
 
-    // ── Business / bot management ─────────────────────────────────────────────
+    // ── Bot management ────────────────────────────────────────────────────────
 
     /**
      * Persists the Telegram group chat ID to business settings and returns the business name,

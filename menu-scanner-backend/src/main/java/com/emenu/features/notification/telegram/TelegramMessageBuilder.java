@@ -106,6 +106,14 @@ public final class TelegramMessageBuilder {
         return sb.toString().trim();
     }
 
+    // ── Test message ─────────────────────────────────────────────────────────
+
+    public static String testMessage() {
+        return "<b>TEST MESSAGE</b>\n\n" +
+            "Your Telegram monitoring is working correctly.\n" +
+            "You will receive order and staff alerts in this group.";
+    }
+
     // ── Group linked welcome ──────────────────────────────────────────────────
 
     public static String groupLinked(String businessName) {
