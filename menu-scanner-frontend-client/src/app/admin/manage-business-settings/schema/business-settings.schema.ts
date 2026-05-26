@@ -27,7 +27,6 @@ export const businessSettingsSchema = z.object({
     })
   ).optional(),
 
-  useCategories: z.boolean().optional(),
   useBrands: z.boolean().optional(),
   lowStockThreshold: z.number().int().min(1, "Must be at least 1").optional(),
   telegramGroupChatId: z.string().optional(),

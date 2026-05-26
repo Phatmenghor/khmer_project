@@ -61,16 +61,7 @@ public class ProductResponseDto extends BaseAuditResponse {
     private List<ProductImageDto> images;
     private List<ProductSizeDto> sizes;
 
-    // Helper method to null out fields based on business settings
-    public void applyBusinessSettings(
-            Boolean useCategories,
-            Boolean useBrands) {
-
-        if (useCategories == null || !useCategories) {
-            this.categoryId = null;
-            this.categoryName = null;
-        }
-
+    public void applyBusinessSettings(Boolean useBrands) {
         if (useBrands == null || !useBrands) {
             this.brandId = null;
             this.brandName = null;

@@ -67,9 +67,6 @@ public class BusinessSetting extends BaseUUIDEntity {
     )
     private List<BusinessHours> businessHours;
 
-    @Column(name = "use_categories", nullable = false)
-    private Boolean useCategories = true;
-
     @Column(name = "use_brands", nullable = false)
     private Boolean useBrands = false;
 

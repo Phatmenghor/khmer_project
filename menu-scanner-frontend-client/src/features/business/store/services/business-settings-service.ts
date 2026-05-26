@@ -31,7 +31,6 @@ export interface BusinessSettingsResponse {
   contactPhone?: string;
   contactEmail?: string;
   businessHours?: BusinessHours[];
-  useCategories?: boolean;
   useSubcategories?: boolean;
   useBrands?: boolean;
   lowStockThreshold?: number;
@@ -49,7 +48,6 @@ export interface UpdateBusinessSettingsRequest {
   contactPhone?: string;
   contactEmail?: string;
   businessHours?: BusinessHours[];
-  useCategories?: boolean;
   useSubcategories?: boolean;
   useBrands?: boolean;
   lowStockThreshold?: number;

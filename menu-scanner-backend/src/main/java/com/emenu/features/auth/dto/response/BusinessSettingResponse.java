@@ -26,7 +26,6 @@ public class BusinessSettingResponse extends BaseAuditResponse {
 
     private List<BusinessHoursResponse> businessHours;
 
-    private Boolean useCategories;
     private Boolean useBrands;
     private Integer lowStockThreshold;
     private String telegramGroupChatId;

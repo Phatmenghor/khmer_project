@@ -58,7 +58,6 @@ function convertResponseToFormData(
     contactPhone: response.contactPhone || "",
     contactEmail: response.contactEmail || "",
     businessHours: response.businessHours || [],
-    useCategories: response.useCategories ?? true,
     useBrands: response.useBrands ?? false,
     lowStockThreshold: response.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
     telegramGroupChatId: response.telegramGroupChatId ?? "",
@@ -86,7 +85,6 @@ export default function BusinessSettingsPage() {
       contactPhone: "",
       contactEmail: "",
       businessHours: [],
-      useCategories: true,
       useBrands: false,
       lowStockThreshold: BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
       telegramGroupChatId: "",
@@ -216,7 +214,6 @@ export default function BusinessSettingsPage() {
         contactPhone: data.contactPhone,
         contactEmail: data.contactEmail,
         businessHours: data.businessHours,
-        useCategories: data.useCategories,
         useBrands: data.useBrands,
         lowStockThreshold: data.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
         telegramGroupChatId: data.telegramGroupChatId || null,
@@ -453,46 +450,6 @@ export default function BusinessSettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {}
-              <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">Categories</h4>
-                    <Badge variant={form.watch("useCategories") ? "default" : "secondary"}>
-                      {form.watch("useCategories") ? "Enabled" : "Disabled"}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Show product categories in your storefront
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  variant={form.watch("useCategories") ? "default" : "outline"}
-                  size="sm"
-                  onClick={() =>
-                    form.setValue("useCategories", !form.watch("useCategories"), {
-                      shouldDirty: true,
-                    })
-                  }
-                  disabled={isSaving}
-                  className="ml-4"
-                >
-                  {form.watch("useCategories") ? (
-                    <>
-                      <Eye className="h-4 w-4 mr-2" />
-                      Show
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff className="h-4 w-4 mr-2" />
-                      Hide
-                    </>
-                  )}
-                </Button>
-              </div>
-
-              {}
               <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
