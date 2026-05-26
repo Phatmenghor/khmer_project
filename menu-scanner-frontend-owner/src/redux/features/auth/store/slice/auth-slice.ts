@@ -7,7 +7,12 @@ import {
   changePasswordService,
   deleteAccountService,
 } from "../thunks/auth-thunks";
-import { telegramAuthenticateService } from "../thunks/social-auth-thunks";
+import {
+  telegramAuthenticateService,
+  getSocialSyncService,
+  syncTelegramAccountService,
+  unsyncSocialAccountService,
+} from "../thunks/social-auth-thunks";
 import { AuthState } from "../models/type/auth-types";
 import { clearAllTokens, storeTokens } from "@/utils/local-storage/token";
 import { clearUserInfo, storeUserInfo } from "@/utils/local-storage/userInfo";
@@ -20,6 +25,9 @@ const initialState: AuthState = {
   isLoading: false,
   isProfileLoading: false,
   error: null,
+  socialSync: null,
+  isSocialLoading: false,
+  isLoadingSocialSync: false,
 };
 
 const authSlice = createSlice({
@@ -163,6 +171,46 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
         state.authReady = true;
+      });
+
+    builder
+      .addCase(getSocialSyncService.pending, (state) => {
+        state.isLoadingSocialSync = true;
+      })
+      .addCase(getSocialSyncService.fulfilled, (state, action) => {
+        state.isLoadingSocialSync = false;
+        state.socialSync = action.payload;
+      })
+      .addCase(getSocialSyncService.rejected, (state) => {
+        state.isLoadingSocialSync = false;
+      });
+
+    builder
+      .addCase(syncTelegramAccountService.pending, (state) => {
+        state.isSocialLoading = true;
+        state.error = null;
+      })
+      .addCase(syncTelegramAccountService.fulfilled, (state, action) => {
+        state.isSocialLoading = false;
+        state.socialSync = action.payload;
+      })
+      .addCase(syncTelegramAccountService.rejected, (state, action) => {
+        state.isSocialLoading = false;
+        state.error = action.payload as string;
+      });
+
+    builder
+      .addCase(unsyncSocialAccountService.pending, (state) => {
+        state.isSocialLoading = true;
+        state.error = null;
+      })
+      .addCase(unsyncSocialAccountService.fulfilled, (state, action) => {
+        state.isSocialLoading = false;
+        state.socialSync = action.payload;
+      })
+      .addCase(unsyncSocialAccountService.rejected, (state, action) => {
+        state.isSocialLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

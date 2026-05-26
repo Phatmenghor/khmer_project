@@ -478,6 +478,10 @@ export default function PublicProfilePage() {
                             value={watch("lastName")}
                           />
                           <DisplayField
+                            label="Full Name"
+                            value={userProfile?.fullName}
+                          />
+                          <DisplayField
                             label="Nickname"
                             value={watch("nickname")}
                           />
@@ -497,6 +501,62 @@ export default function PublicProfilePage() {
                           <DisplayField
                             label="Date of Birth"
                             value={watch("dateOfBirth")}
+                          />
+                          <DisplayField
+                            label="User Identifier"
+                            value={userProfile?.userIdentifier}
+                          />
+                          <DisplayField
+                            label="User Type"
+                            value={userProfile?.userType}
+                          />
+                          <DisplayField
+                            label="Account Status"
+                            value={userProfile?.accountStatus}
+                          />
+                          <DisplayField
+                            label="Status"
+                            value={userProfile?.status}
+                          />
+                          <DisplayField
+                            label="Roles"
+                            value={userProfile?.roles?.length ? userProfile.roles.join(", ") : undefined}
+                          />
+                          <DisplayField
+                            label="Remark"
+                            value={userProfile?.remark}
+                          />
+                          <DisplayField
+                            label="Last Login"
+                            value={userProfile?.lastLoginAt}
+                          />
+                          <DisplayField
+                            label="Telegram ID"
+                            value={userProfile?.telegramId?.toString()}
+                          />
+                          <DisplayField
+                            label="Telegram Username"
+                            value={userProfile?.telegramUsername}
+                          />
+                          <DisplayField
+                            label="Telegram First Name"
+                            value={userProfile?.telegramFirstName}
+                          />
+                          <DisplayField
+                            label="Telegram Last Name"
+                            value={userProfile?.telegramLastName}
+                          />
+                          <DisplayField
+                            label="Telegram Photo URL"
+                            value={userProfile?.telegramPhotoUrl}
+                          />
+                          <DisplayField
+                            label="Telegram Synced At"
+                            value={userProfile?.telegramSyncedAt}
+                          />
+                          <DisplayField
+                            label="Telegram Synced"
+                            value={userProfile?.telegramSynced !== undefined ? (userProfile.telegramSynced ? "Yes" : "No") : undefined}
                           />
                         </>
                       )}

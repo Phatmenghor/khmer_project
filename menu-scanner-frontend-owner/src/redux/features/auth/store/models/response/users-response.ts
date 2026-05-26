@@ -1,5 +1,42 @@
 import { Pagination } from "@/utils/common/pagination";
 
+export interface Address {
+  id?: string;
+  addressType: string;
+  houseNo: string;
+  street: string;
+  village: string;
+  commune: string;
+  district: string;
+  province: string;
+  country: string;
+}
+
+export interface EmergencyContact {
+  id?: string;
+  name: string;
+  phone: string;
+  relationship: string;
+}
+
+export interface Document {
+  id?: string;
+  type: string;
+  number: string;
+  fileUrl: string;
+}
+
+export interface Education {
+  id?: string;
+  level: string;
+  schoolName: string;
+  fieldOfStudy: string;
+  startYear: string;
+  endYear: string;
+  isGraduated: boolean;
+  certificateUrl: string;
+}
+
 export interface AllUserResponseModel extends Pagination {
   content: UserResponseModel[];
 }
@@ -25,6 +62,13 @@ export interface UserResponseModel {
   dateOfBirth?: string;
   phoneNumber: string;
   profileImageUrl?: string;
+  employeeId?: string;
+  position?: string;
+  department?: string;
+  employmentType?: string;
+  joinDate?: string;
+  leaveDate?: string;
+  shift?: string;
   telegramId?: number;
   telegramUsername?: string;
   telegramFirstName?: string;
@@ -33,4 +77,8 @@ export interface UserResponseModel {
   telegramSyncedAt?: string;
   telegramSynced?: boolean;
   lastLoginAt?: string;
+  addresses?: Address[];
+  emergencyContacts?: EmergencyContact[];
+  documents?: Document[];
+  educations?: Education[];
 }

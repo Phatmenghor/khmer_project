@@ -1,5 +1,6 @@
 import { UserAuthResponseModel } from "../response/auth-resposne";
 import { UserResponseModel } from "../response/users-response";
+import { SocialSyncResponse } from "../response/social-auth-response";
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -9,4 +10,7 @@ export interface AuthState {
   isLoading: boolean;
   isProfileLoading: boolean;
   error: string | null;
+  socialSync: SocialSyncResponse | null;
+  isSocialLoading: boolean;
+  isLoadingSocialSync: boolean;
 }

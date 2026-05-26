@@ -63,6 +63,7 @@ import {
   profileUpdateSchema,
   ProfileFormData,
 } from "@/redux/features/auth/store/models/schema/user.schema";
+import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
 
 export default function AdminProfilePage() {
   const dispatch = useAppDispatch();
@@ -525,19 +526,26 @@ export default function AdminProfilePage() {
                       <>
                         <DisplayField label="First Name" value={watch("firstName")} />
                         <DisplayField label="Last Name" value={watch("lastName")} />
+                        <DisplayField label="Full Name" value={userProfile?.fullName} />
                         <DisplayField label="Nickname" value={watch("nickname")} />
                         <DisplayField label="Email" value={watch("email")} />
                         <DisplayField label="Phone Number" value={watch("phoneNumber")} />
                         <DisplayField label="Gender" value={GENDER_OPTIONS.find((o) => o.value === watch("gender"))?.label} />
                         <DisplayField label="Date of Birth" value={formatDate(watch("dateOfBirth") || "")} />
-                        <DisplayField label="Telegram ID" value={userProfile?.telegramId} />
+                        <DisplayField label="User Identifier" value={userProfile?.userIdentifier} />
+                        <DisplayField label="User Type" value={userProfile?.userType} />
+                        <DisplayField label="Account Status" value={userProfile?.accountStatus} />
+                        <DisplayField label="Status" value={userProfile?.status} />
+                        <DisplayField label="Roles" value={userProfile?.roles?.length > 0 ? userProfile.roles.join(", ") : undefined} />
+                        <DisplayField label="Remark" value={userProfile?.remark} />
+                        <DisplayField label="Last Login" value={dateTimeFormat(userProfile?.lastLoginAt)} />
+                        <DisplayField label="Telegram ID" value={userProfile?.telegramId?.toString()} />
                         <DisplayField label="Telegram Username" value={userProfile?.telegramUsername} />
                         <DisplayField label="Telegram First Name" value={userProfile?.telegramFirstName} />
                         <DisplayField label="Telegram Last Name" value={userProfile?.telegramLastName} />
+                        <DisplayField label="Telegram Photo URL" value={userProfile?.telegramPhotoUrl} />
                         <DisplayField label="Telegram Synced At" value={dateTimeFormat(userProfile?.telegramSyncedAt)} />
-                        <DisplayField label="Telegram Synced" value={userProfile?.telegramSynced ? "Yes" : "No"} />
-                        <DisplayField label="Role" value={userProfile?.roles?.length > 0 ? userProfile.roles.join(", ") : "-"} />
-                        <DisplayField label="Account Status" value={userProfile?.accountStatus || "-"} />
+                        <DisplayField label="Telegram Synced" value={userProfile?.telegramSynced !== undefined ? (userProfile.telegramSynced ? "Yes" : "No") : undefined} />
                       </>
                     )}
                   </div>
@@ -873,6 +881,14 @@ export default function AdminProfilePage() {
         {/* Security Section */}
         {activeSection === "security" && (
           <div className="w-full space-y-4">
+            {/* Connected Accounts */}
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                Connected Accounts
+              </h3>
+              <TelegramSyncCard />
+            </div>
+
             {/* Change Password */}
             <Card>
               <CardContent className="p-6">
