@@ -331,7 +331,7 @@ export default function BusinessSettingsPage() {
                     )
                   }
                 >
-                  <SelectTrigger id="enableStock">
+                  <SelectTrigger id="enableStock" className="h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -362,6 +362,7 @@ export default function BusinessSettingsPage() {
                   type="number"
                   min="1"
                   step="1"
+                  className="h-10"
                   placeholder={String(BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD)}
                   disabled={isSaving || form.watch("enableStock") === "DISABLED"}
                   value={form.watch("lowStockThreshold") ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD}
