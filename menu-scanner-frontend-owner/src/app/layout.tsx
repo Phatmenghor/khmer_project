@@ -2,6 +2,7 @@
 import localFont from "next/font/local";
 import "../styles/globals.css";
 import { ReactNode } from "react";
+import Script from "next/script";
 import PageProgressBar from "@/components/shared/progressbar/global-n-progress";
 import { ClientProviders } from "@/context/client-provider";
 
@@ -51,6 +52,8 @@ export const metadata = {
   },
 };
 
+const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: RootLayoutProps) {
@@ -61,11 +64,9 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       suppressHydrationWarning
     >
       <head>
-        {/* Preload critical resources */}
-        <link rel="preconnect" href="http://152.42.219.13:8080" />
-        <link rel="dns-prefetch" href="http://152.42.219.13:8080" />
-
-        {/* Mobile optimization */}
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="preconnect" href="http://165.22.247.142:8080" />
+        <link rel="dns-prefetch" href="http://165.22.247.142:8080" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta
@@ -75,16 +76,35 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body
         className={`
-          min-h-screen 
-          bg-background 
-          font-sans 
-          antialiased 
+          min-h-screen
+          bg-background
+          font-sans
+          antialiased
           text-foreground
-          selection:bg-primary/20 
+          selection:bg-primary/20
           selection:text-primary-foreground
           overflow-x-hidden
         `}
       >
+        {/* Google Analytics — only loads when NEXT_PUBLIC_GA_MEASUREMENT_ID is set */}
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        )}
         <ClientProviders>
           <PageProgressBar />
           <div className="relative flex min-h-screen flex-col">
