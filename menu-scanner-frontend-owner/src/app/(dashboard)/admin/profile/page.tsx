@@ -20,7 +20,7 @@ import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
-import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
+import { DatePickerField } from "@/components/shared/form-field/date-picker-field";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
@@ -519,7 +519,7 @@ export default function AdminProfilePage() {
                         <TextField control={typedControl} name="email" label="Email" placeholder="Email" type="email" error={errors.email} />
                         <TextField control={typedControl} name="phoneNumber" label="Phone Number" placeholder="Phone" error={errors.phoneNumber} />
                         <SelectField control={typedControl} name="gender" label="Gender" placeholder="Select gender" options={GENDER_OPTIONS} error={errors.gender} />
-                        <DateTimePickerField control={typedControl} name="dateOfBirth" label="Date of Birth" mode="date" placeholder="Date of birth" error={errors.dateOfBirth} />
+                        <DatePickerField control={typedControl} name="dateOfBirth" label="Date of Birth" placeholder="Date of birth" error={errors.dateOfBirth} />
                       </>
                     ) : (
                       <>
@@ -557,8 +557,8 @@ export default function AdminProfilePage() {
                         <TextField control={typedControl} name="position" label="Position" placeholder="Position" error={errors.position} />
                         <TextField control={typedControl} name="department" label="Department" placeholder="Department" error={errors.department} />
                         <SelectField control={typedControl} name="employmentType" label="Employment Type" placeholder="Select type" options={EMPLOYMENT_TYPE_OPTIONS} error={errors.employmentType} />
-                        <DateTimePickerField control={typedControl} name="joinDate" label="Join Date" mode="date" placeholder="Join date" error={errors.joinDate} />
-                        <DateTimePickerField control={typedControl} name="leaveDate" label="Leave Date" mode="date" placeholder="Leave date" error={errors.leaveDate} />
+                        <DatePickerField control={typedControl} name="joinDate" label="Join Date" placeholder="Join date" error={errors.joinDate} />
+                        <DatePickerField control={typedControl} name="leaveDate" label="Leave Date" placeholder="Leave date" error={errors.leaveDate} />
                         <TextField control={typedControl} name="shift" label="Shift" placeholder="Shift" error={errors.shift} />
                       </>
                     ) : (
@@ -795,8 +795,8 @@ export default function AdminProfilePage() {
                               <SelectField control={typedControl} name={`educations.${index}.level`} label="Level" placeholder="Level" options={EDUCATION_LEVEL_OPTIONS} error={errors.educations?.[index]?.level as any} />
                               <TextField control={typedControl} name={`educations.${index}.schoolName`} label="School" placeholder="School" error={errors.educations?.[index]?.schoolName as any} />
                               <TextField control={typedControl} name={`educations.${index}.fieldOfStudy`} label="Field" placeholder="Field" error={errors.educations?.[index]?.fieldOfStudy as any} />
-                              <DateTimePickerField control={typedControl} name={`educations.${index}.startYear`} label="Start" mode="date" placeholder="Start" error={errors.educations?.[index]?.startYear as any} />
-                              <DateTimePickerField control={typedControl} name={`educations.${index}.endYear`} label="End" mode="date" placeholder="End" error={errors.educations?.[index]?.endYear as any} />
+                              <DatePickerField control={typedControl} name={`educations.${index}.startYear`} label="Start" placeholder="Start" error={errors.educations?.[index]?.startYear as any} />
+                              <DatePickerField control={typedControl} name={`educations.${index}.endYear`} label="End" placeholder="End" error={errors.educations?.[index]?.endYear as any} />
                               <SelectField
                                 control={typedControl}
                                 name={`educations.${index}.isGraduated`}
