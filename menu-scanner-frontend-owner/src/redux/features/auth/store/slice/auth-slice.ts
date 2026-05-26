@@ -7,9 +7,10 @@ import {
   changePasswordService,
   deleteAccountService,
 } from "../thunks/auth-thunks";
+import { telegramAuthenticateService } from "../thunks/social-auth-thunks";
 import { AuthState } from "../models/type/auth-types";
-import { clearAllTokens } from "@/utils/local-storage/token";
-import { clearUserInfo } from "@/utils/local-storage/userInfo";
+import { clearAllTokens, storeTokens } from "@/utils/local-storage/token";
+import { clearUserInfo, storeUserInfo } from "@/utils/local-storage/userInfo";
 
 const initialState: AuthState = {
   isAuthenticated: false,
@@ -131,6 +132,37 @@ const authSlice = createSlice({
       .addCase(deleteAccountService.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      });
+
+    builder
+      .addCase(telegramAuthenticateService.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(telegramAuthenticateService.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.authReady = true;
+
+        const r = action.payload;
+        const user: UserAuthResponseModel = {
+          accessToken: r.accessToken,
+          refreshToken: r.refreshToken,
+          userId: r.userId,
+          userIdentifier: r.userIdentifier,
+          email: r.userIdentifier,
+          fullName: r.socialUsername || r.userIdentifier,
+          userType: r.userType,
+          roles: [r.userType],
+        };
+        state.user = user;
+        storeTokens(r.accessToken, r.refreshToken);
+        storeUserInfo(user);
+      })
+      .addCase(telegramAuthenticateService.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+        state.authReady = true;
       });
   },
 });

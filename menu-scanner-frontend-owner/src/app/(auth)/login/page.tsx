@@ -13,8 +13,12 @@ import { PasswordField } from "@/components/shared/form-field/password-field";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import { loginService } from "@/redux/features/auth/store/thunks/auth-thunks";
+import { telegramAuthenticateService } from "@/redux/features/auth/store/thunks/social-auth-thunks";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
+import { SocialAuthConfig } from "@/constants/app-resource/default/default";
+import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
+import { TelegramAuthData } from "@/redux/features/auth/store/models/request/social-auth-request";
 
 const formSchema = z.object({
   userIdentifier: z.string().min(1, "Email or username is required"),
@@ -25,6 +29,7 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isTelegramLoading, setIsTelegramLoading] = useState(false);
   const router = useRouter();
 
   const { isLoading, dispatch, accessToken, authReady } = useAuthState();
@@ -57,6 +62,28 @@ export default function LoginPage() {
       );
     }
   }
+
+  const handleTelegramAuth = async (telegramData: TelegramAuthData) => {
+    setIsTelegramLoading(true);
+    try {
+      await dispatch(
+        telegramAuthenticateService({
+          telegramData,
+          userType: "PLATFORM_USER",
+        })
+      ).unwrap();
+      showToast.success("Welcome back!");
+      router.replace(ROUTES.DASHBOARD.USERS);
+    } catch (err: unknown) {
+      showToast.error(
+        (err as { message?: string })?.message || "Telegram login failed. Please try again."
+      );
+    } finally {
+      setIsTelegramLoading(false);
+    }
+  };
+
+  const isAnyLoading = isLoading || isTelegramLoading;
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -108,6 +135,8 @@ export default function LoginPage() {
 
           {/* Card body */}
           <CardContent className="px-8 py-7 space-y-5">
+
+            {/* Credentials form */}
             <form onSubmit={form.handleSubmit(handleLoginSubmit)} className="space-y-4">
               <TextField
                 name="userIdentifier"
@@ -115,7 +144,7 @@ export default function LoginPage() {
                 placeholder="name@example.com"
                 control={form.control}
                 error={form.formState.errors.userIdentifier}
-                disabled={isLoading}
+                disabled={isAnyLoading}
                 required
               />
 
@@ -125,7 +154,7 @@ export default function LoginPage() {
                 placeholder="Enter your password"
                 control={form.control}
                 error={form.formState.errors.password}
-                disabled={isLoading}
+                disabled={isAnyLoading}
                 required
                 showPassword={showPassword}
                 onTogglePassword={() => setShowPassword((v) => !v)}
@@ -134,7 +163,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full h-10 font-semibold"
-                disabled={isLoading}
+                disabled={isAnyLoading}
               >
                 {isLoading ? (
                   <>
@@ -146,6 +175,29 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-background px-3 text-xs text-muted-foreground">
+                  or continue with
+                </span>
+              </div>
+            </div>
+
+            {/* Telegram */}
+            <TelegramLoginButton
+              botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
+              botId={SocialAuthConfig.TELEGRAM_BOT_ID}
+              onAuth={handleTelegramAuth}
+              disabled={isAnyLoading}
+              loading={isTelegramLoading}
+              className="w-full h-10"
+            />
+
           </CardContent>
         </Card>
       </div>
