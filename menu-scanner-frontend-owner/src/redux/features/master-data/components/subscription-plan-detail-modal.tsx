@@ -10,7 +10,7 @@ import {
   DetailSection,
 } from "@/components/shared/modal/detail-section";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { clearSelectedBusiness } from "../store/slice/business-slice";
+import { clearSelectedSubscriptionPlan } from "../store/slice/subscription-plan-slice";
 import {
   Status,
   SubscriptionPlanStatus,
@@ -55,7 +55,7 @@ export function SubscriptionPlanDetailModal({
   }, [planId, isOpen, dispatch]);
 
   const handleClose = () => {
-    dispatch(clearSelectedBusiness());
+    dispatch(clearSelectedSubscriptionPlan());
     onClose();
   };
 

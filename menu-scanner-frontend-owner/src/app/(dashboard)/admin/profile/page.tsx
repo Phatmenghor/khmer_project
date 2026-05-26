@@ -58,7 +58,7 @@ import {
   EMPLOYMENT_TYPE_OPTIONS,
 } from "@/constants/app-resource/status/create-update-status";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
-import { Loading } from "@/components/shared/common/loading";
+import Loading from "@/components/shared/common/loading";
 import {
   profileUpdateSchema,
   ProfileFormData,
