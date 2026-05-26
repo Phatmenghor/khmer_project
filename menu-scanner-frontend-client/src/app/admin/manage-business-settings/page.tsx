@@ -826,9 +826,9 @@ export default function BusinessSettingsPage() {
                 disabled={isSaving}
               />
               <p className="text-xs text-muted-foreground">
-                Add <span className="font-medium text-foreground">@CambodiaEMenuBot</span> to your Telegram group,
-                then paste the Group Chat ID here (starts with <code className="bg-muted px-1 rounded">-100...</code>).
-                To get the Chat ID: forward any group message to <span className="font-medium text-foreground">@userinfobot</span>.
+                1. Add <span className="font-medium text-foreground">@CambodiaEMenuBot</span> to your Telegram group.&nbsp;
+                2. Type <code className="bg-muted px-1 rounded">/chatid</code> in the group — the bot replies with the ID instantly.&nbsp;
+                3. Paste the ID here (starts with <code className="bg-muted px-1 rounded">-100...</code>).
               </p>
             </div>
             {form.watch("telegramGroupChatId") && (
