@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { selectRoleContent } from "../store/selectors/role-selectors";
 import { clearSelectedRole } from "../store/slice/role-slice";
-import { DetailRow, DetailSection } from "@/components/shared/modal/detail-section";
+import { DisplayField } from "@/components/shared/form-field/display-field";
 
 interface RoleDetailModalProps {
   roleId?: string;
@@ -33,8 +33,8 @@ export function RoleDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">Role Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-32">
+        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">No role data available</p>
           </div>
         </DialogContent>
@@ -45,12 +45,16 @@ export function RoleDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTitle className="sr-only">Role Details - {roleData.name}</DialogTitle>
-      <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <h2 className="text-lg font-semibold text-foreground">Role Details</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Detailed information about the selected role
-          </p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-semibold text-foreground">
+              Role Details
+            </h2>
+            <p className="text-sm text-foreground mt-1">
+              Detailed information about the selected role
+            </p>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -59,12 +63,12 @@ export function RoleDetailModal({
               <CardHeader>
                 <CardTitle>Role Information</CardTitle>
               </CardHeader>
-              <CardContent>
-                <DetailSection title="">
-                  <DetailRow label="Role Name" value={convertEnumOrString(roleData.name)} />
-                  <DetailRow label="User Type" value={convertEnumOrString(roleData.userType)} />
-                  <DetailRow label="Description" value={roleData.description || "-"} isLast />
-                </DetailSection>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField label="Role Name" value={convertEnumOrString(roleData.name)} />
+                  <DisplayField label="User Type" value={convertEnumOrString(roleData.userType)} />
+                  <DisplayField label="Description" value={roleData.description || "-"} />
+                </div>
               </CardContent>
             </Card>
 
@@ -72,14 +76,14 @@ export function RoleDetailModal({
               <CardHeader>
                 <CardTitle>System Information</CardTitle>
               </CardHeader>
-              <CardContent>
-                <DetailSection title="">
-                  <DetailRow label="Role ID" value={roleData.id} />
-                  <DetailRow label="Created At" value={dateTimeFormat(roleData.createdAt ?? "")} />
-                  <DetailRow label="Created By" value={roleData.createdBy || "-"} />
-                  <DetailRow label="Last Updated" value={dateTimeFormat(roleData.updatedAt ?? "")} />
-                  <DetailRow label="Updated By" value={roleData.updatedBy || "-"} isLast />
-                </DetailSection>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DisplayField label="Role ID" value={roleData.id} />
+                  <DisplayField label="Created At" value={dateTimeFormat(roleData.createdAt ?? "")} />
+                  <DisplayField label="Created By" value={roleData.createdBy || "-"} />
+                  <DisplayField label="Last Updated" value={dateTimeFormat(roleData.updatedAt ?? "")} />
+                  <DisplayField label="Updated By" value={roleData.updatedBy || "-"} />
+                </div>
               </CardContent>
             </Card>
           </div>
