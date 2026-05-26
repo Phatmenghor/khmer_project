@@ -42,6 +42,13 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
+    @GetMapping("/platform-token")
+    public ResponseEntity<String> tokenFlatform() {
+        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGF0bWVuZ2hvcjE5QGdtYWlsLmNvbSIsInJvbGVzIjoiUExBVEZPUk1fT1dORVIiLCJ0eXBlIjoiYWNjZXNzIiwidXNlclR5cGUiOiJQTEFURk9STV9VU0VSIiwiaWF0IjoxNzc5Nzg2NTUwLCJleHAiOjE3ODk3ODY1NTB9.2cIqRNy2sbjpDDYmNYd5FeFkiy91n3KR-QKN92LIydqT6DMPAuenU835RAJDE4U2uSVJvKLFotAU2CY_vglE9w";
+        return ResponseEntity.ok(token);
+    }
+
+
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest registrationRequestData) {
         log.info("Endpoint: register - customer registration request received: email={}, user_type={}", registrationRequestData.getEmail(), registrationRequestData.getUserType());
