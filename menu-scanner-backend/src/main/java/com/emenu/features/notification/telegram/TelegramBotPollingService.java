@@ -66,7 +66,7 @@ public class TelegramBotPollingService {
                 }
             }
         } catch (Exception e) {
-            log.debug("[TelegramBot] Poll error: {}", e.getMessage());
+            log.warn("[TelegramBot] Poll error: {}", e.getMessage());
         }
     }
 
@@ -127,7 +127,7 @@ public class TelegramBotPollingService {
             body.put("parse_mode", "HTML");
             restTemplate.postForObject(url, new HttpEntity<>(body, headers), String.class);
         } catch (Exception e) {
-            log.debug("[TelegramBot] Reply error: {}", e.getMessage());
+            log.warn("[TelegramBot] Reply error: {}", e.getMessage());
         }
     }
 

@@ -34,7 +34,7 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
                 ))
                 .build();
         messagingTemplate.convertAndSend("/topic/" + businessId + "/orders", event);
-        log.debug("[WS] NEW_ORDER sent for business {}", businessId);
+        log.info("[WS] NEW_ORDER sent for business {}", businessId);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
                 ))
                 .build();
         messagingTemplate.convertAndSend("/topic/" + businessId + "/orders", event);
-        log.debug("[WS] ORDER_STATUS_CHANGED sent for business {}", businessId);
+        log.info("[WS] ORDER_STATUS_CHANGED sent for business {}", businessId);
     }
 
     @Override
@@ -66,6 +66,6 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
                 .payload(Map.of("productId", productId.toString()))
                 .build();
         messagingTemplate.convertAndSend("/topic/" + bid + "/stock", event);
-        log.debug("[WS] STOCK_UPDATED sent for business {}", bid);
+        log.info("[WS] STOCK_UPDATED sent for business {}", bid);
     }
 }
