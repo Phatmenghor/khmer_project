@@ -81,39 +81,24 @@ export const sidebarItems: SidebarItem[] = [
     ],
   },
   {
-    title: "Platform User",
-    section: "Platform Users",
+    title: "User Management",
+    section: "User Management",
     icon: Users,
     subroutes: [
       {
-        title: "Users",
+        title: "Platform Users",
         href: ROUTES.DASHBOARD.USERS,
       },
-    ],
-  },
-
-  {
-    title: "Business User",
-    section: "Business User",
-    icon: Users,
-    subroutes: [
       {
-        title: "Users",
+        title: "Business Users",
         href: ROUTES.DASHBOARD.BUSINESS_USER,
       },
       {
         title: "Business Owner",
         href: ROUTES.DASHBOARD.BUSINESS_OWNER,
       },
-    ],
-  },
-  {
-    title: "Customer User",
-    section: "Customer Users",
-    icon: Users,
-    subroutes: [
       {
-        title: "customers",
+        title: "Customer Users",
         href: ROUTES.DASHBOARD.CUSTOMER_USER,
       },
     ],
