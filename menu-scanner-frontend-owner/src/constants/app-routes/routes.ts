@@ -23,6 +23,7 @@ export const ROUTES = {
     PAYMENT: "/admin/payment",
     USERS_BUSINESS: "/admin/users",
     CUSTOMER_USER: "/admin/customer-user",
+    SUBSCRIPTION_PLAN: "/admin/subscription-plan",
     PROVINCE: "/admin/province",
     DISTRICT: "/admin/district",
     VILLAGE: "/admin/village",
@@ -58,6 +59,10 @@ export const sidebarItems: SidebarItem[] = [
       {
         title: "Payment",
         href: ROUTES.DASHBOARD.PAYMENT,
+      },
+      {
+        title: "Subscription Plan",
+        href: ROUTES.DASHBOARD.SUBSCRIPTION_PLAN,
       },
       {
         title: "Roles",
