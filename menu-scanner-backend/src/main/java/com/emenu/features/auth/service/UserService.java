@@ -4,6 +4,7 @@ import com.emenu.features.auth.dto.filter.UserFilterRequest;
 import com.emenu.features.auth.dto.request.BusinessOwnerCreateRequest;
 import com.emenu.features.auth.dto.request.UserCreateRequest;
 import com.emenu.features.auth.dto.response.BusinessOwnerCreateResponse;
+import com.emenu.features.auth.dto.response.CustomerUserResponse;
 import com.emenu.features.auth.dto.response.UserDetailResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
@@ -25,5 +26,9 @@ public interface UserService {
     
     UserDetailResponse getCurrentUser();
 
+    CustomerUserResponse getCustomerProfile();
+
     UserResponse updateCurrentUser(UserUpdateRequest request);
+
+    CustomerUserResponse updateCustomerProfile(UserUpdateRequest request);
 }

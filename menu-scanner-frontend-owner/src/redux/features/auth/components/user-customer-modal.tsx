@@ -4,36 +4,23 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ModalMode,
-  UserGropeType,
-  AccountStatus,
-} from "@/constants/app-resource/status/status";
+import { ModalMode, UserGropeType, AccountStatus } from "@/constants/app-resource/status/status";
 import {
   ACCOUNT_STATUS_CREATE_UPDATE,
+  GENDER_OPTIONS,
   USER_CUSTOMER_ROLE_CREATE_UPDATE,
 } from "@/constants/app-resource/status/create-update-status";
 import Loading from "@/components/shared/common/loading";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
+import { DatePickerField } from "@/components/shared/form-field/date-picker-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { PasswordField } from "@/components/shared/form-field/password-field";
-import {
-  CreateUserRequest,
-  UpdateUserRequest,
-} from "../store/models/request/users-request";
-import {
-  createUserSchema,
-  updateUserSchema,
-  UserFormData,
-} from "../store/models/schema/user.schema";
-import {
-  fetchUserByIdService,
-  createUserService,
-  updateUserService,
-} from "../store/thunks/users-thunks";
+import { CreateUserRequest, UpdateUserRequest } from "../store/models/request/users-request";
+import { createUserSchema, updateUserSchema, UserFormData } from "../store/models/schema/user.schema";
+import { fetchUserByIdService, createUserService, updateUserService } from "../store/thunks/users-thunks";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { showToast } from "@/components/shared/common/show-toast";
 import { clearError, clearSelectedUser } from "../store/slice/users-slice";
@@ -55,17 +42,11 @@ type Props = {
   isOpen: boolean;
 };
 
-export default function UserCustomerModal({
-  isOpen,
-  onClose,
-  userId,
-  mode,
-}: Props) {
+export default function UserCustomerModal({ isOpen, onClose, userId, mode }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useAppDispatch();
-
   const operations = useAppSelector(selectOperations);
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
@@ -80,9 +61,7 @@ export default function UserCustomerModal({
     watch,
     formState: { errors, isDirty },
   } = useForm<UserFormData>({
-    resolver: zodResolver(
-      isCreate ? createUserSchema : updateUserSchema
-    ) as any,
+    resolver: zodResolver(isCreate ? createUserSchema : updateUserSchema) as any,
     defaultValues: {
       id: "",
       userIdentifier: "",
@@ -90,13 +69,14 @@ export default function UserCustomerModal({
       firstName: "",
       lastName: "",
       phoneNumber: "",
+      nickname: "",
+      gender: "",
+      dateOfBirth: "",
       password: "",
       userType: UserGropeType.CUSTOMER,
       roles: [],
       accountStatus: AccountStatus.ACTIVE,
-      position: "",
-      address: "",
-      notes: "",
+      remark: "",
     },
     mode: "onChange",
   });
@@ -104,38 +84,34 @@ export default function UserCustomerModal({
   const userIdentifier = watch("userIdentifier");
   const email = watch("email");
 
-  // Fetch user data for edit mode
   useEffect(() => {
     const fetchUserData = async () => {
       if (!userId || !isOpen || isCreate) return;
-
       try {
         const resultAction = await dispatch(fetchUserByIdService(userId));
-
         if (fetchUserByIdService.fulfilled.match(resultAction)) {
           const data = resultAction.payload;
-
           reset({
             id: data.id,
             firstName: data.firstName || "",
             lastName: data.lastName || "",
+            email: data.email || "",
             phoneNumber: data.phoneNumber || "",
+            nickname: data.nickname || "",
+            gender: data.gender || "",
+            dateOfBirth: data.dateOfBirth || "",
             accountStatus: data.accountStatus,
             roles: Array.isArray(data.roles) ? data.roles : [],
-            position: data.position || "",
-            address: data.address || "",
-            notes: data.notes || "",
+            remark: data.remark || "",
           });
         }
       } catch (error) {
-        console.error("Error fetching user customerdata:", error);
+        console.error("Error fetching user data:", error);
       }
     };
-
     fetchUserData();
   }, [userId, isOpen, isCreate, reset, dispatch]);
 
-  // Reset form for create mode
   useEffect(() => {
     if (isOpen && isCreate) {
       reset({
@@ -144,28 +120,25 @@ export default function UserCustomerModal({
         firstName: "",
         lastName: "",
         phoneNumber: "",
+        nickname: "",
+        gender: "",
+        dateOfBirth: "",
         password: "",
         userType: UserGropeType.CUSTOMER,
         roles: [],
         accountStatus: AccountStatus.ACTIVE,
-        position: "",
-        address: "",
-        notes: "",
+        remark: "",
       });
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens
   useEffect(() => {
-    if (isOpen) {
-      dispatch(clearError());
-    }
+    if (isOpen) dispatch(clearError());
   }, [isOpen, dispatch]);
 
   const onSubmit = async (data: UserFormData) => {
     try {
       if (isCreate) {
-        // TypeScript now knows data is CreateUserFormData
         const payload: CreateUserRequest = {
           userIdentifier: data.userIdentifier!,
           email: data.email,
@@ -173,48 +146,36 @@ export default function UserCustomerModal({
           firstName: data.firstName,
           lastName: data.lastName,
           phoneNumber: data.phoneNumber,
+          nickname: data.nickname || undefined,
+          gender: data.gender || undefined,
+          dateOfBirth: data.dateOfBirth || undefined,
           userType: data.userType!,
           accountStatus: data.accountStatus,
           roles: data.roles,
-          position: data.position || undefined,
-          address: data.address || undefined,
-          notes: data.notes || undefined,
+          remark: data.remark || undefined,
         };
-
         const result = await dispatch(createUserService(payload)).unwrap();
-        showToast.success(
-          `User customer "${
-            result.userIdentifier || result.email
-          }" created successfully`
-        );
+        showToast.success(`Customer "${result.userIdentifier || result.email}" created successfully`);
         handleClose();
       } else {
-        // TypeScript now knows data is UpdateUserFormData
         const payload: UpdateUserRequest = {
           firstName: data.firstName,
           lastName: data.lastName,
+          email: data.email || undefined,
           phoneNumber: data.phoneNumber,
+          nickname: data.nickname || undefined,
+          gender: data.gender || undefined,
+          dateOfBirth: data.dateOfBirth || undefined,
           accountStatus: data.accountStatus,
           roles: data.roles,
-          position: data.position || undefined,
-          address: data.address || undefined,
-          notes: data.notes || undefined,
+          remark: data.remark || undefined,
         };
-
-        const result = await dispatch(
-          updateUserService({ userId: data.id, userData: payload })
-        ).unwrap();
-        showToast.success(
-          `User customer "${
-            result.userIdentifier || result.email
-          }" updated successfully`
-        );
+        const result = await dispatch(updateUserService({ userId: data.id, userData: payload })).unwrap();
+        showToast.success(`Customer "${result.userIdentifier || result.email}" updated successfully`);
         handleClose();
       }
     } catch (error: any) {
-      showToast.error(
-        error || `Failed to ${isCreate ? "create" : "update"} user customer`
-      );
+      showToast.error(error || `Failed to ${isCreate ? "create" : "update"} customer`);
     }
   };
 
@@ -229,33 +190,30 @@ export default function UserCustomerModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 flex flex-col">
+      <DialogContent className="w-full max-w-2xl p-0 flex flex-col">
         <FormHeader
-          title={isCreate ? "Create New User Customer" : "Edit User Customer"}
+          title={isCreate ? "Create New Customer" : "Edit Customer"}
           description={
             isCreate
-              ? "Fill out the form to create a new user customer account"
-              : "Update user customer information below"
+              ? "Fill out the form to create a new customer account"
+              : "Update customer information below"
           }
           avatarName={userIdentifier || email}
           avatarImageUrl={userData?.profileImageUrl}
+          showAvatar={true}
+          isCreate={isCreate}
         />
 
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-6 flex items-center justify-center min-h-[300px] flex-1">
             <Loading />
           </div>
         ) : (
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-hidden"
-          >
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
             <FormBody>
               {reduxError && (
                 <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
-                    {reduxError}
-                  </p>
+                  <p className="text-sm text-destructive font-medium">{reduxError}</p>
                 </div>
               )}
 
@@ -271,7 +229,6 @@ export default function UserCustomerModal({
                       disabled={isSubmitting}
                       error={getFieldError(errors.userIdentifier)}
                     />
-
                     <TextField
                       control={control}
                       name="email"
@@ -317,21 +274,30 @@ export default function UserCustomerModal({
 
                 <TextField
                   control={control}
-                  name="position"
-                  label="Position"
-                  placeholder="Enter position (optional)"
+                  name="nickname"
+                  label="Nickname"
+                  placeholder="Enter nickname (optional)"
                   disabled={isSubmitting}
-                  error={getFieldError(errors.position)}
+                  error={getFieldError(errors.nickname)}
                 />
 
-                <TextField
+                <SelectField
                   control={control}
-                  name="address"
-                  label="Address"
-                  placeholder="Enter address (optional)"
-                  className="md:col-span-2"
+                  name="gender"
+                  label="Gender"
+                  placeholder="Select gender"
+                  options={GENDER_OPTIONS}
                   disabled={isSubmitting}
-                  error={getFieldError(errors.address)}
+                  error={getFieldError(errors.gender)}
+                />
+
+                <DatePickerField
+                  control={control}
+                  name="dateOfBirth"
+                  label="Date of Birth"
+                  placeholder="Select date of birth"
+                  disabled={isSubmitting}
+                  error={errors.dateOfBirth}
                 />
 
                 {isCreate && (
@@ -352,18 +318,15 @@ export default function UserCustomerModal({
                 <SelectField
                   control={control}
                   name="roles"
-                  label="User Role"
-                  placeholder="Select user role"
+                  label="Role"
+                  placeholder="Select role"
                   options={USER_CUSTOMER_ROLE_CREATE_UPDATE}
                   required
                   disabled={isSubmitting}
                   error={getFieldError(errors.roles)}
-                  onValueChange={(value) => {
-                    setValue("roles", [value], {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    });
-                  }}
+                  onValueChange={(value) =>
+                    setValue("roles", [value], { shouldDirty: true, shouldValidate: true })
+                  }
                 />
 
                 <SelectField
@@ -380,12 +343,12 @@ export default function UserCustomerModal({
 
               <TextareaField
                 control={control}
-                name="notes"
-                label="Notes"
-                placeholder="Enter any additional notes (optional)"
-                rows={5}
+                name="remark"
+                label="Remark"
+                placeholder="Enter any additional remark (optional)"
+                rows={4}
                 disabled={isSubmitting}
-                error={getFieldError(errors.notes)}
+                error={getFieldError(errors.remark)}
               />
             </FormBody>
 
@@ -393,16 +356,16 @@ export default function UserCustomerModal({
               isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage="Creating user..."
-              updateMessage="Updating user..."
+              createMessage="Creating customer..."
+              updateMessage="Updating customer..."
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
               <SubmitButton
                 isSubmitting={isSubmitting}
                 isDirty={isDirty}
                 isCreate={isCreate}
-                createText="Create User"
-                updateText="Update User"
+                createText="Create Customer"
+                updateText="Update Customer"
                 submittingCreateText="Creating..."
                 submittingUpdateText="Updating..."
               />

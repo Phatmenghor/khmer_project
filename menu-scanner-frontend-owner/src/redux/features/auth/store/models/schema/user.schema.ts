@@ -1,9 +1,5 @@
-// user.schema.ts
 import { z } from "zod";
 
-/**
- * Create User Schema
- */
 export const createUserSchema = z.object({
   userIdentifier: z
     .string()
@@ -19,19 +15,16 @@ export const createUserSchema = z.object({
   phoneNumber: z
     .string()
     .regex(/^\+?[\d\s-()]+$/, "Invalid phone number format"),
+  nickname: z.string().optional().or(z.literal("")),
+  gender: z.string().optional().or(z.literal("")),
+  dateOfBirth: z.string().optional().or(z.literal("")),
   profileImageUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   userType: z.string().min(1, "User type is required"),
-  businessId: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).min(1, "At least one role is required"),
-  position: z.string().optional().or(z.literal("")),
-  address: z.string().optional().or(z.literal("")),
-  notes: z.string().optional().or(z.literal("")),
   accountStatus: z.string().min(1, "Account status is required"),
+  remark: z.string().optional().or(z.literal("")),
 });
 
-/**
- * Update User Schema
- */
 export const updateUserSchema = z.object({
   id: z.string().min(1, "User ID is required"),
   firstName: z.string().min(1, "First name is required"),
@@ -39,13 +32,14 @@ export const updateUserSchema = z.object({
   phoneNumber: z
     .string()
     .regex(/^\+?[\d\s-()]+$/, "Invalid phone number format"),
+  email: z.string().email("Invalid email format").optional().or(z.literal("")),
+  nickname: z.string().optional().or(z.literal("")),
+  gender: z.string().optional().or(z.literal("")),
+  dateOfBirth: z.string().optional().or(z.literal("")),
   profileImageUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   accountStatus: z.string().min(1, "Account status is required"),
-  businessId: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).min(1, "At least one role is required"),
-  position: z.string().optional().or(z.literal("")),
-  address: z.string().optional().or(z.literal("")),
-  notes: z.string().optional().or(z.literal("")),
+  remark: z.string().optional().or(z.literal("")),
 });
 
 export const changePasswordSchema = z
@@ -63,9 +57,6 @@ export const changePasswordSchema = z
     path: ["confirmPassword"],
   });
 
-/**
- * Combined form data type - includes all possible fields
- */
 export type UserFormData = {
   id: string;
   userIdentifier?: string;
@@ -74,12 +65,12 @@ export type UserFormData = {
   firstName: string;
   lastName: string;
   phoneNumber: string;
+  nickname?: string;
+  gender?: string;
+  dateOfBirth?: string;
   profileImageUrl?: string;
   userType?: string;
-  businessId?: string;
   roles: string[];
-  position?: string;
-  address?: string;
-  notes?: string;
   accountStatus: string;
+  remark?: string;
 };

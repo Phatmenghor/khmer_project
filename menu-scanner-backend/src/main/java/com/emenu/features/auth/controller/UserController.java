@@ -4,6 +4,7 @@ import com.emenu.features.auth.dto.filter.UserFilterRequest;
 import com.emenu.features.auth.dto.request.AdminPasswordResetRequest;
 import com.emenu.features.auth.dto.request.PasswordChangeRequest;
 import com.emenu.features.auth.dto.request.UserCreateRequest;
+import com.emenu.features.auth.dto.response.CustomerUserResponse;
 import com.emenu.features.auth.dto.response.UserDetailResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
@@ -34,17 +35,17 @@ public class UserController {
     private final SecurityUtils securityUtils;
 
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<UserDetailResponse>> getCurrentUser() {
+    public ResponseEntity<ApiResponse<CustomerUserResponse>> getCurrentUser() {
         log.info("Endpoint: profile - current user profile retrieval request received");
-        UserDetailResponse userDetailResponse = userService.getCurrentUser();
-        return ResponseEntity.ok(ApiResponse.success("User profile retrieved", userDetailResponse));
+        CustomerUserResponse customerUserResponse = userService.getCustomerProfile();
+        return ResponseEntity.ok(ApiResponse.success("User profile retrieved", customerUserResponse));
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<ApiResponse<UserResponse>> updateCurrentUser(
+    public ResponseEntity<ApiResponse<CustomerUserResponse>> updateCurrentUser(
             @Valid @RequestBody UserUpdateRequest updateRequestData) {
         log.info("Endpoint: profile - current user profile update request received");
-        UserResponse updatedUserResponse = userService.updateCurrentUser(updateRequestData);
+        CustomerUserResponse updatedUserResponse = userService.updateCustomerProfile(updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("Profile updated", updatedUserResponse));
     }
 

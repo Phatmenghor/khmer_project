@@ -5,6 +5,7 @@ import com.emenu.enums.user.UserType;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.dto.filter.UserFilterRequest;
 import com.emenu.features.auth.dto.request.*;
+import com.emenu.features.auth.dto.response.CustomerUserResponse;
 import com.emenu.features.auth.dto.response.UserDetailResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
@@ -368,11 +369,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public CustomerUserResponse getCustomerProfile() {
+        User currentUserContext = securityUtils.getCurrentUser();
+        log.info("Customer profile retrieved: id={}", currentUserContext.getId());
+        return userMapper.toCustomerResponse(currentUserContext);
+    }
+
+    @Override
     @Transactional
     public UserResponse updateCurrentUser(UserUpdateRequest profileUpdateRequest) {
         User currentUserContext = securityUtils.getCurrentUser();
         log.info("Current user profile update initiated: id={}", currentUserContext.getId());
         return updateUser(currentUserContext.getId(), profileUpdateRequest);
+    }
+
+    @Override
+    @Transactional
+    public CustomerUserResponse updateCustomerProfile(UserUpdateRequest profileUpdateRequest) {
+        User currentUserContext = securityUtils.getCurrentUser();
+        log.info("Customer profile update initiated: id={}", currentUserContext.getId());
+        updateUser(currentUserContext.getId(), profileUpdateRequest);
+        return userMapper.toCustomerResponse(securityUtils.getCurrentUser());
     }
 
 

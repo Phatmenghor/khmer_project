@@ -94,6 +94,25 @@ public interface UserMapper {
     @Mapping(target = "telegramSyncedAt",  source = "user.telegram.telegramSyncedAt")
     LoginResponse toLoginResponse(User user, String token);
 
+    @Mapping(target = "fullName", expression = "java(user.getFullName())")
+    @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToStrings")
+    @Mapping(target = "telegramSynced", expression = "java(user.getTelegram() != null)")
+    @Mapping(target = "email", source = "profile.email")
+    @Mapping(target = "firstName", source = "profile.firstName")
+    @Mapping(target = "lastName", source = "profile.lastName")
+    @Mapping(target = "nickname", source = "profile.nickname")
+    @Mapping(target = "gender", source = "profile.gender")
+    @Mapping(target = "dateOfBirth", source = "profile.dateOfBirth")
+    @Mapping(target = "phoneNumber", source = "profile.phoneNumber")
+    @Mapping(target = "profileImageUrl", source = "profile.profileImageUrl")
+    @Mapping(target = "telegramId", source = "telegram.telegramId")
+    @Mapping(target = "telegramUsername", source = "telegram.telegramUsername")
+    @Mapping(target = "telegramFirstName", source = "telegram.telegramFirstName")
+    @Mapping(target = "telegramLastName", source = "telegram.telegramLastName")
+    @Mapping(target = "telegramPhotoUrl", source = "telegram.telegramPhotoUrl")
+    @Mapping(target = "telegramSyncedAt", source = "telegram.telegramSyncedAt")
+    CustomerUserResponse toCustomerResponse(User user);
+
     List<UserResponse> toResponseList(List<User> users);
 
     AddressResponse toAddressResponse(UserAddress address);
