@@ -295,20 +295,17 @@ export default function AdminDashboardPage() {
 
   const handleOrderEvent = useCallback(
     (type: string) => {
-      dispatch(fetchDashboardSummaryService({ period }));
-      dispatch(fetchDashboardOrdersService({ period }));
-      dispatch(fetchDashboardPaymentsService({ period }));
-      dispatch(fetchDashboardHourlySalesService({ period: "TODAY" }));
+      fetchAll(period);
       showToast.info(type === "NEW_ORDER" ? "New order received" : "Order status updated");
     },
-    [dispatch, period]
+    [fetchAll, period]
   );
 
   const handleStockEvent = useCallback(
     (_type: string) => {
-      dispatch(fetchDashboardStockService());
+      fetchAll(period);
     },
-    [dispatch]
+    [fetchAll, period]
   );
 
   useDashboardWebSocket({
