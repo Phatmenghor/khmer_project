@@ -29,7 +29,6 @@ import {
 } from "@/redux/features/auth/store/thunks/business-owner-thunks";
 import { userBusinessOwnerTableColumns } from "@/redux/features/auth/table/business-owner-table";
 import CreateBusinessOwnerModal from "@/redux/features/auth/components/create-business-owner-modal";
-import ChangePlanModal from "@/redux/features/auth/components/change-plan-modal";
 import { BusinessOwnerDetailModal } from "@/redux/features/auth/components/business-owner-detail-modal";
 
 export default function BusinessOwnerPage() {
@@ -58,11 +57,6 @@ export default function BusinessOwnerPage() {
     owner: null as BusinessOwnerResponseModel | null,
   });
 
-  const [changePlanState, setChangePlanState] = useState({
-    isOpen: false,
-    ownerId: "",
-    ownerName: "",
-  });
 
   const debouncedSearch = useDebounce(filters.search, 400);
 
@@ -100,16 +94,8 @@ export default function BusinessOwnerPage() {
     setDeleteState({ isOpen: true, owner: user });
   };
 
-  const handleChangePlan = (user: BusinessOwnerResponseModel) => {
-    setChangePlanState({
-      isOpen: true,
-      ownerId: user.ownerId || "",
-      ownerName: user.ownerFullName || "",
-    });
-  };
-
   const tableHandlers = useMemo(
-    () => ({ handleViewUserDetail, handleDeleteUser, handleChangePlan }),
+    () => ({ handleViewUserDetail, handleDeleteUser }),
     []
   );
 
@@ -192,13 +178,6 @@ export default function BusinessOwnerPage() {
         businessOwnerId={detailModalState.ownerId}
         isOpen={detailModalState.isOpen}
         onClose={() => setDetailModalState({ isOpen: false, ownerId: "" })}
-      />
-
-      <ChangePlanModal
-        isOpen={changePlanState.isOpen}
-        onClose={() => setChangePlanState({ isOpen: false, ownerId: "", ownerName: "" })}
-        ownerId={changePlanState.ownerId}
-        ownerName={changePlanState.ownerName}
       />
 
       <DeleteConfirmationModal

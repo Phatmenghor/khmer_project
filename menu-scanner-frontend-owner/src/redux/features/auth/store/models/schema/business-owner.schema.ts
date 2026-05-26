@@ -30,13 +30,13 @@ export const createBusinessOwnerSchema = z.object({
     .string()
     .regex(/^\+?[\d\s-()]+$/, "Invalid phone number format"),
   businessAddress: z.string().min(1, "Business address is required"),
-  planId: z.string().uuid("Invalid plan ID format"),
-  customDurationDays: z.number().int().min(0, "Duration must be non-negative"),
-  paymentAmount: z.number().min(0, "Payment amount must be non-negative"),
-  paymentMethod: z.string().min(1, "Payment method is required"),
+  planId: z.string().optional().or(z.literal("")),
+  customDurationDays: z.number().int().min(0).optional(),
+  paymentAmount: z.number().min(0).optional(),
+  paymentMethod: z.string().optional().or(z.literal("")),
   paymentReference: z.string().optional().or(z.literal("")),
   paymentNotes: z.string().optional().or(z.literal("")),
-  paymentInfoComplete: z.boolean(),
+  paymentInfoComplete: z.boolean().optional(),
 });
 
 /**

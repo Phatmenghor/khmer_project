@@ -8,8 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "@/components/shared/common/loading";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
-import { NumberField } from "@/components/shared/form-field/number-field";
-import { CheckboxField } from "@/components/shared/form-field/checkbox-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { PasswordField } from "@/components/shared/form-field/password-field";
@@ -19,7 +17,6 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { getFieldError } from "@/utils/common/get-field-error";
-import { ComboboxSelectSubscriptionPlan } from "@/components/shared/combo-box/combobox-plan";
 import {
   selectError,
   selectOperations,
@@ -63,13 +60,6 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
       businessEmail: "",
       businessPhone: "",
       businessAddress: "",
-      planId: "",
-      customDurationDays: 0,
-      paymentAmount: 0,
-      paymentMethod: "",
-      paymentReference: "",
-      paymentNotes: "",
-      paymentInfoComplete: false,
     },
     mode: "onChange",
   });
@@ -258,88 +248,6 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
                 </div>
               </div>
 
-              {/* Subscription Details */}
-              <div>
-                <h3 className="text-lg font-semibold mb-4">
-                  Subscription Details
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <ComboboxSelectSubscriptionPlan
-                    dataSelect={null}
-                    onChangeSelected={(plan) => {
-                      setValue("planId", plan?.id || "", {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      });
-                    }}
-                    label="Subscription Plan"
-                    placeholder="Select plan"
-                    required
-                    disabled={isCreating}
-                    error={getFieldError(errors.planId)?.message}
-                  />
-
-                  <NumberField
-                    control={control}
-                    name="customDurationDays"
-                    label="Custom Duration (Days)"
-                    placeholder="Enter duration"
-                    required
-                    disabled={isCreating}
-                    min={0}
-                    error={getFieldError(errors.customDurationDays)}
-                  />
-
-                  <NumberField
-                    control={control}
-                    name="paymentAmount"
-                    label="Payment Amount"
-                    placeholder="Enter amount"
-                    required
-                    disabled={isCreating}
-                    min={0}
-                    step={0.01}
-                    error={getFieldError(errors.paymentAmount)}
-                  />
-
-                  <TextField
-                    control={control}
-                    name="paymentMethod"
-                    label="Payment Method"
-                    placeholder="Enter payment method"
-                    required
-                    disabled={isCreating}
-                    error={getFieldError(errors.paymentMethod)}
-                  />
-
-                  <TextField
-                    control={control}
-                    name="paymentReference"
-                    label="Payment Reference"
-                    placeholder="Enter payment reference (optional)"
-                    disabled={isCreating}
-                    error={getFieldError(errors.paymentReference)}
-                  />
-
-                  <CheckboxField
-                    control={control}
-                    name="paymentInfoComplete"
-                    label="Payment Information Complete"
-                    disabled={isCreating}
-                  />
-
-                  <TextareaField
-                    control={control}
-                    name="paymentNotes"
-                    label="Payment Notes"
-                    placeholder="Enter payment notes (optional)"
-                    rows={3}
-                    className="md:col-span-2"
-                    disabled={isCreating}
-                    error={getFieldError(errors.paymentNotes)}
-                  />
-                </div>
-              </div>
             </div>
           </FormBody>
 

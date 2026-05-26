@@ -2,7 +2,7 @@
 import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Eye, Trash, ArrowRightLeft } from "lucide-react";
+import { Eye, Trash } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { TableColumn } from "@/components/shared/common/data-table";
 import {
@@ -13,7 +13,6 @@ import {
 interface BusinessOwnerTableHandlers {
   handleViewUserDetail: (user: BusinessOwnerResponseModel) => void;
   handleDeleteUser: (user: BusinessOwnerResponseModel) => void;
-  handleChangePlan: (user: BusinessOwnerResponseModel) => void;
 }
 
 interface BusinessOwnerTableOptions {
@@ -25,7 +24,7 @@ export const userBusinessOwnerTableColumns = ({
   data,
   handlers,
 }: BusinessOwnerTableOptions): TableColumn<BusinessOwnerResponseModel>[] => {
-  const { handleViewUserDetail, handleDeleteUser, handleChangePlan } = handlers;
+  const { handleViewUserDetail, handleDeleteUser } = handlers;
 
   return [
     {
@@ -220,14 +219,6 @@ export const userBusinessOwnerTableColumns = ({
               tooltip="View Details"
               onClick={() => handleViewUserDetail(user)}
               size="sm"
-            />
-            <ActionButton
-              icon={<ArrowRightLeft className="w-4 h-4" />}
-              tooltip="Change Plan"
-              onClick={() => handleChangePlan(user)}
-              size="sm"
-              variant="outline"
-              className="text-purple-600 hover:text-purple-700"
             />
             <ActionButton
               icon={<Trash className="w-4 h-4" />}
