@@ -10,6 +10,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  allowedDevOrigins: ["d9b7-203-147-140-218.ngrok-free.app"],
+
   trailingSlash: false,
 
   images: {
@@ -22,6 +24,10 @@ const nextConfig = {
       {
         source: "/api/:path*",
         destination: `${backendUrl}/api/:path*`,
+      },
+      {
+        source: "/ws/:path*",
+        destination: `${backendUrl}/ws/:path*`,
       },
     ];
   },
@@ -46,6 +52,12 @@ const nextConfig = {
         ],
       },
     ];
+  },
+
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
   },
 };
 
