@@ -1,5 +1,13 @@
 "use client";
-
+// components/CardHeaderSection.tsx
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,9 +24,14 @@ import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/redux/store/use-mobile";
 import { ActionButton } from "../button/action-button";
 
+interface BreadcrumbItemType {
+  label: string;
+  href?: string;
+}
+
 interface CardHeaderSectionProps {
+  breadcrumbs?: BreadcrumbItemType[];
   title?: string;
-  badge?: React.ReactNode;
   searchPlaceholder?: string;
   searchValue?: string;
   onSearchChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -36,8 +49,8 @@ interface CardHeaderSectionProps {
 }
 
 export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
+  breadcrumbs,
   title,
-  badge,
   searchPlaceholder = "Search...",
   searchValue,
   customAddNewButton,
@@ -59,9 +72,44 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
   return (
     <div>
       <Card>
-        <CardContent className="py-3 sm:py-5">
-          {/* Title row */}
-          <div className="flex items-center gap-2 mb-3">
+        <CardContent className="py-6">
+          {/* Breadcrumb Section */}
+          {breadcrumbs && breadcrumbs.length > 0 && (
+            <Breadcrumb>
+              <BreadcrumbList>
+                {breadcrumbs.map((item, index) => (
+                  <React.Fragment key={index}>
+                    <BreadcrumbItem>
+                      {item.href ? (
+                        <BreadcrumbLink
+                          href={item.href}
+                          className="text-gray-600 hover:text-gray-500 transition-colors duration-200"
+                        >
+                          {item.label}
+                        </BreadcrumbLink>
+                      ) : (
+                        <BreadcrumbPage className="text-gray-400 font-medium">
+                          {item.label}
+                        </BreadcrumbPage>
+                      )}
+                    </BreadcrumbItem>
+                    {index < breadcrumbs.length - 1 && (
+                      <BreadcrumbSeparator
+                        className="text-gray-600"
+                        style={{
+                          animationDelay: `${250 + index * 100}ms`,
+                          animationFillMode: "backwards",
+                        }}
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
+              </BreadcrumbList>
+            </Breadcrumb>
+          )}
+
+          {/* Title Section with Back Button */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-start mt-4">
             {(back || isMobile) && (
               <ActionButton
                 size="icon"
@@ -71,23 +119,25 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                 variant="ghost"
               />
             )}
+
             {title && (
-              <h1 className="text-base sm:text-lg font-bold">{title}</h1>
+              <div className="flex flex-col">
+                <h1 className="font-bold mb-1">{title}</h1>
+              </div>
             )}
-            {badge}
           </div>
 
-          {/* Search and actions row */}
-          <div className="flex flex-wrap items-end gap-2">
+          {/* Search and Actions Section */}
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
             {/* Search input */}
             {onSearchChange && (
-              <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
+              <div className="flex w-full lg:w-[400px] items-center gap-2">
                 <div className="relative w-full group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   <Input
                     type="search"
                     placeholder={searchPlaceholder}
-                    className="pl-10 w-full placeholder:text-gray-500 transition-all duration-200"
+                    className="pl-10 w-full placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 hover:border-gray-600 transition-all duration-200"
                     value={searchValue}
                     onChange={onSearchChange}
                   />
@@ -96,17 +146,12 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
             )}
 
             {/* Right side actions */}
-            <div className="flex flex-wrap items-end gap-2 ml-auto">
+            <div className="flex flex-col sm:flex-row sm:items-end gap-3 w-full lg:w-auto">
               {customSelect && (
-                <div className="flex flex-wrap gap-2 items-end">
+                <div className="[&>*]:bg-gray-800 [&>*]:border-gray-700 [&>*]:text-gray-200">
                   {customSelect}
                 </div>
               )}
-
-              {children &&
-                React.Children.map(children, (child) => (
-                  <div className="w-auto flex-shrink-0">{child}</div>
-                ))}
 
               {buttonText && buttonHref && (
                 <TooltipProvider>
@@ -132,6 +177,10 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                 </TooltipProvider>
               )}
 
+              {children && (
+                <div className="w-full [&>*]:text-gray-200">{children}</div>
+              )}
+
               {customAddNewButton && <div>{customAddNewButton}</div>}
 
               {buttonText && openModal && (
@@ -140,7 +189,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                     <TooltipTrigger asChild>
                       <Button
                         variant="default"
-                        className="flex gap-2 font-medium transition-all duration-300 group"
+                        className="text-white border-0 flex gap-2 font-medium transition-all duration-300  hover:shadow-lg hover:shadow-pink-500/25 group"
                         onClick={openModal}
                       >
                         {buttonIcon && (
@@ -161,12 +210,18 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
               )}
             </div>
           </div>
-
-          {children1 && <div className="mt-3">{children1}</div>}
+          {children1 && (
+            <div className="px-0 pb-0 [&>*]:text-gray-200">{children1}</div>
+          )}
         </CardContent>
 
+        {/* Tabs Section */}
         {tabs && (
-          <div className="border-t px-6">{tabs}</div>
+          <div className="border-t border-gray-800 px-6 bg-gray-850">
+            <div className="[&>*]:text-gray-300 [&>*:hover]:text-gray-100 [&>*[data-state=active]]:text-pink-400 [&>*[data-state=active]]:border-pink-400">
+              {tabs}
+            </div>
+          </div>
         )}
       </Card>
     </div>

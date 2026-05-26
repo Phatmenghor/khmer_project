@@ -208,6 +208,10 @@ export default function ExchangeRatePage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
+          breadcrumbs={[
+            { label: "Dashboard", href: ROUTES.DASHBOARD.INDEX },
+            { label: "Exchange Rate", href: "" },
+          ]}
           title="Exchange Rate"
           buttonTooltip="Create a new exchange rate"
           searchValue={filters.search}

@@ -287,6 +287,10 @@ export default function BusinessUserMonitorPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
+          breadcrumbs={[
+            { label: "Dashboard", href: ROUTES.DASHBOARD.INDEX },
+            { label: "Business Users", href: "" },
+          ]}
           title="Business Owner"
           searchValue={filters.search}
           searchPlaceholder="Search business owners..."

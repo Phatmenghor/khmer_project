@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ROUTES, sidebarItems } from "@/constants/app-routes/routes";
 import Image from "next/image";
@@ -23,24 +23,20 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
 
-  const { profile, isProfileLoading, dispatch, accessToken } = useAuthState();
+  // Get auth state from Redux
+  const { profile, isProfileLoading, dispatch } = useAuthState();
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Master Data": true,
-    Location: true,
-    "Business User": true,
-    "Platform User": true,
-    Notification: true,
   });
   const [collapsed, setCollapsed] = useState(false);
 
-  const profileFetchedRef = useRef(false);
+  // Fetch profile on mount if not already loaded
   useEffect(() => {
-    if (accessToken && !profile && !isProfileLoading && !profileFetchedRef.current) {
-      profileFetchedRef.current = true;
+    if (!profile && !isProfileLoading) {
       dispatch(getProfileService());
     }
-  }, [accessToken, profile, isProfileLoading, dispatch]);
+  }, [profile, isProfileLoading, dispatch]);
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
@@ -101,19 +97,22 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
               {!isCollapsed && isOpen && (
                 <div className="relative ml-6 mt-1 space-y-1">
-                  <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 z-0" />
+                  <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 z-0"></div>
 
                   {route.subroutes.map((subroute, index) => (
                     <div key={subroute.title} className="relative">
-                      <div className="absolute left-0 top-1/2 w-4 h-px bg-gray-300 z-0" />
-                      <div className="absolute left-0 top-1/2 w-1.5 h-1.5 bg-gray-400 rounded-full transform -translate-x-0.5 -translate-y-0.5 z-10" />
+                      <div className="absolute left-0 top-1/2 w-4 h-px bg-gray-300 z-0"></div>
+
+                      <div className="absolute left-0 top-1/2 w-1.5 h-1.5 bg-gray-400 rounded-full transform -translate-x-0.5 -translate-y-0.5 z-10"></div>
 
                       {index === route.subroutes!.length - 1 && (
                         <div
                           className="absolute left-0 top-1/2 w-px bg-background z-10"
                           style={{ height: "50%" }}
-                        />
+                        ></div>
                       )}
+
+                      <div className="absolute left-4 top-1/2 w-2 h-px bg-gray-200 z-0"></div>
 
                       <Button
                         variant="ghost"
@@ -180,31 +179,30 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
           isMobile && !isOpen && "hidden"
         )}
       >
-        {/* Header */}
         <div className="relative flex h-20 items-center justify-between border-b border-border/50 px-4 bg-gradient-to-br from-primary/5 via-background/50 to-accent/5">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-50 blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-50 blur-3xl"></div>
 
           {!collapsed && (
             <Link
-              href={ROUTES.DASHBOARD.USERS}
+              href="/"
               className="relative flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
             >
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                   <Image
                     src="/assets/favicon.ico"
-                    alt="Logo"
+                    alt="KSIT Logo"
                     width={24}
                     height={24}
                     className="rounded object-contain"
                     priority
                   />
                 </div>
-                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
                 <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
-                  eMenu Owner
+                  Menu Scanner
                 </span>
                 <span className="text-muted-foreground text-xs font-medium tracking-wide">
                   Dashboard
@@ -217,19 +215,20 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             variant="ghost"
             size="icon"
             onClick={toggleCollapsed}
-            className="relative h-9 w-9 rounded-xl transition-all duration-300 hover:bg-accent/50 hover:scale-110 group"
+            className={cn(
+              "relative h-9 w-9 rounded-xl transition-all duration-300 hover:bg-accent/50 hover:scale-110 group"
+            )}
           >
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <ChevronLeft className="h-4 w-4 relative z-10" />
           </Button>
         </div>
 
-        {/* Nav */}
         <ScrollArea className="flex-1 py-6">
           <nav className="px-4 space-y-2">{renderNavItems(collapsed)}</nav>
         </ScrollArea>
 
-        {/* User avatar at bottom */}
+        {/* User Avatar Card */}
         {profile && (
           <UserAvatarCard
             user={profile}

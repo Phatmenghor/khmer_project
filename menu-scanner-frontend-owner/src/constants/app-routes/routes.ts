@@ -1,0 +1,170 @@
+import {
+  Bell,
+  Home,
+  Inbox,
+  Settings,
+  Users,
+  LucideIcon,
+  Database,
+  Pin,
+} from "lucide-react";
+
+export const ROUTES = {
+  AUTH: {
+    LOGIN: "/login",
+  },
+  DASHBOARD: {
+    INDEX: "/admin",
+    USERS: "/admin/platform-users",
+    CALENDAR: "/admin/calendar",
+    SECURITY: "/admin/security",
+    USER_MANAGEMENT: "/admin/users/manage",
+    USER_ROLES: "/admin/users/roles",
+    PROFILE: "/admin/profile",
+    BUSINESS: "/admin/business",
+    NEW_OWNER: "/admin/new-owner",
+    MANAGE_BUSINESS: "/admin/manage-business",
+    SUBSCRIPTION_PLAN: "/admin/subscription-plan",
+    BUSINESS_USER: "/admin/business-users",
+    BUSINESS_OWNER: "/admin/business-owner",
+    MY_BUSINESS: "/admin/my-business",
+    SUBSCRIPTION: "/admin/subscription",
+    MY_SUBSCRIPTION: "/admin/my-subscription",
+    EXCHANGE_RATE: "/admin/exchange-rate",
+    PAYMENT: "/admin/payment",
+    USERS_BUSINESS: "/admin/users",
+    CUSTOMER_USER: "/admin/customer-user",
+    PROVINCE: "/admin/province",
+    DISTRICT: "/admin/district",
+    VILLAGE: "/admin/village",
+    COMMUNE: "/admin/commune",
+
+    ALL_NOTIFICATION: "/admin/all-notification",
+    MY_NOTIFICATION: "/admin/my-notification",
+  },
+} as const;
+
+type Subroute = {
+  title: string;
+  href: string;
+};
+
+type SidebarItem = {
+  title: string;
+  href?: string;
+  icon?: LucideIcon;
+  image?: string;
+  section?: string;
+  subroutes?: Subroute[];
+};
+
+export const sidebarItems: SidebarItem[] = [
+  {
+    title: "Dashboard",
+    href: ROUTES.DASHBOARD.INDEX,
+    icon: Home,
+  },
+  {
+    title: "Master Data",
+    section: "Master Data",
+    icon: Database,
+    subroutes: [
+      {
+        title: "Business",
+        href: ROUTES.DASHBOARD.BUSINESS,
+      },
+      {
+        title: "Subscription Plan",
+        href: ROUTES.DASHBOARD.SUBSCRIPTION_PLAN,
+      },
+      {
+        title: "Subscriptions",
+        href: ROUTES.DASHBOARD.SUBSCRIPTION,
+      },
+      {
+        title: "Exchange Rates ",
+        href: ROUTES.DASHBOARD.EXCHANGE_RATE,
+      },
+      {
+        title: "Payment",
+        href: ROUTES.DASHBOARD.PAYMENT,
+      },
+    ],
+  },
+  {
+    title: "Platform User",
+    section: "Platform Users",
+    icon: Users,
+    subroutes: [
+      {
+        title: "Users",
+        href: ROUTES.DASHBOARD.USERS,
+      },
+    ],
+  },
+
+  {
+    title: "Business User",
+    section: "Business User",
+    icon: Users,
+    subroutes: [
+      {
+        title: "Users",
+        href: ROUTES.DASHBOARD.BUSINESS_USER,
+      },
+      {
+        title: "Business Owner",
+        href: ROUTES.DASHBOARD.BUSINESS_OWNER,
+      },
+    ],
+  },
+  {
+    title: "Customer User",
+    section: "Customer Users",
+    icon: Users,
+    subroutes: [
+      {
+        title: "customers",
+        href: ROUTES.DASHBOARD.CUSTOMER_USER,
+      },
+    ],
+  },
+  {
+    title: "Locations",
+    section: "Locations",
+    icon: Pin,
+    subroutes: [
+      {
+        title: "province",
+        href: ROUTES.DASHBOARD.PROVINCE,
+      },
+      {
+        title: "district",
+        href: ROUTES.DASHBOARD.DISTRICT,
+      },
+      {
+        title: "commune",
+        href: ROUTES.DASHBOARD.COMMUNE,
+      },
+      {
+        title: "village",
+        href: ROUTES.DASHBOARD.VILLAGE,
+      },
+    ],
+  },
+  {
+    title: "Notification",
+    section: "Notification",
+    icon: Bell,
+    subroutes: [
+      {
+        title: "My Notification",
+        href: ROUTES.DASHBOARD.MY_NOTIFICATION,
+      },
+      {
+        title: "All Notification",
+        href: ROUTES.DASHBOARD.ALL_NOTIFICATION,
+      },
+    ],
+  },
+];

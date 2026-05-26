@@ -27,13 +27,13 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const { isLoading, dispatch, accessToken } = useAuthState();
+  const { isLoading, dispatch, accessToken, authReady } = useAuthState();
 
   useEffect(() => {
-    if (accessToken) {
+    if (authReady && accessToken) {
       router.replace(ROUTES.DASHBOARD.USERS);
     }
-  }, [accessToken, router]);
+  }, [authReady, accessToken, router]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -46,6 +46,7 @@ export default function LoginPage() {
         loginService({
           userIdentifier: values.userIdentifier,
           password: values.password,
+          userType: "PLATFORM_USER",
         })
       ).unwrap();
       showToast.success("Welcome to the admin panel!");
@@ -70,10 +71,8 @@ export default function LoginPage() {
           className="object-cover"
           priority
         />
-        {/* gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
 
-        {/* bottom branding */}
         <div className="absolute bottom-10 left-10 right-10 text-white">
           <p className="text-xs font-semibold uppercase tracking-widest text-white/50 mb-3">
             Management System

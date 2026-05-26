@@ -192,6 +192,10 @@ export default function ProvincePage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
+          breadcrumbs={[
+            { label: "Dashboard", href: ROUTES.DASHBOARD.INDEX },
+            { label: "Province", href: "" },
+          ]}
           title="Province"
           searchValue={filters.search}
           searchPlaceholder="Search province..."

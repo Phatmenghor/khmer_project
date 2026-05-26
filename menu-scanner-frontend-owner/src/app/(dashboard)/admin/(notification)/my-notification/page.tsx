@@ -190,6 +190,10 @@ export default function MyNotificationPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
+          breadcrumbs={[
+            { label: "Dashboard", href: ROUTES.DASHBOARD.INDEX },
+            { label: "My Notification", href: "" },
+          ]}
           title="My Notification"
           searchValue={filters.search}
           searchPlaceholder="Search My Notification..."

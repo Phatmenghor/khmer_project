@@ -208,6 +208,10 @@ export default function SubscriptionPage() {
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
         <CardHeaderSection
+          breadcrumbs={[
+            { label: "Dashboard", href: ROUTES.DASHBOARD.INDEX },
+            { label: "Subscription", href: "" },
+          ]}
           title="Subscription"
           searchValue={filters.search}
           searchPlaceholder="Search subscription..."
