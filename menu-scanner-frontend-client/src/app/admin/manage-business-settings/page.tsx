@@ -813,38 +813,57 @@ export default function BusinessSettingsPage() {
               <CardTitle>Telegram Monitoring</CardTitle>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              Receive order alerts and system notifications in your Telegram group
+              Receive order alerts and staff notifications in your Telegram group
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
 
-            {/* Auto-link instructions */}
+            {/* Setup guide */}
             <div className="rounded-lg border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-4 space-y-3">
-              <p className="text-sm font-medium text-sky-800 dark:text-sky-300">How to link your group (2 steps)</p>
-              <ol className="space-y-2 text-sm text-sky-700 dark:text-sky-400">
-                <li className="flex gap-2">
-                  <span className="font-bold shrink-0">1.</span>
-                  <span>Add <span className="font-medium text-foreground">@CambodiaEMenuBot</span> to your Telegram group.</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="font-bold shrink-0">2.</span>
+              <p className="text-sm font-semibold text-sky-800 dark:text-sky-300">
+                How to set up (3 steps)
+              </p>
+              <ol className="space-y-3 text-sm text-sky-700 dark:text-sky-400">
+                <li className="flex gap-3">
+                  <span className="font-bold shrink-0 w-4">1.</span>
                   <span>
-                    Type this command in the group, replacing with your Business ID below:
+                    Add{" "}
+                    <span className="font-semibold text-foreground">@CambodiaEMenuBot</span>{" "}
+                    to your Telegram group.
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-bold shrink-0 w-4">2.</span>
+                  <span>
+                    <span className="font-semibold text-foreground">Promote the bot to Admin</span>
+                    {" "}— required so it can send messages to the group.
                     <br />
-                    <code className="mt-1 inline-block bg-white dark:bg-sky-900 px-2 py-1 rounded text-xs font-mono border border-sky-200 dark:border-sky-700">
+                    <span className="text-xs text-sky-600 dark:text-sky-500">
+                      Group Info → Administrators → Add Admin → search @CambodiaEMenuBot → Save.
+                    </span>
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-bold shrink-0 w-4">3.</span>
+                  <span>
+                    Type this command in the group — the bot will link automatically:
+                    <br />
+                    <code className="mt-1 inline-block bg-white dark:bg-sky-900 px-2 py-1 rounded text-xs font-mono border border-sky-200 dark:border-sky-700 select-all">
                       /link {reduxBusinessSettings?.businessId ?? "YOUR_BUSINESS_ID"}
                     </code>
                   </span>
                 </li>
               </ol>
-              <p className="text-xs text-sky-600 dark:text-sky-500">
-                The bot saves the group automatically — no copy-paste needed.
-              </p>
             </div>
 
             {/* Manual override */}
             <div className="space-y-2">
-              <Label htmlFor="telegramGroupChatId">Group Chat ID <span className="text-muted-foreground font-normal">(auto-filled by bot, or enter manually)</span></Label>
+              <Label htmlFor="telegramGroupChatId">
+                Group Chat ID{" "}
+                <span className="text-muted-foreground font-normal">
+                  (auto-filled by bot, or enter manually)
+                </span>
+              </Label>
               <Input
                 id="telegramGroupChatId"
                 placeholder="-1002784141362"
@@ -853,11 +872,21 @@ export default function BusinessSettingsPage() {
               />
             </div>
 
-            {form.watch("telegramGroupChatId") && (
+            {form.watch("telegramGroupChatId") ? (
               <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
                 <p className="text-xs text-emerald-700 dark:text-emerald-400">
-                  Monitoring group linked — chat <span className="font-mono font-medium">{form.watch("telegramGroupChatId")}</span>
+                  Monitoring group linked — chat ID{" "}
+                  <span className="font-mono font-medium">
+                    {form.watch("telegramGroupChatId")}
+                  </span>
+                </p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 p-3 bg-muted/40 rounded-lg border border-border">
+                <span className="w-2 h-2 rounded-full bg-muted-foreground/40 shrink-0" />
+                <p className="text-xs text-muted-foreground">
+                  No group linked yet. Follow the steps above to connect a Telegram group.
                 </p>
               </div>
             )}
