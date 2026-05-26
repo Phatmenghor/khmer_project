@@ -392,6 +392,50 @@ public class UserServiceImpl implements UserService {
         return userMapper.toCustomerResponse(securityUtils.getCurrentUser());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse getCustomerTypeProfile() {
+        User currentUserContext = securityUtils.getCurrentUser();
+        if (currentUserContext.getUserType() != UserType.CUSTOMER) {
+            throw new ValidationException("This endpoint is only accessible to CUSTOMER users.");
+        }
+        log.info("Customer-type profile retrieved: id={}", currentUserContext.getId());
+        return userMapper.toResponse(currentUserContext);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateCustomerTypeProfile(UserUpdateRequest profileUpdateRequest) {
+        User currentUserContext = securityUtils.getCurrentUser();
+        if (currentUserContext.getUserType() != UserType.CUSTOMER) {
+            throw new ValidationException("This endpoint is only accessible to CUSTOMER users.");
+        }
+        log.info("Customer-type profile update initiated: id={}", currentUserContext.getId());
+        return updateUser(currentUserContext.getId(), profileUpdateRequest);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse getPlatformUserProfile() {
+        User currentUserContext = securityUtils.getCurrentUser();
+        if (currentUserContext.getUserType() != UserType.PLATFORM_USER) {
+            throw new ValidationException("This endpoint is only accessible to PLATFORM_USER users.");
+        }
+        log.info("Platform user profile retrieved: id={}", currentUserContext.getId());
+        return userMapper.toResponse(currentUserContext);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updatePlatformUserProfile(UserUpdateRequest profileUpdateRequest) {
+        User currentUserContext = securityUtils.getCurrentUser();
+        if (currentUserContext.getUserType() != UserType.PLATFORM_USER) {
+            throw new ValidationException("This endpoint is only accessible to PLATFORM_USER users.");
+        }
+        log.info("Platform user profile update initiated: id={}", currentUserContext.getId());
+        return updateUser(currentUserContext.getId(), profileUpdateRequest);
+    }
+
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 

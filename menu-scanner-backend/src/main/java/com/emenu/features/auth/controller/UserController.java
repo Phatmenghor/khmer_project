@@ -49,6 +49,36 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("Profile updated", updatedUserResponse));
     }
 
+    @GetMapping("/customer-profile")
+    public ResponseEntity<ApiResponse<UserResponse>> getCustomerTypeProfile() {
+        log.info("Endpoint: customer-profile - customer profile retrieval request received");
+        UserResponse response = userService.getCustomerTypeProfile();
+        return ResponseEntity.ok(ApiResponse.success("Customer profile retrieved", response));
+    }
+
+    @PutMapping("/customer-profile")
+    public ResponseEntity<ApiResponse<UserResponse>> updateCustomerTypeProfile(
+            @Valid @RequestBody UserUpdateRequest updateRequestData) {
+        log.info("Endpoint: customer-profile - customer profile update request received");
+        UserResponse response = userService.updateCustomerTypeProfile(updateRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Customer profile updated", response));
+    }
+
+    @GetMapping("/platform-profile")
+    public ResponseEntity<ApiResponse<UserResponse>> getPlatformUserProfile() {
+        log.info("Endpoint: platform-profile - platform user profile retrieval request received");
+        UserResponse response = userService.getPlatformUserProfile();
+        return ResponseEntity.ok(ApiResponse.success("Platform user profile retrieved", response));
+    }
+
+    @PutMapping("/platform-profile")
+    public ResponseEntity<ApiResponse<UserResponse>> updatePlatformUserProfile(
+            @Valid @RequestBody UserUpdateRequest updateRequestData) {
+        log.info("Endpoint: platform-profile - platform user profile update request received");
+        UserResponse response = userService.updatePlatformUserProfile(updateRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Platform user profile updated", response));
+    }
+
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<UserResponse>>> getAllUsers(
             @Valid @RequestBody UserFilterRequest filterRequestData) {
