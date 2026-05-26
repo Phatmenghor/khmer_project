@@ -48,7 +48,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
+import { useDashboardWebSocket } from "@/hooks/use-dashboard-websocket";
 import { useDashboardState } from "@/features/dashboard/store/state/dashboard-state";
+import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useExchangeRateState } from "@/features/master-data/store/state/exchange-rate-state";
 import { fetchAllMyBusinessExchangeRateService } from "@/features/master-data/store/thunks/exchange-rate-thunks";
 import { setPeriod, resetState } from "@/features/dashboard/store/slice/dashboard-slice";
@@ -270,6 +272,7 @@ export default function AdminDashboardPage() {
     dispatch,
   } = useDashboardState();
 
+  const { user } = useAuthState();
   const { exchangeRateContent, dispatch: erDispatch } = useExchangeRateState();
   const activeRate = exchangeRateContent?.find((r) => r.status === "ACTIVE") ?? exchangeRateContent?.[0];
 
@@ -289,6 +292,30 @@ export default function AdminDashboardPage() {
     },
     [dispatch]
   );
+
+  const handleOrderEvent = useCallback(
+    (type: string) => {
+      dispatch(fetchDashboardSummaryService({ period }));
+      dispatch(fetchDashboardOrdersService({ period }));
+      dispatch(fetchDashboardPaymentsService({ period }));
+      dispatch(fetchDashboardHourlySalesService({ period: "TODAY" }));
+      showToast.info(type === "NEW_ORDER" ? "New order received" : "Order status updated");
+    },
+    [dispatch, period]
+  );
+
+  const handleStockEvent = useCallback(
+    (_type: string) => {
+      dispatch(fetchDashboardStockService());
+    },
+    [dispatch]
+  );
+
+  useDashboardWebSocket({
+    businessId: user?.businessId,
+    onOrderEvent: handleOrderEvent,
+    onStockEvent: handleStockEvent,
+  });
 
   useEffect(() => {
     fetchAll(period);

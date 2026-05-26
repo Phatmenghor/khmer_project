@@ -43,6 +43,7 @@ import com.emenu.features.order.repository.OrderDeliveryOptionRepository;
 import com.emenu.features.order.models.OrderStatusHistory;
 import com.emenu.features.location.repository.LocationRepository;
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.features.order.service.OrderService;
 import com.emenu.features.stock.service.impl.StockServiceImpl;
 import com.emenu.security.SecurityUtils;
@@ -91,6 +92,7 @@ public class OrderServiceImpl implements OrderService {
     private final ObjectMapper objectMapper;
     private final BusinessSettingRepository businessSettingRepository;
     private final TelegramNotificationService telegramNotificationService;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     public OrderResponse createOrderFromCart(OrderCreateRequest request) {
@@ -181,6 +183,7 @@ public class OrderServiceImpl implements OrderService {
             try {
                 Order orderForNotification = orderRepository.findByIdWithDetails(savedOrder.getId()).orElse(savedOrder);
                 telegramNotificationService.notifyNewCustomerOrder(orderForNotification);
+                webSocketNotificationService.notifyNewOrder(orderForNotification);
             } catch (Exception e) {
                 log.warn("[TELEGRAM] Failed to send new order notification: {}", e.getMessage());
             }
@@ -479,6 +482,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (request.getOrderStatus() != null && updatedOrder.getOrderStatus() != previousStatus) {
             telegramNotificationService.notifyOrderStatusChanged(updatedOrder);
+            webSocketNotificationService.notifyOrderStatusChanged(updatedOrder);
         }
 
         return orderMapper.toResponse(updatedOrder);
@@ -994,6 +998,7 @@ public class OrderServiceImpl implements OrderService {
             OrderResponse response = getOrderById(savedOrder.getId());
 
             telegramNotificationService.notifyNewPOSOrder(orderWithItems);
+            webSocketNotificationService.notifyNewOrder(orderWithItems);
 
             return POSCheckoutResponse.builder()
                     .id(response.getId())

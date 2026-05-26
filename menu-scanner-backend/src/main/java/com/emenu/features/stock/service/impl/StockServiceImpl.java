@@ -1,5 +1,6 @@
 package com.emenu.features.stock.service.impl;
 
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.features.stock.dto.request.StockMovementFilterRequest;
 import com.emenu.features.stock.dto.response.StockMovementDto;
 import com.emenu.features.stock.models.*;
@@ -32,6 +33,7 @@ public class StockServiceImpl implements StockService {
     private final ProductStockRepository productStockRepository;
     private final StockMovementRepository stockMovementRepository;
     private final PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     // ========== Stock Operations ==========
 
@@ -119,6 +121,8 @@ public class StockServiceImpl implements StockService {
             log.info("[FIFO SUCCESS] Product ID: {}, All {} units deducted successfully for order {}",
                 productId, quantity, orderId);
         }
+
+        webSocketNotificationService.notifyStockUpdated(businessId, productId);
     }
 
     @Override

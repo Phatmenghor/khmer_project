@@ -56,6 +56,9 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-resources/**", "/webjars/**").permitAll()
                         .requestMatchers("/swagger-config", "/api-docs/**").permitAll()
 
+                        // ===== WEBSOCKET ENDPOINT =====
+                        .requestMatchers("/ws/**").permitAll()
+
                         // ===== ACTUATOR ENDPOINTS =====
                         .requestMatchers("/actuator/health/**").permitAll()
 
