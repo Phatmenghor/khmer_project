@@ -369,6 +369,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public UserDetailResponse updateCurrentUserDetail(UserUpdateRequest profileUpdateRequest) {
+        User currentUserContext = securityUtils.getCurrentUser();
+        log.info("Current user full profile update initiated: id={}", currentUserContext.getId());
+        updateUser(currentUserContext.getId(), profileUpdateRequest);
+        return userMapper.toDetailResponse(securityUtils.getCurrentUser());
+    }
+
+    @Override
     public CustomerUserResponse getCustomerProfile() {
         User currentUserContext = securityUtils.getCurrentUser();
         log.info("Customer profile retrieved: id={}", currentUserContext.getId());

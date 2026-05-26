@@ -26,6 +26,8 @@ public interface UserService {
     
     UserDetailResponse getCurrentUser();
 
+    UserDetailResponse updateCurrentUserDetail(UserUpdateRequest request);
+
     CustomerUserResponse getCustomerProfile();
 
     UserResponse updateCurrentUser(UserUpdateRequest request);
