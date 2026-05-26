@@ -1,12 +1,521 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap");
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* ========== LOADING ANIMATIONS ========== */
+
+  /* Shimmer animation for loading skeletons */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2.5s infinite;
+  }
+
+  /* Pulse animation for loading states */
+  @keyframes pulse-soft {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* ========== ENTRANCE ANIMATIONS ========== */
+
+  /* Fade In animation */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+
+  /* Fade In with delay for staggered lists */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out;
+  }
+
+  /* Slide in from left */
+  @keyframes slide-in-from-left {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-from-left {
+    animation: slide-in-from-left 0.4s ease-out;
+  }
+
+  /* Slide in from right */
+  @keyframes slide-in-from-right {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-from-right {
+    animation: slide-in-from-right 0.4s ease-out;
+  }
+
+  /* Scale in (grow) */
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out;
+  }
+
+  /* Spring bounce effect */
+  @keyframes spring-bounce {
+    0% {
+      transform: scale(0.8) translateY(20px);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-spring-bounce {
+    animation: spring-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* ========== HOVER & INTERACTION ANIMATIONS ========== */
+
+  /* Scale hover effect (used on cards) */
+  @keyframes hover-scale {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.02);
+    }
+  }
+
+  .hover-scale-102 {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hover-scale-102:hover {
+    transform: scale(1.02);
+  }
+
+  /* Lift effect on hover */
+  .hover-lift {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  /* ========== STAGGER ANIMATION FOR LISTS ========== */
+
+  /* Stagger delay for list items (use nth-child selectors in components) */
+  .animate-fade-in-up-stagger > :nth-child(1) {
+    animation: fade-in-up 0.5s ease-out;
+    animation-delay: 50ms;
+    animation-fill-mode: both;
+  }
+
+  .animate-fade-in-up-stagger > :nth-child(2) {
+    animation: fade-in-up 0.5s ease-out;
+    animation-delay: 100ms;
+    animation-fill-mode: both;
+  }
+
+  .animate-fade-in-up-stagger > :nth-child(3) {
+    animation: fade-in-up 0.5s ease-out;
+    animation-delay: 150ms;
+    animation-fill-mode: both;
+  }
+
+  .animate-fade-in-up-stagger > :nth-child(n + 4) {
+    animation: fade-in-up 0.5s ease-out;
+    animation-delay: 200ms;
+    animation-fill-mode: both;
+  }
+
+  /* ========== SCROLL BEHAVIOR ========== */
+
+  /* Smooth scroll disabled - causes performance issues */
+  /* Use instant scroll instead for better responsiveness */
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* Smooth scroll on list containers - optional only */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  /* ========== TRANSITION UTILITIES ========== */
+
+  /* Smooth color transition */
+  .transition-colors-smooth {
+    transition: background-color 0.3s ease-out, color 0.3s ease-out,
+                border-color 0.3s ease-out;
+  }
+
+  /* Smooth transform transition */
+  .transition-transform-smooth {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Smooth all transition */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* ========== BUTTON & INTERACTION ANIMATIONS ========== */
+
+  /* Button press/click effect */
+  @keyframes button-press {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.98);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .active\:animate-button-press:active {
+    animation: button-press 0.2s ease-out;
+  }
+
+  /* Ripple effect for buttons (create with ::after) */
+  @keyframes ripple {
+    0% {
+      transform: scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  .btn-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: ripple 0.6s ease-out;
+  }
+
+  /* ========== INPUT & FORM ANIMATIONS ========== */
+
+  /* Input focus ring pulse */
+  @keyframes ring-pulse {
+    0% {
+      box-shadow: 0 0 0 0 hsl(var(--ring) / 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 8px hsl(var(--ring) / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 hsl(var(--ring) / 0);
+    }
+  }
+
+  .focus\:ring-pulse:focus {
+    animation: ring-pulse 1.5s ease-out;
+  }
+
+  /* Form field shake animation (for errors) */
+  @keyframes shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+      transform: translateX(-4px);
+    }
+    20%, 40%, 60%, 80% {
+      transform: translateX(4px);
+    }
+  }
+
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
+
+  /* Error field border animation */
+  @keyframes border-pulse-error {
+    0%, 100% {
+      border-color: hsl(var(--error));
+      box-shadow: 0 0 0 0 hsl(var(--error) / 0.4);
+    }
+    50% {
+      border-color: hsl(var(--error) / 0.8);
+      box-shadow: 0 0 0 4px hsl(var(--error) / 0.1);
+    }
+  }
+
+  .border-error-pulse {
+    animation: border-pulse-error 1s ease-out;
+  }
+
+  /* ========== BADGE & NOTIFICATION ANIMATIONS ========== */
+
+  /* Badge pulse/bounce effect */
+  @keyframes badge-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.15);
+    }
+  }
+
+  .animate-badge-pulse {
+    animation: badge-pulse 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Badge bounce (continuous pulse) */
+  @keyframes badge-bounce {
+    0%, 80%, 100% {
+      transform: scale(1) translateY(0);
+    }
+    40% {
+      transform: scale(1.2) translateY(-4px);
+    }
+  }
+
+  .animate-badge-bounce {
+    animation: badge-bounce 1s ease-in-out infinite;
+  }
+
+  /* Number increment animation for badges */
+  @keyframes number-pop {
+    0% {
+      transform: scale(0.8) translateY(8px);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-number-pop {
+    animation: number-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* ========== CHECKBOX & FORM CONTROL ANIMATIONS ========== */
+
+  /* Checkbox checkmark animation */
+  @keyframes checkbox-check {
+    0% {
+      transform: scale(0) rotate(-45deg);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1) rotate(0deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  .animate-checkbox-check {
+    animation: checkbox-check 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Radio button fill animation */
+  @keyframes radio-fill {
+    0% {
+      transform: scale(0);
+    }
+    60% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .animate-radio-fill {
+    animation: radio-fill 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* ========== ICON ANIMATIONS ========== */
+
+  /* Icon rotation (for chevrons, arrows, toggles) */
+  @keyframes icon-rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(180deg);
+    }
+  }
+
+  .group-open\:animate-icon-rotate {
+    transition: transform 0.3s ease-out;
+  }
+
+  .group-open\:animate-icon-rotate.rotate {
+    animation: icon-rotate 0.3s ease-out forwards;
+  }
+
+  /* Icon flip (horizontal) */
+  @keyframes icon-flip {
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(-1);
+    }
+  }
+
+  .animate-icon-flip {
+    animation: icon-flip 0.3s ease-out;
+  }
+
+  /* Icon bounce (small bounce effect) */
+  @keyframes icon-bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  .animate-icon-bounce {
+    animation: icon-bounce 0.4s ease-in-out infinite;
+  }
+
+  /* ========== DROPDOWN & MENU ANIMATIONS ========== */
+
+  /* Dropdown menu item stagger */
+  .dropdown-item-stagger > button:nth-child(1),
+  .dropdown-item-stagger > a:nth-child(1) {
+    animation: fade-in-up 0.3s ease-out;
+    animation-delay: 0ms;
+  }
+
+  .dropdown-item-stagger > button:nth-child(2),
+  .dropdown-item-stagger > a:nth-child(2) {
+    animation: fade-in-up 0.3s ease-out;
+    animation-delay: 30ms;
+  }
+
+  .dropdown-item-stagger > button:nth-child(3),
+  .dropdown-item-stagger > a:nth-child(3) {
+    animation: fade-in-up 0.3s ease-out;
+    animation-delay: 60ms;
+  }
+
+  .dropdown-item-stagger > button:nth-child(n + 4),
+  .dropdown-item-stagger > a:nth-child(n + 4) {
+    animation: fade-in-up 0.3s ease-out;
+    animation-delay: 90ms;
+  }
+
+  /* ========== SCROLL & PAGE ANIMATIONS ========== */
+
+  /* Scroll reveal - fade in when element comes into view */
+  @keyframes scroll-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-scroll-reveal {
+    animation: scroll-reveal 0.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* Page fade transition */
+  @keyframes page-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-page-fade-in {
+    animation: page-fade-in 0.4s ease-out;
   }
 }
 
@@ -26,9 +535,9 @@
 }
 
 @layer base {
-  /* 25% smaller = 75% of original size */
+  /* 35% smaller = 65% of original size (more compact display) */
   html {
-    font-size: 75%;
+    font-size: 65%;
   }
 
   :root {
@@ -48,6 +557,7 @@
     --secondary-foreground: 240 5.9% 10%;
     --secondary-hover: 220 13% 91%;
 
+    /* MUTED - Light grey */
     --muted: 220 13% 95%;
     --muted-foreground: 220 8.5% 46%;
     --muted-hover: 220 13% 91%;
@@ -66,6 +576,13 @@
     --input: 220 13% 91%;
     --input-focus: 334 51% 39%;
     --ring: 334 51% 39%;
+
+    /* COMBOBOX CUSTOM COLORS */
+    --combobox-bg: 0 0% 100%;
+    --combobox-fg: 222 47% 11%;
+    --combobox-hover: 220 8% 95%;
+    --combobox-selected: 334 51% 95%;
+    --combobox-selected-fg: 334 51% 29%;
 
     --success: 146 79% 41%;
     --success-foreground: 0 0% 98%;
@@ -91,6 +608,7 @@
     --info-100: 215 79% 91%;
     --info-hover: 215 79% 50%;
 
+    /* Chart colors - chart-1 matches primary */
     --chart-1: 334 51% 39%;
     --chart-2: 39 85% 55%;
     --chart-3: 215 79% 55%;
@@ -121,19 +639,19 @@
     --nprogress-color: var(--primary);
     --nprogress-height: 2px;
     --nprogress-active-height: 2px;
-    --nprogress-shadow: 0 0 5px hsl(var(--primary) / 0.3),
-      0 0 8px hsl(var(--primary) / 0.15);
-    --nprogress-active-shadow: 0 0 8px hsl(var(--primary) / 0.4),
-      0 0 12px hsl(var(--primary) / 0.2);
+    --nprogress-shadow:
+      0 0 5px hsl(var(--primary) / 0.3), 0 0 8px hsl(var(--primary) / 0.15);
+    --nprogress-active-shadow:
+      0 0 8px hsl(var(--primary) / 0.4), 0 0 12px hsl(var(--primary) / 0.2);
 
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-      0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1),
-      0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-md:
+      0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg:
+      0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl:
+      0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   }
 }
 
@@ -144,9 +662,12 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-geist-sans), "Noto Sans Khmer", ui-sans-serif,
-      system-ui, sans-serif;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family:
+      var(--font-geist-sans), "Noto Sans Khmer", ui-sans-serif, system-ui,
+      sans-serif;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
     line-height: 1.5;
   }
 
@@ -186,7 +707,7 @@
 }
 
 #nprogress .bar {
-  background: #a23469 !important;
+  background: hsl(var(--nprogress-color)) !important;
   position: fixed;
   z-index: 1031;
   top: 0;
@@ -194,7 +715,8 @@
   width: 100%;
   height: 2px;
   border-radius: 0;
-  box-shadow: 0 0 5px rgba(162, 52, 105, 0.3), 0 0 8px rgba(162, 52, 105, 0.15);
+  box-shadow: 0 0 5px hsl(var(--nprogress-color) / 0.3),
+              0 0 8px hsl(var(--nprogress-color) / 0.15);
   transition: all 0.2s ease-in-out;
 }
 
@@ -207,28 +729,31 @@
   background: linear-gradient(
     to right,
     transparent,
-    rgba(162, 52, 105, 0.6),
-    #a23469
+    hsl(var(--nprogress-color) / 0.6),
+    hsl(var(--nprogress-color))
   ) !important;
-  box-shadow: 0 0 8px rgba(162, 52, 105, 0.8), 0 0 4px #a23469;
+  box-shadow: 0 0 8px hsl(var(--nprogress-color) / 0.8),
+              0 0 4px hsl(var(--nprogress-color));
   transform: rotate(2deg) translate(0px, -2px);
   border-radius: 0;
 }
 
 body.route-changing #nprogress .bar {
-  background: #a23469 !important;
+  background: hsl(var(--nprogress-color)) !important;
   height: 2px;
-  box-shadow: 0 0 8px rgba(162, 52, 105, 0.4), 0 0 12px rgba(162, 52, 105, 0.2);
+  box-shadow: 0 0 8px hsl(var(--nprogress-color) / 0.4),
+              0 0 12px hsl(var(--nprogress-color) / 0.2);
 }
 
 body.route-changing #nprogress .peg {
   background: linear-gradient(
     to right,
     transparent,
-    rgba(162, 52, 105, 0.8),
-    #a23469
+    hsl(var(--nprogress-color) / 0.8),
+    hsl(var(--nprogress-color))
   ) !important;
-  box-shadow: 0 0 10px rgba(162, 52, 105, 0.9), 0 0 5px #a23469;
+  box-shadow: 0 0 10px hsl(var(--nprogress-color) / 0.9),
+              0 0 5px hsl(var(--nprogress-color));
 }
 
 #nprogress .peg {
@@ -414,4 +939,42 @@ body.route-changing #nprogress .peg {
   .cell-truncate {
     max-width: 300px;
   }
+}
+
+/* React-Toastify: White background with primary color progress bar only */
+.Toastify__toast {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border-radius: var(--radius) !important;
+}
+
+.Toastify__toast--success .Toastify__progress-bar {
+  background: hsl(var(--primary)) !important;
+}
+
+.Toastify__toast--error .Toastify__progress-bar {
+  background: hsl(var(--error)) !important;
+}
+
+.Toastify__toast--warning .Toastify__progress-bar {
+  background: hsl(var(--warning)) !important;
+}
+
+.Toastify__toast--info .Toastify__progress-bar {
+  background: hsl(var(--info)) !important;
+}
+
+.Toastify__close-button {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.6 !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}
+
+.Toastify__toast-icon {
+  color: hsl(var(--foreground)) !important;
 }
