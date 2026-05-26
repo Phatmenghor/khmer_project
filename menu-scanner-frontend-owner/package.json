@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "rimraf .next",
+    "dev:clean": "rimraf .next && next dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -67,6 +69,7 @@
   },
   "devDependencies": {
     "@types/file-saver": "^2.0.7",
+    "rimraf": "^6.0.1",
     "@types/node": "^22.10.7",
     "@types/nprogress": "^0.2.3",
     "caniuse-lite": "^1.0.30001793",
