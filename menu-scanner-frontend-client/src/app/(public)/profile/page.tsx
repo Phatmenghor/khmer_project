@@ -515,7 +515,7 @@ export default function PublicProfilePage() {
                 <h3 className="text-sm font-medium text-muted-foreground mb-3">
                   Connected Accounts
                 </h3>
-                <TelegramSyncCard socialSync={socialSync} />
+                <TelegramSyncCard />
               </div>
 
               {}

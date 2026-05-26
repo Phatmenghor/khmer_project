@@ -39,16 +39,16 @@ export function InventoryStatusCard({ stock, loading }: InventoryStatusCardProps
             <CardDescription>Items requiring attention</CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            {stock?.outOfStockCount > 0 && (
+            {(stock?.outOfStockCount ?? 0) > 0 && (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block" />
-                {stock.outOfStockCount} out of stock
+                {stock!.outOfStockCount} out of stock
               </span>
             )}
-            {stock?.lowStockCount > 0 && (
+            {(stock?.lowStockCount ?? 0) > 0 && (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
-                {stock.lowStockCount} low stock
+                {stock!.lowStockCount} low stock
               </span>
             )}
             <Link href={ROUTES.MANAGE_STOCK.STOCK_ITEMS}>

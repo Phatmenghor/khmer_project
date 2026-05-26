@@ -48,6 +48,8 @@ export interface CustomerUserResponseModel {
   accountStatus: string;
   status: string;
   roles: string[];
+  businessId?: string;
+  businessName?: string;
   remark?: string;
   email: string;
   firstName: string;
@@ -58,6 +60,13 @@ export interface CustomerUserResponseModel {
   dateOfBirth?: string;
   phoneNumber: string;
   profileImageUrl?: string;
+  employeeId?: string;
+  position?: string;
+  department?: string;
+  employmentType?: string;
+  joinDate?: string;
+  leaveDate?: string;
+  shift?: string;
   telegramId?: number;
   telegramUsername?: string;
   telegramFirstName?: string;
@@ -66,6 +75,10 @@ export interface CustomerUserResponseModel {
   telegramSyncedAt?: string;
   telegramSynced?: boolean;
   lastLoginAt?: string;
+  addresses?: Address[];
+  emergencyContacts?: EmergencyContact[];
+  documents?: Document[];
+  educations?: Education[];
 }
 
 export interface AllUserResponseModel extends BasePagination {

@@ -68,6 +68,7 @@ export interface PortfolioPublicProfile {
   id: string;
   businessName: string;
   description: string;
+  tagline?: string;
   logoUrl?: string;
   coverImageUrl?: string;
   contact: PortfolioContactDto;

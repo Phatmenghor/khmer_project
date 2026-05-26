@@ -7,7 +7,7 @@ import { Upload, X, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FieldError } from "react-hook-form";
 
-type AspectRatio = "square" | "banner" | "portrait" | "landscape" | "auto";
+type AspectRatio = "square" | "banner" | "portrait" | "landscape" | "auto" | "video";
 
 interface ClickableImageUploadProps {
   label: string;
@@ -52,6 +52,8 @@ export function ClickableImageUpload({
         return "aspect-[4/3]";
       case "auto":
         return "";
+      case "video":
+        return "aspect-video";
       default:
         return "aspect-square";
     }
