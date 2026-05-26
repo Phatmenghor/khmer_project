@@ -2,7 +2,7 @@
 import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Eye, Trash, RefreshCw, XCircle, ArrowRightLeft } from "lucide-react";
+import { Eye, Trash, ArrowRightLeft } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { TableColumn } from "@/components/shared/common/data-table";
 import {
@@ -13,8 +13,6 @@ import {
 interface BusinessOwnerTableHandlers {
   handleViewUserDetail: (user: BusinessOwnerResponseModel) => void;
   handleDeleteUser: (user: BusinessOwnerResponseModel) => void;
-  handleRenewSubscription: (user: BusinessOwnerResponseModel) => void;
-  handleCancelSubscription: (user: BusinessOwnerResponseModel) => void;
   handleChangePlan: (user: BusinessOwnerResponseModel) => void;
 }
 
@@ -27,13 +25,7 @@ export const userBusinessOwnerTableColumns = ({
   data,
   handlers,
 }: BusinessOwnerTableOptions): TableColumn<BusinessOwnerResponseModel>[] => {
-  const {
-    handleViewUserDetail,
-    handleDeleteUser,
-    handleRenewSubscription,
-    handleCancelSubscription,
-    handleChangePlan,
-  } = handlers;
+  const { handleViewUserDetail, handleDeleteUser, handleChangePlan } = handlers;
 
   return [
     {
@@ -221,28 +213,14 @@ export const userBusinessOwnerTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (user) => {
-        const isActive = user?.subscriptionStatus === "ACTIVE";
-
         return (
           <div className="flex items-center gap-1">
-            {/* View Details */}
             <ActionButton
               icon={<Eye className="w-4 h-4" />}
               tooltip="View Details"
               onClick={() => handleViewUserDetail(user)}
               size="sm"
             />
-
-            <ActionButton
-              icon={<RefreshCw className="w-4 h-4" />}
-              tooltip="Renew Subscription"
-              onClick={() => handleRenewSubscription(user)}
-              size="sm"
-              variant="outline"
-              className="text-blue-600 hover:text-blue-700"
-            />
-
-            {/* Change Plan */}
             <ActionButton
               icon={<ArrowRightLeft className="w-4 h-4" />}
               tooltip="Change Plan"
@@ -251,23 +229,9 @@ export const userBusinessOwnerTableColumns = ({
               variant="outline"
               className="text-purple-600 hover:text-purple-700"
             />
-
-            {/* Cancel Subscription - Only show if active */}
-            {isActive && (
-              <ActionButton
-                icon={<XCircle className="w-4 h-4" />}
-                tooltip="Cancel Subscription"
-                onClick={() => handleCancelSubscription(user)}
-                size="sm"
-                variant="outline"
-                className="text-orange-600 hover:text-orange-700"
-              />
-            )}
-
-            {/* Delete User */}
             <ActionButton
               icon={<Trash className="w-4 h-4" />}
-              tooltip="Delete User"
+              tooltip="Delete"
               onClick={() => handleDeleteUser(user)}
               size="sm"
               variant="destructive"
