@@ -38,9 +38,12 @@ export function useDashboardWebSocket({
       reconnectDelay: 5000,
       onConnect: () => {
         setIsConnected(true);
+        console.log("[WS] Connected to /ws — subscribing to business topics:", businessId);
+
         client.subscribe(`/topic/${businessId}/orders`, (message) => {
           try {
             const event = JSON.parse(message.body);
+            console.log("[WS] Order event received:", event);
             onOrderEventRef.current(event.type);
           } catch {
             // ignore malformed messages
@@ -50,14 +53,21 @@ export function useDashboardWebSocket({
         client.subscribe(`/topic/${businessId}/stock`, (message) => {
           try {
             const event = JSON.parse(message.body);
+            console.log("[WS] Stock event received:", event);
             onStockEventRef.current(event.type);
           } catch {
             // ignore malformed messages
           }
         });
       },
-      onDisconnect: () => setIsConnected(false),
-      onStompError: () => setIsConnected(false),
+      onDisconnect: () => {
+        setIsConnected(false);
+        console.log("[WS] Disconnected");
+      },
+      onStompError: (frame) => {
+        setIsConnected(false);
+        console.error("[WS] STOMP error:", frame);
+      },
     });
 
     client.activate();
