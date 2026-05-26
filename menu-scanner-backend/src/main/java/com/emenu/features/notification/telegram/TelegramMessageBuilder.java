@@ -2,7 +2,6 @@ package com.emenu.features.notification.telegram;
 
 import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentMethod;
-import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderItem;
 
@@ -19,6 +18,7 @@ public final class TelegramMessageBuilder {
         StringBuilder sb = new StringBuilder();
         sb.append("<b>NEW ORDER</b>\n\n");
         sb.append("Order:    <b>").append(esc(order.getOrderNumber())).append("</b>\n");
+        sb.append("Status:   ").append(statusLabel(order.getOrderStatus())).append("\n");
 
         if (hasText(order.getCustomerName())) {
             sb.append("Customer: ").append(esc(order.getCustomerName())).append("\n");
@@ -27,31 +27,8 @@ public final class TelegramMessageBuilder {
             sb.append("Phone:    ").append(esc(order.getCustomerPhone())).append("\n");
         }
 
-        List<OrderItem> items = order.getItems();
-        if (items != null && !items.isEmpty()) {
-            sb.append("\n<b>Items</b>\n");
-            for (OrderItem item : items) {
-                sb.append("  ").append(esc(item.getProductName()));
-                if (hasText(item.getSizeName()) && !"Standard".equalsIgnoreCase(item.getSizeName())) {
-                    sb.append(" (").append(esc(item.getSizeName())).append(")");
-                }
-                sb.append("  x").append(item.getQuantity());
-                if (item.getTotalPrice() != null) {
-                    sb.append("  <code>$").append(fmt(item.getTotalPrice())).append("</code>");
-                }
-                sb.append("\n");
-            }
-        }
-
-        sb.append("\n");
-        appendPricingLines(sb, order);
-
-        sb.append("Payment:  ").append(paymentMethodLabel(order.getPaymentMethod()))
-          .append("  ").append(paymentStatusLabel(order.getPaymentStatus())).append("\n");
-
-        if (hasText(order.getCustomerNote())) {
-            sb.append("\nNote: <i>").append(esc(order.getCustomerNote())).append("</i>");
-        }
+        appendItems(sb, order.getItems());
+        appendTotal(sb, order.getTotalAmount());
 
         return sb.toString().trim();
     }
@@ -62,6 +39,7 @@ public final class TelegramMessageBuilder {
         StringBuilder sb = new StringBuilder();
         sb.append("<b>POS SALE</b>\n\n");
         sb.append("Order:    <b>").append(esc(order.getOrderNumber())).append("</b>\n");
+        sb.append("Status:   ").append(statusLabel(order.getOrderStatus())).append("\n");
 
         if (hasText(order.getCustomerName())) {
             sb.append("Customer: ").append(esc(order.getCustomerName())).append("\n");
@@ -70,13 +48,9 @@ public final class TelegramMessageBuilder {
             sb.append("Phone:    ").append(esc(order.getCustomerPhone())).append("\n");
         }
 
-        int itemCount = order.getItems() != null ? order.getItems().size() : 0;
-        sb.append("Items:    ").append(itemCount).append("\n");
+        appendItems(sb, order.getItems());
+        appendTotal(sb, order.getTotalAmount());
 
-        if (order.getTotalAmount() != null) {
-            sb.append("Total:    <b>$").append(fmt(order.getTotalAmount())).append("</b>\n");
-        }
-        sb.append("Payment:  Cash  Paid");
         return sb.toString().trim();
     }
 
@@ -97,10 +71,7 @@ public final class TelegramMessageBuilder {
         if (hasText(order.getCustomerName())) {
             sb.append("Customer: ").append(esc(order.getCustomerName())).append("\n");
         }
-        if (order.getTotalAmount() != null) {
-            sb.append("Total:    <b>$").append(fmt(order.getTotalAmount())).append("</b>")
-              .append("  ").append(paymentMethodLabel(order.getPaymentMethod())).append("\n");
-        }
+        appendTotal(sb, order.getTotalAmount());
 
         if (order.getOrderStatus() == OrderStatus.CONFIRMED) {
             sb.append("\nItems are being prepared.");
@@ -109,20 +80,29 @@ public final class TelegramMessageBuilder {
         return sb.toString().trim();
     }
 
-    // ── Payment received ─────────────────────────────────────────────────────
+    // ── New staff added ───────────────────────────────────────────────────────
 
-    public static String paymentReceived(Order order) {
+    public static String newStaff(String name, String position, String phone,
+                                   String email, List<String> roles) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<b>PAYMENT RECEIVED</b>\n\n");
-        sb.append("Order:    <b>").append(esc(order.getOrderNumber())).append("</b>\n");
+        sb.append("<b>NEW STAFF ADDED</b>\n\n");
 
-        if (hasText(order.getCustomerName())) {
-            sb.append("Customer: ").append(esc(order.getCustomerName())).append("\n");
+        if (hasText(name)) {
+            sb.append("Name:     ").append(esc(name)).append("\n");
         }
-        if (order.getTotalAmount() != null) {
-            sb.append("Amount:   <b>$").append(fmt(order.getTotalAmount())).append("</b>\n");
+        if (hasText(position)) {
+            sb.append("Position: ").append(esc(position)).append("\n");
         }
-        sb.append("Method:   ").append(paymentMethodLabel(order.getPaymentMethod()));
+        if (hasText(phone)) {
+            sb.append("Phone:    ").append(esc(phone)).append("\n");
+        }
+        if (hasText(email)) {
+            sb.append("Email:    ").append(esc(email)).append("\n");
+        }
+        if (roles != null && !roles.isEmpty()) {
+            sb.append("Role:     ").append(esc(String.join(", ", roles))).append("\n");
+        }
+
         return sb.toString().trim();
     }
 
@@ -135,51 +115,47 @@ public final class TelegramMessageBuilder {
             "  - New customer orders\n" +
             "  - POS sales\n" +
             "  - Order status updates (confirmed, completed, cancelled)\n" +
-            "  - Payment confirmations";
+            "  - New staff added";
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ── Shared helpers ────────────────────────────────────────────────────────
 
-    private static void appendPricingLines(StringBuilder sb, Order order) {
-        if (order.getSubtotal() != null && order.getSubtotal().compareTo(BigDecimal.ZERO) > 0) {
-            sb.append("Subtotal: <code>$").append(fmt(order.getSubtotal())).append("</code>\n");
+    private static void appendItems(StringBuilder sb, List<OrderItem> items) {
+        if (items == null || items.isEmpty()) return;
+
+        sb.append("\n<b>Items</b>\n");
+        for (OrderItem item : items) {
+            sb.append("  ").append(esc(item.getProductName()));
+            if (hasText(item.getSizeName()) && !"Standard".equalsIgnoreCase(item.getSizeName())) {
+                sb.append(" (").append(esc(item.getSizeName())).append(")");
+            }
+            sb.append("  x").append(item.getQuantity());
+            if (item.getTotalPrice() != null) {
+                sb.append("  <code>$").append(fmt(item.getTotalPrice())).append("</code>");
+            }
+            sb.append("\n");
         }
-        if (order.getDiscountAmount() != null && order.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
-            sb.append("Discount: <code>-$").append(fmt(order.getDiscountAmount())).append("</code>\n");
+    }
+
+    private static void appendTotal(StringBuilder sb, BigDecimal total) {
+        sb.append("\n");
+        if (total != null) {
+            sb.append("Total:    <b>$").append(fmt(total)).append("</b>\n");
         }
-        if (order.getDeliveryFee() != null && order.getDeliveryFee().compareTo(BigDecimal.ZERO) > 0) {
-            sb.append("Delivery: <code>$").append(fmt(order.getDeliveryFee())).append("</code>\n");
-        }
-        if (order.getTaxAmount() != null && order.getTaxAmount().compareTo(BigDecimal.ZERO) > 0) {
-            sb.append("Tax:      <code>$").append(fmt(order.getTaxAmount())).append("</code>\n");
-        }
-        if (order.getTotalAmount() != null) {
-            sb.append("Total:    <b>$").append(fmt(order.getTotalAmount())).append("</b>\n");
-        }
+    }
+
+    private static String statusLabel(OrderStatus status) {
+        if (status == null) return "-";
+        return switch (status) {
+            case PENDING   -> "Pending";
+            case CONFIRMED -> "Confirmed";
+            case COMPLETED -> "Completed";
+            case CANCELLED -> "Cancelled";
+        };
     }
 
     private static String fmt(BigDecimal amount) {
         return String.format("%.2f", amount);
-    }
-
-    private static String paymentMethodLabel(PaymentMethod method) {
-        if (method == null) return "-";
-        return switch (method) {
-            case CASH -> "Cash";
-            case BANK -> "Bank Transfer";
-        };
-    }
-
-    private static String paymentStatusLabel(PaymentStatus status) {
-        if (status == null) return "-";
-        return switch (status) {
-            case PAID, COMPLETED -> "Paid";
-            case UNPAID          -> "Unpaid";
-            case PENDING         -> "Pending";
-            case FAILED          -> "Failed";
-            case REFUNDED        -> "Refunded";
-            case CANCELLED       -> "Cancelled";
-        };
     }
 
     private static boolean hasText(String s) {

@@ -185,8 +185,7 @@ public class OrderServiceImpl implements OrderService {
                 log.warn("[TELEGRAM] Failed to send new order notification: {}", e.getMessage());
             }
 
-            return response;
-        } catch (Exception e) {
+            return response;        } catch (Exception e) {
             log.error("[CHECKOUT ERROR] Failed to create order: {}", e.getMessage(), e);
             throw e;
         }
@@ -341,7 +340,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         OrderStatus previousStatus = order.getOrderStatus();
-        PaymentStatus previousPaymentStatus = order.getPaymentStatus();
 
         if (request.getOrderStatus() != null) {
             order.updateStatus(request.getOrderStatus());
@@ -479,17 +477,8 @@ public class OrderServiceImpl implements OrderService {
 
         log.info("Order updated: {}", orderId);
 
-        try {
-            if (request.getOrderStatus() != null && updatedOrder.getOrderStatus() != previousStatus) {
-                telegramNotificationService.notifyOrderStatusChanged(updatedOrder);
-            }
-            if (request.getPayment() != null
-                    && updatedOrder.getPaymentStatus() == PaymentStatus.PAID
-                    && previousPaymentStatus != PaymentStatus.PAID) {
-                telegramNotificationService.notifyPaymentReceived(updatedOrder);
-            }
-        } catch (Exception e) {
-            log.warn("[TELEGRAM] Failed to send order update notification: {}", e.getMessage());
+        if (request.getOrderStatus() != null && updatedOrder.getOrderStatus() != previousStatus) {
+            telegramNotificationService.notifyOrderStatusChanged(updatedOrder);
         }
 
         return orderMapper.toResponse(updatedOrder);
@@ -1004,11 +993,7 @@ public class OrderServiceImpl implements OrderService {
             log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
 
-            try {
-                telegramNotificationService.notifyNewPOSOrder(orderWithItems);
-            } catch (Exception e) {
-                log.warn("[TELEGRAM] Failed to send POS order notification: {}", e.getMessage());
-            }
+            telegramNotificationService.notifyNewPOSOrder(orderWithItems);
 
             return POSCheckoutResponse.builder()
                     .id(response.getId())

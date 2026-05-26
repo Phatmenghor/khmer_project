@@ -9,11 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,7 +36,7 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     private final BusinessSettingRepository businessSettingRepository;
     private final RestTemplate restTemplate;
 
-    // ── Low-level ─────────────────────────────────────────────────────────────
+    // ── Low-level send ────────────────────────────────────────────────────────
 
     @Override
     public void sendToGroup(UUID businessId, String message) {
@@ -63,23 +65,30 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     // ── Order notifications ───────────────────────────────────────────────────
 
     @Override
+    @Async("taskExecutor")
     public void notifyNewCustomerOrder(Order order) {
         sendByBusinessId(order.getBusinessId(), TelegramMessageBuilder.newCustomerOrder(order), "HTML");
     }
 
     @Override
+    @Async("taskExecutor")
     public void notifyNewPOSOrder(Order order) {
         sendByBusinessId(order.getBusinessId(), TelegramMessageBuilder.newPOSOrder(order), "HTML");
     }
 
     @Override
+    @Async("taskExecutor")
     public void notifyOrderStatusChanged(Order order) {
         sendByBusinessId(order.getBusinessId(), TelegramMessageBuilder.orderStatusChanged(order), "HTML");
     }
 
+    // ── Staff notifications ───────────────────────────────────────────────────
+
     @Override
-    public void notifyPaymentReceived(Order order) {
-        sendByBusinessId(order.getBusinessId(), TelegramMessageBuilder.paymentReceived(order), "HTML");
+    @Async("taskExecutor")
+    public void notifyNewStaff(UUID businessId, String name, String position,
+                               String phone, String email, List<String> roles) {
+        sendByBusinessId(businessId, TelegramMessageBuilder.newStaff(name, position, phone, email, roles), "HTML");
     }
 
     // ── Bot events ────────────────────────────────────────────────────────────
@@ -96,7 +105,7 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
 
         String chatId = resolveChatId(businessId);
         if (chatId == null || chatId.isBlank()) {
-            log.debug("[Telegram] No group chat ID configured for business={}", businessId);
+            log.debug("[Telegram] No group chat ID for business={}", businessId);
             return;
         }
 
@@ -120,7 +129,7 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
             restTemplate.postForObject(url, new HttpEntity<>(body, headers), String.class);
             log.debug("[Telegram] Message sent to chat_id={}", chatId);
         } catch (Exception e) {
-            log.warn("[Telegram] Failed to send message to chat_id={}: {}", chatId, e.getMessage());
+            log.warn("[Telegram] Failed to send to chat_id={}: {}", chatId, e.getMessage());
         }
     }
 

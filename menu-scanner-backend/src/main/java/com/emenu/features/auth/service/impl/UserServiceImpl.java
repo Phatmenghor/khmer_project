@@ -18,6 +18,7 @@ import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.features.auth.service.UserService;
+import com.emenu.features.notification.telegram.TelegramNotificationService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import com.emenu.shared.dto.PaginationResponse;
@@ -58,6 +59,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtils securityUtils;
     private final PaginationMapper paginationMapper;
+    private final TelegramNotificationService telegramNotificationService;
 
     @Override
     public UserResponse createUser(UserCreateRequest requestData) {
@@ -78,6 +80,22 @@ public class UserServiceImpl implements UserService {
                 savedUserEntity.getId(), savedUserEntity.getUserIdentifier(),
                 savedUserEntity.getUserType(),
                 countTotalRelatedRecords(savedUserEntity));
+
+        if (requestData.getBusinessId() != null) {
+            String firstName = requestData.getFirstName() != null ? requestData.getFirstName() : "";
+            String lastName  = requestData.getLastName()  != null ? requestData.getLastName()  : "";
+            String fullName  = (firstName + " " + lastName).trim();
+            if (fullName.isEmpty()) fullName = requestData.getUserIdentifier();
+
+            telegramNotificationService.notifyNewStaff(
+                requestData.getBusinessId(),
+                fullName,
+                requestData.getPosition(),
+                requestData.getPhoneNumber(),
+                requestData.getEmail(),
+                requestData.getRoles()
+            );
+        }
 
         return userMapper.toResponse(savedUserEntity);
     }

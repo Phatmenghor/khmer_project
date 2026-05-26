@@ -2,6 +2,7 @@ package com.emenu.features.notification.telegram;
 
 import com.emenu.features.order.models.Order;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface TelegramNotificationService {
@@ -20,22 +21,20 @@ public interface TelegramNotificationService {
      */
     String linkGroupToBusinessId(UUID businessId, long chatId);
 
-    // ── Order notifications ───────────────────────────────────────────────────
+    // ── Order notifications (async) ───────────────────────────────────────────
 
-    /** New order placed by a customer via the public checkout flow. */
     void notifyNewCustomerOrder(Order order);
 
-    /** POS sale completed by a business operator. */
     void notifyNewPOSOrder(Order order);
 
-    /** Order status changed (CONFIRMED / COMPLETED / CANCELLED). */
     void notifyOrderStatusChanged(Order order);
 
-    /** Payment status changed to PAID for an order. */
-    void notifyPaymentReceived(Order order);
+    // ── Staff notifications (async) ───────────────────────────────────────────
+
+    void notifyNewStaff(UUID businessId, String name, String position,
+                        String phone, String email, List<String> roles);
 
     // ── Bot events ────────────────────────────────────────────────────────────
 
-    /** Sends the welcome/confirmation message directly to the newly linked chat. */
     void notifyGroupLinked(long chatId, String businessName);
 }
