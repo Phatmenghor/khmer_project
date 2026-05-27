@@ -169,7 +169,7 @@ export function ComboboxSelectProvince({
             )}
             disabled={disabled}
           >
-            {dataSelect ? dataSelect.provinceEn : placeholder}
+            {dataSelect ? (dataSelect.provinceEn || dataSelect.provinceKh) : placeholder}
             <ChevronDown
               className={cn(
                 "ml-2 h-4 w-4 shrink-0 transition-all duration-200",
@@ -195,7 +195,7 @@ export function ComboboxSelectProvince({
                 {data.map((item) => (
                   <CommandItem
                     key={item.id}
-                    value={item.provinceEn}
+                    value={item.provinceEn || item.provinceKh}
                     onSelect={() => handleSelect(item)}
                     className={sizeClasses[size]}
                   >
@@ -208,7 +208,7 @@ export function ComboboxSelectProvince({
                           : "opacity-0"
                       )}
                     />
-                    {item.provinceEn}
+                    {item.provinceEn || item.provinceKh}
                   </CommandItem>
                 ))}
               </CommandGroup>

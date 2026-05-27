@@ -169,7 +169,7 @@ export function ComboboxSelectVillage({
             )}
             disabled={disabled}
           >
-            {dataSelect ? dataSelect.villageEn : placeholder}
+            {dataSelect ? (dataSelect.villageEn || dataSelect.villageKh) : placeholder}
             <ChevronDown
               className={cn(
                 "ml-2 h-4 w-4 shrink-0 transition-all duration-200",
@@ -195,7 +195,7 @@ export function ComboboxSelectVillage({
                 {data.map((item) => (
                   <CommandItem
                     key={item.id}
-                    value={item.villageEn}
+                    value={item.villageEn || item.villageKh}
                     onSelect={() => handleSelect(item)}
                     className={sizeClasses[size]}
                   >
@@ -208,7 +208,7 @@ export function ComboboxSelectVillage({
                           : "opacity-0"
                       )}
                     />
-                    {item.villageEn}
+                    {item.villageEn || item.villageKh}
                   </CommandItem>
                 ))}
               </CommandGroup>

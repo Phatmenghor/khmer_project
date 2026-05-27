@@ -169,7 +169,7 @@ export function ComboboxSelectDistrict({
             )}
             disabled={disabled}
           >
-            {dataSelect ? dataSelect.districtEn : placeholder}
+            {dataSelect ? (dataSelect.districtEn || dataSelect.districtKh) : placeholder}
             <ChevronDown
               className={cn(
                 "ml-2 h-4 w-4 shrink-0 transition-all duration-200",
@@ -195,7 +195,7 @@ export function ComboboxSelectDistrict({
                 {data.map((item) => (
                   <CommandItem
                     key={item.id}
-                    value={item.districtEn}
+                    value={item.districtEn || item.districtKh}
                     onSelect={() => handleSelect(item)}
                     className={sizeClasses[size]}
                   >
@@ -208,7 +208,7 @@ export function ComboboxSelectDistrict({
                           : "opacity-0"
                       )}
                     />
-                    {item.districtEn}
+                    {item.districtEn || item.districtKh}
                   </CommandItem>
                 ))}
               </CommandGroup>

@@ -169,7 +169,7 @@ export function ComboboxSelectCommune({
             )}
             disabled={disabled}
           >
-            {dataSelect ? dataSelect.communeEn : placeholder}
+            {dataSelect ? (dataSelect.communeEn || dataSelect.communeKh) : placeholder}
             <ChevronDown
               className={cn(
                 "ml-2 h-4 w-4 shrink-0 transition-all duration-200",
@@ -195,7 +195,7 @@ export function ComboboxSelectCommune({
                 {data.map((item) => (
                   <CommandItem
                     key={item.id}
-                    value={item.communeEn}
+                    value={item.communeEn || item.communeKh}
                     onSelect={() => handleSelect(item)}
                     className={sizeClasses[size]}
                   >
@@ -208,7 +208,7 @@ export function ComboboxSelectCommune({
                           : "opacity-0"
                       )}
                     />
-                    {item.communeEn}
+                    {item.communeEn || item.communeKh}
                   </CommandItem>
                 ))}
               </CommandGroup>
