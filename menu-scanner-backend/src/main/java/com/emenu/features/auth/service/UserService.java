@@ -38,7 +38,7 @@ public interface UserService {
 
     UserResponse updateCustomerTypeProfile(UserUpdateRequest request);
 
-    UserDetailResponse getPlatformUserProfile();
+    UserResponse getPlatformUserProfile();
 
-    UserDetailResponse updatePlatformUserProfile(UserUpdateRequest request);
+    UserResponse updatePlatformUserProfile(UserUpdateRequest request);
 }
