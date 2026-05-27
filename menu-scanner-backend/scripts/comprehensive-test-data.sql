@@ -1884,49 +1884,48 @@ BEGIN
   -- ==========================================================================
   RAISE NOTICE 'C. Inserting subscriptions with calendar-based end dates...';
 
-  -- ---- Mega Store — 3 records (history + active) ----------------------------
+  -- ---- Mega Store — 30 monthly records (29 expired history + 1 active) -------
+  --    Chain starts ~29 months 10 days ago so sub 30 ends ~20 days from now.
+  --    Sub  1 → payment type = SUBSCRIPTION (initial activation)
+  --    Sub 2-30 → payment type = RENEWAL
+  --    Payment method alternates: CASH for most, BANK every 3rd record.
+  FOR i IN 1..30 LOOP
+    sub_id := ('ee000000-0000-0000-0000-' || LPAD(i::TEXT, 12, '0'))::UUID;
 
-  -- 1) Expired yearly (started ~13 months ago, ended ~1 month ago)
-  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
-  VALUES (
-    'ee000000-0000-0000-0000-000000000001',
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    year_plan_id,
-    (NOW() - INTERVAL '1 year' - INTERVAL '1 month'),
-    (NOW() - INTERVAL '1 year' - INTERVAL '1 month') + INTERVAL '1 year',
-    false, 0, false,
-    NOW() - INTERVAL '1 year' - INTERVAL '1 month',
-    NOW() - INTERVAL '1 year' - INTERVAL '1 month',
-    'admin', 'admin'
-  ) ON CONFLICT DO NOTHING;
+    INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      sub_id,
+      '550cad56-cafd-4aba-baef-c4dcd53940d0',
+      month_plan_id,
+      NOW() - INTERVAL '29 months 10 days' + (i - 1) * INTERVAL '1 month',
+      NOW() - INTERVAL '29 months 10 days' + i       * INTERVAL '1 month',
+      CASE WHEN i = 30 THEN true ELSE false END,
+      0, false,
+      NOW() - INTERVAL '29 months 10 days' + (i - 1) * INTERVAL '1 month',
+      NOW() - INTERVAL '29 months 10 days' + (i - 1) * INTERVAL '1 month',
+      'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
 
-  -- 2) Expired monthly (started ~45 days ago, ended ~15 days ago)
-  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
-  VALUES (
-    'ee000000-0000-0000-0000-000000000002',
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    month_plan_id,
-    (NOW() - INTERVAL '45 days'),
-    (NOW() - INTERVAL '45 days') + INTERVAL '1 month',
-    false, 0, false,
-    NOW() - INTERVAL '45 days',
-    NOW() - INTERVAL '45 days',
-    'admin', 'admin'
-  ) ON CONFLICT DO NOTHING;
+    INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      gen_random_uuid(),
+      '550cad56-cafd-4aba-baef-c4dcd53940d0',
+      sub_id,
+      month_plan_id,
+      0.00,
+      CASE WHEN i % 3 = 0 THEN 'BANK' ELSE 'CASH' END,
+      CASE WHEN i = 1    THEN 'SUBSCRIPTION' ELSE 'RENEWAL' END,
+      'COMPLETED',
+      'REF-MEGA-' || LPAD(i::TEXT, 3, '0'),
+      CASE WHEN i = 1 THEN 'Initial monthly subscription activation'
+                       ELSE 'Monthly renewal #' || (i - 1) END,
+      0, false,
+      NOW() - INTERVAL '29 months 10 days' + (i - 1) * INTERVAL '1 month',
+      NOW() - INTERVAL '29 months 10 days' + (i - 1) * INTERVAL '1 month',
+      'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
 
-  -- 3) Active monthly (started 10 days ago, expires next month)
-  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
-  VALUES (
-    'ee000000-0000-0000-0000-000000000003',
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    month_plan_id,
-    (NOW() - INTERVAL '10 days'),
-    (NOW() - INTERVAL '10 days') + INTERVAL '1 month',
-    true, 0, false,
-    NOW() - INTERVAL '10 days',
-    NOW() - INTERVAL '10 days',
-    'admin', 'admin'
-  ) ON CONFLICT DO NOTHING;
+  END LOOP;
 
   -- ---- Fashion Hub — 3 records (history + active) ---------------------------
 
@@ -2026,59 +2025,10 @@ BEGIN
   END LOOP;
 
   -- ==========================================================================
-  -- C2. SUBSCRIPTION PAYMENTS
-  --     Since all plans are $0, payments record tracking events (activation,
-  --     renewal, expiry) with amount=0. This populates the /history endpoint.
+  -- C2. SUBSCRIPTION PAYMENTS — Fashion Hub only
+  --     Mega Store payments are inserted inline in the loop above.
   -- ==========================================================================
-  RAISE NOTICE 'C2. Inserting subscription payments for Mega Store and Fashion Hub...';
-
-  -- Mega Store — Sub 1 (expired yearly): initial subscription payment
-  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
-  VALUES (
-    gen_random_uuid(),
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'ee000000-0000-0000-0000-000000000001',
-    year_plan_id,
-    0.00, 'CASH', 'SUBSCRIPTION', 'COMPLETED',
-    'REF-MEGA-YEAR-001',
-    'Initial yearly subscription activation — 1 Year plan',
-    0, false,
-    NOW() - INTERVAL '1 year' - INTERVAL '1 month',
-    NOW() - INTERVAL '1 year' - INTERVAL '1 month',
-    'admin', 'admin'
-  ) ON CONFLICT DO NOTHING;
-
-  -- Mega Store — Sub 2 (expired monthly): renewal payment
-  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
-  VALUES (
-    gen_random_uuid(),
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'ee000000-0000-0000-0000-000000000002',
-    month_plan_id,
-    0.00, 'BANK', 'RENEWAL', 'COMPLETED',
-    'REF-MEGA-MON-001',
-    'Monthly renewal after yearly plan expired',
-    0, false,
-    NOW() - INTERVAL '45 days',
-    NOW() - INTERVAL '45 days',
-    'admin', 'admin'
-  ) ON CONFLICT DO NOTHING;
-
-  -- Mega Store — Sub 3 (active): renewal payment
-  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
-  VALUES (
-    gen_random_uuid(),
-    '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'ee000000-0000-0000-0000-000000000003',
-    month_plan_id,
-    0.00, 'CASH', 'RENEWAL', 'COMPLETED',
-    'REF-MEGA-MON-002',
-    'Current active monthly subscription',
-    0, false,
-    NOW() - INTERVAL '10 days',
-    NOW() - INTERVAL '10 days',
-    'admin', 'admin'
-  ) ON CONFLICT DO NOTHING;
+  RAISE NOTICE 'C2. Inserting subscription payments for Fashion Hub...';
 
   -- Fashion Hub — Sub 1 (expired weekly): initial subscription payment
   INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
