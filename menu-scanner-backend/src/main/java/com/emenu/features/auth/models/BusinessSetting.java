@@ -56,7 +56,7 @@ public class BusinessSetting extends BaseUUIDEntity {
     private List<BusinessHours> businessHours;
 
     @Column(name = "use_brands", nullable = false)
-    private Boolean useBrands = false;
+    private Boolean useBrands = true;
 
     @Column(name = "low_stock_threshold")
     private Integer lowStockThreshold;

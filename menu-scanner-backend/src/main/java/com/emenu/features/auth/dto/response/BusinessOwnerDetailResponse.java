@@ -22,7 +22,6 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private String ownerFullName;
     private String ownerPhone;
     private String ownerAccountStatus;
-    private String ownerProfileImageUrl;
 
     // Business Info
     private UUID businessId;
@@ -37,9 +36,6 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private UUID businessSettingId;
     private String logoBusinessUrl;
     private String enableStock;
-    private Boolean useBrands;
-    private Integer lowStockThreshold;
-    private String telegramGroupChatId;
 
     // Subscription Info
     private UUID currentSubscriptionId;
@@ -53,6 +49,5 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private Long daysActive;
     private SubscriptionStatus subscriptionStatus;
     private Boolean autoRenew;
-    private Boolean isExpiringSoon;
 
 }

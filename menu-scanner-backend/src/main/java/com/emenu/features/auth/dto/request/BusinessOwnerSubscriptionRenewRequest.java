@@ -15,7 +15,6 @@ import java.util.UUID;
 public class BusinessOwnerSubscriptionRenewRequest {
     
     private UUID newPlanId;
-    private Integer customDurationDays;
     private BigDecimal paymentAmount;
     private String paymentMethod;
     private String paymentReference;

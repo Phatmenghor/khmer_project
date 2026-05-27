@@ -50,7 +50,7 @@ INSERT INTO business_settings (
 VALUES (
   '770e8400-e29b-41d4-a716-446655440002',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  true, 10.0,
+  true, 0.0,
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ENABLED', '#FF6B6B', NULL,
   0, false, NOW(), NOW(), 'admin', 'admin'
@@ -88,7 +88,7 @@ INSERT INTO business_settings (
 VALUES (
   '770e8400-e29b-41d4-a716-446655440003',
   '660cad56-cafd-4aba-baef-c4dcd53940d0',
-  true, 10.0,
+  true, 0.0,
   'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
   'ENABLED', '#6B6BFF', NULL,
   0, false, NOW(), NOW(), 'admin', 'admin'
@@ -1828,7 +1828,7 @@ BEGIN
       telegram_group_chat_id, version, is_deleted,
       created_at, updated_at, created_by, updated_by
     ) VALUES (
-      biz_set_id, biz_id, true, 10.0,
+      biz_set_id, biz_id, true, 0.0,
       v_avatar, 'ENABLED',
       '#' || LPAD(((i * 123456) % 16777215)::TEXT, 6, '0'),
       NULL, 0, false,

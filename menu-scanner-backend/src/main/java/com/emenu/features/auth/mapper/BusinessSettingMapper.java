@@ -1,5 +1,6 @@
 package com.emenu.features.auth.mapper;
 
+import com.emenu.enums.common.StockStatus;
 import com.emenu.shared.constants.BusinessConstants;
 import com.emenu.features.auth.dto.request.BusinessSettingCreateRequest;
 import com.emenu.features.auth.dto.response.BusinessSettingResponse;
@@ -39,6 +40,12 @@ public interface BusinessSettingMapper {
         }
         if (businessSetting.getLowStockThreshold() == null) {
             businessSetting.setLowStockThreshold(BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD);
+        }
+        if (businessSetting.getEnableStock() == null) {
+            businessSetting.setEnableStock(StockStatus.ENABLED);
+        }
+        if (businessSetting.getUseBrands() == null) {
+            businessSetting.setUseBrands(true);
         }
     }
 

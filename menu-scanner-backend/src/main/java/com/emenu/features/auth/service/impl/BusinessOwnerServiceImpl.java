@@ -463,9 +463,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                     detailResponse.setBusinessSettingId(setting.getId());
                     detailResponse.setLogoBusinessUrl(setting.getLogoBusinessUrl());
                     detailResponse.setEnableStock(setting.getEnableStock() != null ? setting.getEnableStock().name() : null);
-                    detailResponse.setUseBrands(setting.getUseBrands());
-                    detailResponse.setLowStockThreshold(setting.getLowStockThreshold());
-                    detailResponse.setTelegramGroupChatId(setting.getTelegramGroupChatId());
                 });
     }
 
@@ -489,7 +486,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         detailResponse.setDaysActive(calculateDaysActive(subscriptionRecord.getStartDate().toLocalDate()));
         detailResponse.setSubscriptionStatus(determineSubscriptionStatus(subscriptionRecord));
         detailResponse.setAutoRenew(subscriptionRecord.getAutoRenew());
-        detailResponse.setIsExpiringSoon(subscriptionRecord.isExpiringSoon(7));
     }
 
     private Long calculateDaysRemaining(LocalDate endDate) {

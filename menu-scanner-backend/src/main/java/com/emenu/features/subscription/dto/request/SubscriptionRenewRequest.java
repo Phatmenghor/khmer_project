@@ -9,8 +9,6 @@ import java.util.UUID;
 @Data
 public class SubscriptionRenewRequest {
     private UUID newPlanId;
-    private Integer customDurationDays;
-
     private Boolean createPayment = false;
     private String paymentImageUrl;
     private BigDecimal paymentAmount;

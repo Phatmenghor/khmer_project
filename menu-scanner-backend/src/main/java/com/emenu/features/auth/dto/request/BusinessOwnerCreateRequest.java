@@ -42,7 +42,6 @@ public class BusinessOwnerCreateRequest {
     
     @NotNull(message = "Subscription plan ID is required")
     private UUID planId;
-    private Integer customDurationDays;
     private BigDecimal paymentAmount;
     private String paymentMethod;
     private String paymentReference;
