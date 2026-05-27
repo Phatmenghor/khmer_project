@@ -188,12 +188,7 @@ export default function DistrictModal({
                 </div>
               )}
 
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
-                    District Details <span className="text-destructive">*</span>
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <TextField
                       control={control}
                       name="districtCode"
@@ -243,8 +238,6 @@ export default function DistrictModal({
                         </p>
                       )}
                     </div>
-                  </div>
-                </div>
               </div>
             </FormBody>
 

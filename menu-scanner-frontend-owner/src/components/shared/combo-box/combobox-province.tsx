@@ -18,7 +18,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown, Loader2 } from "lucide-react";
-import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ProvinceResponseModel } from "@/redux/features/location/store/models/response/province-response";
 import { fetchAllProvinceService } from "@/redux/features/location/store/thunks/province-thunks";
@@ -61,16 +60,23 @@ export function ComboboxSelectProvince({
   const [lastPage, setLastPage] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { ref, inView } = useInView({ threshold: 0.5 });
   const debouncedSearch = useDebounce(searchTerm, 400);
 
   const loadingRef = useRef(false);
   const lastPageRef = useRef(false);
+  const pageRef = useRef(1);
 
   useEffect(() => {
     loadingRef.current = loading;
+  }, [loading]);
+
+  useEffect(() => {
     lastPageRef.current = lastPage;
-  }, [loading, lastPage]);
+  }, [lastPage]);
+
+  useEffect(() => {
+    pageRef.current = page;
+  }, [page]);
 
   const sizeClasses = {
     sm: "h-8 text-xs",
@@ -117,12 +123,14 @@ export function ComboboxSelectProvince({
     fetchData(debouncedSearch, 1);
   }, [debouncedSearch]);
 
-  useEffect(() => {
-    if (inView && !loadingRef.current && !lastPageRef.current && data.length > 0) {
-      fetchData(debouncedSearch, page + 1);
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const isNearBottom =
+      target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
+    if (isNearBottom && !loadingRef.current && !lastPageRef.current && data.length > 0) {
+      fetchData(debouncedSearch, pageRef.current + 1);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView]);
+  };
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -181,15 +189,14 @@ export function ComboboxSelectProvince({
               value={searchTerm}
               onValueChange={handleSearchChange}
             />
-            <CommandList className="max-h-60 overflow-y-auto">
+            <CommandList className="max-h-60 overflow-y-auto" onScroll={handleScroll}>
               <CommandEmpty>No province found.</CommandEmpty>
               <CommandGroup>
-                {data.map((item, index) => (
+                {data.map((item) => (
                   <CommandItem
                     key={item.id}
                     value={item.provinceEn}
                     onSelect={() => handleSelect(item)}
-                    ref={index === data.length - 1 ? ref : null}
                     className={sizeClasses[size]}
                   >
                     <Check
