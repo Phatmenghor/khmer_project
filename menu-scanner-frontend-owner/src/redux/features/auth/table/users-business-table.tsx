@@ -1,20 +1,17 @@
 import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Edit, Eye, RotateCw, Trash } from "lucide-react";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import {
   AllUserResponseModel,
   UserResponseModel,
 } from "../store/models/response/users-response";
+import { formatEnumLabel } from "@/utils/common/enum-convert";
 
 interface UserTableHandlers {
-  handleEditUser: (user: UserResponseModel) => void;
   handleViewUserDetail: (user: UserResponseModel) => void;
-  handleResetPassword: (user: UserResponseModel) => void;
   handleDeleteUser: (user: UserResponseModel) => void;
-  handleToggleStatus: (user: UserResponseModel) => void;
 }
 
 interface UserTableOptions {
@@ -26,12 +23,7 @@ export const userBusinessTableColumns = ({
   data,
   handlers,
 }: UserTableOptions): TableColumn<UserResponseModel>[] => {
-  const {
-    handleEditUser,
-    handleViewUserDetail,
-    handleResetPassword,
-    handleDeleteUser,
-  } = handlers;
+  const { handleViewUserDetail, handleDeleteUser } = handlers;
 
   return [
     {
@@ -50,15 +42,23 @@ export const userBusinessTableColumns = ({
       label: "Avatar",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (user) => {
-        return (
-          <CustomAvatar
-            imageUrl={user.profileImageUrl}
-            name={user?.firstName}
-            size="lg"
-          />
-        );
-      },
+      render: (user) => (
+        <div className="h-12 w-12 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+          {user.profileImageUrl ? (
+            <img
+              src={user.profileImageUrl}
+              alt={user?.firstName}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
+              <span className="text-xs font-semibold text-primary">
+                {user?.firstName?.charAt(0)?.toUpperCase() || "U"}
+              </span>
+            </div>
+          )}
+        </div>
+      ),
     },
     {
       key: "userIdentifier",
@@ -69,30 +69,6 @@ export const userBusinessTableColumns = ({
       render: (user) => (
         <span className="text-xs text-muted-foreground">
           {user?.userIdentifier || "---"}
-        </span>
-      ),
-    },
-    {
-      key: "phoneNumber",
-      label: "Phone Number",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {user?.phoneNumber || "---"}
-        </span>
-      ),
-    },
-    {
-      key: "email",
-      label: "Email",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {user?.email || "---"}
         </span>
       ),
     },
@@ -115,15 +91,11 @@ export const userBusinessTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (user) => (
-        <>
+        <span className="text-xs text-muted-foreground">
           {user.roles?.length > 0
-            ? user.roles.map((role: string) => (
-                <span key={role} className="text-xs text-muted-foreground">
-                  {role}
-                </span>
-              ))
+            ? user.roles.map((r: string) => formatEnumLabel(r) ?? r).join(", ")
             : "---"}
-        </>
+        </span>
       ),
     },
     {
@@ -134,7 +106,7 @@ export const userBusinessTableColumns = ({
       truncate: true,
       render: (user) => (
         <span className="text-xs text-muted-foreground">
-          {user?.accountStatus || "---"}
+          {formatEnumLabel(user?.accountStatus) ?? "---"}
         </span>
       ),
     },
@@ -160,16 +132,6 @@ export const userBusinessTableColumns = ({
             icon={<Eye className="w-4 h-4" />}
             tooltip="View Details"
             onClick={() => handleViewUserDetail(user)}
-          />
-          <ActionButton
-            icon={<Edit className="w-4 h-4" />}
-            tooltip="Edit User"
-            onClick={() => handleEditUser(user)}
-          />
-          <ActionButton
-            icon={<RotateCw className="w-4 h-4" />}
-            tooltip="Reset Password"
-            onClick={() => handleResetPassword(user)}
           />
           <ActionButton
             icon={<Trash className="w-4 h-4" />}
