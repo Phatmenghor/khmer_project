@@ -15,7 +15,6 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
@@ -97,13 +96,6 @@ export default function AdminProfilePage() {
       email: "",
       gender: "",
       dateOfBirth: "",
-      employeeId: "",
-      position: "",
-      department: "",
-      employmentType: "",
-      joinDate: "",
-      leaveDate: "",
-      shift: "",
       remark: "",
       addresses: [],
       emergencyContacts: [],
@@ -159,23 +151,11 @@ export default function AdminProfilePage() {
         email: userProfile.email || "",
         gender: userProfile.gender || "",
         dateOfBirth: userProfile.dateOfBirth || "",
-        employeeId: userProfile.employeeId || "",
-        position: userProfile.position || "",
-        department: userProfile.department || "",
-        employmentType: userProfile.employmentType || "",
-        joinDate: userProfile.joinDate || "",
-        leaveDate: userProfile.leaveDate || "",
-        shift: userProfile.shift || "",
         remark: userProfile.remark || "",
-        addresses: Array.isArray(userProfile.addresses) ? userProfile.addresses : [],
-        emergencyContacts: Array.isArray(userProfile.emergencyContacts) ? userProfile.emergencyContacts : [],
-        documents: Array.isArray(userProfile.documents) ? userProfile.documents : [],
-        educations: Array.isArray(userProfile.educations)
-          ? userProfile.educations.map((edu: any) => ({
-              ...edu,
-              isGraduated: typeof edu.isGraduated === "boolean" ? String(edu.isGraduated) : edu.isGraduated,
-            }))
-          : [],
+        addresses: [],
+        emergencyContacts: [],
+        documents: [],
+        educations: [],
       });
     }
   }, [userProfile, reset]);
@@ -246,13 +226,6 @@ export default function AdminProfilePage() {
       if (data.gender) payload.gender = data.gender;
       if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth;
       if (profileImageUrl) payload.profileImageUrl = profileImageUrl;
-      if (data.employeeId) payload.employeeId = data.employeeId;
-      if (data.position) payload.position = data.position;
-      if (data.department) payload.department = data.department;
-      if (data.employmentType) payload.employmentType = data.employmentType;
-      if (data.joinDate) payload.joinDate = data.joinDate;
-      if (data.leaveDate) payload.leaveDate = data.leaveDate;
-      if (data.shift) payload.shift = data.shift;
       if (data.remark) payload.remark = data.remark;
       if (addressFields.length > 0 && data.addresses?.length) {
         payload.addresses = data.addresses.map((addr: any) => ({
@@ -344,23 +317,11 @@ export default function AdminProfilePage() {
         email: userProfile.email || "",
         gender: userProfile.gender || "",
         dateOfBirth: userProfile.dateOfBirth || "",
-        employeeId: userProfile.employeeId || "",
-        position: userProfile.position || "",
-        department: userProfile.department || "",
-        employmentType: userProfile.employmentType || "",
-        joinDate: userProfile.joinDate || "",
-        leaveDate: userProfile.leaveDate || "",
-        shift: userProfile.shift || "",
         remark: userProfile.remark || "",
-        addresses: Array.isArray(userProfile.addresses) ? userProfile.addresses : [],
-        emergencyContacts: Array.isArray(userProfile.emergencyContacts) ? userProfile.emergencyContacts : [],
-        documents: Array.isArray(userProfile.documents) ? userProfile.documents : [],
-        educations: Array.isArray(userProfile.educations)
-          ? userProfile.educations.map((edu: any) => ({
-              ...edu,
-              isGraduated: typeof edu.isGraduated === "boolean" ? String(edu.isGraduated) : edu.isGraduated,
-            }))
-          : [],
+        addresses: [],
+        emergencyContacts: [],
+        documents: [],
+        educations: [],
       });
     }
     setIsEditing(false);

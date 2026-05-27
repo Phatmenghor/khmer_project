@@ -87,13 +87,6 @@ export const profileUpdateSchema = z.object({
   nickname: z.string().optional().or(z.literal("")),
   gender: z.string().optional().or(z.literal("")),
   dateOfBirth: z.string().optional().or(z.literal("")),
-  employeeId: z.string().optional().or(z.literal("")),
-  position: z.string().optional().or(z.literal("")),
-  department: z.string().optional().or(z.literal("")),
-  employmentType: z.string().optional().or(z.literal("")),
-  joinDate: z.string().optional().or(z.literal("")),
-  leaveDate: z.string().optional().or(z.literal("")),
-  shift: z.string().optional().or(z.literal("")),
   remark: z.string().optional().or(z.literal("")),
   addresses: z.array(addressSchema).optional(),
   emergencyContacts: z.array(emergencyContactSchema).optional(),
@@ -111,13 +104,6 @@ export type ProfileFormData = {
   nickname?: string;
   gender?: string;
   dateOfBirth?: string;
-  employeeId?: string;
-  position?: string;
-  department?: string;
-  employmentType?: string;
-  joinDate?: string;
-  leaveDate?: string;
-  shift?: string;
   remark?: string;
   addresses?: Address[];
   emergencyContacts?: EmergencyContact[];
