@@ -66,18 +66,6 @@ export function SubscriptionPlanDetailModal({
                   : "Detailed information about the selected subscription plan"}
               </p>
             </div>
-            {planData && (
-              <Badge
-                variant="outline"
-                className={getStatusColor(
-                  planData.status === SubscriptionPlanStatus.PUBLIC
-                    ? "ACTIVE"
-                    : "INACTIVE"
-                )}
-              >
-                {planData.status}
-              </Badge>
-            )}
           </div>
         </div>
 
