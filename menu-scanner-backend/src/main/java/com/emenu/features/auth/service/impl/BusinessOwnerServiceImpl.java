@@ -1,8 +1,8 @@
 package com.emenu.features.auth.service.impl;
 
 import com.emenu.enums.payment.PaymentMethod;
-import com.emenu.enums.payment.PaymentStatus;
-import com.emenu.enums.payment.PaymentType;
+import com.emenu.enums.sub_scription.SubscriptionPaymentStatus;
+import com.emenu.enums.sub_scription.SubscriptionPaymentType;
 import com.emenu.enums.sub_scription.SubscriptionStatus;
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.BusinessStatus;
@@ -26,10 +26,10 @@ import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.service.BusinessOwnerService;
 import com.emenu.features.auth.service.UserValidationService;
-import com.emenu.features.order.models.Payment;
-import com.emenu.features.order.repository.PaymentRepository;
 import com.emenu.features.subscription.models.Subscription;
+import com.emenu.features.subscription.models.SubscriptionPayment;
 import com.emenu.features.subscription.models.SubscriptionPlan;
+import com.emenu.features.subscription.repository.SubscriptionPaymentRepository;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.shared.dto.PaginationResponse;
@@ -62,7 +62,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private final RoleRepository roleRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionPlanRepository planRepository;
-    private final PaymentRepository paymentRepository;
+    private final SubscriptionPaymentRepository subscriptionPaymentRepository;
     private final PasswordEncoder passwordEncoder;
     private final BusinessOwnerMapper mapper;
     private final UserValidationService userValidationService;
@@ -83,8 +83,8 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         Subscription subscriptionRecord = createSubscription(businessEntity.getId(), creationRequestData);
 
-        Payment paymentRecord = creationRequestData.hasPaymentInfo() && creationRequestData.isPaymentInfoComplete()
-                ? createPayment(subscriptionRecord, creationRequestData)
+        SubscriptionPayment paymentRecord = creationRequestData.hasPaymentInfo() && creationRequestData.isPaymentInfoComplete()
+                ? createSubscriptionPayment(subscriptionRecord, creationRequestData)
                 : null;
 
         businessEntity.activateSubscription();
@@ -114,7 +114,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 ? filterCriteria.getBusinessStatuses() : null;
         List<SubscriptionStatus> filterSubscriptionStatuses = (filterCriteria.getSubscriptionStatuses() != null && !filterCriteria.getSubscriptionStatuses().isEmpty())
                 ? filterCriteria.getSubscriptionStatuses() : null;
-        List<PaymentStatus> filterPaymentStatuses = (filterCriteria.getPaymentStatuses() != null && !filterCriteria.getPaymentStatuses().isEmpty())
+        List<SubscriptionPaymentStatus> filterPaymentStatuses = (filterCriteria.getPaymentStatuses() != null && !filterCriteria.getPaymentStatuses().isEmpty())
                 ? filterCriteria.getPaymentStatuses() : null;
 
         boolean hasActiveSubscription = filterSubscriptionStatuses != null && filterSubscriptionStatuses.contains(SubscriptionStatus.ACTIVE);
@@ -179,7 +179,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         subscriptionRepository.save(currentSubscriptionRecord);
 
         if (renewRequestData.hasPaymentInfo() && renewRequestData.isPaymentInfoComplete()) {
-            createPaymentForSubscription(currentSubscriptionRecord, renewRequestData.getPaymentAmount(),
+            createSubscriptionPaymentForRenewal(currentSubscriptionRecord, renewRequestData.getPaymentAmount(),
                     renewRequestData.getPaymentMethod(), renewRequestData.getPaymentReference(), renewRequestData.getPaymentNotes());
         }
 
@@ -206,7 +206,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         subscriptionRepository.save(currentSubscriptionRecord);
 
         if (changePlanRequestData.hasPaymentInfo() && changePlanRequestData.isPaymentInfoComplete()) {
-            createPaymentForSubscription(currentSubscriptionRecord, changePlanRequestData.getPaymentAmount(),
+            createSubscriptionPaymentForRenewal(currentSubscriptionRecord, changePlanRequestData.getPaymentAmount(),
                     changePlanRequestData.getPaymentMethod(), changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
         }
 
@@ -226,13 +226,13 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         currentSubscriptionRecord.cancel();
         subscriptionRepository.save(currentSubscriptionRecord);
 
-        List<Payment> pendingPaymentRecords = paymentRepository.findBySubscriptionIdAndStatusAndIsDeletedFalse(
-                currentSubscriptionRecord.getId(), PaymentStatus.PENDING);
+        List<SubscriptionPayment> pendingPaymentRecords = subscriptionPaymentRepository.findBySubscriptionIdAndStatusAndIsDeletedFalse(
+                currentSubscriptionRecord.getId(), SubscriptionPaymentStatus.PENDING);
 
         pendingPaymentRecords.forEach(paymentRecord -> {
-            paymentRecord.setStatus(PaymentStatus.CANCELLED);
+            paymentRecord.setStatus(SubscriptionPaymentStatus.CANCELLED);
             paymentRecord.setNotes("Cancelled: " + cancelRequestData.getReason());
-            paymentRepository.save(paymentRecord);
+            subscriptionPaymentRepository.save(paymentRecord);
         });
 
         businessEntity.deactivateSubscription();
@@ -402,47 +402,47 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         return subscriptionRepository.save(subscriptionRecord);
     }
 
-    private Payment createPayment(Subscription subscriptionRecord, BusinessOwnerCreateRequest creationRequestData) {
-        Payment paymentRecord = new Payment();
+    private SubscriptionPayment createSubscriptionPayment(Subscription subscriptionRecord, BusinessOwnerCreateRequest creationRequestData) {
+        SubscriptionPayment paymentRecord = new SubscriptionPayment();
         paymentRecord.setBusinessId(subscriptionRecord.getBusinessId());
         paymentRecord.setPlanId(subscriptionRecord.getPlanId());
         paymentRecord.setSubscriptionId(subscriptionRecord.getId());
         paymentRecord.setAmount(creationRequestData.getPaymentAmount());
         paymentRecord.setPaymentMethod(PaymentMethod.valueOf(creationRequestData.getPaymentMethod()));
-        paymentRecord.setPaymentType(PaymentType.SUBSCRIPTION);
-        paymentRecord.setStatus(PaymentStatus.COMPLETED);
+        paymentRecord.setPaymentType(SubscriptionPaymentType.SUBSCRIPTION);
+        paymentRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
         paymentRecord.setReferenceNumber(creationRequestData.getPaymentReference());
         paymentRecord.setNotes(creationRequestData.getPaymentNotes());
-        return paymentRepository.save(paymentRecord);
+        return subscriptionPaymentRepository.save(paymentRecord);
     }
 
-    private void createPaymentForSubscription(Subscription subscriptionRecord, BigDecimal amount,
-                                             String method, String reference, String notes) {
-        Payment paymentRecord = new Payment();
+    private void createSubscriptionPaymentForRenewal(Subscription subscriptionRecord, BigDecimal amount,
+                                                     String method, String reference, String notes) {
+        SubscriptionPayment paymentRecord = new SubscriptionPayment();
         paymentRecord.setBusinessId(subscriptionRecord.getBusinessId());
         paymentRecord.setPlanId(subscriptionRecord.getPlanId());
         paymentRecord.setSubscriptionId(subscriptionRecord.getId());
         paymentRecord.setAmount(amount);
         paymentRecord.setPaymentMethod(PaymentMethod.valueOf(method));
-        paymentRecord.setPaymentType(PaymentType.SUBSCRIPTION);
-        paymentRecord.setStatus(PaymentStatus.COMPLETED);
+        paymentRecord.setPaymentType(SubscriptionPaymentType.RENEWAL);
+        paymentRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
         paymentRecord.setReferenceNumber(reference);
         paymentRecord.setNotes(notes);
-        paymentRepository.save(paymentRecord);
+        subscriptionPaymentRepository.save(paymentRecord);
     }
 
     private void createRefundPayment(Subscription subscriptionRecord, BusinessOwnerSubscriptionCancelRequest cancelRequestData) {
-        Payment refundRecord = new Payment();
+        SubscriptionPayment refundRecord = new SubscriptionPayment();
         refundRecord.setBusinessId(subscriptionRecord.getBusinessId());
         refundRecord.setPlanId(subscriptionRecord.getPlanId());
         refundRecord.setSubscriptionId(subscriptionRecord.getId());
         refundRecord.setAmount(cancelRequestData.getRefundAmount().negate());
         refundRecord.setPaymentMethod(PaymentMethod.valueOf(cancelRequestData.getRefundMethod()));
-        refundRecord.setPaymentType(PaymentType.REFUND);
-        refundRecord.setStatus(PaymentStatus.COMPLETED);
+        refundRecord.setPaymentType(SubscriptionPaymentType.REFUND);
+        refundRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
         refundRecord.setReferenceNumber(cancelRequestData.getRefundReference());
         refundRecord.setNotes("Refund: " + cancelRequestData.getReason());
-        paymentRepository.save(refundRecord);
+        subscriptionPaymentRepository.save(refundRecord);
     }
 
     private BusinessOwnerDetailResponse buildEnrichedDetailResponse(User ownerEntity) {
@@ -511,7 +511,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private void enrichPaymentData(BusinessOwnerDetailResponse detailResponse, UUID subscriptionId) {
-        List<Payment> paymentRecords = paymentRepository.findBySubscriptionIdAndIsDeletedFalse(subscriptionId);
+        List<SubscriptionPayment> paymentRecords = subscriptionPaymentRepository.findBySubscriptionIdAndIsDeletedFalse(subscriptionId);
 
         if (paymentRecords.isEmpty()) {
             setDefaultPaymentData(detailResponse);
@@ -519,26 +519,26 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         }
 
         BigDecimal totalPaidAmount = paymentRecords.stream()
-                .filter(p -> p.getStatus() == PaymentStatus.COMPLETED)
-                .map(Payment::getAmount)
+                .filter(p -> p.getStatus() == SubscriptionPaymentStatus.COMPLETED)
+                .map(SubscriptionPayment::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalPendingAmount = paymentRecords.stream()
-                .filter(p -> p.getStatus() == PaymentStatus.PENDING)
-                .map(Payment::getAmount)
+                .filter(p -> p.getStatus() == SubscriptionPaymentStatus.PENDING)
+                .map(SubscriptionPayment::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         long completedPaymentCount = paymentRecords.stream()
-                .filter(p -> p.getStatus() == PaymentStatus.COMPLETED)
+                .filter(p -> p.getStatus() == SubscriptionPaymentStatus.COMPLETED)
                 .count();
 
         long pendingPaymentCount = paymentRecords.stream()
-                .filter(p -> p.getStatus() == PaymentStatus.PENDING)
+                .filter(p -> p.getStatus() == SubscriptionPaymentStatus.PENDING)
                 .count();
 
         LocalDateTime lastPaymentDateTime = paymentRecords.stream()
-                .filter(p -> p.getStatus() == PaymentStatus.COMPLETED)
-                .map(Payment::getCreatedAt)
+                .filter(p -> p.getStatus() == SubscriptionPaymentStatus.COMPLETED)
+                .map(SubscriptionPayment::getCreatedAt)
                 .max(LocalDateTime::compareTo)
                 .orElse(null);
 

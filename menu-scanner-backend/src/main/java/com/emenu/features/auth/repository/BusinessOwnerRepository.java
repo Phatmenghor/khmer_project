@@ -1,6 +1,6 @@
 package com.emenu.features.auth.repository;
 
-import com.emenu.enums.payment.PaymentStatus;
+import com.emenu.enums.sub_scription.SubscriptionPaymentStatus;
 import com.emenu.enums.sub_scription.SubscriptionStatus;
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.BusinessStatus;
@@ -34,7 +34,7 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
         LEFT JOIN u.profile p
         LEFT JOIN u.business b
         LEFT JOIN b.subscriptions s
-        LEFT JOIN s.payments pay
+        LEFT JOIN s.subscriptionPayments pay
         WHERE u.userType = 'BUSINESS_USER'
         AND u.isDeleted = false
         AND b.isDeleted = false
@@ -73,7 +73,7 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
             @Param("now") LocalDateTime now,
             @Param("expiryThreshold") LocalDateTime expiryThreshold,
             @Param("autoRenew") Boolean autoRenew,
-            @Param("paymentStatuses") List<PaymentStatus> paymentStatuses,
+            @Param("paymentStatuses") List<SubscriptionPaymentStatus> paymentStatuses,
             @Param("search") String search,
             Pageable pageable
     );

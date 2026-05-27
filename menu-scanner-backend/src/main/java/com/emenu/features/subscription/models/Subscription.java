@@ -1,7 +1,6 @@
 package com.emenu.features.subscription.models;
 
 import com.emenu.features.auth.models.Business;
-import com.emenu.features.order.models.Payment;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -48,7 +47,7 @@ public class Subscription extends BaseUUIDEntity {
     private Boolean autoRenew = false;
 
     @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Payment> payments = new ArrayList<>();
+    private List<SubscriptionPayment> subscriptionPayments = new ArrayList<>();
 
     public boolean isActive() {
         return !getIsDeleted() && !isExpired();
@@ -74,20 +73,20 @@ public class Subscription extends BaseUUIDEntity {
     }
 
     public BigDecimal getPaymentAmount() {
-        if (payments == null || payments.isEmpty()) {
+        if (subscriptionPayments == null || subscriptionPayments.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        return payments.stream()
+        return subscriptionPayments.stream()
                 .filter(payment -> payment.getStatus().isCompleted())
-                .map(Payment::getAmount)
+                .map(SubscriptionPayment::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public String getPaymentStatus() {
-        if (payments == null || payments.isEmpty()) {
+        if (subscriptionPayments == null || subscriptionPayments.isEmpty()) {
             return "UNPAID";
         }
-        boolean hasPending = payments.stream().anyMatch(p -> p.getStatus().isPending());
+        boolean hasPending = subscriptionPayments.stream().anyMatch(p -> p.getStatus().isPending());
         if (plan != null) {
             BigDecimal totalPaid = getPaymentAmount();
             if (totalPaid.compareTo(plan.getPrice()) >= 0) {

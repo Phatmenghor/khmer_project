@@ -1,10 +1,9 @@
 package com.emenu.features.subscription.service.impl;
 
+import com.emenu.enums.sub_scription.SubscriptionPaymentStatus;
+import com.emenu.enums.sub_scription.SubscriptionPaymentType;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.repository.BusinessRepository;
-import com.emenu.features.order.mapper.PaymentMapper;
-import com.emenu.features.order.models.Payment;
-import com.emenu.features.order.repository.PaymentRepository;
 import com.emenu.features.subscription.dto.filter.SubscriptionFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionCancelRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionCreateRequest;
@@ -13,7 +12,9 @@ import com.emenu.features.subscription.dto.response.SubscriptionResponse;
 import com.emenu.features.subscription.dto.update.SubscriptionUpdateRequest;
 import com.emenu.features.subscription.mapper.SubscriptionMapper;
 import com.emenu.features.subscription.models.Subscription;
+import com.emenu.features.subscription.models.SubscriptionPayment;
 import com.emenu.features.subscription.models.SubscriptionPlan;
+import com.emenu.features.subscription.repository.SubscriptionPaymentRepository;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.features.subscription.service.SubscriptionService;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,9 +42,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionPlanRepository planRepository;
     private final BusinessRepository businessRepository;
-    private final PaymentRepository paymentRepository;
+    private final SubscriptionPaymentRepository subscriptionPaymentRepository;
     private final SubscriptionMapper subscriptionMapper;
-    private final PaymentMapper paymentMapper;
     private final SecurityUtils securityUtils;
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
 
@@ -153,7 +154,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscription.renew();
         Subscription renewedSubscription = subscriptionRepository.save(subscription);
         if (request.shouldCreatePayment()) {
-            createPaymentForSubscription(renewedSubscription, request);
+            createSubscriptionPayment(renewedSubscription, request);
         }
         updateBusinessSubscriptionStatus(renewedSubscription.getBusinessId());
         renewedSubscription = subscriptionRepository.findByIdWithRelationships(renewedSubscription.getId()).orElse(renewedSubscription);
@@ -167,15 +168,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
         subscription.cancel();
-        if (subscription.getPayments() != null && !subscription.getPayments().isEmpty()) {
-            subscription.getPayments().stream()
-                    .filter(payment -> payment.getStatus().isPending())
-                    .forEach(payment -> {
-                        payment.markAsFailed();
-                        payment.setNotes("Cancelled due to subscription cancellation");
-                        paymentRepository.save(payment);
-                    });
-        }
+        List<SubscriptionPayment> pendingPayments = subscriptionPaymentRepository
+                .findBySubscriptionIdAndStatusAndIsDeletedFalse(subscription.getId(), SubscriptionPaymentStatus.PENDING);
+        pendingPayments.forEach(payment -> {
+            payment.setStatus(SubscriptionPaymentStatus.CANCELLED);
+            payment.setNotes("Cancelled due to subscription cancellation");
+            subscriptionPaymentRepository.save(payment);
+        });
         Subscription cancelledSubscription = subscriptionRepository.save(subscription);
         if (request.hasRefundAmount()) {
             createRefundForSubscription(cancelledSubscription, request);
@@ -186,21 +185,32 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return subscriptionMapper.toResponse(cancelledSubscription);
     }
 
-    private void createPaymentForSubscription(Subscription subscription, SubscriptionRenewRequest request) {
-        // Build helper DTO, then use pure MapStruct mapping
-        com.emenu.features.order.dto.helper.PaymentCreateHelper helper =
-            paymentMapper.buildSubscriptionPaymentHelper(subscription, request);
-        Payment payment = paymentMapper.createFromHelper(helper);
-        paymentRepository.save(payment);
-        log.info("Payment created for subscription: {} - Amount: ${}", subscription.getId(), payment.getAmount());
+    private void createSubscriptionPayment(Subscription subscription, SubscriptionRenewRequest request) {
+        SubscriptionPayment payment = new SubscriptionPayment();
+        payment.setBusinessId(subscription.getBusinessId());
+        payment.setSubscriptionId(subscription.getId());
+        payment.setPlanId(subscription.getPlanId());
+        payment.setAmount(request.getPaymentAmount());
+        payment.setPaymentMethod(request.getPaymentMethod());
+        payment.setPaymentType(SubscriptionPaymentType.RENEWAL);
+        payment.setStatus(SubscriptionPaymentStatus.COMPLETED);
+        payment.setReferenceNumber(request.getPaymentReferenceNumber());
+        payment.setNotes(request.getPaymentNotes());
+        payment.setImageUrl(request.getPaymentImageUrl());
+        subscriptionPaymentRepository.save(payment);
+        log.info("Subscription payment created for subscription: {} - Amount: ${}", subscription.getId(), payment.getAmount());
     }
 
     private void createRefundForSubscription(Subscription subscription, SubscriptionCancelRequest request) {
-        // Build helper DTO, then use pure MapStruct mapping
-        com.emenu.features.order.dto.helper.PaymentCreateHelper helper =
-            paymentMapper.buildSubscriptionRefundHelper(subscription, request);
-        Payment refund = paymentMapper.createFromHelper(helper);
-        paymentRepository.save(refund);
+        SubscriptionPayment refund = new SubscriptionPayment();
+        refund.setBusinessId(subscription.getBusinessId());
+        refund.setSubscriptionId(subscription.getId());
+        refund.setPlanId(subscription.getPlanId());
+        refund.setAmount(request.getRefundAmount().negate());
+        refund.setPaymentType(SubscriptionPaymentType.REFUND);
+        refund.setStatus(SubscriptionPaymentStatus.COMPLETED);
+        refund.setNotes("Refund: " + request.getRefundNotes());
+        subscriptionPaymentRepository.save(refund);
         log.info("Refund created for subscription: {} - Amount: ${}", subscription.getId(), refund.getAmount());
     }
 

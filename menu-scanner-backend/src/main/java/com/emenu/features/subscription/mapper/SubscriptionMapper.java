@@ -17,7 +17,7 @@ import java.util.List;
 public interface SubscriptionMapper {
 
     @Mapping(target = "plan", ignore = true)
-    @Mapping(target = "payments", ignore = true)
+    @Mapping(target = "subscriptionPayments", ignore = true)
     @Mapping(target = "startDate", ignore = true)
     @Mapping(target = "endDate", ignore = true)
     Subscription toEntity(SubscriptionCreateRequest request);
@@ -28,7 +28,7 @@ public interface SubscriptionMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "plan", ignore = true)
-    @Mapping(target = "payments", ignore = true)
+    @Mapping(target = "subscriptionPayments", ignore = true)
     void updateEntity(SubscriptionUpdateRequest request, @MappingTarget Subscription subscription);
 
     @AfterMapping

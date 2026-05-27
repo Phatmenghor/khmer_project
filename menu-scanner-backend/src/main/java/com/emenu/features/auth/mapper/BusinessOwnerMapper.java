@@ -4,8 +4,8 @@ import com.emenu.features.auth.dto.response.BusinessOwnerCreateResponse;
 import com.emenu.features.auth.dto.response.BusinessOwnerDetailResponse;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.User;
-import com.emenu.features.order.models.Payment;
 import com.emenu.features.subscription.models.Subscription;
+import com.emenu.features.subscription.models.SubscriptionPayment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -39,7 +39,7 @@ public interface BusinessOwnerMapper {
             User owner,
             Business business,
             Subscription subscription,
-            Payment payment
+            SubscriptionPayment payment
     );
 
     @Mapping(target = "ownerId", source = "id")
