@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import {
   AccountStatus,
+  ModalMode,
   UserGropeType,
 } from "@/constants/app-resource/status/status";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
@@ -29,6 +31,7 @@ import {
 } from "@/redux/features/auth/store/slice/users-slice";
 import { UserResponseModel } from "@/redux/features/auth/store/models/response/users-response";
 import { UserBusinessDetailModal } from "@/redux/features/auth/components/user-business-detail-modal";
+import UserBusinessModal from "@/redux/features/auth/components/user-business-modal";
 
 export default function UserPage() {
   const searchParams = useSearchParams();
@@ -43,6 +46,12 @@ export default function UserPage() {
     pagination,
     dispatch,
   } = useUsersState();
+
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    mode: ModalMode.CREATE_MODE,
+    userId: "",
+  });
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -92,6 +101,14 @@ export default function UserPage() {
     );
   }, [dispatch, debouncedSearch, filters.accountStatus, filters.pageNo]);
 
+  const handleCreateUser = () => {
+    setModalState({ isOpen: true, mode: ModalMode.CREATE_MODE, userId: "" });
+  };
+
+  const handleEditUser = (user: UserResponseModel) => {
+    setModalState({ isOpen: true, mode: ModalMode.UPDATE_MODE, userId: user.id || "" });
+  };
+
   const handleViewDetail = (user: UserResponseModel) => {
     setDetailModalState({ isOpen: true, userBusinessId: user.id || "" });
   };
@@ -112,6 +129,7 @@ export default function UserPage() {
 
   const tableHandlers = useMemo(
     () => ({
+      handleEditUser,
       handleViewUserDetail: handleViewDetail,
       handleResetPassword,
       handleDeleteUser,
@@ -155,6 +173,10 @@ export default function UserPage() {
     }
   };
 
+  const closeModal = () => {
+    setModalState({ isOpen: false, mode: ModalMode.CREATE_MODE, userId: "" });
+  };
+
   const closeDetailModal = () => {
     setDetailModalState({ isOpen: false, userBusinessId: "" });
   };
@@ -178,7 +200,11 @@ export default function UserPage() {
           title="Business Users"
           searchValue={filters.search}
           searchPlaceholder="Search business users..."
+          buttonIcon={<Plus className="w-3 h-3" />}
+          buttonText="New"
+          buttonTooltip="Create a new business user"
           onSearchChange={handleSearchChange}
+          openModal={handleCreateUser}
         >
           <div className="flex items-center gap-3">
             <CustomSelect
@@ -204,6 +230,13 @@ export default function UserPage() {
           onPageChange={handlePageChangeWrapper}
         />
       </div>
+
+      <UserBusinessModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        userId={modalState.userId}
+        mode={modalState.mode}
+      />
 
       <UserBusinessDetailModal
         userId={detailModalState.userBusinessId}
