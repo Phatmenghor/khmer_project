@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -55,8 +56,8 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private String currentPlanName;
     private BigDecimal currentPlanPrice;
     private SubscriptionPlanDurationType currentPlanDurationType;
-    private LocalDateTime subscriptionStartDate;
-    private LocalDateTime subscriptionEndDate;
+    private LocalDate subscriptionStartDate;
+    private LocalDate subscriptionEndDate;
     private Long daysRemaining;
     private Long daysActive;
     private SubscriptionStatus subscriptionStatus;

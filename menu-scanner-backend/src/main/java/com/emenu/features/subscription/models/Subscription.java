@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class Subscription extends BaseUUIDEntity {
 
     public long getDaysRemaining() {
         if (isExpired()) return 0;
-        return ChronoUnit.DAYS.between(LocalDateTime.now(), endDate);
+        return ChronoUnit.DAYS.between(LocalDate.now(), endDate.toLocalDate());
     }
 
     public boolean isExpiringSoon(int days) {

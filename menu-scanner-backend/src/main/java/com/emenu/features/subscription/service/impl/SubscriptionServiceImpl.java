@@ -246,8 +246,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         SubscriptionHistoryResponse response = new SubscriptionHistoryResponse();
         response.setSubscriptionId(subscription.getId());
         response.setBusinessId(subscription.getBusinessId());
-        response.setStartDate(subscription.getStartDate());
-        response.setEndDate(subscription.getEndDate());
+        response.setStartDate(subscription.getStartDate().toLocalDate());
+        response.setEndDate(subscription.getEndDate().toLocalDate());
         response.setStatus(subscription.getStatus());
         response.setDaysRemaining(subscription.getDaysRemaining());
 

@@ -492,29 +492,27 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         detailResponse.setCurrentPlanName(subscriptionRecord.getPlan().getName());
         detailResponse.setCurrentPlanPrice(subscriptionRecord.getPlan().getPrice());
         detailResponse.setCurrentPlanDurationType(subscriptionRecord.getPlan().getDurationType());
-        detailResponse.setSubscriptionStartDate(subscriptionRecord.getStartDate());
-        detailResponse.setSubscriptionEndDate(subscriptionRecord.getEndDate());
-        detailResponse.setDaysRemaining(calculateDaysRemaining(subscriptionRecord.getEndDate()));
-        detailResponse.setDaysActive(calculateDaysActive(subscriptionRecord.getStartDate()));
+        detailResponse.setSubscriptionStartDate(subscriptionRecord.getStartDate().toLocalDate());
+        detailResponse.setSubscriptionEndDate(subscriptionRecord.getEndDate().toLocalDate());
+        detailResponse.setDaysRemaining(calculateDaysRemaining(subscriptionRecord.getEndDate().toLocalDate()));
+        detailResponse.setDaysActive(calculateDaysActive(subscriptionRecord.getStartDate().toLocalDate()));
         detailResponse.setSubscriptionStatus(determineSubscriptionStatus(subscriptionRecord));
         detailResponse.setAutoRenew(subscriptionRecord.getAutoRenew());
         detailResponse.setIsExpiringSoon(subscriptionRecord.isExpiringSoon(7));
     }
 
-    private Long calculateDaysRemaining(LocalDateTime endDate) {
+    private Long calculateDaysRemaining(LocalDate endDate) {
         if (endDate == null) return 0L;
         LocalDate today = LocalDate.now();
-        LocalDate end = endDate.toLocalDate();
-        if (today.isAfter(end)) return 0L;
-        return ChronoUnit.DAYS.between(today, end);
+        if (today.isAfter(endDate)) return 0L;
+        return ChronoUnit.DAYS.between(today, endDate);
     }
 
-    private Long calculateDaysActive(LocalDateTime startDate) {
+    private Long calculateDaysActive(LocalDate startDate) {
         if (startDate == null) return 0L;
         LocalDate today = LocalDate.now();
-        LocalDate start = startDate.toLocalDate();
-        if (today.isBefore(start)) return 0L;
-        return ChronoUnit.DAYS.between(start, today);
+        if (today.isBefore(startDate)) return 0L;
+        return ChronoUnit.DAYS.between(startDate, today);
     }
 
     private SubscriptionStatus determineSubscriptionStatus(Subscription subscriptionRecord) {

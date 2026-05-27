@@ -7,6 +7,7 @@ import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -21,8 +22,8 @@ public class SubscriptionHistoryResponse {
     private String planName;
     private BigDecimal planPrice;
     private SubscriptionPlanDurationType planDurationType;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String status;
     private Long daysRemaining;
     private List<PaymentItem> payments;

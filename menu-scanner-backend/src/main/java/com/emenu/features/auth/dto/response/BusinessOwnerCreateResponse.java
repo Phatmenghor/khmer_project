@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -30,8 +31,8 @@ public class BusinessOwnerCreateResponse {
     private String planName;
     private BigDecimal planPrice;
     private SubscriptionPlanDurationType planDurationType;
-    private LocalDateTime subscriptionStartDate;
-    private LocalDateTime subscriptionEndDate;
+    private LocalDate subscriptionStartDate;
+    private LocalDate subscriptionEndDate;
     private Long daysRemaining;
     private UUID paymentId;
     private BigDecimal paymentAmount;

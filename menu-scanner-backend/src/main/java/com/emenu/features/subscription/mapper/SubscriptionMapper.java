@@ -22,6 +22,8 @@ public interface SubscriptionMapper {
     @Mapping(target = "endDate", ignore = true)
     Subscription toEntity(SubscriptionCreateRequest request);
 
+    @Mapping(target = "startDate", expression = "java(subscription.getStartDate() != null ? subscription.getStartDate().toLocalDate() : null)")
+    @Mapping(target = "endDate", expression = "java(subscription.getEndDate() != null ? subscription.getEndDate().toLocalDate() : null)")
     SubscriptionResponse toResponse(Subscription subscription);
 
     List<SubscriptionResponse> toResponseList(List<Subscription> subscriptions);

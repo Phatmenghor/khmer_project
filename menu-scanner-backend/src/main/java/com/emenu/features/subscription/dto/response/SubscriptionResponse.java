@@ -5,7 +5,7 @@ import com.emenu.shared.dto.BaseAuditResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -17,8 +17,8 @@ public class SubscriptionResponse extends BaseAuditResponse {
     private String planName;
     private Double planPrice;
     private SubscriptionPlanDurationType planDurationType;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Long daysRemaining;
     private Boolean autoRenew;
     private String status;
