@@ -27,8 +27,7 @@ import {
 } from "../store/models/schema/business-owner.schema";
 import { createBusinessOwnerService } from "../store/thunks/business-owner-thunks";
 import {
-  selectAllSubscriptionPlans,
-  selectIsLoading as selectPlanLoading,
+  selectSubscriptionPlan,
 } from "@/redux/features/master-data/store/selectors/subscription-plan-selector";
 import { fetchAllSubscriptionPlanService } from "@/redux/features/master-data/store/thunks/subscription-plan-thunks";
 
@@ -45,7 +44,7 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
   const reduxError = useAppSelector(selectError);
   const { isCreating } = operations;
 
-  const allPlans = useAppSelector(selectAllSubscriptionPlans);
+  const allPlans = useAppSelector(selectSubscriptionPlan);
   const planOptions = (allPlans?.content ?? []).map((p) => ({
     value: p.id,
     label: `${p.name} — $${p.price}`,
