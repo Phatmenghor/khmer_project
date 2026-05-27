@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { DisplayField } from "@/components/shared/form-field/display-field";
-import { Button } from "@/components/ui/button";
-import { RotateCw } from "lucide-react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { formatEnumLabel } from "@/utils/common/enum-convert";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
@@ -16,7 +14,6 @@ import {
   selectIsFetchingDetail,
 } from "../store/selectors/users-selectors";
 import Loading from "@/components/shared/common/loading";
-import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 
 interface UserBusinessDetailModalProps {
   userId?: string;
@@ -32,8 +29,6 @@ export function UserBusinessDetailModal({
   const dispatch = useAppDispatch();
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const userData = useAppSelector(selectSelectedUser);
-
-  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -53,8 +48,7 @@ export function UserBusinessDetailModal({
   };
 
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">Business User Details</DialogTitle>
         <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           {/* Header */}
@@ -85,17 +79,6 @@ export function UserBusinessDetailModal({
                     : "Detailed information about the selected business user"}
                 </p>
               </div>
-              {userData && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setResetPasswordOpen(true)}
-                  className="flex-shrink-0 gap-2"
-                >
-                  <RotateCw className="h-4 w-4" />
-                  Reset Password
-                </Button>
-              )}
             </div>
           </div>
 
@@ -189,15 +172,5 @@ export function UserBusinessDetailModal({
           )}
         </DialogContent>
       </Dialog>
-
-      <ResetPasswordModal
-        isOpen={resetPasswordOpen}
-        onClose={() => setResetPasswordOpen(false)}
-        userId={userData?.id}
-        userName={userData?.userIdentifier || userData?.email}
-        userRole={userData?.roles}
-        profileImageUrl={userData?.profileImageUrl || undefined}
-      />
-    </>
   );
 }

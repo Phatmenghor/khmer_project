@@ -10,6 +10,7 @@ import {
 } from "@/constants/app-resource/status/status";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
+import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { userBusinessTableColumns } from "@/redux/features/auth/table/users-business-table";
 import { ACCOUNT_STATUS_FILTER } from "@/constants/app-resource/status/filter-status";
@@ -46,6 +47,14 @@ export default function UserPage() {
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
     userBusinessId: "",
+  });
+
+  const [resetPasswordState, setResetPasswordState] = useState({
+    isOpen: false,
+    userId: "",
+    userName: "",
+    profileImageUrl: undefined as string | undefined,
+    roles: [] as string[],
   });
 
   const [deleteState, setDeleteState] = useState({
@@ -87,6 +96,16 @@ export default function UserPage() {
     setDetailModalState({ isOpen: true, userBusinessId: user.id || "" });
   };
 
+  const handleResetPassword = (user: UserResponseModel) => {
+    setResetPasswordState({
+      isOpen: true,
+      userId: user.id || "",
+      userName: user.userIdentifier || "",
+      profileImageUrl: user.profileImageUrl || undefined,
+      roles: user.roles || [],
+    });
+  };
+
   const handleDeleteUser = (user: UserResponseModel) => {
     setDeleteState({ isOpen: true, user });
   };
@@ -94,6 +113,7 @@ export default function UserPage() {
   const tableHandlers = useMemo(
     () => ({
       handleViewUserDetail: handleViewDetail,
+      handleResetPassword,
       handleDeleteUser,
     }),
     []
@@ -137,6 +157,10 @@ export default function UserPage() {
 
   const closeDetailModal = () => {
     setDetailModalState({ isOpen: false, userBusinessId: "" });
+  };
+
+  const closeResetPasswordModal = () => {
+    setResetPasswordState({ isOpen: false, userId: "", userName: "", profileImageUrl: undefined, roles: [] });
   };
 
   const closeDeleteModal = () => {
@@ -185,6 +209,15 @@ export default function UserPage() {
         userId={detailModalState.userBusinessId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
+      />
+
+      <ResetPasswordModal
+        isOpen={resetPasswordState.isOpen}
+        userName={resetPasswordState.userName}
+        onClose={closeResetPasswordModal}
+        userId={resetPasswordState.userId}
+        profileImageUrl={resetPasswordState.profileImageUrl}
+        userRole={resetPasswordState.roles}
       />
 
       <DeleteConfirmationModal
