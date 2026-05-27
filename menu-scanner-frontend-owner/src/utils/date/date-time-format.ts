@@ -22,8 +22,10 @@ export function dateTimeFormat(timestamp: string | null | undefined): string {
   return "- - -";
 }
 
-export function formatDate(dateStr: string): string {
+export function formatDate(dateStr: string | null | undefined): string | undefined {
+  if (!dateStr) return undefined;
   const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return undefined;
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();

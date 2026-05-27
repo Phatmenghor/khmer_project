@@ -44,6 +44,15 @@ import {
 } from "@/redux/features/auth/store/models/schema/user.schema";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
 
+function formatEnumLabel(value?: string | null): string | undefined {
+  if (!value) return undefined;
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export default function AdminProfilePage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -359,7 +368,7 @@ export default function AdminProfilePage() {
                         <DisplayField label="Email" value={watch("email")} />
                         <DisplayField label="Phone Number" value={watch("phoneNumber")} />
                         <DisplayField label="Gender" value={GENDER_OPTIONS.find((o) => o.value === watch("gender"))?.label} />
-                        <DisplayField label="Date of Birth" value={formatDate(watch("dateOfBirth") || "")} />
+                        <DisplayField label="Date of Birth" value={formatDate(watch("dateOfBirth"))} />
                       </>
                     )}
                   </div>
@@ -375,10 +384,10 @@ export default function AdminProfilePage() {
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <DisplayField label="User Identifier" value={userProfile?.userIdentifier} />
-                      <DisplayField label="User Type" value={userProfile?.userType} />
-                      <DisplayField label="Account Status" value={userProfile?.accountStatus} />
-                      <DisplayField label="Status" value={userProfile?.status} />
-                      <DisplayField label="Roles" value={userProfile?.roles?.length ? userProfile.roles.join(", ") : undefined} />
+                      <DisplayField label="User Type" value={formatEnumLabel(userProfile?.userType)} />
+                      <DisplayField label="Account Status" value={formatEnumLabel(userProfile?.accountStatus)} />
+                      <DisplayField label="Status" value={formatEnumLabel(userProfile?.status)} />
+                      <DisplayField label="Roles" value={userProfile?.roles?.length ? userProfile.roles.map(formatEnumLabel).join(", ") : undefined} />
                       <DisplayField label="Last Login" value={dateTimeFormat(userProfile?.lastLoginAt)} />
                     </div>
                   </CardContent>

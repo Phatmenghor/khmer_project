@@ -41,6 +41,15 @@ import { PageContainer } from "@/components/shared/common/page-container";
 import { GENDER_OPTIONS } from "@/constants/form-options";
 import { ROUTES } from "@/constants/app-routes/routes";
 
+function formatEnumLabel(value?: string | null): string | undefined {
+  if (!value) return undefined;
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 
 const customerProfileSchema = z.object({
   profileImageUrl: z.string().optional(),
@@ -508,19 +517,19 @@ export default function PublicProfilePage() {
                           />
                           <DisplayField
                             label="User Type"
-                            value={userProfile?.userType}
+                            value={formatEnumLabel(userProfile?.userType)}
                           />
                           <DisplayField
                             label="Account Status"
-                            value={userProfile?.accountStatus}
+                            value={formatEnumLabel(userProfile?.accountStatus)}
                           />
                           <DisplayField
                             label="Status"
-                            value={userProfile?.status}
+                            value={formatEnumLabel(userProfile?.status)}
                           />
                           <DisplayField
                             label="Roles"
-                            value={userProfile?.roles?.length ? userProfile.roles.join(", ") : undefined}
+                            value={userProfile?.roles?.length ? userProfile.roles.map(formatEnumLabel).join(", ") : undefined}
                           />
                           <DisplayField
                             label="Remark"
