@@ -30,7 +30,7 @@ import {
   selectAllSubscriptionPlans,
   selectIsLoading as selectPlanLoading,
 } from "@/redux/features/master-data/store/selectors/subscription-plan-selector";
-import { fetchAllSubscriptionPlansService } from "@/redux/features/master-data/store/thunks/subscription-plan-thunks";
+import { fetchAllSubscriptionPlanService } from "@/redux/features/master-data/store/thunks/subscription-plan-thunks";
 
 type Props = {
   isOpen: boolean;
@@ -84,7 +84,7 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
     if (isOpen) {
       dispatch(clearError());
       reset();
-      dispatch(fetchAllSubscriptionPlansService({ pageNo: 1, pageSize: 100 }));
+      dispatch(fetchAllSubscriptionPlanService({ pageNo: 1, pageSize: 100 }));
     }
   }, [isOpen, dispatch, reset]);
 
