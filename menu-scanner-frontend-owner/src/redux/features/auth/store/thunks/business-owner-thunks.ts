@@ -9,6 +9,7 @@ import {
   AllBusinessOwnerRequest,
   UpdateBusinessOwnerCancelParams,
   UpdateBusinessOwnerChangePlanParams,
+  UpdateBusinessOwnerParams,
   UpdateBusinessOwnerRenewParams,
 } from "../models/request/business-owner-request";
 import { CreateBusinessOwnerData } from "../models/schema/business-owner.schema";
@@ -50,6 +51,20 @@ export const createBusinessOwnerService = createApiThunk<
   const response = await axiosClientWithAuth.post(
     "/api/v1/business-owners",
     userData
+  );
+  return response.data.data;
+});
+
+/**
+ * Update business owner
+ */
+export const updateBusinessOwnerService = createApiThunk<
+  any,
+  UpdateBusinessOwnerParams
+>("business-owners/update", async ({ ownerId, data }) => {
+  const response = await axiosClientWithAuth.put(
+    `/api/v1/business-owners/${ownerId}`,
+    data
   );
   return response.data.data;
 });

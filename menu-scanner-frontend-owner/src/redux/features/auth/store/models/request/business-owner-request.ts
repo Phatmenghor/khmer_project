@@ -13,12 +13,26 @@ import {
  * Fetch All User business owner Request
  */
 export interface AllBusinessOwnerRequest extends BaseGetAllRequest {
-  businessStatuses?: string[];
-  ownerAccountStatuses?: string[];
   subscriptionStatuses?: string[];
   autoRenew?: boolean;
   expiringSoonDays?: number;
-  paymentStatuses?: string[];
+}
+
+export interface UpdateBusinessOwnerRequest {
+  ownerFullName?: string;
+  ownerEmail?: string;
+  ownerPhone?: string;
+  ownerAccountStatus?: string;
+  businessName?: string;
+  businessEmail?: string;
+  businessPhone?: string;
+  businessAddress?: string;
+  businessStatus?: string;
+}
+
+export interface UpdateBusinessOwnerParams {
+  ownerId: string;
+  data: UpdateBusinessOwnerRequest;
 }
 
 export interface UpdateBusinessOwnerChangePlanParams {

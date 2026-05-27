@@ -11,6 +11,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import {
   ModalMode,
+  Status,
   SubscriptionStatus,
 } from "@/constants/app-resource/status/status";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
@@ -18,11 +19,15 @@ import { CustomSelect } from "@/components/shared/common/custom-select";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { usePagination } from "@/redux/store/use-pagination";
 import { showToast } from "@/components/shared/common/show-toast";
-import { SUBSCRIPTION_FILTER } from "@/constants/app-resource/status/filter-status";
+import {
+  AUTO_RENEW_FILTER,
+  SUBSCRIPTION_FILTER,
+} from "@/constants/app-resource/status/filter-status";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { useBusinessOwnerState } from "@/redux/features/auth/store/state/business-owner-state";
 import { BusinessOwnerResponseModel } from "@/redux/features/auth/store/models/response/business-owner-response";
 import {
+  setAutoRenewFilter,
   setPageNo,
   setSearchFilter,
   setSubscriptionStatusFilter,
@@ -34,6 +39,7 @@ import {
 import { userBusinessOwnerTableColumns } from "@/redux/features/auth/table/business-owner-table";
 import CreateBusinessOwnerModal from "@/redux/features/auth/components/create-business-owner-modal";
 import { BusinessOwnerDetailModal } from "@/redux/features/auth/components/business-owner-detail-modal";
+import UpdateBusinessOwnerModal from "@/redux/features/auth/components/update-business-owner-modal";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 
 export default function BusinessOwnerPage() {
@@ -57,9 +63,9 @@ export default function BusinessOwnerPage() {
     ownerId: "",
   });
 
-  const [deleteState, setDeleteState] = useState({
+  const [editModalState, setEditModalState] = useState({
     isOpen: false,
-    owner: null as BusinessOwnerResponseModel | null,
+    ownerId: "",
   });
 
   const [resetPasswordState, setResetPasswordState] = useState({
@@ -68,6 +74,10 @@ export default function BusinessOwnerPage() {
     userName: "",
   });
 
+  const [deleteState, setDeleteState] = useState({
+    isOpen: false,
+    owner: null as BusinessOwnerResponseModel | null,
+  });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -95,16 +105,22 @@ export default function BusinessOwnerPage() {
           filters.subscriptionStatus === SubscriptionStatus.ALL
             ? []
             : [filters.subscriptionStatus],
+        autoRenew:
+          filters.autoRenew === Status.ACTIVE
+            ? true
+            : filters.autoRenew === Status.INACTIVE
+            ? false
+            : undefined,
       })
     );
-  }, [dispatch, debouncedSearch, filters.subscriptionStatus, filters.pageNo, globalPageSize]);
+  }, [dispatch, debouncedSearch, filters.subscriptionStatus, filters.autoRenew, filters.pageNo, globalPageSize]);
 
   const handleViewUserDetail = (user: BusinessOwnerResponseModel) => {
     setDetailModalState({ isOpen: true, ownerId: user.ownerId || "" });
   };
 
-  const handleDeleteUser = (user: BusinessOwnerResponseModel) => {
-    setDeleteState({ isOpen: true, owner: user });
+  const handleEditOwner = (user: BusinessOwnerResponseModel) => {
+    setEditModalState({ isOpen: true, ownerId: user.ownerId || "" });
   };
 
   const handleResetPassword = (user: BusinessOwnerResponseModel) => {
@@ -115,8 +131,12 @@ export default function BusinessOwnerPage() {
     });
   };
 
+  const handleDeleteUser = (user: BusinessOwnerResponseModel) => {
+    setDeleteState({ isOpen: true, owner: user });
+  };
+
   const tableHandlers = useMemo(
-    () => ({ handleViewUserDetail, handleDeleteUser, handleResetPassword }),
+    () => ({ handleViewUserDetail, handleEditOwner, handleResetPassword, handleDeleteUser }),
     []
   );
 
@@ -179,7 +199,14 @@ export default function BusinessOwnerPage() {
               onValueChange={(value) =>
                 dispatch(setSubscriptionStatusFilter(value as SubscriptionStatus))
               }
-              label="Subscription Status"
+              label="Subscription"
+            />
+            <CustomSelect
+              options={AUTO_RENEW_FILTER}
+              value={filters.autoRenew}
+              placeholder="All"
+              onValueChange={(value) => dispatch(setAutoRenewFilter(value))}
+              label="Auto Renew"
             />
           </div>
         </CardHeaderSection>
@@ -203,6 +230,12 @@ export default function BusinessOwnerPage() {
       <CreateBusinessOwnerModal
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
+      />
+
+      <UpdateBusinessOwnerModal
+        isOpen={editModalState.isOpen}
+        ownerId={editModalState.ownerId}
+        onClose={() => setEditModalState({ isOpen: false, ownerId: "" })}
       />
 
       <BusinessOwnerDetailModal

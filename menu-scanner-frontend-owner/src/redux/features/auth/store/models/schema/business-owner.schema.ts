@@ -75,9 +75,25 @@ export const changePlanSchema = z.object({
 });
 
 /**
+ * Update Business Owner Schema
+ */
+export const updateBusinessOwnerSchema = z.object({
+  ownerFullName: z.string().min(1, "Owner full name is required"),
+  ownerEmail: z.string().email("Invalid email format").optional().or(z.literal("")),
+  ownerPhone: z.string().regex(/^\+?[\d\s-()]+$/, "Invalid phone number format").optional().or(z.literal("")),
+  ownerAccountStatus: z.string().optional(),
+  businessName: z.string().min(1, "Business name is required"),
+  businessEmail: z.string().email("Invalid email format").optional().or(z.literal("")),
+  businessPhone: z.string().regex(/^\+?[\d\s-()]+$/, "Invalid phone number format").optional().or(z.literal("")),
+  businessAddress: z.string().optional().or(z.literal("")),
+  businessStatus: z.string().optional(),
+});
+
+/**
  * Type definitions
  */
 export type CreateBusinessOwnerData = z.infer<typeof createBusinessOwnerSchema>;
+export type UpdateBusinessOwnerData = z.infer<typeof updateBusinessOwnerSchema>;
 export type RenewSubscriptionData = z.infer<typeof renewSubscriptionSchema>;
 export type CancelSubscriptionData = z.infer<typeof cancelSubscriptionSchema>;
 export type ChangePlanData = z.infer<typeof changePlanSchema>;

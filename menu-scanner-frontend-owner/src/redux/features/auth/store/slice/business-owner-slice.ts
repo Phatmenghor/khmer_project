@@ -14,6 +14,7 @@ import {
   updateBusinessOwnerCancelService,
   updateBusinessOwnerChangePlanService,
   updateBusinessOwnerRenewService,
+  updateBusinessOwnerService,
 } from "../thunks/business-owner-thunks";
 
 /**
@@ -27,6 +28,7 @@ const initialState: BusinessOwnerManagementState = {
   filters: {
     search: "",
     subscriptionStatus: SubscriptionStatus.ALL,
+    autoRenew: "ALL",
     pageNo: 1,
   },
   operations: {
@@ -55,6 +57,11 @@ const businessOwnerSlice = createSlice({
       action: PayloadAction<SubscriptionStatus>
     ) => {
       state.filters.subscriptionStatus = action.payload;
+      state.filters.pageNo = 1;
+    },
+
+    setAutoRenewFilter: (state, action: PayloadAction<string>) => {
+      state.filters.autoRenew = action.payload;
       state.filters.pageNo = 1;
     },
 
@@ -140,6 +147,26 @@ const businessOwnerSlice = createSlice({
       })
       .addCase(createBusinessOwnerService.rejected, (state, action) => {
         state.operations.isCreating = false;
+        state.error = action.payload as string;
+      });
+
+    // Update business owner info handlers
+    builder
+      .addCase(updateBusinessOwnerService.pending, (state) => {
+        state.operations.isUpdating = true;
+        state.error = null;
+      })
+      .addCase(updateBusinessOwnerService.fulfilled, (state, action) => {
+        state.operations.isUpdating = false;
+        state.selectedUser = action.payload;
+        if (state.data) {
+          state.data.content = state.data.content.map((user) =>
+            user.id === action.payload.id ? action.payload : user
+          );
+        }
+      })
+      .addCase(updateBusinessOwnerService.rejected, (state, action) => {
+        state.operations.isUpdating = false;
         state.error = action.payload as string;
       });
 
@@ -246,6 +273,7 @@ const businessOwnerSlice = createSlice({
 export const {
   setSearchFilter,
   setSubscriptionStatusFilter,
+  setAutoRenewFilter,
   setPageNo,
   clearError,
   clearSelectedBusinessOwner,

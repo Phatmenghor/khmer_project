@@ -1,7 +1,7 @@
 import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Eye, RotateCw, Trash } from "lucide-react";
+import { formatDate } from "@/utils/date/date-time-format";
+import { Eye, Pencil, RotateCw, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import {
   AllBusinessOwnerResponseModel,
@@ -10,6 +10,7 @@ import {
 
 interface BusinessOwnerTableHandlers {
   handleViewUserDetail: (user: BusinessOwnerResponseModel) => void;
+  handleEditOwner: (user: BusinessOwnerResponseModel) => void;
   handleResetPassword: (user: BusinessOwnerResponseModel) => void;
   handleDeleteUser: (user: BusinessOwnerResponseModel) => void;
 }
@@ -23,7 +24,7 @@ export const userBusinessOwnerTableColumns = ({
   data,
   handlers,
 }: BusinessOwnerTableOptions): TableColumn<BusinessOwnerResponseModel>[] => {
-  const { handleViewUserDetail, handleResetPassword, handleDeleteUser } = handlers;
+  const { handleViewUserDetail, handleEditOwner, handleResetPassword, handleDeleteUser } = handlers;
 
   return [
     {
@@ -98,6 +99,28 @@ export const userBusinessOwnerTableColumns = ({
       ),
     },
     {
+      key: "subscriptionStartDate",
+      label: "Start Date",
+      minWidth: "10px",
+      maxWidth: "200px",
+      render: (user) => (
+        <span className="text-xs text-muted-foreground">
+          {formatDate(user?.subscriptionStartDate) || "---"}
+        </span>
+      ),
+    },
+    {
+      key: "subscriptionEndDate",
+      label: "End Date",
+      minWidth: "10px",
+      maxWidth: "200px",
+      render: (user) => (
+        <span className="text-xs text-muted-foreground">
+          {formatDate(user?.subscriptionEndDate) || "---"}
+        </span>
+      ),
+    },
+    {
       key: "daysRemaining",
       label: "Days Remaining",
       minWidth: "10px",
@@ -112,17 +135,6 @@ export const userBusinessOwnerTableColumns = ({
             : "text-green-600";
         return <span className={`text-xs ${colorClass}`}>{days} days</span>;
       },
-    },
-    {
-      key: "daysActive",
-      label: "Days Active",
-      minWidth: "10px",
-      maxWidth: "400px",
-      render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {user?.daysActive || 0} days
-        </span>
-      ),
     },
     {
       key: "subscriptionStatus",
@@ -145,17 +157,6 @@ export const userBusinessOwnerTableColumns = ({
       },
     },
     {
-      key: "createdAt",
-      label: "Created At",
-      minWidth: "10px",
-      maxWidth: "400px",
-      render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {dateTimeFormat(user?.createdAt)}
-        </span>
-      ),
-    },
-    {
       key: "actions",
       label: "Actions",
       minWidth: "10px",
@@ -166,6 +167,12 @@ export const userBusinessOwnerTableColumns = ({
             icon={<Eye className="w-4 h-4" />}
             tooltip="View Details"
             onClick={() => handleViewUserDetail(user)}
+            size="sm"
+          />
+          <ActionButton
+            icon={<Pencil className="w-4 h-4" />}
+            tooltip="Edit"
+            onClick={() => handleEditOwner(user)}
             size="sm"
           />
           <ActionButton

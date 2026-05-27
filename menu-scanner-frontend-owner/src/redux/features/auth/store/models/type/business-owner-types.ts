@@ -6,6 +6,7 @@ import {
 export interface BusinessOwnerFilters {
   search: string;
   subscriptionStatus: string;
+  autoRenew: string;
   pageNo: number;
 }
 
