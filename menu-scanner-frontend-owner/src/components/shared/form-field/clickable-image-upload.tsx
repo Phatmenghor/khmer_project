@@ -102,9 +102,9 @@ export function ClickableImageUpload({
 
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium">
+      <Label className="text-xs sm:text-sm font-semibold text-foreground">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-destructive ml-1">*</span>}
       </Label>
 
       <div className="space-y-3">
@@ -118,7 +118,7 @@ export function ClickableImageUpload({
               ? "border-border hover:border-primary/50"
               : "border-dashed border-border hover:border-primary",
             disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:shadow-md",
-            error && "border-red-500",
+            error && "border-destructive",
           )}
         >
           <input
@@ -177,7 +177,7 @@ export function ClickableImageUpload({
         )}
       </div>
 
-      {error && <p className="text-xs text-red-500">{error.message}</p>}
+      {error && <p className="text-xs text-destructive font-medium">{error.message}</p>}
     </div>
   );
 }

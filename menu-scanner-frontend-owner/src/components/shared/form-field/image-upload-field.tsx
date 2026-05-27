@@ -83,9 +83,9 @@ export function ImageUploadField({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <Label className="text-[12px] font-normal text-gray-300">
+      <Label className="text-xs sm:text-sm font-semibold text-foreground">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-destructive ml-1">*</span>}
       </Label>
 
       <div className="space-y-3">
@@ -176,7 +176,7 @@ export function ImageUploadField({
         )}
       </div>
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-destructive font-medium">{error}</p>}
     </div>
   );
 }

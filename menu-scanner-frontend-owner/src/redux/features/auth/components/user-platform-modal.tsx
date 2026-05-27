@@ -247,7 +247,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                 {isCreate && (
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">
-                      Account Credentials <span className="text-red-500">*</span>
+                      Account Credentials <span className="text-destructive">*</span>
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <TextField
@@ -310,7 +310,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                 {/* Personal Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">
-                    Personal Information <span className="text-red-500">*</span>
+                    Personal Information <span className="text-destructive">*</span>
                   </h3>
                   <div className="space-y-4">
                     {/* Role + Status for edit mode */}

@@ -152,9 +152,9 @@ export function ComboboxSelectDistrict({
   return (
     <div className="space-y-2 w-full">
       {label && (
-        <Label className="text-[12px] font-normal text-gray-300">
+        <Label className="text-xs sm:text-sm font-semibold text-foreground">
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-destructive ml-1">*</span>}
         </Label>
       )}
       <Popover open={open} onOpenChange={setOpen}>
