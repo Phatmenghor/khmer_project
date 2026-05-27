@@ -1755,7 +1755,10 @@ DECLARE
   biz_set_id  UUID;
   user_id     UUID;
   profile_id  UUID;
-  plan_id     UUID;
+  plan_id       UUID;
+  week_plan_id  UUID;
+  month_plan_id UUID;
+  year_plan_id  UUID;
   sub_id      UUID;
   role_owner  UUID;
   role_admin  UUID;
@@ -1775,20 +1778,26 @@ DECLARE
 BEGIN
 
   -- ==========================================================================
-  -- A. SUBSCRIPTION PLANS (3 plans — matches DataInitializationService)
-  --    All plans are FREE ($0). End date uses calendar math, not fixed days:
-  --      WEEKLY  -> plusWeeks(1)   always 7 days
-  --      MONTHLY -> plusMonths(1)  follows real calendar month
-  --      YEARLY  -> plusYears(1)   follows real calendar year
+  -- A. SUBSCRIPTION PLANS
+  --    DataInitializationService creates exactly 3 plans on every app startup:
+  --      "1 Week"  (WEEKLY,  $0)
+  --      "1 Month" (MONTHLY, $0)
+  --      "1 Year"  (YEARLY,  $0)
+  --    We must NOT insert them here — doing so creates duplicates because the
+  --    ON CONFLICT only guards against duplicate IDs, not duplicate names.
+  --    Instead, resolve the IDs by name so the rest of the script can use them.
   -- ==========================================================================
-  RAISE NOTICE 'A. Inserting subscription plans (3: 1 Week / 1 Month / 1 Year)...';
+  RAISE NOTICE 'A. Resolving subscription plan IDs by name (created by DataInitializationService)...';
 
-  INSERT INTO subscription_plans (id, name, description, price, duration_type, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
-  VALUES
-    ('aa000000-0000-0000-0000-000000000001', '1 Week',  'Weekly subscription plan — 7 days access',    0.00, 'WEEKLY',  'PUBLIC', 0, false, NOW(), NOW(), 'admin', 'admin'),
-    ('aa000000-0000-0000-0000-000000000002', '1 Month', 'Monthly subscription plan — calendar month',  0.00, 'MONTHLY', 'PUBLIC', 0, false, NOW(), NOW(), 'admin', 'admin'),
-    ('aa000000-0000-0000-0000-000000000003', '1 Year',  'Annual subscription plan — calendar year',    0.00, 'YEARLY',  'PUBLIC', 0, false, NOW(), NOW(), 'admin', 'admin')
-  ON CONFLICT DO NOTHING;
+  SELECT id INTO week_plan_id  FROM subscription_plans WHERE name = '1 Week'  AND is_deleted = false LIMIT 1;
+  SELECT id INTO month_plan_id FROM subscription_plans WHERE name = '1 Month' AND is_deleted = false LIMIT 1;
+  SELECT id INTO year_plan_id  FROM subscription_plans WHERE name = '1 Year'  AND is_deleted = false LIMIT 1;
+
+  IF week_plan_id IS NULL OR month_plan_id IS NULL OR year_plan_id IS NULL THEN
+    RAISE EXCEPTION 'Subscription plans not found. Start the application first so DataInitializationService can create them, then re-run this script.';
+  END IF;
+
+  RAISE NOTICE 'Plan IDs resolved — week: %, month: %, year: %', week_plan_id, month_plan_id, year_plan_id;
 
   -- ==========================================================================
   -- B. 20 NEW BUSINESSES (biz03-22)
@@ -1888,7 +1897,7 @@ BEGIN
   VALUES (
     'ee000000-0000-0000-0000-000000000001',
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'aa000000-0000-0000-0000-000000000003',
+    year_plan_id,
     (NOW() - INTERVAL '1 year' - INTERVAL '1 month'),
     (NOW() - INTERVAL '1 year' - INTERVAL '1 month') + INTERVAL '1 year',
     false, 0, false,
@@ -1902,7 +1911,7 @@ BEGIN
   VALUES (
     'ee000000-0000-0000-0000-000000000002',
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'aa000000-0000-0000-0000-000000000002',
+    month_plan_id,
     (NOW() - INTERVAL '45 days'),
     (NOW() - INTERVAL '45 days') + INTERVAL '1 month',
     false, 0, false,
@@ -1916,7 +1925,7 @@ BEGIN
   VALUES (
     'ee000000-0000-0000-0000-000000000003',
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'aa000000-0000-0000-0000-000000000002',
+    month_plan_id,
     (NOW() - INTERVAL '10 days'),
     (NOW() - INTERVAL '10 days') + INTERVAL '1 month',
     true, 0, false,
@@ -1932,7 +1941,7 @@ BEGIN
   VALUES (
     'ee000000-0000-0000-0000-000000000004',
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
-    'aa000000-0000-0000-0000-000000000001',
+    week_plan_id,
     (NOW() - INTERVAL '3 weeks'),
     (NOW() - INTERVAL '3 weeks') + INTERVAL '1 week',
     false, 0, false,
@@ -1946,7 +1955,7 @@ BEGIN
   VALUES (
     'ee000000-0000-0000-0000-000000000005',
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
-    'aa000000-0000-0000-0000-000000000002',
+    month_plan_id,
     (NOW() - INTERVAL '6 weeks'),
     (NOW() - INTERVAL '6 weeks') + INTERVAL '1 month',
     false, 0, false,
@@ -1960,7 +1969,7 @@ BEGIN
   VALUES (
     'ee000000-0000-0000-0000-000000000006',
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
-    'aa000000-0000-0000-0000-000000000002',
+    month_plan_id,
     (NOW() - INTERVAL '5 days'),
     (NOW() - INTERVAL '5 days') + INTERVAL '1 month',
     true, 0, false,
@@ -1980,7 +1989,7 @@ BEGIN
 
     CASE (i % 3)
       WHEN 0 THEN
-        plan_id := 'aa000000-0000-0000-0000-000000000001';  -- 1 Week
+        plan_id := week_plan_id;  -- 1 Week
         INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
         VALUES (
           gen_random_uuid(), biz_id, plan_id,
@@ -1989,7 +1998,7 @@ BEGIN
           true, 0, false, NOW(), NOW(), 'admin', 'admin'
         ) ON CONFLICT DO NOTHING;
       WHEN 1 THEN
-        plan_id := 'aa000000-0000-0000-0000-000000000002';  -- 1 Month
+        plan_id := month_plan_id;  -- 1 Month
         INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
         VALUES (
           gen_random_uuid(), biz_id, plan_id,
@@ -1998,7 +2007,7 @@ BEGIN
           true, 0, false, NOW(), NOW(), 'admin', 'admin'
         ) ON CONFLICT DO NOTHING;
       ELSE
-        plan_id := 'aa000000-0000-0000-0000-000000000003';  -- 1 Year
+        plan_id := year_plan_id;  -- 1 Year
         INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
         VALUES (
           gen_random_uuid(), biz_id, plan_id,
@@ -2022,7 +2031,7 @@ BEGIN
     gen_random_uuid(),
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'ee000000-0000-0000-0000-000000000001',
-    'aa000000-0000-0000-0000-000000000003',
+    year_plan_id,
     0.00, 'CASH', 'SUBSCRIPTION', 'COMPLETED',
     'REF-MEGA-YEAR-001',
     'Initial yearly subscription activation — 1 Year plan',
@@ -2038,7 +2047,7 @@ BEGIN
     gen_random_uuid(),
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'ee000000-0000-0000-0000-000000000002',
-    'aa000000-0000-0000-0000-000000000002',
+    month_plan_id,
     0.00, 'BANK', 'RENEWAL', 'COMPLETED',
     'REF-MEGA-MON-001',
     'Monthly renewal after yearly plan expired',
@@ -2054,7 +2063,7 @@ BEGIN
     gen_random_uuid(),
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
     'ee000000-0000-0000-0000-000000000003',
-    'aa000000-0000-0000-0000-000000000002',
+    month_plan_id,
     0.00, 'CASH', 'RENEWAL', 'COMPLETED',
     'REF-MEGA-MON-002',
     'Current active monthly subscription',
@@ -2070,7 +2079,7 @@ BEGIN
     gen_random_uuid(),
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
     'ee000000-0000-0000-0000-000000000004',
-    'aa000000-0000-0000-0000-000000000001',
+    week_plan_id,
     0.00, 'CASH', 'SUBSCRIPTION', 'COMPLETED',
     'REF-FASH-WEEK-001',
     'Initial weekly subscription activation — 1 Week plan',
@@ -2086,7 +2095,7 @@ BEGIN
     gen_random_uuid(),
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
     'ee000000-0000-0000-0000-000000000005',
-    'aa000000-0000-0000-0000-000000000002',
+    month_plan_id,
     0.00, 'BANK', 'RENEWAL', 'COMPLETED',
     'REF-FASH-MON-001',
     'Monthly renewal after weekly plan expired',
@@ -2102,7 +2111,7 @@ BEGIN
     gen_random_uuid(),
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
     'ee000000-0000-0000-0000-000000000006',
-    'aa000000-0000-0000-0000-000000000002',
+    month_plan_id,
     0.00, 'CASH', 'RENEWAL', 'COMPLETED',
     'REF-FASH-MON-002',
     'Current active monthly subscription',
