@@ -14,7 +14,7 @@ import { usePagination } from "@/redux/store/use-pagination";
 import {
   setPageNo,
   setSearchFilter,
-} from "@/redux/features/location/store/slice/province-slice";
+} from "@/redux/features/location/store/slice/district-slice";
 import { useDistrictState } from "@/redux/features/location/store/state/district-state";
 import { DistrictResponseModel } from "@/redux/features/location/store/models/response/district-response";
 import {
@@ -215,7 +215,7 @@ export default function DistrictPage() {
           onSearchChange={handleSearchChange}
           openModal={handleCreateDistrict}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-end gap-3">
             <ComboboxSelectProvince
               dataSelect={selectedProvince}
               onChangeSelected={handleProvinceChange}

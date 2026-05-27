@@ -14,7 +14,7 @@ import { usePagination } from "@/redux/store/use-pagination";
 import {
   setPageNo,
   setSearchFilter,
-} from "@/redux/features/location/store/slice/province-slice";
+} from "@/redux/features/location/store/slice/commune-slice";
 import { useCommuneState } from "@/redux/features/location/store/state/commune-state";
 import { CommuneResponseModel } from "@/redux/features/location/store/models/response/commune-response";
 import {
@@ -228,7 +228,7 @@ export default function CommunePage() {
           onSearchChange={handleSearchChange}
           openModal={handleCreateCommune}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-end gap-3">
             <ComboboxSelectDistrict
               dataSelect={selectedDistrict}
               onChangeSelected={handleDistrictChange}

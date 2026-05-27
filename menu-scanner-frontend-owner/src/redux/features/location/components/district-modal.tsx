@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,6 +38,8 @@ import {
   clearError,
   clearSelectedDistrict,
 } from "../store/slice/district-slice";
+import { ComboboxSelectProvince } from "@/components/shared/combo-box/combobox-province";
+import { ProvinceResponseModel } from "../store/models/response/province-response";
 
 type Props = {
   mode: ModalMode;
@@ -60,10 +62,14 @@ export default function DistrictModal({
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
 
+  const [selectedProvince, setSelectedProvince] =
+    useState<ProvinceResponseModel | null>(null);
+
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<DistrictFormData>({
     resolver: zodResolver(
@@ -85,6 +91,7 @@ export default function DistrictModal({
         const resultAction = await dispatch(fetchDistrictByIdService(districtId));
         if (fetchDistrictByIdService.fulfilled.match(resultAction)) {
           const data = resultAction.payload;
+          setSelectedProvince(data.province || null);
           reset({
             id: data.id,
             districtCode: data.districtCode,
@@ -102,6 +109,7 @@ export default function DistrictModal({
 
   useEffect(() => {
     if (isOpen && isCreate) {
+      setSelectedProvince(null);
       reset({ districtCode: "", districtEn: "", districtKh: "", provinceCode: "" });
     }
   }, [isOpen, isCreate, reset]);
@@ -142,6 +150,7 @@ export default function DistrictModal({
 
   const handleClose = () => {
     reset();
+    setSelectedProvince(null);
     dispatch(clearError());
     dispatch(clearSelectedDistrict());
     onClose();
@@ -212,15 +221,28 @@ export default function DistrictModal({
                       required
                       error={getFieldError(errors.districtKh)}
                     />
-                    <TextField
-                      control={control}
-                      name="provinceCode"
-                      label="Province Code"
-                      placeholder="Enter Province Code"
-                      disabled={isSubmitting}
-                      required
-                      error={getFieldError(errors.provinceCode)}
-                    />
+                    <div className="space-y-1">
+                      <ComboboxSelectProvince
+                        dataSelect={selectedProvince}
+                        onChangeSelected={(province) => {
+                          setSelectedProvince(province);
+                          setValue("provinceCode", province?.provinceCode || "", {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }}
+                        label="Province"
+                        required
+                        disabled={isSubmitting}
+                        showAllOption={false}
+                        placeholder="Select Province"
+                      />
+                      {errors.provinceCode && (
+                        <p className="text-sm text-destructive">
+                          {errors.provinceCode.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -238,7 +238,7 @@ export default function VillagePage() {
           onSearchChange={handleSearchChange}
           openModal={handleCreateVillage}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-end gap-3">
             <ComboboxSelectCommune
               dataSelect={selectedCommune}
               onChangeSelected={handleCommuneChange}

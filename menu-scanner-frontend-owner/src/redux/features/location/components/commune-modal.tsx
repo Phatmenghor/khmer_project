@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,6 +35,8 @@ import {
   UpdateCommuneRequest,
 } from "../store/models/request/commune-request";
 import { clearError, clearSelectedCommune } from "../store/slice/commune-slice";
+import { ComboboxSelectDistrict } from "@/components/shared/combo-box/combobox-district";
+import { DistrictResponseModel } from "../store/models/response/district-response";
 
 type Props = {
   mode: ModalMode;
@@ -57,10 +59,14 @@ export default function CommuneModal({
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
 
+  const [selectedDistrict, setSelectedDistrict] =
+    useState<DistrictResponseModel | null>(null);
+
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<CommuneFormData>({
     resolver: zodResolver(
@@ -82,6 +88,7 @@ export default function CommuneModal({
         const resultAction = await dispatch(fetchCommuneByIdService(communeId));
         if (fetchCommuneByIdService.fulfilled.match(resultAction)) {
           const data = resultAction.payload;
+          setSelectedDistrict(data.district || null);
           reset({
             id: data.id,
             communeCode: data.communeCode,
@@ -99,6 +106,7 @@ export default function CommuneModal({
 
   useEffect(() => {
     if (isOpen && isCreate) {
+      setSelectedDistrict(null);
       reset({ communeCode: "", communeEn: "", communeKh: "", districtCode: "" });
     }
   }, [isOpen, isCreate, reset]);
@@ -139,6 +147,7 @@ export default function CommuneModal({
 
   const handleClose = () => {
     reset();
+    setSelectedDistrict(null);
     dispatch(clearError());
     dispatch(clearSelectedCommune());
     onClose();
@@ -209,15 +218,28 @@ export default function CommuneModal({
                       required
                       error={getFieldError(errors.communeKh)}
                     />
-                    <TextField
-                      control={control}
-                      name="districtCode"
-                      label="District Code"
-                      placeholder="Enter District Code"
-                      disabled={isSubmitting}
-                      required
-                      error={getFieldError(errors.districtCode)}
-                    />
+                    <div className="space-y-1">
+                      <ComboboxSelectDistrict
+                        dataSelect={selectedDistrict}
+                        onChangeSelected={(district) => {
+                          setSelectedDistrict(district);
+                          setValue("districtCode", district?.districtCode || "", {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }}
+                        label="District"
+                        required
+                        disabled={isSubmitting}
+                        showAllOption={false}
+                        placeholder="Select District"
+                      />
+                      {errors.districtCode && (
+                        <p className="text-sm text-destructive">
+                          {errors.districtCode.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

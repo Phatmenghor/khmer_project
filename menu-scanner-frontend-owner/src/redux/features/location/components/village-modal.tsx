@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,6 +35,8 @@ import {
   selectIsFetchingDetail,
   selectOperations,
 } from "../store/selectors/vaillage-selector";
+import { ComboboxSelectCommune } from "@/components/shared/combo-box/combobox-commune";
+import { CommuneResponseModel } from "../store/models/response/commune-response";
 
 type Props = {
   mode: ModalMode;
@@ -57,10 +59,14 @@ export default function VillageModal({
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
 
+  const [selectedCommune, setSelectedCommune] =
+    useState<CommuneResponseModel | null>(null);
+
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<VillageFormData>({
     resolver: zodResolver(
@@ -82,6 +88,7 @@ export default function VillageModal({
         const resultAction = await dispatch(fetchVillageByIdService(villageId));
         if (fetchVillageByIdService.fulfilled.match(resultAction)) {
           const data = resultAction.payload;
+          setSelectedCommune(data.commune || null);
           reset({
             id: data.id,
             communeCode: data.communeCode,
@@ -99,6 +106,7 @@ export default function VillageModal({
 
   useEffect(() => {
     if (isOpen && isCreate) {
+      setSelectedCommune(null);
       reset({ villageCode: "", villageEn: "", villageKh: "", communeCode: "" });
     }
   }, [isOpen, isCreate, reset]);
@@ -139,6 +147,7 @@ export default function VillageModal({
 
   const handleClose = () => {
     reset();
+    setSelectedCommune(null);
     dispatch(clearError());
     dispatch(clearSelectedVillage());
     onClose();
@@ -209,15 +218,28 @@ export default function VillageModal({
                       required
                       error={getFieldError(errors.villageKh)}
                     />
-                    <TextField
-                      control={control}
-                      name="communeCode"
-                      label="Commune Code"
-                      placeholder="Enter Commune Code"
-                      disabled={isSubmitting}
-                      required
-                      error={getFieldError(errors.communeCode)}
-                    />
+                    <div className="space-y-1">
+                      <ComboboxSelectCommune
+                        dataSelect={selectedCommune}
+                        onChangeSelected={(commune) => {
+                          setSelectedCommune(commune);
+                          setValue("communeCode", commune?.communeCode || "", {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }}
+                        label="Commune"
+                        required
+                        disabled={isSubmitting}
+                        showAllOption={false}
+                        placeholder="Select Commune"
+                      />
+                      {errors.communeCode && (
+                        <p className="text-sm text-destructive">
+                          {errors.communeCode.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

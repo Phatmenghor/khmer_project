@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { Check, ChevronDown, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useAppDispatch } from "@/redux/store";
@@ -64,24 +64,20 @@ export function ComboboxSelectVillage({
   const { ref, inView } = useInView({ threshold: 0.5 });
   const debouncedSearch = useDebounce(searchTerm, 400);
 
-  // Use refs to track loading state and avoid stale closures
   const loadingRef = useRef(false);
   const lastPageRef = useRef(false);
 
-  // Update refs when state changes
   useEffect(() => {
     loadingRef.current = loading;
     lastPageRef.current = lastPage;
   }, [loading, lastPage]);
 
-  // Size classes matching CustomSelect
   const sizeClasses = {
     sm: "h-8 text-xs",
     md: "h-9 text-sm",
     lg: "h-10 text-base",
   };
 
-  // Fetch data function
   const fetchData = async (search: string, newPage: number) => {
     if (loadingRef.current || (lastPageRef.current && newPage > 1)) return;
 
@@ -95,7 +91,6 @@ export function ComboboxSelectVillage({
       if (!result) return;
 
       if (newPage === 1) {
-        // Add "All" option at the beginning only when showAllOption is true and no search
         const newData = result.content;
         if (showAllOption && !search) {
           setData([ALL_OPTION, ...newData]);
@@ -109,13 +104,12 @@ export function ComboboxSelectVillage({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (error) {
-      console.error("Error fetching provinces:", error);
+      console.error("Error fetching villages:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Reset and fetch first page when search changes
   useEffect(() => {
     setPage(1);
     setLastPage(false);
@@ -123,14 +117,8 @@ export function ComboboxSelectVillage({
     fetchData(debouncedSearch, 1);
   }, [debouncedSearch]);
 
-  // Infinite scroll - load more when scrolling to bottom
   useEffect(() => {
-    if (
-      inView &&
-      !loadingRef.current &&
-      !lastPageRef.current &&
-      data.length > 0
-    ) {
+    if (inView && !loadingRef.current && !lastPageRef.current && data.length > 0) {
       fetchData(debouncedSearch, page + 1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -164,19 +152,22 @@ export function ComboboxSelectVillage({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between min-w-[150px]",
+              "w-full justify-between gap-2 min-w-[150px] transition-all duration-200",
+              "hover:bg-primary/10 hover:border-primary hover:text-primary",
+              open && "bg-primary/20 border-primary text-primary",
               sizeClasses[size],
               !dataSelect && "text-muted-foreground",
               disabled && "opacity-50 cursor-not-allowed"
             )}
             disabled={disabled}
           >
-            {dataSelect
-              ? dataSelect.villageEn ||
-                dataSelect.villageKh ||
-                dataSelect.villageCode
-              : placeholder}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            {dataSelect ? dataSelect.villageEn : placeholder}
+            <ChevronDown
+              className={cn(
+                "ml-2 h-4 w-4 shrink-0 transition-all duration-200",
+                open ? "rotate-180 opacity-100 text-primary" : "opacity-50"
+              )}
+            />
           </Button>
         </PopoverTrigger>
 
@@ -186,12 +177,12 @@ export function ComboboxSelectVillage({
         >
           <Command>
             <CommandInput
-              placeholder="Search province..."
+              placeholder="Search village..."
               value={searchTerm}
               onValueChange={handleSearchChange}
             />
             <CommandList className="max-h-60 overflow-y-auto">
-              <CommandEmpty>No province found.</CommandEmpty>
+              <CommandEmpty>No village found.</CommandEmpty>
               <CommandGroup>
                 {data.map((item, index) => (
                   <CommandItem
@@ -210,11 +201,7 @@ export function ComboboxSelectVillage({
                           : "opacity-0"
                       )}
                     />
-                    {item.id === "all" ? (
-                      item.villageEn
-                    ) : (
-                      <>{item.villageEn || item.villageKh}</>
-                    )}
+                    {item.villageEn}
                   </CommandItem>
                 ))}
               </CommandGroup>
@@ -227,7 +214,7 @@ export function ComboboxSelectVillage({
 
               {!loading && lastPage && data.length > 0 && (
                 <div className="text-center py-2 text-sm text-gray-400">
-                  No more village
+                  No more villages
                 </div>
               )}
             </CommandList>
