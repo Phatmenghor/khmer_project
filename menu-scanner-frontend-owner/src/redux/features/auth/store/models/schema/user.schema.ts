@@ -88,10 +88,6 @@ export const profileUpdateSchema = z.object({
   gender: z.string().optional().or(z.literal("")),
   dateOfBirth: z.string().optional().or(z.literal("")),
   remark: z.string().optional().or(z.literal("")),
-  addresses: z.array(addressSchema).optional(),
-  emergencyContacts: z.array(emergencyContactSchema).optional(),
-  documents: z.array(documentSchema).optional(),
-  educations: z.array(educationSchema).optional(),
 });
 
 export type ProfileFormData = {
@@ -105,10 +101,6 @@ export type ProfileFormData = {
   gender?: string;
   dateOfBirth?: string;
   remark?: string;
-  addresses?: Address[];
-  emergencyContacts?: EmergencyContact[];
-  documents?: Document[];
-  educations?: Education[];
 };
 
 export const createUserSchema = z.object({
