@@ -82,6 +82,8 @@ export default function UserPage() {
     isOpen: false,
     userId: "",
     userName: "",
+    profileImageUrl: undefined as string | undefined,
+    roles: [] as string[],
   });
 
   const [deleteState, setDeleteState] = useState({
@@ -164,6 +166,8 @@ export default function UserPage() {
       isOpen: true,
       userId: user.id || "",
       userName: user.userIdentifier || "",
+      profileImageUrl: user.profileImageUrl || undefined,
+      roles: user.roles || [],
     });
   };
 
@@ -341,6 +345,8 @@ export default function UserPage() {
         userName={resetPasswordState.userName}
         onClose={closeResetPasswordModal}
         userId={resetPasswordState.userId}
+        profileImageUrl={resetPasswordState.profileImageUrl}
+        userRole={resetPasswordState.roles}
       />
 
       {/* Modals Delete User platform */}

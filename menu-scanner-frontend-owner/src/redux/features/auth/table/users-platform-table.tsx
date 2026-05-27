@@ -2,7 +2,6 @@ import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Eye, RotateCw, Trash } from "lucide-react";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { TableColumn } from "@/components/shared/common/data-table";
 import {
   AllUserResponseModel,
@@ -50,15 +49,23 @@ export const userPlatformTableColumns = ({
       label: "Avatar",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (user) => {
-        return (
-          <CustomAvatar
-            imageUrl={user.profileImageUrl}
-            name={user?.firstName}
-            size="lg"
-          />
-        );
-      },
+      render: (user) => (
+        <div className="h-12 w-12 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+          {user.profileImageUrl ? (
+            <img
+              src={user.profileImageUrl}
+              alt={user?.firstName}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
+              <span className="text-xs font-semibold text-primary">
+                {user?.firstName?.charAt(0)?.toUpperCase() || "U"}
+              </span>
+            </div>
+          )}
+        </div>
+      ),
     },
     {
       key: "userIdentifier",
@@ -69,30 +76,6 @@ export const userPlatformTableColumns = ({
       render: (user) => (
         <span className="text-xs text-muted-foreground">
           {user?.userIdentifier || "---"}
-        </span>
-      ),
-    },
-    {
-      key: "phoneNumber",
-      label: "Phone Number",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {user?.phoneNumber || "---"}
-        </span>
-      ),
-    },
-    {
-      key: "email",
-      label: "Email",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {user?.email || "---"}
         </span>
       ),
     },

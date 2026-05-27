@@ -49,10 +49,33 @@ export function UserPlatformDetailModal({ userId, isOpen, onClose }: UserPlatfor
       <DialogTitle className="sr-only">Platform User Details</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <h2 className="text-lg font-semibold text-foreground">Platform User Details</h2>
-          <p className="text-sm text-foreground mt-1">
-            Detailed information about the selected platform user
-          </p>
+          <div className="flex items-center gap-4 pr-8">
+            {userData && (
+              <div className="h-16 w-16 rounded-lg overflow-hidden bg-muted border border-border flex-shrink-0">
+                {userData.profileImageUrl ? (
+                  <img
+                    src={userData.profileImageUrl}
+                    alt={userData.firstName}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
+                    <span className="text-lg font-semibold text-primary">
+                      {userData.firstName?.charAt(0)?.toUpperCase() || "U"}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-foreground">Platform User Details</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {userData
+                  ? userData.fullName || `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "---"
+                  : "Detailed information about the selected platform user"}
+              </p>
+            </div>
+          </div>
         </div>
 
         {isFetchingDetail ? (
