@@ -1972,44 +1972,57 @@ BEGIN
     'admin', 'admin'
   ) ON CONFLICT DO NOTHING;
 
-  -- ---- New businesses 3-22 — one active subscription each -------------------
+  -- ---- New businesses 3-22 — one active subscription + one payment each ------
   --    Plan assigned by (i % 3):
   --      0 -> 1 Week  (WEEKLY)
   --      1 -> 1 Month (MONTHLY)
   --      2 -> 1 Year  (YEARLY)
-  --    End date uses the correct calendar interval for each plan.
+  --    sub_id is captured so the payment can reference the same subscription.
   FOR i IN 3..22 LOOP
     biz_id := ('bbbbb000-0000-0000-0000-' || LPAD(i::TEXT, 12, '0'))::UUID;
+    sub_id := gen_random_uuid();
 
     CASE (i % 3)
       WHEN 0 THEN
-        plan_id := week_plan_id;  -- 1 Week
+        plan_id := week_plan_id;
         INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
         VALUES (
-          gen_random_uuid(), biz_id, plan_id,
+          sub_id, biz_id, plan_id,
           NOW() - INTERVAL '1 day' * (i % 5),
           (NOW() - INTERVAL '1 day' * (i % 5)) + INTERVAL '1 week',
           true, 0, false, NOW(), NOW(), 'admin', 'admin'
         ) ON CONFLICT DO NOTHING;
       WHEN 1 THEN
-        plan_id := month_plan_id;  -- 1 Month
+        plan_id := month_plan_id;
         INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
         VALUES (
-          gen_random_uuid(), biz_id, plan_id,
+          sub_id, biz_id, plan_id,
           NOW() - INTERVAL '1 day' * (i % 20),
           (NOW() - INTERVAL '1 day' * (i % 20)) + INTERVAL '1 month',
           true, 0, false, NOW(), NOW(), 'admin', 'admin'
         ) ON CONFLICT DO NOTHING;
       ELSE
-        plan_id := year_plan_id;  -- 1 Year
+        plan_id := year_plan_id;
         INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
         VALUES (
-          gen_random_uuid(), biz_id, plan_id,
+          sub_id, biz_id, plan_id,
           NOW() - INTERVAL '1 day' * (i % 30),
           (NOW() - INTERVAL '1 day' * (i % 30)) + INTERVAL '1 year',
           true, 0, false, NOW(), NOW(), 'admin', 'admin'
         ) ON CONFLICT DO NOTHING;
     END CASE;
+
+    -- Initial SUBSCRIPTION payment linked to this business's subscription
+    INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      gen_random_uuid(),
+      biz_id, sub_id, plan_id,
+      0.00, 'CASH', 'SUBSCRIPTION', 'COMPLETED',
+      'REF-BIZ' || LPAD(i::TEXT, 2, '0') || '-001',
+      'Initial subscription activation',
+      0, false, NOW(), NOW(), 'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+
   END LOOP;
 
   -- ==========================================================================

@@ -24,8 +24,11 @@ public class SubscriptionHistoryResponse {
     private SubscriptionPlanDurationType planDurationType;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Boolean autoRenew;
     private String status;
     private Long daysRemaining;
+    private String paymentStatus;
+    private BigDecimal totalPaid;
     private List<PaymentItem> payments;
 
     @Data
@@ -37,6 +40,7 @@ public class SubscriptionHistoryResponse {
         private SubscriptionPaymentStatus status;
         private String referenceNumber;
         private String notes;
+        private String imageUrl;
         private LocalDateTime paidAt;
     }
 }

@@ -279,6 +279,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         response.setBusinessId(subscription.getBusinessId());
         response.setStartDate(subscription.getStartDate().toLocalDate());
         response.setEndDate(subscription.getEndDate().toLocalDate());
+        response.setAutoRenew(subscription.getAutoRenew());
         response.setStatus(subscription.getStatus());
         response.setDaysRemaining(subscription.getDaysRemaining());
 
@@ -306,10 +307,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             item.setStatus(payment.getStatus());
             item.setReferenceNumber(payment.getReferenceNumber());
             item.setNotes(payment.getNotes());
+            item.setImageUrl(payment.getImageUrl());
             item.setPaidAt(payment.getCreatedAt());
             paymentItems.add(item);
         }
         response.setPayments(paymentItems);
+        response.setTotalPaid(subscription.getPaymentAmount());
+        response.setPaymentStatus(subscription.getPaymentStatus());
 
         return response;
     }
