@@ -109,7 +109,7 @@ export function UserCustomerDetailModal({ userId, isOpen, onClose }: UserCustome
                       value={
                         userData.roles?.length > 0
                           ? userData.roles.map((r) => formatEnumLabel(r) ?? r).join(", ")
-                          : "---"
+                          : formatEnumLabel(userData.userType) ?? "---"
                       }
                     />
                     {userData.remark && (

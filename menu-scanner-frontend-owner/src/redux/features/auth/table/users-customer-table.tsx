@@ -94,7 +94,7 @@ export const userCustomerTableColumns = ({
         <span className="text-xs text-muted-foreground">
           {user.roles?.length > 0
             ? user.roles.map((r: string) => formatEnumLabel(r) ?? r).join(", ")
-            : "---"}
+            : formatEnumLabel(user.userType) ?? "---"}
         </span>
       ),
     },

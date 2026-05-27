@@ -4,11 +4,10 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ModalMode, UserGropeType, AccountStatus } from "@/constants/app-resource/status/status";
+import { ModalMode, UserGropeType, UserRole, AccountStatus } from "@/constants/app-resource/status/status";
 import {
   ACCOUNT_STATUS_CREATE_UPDATE,
   GENDER_OPTIONS,
-  USER_CUSTOMER_ROLE_CREATE_UPDATE,
 } from "@/constants/app-resource/status/create-update-status";
 import Loading from "@/components/shared/common/loading";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -74,7 +73,7 @@ export default function UserCustomerModal({ isOpen, onClose, userId, mode }: Pro
       dateOfBirth: "",
       password: "",
       userType: UserGropeType.CUSTOMER,
-      roles: [],
+      roles: [UserRole.CUSTOMER],
       accountStatus: AccountStatus.ACTIVE,
       remark: "",
     },
@@ -101,7 +100,7 @@ export default function UserCustomerModal({ isOpen, onClose, userId, mode }: Pro
             gender: data.gender || "",
             dateOfBirth: data.dateOfBirth || "",
             accountStatus: data.accountStatus,
-            roles: Array.isArray(data.roles) ? data.roles : [],
+            roles: [UserRole.CUSTOMER],
             remark: data.remark || "",
           });
         }
@@ -125,7 +124,7 @@ export default function UserCustomerModal({ isOpen, onClose, userId, mode }: Pro
         dateOfBirth: "",
         password: "",
         userType: UserGropeType.CUSTOMER,
-        roles: [],
+        roles: [UserRole.CUSTOMER],
         accountStatus: AccountStatus.ACTIVE,
         remark: "",
       });
@@ -314,20 +313,6 @@ export default function UserCustomerModal({ isOpen, onClose, userId, mode }: Pro
                     error={getFieldError(errors.password)}
                   />
                 )}
-
-                <SelectField
-                  control={control}
-                  name="roles"
-                  label="Role"
-                  placeholder="Select role"
-                  options={USER_CUSTOMER_ROLE_CREATE_UPDATE}
-                  required
-                  disabled={isSubmitting}
-                  error={getFieldError(errors.roles)}
-                  onValueChange={(value) =>
-                    setValue("roles", [value], { shouldDirty: true, shouldValidate: true })
-                  }
-                />
 
                 <SelectField
                   control={control}
