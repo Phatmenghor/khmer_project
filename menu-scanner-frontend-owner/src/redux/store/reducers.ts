@@ -12,6 +12,8 @@ import provinceReducer from "../features/location/store/slice/province-slice";
 import districtReducer from "../features/location/store/slice/district-slice";
 import villageReducer from "../features/location/store/slice/village-slice";
 
+import subscriptionHistoryReducer from "../features/subscription/store/slice/subscription-history-slice";
+
 export const reducers = {
   globalSettings: globalSettingsReducer,
   auth: authReducer,
@@ -24,4 +26,5 @@ export const reducers = {
   province: provinceReducer,
   district: districtReducer,
   village: villageReducer,
+  subscriptionHistory: subscriptionHistoryReducer,
 };

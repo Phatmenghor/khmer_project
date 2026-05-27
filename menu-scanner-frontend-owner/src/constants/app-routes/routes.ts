@@ -4,6 +4,7 @@ import {
   LucideIcon,
   Database,
   Pin,
+  Building2,
 } from "lucide-react";
 
 export const ROUTES = {
@@ -20,6 +21,7 @@ export const ROUTES = {
     PROFILE: "/admin/profile",
     BUSINESS_USER: "/admin/business-users",
     BUSINESS_OWNER: "/admin/business-owner",
+    SUBSCRIPTION_HISTORY: "/admin/subscription-history",
     PAYMENT: "/admin/payment",
     USERS_BUSINESS: "/admin/users",
     CUSTOMER_USER: "/admin/customer-user",
@@ -67,6 +69,21 @@ export const sidebarItems: SidebarItem[] = [
     ],
   },
   {
+    title: "Business",
+    section: "Business",
+    icon: Building2,
+    subroutes: [
+      {
+        title: "Business Owner",
+        href: ROUTES.DASHBOARD.BUSINESS_OWNER,
+      },
+      {
+        title: "Subscription History",
+        href: ROUTES.DASHBOARD.SUBSCRIPTION_HISTORY,
+      },
+    ],
+  },
+  {
     title: "User Management",
     section: "User Management",
     icon: Users,
@@ -78,10 +95,6 @@ export const sidebarItems: SidebarItem[] = [
       {
         title: "Business Users",
         href: ROUTES.DASHBOARD.BUSINESS_USER,
-      },
-      {
-        title: "Business Owner",
-        href: ROUTES.DASHBOARD.BUSINESS_OWNER,
       },
       {
         title: "Customer Users",
