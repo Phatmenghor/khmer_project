@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import {
@@ -70,6 +74,7 @@ export default function UserPage() {
     user: null as UserResponseModel | null,
   });
 
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -90,6 +95,7 @@ export default function UserPage() {
       fetchAllUsersService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
+        pageSize: globalPageSize,
         roles: [],
         userTypes: [UserGropeType.CUSTOMER],
         accountStatus:
@@ -98,7 +104,7 @@ export default function UserPage() {
             : [filters.accountStatus],
       })
     );
-  }, [dispatch, debouncedSearch, filters.accountStatus, filters.pageNo]);
+  }, [dispatch, debouncedSearch, filters.accountStatus, filters.pageNo, globalPageSize]);
 
   const handleEditUser = (user: UserResponseModel) => {
     setModalState({ isOpen: true, mode: ModalMode.UPDATE_MODE, userId: user.id || "" });
@@ -148,6 +154,12 @@ export default function UserPage() {
   const handlePageChangeWrapper = (page: number) => {
     dispatch(setPageNo(page));
     handlePageChange(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    dispatch(setGlobalPageSize(size));
+    dispatch(setPageNo(1));
+    updateUrlWithPage(1);
   };
 
   const handleDelete = async () => {
@@ -219,6 +231,9 @@ export default function UserPage() {
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
           onPageChange={handlePageChangeWrapper}
+          pageSize={globalPageSize}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
 

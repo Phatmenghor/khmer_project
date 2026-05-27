@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -53,6 +57,7 @@ export default function RolesPage() {
     role: null as RoleResponseModel | null,
   });
 
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -64,11 +69,11 @@ export default function RolesPage() {
       fetchAllRoleService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
-        pageSize: 15,
+        pageSize: globalPageSize,
         userTypes: ["PLATFORM_USER"],
       }),
     );
-  }, [dispatch, debouncedSearch, filters.pageNo]);
+  }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
 
   useEffect(() => {
     return () => {
@@ -109,6 +114,12 @@ export default function RolesPage() {
   const handlePageChangeWrapper = (page: number) => {
     dispatch(setPageNo(page));
     handlePageChange(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    dispatch(setGlobalPageSize(size));
+    dispatch(setPageNo(1));
+    updateUrlWithPage(1);
   };
 
   const handleDelete = async () => {
@@ -162,6 +173,9 @@ export default function RolesPage() {
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
           onPageChange={handlePageChangeWrapper}
+          pageSize={globalPageSize}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
 

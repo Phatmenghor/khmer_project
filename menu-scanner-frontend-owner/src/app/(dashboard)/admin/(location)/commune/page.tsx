@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -66,6 +70,7 @@ export default function CommunePage() {
     commune: null as CommuneResponseModel | null,
   });
 
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -89,6 +94,7 @@ export default function CommunePage() {
       fetchAllCommuneService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
+        pageSize: globalPageSize,
         provinceCode: selectedProvince?.provinceCode,
         districtCode: selectedDistrict?.districtCode,
       })
@@ -97,6 +103,7 @@ export default function CommunePage() {
     dispatch,
     debouncedSearch,
     filters.pageNo,
+    globalPageSize,
     selectedProvince,
     selectedDistrict,
   ]);
@@ -211,6 +218,12 @@ export default function CommunePage() {
     setSelectedDistrict(district);
   };
 
+  const handlePageSizeChange = (size: number) => {
+    dispatch(setGlobalPageSize(size));
+    dispatch(setPageNo(1));
+    updateUrlWithPage(1);
+  };
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
@@ -256,6 +269,9 @@ export default function CommunePage() {
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
           onPageChange={handlePageChangeWrapper}
+          pageSize={globalPageSize}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
 

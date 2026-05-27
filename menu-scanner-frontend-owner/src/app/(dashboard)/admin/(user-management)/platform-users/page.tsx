@@ -23,6 +23,9 @@ import { fetchAllRolesListService } from "@/redux/features/auth/store/thunks/rol
 import { selectRolesList } from "@/redux/features/auth/store/selectors/role-selectors";
 import { convertEnumOrString } from "@/utils/common/enum-convert";
 import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { useUsersState } from "@/redux/features/auth/store/state/users-state";
@@ -57,6 +60,7 @@ export default function UserPage() {
   } = useUsersState();
 
   const rolesList = useAppSelector(selectRolesList);
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
 
   const roleFilterOptions = [
     { value: UserRole.ALL, label: "All Roles" },
@@ -121,6 +125,7 @@ export default function UserPage() {
       fetchAllUsersService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
+        pageSize: globalPageSize,
         roles: filters.role === UserRole.ALL ? [] : [filters.role],
         userTypes: [UserGropeType.PLATFORM_USER],
         accountStatus:
@@ -135,6 +140,7 @@ export default function UserPage() {
     filters.accountStatus,
     filters.role,
     filters.pageNo,
+    globalPageSize,
   ]);
 
   // Event handlers
@@ -223,6 +229,12 @@ export default function UserPage() {
 
   const handlePageChangeWrapper = (page: number) => {
     handlePageChange(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    dispatch(setGlobalPageSize(size));
+    dispatch(setPageNo(1));
+    updateUrlWithPage(1);
   };
 
   const handleDelete = async () => {
@@ -321,6 +333,9 @@ export default function UserPage() {
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
           onPageChange={handlePageChangeWrapper}
+          pageSize={globalPageSize}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
 

@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -63,6 +67,7 @@ export default function SubscriptionPlanPage() {
     business: null as SubscriptionPlanResponseModel | null,
   });
 
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -86,13 +91,14 @@ export default function SubscriptionPlanPage() {
       fetchAllSubscriptionPlanService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
+        pageSize: globalPageSize,
         statuses:
           filters.statuses === SubscriptionPlanStatus.ALL
             ? []
             : [filters.statuses],
       })
     );
-  }, [dispatch, debouncedSearch, filters.statuses, filters.pageNo]);
+  }, [dispatch, debouncedSearch, filters.statuses, filters.pageNo, globalPageSize]);
 
   // Event handlers
   const handleCreatePlan = () => {
@@ -154,6 +160,12 @@ export default function SubscriptionPlanPage() {
   const handlePageChangeWrapper = (page: number) => {
     dispatch(setPageNo(page));
     handlePageChange(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    dispatch(setGlobalPageSize(size));
+    dispatch(setPageNo(1));
+    updateUrlWithPage(1);
   };
 
   const handleDelete = async () => {
@@ -240,6 +252,9 @@ export default function SubscriptionPlanPage() {
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
           onPageChange={handlePageChangeWrapper}
+          pageSize={globalPageSize}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
 

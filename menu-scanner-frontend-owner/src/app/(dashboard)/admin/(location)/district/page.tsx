@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useAppSelector } from "@/redux/store";
+import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
+import { selectGlobalPageSize } from "@/redux/store/selectors/global-settings-selectors";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -62,6 +66,7 @@ export default function DistrictPage() {
     district: null as DistrictResponseModel | null,
   });
 
+  const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -79,16 +84,17 @@ export default function DistrictPage() {
     }
   }, [searchParams, filters.pageNo, dispatch]);
 
-  // Fetch province when filters change
+  // Fetch district when filters change
   useEffect(() => {
     dispatch(
       fetchAllDistrictService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
+        pageSize: globalPageSize,
         provinceCode: selectedProvince?.provinceCode,
       })
     );
-  }, [dispatch, debouncedSearch, filters.pageNo, selectedProvince]);
+  }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize, selectedProvince]);
 
   // Event handlers
   const handleCreateDistrict = () => {
@@ -198,6 +204,12 @@ export default function DistrictPage() {
     setSelectedProvince(province);
   };
 
+  const handlePageSizeChange = (size: number) => {
+    dispatch(setGlobalPageSize(size));
+    dispatch(setPageNo(1));
+    updateUrlWithPage(1);
+  };
+
   return (
     <div className="flex flex-1 flex-col gap-4 px-2">
       <div className="space-y-4">
@@ -236,6 +248,9 @@ export default function DistrictPage() {
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
           onPageChange={handlePageChangeWrapper}
+          pageSize={globalPageSize}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
 

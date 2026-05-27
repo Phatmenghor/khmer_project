@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { PageSizeSelectField } from "@/components/shared/form-field/page-size-select-field";
 
 export interface TableColumn<T = any> {
   key: string;
@@ -28,6 +29,12 @@ interface DataTableWithPaginationProps<T = any> {
   onPageChange: (page: number) => void;
   paginationSize?: "sm" | "md" | "lg";
   showPagination?: boolean;
+
+  // Page size props
+  pageSize?: number;
+  onPageSizeChange?: (size: number) => void;
+  pageSizeOptions?: number[];
+  showPageSizeSelector?: boolean;
 }
 
 export function DataTableWithPagination<T = any>({
@@ -43,6 +50,10 @@ export function DataTableWithPagination<T = any>({
   onPageChange,
   paginationSize = "md",
   showPagination = true,
+  pageSize = 15,
+  onPageSizeChange = () => {},
+  pageSizeOptions = [10, 15, 20, 50, 100],
+  showPageSizeSelector = true,
 }: DataTableWithPaginationProps<T>) {
   const tableData: T[] = Array.isArray(data) ? data : [];
 
@@ -241,79 +252,92 @@ export function DataTableWithPagination<T = any>({
       </div>
 
       {/* Pagination */}
-      {showPagination && totalPages > 1 && (
-        <div className="flex items-center justify-end gap-2 p-4">
-          {/* Previous Button */}
-          <button
-            onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`
-              ${classes.button}
-              flex items-center gap-2 rounded-lg border font-medium transition-all duration-200
-              ${
-                currentPage === 1
-                  ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
-                  : "text-foreground border-border hover:bg-muted hover:border-border-strong"
-              }
-            `}
-          >
-            <ChevronLeft className={classes.icon} />
-            <span className="hidden sm:inline">Previous</span>
-          </button>
+      {showPagination && (
+        <div className="flex items-center justify-between gap-4 p-4 flex-wrap">
+          {/* Page size selector */}
+          {showPageSizeSelector && totalPages > 1 ? (
+            <PageSizeSelectField
+              pageSize={pageSize}
+              pageSizeOptions={pageSizeOptions}
+              onPageSizeChange={onPageSizeChange}
+            />
+          ) : (
+            <div />
+          )}
 
-          {/* Page Numbers */}
-          <div className="flex items-center gap-1">
-            {getPaginationItems().map((item, index) => {
-              if (item === "ellipsis") {
-                return (
-                  <span
-                    key={`ellipsis-${index}`}
-                    className="px-2 text-muted-foreground"
-                  >
-                    ...
-                  </span>
-                );
-              }
+          {/* Page navigation */}
+          {totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`
+                  ${classes.button}
+                  flex items-center gap-2 rounded-lg border font-medium transition-all duration-200
+                  ${
+                    currentPage === 1
+                      ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
+                      : "text-foreground border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
+                  }
+                `}
+              >
+                <ChevronLeft className={classes.icon} />
+                <span className="hidden sm:inline">Previous</span>
+              </button>
 
-              return (
-                <button
-                  key={item}
-                  onClick={() => onPageChange(item)}
-                  className={`
-                    ${classes.pageButton}
-                    rounded-lg font-medium px-2 transition-all duration-200 
-                    ${
-                      currentPage === item
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-foreground border border-border hover:bg-muted hover:border-border-strong"
-                    }
-                  `}
-                >
-                  {item}
-                </button>
-              );
-            })}
-          </div>
+              <div className="flex items-center gap-1">
+                {getPaginationItems().map((item, index) => {
+                  if (item === "ellipsis") {
+                    return (
+                      <span
+                        key={`ellipsis-${index}`}
+                        className="px-2 text-muted-foreground"
+                      >
+                        ...
+                      </span>
+                    );
+                  }
 
-          {/* Next Button */}
-          <button
-            onClick={() =>
-              currentPage < totalPages && onPageChange(currentPage + 1)
-            }
-            disabled={currentPage === totalPages}
-            className={`
-              ${classes.button}
-              flex items-center gap-2 rounded-lg border font-medium transition-all duration-200
-              ${
-                currentPage === totalPages
-                  ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
-                  : "text-foreground border-border hover:bg-muted hover:border-border-strong"
-              }
-            `}
-          >
-            <span className="hidden sm:inline">Next</span>
-            <ChevronRight className={classes.icon} />
-          </button>
+                  return (
+                    <button
+                      key={item}
+                      onClick={() => onPageChange(item)}
+                      className={`
+                        ${classes.pageButton}
+                        rounded-lg font-medium px-2 transition-all duration-200
+                        ${
+                          currentPage === item
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-foreground border border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
+                        }
+                      `}
+                    >
+                      {item}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() =>
+                  currentPage < totalPages && onPageChange(currentPage + 1)
+                }
+                disabled={currentPage === totalPages}
+                className={`
+                  ${classes.button}
+                  flex items-center gap-2 rounded-lg border font-medium transition-all duration-200
+                  ${
+                    currentPage === totalPages
+                      ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
+                      : "text-foreground border-border hover:bg-primary/10 hover:border-primary hover:text-primary"
+                  }
+                `}
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className={classes.icon} />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,3 +1,4 @@
+import globalSettingsReducer from "./slices/global-settings-slice";
 import authReducer from "../features/auth/store/slice/auth-slice";
 import usersReducer from "../features/auth/store/slice/users-slice";
 import businessOwnerReducer from "../features/auth/store/slice/business-owner-slice";
@@ -12,6 +13,7 @@ import districtReducer from "../features/location/store/slice/district-slice";
 import villageReducer from "../features/location/store/slice/village-slice";
 
 export const reducers = {
+  globalSettings: globalSettingsReducer,
   auth: authReducer,
   users: usersReducer,
   businessOwner: businessOwnerReducer,
