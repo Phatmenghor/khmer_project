@@ -53,10 +53,7 @@ import {
   EducationLevel,
   EDUCATION_LEVEL_OPTIONS,
 } from "@/constants/status/user-enums";
-import {
-  GENDER_OPTIONS,
-  EMPLOYMENT_TYPE_OPTIONS,
-} from "@/constants/app-resource/status/create-update-status";
+import { GENDER_OPTIONS } from "@/constants/app-resource/status/create-update-status";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
 import Loading from "@/components/shared/common/loading";
 import {
@@ -546,38 +543,6 @@ export default function AdminProfilePage() {
                         <DisplayField label="Telegram Photo URL" value={userProfile?.telegramPhotoUrl} />
                         <DisplayField label="Telegram Synced At" value={dateTimeFormat(userProfile?.telegramSyncedAt)} />
                         <DisplayField label="Telegram Synced" value={userProfile?.telegramSynced !== undefined ? (userProfile.telegramSynced ? "Yes" : "No") : undefined} />
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Employment Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Employment Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {isEditing ? (
-                      <>
-                        <TextField control={typedControl} name="employeeId" label="Employee ID" placeholder="Employee ID" error={errors.employeeId} />
-                        <TextField control={typedControl} name="position" label="Position" placeholder="Position" error={errors.position} />
-                        <TextField control={typedControl} name="department" label="Department" placeholder="Department" error={errors.department} />
-                        <SelectField control={typedControl} name="employmentType" label="Employment Type" placeholder="Select type" options={EMPLOYMENT_TYPE_OPTIONS} error={errors.employmentType} />
-                        <DatePickerField control={typedControl} name="joinDate" label="Join Date" placeholder="Join date" error={errors.joinDate} />
-                        <DatePickerField control={typedControl} name="leaveDate" label="Leave Date" placeholder="Leave date" error={errors.leaveDate} />
-                        <TextField control={typedControl} name="shift" label="Shift" placeholder="Shift" error={errors.shift} />
-                      </>
-                    ) : (
-                      <>
-                        <DisplayField label="Employee ID" value={watch("employeeId")} />
-                        <DisplayField label="Position" value={watch("position")} />
-                        <DisplayField label="Department" value={watch("department")} />
-                        <DisplayField label="Employment Type" value={EMPLOYMENT_TYPE_OPTIONS.find((o) => o.value === watch("employmentType"))?.label} />
-                        <DisplayField label="Join Date" value={formatDate(watch("joinDate") || "")} />
-                        <DisplayField label="Leave Date" value={formatDate(watch("leaveDate") || "")} />
-                        <DisplayField label="Shift" value={watch("shift")} />
                       </>
                     )}
                   </div>
