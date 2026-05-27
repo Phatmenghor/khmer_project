@@ -26,8 +26,8 @@ export function SelectField({
 }: SelectFieldProps) {
   return (
     <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={name} className="text-sm font-medium">
-        {label} {required && <span className="text-red-500">*</span>}
+      <Label htmlFor={name} className="text-xs sm:text-sm font-semibold text-foreground">
+        {label} {required && <span className="text-destructive">*</span>}
       </Label>
       <Controller
         control={control}
@@ -68,7 +68,7 @@ export function SelectField({
           );
         }}
       />
-      {error && <p className="text-sm text-red-600">{error?.message}</p>}
+      {error && <p className="text-xs text-destructive font-medium">{error?.message}</p>}
     </div>
   );
 }

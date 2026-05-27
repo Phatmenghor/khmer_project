@@ -45,7 +45,7 @@ export function CheckboxField<T extends FieldValues>({
           </div>
         )}
       />
-      {error && <p className="text-xs text-red-500">{error.message}</p>}
+      {error && <p className="text-xs text-destructive font-medium">{error.message}</p>}
     </div>
   );
 }
