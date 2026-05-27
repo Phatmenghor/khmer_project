@@ -14,6 +14,8 @@ interface SubscriptionHistoryTableHandlers {
 interface SubscriptionHistoryTableOptions {
   data: AllSubscriptionHistoryResponseModel | null;
   handlers: SubscriptionHistoryTableHandlers;
+}
+
 export const subscriptionHistoryTableColumns = ({
   data,
   handlers,
