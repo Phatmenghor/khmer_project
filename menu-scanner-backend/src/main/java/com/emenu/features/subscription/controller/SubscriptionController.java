@@ -31,6 +31,13 @@ public class SubscriptionController {
         return ResponseEntity.ok(ApiResponse.success("Subscription history retrieved successfully", response));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<SubscriptionHistoryResponse>> getSubscriptionById(@PathVariable UUID id) {
+        log.info("Endpoint: subscriptions/{} - detail request", id);
+        SubscriptionHistoryResponse response = subscriptionService.getSubscriptionById(id);
+        return ResponseEntity.ok(ApiResponse.success("Subscription retrieved successfully", response));
+    }
+
     @PostMapping("/{id}/renew")
     public ResponseEntity<ApiResponse<SubscriptionHistoryResponse>> renewSubscription(
             @PathVariable UUID id,

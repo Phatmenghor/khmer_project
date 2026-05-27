@@ -12,6 +12,8 @@ public interface SubscriptionService {
 
     PaginationResponse<SubscriptionHistoryResponse> getSubscriptionHistory(SubscriptionHistoryFilterRequest filter);
 
+    SubscriptionHistoryResponse getSubscriptionById(UUID subscriptionId);
+
     SubscriptionHistoryResponse renewSubscription(UUID subscriptionId, SubscriptionRenewRequest request);
 
     SubscriptionHistoryResponse cancelSubscription(UUID subscriptionId, SubscriptionCancelRequest request);

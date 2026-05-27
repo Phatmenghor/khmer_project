@@ -44,6 +44,16 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final PaginationMapper paginationMapper;
 
     @Override
+    @Transactional(readOnly = true)
+    public SubscriptionHistoryResponse getSubscriptionById(UUID subscriptionId) {
+        log.info("Getting subscription detail: {}", subscriptionId);
+        Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
+                .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
+        subscription = subscriptionRepository.findByIdWithRelationships(subscription.getId()).orElse(subscription);
+        return toHistoryResponse(subscription);
+    }
+
+    @Override
     public SubscriptionHistoryResponse renewSubscription(UUID subscriptionId, SubscriptionRenewRequest request) {
         log.info("Renewing subscription: {}", subscriptionId);
         Subscription oldSubscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
