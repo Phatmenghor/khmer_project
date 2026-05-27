@@ -1928,11 +1928,12 @@ BEGIN
   END LOOP;
 
   -- ---- Fashion Hub — 3 records (history + active) ---------------------------
+  --    Using ff... prefix to avoid collision with Mega Store's ee...000001-000030
 
   -- 1) Expired weekly (started ~3 weeks ago, ended ~2 weeks ago)
   INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
   VALUES (
-    'ee000000-0000-0000-0000-000000000004',
+    'ff000000-0000-0000-0000-000000000001',
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
     week_plan_id,
     (NOW() - INTERVAL '3 weeks'),
@@ -1946,7 +1947,7 @@ BEGIN
   -- 2) Expired monthly (started ~6 weeks ago, ended ~2 weeks ago)
   INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
   VALUES (
-    'ee000000-0000-0000-0000-000000000005',
+    'ff000000-0000-0000-0000-000000000002',
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
     month_plan_id,
     (NOW() - INTERVAL '6 weeks'),
@@ -1960,7 +1961,7 @@ BEGIN
   -- 3) Active monthly (started 5 days ago)
   INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
   VALUES (
-    'ee000000-0000-0000-0000-000000000006',
+    'ff000000-0000-0000-0000-000000000003',
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
     month_plan_id,
     (NOW() - INTERVAL '5 days'),
@@ -2035,7 +2036,7 @@ BEGIN
   VALUES (
     gen_random_uuid(),
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
-    'ee000000-0000-0000-0000-000000000004',
+    'ff000000-0000-0000-0000-000000000001',
     week_plan_id,
     0.00, 'CASH', 'SUBSCRIPTION', 'COMPLETED',
     'REF-FASH-WEEK-001',
@@ -2051,7 +2052,7 @@ BEGIN
   VALUES (
     gen_random_uuid(),
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
-    'ee000000-0000-0000-0000-000000000005',
+    'ff000000-0000-0000-0000-000000000002',
     month_plan_id,
     0.00, 'BANK', 'RENEWAL', 'COMPLETED',
     'REF-FASH-MON-001',
@@ -2067,7 +2068,7 @@ BEGIN
   VALUES (
     gen_random_uuid(),
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
-    'ee000000-0000-0000-0000-000000000006',
+    'ff000000-0000-0000-0000-000000000003',
     month_plan_id,
     0.00, 'CASH', 'RENEWAL', 'COMPLETED',
     'REF-FASH-MON-002',
