@@ -79,9 +79,9 @@ export function ComboboxSelectProvince({
   }, [page]);
 
   const sizeClasses = {
-    sm: "h-8 text-xs",
-    md: "h-9 text-sm",
-    lg: "h-10 text-base",
+    sm: "min-h-8 text-xs",
+    md: "min-h-9 text-sm",
+    lg: "min-h-10 text-base",
   };
 
   const fetchData = async (search: string, newPage: number) => {
@@ -104,7 +104,10 @@ export function ComboboxSelectProvince({
           setData(newData);
         }
       } else {
-        setData((prev) => [...prev, ...result.content]);
+        setData((prev) => {
+          const existingIds = new Set(prev.map((i) => i.id));
+          return [...prev, ...result.content.filter((i) => !existingIds.has(i.id))];
+        });
       }
 
       setPage(result.pageNo);
@@ -160,7 +163,7 @@ export function ComboboxSelectProvince({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between gap-2 min-w-[150px] transition-all duration-200",
+              "w-full justify-between gap-2 min-w-[150px] h-auto py-2 transition-all duration-200",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               open && "bg-primary/20 border-primary text-primary",
               sizeClasses[size],
@@ -169,7 +172,9 @@ export function ComboboxSelectProvince({
             )}
             disabled={disabled}
           >
-            {dataSelect ? (dataSelect.provinceEn || dataSelect.provinceKh) : placeholder}
+            <span className="text-left flex-1 whitespace-normal break-words">
+              {dataSelect ? (dataSelect.provinceEn || dataSelect.provinceKh) : placeholder}
+            </span>
             <ChevronDown
               className={cn(
                 "ml-2 h-4 w-4 shrink-0 transition-all duration-200",
