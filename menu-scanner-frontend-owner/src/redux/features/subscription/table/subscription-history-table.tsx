@@ -51,10 +51,16 @@ export const subscriptionHistoryTableColumns = ({
       maxWidth: "160px",
       truncate: true,
       render: (row) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-medium">{row.planName || "---"}</span>
-          <span className="text-xs text-muted-foreground">{row.planDurationType}</span>
-        </div>
+        <span className="text-xs text-muted-foreground">{row.planName || "---"}</span>
+      ),
+    },
+    {
+      key: "planDurationType",
+      label: "Duration",
+      minWidth: "80px",
+      maxWidth: "120px",
+      render: (row) => (
+        <span className="text-xs text-muted-foreground">{row.planDurationType || "---"}</span>
       ),
     },
     {
