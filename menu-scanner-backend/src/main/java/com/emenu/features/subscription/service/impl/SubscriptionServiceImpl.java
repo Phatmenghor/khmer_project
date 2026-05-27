@@ -208,8 +208,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         payment.setBusinessId(subscription.getBusinessId());
         payment.setSubscriptionId(subscription.getId());
         payment.setPlanId(subscription.getPlanId());
-        payment.setAmount(request.getPaymentAmount() != null && request.getPaymentAmount().compareTo(BigDecimal.ZERO) > 0
-                ? request.getPaymentAmount() : plan.getPrice());
+        payment.setAmount(request.getPaymentAmount() != null ? request.getPaymentAmount() : plan.getPrice());
         payment.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.CASH);
         payment.setPaymentType(SubscriptionPaymentType.SUBSCRIPTION);
         payment.setStatus(SubscriptionPaymentStatus.COMPLETED);
@@ -225,8 +224,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         payment.setBusinessId(subscription.getBusinessId());
         payment.setSubscriptionId(subscription.getId());
         payment.setPlanId(subscription.getPlanId());
-        payment.setAmount(request.getPaymentAmount() != null && request.getPaymentAmount().compareTo(BigDecimal.ZERO) > 0
-                ? request.getPaymentAmount() : plan.getPrice());
+        payment.setAmount(request.getPaymentAmount() != null ? request.getPaymentAmount() : plan.getPrice());
         payment.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.CASH);
         payment.setPaymentType(SubscriptionPaymentType.RENEWAL);
         payment.setStatus(SubscriptionPaymentStatus.COMPLETED);
