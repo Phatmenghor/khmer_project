@@ -64,17 +64,17 @@ public class UserController {
     }
 
     @GetMapping("/platform-profile")
-    public ResponseEntity<ApiResponse<UserResponse>> getPlatformUserProfile() {
+    public ResponseEntity<ApiResponse<UserDetailResponse>> getPlatformUserProfile() {
         log.info("Endpoint: platform-profile - platform user profile retrieval request received");
-        UserResponse response = userService.getPlatformUserProfile();
+        UserDetailResponse response = userService.getPlatformUserProfile();
         return ResponseEntity.ok(ApiResponse.success("Platform user profile retrieved", response));
     }
 
     @PutMapping("/platform-profile")
-    public ResponseEntity<ApiResponse<UserResponse>> updatePlatformUserProfile(
+    public ResponseEntity<ApiResponse<UserDetailResponse>> updatePlatformUserProfile(
             @Valid @RequestBody UserUpdateRequest updateRequestData) {
         log.info("Endpoint: platform-profile - platform user profile update request received");
-        UserResponse response = userService.updatePlatformUserProfile(updateRequestData);
+        UserDetailResponse response = userService.updatePlatformUserProfile(updateRequestData);
         return ResponseEntity.ok(ApiResponse.success("Platform user profile updated", response));
     }
 

@@ -425,24 +425,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponse getPlatformUserProfile() {
+    public UserDetailResponse getPlatformUserProfile() {
         User currentUserContext = securityUtils.getCurrentUser();
         if (currentUserContext.getUserType() != UserType.PLATFORM_USER) {
             throw new ValidationException("This endpoint is only accessible to PLATFORM_USER users.");
         }
         log.info("Platform user profile retrieved: id={}", currentUserContext.getId());
-        return userMapper.toResponse(currentUserContext);
+        return userMapper.toDetailResponse(currentUserContext);
     }
 
     @Override
     @Transactional
-    public UserResponse updatePlatformUserProfile(UserUpdateRequest profileUpdateRequest) {
+    public UserDetailResponse updatePlatformUserProfile(UserUpdateRequest profileUpdateRequest) {
         User currentUserContext = securityUtils.getCurrentUser();
         if (currentUserContext.getUserType() != UserType.PLATFORM_USER) {
             throw new ValidationException("This endpoint is only accessible to PLATFORM_USER users.");
         }
         log.info("Platform user profile update initiated: id={}", currentUserContext.getId());
-        return updateUser(currentUserContext.getId(), profileUpdateRequest);
+        updateUser(currentUserContext.getId(), profileUpdateRequest);
+        return userMapper.toDetailResponse(securityUtils.getCurrentUser());
     }
 
 
