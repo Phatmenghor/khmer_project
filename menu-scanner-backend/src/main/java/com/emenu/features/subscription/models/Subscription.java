@@ -8,12 +8,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -47,8 +44,8 @@ public class Subscription extends BaseUUIDEntity {
     @Column(name = "auto_renew", nullable = false)
     private Boolean autoRenew = false;
 
-    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<SubscriptionPayment> subscriptionPayments = new ArrayList<>();
+    @OneToOne(mappedBy = "subscription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private SubscriptionPayment payment;
 
     public boolean isActive() {
         return !getIsDeleted() && !isExpired();
@@ -65,61 +62,6 @@ public class Subscription extends BaseUUIDEntity {
     public long getDaysRemaining() {
         if (isExpired()) return 0;
         return ChronoUnit.DAYS.between(LocalDate.now(), endDate.toLocalDate());
-    }
-
-    public boolean isExpiringSoon(int days) {
-        if (isExpired()) return false;
-        long daysRemaining = getDaysRemaining();
-        return daysRemaining > 0 && daysRemaining <= days;
-    }
-
-    public BigDecimal getPaymentAmount() {
-        if (subscriptionPayments == null || subscriptionPayments.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-        return subscriptionPayments.stream()
-                .filter(payment -> payment.getStatus().isCompleted())
-                .map(SubscriptionPayment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public String getPaymentStatus() {
-        if (subscriptionPayments == null || subscriptionPayments.isEmpty()) {
-            return "UNPAID";
-        }
-        boolean hasPending = subscriptionPayments.stream().anyMatch(p -> p.getStatus().isPending());
-        if (plan != null) {
-            BigDecimal totalPaid = getPaymentAmount();
-            if (totalPaid.compareTo(plan.getPrice()) >= 0) {
-                return "PAID";
-            } else if (totalPaid.compareTo(BigDecimal.ZERO) > 0) {
-                return "PARTIALLY_PAID";
-            }
-        }
-        if (hasPending) {
-            return "PENDING";
-        }
-        return "UNPAID";
-    }
-
-    public String getDisplayName() {
-        if (plan != null) {
-            return plan.getName();
-        }
-        return "Unknown Plan";
-    }
-
-    public void extendByDays(int days) {
-        this.endDate = this.endDate.plusDays(days);
-    }
-
-    public void renew() {
-        if (plan == null) {
-            throw new IllegalStateException("Cannot renew subscription without plan");
-        }
-        LocalDateTime renewalStart = isExpired() ? LocalDateTime.now() : this.endDate;
-        this.startDate = renewalStart;
-        this.endDate = plan.calculateEndDate(renewalStart);
     }
 
     public void cancel() {

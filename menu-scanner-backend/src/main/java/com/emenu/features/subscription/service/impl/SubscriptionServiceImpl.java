@@ -28,8 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -79,13 +77,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
         subscription.cancel();
-        List<SubscriptionPayment> pendingPayments = subscriptionPaymentRepository
-                .findBySubscriptionIdAndStatusAndIsDeletedFalse(subscription.getId(), SubscriptionPaymentStatus.PENDING);
-        pendingPayments.forEach(payment -> {
-            payment.setStatus(SubscriptionPaymentStatus.CANCELLED);
-            payment.setNotes("Cancelled due to subscription cancellation");
-            subscriptionPaymentRepository.save(payment);
-        });
+        subscriptionPaymentRepository
+                .findBySubscriptionIdAndStatusAndIsDeletedFalse(subscription.getId(), SubscriptionPaymentStatus.PENDING)
+                .ifPresent(p -> {
+                    p.setStatus(SubscriptionPaymentStatus.CANCELLED);
+                    p.setNotes("Cancelled due to subscription cancellation");
+                    subscriptionPaymentRepository.save(p);
+                });
         Subscription cancelledSubscription = subscriptionRepository.save(subscription);
         if (request.hasRefundAmount()) {
             createRefundPayment(cancelledSubscription, request);
@@ -139,25 +137,41 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             response.setPlanDurationType(plan.getDurationType());
         }
 
-        List<SubscriptionPayment> payments = subscriptionPaymentRepository
+        Optional<SubscriptionPayment> paymentOpt = subscriptionPaymentRepository
                 .findBySubscriptionIdAndIsDeletedFalse(subscription.getId());
-        List<SubscriptionHistoryResponse.PaymentItem> paymentItems = new ArrayList<>();
-        for (SubscriptionPayment payment : payments) {
+
+        paymentOpt.ifPresent(p -> {
             SubscriptionHistoryResponse.PaymentItem item = new SubscriptionHistoryResponse.PaymentItem();
-            item.setPaymentId(payment.getId());
-            item.setAmount(payment.getAmount());
-            item.setPaymentMethod(payment.getPaymentMethod());
-            item.setPaymentType(payment.getPaymentType());
-            item.setStatus(payment.getStatus());
-            item.setReferenceNumber(payment.getReferenceNumber());
-            item.setNotes(payment.getNotes());
-            item.setImageUrl(payment.getImageUrl());
-            item.setPaidAt(payment.getCreatedAt());
-            paymentItems.add(item);
+            item.setPaymentId(p.getId());
+            item.setAmount(p.getAmount());
+            item.setPaymentMethod(p.getPaymentMethod());
+            item.setPaymentType(p.getPaymentType());
+            item.setStatus(p.getStatus());
+            item.setReferenceNumber(p.getReferenceNumber());
+            item.setNotes(p.getNotes());
+            item.setImageUrl(p.getImageUrl());
+            item.setPaidAt(p.getCreatedAt());
+            response.setPayment(item);
+        });
+
+        BigDecimal totalPaid = paymentOpt
+                .filter(p -> p.getStatus().isCompleted())
+                .map(SubscriptionPayment::getAmount)
+                .orElse(BigDecimal.ZERO);
+        response.setTotalPaid(totalPaid);
+
+        String paymentStatus = "UNPAID";
+        if (paymentOpt.isPresent()) {
+            SubscriptionPayment p = paymentOpt.get();
+            if (p.getStatus().isPending()) {
+                paymentStatus = "PENDING";
+            } else if (p.getStatus().isCompleted()) {
+                BigDecimal planPrice = subscription.getPlan() != null ? subscription.getPlan().getPrice() : BigDecimal.ZERO;
+                if (totalPaid.compareTo(planPrice) >= 0) paymentStatus = "PAID";
+                else if (totalPaid.compareTo(BigDecimal.ZERO) > 0) paymentStatus = "PARTIALLY_PAID";
+            }
         }
-        response.setPayments(paymentItems);
-        response.setTotalPaid(subscription.getPaymentAmount());
-        response.setPaymentStatus(subscription.getPaymentStatus());
+        response.setPaymentStatus(paymentStatus);
         return response;
     }
 

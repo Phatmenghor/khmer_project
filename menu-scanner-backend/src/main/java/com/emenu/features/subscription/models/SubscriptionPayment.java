@@ -32,7 +32,7 @@ public class SubscriptionPayment extends BaseUUIDEntity {
     @Column(name = "subscription_id", nullable = false)
     private UUID subscriptionId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id", insertable = false, updatable = false)
     private Subscription subscription;
 

@@ -9,7 +9,6 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -29,7 +28,7 @@ public class SubscriptionHistoryResponse {
     private Long daysRemaining;
     private String paymentStatus;
     private BigDecimal totalPaid;
-    private List<PaymentItem> payments;
+    private PaymentItem payment;
 
     @Data
     public static class PaymentItem {
