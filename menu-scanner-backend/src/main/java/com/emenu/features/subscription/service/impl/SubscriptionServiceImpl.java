@@ -1,5 +1,6 @@
 package com.emenu.features.subscription.service.impl;
 
+import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.sub_scription.SubscriptionPaymentStatus;
 import com.emenu.enums.sub_scription.SubscriptionPaymentType;
 import com.emenu.features.auth.models.Business;
@@ -30,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +73,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription savedSubscription = subscriptionRepository.save(subscription);
         business.activateSubscription();
         businessRepository.save(business);
+        createInitialPayment(savedSubscription, request, plan);
         savedSubscription = subscriptionRepository.findByIdWithRelationships(savedSubscription.getId()).orElse(savedSubscription);
         log.info("Subscription created successfully: {} for business: {}", savedSubscription.getId(), business.getName());
         return subscriptionMapper.toResponse(savedSubscription);
@@ -151,18 +154,30 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     public SubscriptionResponse renewSubscription(UUID subscriptionId, SubscriptionRenewRequest request) {
-        log.info("Renewing subscription: {} with payment creation: {}", subscriptionId, request.shouldCreatePayment());
-        Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
+        log.info("Renewing subscription: {}", subscriptionId);
+        Subscription oldSubscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
-        subscription.renew();
-        Subscription renewedSubscription = subscriptionRepository.save(subscription);
-        if (request.shouldCreatePayment()) {
-            createSubscriptionPayment(renewedSubscription, request);
-        }
-        updateBusinessSubscriptionStatus(renewedSubscription.getBusinessId());
-        renewedSubscription = subscriptionRepository.findByIdWithRelationships(renewedSubscription.getId()).orElse(renewedSubscription);
-        log.info("Subscription renewed successfully: {} - New end date: {}", subscriptionId, renewedSubscription.getEndDate());
-        return subscriptionMapper.toResponse(renewedSubscription);
+
+        UUID newPlanId = request.getNewPlanId() != null ? request.getNewPlanId() : oldSubscription.getPlanId();
+        SubscriptionPlan plan = planRepository.findByIdAndIsDeletedFalse(newPlanId)
+                .orElseThrow(() -> new RuntimeException("Subscription plan not found: " + newPlanId));
+
+        // Old subscription stays untouched as history
+        LocalDateTime newStartDate = oldSubscription.isExpired() ? LocalDateTime.now() : oldSubscription.getEndDate();
+        Subscription newSubscription = new Subscription();
+        newSubscription.setBusinessId(oldSubscription.getBusinessId());
+        newSubscription.setPlanId(plan.getId());
+        newSubscription.setStartDate(newStartDate);
+        newSubscription.setEndDate(plan.calculateEndDate(newStartDate));
+        newSubscription.setAutoRenew(oldSubscription.getAutoRenew());
+        Subscription savedNew = subscriptionRepository.save(newSubscription);
+
+        createRenewalPayment(savedNew, request, plan);
+        updateBusinessSubscriptionStatus(savedNew.getBusinessId());
+        savedNew = subscriptionRepository.findByIdWithRelationships(savedNew.getId()).orElse(savedNew);
+        log.info("Subscription renewed: new subscription {} created, old {} kept as history - new end date: {}",
+                savedNew.getId(), subscriptionId, savedNew.getEndDate());
+        return subscriptionMapper.toResponse(savedNew);
     }
 
     @Override
@@ -188,20 +203,38 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return subscriptionMapper.toResponse(cancelledSubscription);
     }
 
-    private void createSubscriptionPayment(Subscription subscription, SubscriptionRenewRequest request) {
+    private void createInitialPayment(Subscription subscription, SubscriptionCreateRequest request, SubscriptionPlan plan) {
         SubscriptionPayment payment = new SubscriptionPayment();
         payment.setBusinessId(subscription.getBusinessId());
         payment.setSubscriptionId(subscription.getId());
         payment.setPlanId(subscription.getPlanId());
-        payment.setAmount(request.getPaymentAmount());
-        payment.setPaymentMethod(request.getPaymentMethod());
+        payment.setAmount(request.getPaymentAmount() != null && request.getPaymentAmount().compareTo(BigDecimal.ZERO) > 0
+                ? request.getPaymentAmount() : plan.getPrice());
+        payment.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.CASH);
+        payment.setPaymentType(SubscriptionPaymentType.SUBSCRIPTION);
+        payment.setStatus(SubscriptionPaymentStatus.COMPLETED);
+        payment.setReferenceNumber(request.getPaymentReferenceNumber());
+        payment.setNotes(request.getPaymentNotes());
+        payment.setImageUrl(request.getPaymentImageUrl());
+        subscriptionPaymentRepository.save(payment);
+        log.info("Initial payment created for subscription: {} - Amount: {}", subscription.getId(), payment.getAmount());
+    }
+
+    private void createRenewalPayment(Subscription subscription, SubscriptionRenewRequest request, SubscriptionPlan plan) {
+        SubscriptionPayment payment = new SubscriptionPayment();
+        payment.setBusinessId(subscription.getBusinessId());
+        payment.setSubscriptionId(subscription.getId());
+        payment.setPlanId(subscription.getPlanId());
+        payment.setAmount(request.getPaymentAmount() != null && request.getPaymentAmount().compareTo(BigDecimal.ZERO) > 0
+                ? request.getPaymentAmount() : plan.getPrice());
+        payment.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.CASH);
         payment.setPaymentType(SubscriptionPaymentType.RENEWAL);
         payment.setStatus(SubscriptionPaymentStatus.COMPLETED);
         payment.setReferenceNumber(request.getPaymentReferenceNumber());
         payment.setNotes(request.getPaymentNotes());
         payment.setImageUrl(request.getPaymentImageUrl());
         subscriptionPaymentRepository.save(payment);
-        log.info("Subscription payment created for subscription: {} - Amount: ${}", subscription.getId(), payment.getAmount());
+        log.info("Renewal payment created for subscription: {} - Amount: {}", subscription.getId(), payment.getAmount());
     }
 
     private void createRefundForSubscription(Subscription subscription, SubscriptionCancelRequest request) {

@@ -9,15 +9,11 @@ import java.util.UUID;
 @Data
 public class SubscriptionRenewRequest {
     private UUID newPlanId;
-    private Boolean createPayment = false;
-    private String paymentImageUrl;
+
+    // Payment fields — amount defaults to plan price, method defaults to CASH
     private BigDecimal paymentAmount;
     private PaymentMethod paymentMethod;
     private String paymentReferenceNumber;
     private String paymentNotes;
-
-    public boolean shouldCreatePayment() {
-        return Boolean.TRUE.equals(createPayment) && paymentAmount != null &&
-               paymentAmount.compareTo(BigDecimal.ZERO) > 0 && paymentMethod != null;
-    }
+    private String paymentImageUrl;
 }
