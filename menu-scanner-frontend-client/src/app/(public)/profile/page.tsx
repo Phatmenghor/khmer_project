@@ -40,15 +40,7 @@ import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-car
 import { PageContainer } from "@/components/shared/common/page-container";
 import { GENDER_OPTIONS } from "@/constants/form-options";
 import { ROUTES } from "@/constants/app-routes/routes";
-
-function formatEnumLabel(value?: string | null): string | undefined {
-  if (!value) return undefined;
-  return value
-    .toLowerCase()
-    .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
+import { formatEnumLabel } from "@/utils/common/common";
 
 
 const customerProfileSchema = z.object({

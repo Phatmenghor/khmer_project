@@ -1,3 +1,12 @@
+export function formatEnumLabel(value?: string | null): string | undefined {
+  if (!value) return undefined;
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export function convertEnumOrString(value: any): string {
   if (!value) return "";
 

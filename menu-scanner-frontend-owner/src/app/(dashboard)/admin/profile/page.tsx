@@ -43,15 +43,7 @@ import {
   ProfileFormData,
 } from "@/redux/features/auth/store/models/schema/user.schema";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
-
-function formatEnumLabel(value?: string | null): string | undefined {
-  if (!value) return undefined;
-  return value
-    .toLowerCase()
-    .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
+import { formatEnumLabel } from "@/utils/common/enum-convert";
 
 export default function AdminProfilePage() {
   const dispatch = useAppDispatch();
