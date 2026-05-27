@@ -7,6 +7,9 @@ import {
   AllSubscriptionPlanResponseModel,
   SubscriptionPlanResponseModel,
 } from "../store/models/response/subscription-plan-response";
+import { Badge } from "@/components/ui/badge";
+import { SubscriptionPlanStatus } from "@/constants/app-resource/status/status";
+import { getStatusColor } from "@/utils/styles/enum-style";
 
 interface SubscriptionPlanTableHandlers {
   handleEditPlan: (plan: SubscriptionPlanResponseModel) => void;
@@ -57,7 +60,9 @@ export const subscriptionPlanTableColumns = ({
       truncate: true,
       render: (plan) => (
         <span className="text-xs text-muted-foreground">
-          {plan?.price || "---"}
+          {plan?.price !== undefined && plan?.price !== null
+            ? plan.price
+            : "---"}
         </span>
       ),
     },
@@ -69,11 +74,27 @@ export const subscriptionPlanTableColumns = ({
       truncate: true,
       render: (plan) => (
         <span className="text-xs text-muted-foreground">
-          {plan?.durationDays || "---"}
+          {plan?.durationDays !== undefined && plan?.durationDays !== null
+            ? plan.durationDays
+            : "---"}
         </span>
       ),
     },
-
+    {
+      key: "activeSubscriptionsCount",
+      label: "Active Subscriptions",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (plan) => (
+        <span className="text-xs text-muted-foreground">
+          {plan?.activeSubscriptionsCount !== undefined &&
+          plan?.activeSubscriptionsCount !== null
+            ? plan.activeSubscriptionsCount
+            : "---"}
+        </span>
+      ),
+    },
     {
       key: "status",
       label: "Plan Status",
@@ -81,9 +102,16 @@ export const subscriptionPlanTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (plan) => (
-        <span className="text-xs text-muted-foreground">
+        <Badge
+          variant="outline"
+          className={getStatusColor(
+            plan?.status === SubscriptionPlanStatus.PUBLIC
+              ? "ACTIVE"
+              : "INACTIVE"
+          )}
+        >
           {plan?.status || "---"}
-        </span>
+        </Badge>
       ),
     },
     {

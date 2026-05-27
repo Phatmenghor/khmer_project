@@ -16,11 +16,11 @@ import { SUBSCRIPTION_PLAN_FILTER } from "@/constants/app-resource/status/filter
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { usePagination } from "@/redux/store/use-pagination";
+import { useSubscriptionPlanState } from "@/redux/features/master-data/store/state/subscription-plan-state";
 import {
   setPageNo,
   setSearchFilter,
-} from "@/redux/features/auth/store/slice/users-slice";
-import { useSubscriptionPlanState } from "@/redux/features/master-data/store/state/subscription-plan-state";
+} from "@/redux/features/master-data/store/slice/subscription-plan-slice";
 import {
   deleteSubscriptionPlanService,
   fetchAllSubscriptionPlanService,

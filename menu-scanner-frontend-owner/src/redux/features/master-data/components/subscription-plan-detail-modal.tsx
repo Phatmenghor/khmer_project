@@ -1,25 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DisplayField } from "@/components/shared/form-field/display-field";
 import { Badge } from "@/components/ui/badge";
-import { getStatusColor, formatEnumToDisplay } from "@/utils/styles/enum-style";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { DetailModal } from "@/components/shared/modal/detail-modal";
-import {
-  DetailRow,
-  DetailSection,
-} from "@/components/shared/modal/detail-section";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { clearSelectedSubscriptionPlan } from "../store/slice/subscription-plan-slice";
-import {
-  Status,
-  SubscriptionPlanStatus,
-} from "@/constants/app-resource/status/status";
+import { SubscriptionPlanStatus } from "@/constants/app-resource/status/status";
+import { getStatusColor } from "@/utils/styles/enum-style";
 import {
   selectIsFetchingDetail,
   selectSelectedSubscriptionPlan,
 } from "../store/selectors/subscription-plan-selector";
 import { fetchSubscriptionPlanByIdService } from "../store/thunks/subscription-plan-thunks";
+import Loading from "@/components/shared/common/loading";
 
 interface SubscriptionPlanDetailModalProps {
   planId?: string;
@@ -33,25 +29,19 @@ export function SubscriptionPlanDetailModal({
   onClose,
 }: SubscriptionPlanDetailModalProps) {
   const dispatch = useAppDispatch();
-
-  // Use SEPARATE loading state - won't affect main page
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
-
-  // Get selected SubscriptionPlan from Redux
-  const subscriptionPlanData = useAppSelector(selectSelectedSubscriptionPlan);
+  const planData = useAppSelector(selectSelectedSubscriptionPlan);
 
   useEffect(() => {
-    const fetctSubscriptionPlanData = async () => {
+    const fetchPlanData = async () => {
       if (!planId || !isOpen) return;
-
       try {
         await dispatch(fetchSubscriptionPlanByIdService(planId)).unwrap();
       } catch (error: any) {
-        console.error("Error fetching SubscriptionPlan data:", error);
+        console.error("Error fetching subscription plan data:", error);
       }
     };
-
-    fetctSubscriptionPlanData();
+    fetchPlanData();
   }, [planId, isOpen, dispatch]);
 
   const handleClose = () => {
@@ -60,126 +50,152 @@ export function SubscriptionPlanDetailModal({
   };
 
   return (
-    <DetailModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      isLoading={isFetchingDetail}
-      title={"Exchange Rate Details"}
-      description={
-        subscriptionPlanData?.name.toString() ||
-        "Loading subscriptio plan  information..."
-      }
-      badges={
-        subscriptionPlanData && (
-          <>
-            <Badge
-              variant="outline"
-              className={getStatusColor(
-                subscriptionPlanData?.status == SubscriptionPlanStatus.PUBLIC
-                  ? Status.ACTIVE
-                  : Status.INACTIVE
-              )}
-            >
-              <span className="ml-1.5">
-                {formatEnumToDisplay(
-                  subscriptionPlanData?.status == SubscriptionPlanStatus.PUBLIC
-                    ? Status.ACTIVE
-                    : Status.INACTIVE
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogTitle className="sr-only">Subscription Plan Details</DialogTitle>
+      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-4 pr-8">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-foreground">
+                Subscription Plan Details
+              </h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {planData
+                  ? planData.name
+                  : "Detailed information about the selected subscription plan"}
+              </p>
+            </div>
+            {planData && (
+              <Badge
+                variant="outline"
+                className={getStatusColor(
+                  planData.status === SubscriptionPlanStatus.PUBLIC
+                    ? "ACTIVE"
+                    : "INACTIVE"
                 )}
-              </span>
-            </Badge>
-          </>
-        )
-      }
-    >
-      {subscriptionPlanData ? (
-        <div className="space-y-6">
-          {/* Personal Information */}
-          <DetailSection title="Personal Information">
-            <DetailRow
-              label="Name"
-              value={subscriptionPlanData?.name || "---"}
-            />
+              >
+                {planData.status}
+              </Badge>
+            )}
+          </div>
+        </div>
 
-            <DetailRow
-              label="Price"
-              value={subscriptionPlanData?.price || "---"}
-            />
-
-            <DetailRow
-              label="Duration Days"
-              value={subscriptionPlanData?.durationDays || "---"}
-            />
-
-            <DetailRow
-              label="Active Subscriptions Count"
-              value={subscriptionPlanData?.activeSubscriptionsCount || "---"}
-            />
-
-            <DetailRow
-              label="Status"
-              value={
-                <Badge
-                  variant="outline"
-                  className={getStatusColor(
-                    subscriptionPlanData?.status ==
-                      SubscriptionPlanStatus.PUBLIC
-                      ? Status.ACTIVE
-                      : Status.INACTIVE
-                  )}
-                >
-                  <span className="ml-1.5">
-                    {formatEnumToDisplay(
-                      subscriptionPlanData?.status ==
-                        SubscriptionPlanStatus.PUBLIC
-                        ? Status.ACTIVE
-                        : Status.INACTIVE
+        {isFetchingDetail ? (
+          <div className="flex items-center justify-center flex-1 min-h-[300px]">
+            <Loading />
+          </div>
+        ) : !planData ? (
+          <div className="flex items-center justify-center flex-1 min-h-[200px]">
+            <p className="text-muted-foreground">
+              No subscription plan data available
+            </p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 space-y-6">
+              {/* Plan Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Plan Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayField
+                      label="Plan Name"
+                      value={planData.name || "---"}
+                    />
+                    <DisplayField
+                      label="Price"
+                      value={
+                        planData.price !== undefined && planData.price !== null
+                          ? String(planData.price)
+                          : "---"
+                      }
+                    />
+                    <DisplayField
+                      label="Duration Days"
+                      value={
+                        planData.durationDays !== undefined &&
+                        planData.durationDays !== null
+                          ? String(planData.durationDays)
+                          : "---"
+                      }
+                    />
+                    <DisplayField
+                      label="Active Subscriptions Count"
+                      value={
+                        planData.activeSubscriptionsCount !== undefined &&
+                        planData.activeSubscriptionsCount !== null
+                          ? String(planData.activeSubscriptionsCount)
+                          : "---"
+                      }
+                    />
+                    <DisplayField
+                      label="Status"
+                      value={
+                        <Badge
+                          variant="outline"
+                          className={getStatusColor(
+                            planData.status === SubscriptionPlanStatus.PUBLIC
+                              ? "ACTIVE"
+                              : "INACTIVE"
+                          )}
+                        >
+                          {planData.status}
+                        </Badge>
+                      }
+                    />
+                    {planData.description && (
+                      <div className="md:col-span-2">
+                        <DisplayField
+                          label="Description"
+                          value={planData.description}
+                        />
+                      </div>
                     )}
-                  </span>
-                </Badge>
-              }
-            />
+                  </div>
+                </CardContent>
+              </Card>
 
-            <DetailRow
-              label="Description"
-              value={subscriptionPlanData?.description || "---"}
-            />
-          </DetailSection>
-
-          {/* System Information */}
-          <DetailSection title="System Information">
-            <DetailRow
-              label="Subscription Plan ID"
-              value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
-                  {subscriptionPlanData?.id}
-                </span>
-              }
-            />
-            <DetailRow
-              label="Created At"
-              value={dateTimeFormat(subscriptionPlanData?.createdAt ?? "")}
-            />
-            <DetailRow
-              label="Created By"
-              value={subscriptionPlanData?.createdBy || "---"}
-            />
-            <DetailRow
-              label="Last Updated"
-              value={dateTimeFormat(subscriptionPlanData?.updatedAt ?? "")}
-            />
-            <DetailRow
-              label="Updated By"
-              value={subscriptionPlanData?.updatedBy || "---"}
-              isLast
-            />
-          </DetailSection>
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">No user data available</p>
-        </div>
-      )}
-    </DetailModal>
+              {/* System Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>System Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayField
+                      label="Subscription Plan ID"
+                      value={
+                        <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                          {planData.id}
+                        </span>
+                      }
+                    />
+                    <DisplayField
+                      label="Created At"
+                      value={dateTimeFormat(planData.createdAt ?? "")}
+                    />
+                    <DisplayField
+                      label="Created By"
+                      value={planData.createdBy || "---"}
+                    />
+                    <DisplayField
+                      label="Last Updated"
+                      value={dateTimeFormat(planData.updatedAt ?? "")}
+                    />
+                    <DisplayField
+                      label="Updated By"
+                      value={planData.updatedBy || "---"}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

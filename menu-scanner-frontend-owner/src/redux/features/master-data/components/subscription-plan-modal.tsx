@@ -52,7 +52,7 @@ type Props = {
   isOpen: boolean;
 };
 
-export default function SubscriptionPlanRateModal({
+export default function SubscriptionPlanModal({
   isOpen,
   onClose,
   planId,
@@ -62,7 +62,6 @@ export default function SubscriptionPlanRateModal({
 
   const dispatch = useAppDispatch();
 
-  // Get operations state from Redux
   const operations = useAppSelector(selectOperations);
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
@@ -72,8 +71,6 @@ export default function SubscriptionPlanRateModal({
     control,
     handleSubmit,
     reset,
-    setValue,
-    watch,
     formState: { errors, isDirty },
   } = useForm<SubscriptionPlanFormData>({
     resolver: zodResolver(
@@ -89,9 +86,8 @@ export default function SubscriptionPlanRateModal({
     mode: "onChange",
   });
 
-  // Fetch exchange-rate data for edit mode
   useEffect(() => {
-    const fetctSubscriptionPlanData = async () => {
+    const fetchPlanData = async () => {
       if (!planId || !isOpen || isCreate) return;
 
       try {
@@ -100,26 +96,24 @@ export default function SubscriptionPlanRateModal({
         );
 
         if (fetchSubscriptionPlanByIdService.fulfilled.match(resultAction)) {
-          const resposne = resultAction.payload;
-
+          const response = resultAction.payload;
           reset({
-            id: resposne.id,
-            name: resposne.name,
-            durationDays: resposne.durationDays,
-            price: resposne.price,
-            description: resposne.description,
-            status: resposne.status,
+            id: response.id,
+            name: response.name,
+            durationDays: response.durationDays,
+            price: response.price,
+            description: response.description,
+            status: response.status,
           });
         }
       } catch (error) {
-        console.error("Error fetching ex data:", error);
+        console.error("Error fetching subscription plan data:", error);
       }
     };
 
-    fetctSubscriptionPlanData();
+    fetchPlanData();
   }, [planId, isOpen, isCreate, reset, dispatch]);
 
-  // Reset form for create mode
   useEffect(() => {
     if (isOpen && isCreate) {
       reset({
@@ -132,7 +126,6 @@ export default function SubscriptionPlanRateModal({
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -155,9 +148,7 @@ export default function SubscriptionPlanRateModal({
         ).unwrap();
 
         showToast.success(
-          `Subscription Plan "${
-            result.name || result.email
-          }" created successfully`
+          `Subscription Plan "${result.name}" created successfully`
         );
 
         handleClose();
@@ -178,9 +169,7 @@ export default function SubscriptionPlanRateModal({
         ).unwrap();
 
         showToast.success(
-          `Subscription Plan "${
-            result.fullName || result.email
-          }" updated successfully`
+          `Subscription Plan "${result.name}" updated successfully`
         );
 
         handleClose();
@@ -202,24 +191,22 @@ export default function SubscriptionPlanRateModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 flex flex-col">
-        {/* Header */}
+      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title={
             isCreate ? "Create Subscription Plan" : "Edit Subscription Plan"
           }
           description={
             isCreate
-              ? "Add a new Subscription Plan to the system"
-              : "Update Subscription Plan  information"
+              ? "Fill out the form to create a new subscription plan"
+              : "Update subscription plan information below"
           }
           showAvatar={false}
           isCreate={isCreate}
         />
 
-        {/* Loading State - Edit Mode Only */}
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-6 flex items-center justify-center min-h-[300px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -227,9 +214,7 @@ export default function SubscriptionPlanRateModal({
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            {/* Body */}
             <FormBody>
-              {/* Error Display */}
               {reduxError && (
                 <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
                   <p className="text-sm text-destructive font-medium">
@@ -238,63 +223,74 @@ export default function SubscriptionPlanRateModal({
                 </div>
               )}
 
-              {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
-                  control={control}
-                  name="name"
-                  label="Plan Name"
-                  placeholder="Enter Plan Name"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.name)}
-                />
+              <div className="space-y-6">
+                {/* Plan Details */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    Plan Details <span className="text-destructive">*</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <TextField
+                      control={control}
+                      name="name"
+                      label="Plan Name"
+                      placeholder="Enter Plan Name"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.name)}
+                    />
 
-                <TextField
-                  control={control}
-                  name="durationDays"
-                  label="Duration Days"
-                  placeholder="Enter Duration Days"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.durationDays)}
-                />
+                    <TextField
+                      control={control}
+                      name="durationDays"
+                      label="Duration Days"
+                      placeholder="Enter Duration Days"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.durationDays)}
+                    />
 
-                <TextField
-                  control={control}
-                  name="price"
-                  label="Price"
-                  placeholder="Enter Price"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.price)}
-                />
+                    <TextField
+                      control={control}
+                      name="price"
+                      label="Price"
+                      placeholder="Enter Price"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.price)}
+                    />
 
-                <SelectField
-                  control={control}
-                  name="status"
-                  label="Subscription Plan Status"
-                  placeholder="Select Plan status"
-                  options={SUBSCRIPTION_PLAN_CREATE_UPDATE}
-                  required
-                  disabled={isSubmitting}
-                  error={getFieldError(errors.status)}
-                />
+                    <SelectField
+                      control={control}
+                      name="status"
+                      label="Subscription Plan Status"
+                      placeholder="Select Plan Status"
+                      options={SUBSCRIPTION_PLAN_CREATE_UPDATE}
+                      required
+                      disabled={isSubmitting}
+                      error={getFieldError(errors.status)}
+                    />
+                  </div>
+                </div>
+
+                {/* Additional Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    Additional Information
+                  </h3>
+                  <TextareaField
+                    control={control}
+                    name="description"
+                    label="Description"
+                    placeholder="Enter any additional description (optional)"
+                    rows={4}
+                    disabled={isSubmitting}
+                    error={getFieldError(errors.description)}
+                  />
+                </div>
               </div>
-
-              {/* Description - Separate Row */}
-              <TextareaField
-                control={control}
-                name="description"
-                label="Description"
-                placeholder="Enter any additional description (optional)"
-                rows={5}
-                disabled={isSubmitting}
-                error={getFieldError(errors.description)}
-              />
             </FormBody>
 
-            {/* Footer */}
             <FormFooter
               isSubmitting={isSubmitting}
               isDirty={isDirty}
@@ -303,13 +299,12 @@ export default function SubscriptionPlanRateModal({
               updateMessage="Updating plan..."
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
-
               <SubmitButton
                 isSubmitting={isSubmitting}
                 isDirty={isDirty}
                 isCreate={isCreate}
-                createText="Create plan"
-                updateText="Update plan"
+                createText="Create Plan"
+                updateText="Update Plan"
                 submittingCreateText="Creating..."
                 submittingUpdateText="Updating..."
               />
