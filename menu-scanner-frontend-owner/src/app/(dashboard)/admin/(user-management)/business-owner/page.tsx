@@ -177,6 +177,7 @@ export default function BusinessOwnerPage() {
           getRowKey={(user) => user.id}
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
           onPageChange={handlePageChangeWrapper}
           pageSize={globalPageSize}
           onPageSizeChange={handlePageSizeChange}

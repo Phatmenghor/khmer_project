@@ -247,6 +247,7 @@ export default function DistrictPage() {
           getRowKey={(district) => district.id}
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
           onPageChange={handlePageChangeWrapper}
           pageSize={globalPageSize}
           onPageSizeChange={handlePageSizeChange}

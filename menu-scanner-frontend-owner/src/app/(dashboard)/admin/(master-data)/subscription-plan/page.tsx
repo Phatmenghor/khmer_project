@@ -251,6 +251,7 @@ export default function SubscriptionPlanPage() {
           getRowKey={(plan) => plan.id}
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
           onPageChange={handlePageChangeWrapper}
           pageSize={globalPageSize}
           onPageSizeChange={handlePageSizeChange}

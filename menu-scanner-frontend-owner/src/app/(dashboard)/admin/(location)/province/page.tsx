@@ -227,6 +227,7 @@ export default function ProvincePage() {
           getRowKey={(province) => province.id}
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
           onPageChange={handlePageChangeWrapper}
           pageSize={globalPageSize}
           onPageSizeChange={handlePageSizeChange}

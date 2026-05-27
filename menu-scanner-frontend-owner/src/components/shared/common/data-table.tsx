@@ -35,6 +35,7 @@ interface DataTableWithPaginationProps<T = any> {
   onPageSizeChange?: (size: number) => void;
   pageSizeOptions?: number[];
   showPageSizeSelector?: boolean;
+  totalElements?: number;
 }
 
 export function DataTableWithPagination<T = any>({
@@ -54,6 +55,7 @@ export function DataTableWithPagination<T = any>({
   onPageSizeChange = () => {},
   pageSizeOptions = [10, 15, 20, 50, 100],
   showPageSizeSelector = true,
+  totalElements = 0,
 }: DataTableWithPaginationProps<T>) {
   const tableData: T[] = Array.isArray(data) ? data : [];
 
@@ -255,7 +257,7 @@ export function DataTableWithPagination<T = any>({
       {showPagination && (
         <div className="flex items-center justify-between gap-4 p-4 flex-wrap">
           {/* Page size selector */}
-          {showPageSizeSelector && totalPages > 1 ? (
+          {showPageSizeSelector && totalElements >= 10 ? (
             <PageSizeSelectField
               pageSize={pageSize}
               pageSizeOptions={pageSizeOptions}

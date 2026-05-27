@@ -172,6 +172,7 @@ export default function RolesPage() {
           getRowKey={(role) => role.id}
           currentPage={filters.pageNo}
           totalPages={pagination.totalPages}
+          totalElements={pagination.totalElements}
           onPageChange={handlePageChangeWrapper}
           pageSize={globalPageSize}
           onPageSizeChange={handlePageSizeChange}
