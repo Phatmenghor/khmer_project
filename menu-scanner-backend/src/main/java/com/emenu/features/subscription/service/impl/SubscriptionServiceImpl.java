@@ -67,7 +67,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscription.setPlanId(request.getPlanId());
         LocalDateTime startDate = LocalDateTime.now();
         subscription.setStartDate(startDate);
-        subscription.setEndDate(startDate.plusDays(plan.getDurationDays()));
+        subscription.setEndDate(plan.calculateEndDate(startDate));
         Subscription savedSubscription = subscriptionRepository.save(subscription);
         business.activateSubscription();
         businessRepository.save(business);

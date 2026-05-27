@@ -1,5 +1,6 @@
 package com.emenu.config;
 
+import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.UserType;
@@ -91,11 +92,11 @@ public class DataInitializationService {
     }
 
     private int initializeDefaultSubscriptionPlans() {
-        record PlanConfig(String name, String description, int durationDays) {}
+        record PlanConfig(String name, String description, int durationDays, SubscriptionPlanDurationType durationType) {}
         PlanConfig[] defaultPlans = {
-                new PlanConfig("1 Week", "Weekly subscription plan - 7 days access", 7),
-                new PlanConfig("1 Month", "Monthly subscription plan - 30 days access", 30),
-                new PlanConfig("1 Year", "Annual subscription plan - 365 days access", 365)
+                new PlanConfig("1 Week",  "Weekly subscription plan",  7,   SubscriptionPlanDurationType.WEEKLY),
+                new PlanConfig("1 Month", "Monthly subscription plan", 30,  SubscriptionPlanDurationType.MONTHLY),
+                new PlanConfig("1 Year",  "Annual subscription plan",  365, SubscriptionPlanDurationType.YEARLY)
         };
 
         int created = 0;
@@ -106,10 +107,11 @@ public class DataInitializationService {
                 plan.setDescription(config.description());
                 plan.setPrice(BigDecimal.ZERO);
                 plan.setDurationDays(config.durationDays());
+                plan.setDurationType(config.durationType());
                 plan.setStatus(SubscriptionPlanStatus.PUBLIC);
                 subscriptionPlanRepository.save(plan);
                 created++;
-                log.info("✅ Created subscription plan: {} ({} days, $0)", config.name(), config.durationDays());
+                log.info("✅ Created subscription plan: {} ({}, $0)", config.name(), config.durationType());
             } else {
                 log.info("ℹ️ Subscription plan already exists: {}", config.name());
             }

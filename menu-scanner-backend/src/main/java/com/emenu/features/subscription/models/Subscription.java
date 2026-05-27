@@ -118,7 +118,7 @@ public class Subscription extends BaseUUIDEntity {
         }
         LocalDateTime renewalStart = isExpired() ? LocalDateTime.now() : this.endDate;
         this.startDate = renewalStart;
-        this.endDate = renewalStart.plusDays(plan.getDurationDays());
+        this.endDate = plan.calculateEndDate(renewalStart);
     }
 
     public void cancel() {

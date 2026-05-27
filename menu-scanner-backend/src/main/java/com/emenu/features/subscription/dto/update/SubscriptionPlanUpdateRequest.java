@@ -1,5 +1,6 @@
 package com.emenu.features.subscription.dto.update;
 
+import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
 import lombok.Data;
 
@@ -11,5 +12,6 @@ public class SubscriptionPlanUpdateRequest {
     private String description;
     private BigDecimal price;
     private Integer durationDays;
+    private SubscriptionPlanDurationType durationType;
     private SubscriptionPlanStatus status;
 }

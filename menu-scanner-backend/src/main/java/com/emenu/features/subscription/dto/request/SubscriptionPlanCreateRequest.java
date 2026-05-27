@@ -1,5 +1,6 @@
 package com.emenu.features.subscription.dto.request;
 
+import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -24,5 +25,8 @@ public class SubscriptionPlanCreateRequest {
     @Min(value = 1, message = "Duration must be at least 1 day")
     private Integer durationDays;
     
+    @NotNull(message = "Duration type is required")
+    private SubscriptionPlanDurationType durationType = SubscriptionPlanDurationType.MONTHLY;
+
     private SubscriptionPlanStatus status = SubscriptionPlanStatus.PUBLIC;
 }

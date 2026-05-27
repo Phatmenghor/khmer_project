@@ -1,5 +1,6 @@
 package com.emenu.features.subscription.dto.response;
 
+import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
 import com.emenu.shared.dto.BaseAuditResponse;
 import lombok.Data;
@@ -17,5 +18,6 @@ public class SubscriptionPlanResponse extends BaseAuditResponse {
     private BigDecimal price;
     private Integer durationDays;
     private SubscriptionPlanStatus status;
+    private SubscriptionPlanDurationType durationType;
     private Long activeSubscriptionsCount;
 }
