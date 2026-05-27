@@ -79,9 +79,9 @@ export function ComboboxSelectVillage({
   }, [page]);
 
   const sizeClasses = {
-    sm: "min-h-8 text-xs",
-    md: "min-h-9 text-sm",
-    lg: "min-h-10 text-base",
+    sm: "h-8 text-xs",
+    md: "h-9 text-sm",
+    lg: "h-10 text-base",
   };
 
   const fetchData = async (search: string, newPage: number) => {
@@ -163,7 +163,7 @@ export function ComboboxSelectVillage({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between gap-2 min-w-[150px] h-auto py-2 transition-all duration-200",
+              "w-full justify-between gap-2 min-w-[150px] transition-all duration-200",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               open && "bg-primary/20 border-primary text-primary",
               sizeClasses[size],
@@ -172,7 +172,7 @@ export function ComboboxSelectVillage({
             )}
             disabled={disabled}
           >
-            <span className="text-left flex-1 whitespace-normal break-words">
+            <span className="flex-1 truncate min-w-0 text-left">
               {dataSelect ? (dataSelect.villageEn || dataSelect.villageKh) : placeholder}
             </span>
             <ChevronDown
