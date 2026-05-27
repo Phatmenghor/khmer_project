@@ -5,6 +5,7 @@ import com.emenu.features.auth.dto.request.BusinessOwnerChangePlanRequest;
 import com.emenu.features.auth.dto.request.BusinessOwnerCreateRequest;
 import com.emenu.features.auth.dto.request.BusinessOwnerSubscriptionCancelRequest;
 import com.emenu.features.auth.dto.request.BusinessOwnerSubscriptionRenewRequest;
+import com.emenu.features.auth.dto.request.BusinessOwnerUpdateRequest;
 import com.emenu.features.auth.dto.response.BusinessOwnerCreateResponse;
 import com.emenu.features.auth.dto.response.BusinessOwnerDetailResponse;
 import com.emenu.shared.dto.PaginationResponse;
@@ -25,6 +26,8 @@ public interface BusinessOwnerService {
     
     BusinessOwnerDetailResponse cancelSubscription(UUID ownerId, BusinessOwnerSubscriptionCancelRequest request);
     
+    BusinessOwnerDetailResponse updateBusinessOwner(UUID ownerId, BusinessOwnerUpdateRequest request);
+
     BusinessOwnerDetailResponse deleteBusinessOwner(UUID ownerId);
 }
 

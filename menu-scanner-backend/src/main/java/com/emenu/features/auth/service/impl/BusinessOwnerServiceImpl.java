@@ -13,6 +13,8 @@ import com.emenu.features.auth.dto.filter.BusinessOwnerFilterRequest;
 import com.emenu.features.auth.dto.request.*;
 import com.emenu.features.auth.dto.response.BusinessOwnerCreateResponse;
 import com.emenu.features.auth.dto.response.BusinessOwnerDetailResponse;
+import com.emenu.features.auth.models.BusinessSetting;
+import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.auth.mapper.BusinessOwnerMapper;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.Role;
@@ -56,6 +58,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
     private final BusinessOwnerRepository businessOwnerRepository;
     private final BusinessRepository businessRepository;
+    private final BusinessSettingRepository businessSettingRepository;
     private final RoleRepository roleRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionPlanRepository planRepository;
@@ -245,6 +248,44 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     @Override
+    public BusinessOwnerDetailResponse updateBusinessOwner(UUID ownerId, BusinessOwnerUpdateRequest request) {
+        log.info("Business owner update initiated: owner_id={}", ownerId);
+
+        User ownerEntity = getOwnerOrThrow(ownerId);
+
+        if (ownerEntity.getProfile() != null) {
+            UserProfile profile = ownerEntity.getProfile();
+            if (request.getOwnerFullName() != null) {
+                String[] nameParts = request.getOwnerFullName().split(" ", 2);
+                profile.setFirstName(nameParts[0]);
+                profile.setLastName(nameParts.length > 1 ? nameParts[1] : "");
+            }
+            if (request.getOwnerEmail() != null) profile.setEmail(request.getOwnerEmail());
+            if (request.getOwnerPhone() != null) profile.setPhoneNumber(request.getOwnerPhone());
+        }
+
+        if (request.getOwnerAccountStatus() != null) {
+            ownerEntity.setAccountStatus(request.getOwnerAccountStatus());
+        }
+
+        ownerEntity = businessOwnerRepository.save(ownerEntity);
+
+        Business businessEntity = ownerEntity.getBusiness();
+        if (businessEntity != null) {
+            if (request.getBusinessName() != null) businessEntity.setName(request.getBusinessName());
+            if (request.getBusinessEmail() != null) businessEntity.setEmail(request.getBusinessEmail());
+            if (request.getBusinessPhone() != null) businessEntity.setPhone(request.getBusinessPhone());
+            if (request.getBusinessAddress() != null) businessEntity.setAddress(request.getBusinessAddress());
+            if (request.getBusinessDescription() != null) businessEntity.setDescription(request.getBusinessDescription());
+            if (request.getBusinessStatus() != null) businessEntity.setStatus(request.getBusinessStatus());
+            businessRepository.save(businessEntity);
+        }
+
+        log.info("Business owner updated successfully: owner_id={}", ownerId);
+        return buildEnrichedDetailResponse(ownerEntity);
+    }
+
+    @Override
     public BusinessOwnerDetailResponse deleteBusinessOwner(UUID ownerId) {
         log.info("Business owner deletion initiated: owner_id={}", ownerId);
 
@@ -417,11 +458,33 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private void enrichDetailResponse(BusinessOwnerDetailResponse detailResponse, Business businessEntity) {
         if (businessEntity == null) return;
 
+        detailResponse.setBusinessDescription(businessEntity.getDescription());
+
         enrichSubscriptionData(detailResponse, businessEntity.getId());
 
         if (detailResponse.getCurrentSubscriptionId() != null) {
             enrichPaymentData(detailResponse, detailResponse.getCurrentSubscriptionId());
         }
+
+        enrichBusinessSettingData(detailResponse, businessEntity.getId());
+    }
+
+    private void enrichBusinessSettingData(BusinessOwnerDetailResponse detailResponse, UUID businessId) {
+        businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
+                .ifPresent(setting -> {
+                    detailResponse.setBusinessSettingId(setting.getId());
+                    detailResponse.setTaxPercentage(setting.getTaxPercentage());
+                    detailResponse.setLogoBusinessUrl(setting.getLogoBusinessUrl());
+                    detailResponse.setPrimaryColor(setting.getPrimaryColor());
+                    detailResponse.setSettingBusinessName(setting.getBusinessName());
+                    detailResponse.setSettingContactAddress(setting.getContactAddress());
+                    detailResponse.setSettingContactPhone(setting.getContactPhone());
+                    detailResponse.setSettingContactEmail(setting.getContactEmail());
+                    detailResponse.setEnableStock(setting.getEnableStock() != null ? setting.getEnableStock().name() : null);
+                    detailResponse.setUseBrands(setting.getUseBrands());
+                    detailResponse.setLowStockThreshold(setting.getLowStockThreshold());
+                    detailResponse.setTelegramGroupChatId(setting.getTelegramGroupChatId());
+                });
     }
 
     private void enrichSubscriptionData(BusinessOwnerDetailResponse detailResponse, UUID businessId) {
@@ -434,6 +497,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
     private void populateSubscriptionInfo(BusinessOwnerDetailResponse detailResponse, Subscription subscriptionRecord) {
         detailResponse.setCurrentSubscriptionId(subscriptionRecord.getId());
+        detailResponse.setCurrentPlanId(subscriptionRecord.getPlanId());
         detailResponse.setCurrentPlanName(subscriptionRecord.getPlan().getName());
         detailResponse.setCurrentPlanPrice(subscriptionRecord.getPlan().getPrice());
         detailResponse.setCurrentPlanDurationDays(subscriptionRecord.getPlan().getDurationDays());
