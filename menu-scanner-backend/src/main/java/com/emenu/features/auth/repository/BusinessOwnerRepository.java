@@ -1,9 +1,6 @@
 package com.emenu.features.auth.repository;
 
-import com.emenu.enums.sub_scription.SubscriptionPaymentStatus;
 import com.emenu.enums.sub_scription.SubscriptionStatus;
-import com.emenu.enums.user.AccountStatus;
-import com.emenu.enums.user.BusinessStatus;
 import com.emenu.features.auth.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +20,7 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
         SELECT DISTINCT u FROM User u
         LEFT JOIN FETCH u.business b
         LEFT JOIN FETCH b.subscriptions s
-        WHERE u.id = :ownerId 
+        WHERE u.id = :ownerId
         AND u.userType = 'BUSINESS_USER'
         AND u.isDeleted = false
     """)
@@ -34,26 +31,16 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
         LEFT JOIN u.profile p
         LEFT JOIN u.business b
         LEFT JOIN b.subscriptions s
-        LEFT JOIN s.subscriptionPayments pay
         WHERE u.userType = 'BUSINESS_USER'
         AND u.isDeleted = false
         AND b.isDeleted = false
-        AND (:ownerAccountStatuses IS NULL OR u.accountStatus IN :ownerAccountStatuses)
-        AND (:businessStatuses IS NULL OR b.status IN :businessStatuses)
         AND (
-            :subscriptionStatuses IS NULL 
-            OR (
-                :hasActive = true AND s.endDate > :now
-            )
-            OR (
-                :hasExpired = true AND s.endDate <= :now
-            )
-            OR (
-                :hasExpiringSoon = true AND s.endDate > :now AND s.endDate <= :expiryThreshold
-            )
+            :subscriptionStatuses IS NULL
+            OR (:hasActive = true AND s.endDate > :now)
+            OR (:hasExpired = true AND s.endDate <= :now)
+            OR (:hasExpiringSoon = true AND s.endDate > :now AND s.endDate <= :expiryThreshold)
         )
         AND (:autoRenew IS NULL OR s.autoRenew = :autoRenew)
-        AND (:paymentStatuses IS NULL OR pay.status IN :paymentStatuses)
         AND (:search IS NULL OR :search = '' OR
              LOWER(u.userIdentifier) LIKE LOWER(CONCAT('%', :search, '%')) OR
              LOWER(p.email) LIKE LOWER(CONCAT('%', :search, '%')) OR
@@ -64,8 +51,6 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
         ORDER BY u.createdAt DESC
     """)
     Page<User> findAllBusinessOwnersWithFilters(
-            @Param("ownerAccountStatuses") List<AccountStatus> ownerAccountStatuses,
-            @Param("businessStatuses") List<BusinessStatus> businessStatuses,
             @Param("subscriptionStatuses") List<SubscriptionStatus> subscriptionStatuses,
             @Param("hasActive") boolean hasActive,
             @Param("hasExpired") boolean hasExpired,
@@ -73,7 +58,6 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
             @Param("now") LocalDateTime now,
             @Param("expiryThreshold") LocalDateTime expiryThreshold,
             @Param("autoRenew") Boolean autoRenew,
-            @Param("paymentStatuses") List<SubscriptionPaymentStatus> paymentStatuses,
             @Param("search") String search,
             Pageable pageable
     );

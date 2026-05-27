@@ -1,7 +1,7 @@
 import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { formatDate } from "@/utils/date/date-time-format";
-import { Eye, Pencil, RotateCw, Trash } from "lucide-react";
+import { Edit, Eye, RotateCw, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import {
   AllBusinessOwnerResponseModel,
@@ -170,7 +170,7 @@ export const userBusinessOwnerTableColumns = ({
             size="sm"
           />
           <ActionButton
-            icon={<Pencil className="w-4 h-4" />}
+            icon={<Edit className="w-4 h-4" />}
             tooltip="Edit"
             onClick={() => handleEditOwner(user)}
             size="sm"

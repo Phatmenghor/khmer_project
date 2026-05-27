@@ -109,14 +109,8 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 filterCriteria.getSortDirection()
         );
 
-        List<AccountStatus> filterOwnerStatuses = (filterCriteria.getOwnerAccountStatuses() != null && !filterCriteria.getOwnerAccountStatuses().isEmpty())
-                ? filterCriteria.getOwnerAccountStatuses() : null;
-        List<BusinessStatus> filterBusinessStatuses = (filterCriteria.getBusinessStatuses() != null && !filterCriteria.getBusinessStatuses().isEmpty())
-                ? filterCriteria.getBusinessStatuses() : null;
         List<SubscriptionStatus> filterSubscriptionStatuses = (filterCriteria.getSubscriptionStatuses() != null && !filterCriteria.getSubscriptionStatuses().isEmpty())
                 ? filterCriteria.getSubscriptionStatuses() : null;
-        List<SubscriptionPaymentStatus> filterPaymentStatuses = (filterCriteria.getPaymentStatuses() != null && !filterCriteria.getPaymentStatuses().isEmpty())
-                ? filterCriteria.getPaymentStatuses() : null;
 
         boolean hasActiveSubscription = filterSubscriptionStatuses != null && filterSubscriptionStatuses.contains(SubscriptionStatus.ACTIVE);
         boolean hasExpiredSubscription = filterSubscriptionStatuses != null && filterSubscriptionStatuses.contains(SubscriptionStatus.EXPIRED);
@@ -126,8 +120,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         LocalDateTime expiryThreshold = currentDateTime.plusDays(filterCriteria.getExpiringSoonDays());
 
         Page<User> ownerPage = businessOwnerRepository.findAllBusinessOwnersWithFilters(
-                filterOwnerStatuses,
-                filterBusinessStatuses,
                 filterSubscriptionStatuses,
                 hasActiveSubscription,
                 hasExpiredSubscription,
@@ -135,7 +127,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 currentDateTime,
                 expiryThreshold,
                 filterCriteria.getAutoRenew(),
-                filterPaymentStatuses,
                 filterCriteria.getSearch(),
                 pageableRequest
         );
