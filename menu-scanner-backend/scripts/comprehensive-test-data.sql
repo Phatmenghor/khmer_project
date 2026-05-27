@@ -1671,14 +1671,15 @@ ORDER BY pp.business_name, pr.rating DESC;
 
 -- ============================================================================
 -- EXTENDED TEST DATA — PART 2
--- A. Subscription Plans (11)
--- B. 20 more Businesses (biz03–22) with settings, hours, roles
--- C. Subscriptions for all 22 businesses
+-- A. Subscription Plans (3: 1 Week / 1 Month / 1 Year — all $0)
+-- B. 20 more Businesses (biz03-22) with settings, hours, roles
+-- C. Subscriptions for all 22 businesses (history + active, calendar-based dates)
+-- C2. Subscription payments for Mega Store & Fashion Hub history
 -- D. 20 Platform Users
 -- E. 20 Business Owner users (one per new business)
 -- F. 40 Business Staff users (2 per new business)
--- G. 20 more Customer users (cust11–30)
--- H. Location data (24 provinces × 4 districts × 5 communes × 6 villages)
+-- G. 20 more Customer users (cust11-30)
+-- H. Location data (24 provinces x 4 districts x 5 communes x 6 villages)
 -- ============================================================================
 
 DO $$
@@ -1774,23 +1775,19 @@ DECLARE
 BEGIN
 
   -- ==========================================================================
-  -- A. SUBSCRIPTION PLANS (11 plans)
+  -- A. SUBSCRIPTION PLANS (3 plans — matches DataInitializationService)
+  --    All plans are FREE ($0). End date uses calendar math, not fixed days:
+  --      WEEKLY  -> plusWeeks(1)   always 7 days
+  --      MONTHLY -> plusMonths(1)  follows real calendar month
+  --      YEARLY  -> plusYears(1)   follows real calendar year
   -- ==========================================================================
-  RAISE NOTICE 'A. Inserting subscription plans...';
+  RAISE NOTICE 'A. Inserting subscription plans (3: 1 Week / 1 Month / 1 Year)...';
 
-  INSERT INTO subscription_plans (id, name, description, price, duration_days, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  INSERT INTO subscription_plans (id, name, description, price, duration_type, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
   VALUES
-    ('aa000000-0000-0000-0000-000000000001','Free Trial',        'Try the platform free for 7 days',               0.00,    7, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
-    ('aa000000-0000-0000-0000-000000000002','Starter Monthly',   'Starter plan billed monthly',                   19.99,   30, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
-    ('aa000000-0000-0000-0000-000000000003','Basic Monthly',     'Basic plan billed monthly',                     39.99,   30, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
-    ('aa000000-0000-0000-0000-000000000004','Standard Monthly',  'Standard plan billed monthly',                  79.99,   30, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
-    ('aa000000-0000-0000-0000-000000000005','Professional Monthly','Professional plan billed monthly',           149.99,   30, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
-    ('aa000000-0000-0000-0000-000000000006','Enterprise Monthly','Enterprise plan billed monthly',               299.99,   30, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
-    ('aa000000-0000-0000-0000-000000000007','Basic Quarterly',   'Basic plan billed quarterly',                  109.99,   90, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
-    ('aa000000-0000-0000-0000-000000000008','Standard Quarterly','Standard plan billed quarterly',               219.99,   90, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
-    ('aa000000-0000-0000-0000-000000000009','Starter Yearly',    'Starter plan billed yearly',                   199.99,  365, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
-    ('aa000000-0000-0000-0000-000000000010','Standard Yearly',   'Standard plan billed yearly',                  799.99,  365, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
-    ('aa000000-0000-0000-0000-000000000011','Professional Yearly','Professional plan billed yearly',            1499.99,  365, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin')
+    ('aa000000-0000-0000-0000-000000000001', '1 Week',  'Weekly subscription plan — 7 days access',    0.00, 'WEEKLY',  'PUBLIC', 0, false, NOW(), NOW(), 'admin', 'admin'),
+    ('aa000000-0000-0000-0000-000000000002', '1 Month', 'Monthly subscription plan — calendar month',  0.00, 'MONTHLY', 'PUBLIC', 0, false, NOW(), NOW(), 'admin', 'admin'),
+    ('aa000000-0000-0000-0000-000000000003', '1 Year',  'Annual subscription plan — calendar year',    0.00, 'YEARLY',  'PUBLIC', 0, false, NOW(), NOW(), 'admin', 'admin')
   ON CONFLICT DO NOTHING;
 
   -- ==========================================================================
@@ -1866,45 +1863,254 @@ BEGIN
 
   -- ==========================================================================
   -- C. SUBSCRIPTIONS FOR ALL 22 BUSINESSES
+  --    End dates use proper calendar intervals matching SubscriptionPlan.calculateEndDate():
+  --      WEEKLY  -> start + 1 week
+  --      MONTHLY -> start + 1 month  (not 30 days)
+  --      YEARLY  -> start + 1 year   (not 365 days)
+  --
+  --    Mega Store & Fashion Hub each have 3 subscription records showing history:
+  --      1) old expired  (1 Year plan, finished ~1 month ago)
+  --      2) recent expired (1 Month plan, finished ~15 days ago)
+  --      3) current active (1 Month plan, expires next month)
+  --
+  --    Fixed UUIDs on these 6 so subscription_payments can reference them.
+  --    Plan IDs:
+  --      aa000000-...-000000000001 = 1 Week  (WEEKLY)
+  --      aa000000-...-000000000002 = 1 Month (MONTHLY)
+  --      aa000000-...-000000000003 = 1 Year  (YEARLY)
   -- ==========================================================================
-  RAISE NOTICE 'C. Inserting subscriptions for all 22 businesses...';
+  RAISE NOTICE 'C. Inserting subscriptions with calendar-based end dates...';
 
-  -- Mega Store → plan 4 (Standard Monthly)
+  -- ---- Mega Store — 3 records (history + active) ----------------------------
+
+  -- 1) Expired yearly (started ~13 months ago, ended ~1 month ago)
   INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    'ee000000-0000-0000-0000-000000000001',
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'aa000000-0000-0000-0000-000000000003',
+    (NOW() - INTERVAL '1 year' - INTERVAL '1 month'),
+    (NOW() - INTERVAL '1 year' - INTERVAL '1 month') + INTERVAL '1 year',
+    false, 0, false,
+    NOW() - INTERVAL '1 year' - INTERVAL '1 month',
+    NOW() - INTERVAL '1 year' - INTERVAL '1 month',
+    'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- 2) Expired monthly (started ~45 days ago, ended ~15 days ago)
+  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    'ee000000-0000-0000-0000-000000000002',
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'aa000000-0000-0000-0000-000000000002',
+    (NOW() - INTERVAL '45 days'),
+    (NOW() - INTERVAL '45 days') + INTERVAL '1 month',
+    false, 0, false,
+    NOW() - INTERVAL '45 days',
+    NOW() - INTERVAL '45 days',
+    'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- 3) Active monthly (started 10 days ago, expires next month)
+  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    'ee000000-0000-0000-0000-000000000003',
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'aa000000-0000-0000-0000-000000000002',
+    (NOW() - INTERVAL '10 days'),
+    (NOW() - INTERVAL '10 days') + INTERVAL '1 month',
+    true, 0, false,
+    NOW() - INTERVAL '10 days',
+    NOW() - INTERVAL '10 days',
+    'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- ---- Fashion Hub — 3 records (history + active) ---------------------------
+
+  -- 1) Expired weekly (started ~3 weeks ago, ended ~2 weeks ago)
+  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    'ee000000-0000-0000-0000-000000000004',
+    '660cad56-cafd-4aba-baef-c4dcd53940d0',
+    'aa000000-0000-0000-0000-000000000001',
+    (NOW() - INTERVAL '3 weeks'),
+    (NOW() - INTERVAL '3 weeks') + INTERVAL '1 week',
+    false, 0, false,
+    NOW() - INTERVAL '3 weeks',
+    NOW() - INTERVAL '3 weeks',
+    'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- 2) Expired monthly (started ~6 weeks ago, ended ~2 weeks ago)
+  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    'ee000000-0000-0000-0000-000000000005',
+    '660cad56-cafd-4aba-baef-c4dcd53940d0',
+    'aa000000-0000-0000-0000-000000000002',
+    (NOW() - INTERVAL '6 weeks'),
+    (NOW() - INTERVAL '6 weeks') + INTERVAL '1 month',
+    false, 0, false,
+    NOW() - INTERVAL '6 weeks',
+    NOW() - INTERVAL '6 weeks',
+    'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- 3) Active monthly (started 5 days ago)
+  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    'ee000000-0000-0000-0000-000000000006',
+    '660cad56-cafd-4aba-baef-c4dcd53940d0',
+    'aa000000-0000-0000-0000-000000000002',
+    (NOW() - INTERVAL '5 days'),
+    (NOW() - INTERVAL '5 days') + INTERVAL '1 month',
+    true, 0, false,
+    NOW() - INTERVAL '5 days',
+    NOW() - INTERVAL '5 days',
+    'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- ---- New businesses 3-22 — one active subscription each -------------------
+  --    Plan assigned by (i % 3):
+  --      0 -> 1 Week  (WEEKLY)
+  --      1 -> 1 Month (MONTHLY)
+  --      2 -> 1 Year  (YEARLY)
+  --    End date uses the correct calendar interval for each plan.
+  FOR i IN 3..22 LOOP
+    biz_id := ('bbbbb000-0000-0000-0000-' || LPAD(i::TEXT, 12, '0'))::UUID;
+
+    CASE (i % 3)
+      WHEN 0 THEN
+        plan_id := 'aa000000-0000-0000-0000-000000000001';  -- 1 Week
+        INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+        VALUES (
+          gen_random_uuid(), biz_id, plan_id,
+          NOW() - INTERVAL '1 day' * (i % 5),
+          (NOW() - INTERVAL '1 day' * (i % 5)) + INTERVAL '1 week',
+          true, 0, false, NOW(), NOW(), 'admin', 'admin'
+        ) ON CONFLICT DO NOTHING;
+      WHEN 1 THEN
+        plan_id := 'aa000000-0000-0000-0000-000000000002';  -- 1 Month
+        INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+        VALUES (
+          gen_random_uuid(), biz_id, plan_id,
+          NOW() - INTERVAL '1 day' * (i % 20),
+          (NOW() - INTERVAL '1 day' * (i % 20)) + INTERVAL '1 month',
+          true, 0, false, NOW(), NOW(), 'admin', 'admin'
+        ) ON CONFLICT DO NOTHING;
+      ELSE
+        plan_id := 'aa000000-0000-0000-0000-000000000003';  -- 1 Year
+        INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+        VALUES (
+          gen_random_uuid(), biz_id, plan_id,
+          NOW() - INTERVAL '1 day' * (i % 30),
+          (NOW() - INTERVAL '1 day' * (i % 30)) + INTERVAL '1 year',
+          true, 0, false, NOW(), NOW(), 'admin', 'admin'
+        ) ON CONFLICT DO NOTHING;
+    END CASE;
+  END LOOP;
+
+  -- ==========================================================================
+  -- C2. SUBSCRIPTION PAYMENTS
+  --     Since all plans are $0, payments record tracking events (activation,
+  --     renewal, expiry) with amount=0. This populates the /history endpoint.
+  -- ==========================================================================
+  RAISE NOTICE 'C2. Inserting subscription payments for Mega Store and Fashion Hub...';
+
+  -- Mega Store — Sub 1 (expired yearly): initial subscription payment
+  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
   VALUES (
     gen_random_uuid(),
     '550cad56-cafd-4aba-baef-c4dcd53940d0',
-    'aa000000-0000-0000-0000-000000000004',
-    NOW() - INTERVAL '15 days',
-    NOW() + INTERVAL '15 days',
-    true, 0, false, NOW(), NOW(), 'admin', 'admin'
+    'ee000000-0000-0000-0000-000000000001',
+    'aa000000-0000-0000-0000-000000000003',
+    0.00, 'CASH', 'SUBSCRIPTION', 'COMPLETED',
+    'REF-MEGA-YEAR-001',
+    'Initial yearly subscription activation — 1 Year plan',
+    0, false,
+    NOW() - INTERVAL '1 year' - INTERVAL '1 month',
+    NOW() - INTERVAL '1 year' - INTERVAL '1 month',
+    'admin', 'admin'
   ) ON CONFLICT DO NOTHING;
 
-  -- Fashion Hub → plan 3 (Basic Monthly)
-  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  -- Mega Store — Sub 2 (expired monthly): renewal payment
+  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    gen_random_uuid(),
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'ee000000-0000-0000-0000-000000000002',
+    'aa000000-0000-0000-0000-000000000002',
+    0.00, 'BANK', 'RENEWAL', 'COMPLETED',
+    'REF-MEGA-MON-001',
+    'Monthly renewal after yearly plan expired',
+    0, false,
+    NOW() - INTERVAL '45 days',
+    NOW() - INTERVAL '45 days',
+    'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- Mega Store — Sub 3 (active): renewal payment
+  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    gen_random_uuid(),
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'ee000000-0000-0000-0000-000000000003',
+    'aa000000-0000-0000-0000-000000000002',
+    0.00, 'CASH', 'RENEWAL', 'COMPLETED',
+    'REF-MEGA-MON-002',
+    'Current active monthly subscription',
+    0, false,
+    NOW() - INTERVAL '10 days',
+    NOW() - INTERVAL '10 days',
+    'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- Fashion Hub — Sub 1 (expired weekly): initial subscription payment
+  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
   VALUES (
     gen_random_uuid(),
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
-    'aa000000-0000-0000-0000-000000000003',
-    NOW() - INTERVAL '10 days',
-    NOW() + INTERVAL '20 days',
-    true, 0, false, NOW(), NOW(), 'admin', 'admin'
+    'ee000000-0000-0000-0000-000000000004',
+    'aa000000-0000-0000-0000-000000000001',
+    0.00, 'CASH', 'SUBSCRIPTION', 'COMPLETED',
+    'REF-FASH-WEEK-001',
+    'Initial weekly subscription activation — 1 Week plan',
+    0, false,
+    NOW() - INTERVAL '3 weeks',
+    NOW() - INTERVAL '3 weeks',
+    'admin', 'admin'
   ) ON CONFLICT DO NOTHING;
 
-  -- New businesses 3-22 → varied plans based on (i % 11) + 1
-  FOR i IN 3..22 LOOP
-    biz_id  := ('bbbbb000-0000-0000-0000-' || LPAD(i::TEXT, 12, '0'))::UUID;
-    plan_id := ('aa000000-0000-0000-0000-' || LPAD(((i % 11) + 1)::TEXT, 12, '0'))::UUID;
-    INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
-    VALUES (
-      gen_random_uuid(),
-      biz_id,
-      plan_id,
-      NOW() - INTERVAL '1 day' * (i % 20),
-      NOW() + INTERVAL '30 days' * (1 + (i % 3)),
-      true, 0, false, NOW(), NOW(), 'admin', 'admin'
-    ) ON CONFLICT DO NOTHING;
-  END LOOP;
+  -- Fashion Hub — Sub 2 (expired monthly): renewal payment
+  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    gen_random_uuid(),
+    '660cad56-cafd-4aba-baef-c4dcd53940d0',
+    'ee000000-0000-0000-0000-000000000005',
+    'aa000000-0000-0000-0000-000000000002',
+    0.00, 'BANK', 'RENEWAL', 'COMPLETED',
+    'REF-FASH-MON-001',
+    'Monthly renewal after weekly plan expired',
+    0, false,
+    NOW() - INTERVAL '6 weeks',
+    NOW() - INTERVAL '6 weeks',
+    'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- Fashion Hub — Sub 3 (active): renewal payment
+  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    gen_random_uuid(),
+    '660cad56-cafd-4aba-baef-c4dcd53940d0',
+    'ee000000-0000-0000-0000-000000000006',
+    'aa000000-0000-0000-0000-000000000002',
+    0.00, 'CASH', 'RENEWAL', 'COMPLETED',
+    'REF-FASH-MON-002',
+    'Current active monthly subscription',
+    0, false,
+    NOW() - INTERVAL '5 days',
+    NOW() - INTERVAL '5 days',
+    'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
 
   -- ==========================================================================
   -- D. 20 PLATFORM_USER accounts
@@ -2172,17 +2378,18 @@ BEGIN
   -- ==========================================================================
   RAISE NOTICE '=======================================================';
   RAISE NOTICE 'Extended test data insertion complete!';
-  RAISE NOTICE '  Subscription Plans : 11';
-  RAISE NOTICE '  New Businesses     : 20  (biz03-22)';
-  RAISE NOTICE '  Subscriptions      : 22  (all businesses)';
-  RAISE NOTICE '  Platform Users     : 20  (platform01-20)';
-  RAISE NOTICE '  Business Owners    : 20  (bizowner03-22)';
-  RAISE NOTICE '  Business Staff     : 40  (staff01/02 per biz03-22)';
-  RAISE NOTICE '  New Customers      : 20  (customer11-30)';
-  RAISE NOTICE '  Provinces          : 24';
-  RAISE NOTICE '  Districts          : 96  (24x4)';
-  RAISE NOTICE '  Communes           : 480 (24x4x5)';
-  RAISE NOTICE '  Villages           : 2880 (24x4x5x6)';
+  RAISE NOTICE '  Subscription Plans    : 3  (1 Week / 1 Month / 1 Year — all $0)';
+  RAISE NOTICE '  New Businesses        : 20  (biz03-22)';
+  RAISE NOTICE '  Subscriptions (total) : 26  (3 Mega Store + 3 Fashion Hub + 20 new biz)';
+  RAISE NOTICE '  Subscription Payments : 6   (history records for Mega Store & Fashion Hub)';
+  RAISE NOTICE '  Platform Users        : 20  (platform01-20)';
+  RAISE NOTICE '  Business Owners       : 20  (bizowner03-22)';
+  RAISE NOTICE '  Business Staff        : 40  (staff01/02 per biz03-22)';
+  RAISE NOTICE '  New Customers         : 20  (customer11-30)';
+  RAISE NOTICE '  Provinces             : 24';
+  RAISE NOTICE '  Districts             : 96  (24x4)';
+  RAISE NOTICE '  Communes              : 480 (24x4x5)';
+  RAISE NOTICE '  Villages              : 2880 (24x4x5x6)';
   RAISE NOTICE '=======================================================';
 
 END $$;
@@ -2194,6 +2401,8 @@ END $$;
 SELECT 'subscription_plans'      AS table_name, COUNT(*) AS row_count FROM subscription_plans
 UNION ALL
 SELECT 'subscriptions',           COUNT(*) FROM subscriptions
+UNION ALL
+SELECT 'subscription_payments',   COUNT(*) FROM subscription_payments
 UNION ALL
 SELECT 'location_province_cbc',   COUNT(*) FROM location_province_cbc
 UNION ALL
@@ -2209,6 +2418,23 @@ SELECT 'users (BUSINESS_USER)',   COUNT(*) FROM users WHERE user_type = 'BUSINES
 UNION ALL
 SELECT 'users (CUSTOMER)',        COUNT(*) FROM users WHERE user_type = 'CUSTOMER'
 ORDER BY table_name;
+
+-- Subscription history view (mirrors /api/v1/subscriptions/history endpoint)
+SELECT
+  b.name                          AS business,
+  sp.name                         AS plan,
+  sp.duration_type                AS period_type,
+  s.start_date                    AS "from",
+  s.end_date                      AS "to",
+  CASE WHEN s.end_date > NOW() THEN 'ACTIVE' ELSE 'EXPIRED' END AS status,
+  COUNT(pay.id)                   AS payments
+FROM subscriptions s
+JOIN businesses b       ON b.id  = s.business_id
+JOIN subscription_plans sp ON sp.id = s.plan_id
+LEFT JOIN subscription_payments pay ON pay.subscription_id = s.id AND pay.is_deleted = false
+WHERE s.is_deleted = false
+GROUP BY b.name, sp.name, sp.duration_type, s.start_date, s.end_date
+ORDER BY b.name, s.start_date DESC;
 
 -- ============================================================================
 -- END OF EXTENDED TEST DATA — PART 2
