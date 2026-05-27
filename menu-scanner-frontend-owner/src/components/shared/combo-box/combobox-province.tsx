@@ -138,7 +138,7 @@ export function ComboboxSelectProvince({
   };
 
   return (
-    <div className="space-y-2 w-full">
+    <div className="flex flex-col gap-1 w-full">
       {label && (
         <Label className="text-xs sm:text-sm font-semibold text-foreground">
           {label}
