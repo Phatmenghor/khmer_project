@@ -404,7 +404,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         subscriptionRecord.setAutoRenew(false);
 
-        return subscriptionRepository.save(subscriptionRecord);
+        Subscription saved = subscriptionRepository.save(subscriptionRecord);
+        saved.setPlan(planEntity);
+        return saved;
     }
 
     private SubscriptionPayment createSubscriptionPayment(Subscription subscriptionRecord, BusinessOwnerCreateRequest creationRequestData) {
@@ -412,8 +414,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         paymentRecord.setBusinessId(subscriptionRecord.getBusinessId());
         paymentRecord.setPlanId(subscriptionRecord.getPlanId());
         paymentRecord.setSubscriptionId(subscriptionRecord.getId());
+        BigDecimal planPrice = subscriptionRecord.getPlan() != null ? subscriptionRecord.getPlan().getPrice() : BigDecimal.ZERO;
         paymentRecord.setAmount(creationRequestData.getPaymentAmount() != null
-                ? creationRequestData.getPaymentAmount() : BigDecimal.ZERO);
+                ? creationRequestData.getPaymentAmount() : planPrice);
         String method = creationRequestData.getPaymentMethod();
         paymentRecord.setPaymentMethod(method != null && !method.isBlank()
                 ? PaymentMethod.valueOf(method) : PaymentMethod.CASH);
