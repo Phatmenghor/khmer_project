@@ -194,7 +194,12 @@ export function ComboboxSelectCommune({
               value={searchTerm}
               onValueChange={handleSearchChange}
             />
-            <CommandList className="max-h-60 overflow-y-auto" onScroll={handleScroll}>
+            <CommandList
+              className="max-h-60 overflow-y-auto"
+              onScroll={handleScroll}
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+            >
               <CommandEmpty>No commune found.</CommandEmpty>
               <CommandGroup>
                 {data.map((item) => (

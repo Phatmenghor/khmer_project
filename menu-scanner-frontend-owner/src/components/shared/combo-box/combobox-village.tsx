@@ -194,7 +194,12 @@ export function ComboboxSelectVillage({
               value={searchTerm}
               onValueChange={handleSearchChange}
             />
-            <CommandList className="max-h-60 overflow-y-auto" onScroll={handleScroll}>
+            <CommandList
+              className="max-h-60 overflow-y-auto"
+              onScroll={handleScroll}
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+            >
               <CommandEmpty>No village found.</CommandEmpty>
               <CommandGroup>
                 {data.map((item) => (
