@@ -39,18 +39,6 @@ export const districtTableColumns = ({
       ),
     },
     {
-      key: "districtCode",
-      label: "District Code",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (district) => (
-        <span className="text-xs text-muted-foreground">
-          {district?.districtCode || "---"}
-        </span>
-      ),
-    },
-    {
       key: "districtEn",
       label: "District EN",
       minWidth: "10px",
@@ -62,7 +50,6 @@ export const districtTableColumns = ({
         </span>
       ),
     },
-
     {
       key: "districtKh",
       label: "District KH",
@@ -75,20 +62,18 @@ export const districtTableColumns = ({
         </span>
       ),
     },
-
     {
-      key: "provinceCode",
-      label: "Province Code",
+      key: "districtCode",
+      label: "District Code",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (district) => (
         <span className="text-xs text-muted-foreground">
-          {district?.province?.provinceCode || "---"}
+          {district?.districtCode || "---"}
         </span>
       ),
     },
-
     {
       key: "provinceEn",
       label: "Province EN",
@@ -101,7 +86,18 @@ export const districtTableColumns = ({
         </span>
       ),
     },
-
+    {
+      key: "provinceCode",
+      label: "Province Code",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (district) => (
+        <span className="text-xs text-muted-foreground">
+          {district?.province?.provinceCode || "---"}
+        </span>
+      ),
+    },
     {
       key: "createdAt",
       label: "Created At",
@@ -113,7 +109,6 @@ export const districtTableColumns = ({
         </span>
       ),
     },
-
     {
       key: "actions",
       label: "Actions",

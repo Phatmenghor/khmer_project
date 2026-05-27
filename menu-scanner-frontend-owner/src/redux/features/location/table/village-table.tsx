@@ -9,9 +9,9 @@ import {
 } from "../store/models/response/village-response";
 
 interface VillageTableHandlers {
-  handleEditVillage: (commune: VillageResponseModel) => void;
-  handleVillageViewDetail: (commune: VillageResponseModel) => void;
-  handleDeleteVillage: (commune: VillageResponseModel) => void;
+  handleEditVillage: (village: VillageResponseModel) => void;
+  handleVillageViewDetail: (village: VillageResponseModel) => void;
+  handleDeleteVillage: (village: VillageResponseModel) => void;
 }
 
 interface VillageTableOptions {
@@ -39,18 +39,6 @@ export const villageTableColumns = ({
       ),
     },
     {
-      key: "villageCode",
-      label: "Village Code",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (village) => (
-        <span className="text-xs text-muted-foreground">
-          {village?.villageCode || "---"}
-        </span>
-      ),
-    },
-    {
       key: "villageEn",
       label: "Village EN",
       minWidth: "10px",
@@ -62,7 +50,6 @@ export const villageTableColumns = ({
         </span>
       ),
     },
-
     {
       key: "villageKh",
       label: "Village KH",
@@ -75,20 +62,18 @@ export const villageTableColumns = ({
         </span>
       ),
     },
-
     {
-      key: "communeCode",
-      label: "Commune Code",
+      key: "villageCode",
+      label: "Village Code",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.commune?.communeCode || "---"}
+          {village?.villageCode || "---"}
         </span>
       ),
     },
-
     {
       key: "communeEn",
       label: "Commune EN",
@@ -101,20 +86,18 @@ export const villageTableColumns = ({
         </span>
       ),
     },
-
     {
-      key: "districtCode",
-      label: "District Code",
+      key: "communeCode",
+      label: "Commune Code",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.commune?.district?.districtCode || "---"}
+          {village?.commune?.communeCode || "---"}
         </span>
       ),
     },
-
     {
       key: "districtEn",
       label: "District EN",
@@ -127,20 +110,18 @@ export const villageTableColumns = ({
         </span>
       ),
     },
-
     {
-      key: "provinceCode",
-      label: "Province EN",
+      key: "districtCode",
+      label: "District Code",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.commune?.district?.province?.provinceCode || "---"}
+          {village?.commune?.district?.districtCode || "---"}
         </span>
       ),
     },
-
     {
       key: "provinceEn",
       label: "Province EN",
@@ -153,7 +134,18 @@ export const villageTableColumns = ({
         </span>
       ),
     },
-
+    {
+      key: "provinceCode",
+      label: "Province Code",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (village) => (
+        <span className="text-xs text-muted-foreground">
+          {village?.commune?.district?.province?.provinceCode || "---"}
+        </span>
+      ),
+    },
     {
       key: "createdAt",
       label: "Created At",
@@ -165,7 +157,6 @@ export const villageTableColumns = ({
         </span>
       ),
     },
-
     {
       key: "actions",
       label: "Actions",

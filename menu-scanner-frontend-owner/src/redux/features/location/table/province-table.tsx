@@ -39,18 +39,6 @@ export const provinceTableColumns = ({
       ),
     },
     {
-      key: "provinceCode",
-      label: "Province Code",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (province) => (
-        <span className="text-xs text-muted-foreground">
-          {province?.provinceCode || "---"}
-        </span>
-      ),
-    },
-    {
       key: "provinceEn",
       label: "Province EN",
       minWidth: "10px",
@@ -62,7 +50,6 @@ export const provinceTableColumns = ({
         </span>
       ),
     },
-
     {
       key: "provinceKh",
       label: "Province KH",
@@ -75,7 +62,18 @@ export const provinceTableColumns = ({
         </span>
       ),
     },
-
+    {
+      key: "provinceCode",
+      label: "Province Code",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (province) => (
+        <span className="text-xs text-muted-foreground">
+          {province?.provinceCode || "---"}
+        </span>
+      ),
+    },
     {
       key: "createdAt",
       label: "Created At",
@@ -87,7 +85,6 @@ export const provinceTableColumns = ({
         </span>
       ),
     },
-
     {
       key: "actions",
       label: "Actions",
@@ -102,12 +99,12 @@ export const provinceTableColumns = ({
           />
           <ActionButton
             icon={<Edit className="w-4 h-4" />}
-            tooltip="Edit Privince"
+            tooltip="Edit Province"
             onClick={() => handleEditProvince(province)}
           />
           <ActionButton
             icon={<Trash className="w-4 h-4" />}
-            tooltip="Delete Privince"
+            tooltip="Delete Province"
             onClick={() => handleDeleteProvince(province)}
             variant="destructive"
           />

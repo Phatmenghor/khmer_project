@@ -39,18 +39,6 @@ export const communeTableColumns = ({
       ),
     },
     {
-      key: "communeCode",
-      label: "Commune Code",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (commune) => (
-        <span className="text-xs text-muted-foreground">
-          {commune?.communeCode || "---"}
-        </span>
-      ),
-    },
-    {
       key: "communeEn",
       label: "Commune EN",
       minWidth: "10px",
@@ -62,7 +50,6 @@ export const communeTableColumns = ({
         </span>
       ),
     },
-
     {
       key: "communeKh",
       label: "Commune KH",
@@ -75,20 +62,18 @@ export const communeTableColumns = ({
         </span>
       ),
     },
-
     {
-      key: "districtCode",
-      label: "District Code",
+      key: "communeCode",
+      label: "Commune Code",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (commune) => (
         <span className="text-xs text-muted-foreground">
-          {commune?.district?.districtCode || "---"}
+          {commune?.communeCode || "---"}
         </span>
       ),
     },
-
     {
       key: "districtEn",
       label: "District EN",
@@ -101,20 +86,18 @@ export const communeTableColumns = ({
         </span>
       ),
     },
-
     {
-      key: "provinceCode",
-      label: "Province Code",
+      key: "districtCode",
+      label: "District Code",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (commune) => (
         <span className="text-xs text-muted-foreground">
-          {commune?.district?.province?.provinceCode || "---"}
+          {commune?.district?.districtCode || "---"}
         </span>
       ),
     },
-
     {
       key: "provinceEn",
       label: "Province EN",
@@ -127,7 +110,18 @@ export const communeTableColumns = ({
         </span>
       ),
     },
-
+    {
+      key: "provinceCode",
+      label: "Province Code",
+      minWidth: "10px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (commune) => (
+        <span className="text-xs text-muted-foreground">
+          {commune?.district?.province?.provinceCode || "---"}
+        </span>
+      ),
+    },
     {
       key: "createdAt",
       label: "Created At",
@@ -139,7 +133,6 @@ export const communeTableColumns = ({
         </span>
       ),
     },
-
     {
       key: "actions",
       label: "Actions",
