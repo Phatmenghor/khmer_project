@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { convertEnumOrString } from "@/utils/common/enum-convert";
+import { formatEnumLabel } from "@/utils/common/enum-convert";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { fetchUserByIdService } from "@/redux/features/auth/store/thunks/users-thunks";
 import { clearSelectedUser } from "@/redux/features/auth/store/slice/users-slice";
@@ -46,13 +45,36 @@ export function UserCustomerDetailModal({ userId, isOpen, onClose }: UserCustome
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogTitle className="sr-only">Customer Details</DialogTitle>
+      <DialogTitle className="sr-only">Customer User Details</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <h2 className="text-lg font-semibold text-foreground">Customer Details</h2>
-          <p className="text-sm text-foreground mt-1">
-            Detailed information about the selected customer
-          </p>
+          <div className="flex items-center gap-4 pr-8">
+            {userData && (
+              <div className="h-16 w-16 rounded-lg overflow-hidden bg-muted border border-border flex-shrink-0">
+                {userData.profileImageUrl ? (
+                  <img
+                    src={userData.profileImageUrl}
+                    alt={userData.firstName}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
+                    <span className="text-lg font-semibold text-primary">
+                      {userData.firstName?.charAt(0)?.toUpperCase() || "U"}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-foreground">Customer User Details</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {userData
+                  ? userData.fullName || `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "---"
+                  : "Detailed information about the selected customer user"}
+              </p>
+            </div>
+          </div>
         </div>
 
         {isFetchingDetail ? (
@@ -61,7 +83,7 @@ export function UserCustomerDetailModal({ userId, isOpen, onClose }: UserCustome
           </div>
         ) : !userData ? (
           <div className="flex items-center justify-center flex-1 min-h-[200px]">
-            <p className="text-muted-foreground">No customer data available</p>
+            <p className="text-muted-foreground">No user data available</p>
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto">
@@ -77,37 +99,17 @@ export function UserCustomerDetailModal({ userId, isOpen, onClose }: UserCustome
                     <DisplayField label="Email" value={userData.email || "---"} />
                     <DisplayField label="Phone Number" value={userData.phoneNumber || "---"} />
                     <DisplayField label="Nickname" value={userData.nickname || "---"} />
-                    <DisplayField label="Gender" value={userData.gender ? convertEnumOrString(userData.gender) : "---"} />
+                    <DisplayField label="Gender" value={formatEnumLabel(userData.gender) ?? "---"} />
                     <DisplayField label="Date of Birth" value={userData.dateOfBirth || "---"} />
                     <DisplayField label="User Identifier" value={userData.userIdentifier || "---"} />
-                    <DisplayField
-                      label="User Type"
-                      value={
-                        <Badge variant="outline">
-                          {convertEnumOrString(userData.userType ?? "")}
-                        </Badge>
-                      }
-                    />
-                    <DisplayField
-                      label="Account Status"
-                      value={
-                        <Badge variant="outline">
-                          {convertEnumOrString(userData.accountStatus ?? "")}
-                        </Badge>
-                      }
-                    />
+                    <DisplayField label="User Type" value={formatEnumLabel(userData.userType) ?? "---"} />
+                    <DisplayField label="Account Status" value={formatEnumLabel(userData.accountStatus) ?? "---"} />
                     <DisplayField
                       label="Roles"
                       value={
-                        userData.roles?.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {userData.roles.map((role, i) => (
-                              <Badge key={i} variant="secondary">
-                                {convertEnumOrString(role)}
-                              </Badge>
-                            ))}
-                          </div>
-                        ) : "---"
+                        userData.roles?.length > 0
+                          ? userData.roles.map((r) => formatEnumLabel(r) ?? r).join(", ")
+                          : "---"
                       }
                     />
                     {userData.remark && (
@@ -128,11 +130,7 @@ export function UserCustomerDetailModal({ userId, isOpen, onClose }: UserCustome
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DisplayField
                       label="Synced"
-                      value={
-                        <Badge variant={userData.telegramSynced ? "default" : "outline"}>
-                          {userData.telegramSynced ? "Connected" : "Not Connected"}
-                        </Badge>
-                      }
+                      value={userData.telegramSynced ? "Connected" : "Not Connected"}
                     />
                     <DisplayField label="Username" value={userData.telegramUsername || "---"} />
                     <DisplayField label="First Name" value={userData.telegramFirstName || "---"} />
