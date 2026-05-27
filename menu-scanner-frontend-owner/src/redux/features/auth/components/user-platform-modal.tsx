@@ -59,10 +59,14 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
   const rolesList = useAppSelector(selectRolesList);
   const { isCreating, isUpdating } = operations;
 
-  const roleOptions = rolesList.map((role: any) => ({
-    value: role.name,
-    label: formatEnumLabel(role.name) ?? role.name,
-  }));
+  const roleOptions = rolesList
+    .filter((role: any, index: number, self: any[]) =>
+      self.findIndex((r) => r.name === role.name) === index
+    )
+    .map((role: any) => ({
+      value: role.name,
+      label: formatEnumLabel(role.name) ?? role.name,
+    }));
 
   const {
     control,
