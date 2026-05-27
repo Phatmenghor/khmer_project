@@ -57,9 +57,9 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
+          {options.map((option, idx) => (
             <SelectItem
-              key={option.value}
+              key={option.value ?? `option-${idx}`}
               value={option.value == undefined ? "All" : option.value}
               disabled={option.disabled}
               className={sizeClasses[size]}
