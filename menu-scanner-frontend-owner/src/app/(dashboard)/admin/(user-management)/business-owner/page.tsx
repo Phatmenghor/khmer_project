@@ -34,6 +34,7 @@ import {
 import { userBusinessOwnerTableColumns } from "@/redux/features/auth/table/business-owner-table";
 import CreateBusinessOwnerModal from "@/redux/features/auth/components/create-business-owner-modal";
 import { BusinessOwnerDetailModal } from "@/redux/features/auth/components/business-owner-detail-modal";
+import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 
 export default function BusinessOwnerPage() {
   const searchParams = useSearchParams();
@@ -59,6 +60,12 @@ export default function BusinessOwnerPage() {
   const [deleteState, setDeleteState] = useState({
     isOpen: false,
     owner: null as BusinessOwnerResponseModel | null,
+  });
+
+  const [resetPasswordState, setResetPasswordState] = useState({
+    isOpen: false,
+    userId: "",
+    userName: "",
   });
 
 
@@ -100,8 +107,16 @@ export default function BusinessOwnerPage() {
     setDeleteState({ isOpen: true, owner: user });
   };
 
+  const handleResetPassword = (user: BusinessOwnerResponseModel) => {
+    setResetPasswordState({
+      isOpen: true,
+      userId: user.ownerId,
+      userName: user.ownerFullName || user.ownerUserIdentifier,
+    });
+  };
+
   const tableHandlers = useMemo(
-    () => ({ handleViewUserDetail, handleDeleteUser }),
+    () => ({ handleViewUserDetail, handleDeleteUser, handleResetPassword }),
     []
   );
 
@@ -194,6 +209,13 @@ export default function BusinessOwnerPage() {
         businessOwnerId={detailModalState.ownerId}
         isOpen={detailModalState.isOpen}
         onClose={() => setDetailModalState({ isOpen: false, ownerId: "" })}
+      />
+
+      <ResetPasswordModal
+        isOpen={resetPasswordState.isOpen}
+        onClose={() => setResetPasswordState({ isOpen: false, userId: "", userName: "" })}
+        userId={resetPasswordState.userId}
+        userName={resetPasswordState.userName}
       />
 
       <DeleteConfirmationModal

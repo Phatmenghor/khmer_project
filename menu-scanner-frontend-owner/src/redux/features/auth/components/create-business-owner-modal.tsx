@@ -1,4 +1,3 @@
-// src/components/features/subscription/modals/create-subscription-modal.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -7,10 +6,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Loading from "@/components/shared/common/loading";
 import { TextField } from "@/components/shared/form-field/text-field";
-import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { PasswordField } from "@/components/shared/form-field/password-field";
+import { SelectField } from "@/components/shared/form-field/select-field";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { showToast } from "@/components/shared/common/show-toast";
 import { FormHeader } from "@/components/shared/form-field/form-header";
@@ -27,13 +26,18 @@ import {
   createBusinessOwnerSchema,
 } from "../store/models/schema/business-owner.schema";
 import { createBusinessOwnerService } from "../store/thunks/business-owner-thunks";
+import {
+  selectAllSubscriptionPlans,
+  selectIsLoading as selectPlanLoading,
+} from "@/redux/features/master-data/store/selectors/subscription-plan-selector";
+import { fetchAllSubscriptionPlansService } from "@/redux/features/master-data/store/thunks/subscription-plan-thunks";
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
 };
 
-export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
+export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -41,11 +45,16 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
   const reduxError = useAppSelector(selectError);
   const { isCreating } = operations;
 
+  const allPlans = useAppSelector(selectAllSubscriptionPlans);
+  const planOptions = (allPlans?.content ?? []).map((p) => ({
+    value: p.id,
+    label: `${p.name} — $${p.price}`,
+  }));
+
   const {
     control,
     handleSubmit,
     reset,
-    setValue,
     watch,
     formState: { errors, isDirty },
   } = useForm<CreateBusinessOwnerData>({
@@ -60,6 +69,11 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
       businessEmail: "",
       businessPhone: "",
       businessAddress: "",
+      planId: "",
+      paymentAmount: undefined,
+      paymentMethod: "",
+      paymentReference: "",
+      paymentNotes: "",
     },
     mode: "onChange",
   });
@@ -70,38 +84,37 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
     if (isOpen) {
       dispatch(clearError());
       reset();
+      dispatch(fetchAllSubscriptionPlansService({ pageNo: 1, pageSize: 100 }));
     }
   }, [isOpen, dispatch, reset]);
 
   const onSubmit = async (data: CreateBusinessOwnerData) => {
     try {
-      const payload: CreateBusinessOwnerData = {
-        ownerUserIdentifier: data.ownerUserIdentifier,
-        ownerEmail: data.ownerEmail,
-        ownerPassword: data.ownerPassword,
-        ownerFullName: data.ownerFullName,
-        ownerPhone: data.ownerPhone,
-        businessName: data.businessName,
-        businessEmail: data.businessEmail,
-        businessPhone: data.businessPhone,
-        businessAddress: data.businessAddress,
-        planId: data.planId,
-        paymentAmount: data.paymentAmount,
-        paymentMethod: data.paymentMethod,
-        paymentReference: data?.paymentReference || undefined,
-        paymentNotes: data?.paymentNotes || undefined,
-        paymentInfoComplete: data.paymentInfoComplete,
-      };
-
       const result = await dispatch(
-        createBusinessOwnerService(payload)
+        createBusinessOwnerService({
+          ownerUserIdentifier: data.ownerUserIdentifier,
+          ownerEmail: data.ownerEmail,
+          ownerPassword: data.ownerPassword,
+          ownerFullName: data.ownerFullName,
+          ownerPhone: data.ownerPhone,
+          businessName: data.businessName,
+          businessEmail: data.businessEmail,
+          businessPhone: data.businessPhone,
+          businessAddress: data.businessAddress,
+          planId: data.planId || undefined,
+          paymentAmount: data.paymentAmount,
+          paymentMethod: data.paymentMethod || undefined,
+          paymentReference: data.paymentReference || undefined,
+          paymentNotes: data.paymentNotes || undefined,
+        })
       ).unwrap();
+
       showToast.success(
-        `User Business Subscription for "${result.businessName}" created successfully`
+        `Business owner "${result.businessName}" created successfully`
       );
       handleClose();
     } catch (error: any) {
-      showToast.error(error || "Failed to create User Business subscription");
+      showToast.error(error || "Failed to create business owner");
     }
   };
 
@@ -113,12 +126,13 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
-          title="Create New Subscription"
-          description="Fill out the form to create a new subscription"
+          title="Create New Business Owner"
+          description="Fill out the form to register a new business owner account"
           avatarName={businessName}
-          showAvatar={false}
+          showAvatar={true}
+          isCreate={true}
         />
 
         <form
@@ -135,72 +149,76 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
             )}
 
             <div className="space-y-6">
-              {/* Owner Information */}
-              <div>
-                <h3 className="text-lg font-semibold mb-4">
-                  Owner Information
+              {/* Account Credentials */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">
+                  Account Credentials <span className="text-destructive">*</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <TextField
                     control={control}
                     name="ownerUserIdentifier"
-                    label="Owner User Identifier"
-                    placeholder="Enter owner identifier"
+                    label="User Identifier"
+                    placeholder="Enter user identifier"
                     required
                     disabled={isCreating}
                     error={getFieldError(errors.ownerUserIdentifier)}
                   />
-
                   <TextField
                     control={control}
                     name="ownerEmail"
-                    label="Owner Email"
+                    label="Email"
                     type="email"
-                    placeholder="Enter owner email"
+                    placeholder="Enter email address"
                     required
                     disabled={isCreating}
                     error={getFieldError(errors.ownerEmail)}
                   />
-
-                  <TextField
-                    control={control}
-                    name="ownerFullName"
-                    label="Owner Full Name"
-                    placeholder="Enter owner full name"
-                    required
-                    disabled={isCreating}
-                    error={getFieldError(errors.ownerFullName)}
-                  />
-
-                  <TextField
-                    control={control}
-                    name="ownerPhone"
-                    label="Owner Phone"
-                    placeholder="Enter owner phone"
-                    required
-                    disabled={isCreating}
-                    error={getFieldError(errors.ownerPhone)}
-                  />
-
                   <PasswordField
                     control={control}
                     name="ownerPassword"
-                    label="Owner Password"
+                    label="Password"
                     placeholder="Enter password"
                     required
                     showPassword={showPassword}
                     onTogglePassword={() => setShowPassword(!showPassword)}
-                    className="md:col-span-2"
                     disabled={isCreating}
                     error={getFieldError(errors.ownerPassword)}
                   />
                 </div>
               </div>
 
+              {/* Owner Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">
+                  Owner Information <span className="text-destructive">*</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <TextField
+                    control={control}
+                    name="ownerFullName"
+                    label="Full Name"
+                    placeholder="Enter owner full name"
+                    required
+                    disabled={isCreating}
+                    error={getFieldError(errors.ownerFullName)}
+                  />
+                  <TextField
+                    control={control}
+                    name="ownerPhone"
+                    label="Phone"
+                    placeholder="Enter phone number"
+                    required
+                    disabled={isCreating}
+                    error={getFieldError(errors.ownerPhone)}
+                  />
+                </div>
+              </div>
+
               {/* Business Information */}
-              <div>
-                <h3 className="text-lg font-semibold mb-4">
-                  Business Information
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">
+                  Business Information <span className="text-destructive">*</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <TextField
@@ -212,7 +230,6 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
                     disabled={isCreating}
                     error={getFieldError(errors.businessName)}
                   />
-
                   <TextField
                     control={control}
                     name="businessEmail"
@@ -223,7 +240,6 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
                     disabled={isCreating}
                     error={getFieldError(errors.businessEmail)}
                   />
-
                   <TextField
                     control={control}
                     name="businessPhone"
@@ -233,20 +249,33 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
                     disabled={isCreating}
                     error={getFieldError(errors.businessPhone)}
                   />
-
                   <TextField
                     control={control}
                     name="businessAddress"
                     label="Business Address"
                     placeholder="Enter business address"
                     required
-                    className="md:col-span-2"
                     disabled={isCreating}
                     error={getFieldError(errors.businessAddress)}
                   />
                 </div>
               </div>
 
+              {/* Subscription Plan (optional) */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Subscription Plan</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <SelectField
+                    control={control}
+                    name="planId"
+                    label="Subscription Plan"
+                    placeholder="Select a plan (optional)"
+                    options={planOptions}
+                    disabled={isCreating}
+                    error={getFieldError(errors.planId)}
+                  />
+                </div>
+              </div>
             </div>
           </FormBody>
 
@@ -254,14 +283,14 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
             isSubmitting={isCreating}
             isDirty={isDirty}
             isCreate={true}
-            createMessage="Creating subscription..."
+            createMessage="Creating business owner..."
           >
             <CancelButton onClick={handleClose} disabled={isCreating} />
             <SubmitButton
               isSubmitting={isCreating}
               isDirty={isDirty}
               isCreate={true}
-              createText="Create Subscription"
+              createText="Create Business Owner"
               submittingCreateText="Creating..."
             />
           </FormFooter>

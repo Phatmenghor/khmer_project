@@ -1,8 +1,7 @@
-// src/redux/features/auth/table/users-business-monitor-table.tsx
 import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Eye, Trash } from "lucide-react";
+import { Eye, RotateCw, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import {
   AllBusinessOwnerResponseModel,
@@ -11,6 +10,7 @@ import {
 
 interface BusinessOwnerTableHandlers {
   handleViewUserDetail: (user: BusinessOwnerResponseModel) => void;
+  handleResetPassword: (user: BusinessOwnerResponseModel) => void;
   handleDeleteUser: (user: BusinessOwnerResponseModel) => void;
 }
 
@@ -23,14 +23,14 @@ export const userBusinessOwnerTableColumns = ({
   data,
   handlers,
 }: BusinessOwnerTableOptions): TableColumn<BusinessOwnerResponseModel>[] => {
-  const { handleViewUserDetail, handleDeleteUser } = handlers;
+  const { handleViewUserDetail, handleResetPassword, handleDeleteUser } = handlers;
 
   return [
     {
       key: "index",
       label: "#",
       minWidth: "10px",
-      maxWidth: "400px",
+      maxWidth: "60px",
       render: (_, index) => (
         <span className="font-medium">
           {indexDisplay(data?.pageNo || 1, data?.pageSize || 10, index + 1)}
@@ -63,7 +63,7 @@ export const userBusinessOwnerTableColumns = ({
     },
     {
       key: "phoneNumber",
-      label: "Phone Number",
+      label: "Phone",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
@@ -86,20 +86,8 @@ export const userBusinessOwnerTableColumns = ({
       ),
     },
     {
-      key: "businessEmail",
-      label: "Business Email",
-      minWidth: "10px",
-      maxWidth: "400px",
-      truncate: true,
-      render: (user) => (
-        <span className="text-xs text-muted-foreground">
-          {user?.businessEmail || "---"}
-        </span>
-      ),
-    },
-    {
       key: "currentPlanName",
-      label: "Current Plan",
+      label: "Plan",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
@@ -115,17 +103,14 @@ export const userBusinessOwnerTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (user) => {
-        const daysRemaining = user?.daysRemaining || 0;
+        const days = user?.daysRemaining || 0;
         const colorClass =
-          daysRemaining <= 7
+          days <= 7
             ? "text-red-600 font-semibold"
-            : daysRemaining <= 30
+            : days <= 30
             ? "text-yellow-600 font-medium"
             : "text-green-600";
-
-        return (
-          <span className={`text-xs ${colorClass}`}>{daysRemaining} days</span>
-        );
+        return <span className={`text-xs ${colorClass}`}>{days} days</span>;
       },
     },
     {
@@ -141,40 +126,20 @@ export const userBusinessOwnerTableColumns = ({
     },
     {
       key: "subscriptionStatus",
-      label: "Status",
+      label: "Subscription",
       minWidth: "10px",
       maxWidth: "400px",
       render: (user) => {
-        const isActive = user?.subscriptionStatus === "ACTIVE";
+        const status = user?.subscriptionStatus;
+        const colorClass =
+          status === "ACTIVE"
+            ? "text-green-600 font-medium"
+            : status === "EXPIRING_SOON"
+            ? "text-yellow-600 font-medium"
+            : "text-red-500";
         return (
-          <span
-            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-              isActive
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {isActive ? "Active" : "Expired"}
-          </span>
-        );
-      },
-    },
-    {
-      key: "autoRenew",
-      label: "Auto Renew",
-      minWidth: "10px",
-      maxWidth: "400px",
-      render: (user) => {
-        const autoRenew = user?.autoRenew === true;
-        return (
-          <span
-            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-              autoRenew
-                ? "bg-blue-100 text-blue-700"
-                : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            {autoRenew ? "Enabled" : "Disabled"}
+          <span className={`text-xs ${colorClass}`}>
+            {status || "---"}
           </span>
         );
       },
@@ -195,25 +160,29 @@ export const userBusinessOwnerTableColumns = ({
       label: "Actions",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (user) => {
-        return (
-          <div className="flex items-center gap-1">
-            <ActionButton
-              icon={<Eye className="w-4 h-4" />}
-              tooltip="View Details"
-              onClick={() => handleViewUserDetail(user)}
-              size="sm"
-            />
-            <ActionButton
-              icon={<Trash className="w-4 h-4" />}
-              tooltip="Delete"
-              onClick={() => handleDeleteUser(user)}
-              size="sm"
-              variant="destructive"
-            />
-          </div>
-        );
-      },
+      render: (user) => (
+        <div className="flex items-center gap-1">
+          <ActionButton
+            icon={<Eye className="w-4 h-4" />}
+            tooltip="View Details"
+            onClick={() => handleViewUserDetail(user)}
+            size="sm"
+          />
+          <ActionButton
+            icon={<RotateCw className="w-4 h-4" />}
+            tooltip="Reset Password"
+            onClick={() => handleResetPassword(user)}
+            size="sm"
+          />
+          <ActionButton
+            icon={<Trash className="w-4 h-4" />}
+            tooltip="Delete"
+            onClick={() => handleDeleteUser(user)}
+            size="sm"
+            variant="destructive"
+          />
+        </div>
+      ),
     },
   ];
 };
