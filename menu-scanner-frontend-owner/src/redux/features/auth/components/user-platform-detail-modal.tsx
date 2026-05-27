@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { convertEnumOrString } from "@/utils/common/enum-convert";
+import { formatEnumLabel } from "@/utils/common/enum-convert";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { fetchUserByIdService } from "@/redux/features/auth/store/thunks/users-thunks";
 import { clearSelectedUser } from "@/redux/features/auth/store/slice/users-slice";
@@ -100,37 +99,17 @@ export function UserPlatformDetailModal({ userId, isOpen, onClose }: UserPlatfor
                     <DisplayField label="Email" value={userData.email || "---"} />
                     <DisplayField label="Phone Number" value={userData.phoneNumber || "---"} />
                     <DisplayField label="Nickname" value={userData.nickname || "---"} />
-                    <DisplayField label="Gender" value={userData.gender ? convertEnumOrString(userData.gender) : "---"} />
+                    <DisplayField label="Gender" value={formatEnumLabel(userData.gender) ?? "---"} />
                     <DisplayField label="Date of Birth" value={userData.dateOfBirth || "---"} />
                     <DisplayField label="User Identifier" value={userData.userIdentifier || "---"} />
-                    <DisplayField
-                      label="User Type"
-                      value={
-                        <Badge variant="outline">
-                          {convertEnumOrString(userData.userType ?? "")}
-                        </Badge>
-                      }
-                    />
-                    <DisplayField
-                      label="Account Status"
-                      value={
-                        <Badge variant="outline">
-                          {convertEnumOrString(userData.accountStatus ?? "")}
-                        </Badge>
-                      }
-                    />
+                    <DisplayField label="User Type" value={formatEnumLabel(userData.userType) ?? "---"} />
+                    <DisplayField label="Account Status" value={formatEnumLabel(userData.accountStatus) ?? "---"} />
                     <DisplayField
                       label="Roles"
                       value={
-                        userData.roles?.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {userData.roles.map((role, i) => (
-                              <Badge key={i} variant="secondary">
-                                {convertEnumOrString(role)}
-                              </Badge>
-                            ))}
-                          </div>
-                        ) : "---"
+                        userData.roles?.length > 0
+                          ? userData.roles.map((r) => formatEnumLabel(r) ?? r).join(", ")
+                          : "---"
                       }
                     />
                     {userData.remark && (
@@ -151,11 +130,7 @@ export function UserPlatformDetailModal({ userId, isOpen, onClose }: UserPlatfor
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <DisplayField
                       label="Synced"
-                      value={
-                        <Badge variant={userData.telegramSynced ? "default" : "outline"}>
-                          {userData.telegramSynced ? "Connected" : "Not Connected"}
-                        </Badge>
-                      }
+                      value={userData.telegramSynced ? "Connected" : "Not Connected"}
                     />
                     <DisplayField label="Username" value={userData.telegramUsername || "---"} />
                     <DisplayField label="First Name" value={userData.telegramFirstName || "---"} />
