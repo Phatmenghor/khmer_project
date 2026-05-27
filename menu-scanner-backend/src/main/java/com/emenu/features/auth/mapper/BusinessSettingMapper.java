@@ -12,14 +12,10 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = { SocialMediaMapper.class, BusinessHoursMapper.class })
 public interface BusinessSettingMapper {
 
-    @Mapping(target = "businessName", source = "businessName")
     BusinessSettingResponse toResponse(BusinessSetting businessSetting);
 
     @AfterMapping
     default void applyDefaultsAfterResponse(@MappingTarget BusinessSettingResponse response) {
-        if (response.getBusinessName() == null || response.getBusinessName().isEmpty()) {
-            response.setBusinessName(BusinessConstants.DEFAULT_BUSINESS_NAME);
-        }
         if (response.getPrimaryColor() == null) {
             response.setPrimaryColor(BusinessConstants.DEFAULT_PRIMARY_COLOR);
         }
@@ -35,9 +31,6 @@ public interface BusinessSettingMapper {
 
     @AfterMapping
     default void applyDefaultsAfterCreate(@MappingTarget BusinessSetting businessSetting) {
-        if (businessSetting.getBusinessName() == null || businessSetting.getBusinessName().isEmpty()) {
-            businessSetting.setBusinessName(BusinessConstants.DEFAULT_BUSINESS_NAME);
-        }
         if (businessSetting.getPrimaryColor() == null) {
             businessSetting.setPrimaryColor(BusinessConstants.DEFAULT_PRIMARY_COLOR);
         }

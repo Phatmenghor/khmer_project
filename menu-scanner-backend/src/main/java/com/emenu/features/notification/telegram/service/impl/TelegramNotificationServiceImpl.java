@@ -87,7 +87,8 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
         BusinessSetting setting = opt.get();
         setting.setTelegramGroupChatId(String.valueOf(chatId));
         businessSettingRepository.save(setting);
-        return setting.getBusinessName() != null ? setting.getBusinessName() : "your business";
+        return setting.getBusiness() != null && setting.getBusiness().getName() != null
+                ? setting.getBusiness().getName() : "your business";
     }
 
     // ── Order notifications ───────────────────────────────────────────────────

@@ -453,9 +453,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
     private void enrichDetailResponse(BusinessOwnerDetailResponse detailResponse, Business businessEntity) {
         if (businessEntity == null) return;
-
-        detailResponse.setBusinessDescription(businessEntity.getDescription());
-
         enrichSubscriptionData(detailResponse, businessEntity.getId());
         enrichBusinessSettingData(detailResponse, businessEntity.getId());
     }
@@ -464,13 +461,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .ifPresent(setting -> {
                     detailResponse.setBusinessSettingId(setting.getId());
-                    detailResponse.setTaxPercentage(setting.getTaxPercentage());
                     detailResponse.setLogoBusinessUrl(setting.getLogoBusinessUrl());
-                    detailResponse.setPrimaryColor(setting.getPrimaryColor());
-                    detailResponse.setSettingBusinessName(setting.getBusinessName());
-                    detailResponse.setSettingContactAddress(setting.getContactAddress());
-                    detailResponse.setSettingContactPhone(setting.getContactPhone());
-                    detailResponse.setSettingContactEmail(setting.getContactEmail());
                     detailResponse.setEnableStock(setting.getEnableStock() != null ? setting.getEnableStock().name() : null);
                     detailResponse.setUseBrands(setting.getUseBrands());
                     detailResponse.setLowStockThreshold(setting.getLowStockThreshold());

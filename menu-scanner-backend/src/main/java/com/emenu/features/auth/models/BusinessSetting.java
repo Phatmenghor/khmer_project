@@ -29,9 +29,6 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "tax_percentage")
     private Double taxPercentage;
 
-    @Column(name = "business_name")
-    private String businessName;
-
     @Column(name = "logo_business_url")
     private String logoBusinessUrl;
 
@@ -41,15 +38,6 @@ public class BusinessSetting extends BaseUUIDEntity {
 
     @Column(name = "primary_color")
     private String primaryColor;
-
-    @Column(name = "contact_address", length = 500)
-    private String contactAddress;
-
-    @Column(name = "contact_phone", length = 20)
-    private String contactPhone;
-
-    @Column(name = "contact_email", length = 100)
-    private String contactEmail;
 
     @OneToMany(
         mappedBy = "businessSetting",

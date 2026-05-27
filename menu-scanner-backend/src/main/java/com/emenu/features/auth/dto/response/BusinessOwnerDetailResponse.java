@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -31,20 +30,12 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private String businessEmail;
     private String businessPhone;
     private String businessAddress;
-    private String businessDescription;
     private BusinessStatus businessStatus;
     private Boolean isSubscriptionActive;
-    private LocalDateTime businessCreatedAt;
 
     // Business Setting Info
     private UUID businessSettingId;
-    private Double taxPercentage;
     private String logoBusinessUrl;
-    private String primaryColor;
-    private String settingBusinessName;
-    private String settingContactAddress;
-    private String settingContactPhone;
-    private String settingContactEmail;
     private String enableStock;
     private Boolean useBrands;
     private Integer lowStockThreshold;

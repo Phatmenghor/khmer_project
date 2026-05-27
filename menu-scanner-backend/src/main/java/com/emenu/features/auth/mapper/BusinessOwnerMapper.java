@@ -56,7 +56,6 @@ public interface BusinessOwnerMapper {
     @Mapping(target = "businessAddress", source = "business.address")
     @Mapping(target = "businessStatus", source = "business.status")
     @Mapping(target = "isSubscriptionActive", source = "business.isSubscriptionActive")
-    @Mapping(target = "businessCreatedAt", source = "business.createdAt")
     BusinessOwnerDetailResponse toDetailResponse(User owner);
 
     List<BusinessOwnerDetailResponse> toDetailResponseList(List<User> owners);
