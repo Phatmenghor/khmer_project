@@ -235,14 +235,14 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         currentSubscriptionRecord.cancel();
         subscriptionRepository.save(currentSubscriptionRecord);
 
-        List<SubscriptionPayment> pendingPaymentRecords = subscriptionPaymentRepository.findBySubscriptionIdAndStatusAndIsDeletedFalse(
-                currentSubscriptionRecord.getId(), SubscriptionPaymentStatus.PENDING);
-
-        pendingPaymentRecords.forEach(paymentRecord -> {
-            paymentRecord.setStatus(SubscriptionPaymentStatus.CANCELLED);
-            paymentRecord.setNotes("Cancelled: " + cancelRequestData.getReason());
-            subscriptionPaymentRepository.save(paymentRecord);
-        });
+        subscriptionPaymentRepository
+                .findBySubscriptionIdAndStatusAndIsDeletedFalse(
+                        currentSubscriptionRecord.getId(), SubscriptionPaymentStatus.PENDING)
+                .ifPresent(paymentRecord -> {
+                    paymentRecord.setStatus(SubscriptionPaymentStatus.CANCELLED);
+                    paymentRecord.setNotes("Cancelled: " + cancelRequestData.getReason());
+                    subscriptionPaymentRepository.save(paymentRecord);
+                });
 
         businessEntity.deactivateSubscription();
         businessRepository.save(businessEntity);

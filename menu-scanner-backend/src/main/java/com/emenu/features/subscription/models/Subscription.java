@@ -64,6 +64,16 @@ public class Subscription extends BaseUUIDEntity {
         return ChronoUnit.DAYS.between(LocalDate.now(), endDate.toLocalDate());
     }
 
+    public boolean isExpiringSoon(int days) {
+        if (isExpired()) return false;
+        long daysRemaining = getDaysRemaining();
+        return daysRemaining > 0 && daysRemaining <= days;
+    }
+
+    public String getDisplayName() {
+        return plan != null ? plan.getName() : "Unknown Plan";
+    }
+
     public void cancel() {
         this.autoRenew = false;
     }
