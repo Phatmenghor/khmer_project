@@ -4,7 +4,6 @@ import businessOwnerReducer from "../features/auth/store/slice/business-owner-sl
 import roleReducer from "../features/auth/store/slice/role-slice";
 
 import exchangeRateReducer from "../features/master-data/store/slice/exchage-rate-slice";
-import paymentReducer from "../features/master-data/store/slice/payment-slice";
 import subscriptionPlanReducer from "../features/master-data/store/slice/subscription-plan-slice";
 
 import communeReducer from "../features/location/store/slice/commune-slice";
@@ -18,7 +17,6 @@ export const reducers = {
   businessOwner: businessOwnerReducer,
   roles: roleReducer,
   exchangeRate: exchangeRateReducer,
-  payment: paymentReducer,
   subscriptionPlan: subscriptionPlanReducer,
   commune: communeReducer,
   province: provinceReducer,

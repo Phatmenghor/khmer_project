@@ -7,9 +7,6 @@ import {
   AllSubscriptionPlanResponseModel,
   SubscriptionPlanResponseModel,
 } from "../store/models/response/subscription-plan-response";
-import { Badge } from "@/components/ui/badge";
-import { SubscriptionPlanStatus } from "@/constants/app-resource/status/status";
-import { getStatusColor } from "@/utils/styles/enum-style";
 
 interface SubscriptionPlanTableHandlers {
   handleEditPlan: (plan: SubscriptionPlanResponseModel) => void;
@@ -102,16 +99,9 @@ export const subscriptionPlanTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (plan) => (
-        <Badge
-          variant="outline"
-          className={getStatusColor(
-            plan?.status === SubscriptionPlanStatus.PUBLIC
-              ? "ACTIVE"
-              : "INACTIVE"
-          )}
-        >
+        <span className="text-xs text-muted-foreground">
           {plan?.status || "---"}
-        </Badge>
+        </span>
       ),
     },
     {

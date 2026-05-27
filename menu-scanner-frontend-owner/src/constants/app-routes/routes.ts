@@ -57,16 +57,12 @@ export const sidebarItems: SidebarItem[] = [
     icon: Database,
     subroutes: [
       {
-        title: "Payment",
-        href: ROUTES.DASHBOARD.PAYMENT,
+        title: "Roles",
+        href: ROUTES.DASHBOARD.USER_ROLES,
       },
       {
         title: "Subscription Plan",
         href: ROUTES.DASHBOARD.SUBSCRIPTION_PLAN,
-      },
-      {
-        title: "Roles",
-        href: ROUTES.DASHBOARD.USER_ROLES,
       },
     ],
   },
