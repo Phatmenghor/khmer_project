@@ -44,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -456,11 +457,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         detailResponse.setBusinessDescription(businessEntity.getDescription());
 
         enrichSubscriptionData(detailResponse, businessEntity.getId());
-
-        if (detailResponse.getCurrentSubscriptionId() != null) {
-            enrichPaymentData(detailResponse, detailResponse.getCurrentSubscriptionId());
-        }
-
         enrichBusinessSettingData(detailResponse, businessEntity.getId());
     }
 
@@ -505,69 +501,20 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         detailResponse.setIsExpiringSoon(subscriptionRecord.isExpiringSoon(7));
     }
 
-    private void enrichPaymentData(BusinessOwnerDetailResponse detailResponse, UUID subscriptionId) {
-        List<SubscriptionPayment> paymentRecords = subscriptionPaymentRepository.findBySubscriptionIdAndIsDeletedFalse(subscriptionId);
-
-        if (paymentRecords.isEmpty()) {
-            setDefaultPaymentData(detailResponse);
-            return;
-        }
-
-        BigDecimal totalPaidAmount = paymentRecords.stream()
-                .filter(p -> p.getStatus() == SubscriptionPaymentStatus.COMPLETED)
-                .map(SubscriptionPayment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalPendingAmount = paymentRecords.stream()
-                .filter(p -> p.getStatus() == SubscriptionPaymentStatus.PENDING)
-                .map(SubscriptionPayment::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        long completedPaymentCount = paymentRecords.stream()
-                .filter(p -> p.getStatus() == SubscriptionPaymentStatus.COMPLETED)
-                .count();
-
-        long pendingPaymentCount = paymentRecords.stream()
-                .filter(p -> p.getStatus() == SubscriptionPaymentStatus.PENDING)
-                .count();
-
-        LocalDateTime lastPaymentDateTime = paymentRecords.stream()
-                .filter(p -> p.getStatus() == SubscriptionPaymentStatus.COMPLETED)
-                .map(SubscriptionPayment::getCreatedAt)
-                .max(LocalDateTime::compareTo)
-                .orElse(null);
-
-        detailResponse.setTotalPaid(totalPaidAmount);
-        detailResponse.setTotalPending(totalPendingAmount);
-        detailResponse.setTotalPayments(paymentRecords.size());
-        detailResponse.setCompletedPayments((int) completedPaymentCount);
-        detailResponse.setPendingPayments((int) pendingPaymentCount);
-        detailResponse.setPaymentStatus(determinePaymentStatus(totalPaidAmount, totalPendingAmount, detailResponse.getCurrentPlanPrice()));
-        detailResponse.setLastPaymentDate(lastPaymentDateTime);
-    }
-
-    private void setDefaultPaymentData(BusinessOwnerDetailResponse detailResponse) {
-        detailResponse.setTotalPaid(BigDecimal.ZERO);
-        detailResponse.setTotalPending(BigDecimal.ZERO);
-        detailResponse.setTotalPayments(0);
-        detailResponse.setCompletedPayments(0);
-        detailResponse.setPendingPayments(0);
-        detailResponse.setPaymentStatus("UNPAID");
-        detailResponse.setLastPaymentDate(null);
-    }
-
     private Long calculateDaysRemaining(LocalDateTime endDate) {
         if (endDate == null) return 0L;
-        LocalDateTime now = LocalDateTime.now();
-        if (now.isAfter(endDate)) return 0L;
-        return ChronoUnit.DAYS.between(now, endDate);
+        LocalDate today = LocalDate.now();
+        LocalDate end = endDate.toLocalDate();
+        if (today.isAfter(end)) return 0L;
+        return ChronoUnit.DAYS.between(today, end);
     }
 
     private Long calculateDaysActive(LocalDateTime startDate) {
         if (startDate == null) return 0L;
-        LocalDateTime now = LocalDateTime.now();
-        if (now.isBefore(startDate)) return 0L;
-        return ChronoUnit.DAYS.between(startDate, now);
+        LocalDate today = LocalDate.now();
+        LocalDate start = startDate.toLocalDate();
+        if (today.isBefore(start)) return 0L;
+        return ChronoUnit.DAYS.between(start, today);
     }
 
     private SubscriptionStatus determineSubscriptionStatus(Subscription subscriptionRecord) {

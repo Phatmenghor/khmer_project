@@ -63,12 +63,4 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private Boolean autoRenew;
     private Boolean isExpiringSoon;
 
-    // Payment Info
-    private BigDecimal totalPaid;
-    private BigDecimal totalPending;
-    private Integer totalPayments;
-    private Integer completedPayments;
-    private Integer pendingPayments;
-    private String paymentStatus;
-    private LocalDateTime lastPaymentDate;
 }
