@@ -7,6 +7,7 @@ import {
   AllUserResponseModel,
   UserResponseModel,
 } from "../store/models/response/users-response";
+import { formatEnumLabel } from "@/utils/common/enum-convert";
 
 interface UserTableHandlers {
   handleEditUser: (user: UserResponseModel) => void;
@@ -98,15 +99,11 @@ export const userPlatformTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (user) => (
-        <>
+        <span className="text-xs text-muted-foreground">
           {user.roles?.length > 0
-            ? user.roles.map((role: string) => (
-                <span key={role} className="text-xs text-muted-foreground">
-                  {role}
-                </span>
-              ))
+            ? user.roles.map((r: string) => formatEnumLabel(r) ?? r).join(", ")
             : "---"}
-        </>
+        </span>
       ),
     },
     {
@@ -117,7 +114,7 @@ export const userPlatformTableColumns = ({
       truncate: true,
       render: (user) => (
         <span className="text-xs text-muted-foreground">
-          {user?.accountStatus || "---"}
+          {formatEnumLabel(user?.accountStatus) ?? "---"}
         </span>
       ),
     },

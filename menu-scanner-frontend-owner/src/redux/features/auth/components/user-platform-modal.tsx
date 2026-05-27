@@ -18,6 +18,7 @@ import { DatePickerField } from "@/components/shared/form-field/date-picker-fiel
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { PasswordField } from "@/components/shared/form-field/password-field";
+import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CreateUserRequest, UpdateUserRequest } from "../store/models/request/users-request";
 import { createUserSchema, updateUserSchema, UserFormData } from "../store/models/schema/user.schema";
 import { fetchUserByIdService, createUserService, updateUserService } from "../store/thunks/users-thunks";
@@ -34,6 +35,7 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { getFieldError } from "@/utils/common/get-field-error";
+import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 
 type Props = {
   mode: ModalMode;
@@ -45,6 +47,7 @@ type Props = {
 export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const dispatch = useAppDispatch();
   const operations = useAppSelector(selectOperations);
@@ -72,6 +75,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
       nickname: "",
       gender: "",
       dateOfBirth: "",
+      profileImageUrl: "",
       password: "",
       userType: UserGropeType.PLATFORM_USER,
       roles: [],
@@ -100,6 +104,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
             nickname: data.nickname || "",
             gender: data.gender || "",
             dateOfBirth: data.dateOfBirth || "",
+            profileImageUrl: data.profileImageUrl || "",
             accountStatus: data.accountStatus,
             roles: Array.isArray(data.roles) ? data.roles : [],
             remark: data.remark || "",
@@ -123,6 +128,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
         nickname: "",
         gender: "",
         dateOfBirth: "",
+        profileImageUrl: "",
         password: "",
         userType: UserGropeType.PLATFORM_USER,
         roles: [],
@@ -138,6 +144,21 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
 
   const onSubmit = async (data: UserFormData) => {
     try {
+      setIsUploadingImage(true);
+
+      let profileImageUrl = data.profileImageUrl;
+      if (profileImageUrl && isBase64Image(profileImageUrl)) {
+        try {
+          profileImageUrl = await uploadImage(profileImageUrl);
+        } catch {
+          showToast.error("Failed to upload profile image");
+          setIsUploadingImage(false);
+          return;
+        }
+      }
+
+      setIsUploadingImage(false);
+
       if (isCreate) {
         const payload: CreateUserRequest = {
           userIdentifier: data.userIdentifier!,
@@ -149,6 +170,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
           nickname: data.nickname || undefined,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
+          profileImageUrl: profileImageUrl || undefined,
           userType: data.userType!,
           accountStatus: data.accountStatus,
           roles: data.roles,
@@ -166,6 +188,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
           nickname: data.nickname || undefined,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
+          profileImageUrl: profileImageUrl || undefined,
           accountStatus: data.accountStatus,
           roles: data.roles,
           remark: data.remark || undefined,
@@ -181,16 +204,18 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
 
   const handleClose = () => {
     reset();
+    setShowPassword(false);
+    setIsUploadingImage(false);
     dispatch(clearError());
     dispatch(clearSelectedUser());
     onClose();
   };
 
-  const isSubmitting = isCreate ? isCreating : isUpdating;
+  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-2xl p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title={isCreate ? "Create New Platform User" : "Edit Platform User"}
           description={
@@ -217,147 +242,196 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-6">
+                {/* Account Credentials — create only */}
                 {isCreate && (
-                  <>
-                    <TextField
-                      control={control}
-                      name="userIdentifier"
-                      label="User Identifier"
-                      placeholder="Enter user identifier"
-                      required
-                      disabled={isSubmitting}
-                      error={getFieldError(errors.userIdentifier)}
-                    />
-                    <TextField
-                      control={control}
-                      name="email"
-                      label="Email"
-                      type="email"
-                      placeholder="Enter email address"
-                      required
-                      disabled={isSubmitting}
-                      error={getFieldError(errors.email)}
-                    />
-                  </>
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">
+                      Account Credentials <span className="text-red-500">*</span>
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <TextField
+                        control={control}
+                        name="userIdentifier"
+                        label="User Identifier"
+                        placeholder="Enter user identifier"
+                        required
+                        disabled={isSubmitting}
+                        error={getFieldError(errors.userIdentifier)}
+                      />
+                      <TextField
+                        control={control}
+                        name="email"
+                        label="Email"
+                        type="email"
+                        placeholder="Enter email address"
+                        required
+                        disabled={isSubmitting}
+                        error={getFieldError(errors.email)}
+                      />
+                      <PasswordField
+                        control={control}
+                        name="password"
+                        label="Password"
+                        placeholder="Enter password"
+                        required
+                        showPassword={showPassword}
+                        onTogglePassword={() => setShowPassword(!showPassword)}
+                        disabled={isSubmitting}
+                        error={getFieldError(errors.password)}
+                      />
+                      <SelectField
+                        control={control}
+                        name="roles"
+                        label="Role"
+                        placeholder="Select role"
+                        options={USER_PLATFORM_ROLE_CREATE_UPDATE}
+                        required
+                        disabled={isSubmitting}
+                        error={getFieldError(errors.roles)}
+                        onValueChange={(value) =>
+                          setValue("roles", [value], { shouldDirty: true, shouldValidate: true })
+                        }
+                      />
+                      <SelectField
+                        control={control}
+                        name="accountStatus"
+                        label="Account Status"
+                        placeholder="Select account status"
+                        options={ACCOUNT_STATUS_CREATE_UPDATE}
+                        required
+                        disabled={isSubmitting}
+                        error={getFieldError(errors.accountStatus)}
+                      />
+                    </div>
+                  </div>
                 )}
 
-                <TextField
-                  control={control}
-                  name="firstName"
-                  label="First Name"
-                  placeholder="Enter first name"
-                  required
-                  disabled={isSubmitting}
-                  error={getFieldError(errors.firstName)}
-                />
+                {/* Personal Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    Personal Information <span className="text-red-500">*</span>
+                  </h3>
+                  <div className="space-y-4">
+                    {/* Role + Status for edit mode */}
+                    {!isCreate && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <SelectField
+                          control={control}
+                          name="roles"
+                          label="Role"
+                          placeholder="Select role"
+                          options={USER_PLATFORM_ROLE_CREATE_UPDATE}
+                          required
+                          disabled={isSubmitting}
+                          error={getFieldError(errors.roles)}
+                          onValueChange={(value) =>
+                            setValue("roles", [value], { shouldDirty: true, shouldValidate: true })
+                          }
+                        />
+                        <SelectField
+                          control={control}
+                          name="accountStatus"
+                          label="Account Status"
+                          placeholder="Select account status"
+                          options={ACCOUNT_STATUS_CREATE_UPDATE}
+                          required
+                          disabled={isSubmitting}
+                          error={getFieldError(errors.accountStatus)}
+                        />
+                      </div>
+                    )}
 
-                <TextField
-                  control={control}
-                  name="lastName"
-                  label="Last Name"
-                  placeholder="Enter last name"
-                  required
-                  disabled={isSubmitting}
-                  error={getFieldError(errors.lastName)}
-                />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <TextField
+                        control={control}
+                        name="firstName"
+                        label="First Name"
+                        placeholder="Enter first name"
+                        required
+                        disabled={isSubmitting}
+                        error={getFieldError(errors.firstName)}
+                      />
+                      <TextField
+                        control={control}
+                        name="lastName"
+                        label="Last Name"
+                        placeholder="Enter last name"
+                        required
+                        disabled={isSubmitting}
+                        error={getFieldError(errors.lastName)}
+                      />
+                      <TextField
+                        control={control}
+                        name="nickname"
+                        label="Nickname"
+                        placeholder="Enter nickname (optional)"
+                        disabled={isSubmitting}
+                        error={getFieldError(errors.nickname)}
+                      />
+                      <TextField
+                        control={control}
+                        name="phoneNumber"
+                        label="Phone Number"
+                        placeholder="Enter phone number"
+                        required
+                        disabled={isSubmitting}
+                        error={getFieldError(errors.phoneNumber)}
+                      />
+                      <SelectField
+                        control={control}
+                        name="gender"
+                        label="Gender"
+                        placeholder="Select gender"
+                        options={GENDER_OPTIONS}
+                        disabled={isSubmitting}
+                        error={getFieldError(errors.gender)}
+                      />
+                      <DatePickerField
+                        control={control}
+                        name="dateOfBirth"
+                        label="Date of Birth"
+                        placeholder="Select date of birth"
+                        disabled={isSubmitting}
+                        error={errors.dateOfBirth}
+                      />
+                    </div>
 
-                <TextField
-                  control={control}
-                  name="phoneNumber"
-                  label="Phone Number"
-                  placeholder="Enter phone number"
-                  required
-                  disabled={isSubmitting}
-                  error={getFieldError(errors.phoneNumber)}
-                />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <ClickableImageUpload
+                        label="Profile Image"
+                        value={watch("profileImageUrl") || ""}
+                        onChange={(base64) =>
+                          setValue("profileImageUrl", base64, { shouldDirty: true })
+                        }
+                        aspectRatio="square"
+                        required={false}
+                        disabled={isSubmitting}
+                        error={errors.profileImageUrl}
+                        placeholder="Click to upload profile image"
+                      />
+                    </div>
+                  </div>
+                </div>
 
-                <TextField
+                <TextareaField
                   control={control}
-                  name="nickname"
-                  label="Nickname"
-                  placeholder="Enter nickname (optional)"
+                  name="remark"
+                  label="Remark"
+                  placeholder="Enter any additional remark (optional)"
+                  rows={3}
                   disabled={isSubmitting}
-                  error={getFieldError(errors.nickname)}
-                />
-
-                <SelectField
-                  control={control}
-                  name="gender"
-                  label="Gender"
-                  placeholder="Select gender"
-                  options={GENDER_OPTIONS}
-                  disabled={isSubmitting}
-                  error={getFieldError(errors.gender)}
-                />
-
-                <DatePickerField
-                  control={control}
-                  name="dateOfBirth"
-                  label="Date of Birth"
-                  placeholder="Select date of birth"
-                  disabled={isSubmitting}
-                  error={errors.dateOfBirth}
-                />
-
-                {isCreate && (
-                  <PasswordField
-                    control={control}
-                    name="password"
-                    label="Password"
-                    placeholder="Enter password"
-                    required
-                    showPassword={showPassword}
-                    onTogglePassword={() => setShowPassword(!showPassword)}
-                    className="md:col-span-2"
-                    disabled={isSubmitting}
-                    error={getFieldError(errors.password)}
-                  />
-                )}
-
-                <SelectField
-                  control={control}
-                  name="roles"
-                  label="Role"
-                  placeholder="Select role"
-                  options={USER_PLATFORM_ROLE_CREATE_UPDATE}
-                  required
-                  disabled={isSubmitting}
-                  error={getFieldError(errors.roles)}
-                  onValueChange={(value) =>
-                    setValue("roles", [value], { shouldDirty: true, shouldValidate: true })
-                  }
-                />
-
-                <SelectField
-                  control={control}
-                  name="accountStatus"
-                  label="Account Status"
-                  placeholder="Select account status"
-                  options={ACCOUNT_STATUS_CREATE_UPDATE}
-                  required
-                  disabled={isSubmitting}
-                  error={getFieldError(errors.accountStatus)}
+                  error={getFieldError(errors.remark)}
                 />
               </div>
-
-              <TextareaField
-                control={control}
-                name="remark"
-                label="Remark"
-                placeholder="Enter any additional remark (optional)"
-                rows={4}
-                disabled={isSubmitting}
-                error={getFieldError(errors.remark)}
-              />
             </FormBody>
 
             <FormFooter
               isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage="Creating platform user..."
-              updateMessage="Updating platform user..."
+              createMessage={isUploadingImage ? "Uploading image..." : "Creating platform user..."}
+              updateMessage={isUploadingImage ? "Uploading image..." : "Updating platform user..."}
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
               <SubmitButton
@@ -366,8 +440,8 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                 isCreate={isCreate}
                 createText="Create Platform User"
                 updateText="Update Platform User"
-                submittingCreateText="Creating..."
-                submittingUpdateText="Updating..."
+                submittingCreateText={isUploadingImage ? "Uploading..." : "Creating..."}
+                submittingUpdateText={isUploadingImage ? "Uploading..." : "Updating..."}
               />
             </FormFooter>
           </form>
