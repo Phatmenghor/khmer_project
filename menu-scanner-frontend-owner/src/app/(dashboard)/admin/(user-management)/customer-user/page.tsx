@@ -6,10 +6,12 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import {
   AccountStatus,
+  ModalMode,
   UserGropeType,
 } from "@/constants/app-resource/status/status";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
+import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ACCOUNT_STATUS_FILTER } from "@/constants/app-resource/status/filter-status";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -27,6 +29,7 @@ import {
 } from "@/redux/features/auth/store/slice/users-slice";
 import { UserResponseModel } from "@/redux/features/auth/store/models/response/users-response";
 import { UserCustomerDetailModal } from "@/redux/features/auth/components/user-customer-detail-modal";
+import UserCustomerModal from "@/redux/features/auth/components/user-customer-modal";
 import { userCustomerTableColumns } from "@/redux/features/auth/table/users-customer-table";
 
 export default function UserPage() {
@@ -43,9 +46,23 @@ export default function UserPage() {
     dispatch,
   } = useUsersState();
 
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    mode: ModalMode.UPDATE_MODE,
+    userId: "",
+  });
+
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
     userCustomerId: "",
+  });
+
+  const [resetPasswordState, setResetPasswordState] = useState({
+    isOpen: false,
+    userId: "",
+    userName: "",
+    profileImageUrl: undefined as string | undefined,
+    roles: [] as string[],
   });
 
   const [deleteState, setDeleteState] = useState({
@@ -83,8 +100,22 @@ export default function UserPage() {
     );
   }, [dispatch, debouncedSearch, filters.accountStatus, filters.pageNo]);
 
+  const handleEditUser = (user: UserResponseModel) => {
+    setModalState({ isOpen: true, mode: ModalMode.UPDATE_MODE, userId: user.id || "" });
+  };
+
   const handleViewDetail = (user: UserResponseModel) => {
     setDetailModalState({ isOpen: true, userCustomerId: user.id || "" });
+  };
+
+  const handleResetPassword = (user: UserResponseModel) => {
+    setResetPasswordState({
+      isOpen: true,
+      userId: user.id || "",
+      userName: user.userIdentifier || "",
+      profileImageUrl: user.profileImageUrl || undefined,
+      roles: user.roles || [],
+    });
   };
 
   const handleDeleteUser = (user: UserResponseModel) => {
@@ -93,7 +124,9 @@ export default function UserPage() {
 
   const tableHandlers = useMemo(
     () => ({
+      handleEditUser,
       handleViewUserDetail: handleViewDetail,
+      handleResetPassword,
       handleDeleteUser,
     }),
     []
@@ -135,8 +168,16 @@ export default function UserPage() {
     }
   };
 
+  const closeModal = () => {
+    setModalState({ isOpen: false, mode: ModalMode.UPDATE_MODE, userId: "" });
+  };
+
   const closeDetailModal = () => {
     setDetailModalState({ isOpen: false, userCustomerId: "" });
+  };
+
+  const closeResetPasswordModal = () => {
+    setResetPasswordState({ isOpen: false, userId: "", userName: "", profileImageUrl: undefined, roles: [] });
   };
 
   const closeDeleteModal = () => {
@@ -181,10 +222,26 @@ export default function UserPage() {
         />
       </div>
 
+      <UserCustomerModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        userId={modalState.userId}
+        mode={modalState.mode}
+      />
+
       <UserCustomerDetailModal
         userId={detailModalState.userCustomerId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
+      />
+
+      <ResetPasswordModal
+        isOpen={resetPasswordState.isOpen}
+        userName={resetPasswordState.userName}
+        onClose={closeResetPasswordModal}
+        userId={resetPasswordState.userId}
+        profileImageUrl={resetPasswordState.profileImageUrl}
+        userRole={resetPasswordState.roles}
       />
 
       <DeleteConfirmationModal

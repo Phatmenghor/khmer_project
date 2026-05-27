@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import {
@@ -101,10 +100,6 @@ export default function UserPage() {
     );
   }, [dispatch, debouncedSearch, filters.accountStatus, filters.pageNo]);
 
-  const handleCreateUser = () => {
-    setModalState({ isOpen: true, mode: ModalMode.CREATE_MODE, userId: "" });
-  };
-
   const handleEditUser = (user: UserResponseModel) => {
     setModalState({ isOpen: true, mode: ModalMode.UPDATE_MODE, userId: user.id || "" });
   };
@@ -200,11 +195,7 @@ export default function UserPage() {
           title="Business Users"
           searchValue={filters.search}
           searchPlaceholder="Search business users..."
-          buttonIcon={<Plus className="w-3 h-3" />}
-          buttonText="New"
-          buttonTooltip="Create a new business user"
           onSearchChange={handleSearchChange}
-          openModal={handleCreateUser}
         >
           <div className="flex items-center gap-3">
             <CustomSelect

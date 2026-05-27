@@ -1,7 +1,7 @@
 import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Eye, Trash } from "lucide-react";
+import { Edit, Eye, RotateCw, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import {
   AllUserResponseModel,
@@ -10,7 +10,9 @@ import {
 import { formatEnumLabel } from "@/utils/common/enum-convert";
 
 interface UserTableHandlers {
+  handleEditUser: (user: UserResponseModel) => void;
   handleViewUserDetail: (user: UserResponseModel) => void;
+  handleResetPassword: (user: UserResponseModel) => void;
   handleDeleteUser: (user: UserResponseModel) => void;
 }
 
@@ -23,7 +25,7 @@ export const userCustomerTableColumns = ({
   data,
   handlers,
 }: UserTableOptions): TableColumn<UserResponseModel>[] => {
-  const { handleViewUserDetail, handleDeleteUser } = handlers;
+  const { handleEditUser, handleViewUserDetail, handleResetPassword, handleDeleteUser } = handlers;
 
   return [
     {
@@ -132,6 +134,16 @@ export const userCustomerTableColumns = ({
             icon={<Eye className="w-4 h-4" />}
             tooltip="View Details"
             onClick={() => handleViewUserDetail(user)}
+          />
+          <ActionButton
+            icon={<Edit className="w-4 h-4" />}
+            tooltip="Edit User"
+            onClick={() => handleEditUser(user)}
+          />
+          <ActionButton
+            icon={<RotateCw className="w-4 h-4" />}
+            tooltip="Reset Password"
+            onClick={() => handleResetPassword(user)}
           />
           <ActionButton
             icon={<Trash className="w-4 h-4" />}
