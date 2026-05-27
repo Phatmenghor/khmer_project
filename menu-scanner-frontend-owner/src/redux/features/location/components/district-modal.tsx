@@ -53,10 +53,8 @@ export default function DistrictModal({
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
-
   const dispatch = useAppDispatch();
 
-  // Get operations state from Redux
   const operations = useAppSelector(selectOperations);
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
@@ -66,8 +64,6 @@ export default function DistrictModal({
     control,
     handleSubmit,
     reset,
-    setValue,
-    watch,
     formState: { errors, isDirty },
   } = useForm<DistrictFormData>({
     resolver: zodResolver(
@@ -82,52 +78,36 @@ export default function DistrictModal({
     mode: "onChange",
   });
 
-  // Fetch business data for edit mode
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       if (!districtId || !isOpen || isCreate) return;
-
       try {
-        const resultAction = await dispatch(
-          fetchDistrictByIdService(districtId)
-        );
-
+        const resultAction = await dispatch(fetchDistrictByIdService(districtId));
         if (fetchDistrictByIdService.fulfilled.match(resultAction)) {
-          const resposne = resultAction.payload;
-
+          const data = resultAction.payload;
           reset({
-            id: resposne.id,
-            districtCode: resposne.districtCode,
-            districtEn: resposne.districtEn,
-            districtKh: resposne.districtKh,
-            provinceCode: resposne.provinceCode,
+            id: data.id,
+            districtCode: data.districtCode,
+            districtEn: data.districtEn,
+            districtKh: data.districtKh,
+            provinceCode: data.provinceCode,
           });
         }
       } catch (error) {
         console.error("Error fetching district data:", error);
       }
     };
-
-    fetchUserData();
+    fetchData();
   }, [districtId, isOpen, isCreate, reset, dispatch]);
 
-  // Reset form for create mode
   useEffect(() => {
     if (isOpen && isCreate) {
-      reset({
-        districtCode: "",
-        districtEn: "",
-        districtKh: "",
-        provinceCode: "",
-      });
+      reset({ districtCode: "", districtEn: "", districtKh: "", provinceCode: "" });
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens/closes
   useEffect(() => {
-    if (isOpen) {
-      dispatch(clearError());
-    }
+    if (isOpen) dispatch(clearError());
   }, [isOpen, dispatch]);
 
   const onSubmit = async (data: DistrictFormData) => {
@@ -139,13 +119,8 @@ export default function DistrictModal({
           districtKh: data.districtKh,
           provinceCode: data.provinceCode,
         };
-
         const result = await dispatch(createDistrictService(payload)).unwrap();
-
-        showToast.success(
-          `District "${result.provinceEn}" created successfully`
-        );
-
+        showToast.success(`District "${result.districtEn}" created successfully`);
         handleClose();
       } else {
         const payload: UpdateDistrictRequest = {
@@ -154,19 +129,13 @@ export default function DistrictModal({
           districtKh: data.districtKh,
           provinceCode: data.provinceCode,
         };
-
         const result = await dispatch(
           updateDistrictService({ districtId: data.id!, districtData: payload })
         ).unwrap();
-
-        showToast.success(
-          `District "${result.provinceEn}" updated successfully`
-        );
-
+        showToast.success(`District "${result.districtEn}" updated successfully`);
         handleClose();
       }
     } catch (error: any) {
-      console.error("Error saving district:", error);
       showToast.error(error || "Failed to save district");
     }
   };
@@ -182,26 +151,20 @@ export default function DistrictModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 flex flex-col">
-        {/* Header */}
+      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
-          title={
-            isCreate
-              ? "Create New District"
-              : "Update District information below"
-          }
+          title={isCreate ? "Create District" : "Edit District"}
           description={
             isCreate
-              ? "Fill out the form to create a new District"
-              : "Update District information below"
+              ? "Fill out the form to create a new district"
+              : "Update district information below"
           }
           showAvatar={false}
           isCreate={isCreate}
         />
 
-        {/* Loading State - Edit Mode Only */}
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-6 flex items-center justify-center min-h-[300px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -209,62 +172,60 @@ export default function DistrictModal({
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            {/* Body */}
             <FormBody>
-              {/* Error Display */}
               {reduxError && (
                 <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
-                    {reduxError}
-                  </p>
+                  <p className="text-sm text-destructive font-medium">{reduxError}</p>
                 </div>
               )}
 
-              {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
-                  control={control}
-                  name="districtCode"
-                  label="District Code"
-                  placeholder="Enter District Code"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.districtCode)}
-                />
-
-                <TextField
-                  control={control}
-                  name="districtEn"
-                  label="District EN"
-                  placeholder="Enter District EN"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.districtEn)}
-                />
-
-                <TextField
-                  control={control}
-                  name="districtKh"
-                  label="District KH"
-                  placeholder="Enter District KH"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.districtKh)}
-                />
-
-                <TextField
-                  control={control}
-                  name="provinceCode"
-                  label="Province Code"
-                  placeholder="Enter Province Code"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.provinceCode)}
-                />
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    District Details <span className="text-destructive">*</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <TextField
+                      control={control}
+                      name="districtCode"
+                      label="District Code"
+                      placeholder="Enter District Code"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.districtCode)}
+                    />
+                    <TextField
+                      control={control}
+                      name="districtEn"
+                      label="District EN"
+                      placeholder="Enter District EN"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.districtEn)}
+                    />
+                    <TextField
+                      control={control}
+                      name="districtKh"
+                      label="District KH"
+                      placeholder="Enter District KH"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.districtKh)}
+                    />
+                    <TextField
+                      control={control}
+                      name="provinceCode"
+                      label="Province Code"
+                      placeholder="Enter Province Code"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.provinceCode)}
+                    />
+                  </div>
+                </div>
               </div>
             </FormBody>
 
-            {/* Footer */}
             <FormFooter
               isSubmitting={isSubmitting}
               isDirty={isDirty}
@@ -273,13 +234,12 @@ export default function DistrictModal({
               updateMessage="Updating district..."
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
-
               <SubmitButton
                 isSubmitting={isSubmitting}
                 isDirty={isDirty}
                 isCreate={isCreate}
-                createText="Create district"
-                updateText="Update district"
+                createText="Create District"
+                updateText="Update District"
                 submittingCreateText="Creating..."
                 submittingUpdateText="Updating..."
               />

@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DisplayField } from "@/components/shared/form-field/display-field";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { DetailModal } from "@/components/shared/modal/detail-modal";
-import {
-  DetailRow,
-  DetailSection,
-} from "@/components/shared/modal/detail-section";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   selectIsFetchingDetail,
@@ -14,6 +12,7 @@ import {
 } from "../store/selectors/vaillage-selector";
 import { fetchVillageByIdService } from "../store/thunks/village-thunks";
 import { clearSelectedVillage } from "../store/slice/village-slice";
+import Loading from "@/components/shared/common/loading";
 
 interface VillageDetailModalProps {
   villageId?: string;
@@ -27,25 +26,19 @@ export function VillageDetailModal({
   onClose,
 }: VillageDetailModalProps) {
   const dispatch = useAppDispatch();
-
-  // Use SEPARATE loading state - won't affect main page
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
-
-  // Get selected user from Redux
   const villageData = useAppSelector(selectSelectedVillage);
 
   useEffect(() => {
-    const fetctVillageData = async () => {
+    const fetchData = async () => {
       if (!villageId || !isOpen) return;
-
       try {
         await dispatch(fetchVillageByIdService(villageId)).unwrap();
       } catch (error: any) {
         console.error("Error fetching village data:", error);
       }
     };
-
-    fetctVillageData();
+    fetchData();
   }, [villageId, isOpen, dispatch]);
 
   const handleClose = () => {
@@ -54,118 +47,172 @@ export function VillageDetailModal({
   };
 
   return (
-    <DetailModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      isLoading={isFetchingDetail}
-      title={"Village Details"}
-      description={villageData?.villageEn || "Loading village information..."}
-    >
-      {villageData ? (
-        <div className="space-y-6">
-          {/* Personal Information */}
-          <DetailSection title="Village Information">
-            <DetailRow
-              label="Village Code"
-              value={villageData?.villageCode || "---"}
-            />
-
-            <DetailRow
-              label="Village EN"
-              value={villageData?.villageEn || "---"}
-            />
-
-            <DetailRow
-              label="Village KH"
-              value={villageData?.villageKh || "---"}
-            />
-
-            <DetailRow
-              label="Commune Code"
-              value={villageData?.commune?.communeCode || "---"}
-            />
-
-            <DetailRow
-              label="Commune EN"
-              value={villageData?.commune?.communeEn || "---"}
-            />
-
-            <DetailRow
-              label="Commune KH"
-              value={villageData?.commune?.communeKh || "---"}
-            />
-
-            <DetailRow
-              label="District Code"
-              value={villageData?.commune?.district?.districtCode || "---"}
-            />
-
-            <DetailRow
-              label="District EN"
-              value={villageData?.commune?.district?.districtEn || "---"}
-            />
-
-            <DetailRow
-              label="District KH"
-              value={villageData?.commune?.district?.districtKh || "---"}
-            />
-
-            <DetailRow
-              label="Province Code"
-              value={
-                villageData?.commune?.district?.province?.provinceCode || "---"
-              }
-            />
-
-            <DetailRow
-              label="Province EN"
-              value={
-                villageData?.commune?.district?.province?.provinceEn || "---"
-              }
-            />
-
-            <DetailRow
-              label="Province KH"
-              value={
-                villageData?.commune?.district?.province?.provinceKh || "---"
-              }
-            />
-          </DetailSection>
-
-          {/* System Information */}
-          <DetailSection title="System Information">
-            <DetailRow
-              label="Village ID"
-              value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
-                  {villageData?.id}
-                </span>
-              }
-            />
-            <DetailRow
-              label="Created At"
-              value={dateTimeFormat(villageData?.createdAt ?? "")}
-            />
-            <DetailRow
-              label="Created By"
-              value={villageData?.createdBy || "---"}
-            />
-            <DetailRow
-              label="Last Updated"
-              value={dateTimeFormat(villageData?.updatedAt ?? "")}
-            />
-            <DetailRow
-              label="Updated By"
-              value={villageData?.updatedBy || "---"}
-              isLast
-            />
-          </DetailSection>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogTitle className="sr-only">Village Details</DialogTitle>
+      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-4 pr-8">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-foreground">
+                Village Details
+              </h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {villageData
+                  ? villageData.villageEn
+                  : "Detailed information about the selected village"}
+              </p>
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">No village data available</p>
-        </div>
-      )}
-    </DetailModal>
+
+        {isFetchingDetail ? (
+          <div className="flex items-center justify-center flex-1 min-h-[300px]">
+            <Loading />
+          </div>
+        ) : !villageData ? (
+          <div className="flex items-center justify-center flex-1 min-h-[200px]">
+            <p className="text-muted-foreground">No village data available</p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 space-y-6">
+              {/* Village Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Village Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayField
+                      label="Village Code"
+                      value={villageData.villageCode || "---"}
+                    />
+                    <DisplayField
+                      label="Village EN"
+                      value={villageData.villageEn || "---"}
+                    />
+                    <DisplayField
+                      label="Village KH"
+                      value={villageData.villageKh || "---"}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Commune Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Commune Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayField
+                      label="Commune Code"
+                      value={villageData.commune?.communeCode || "---"}
+                    />
+                    <DisplayField
+                      label="Commune EN"
+                      value={villageData.commune?.communeEn || "---"}
+                    />
+                    <DisplayField
+                      label="Commune KH"
+                      value={villageData.commune?.communeKh || "---"}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* District Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>District Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayField
+                      label="District Code"
+                      value={villageData.commune?.district?.districtCode || "---"}
+                    />
+                    <DisplayField
+                      label="District EN"
+                      value={villageData.commune?.district?.districtEn || "---"}
+                    />
+                    <DisplayField
+                      label="District KH"
+                      value={villageData.commune?.district?.districtKh || "---"}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Province Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Province Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayField
+                      label="Province Code"
+                      value={
+                        villageData.commune?.district?.province?.provinceCode || "---"
+                      }
+                    />
+                    <DisplayField
+                      label="Province EN"
+                      value={
+                        villageData.commune?.district?.province?.provinceEn || "---"
+                      }
+                    />
+                    <DisplayField
+                      label="Province KH"
+                      value={
+                        villageData.commune?.district?.province?.provinceKh || "---"
+                      }
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* System Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>System Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DisplayField
+                      label="Village ID"
+                      value={
+                        <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                          {villageData.id}
+                        </span>
+                      }
+                    />
+                    <DisplayField
+                      label="Created At"
+                      value={dateTimeFormat(villageData.createdAt ?? "")}
+                    />
+                    <DisplayField
+                      label="Created By"
+                      value={villageData.createdBy || "---"}
+                    />
+                    <DisplayField
+                      label="Last Updated"
+                      value={dateTimeFormat(villageData.updatedAt ?? "")}
+                    />
+                    <DisplayField
+                      label="Updated By"
+                      value={villageData.updatedBy || "---"}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

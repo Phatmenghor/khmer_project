@@ -50,10 +50,8 @@ export default function VillageModal({
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
-
   const dispatch = useAppDispatch();
 
-  // Get operations state from Redux
   const operations = useAppSelector(selectOperations);
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
@@ -63,8 +61,6 @@ export default function VillageModal({
     control,
     handleSubmit,
     reset,
-    setValue,
-    watch,
     formState: { errors, isDirty },
   } = useForm<VillageFormData>({
     resolver: zodResolver(
@@ -79,50 +75,36 @@ export default function VillageModal({
     mode: "onChange",
   });
 
-  // Fetch business data for edit mode
   useEffect(() => {
-    const fetchVillageData = async () => {
+    const fetchData = async () => {
       if (!villageId || !isOpen || isCreate) return;
-
       try {
         const resultAction = await dispatch(fetchVillageByIdService(villageId));
-
         if (fetchVillageByIdService.fulfilled.match(resultAction)) {
-          const resposne = resultAction.payload;
-
+          const data = resultAction.payload;
           reset({
-            id: resposne.id,
-            communeCode: resposne.communeCode,
-            villageCode: resposne.villageCode,
-            villageEn: resposne.villageEn,
-            villageKh: resposne.villageKh,
+            id: data.id,
+            communeCode: data.communeCode,
+            villageCode: data.villageCode,
+            villageEn: data.villageEn,
+            villageKh: data.villageKh,
           });
         }
       } catch (error) {
         console.error("Error fetching village data:", error);
       }
     };
-
-    fetchVillageData();
+    fetchData();
   }, [villageId, isOpen, isCreate, reset, dispatch]);
 
-  // Reset form for create mode
   useEffect(() => {
     if (isOpen && isCreate) {
-      reset({
-        villageCode: "",
-        villageEn: "",
-        villageKh: "",
-        communeCode: "",
-      });
+      reset({ villageCode: "", villageEn: "", villageKh: "", communeCode: "" });
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens/closes
   useEffect(() => {
-    if (isOpen) {
-      dispatch(clearError());
-    }
+    if (isOpen) dispatch(clearError());
   }, [isOpen, dispatch]);
 
   const onSubmit = async (data: VillageFormData) => {
@@ -134,13 +116,8 @@ export default function VillageModal({
           villageEn: data.villageEn,
           villageKh: data.villageKh,
         };
-
         const result = await dispatch(createVillageService(payload)).unwrap();
-
-        showToast.success(
-          `Village "${result.provinceEn}" created successfully`
-        );
-
+        showToast.success(`Village "${result.villageEn}" created successfully`);
         handleClose();
       } else {
         const payload: UpdateVillageRequest = {
@@ -149,19 +126,13 @@ export default function VillageModal({
           villageEn: data.villageEn,
           villageKh: data.villageKh,
         };
-
         const result = await dispatch(
           updateVillageService({ villageId: data.id!, villageData: payload })
         ).unwrap();
-
-        showToast.success(
-          `Village "${result.provinceEn}" updated successfully`
-        );
-
+        showToast.success(`Village "${result.villageEn}" updated successfully`);
         handleClose();
       }
     } catch (error: any) {
-      console.error("Error saving village:", error);
       showToast.error(error || "Failed to save village");
     }
   };
@@ -177,12 +148,9 @@ export default function VillageModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 flex flex-col">
-        {/* Header */}
+      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
-          title={
-            isCreate ? "Create New village" : "Update village information below"
-          }
+          title={isCreate ? "Create Village" : "Edit Village"}
           description={
             isCreate
               ? "Fill out the form to create a new village"
@@ -192,9 +160,8 @@ export default function VillageModal({
           isCreate={isCreate}
         />
 
-        {/* Loading State - Edit Mode Only */}
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-6 flex items-center justify-center min-h-[300px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -202,62 +169,60 @@ export default function VillageModal({
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            {/* Body */}
             <FormBody>
-              {/* Error Display */}
               {reduxError && (
                 <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
-                    {reduxError}
-                  </p>
+                  <p className="text-sm text-destructive font-medium">{reduxError}</p>
                 </div>
               )}
 
-              {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
-                  control={control}
-                  name="villageCode"
-                  label="Village Code"
-                  placeholder="Enter Village Code"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.villageCode)}
-                />
-
-                <TextField
-                  control={control}
-                  name="villageEn"
-                  label="Village EN"
-                  placeholder="Enter Village EN"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.villageEn)}
-                />
-
-                <TextField
-                  control={control}
-                  name="villageKh"
-                  label="Village KH"
-                  placeholder="Enter Village KH"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.villageKh)}
-                />
-
-                <TextField
-                  control={control}
-                  name="communeCode"
-                  label="Commune KH"
-                  placeholder="Enter Commune KH"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.communeCode)}
-                />
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    Village Details <span className="text-destructive">*</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <TextField
+                      control={control}
+                      name="villageCode"
+                      label="Village Code"
+                      placeholder="Enter Village Code"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.villageCode)}
+                    />
+                    <TextField
+                      control={control}
+                      name="villageEn"
+                      label="Village EN"
+                      placeholder="Enter Village EN"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.villageEn)}
+                    />
+                    <TextField
+                      control={control}
+                      name="villageKh"
+                      label="Village KH"
+                      placeholder="Enter Village KH"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.villageKh)}
+                    />
+                    <TextField
+                      control={control}
+                      name="communeCode"
+                      label="Commune Code"
+                      placeholder="Enter Commune Code"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.communeCode)}
+                    />
+                  </div>
+                </div>
               </div>
             </FormBody>
 
-            {/* Footer */}
             <FormFooter
               isSubmitting={isSubmitting}
               isDirty={isDirty}
@@ -266,13 +231,12 @@ export default function VillageModal({
               updateMessage="Updating village..."
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
-
               <SubmitButton
                 isSubmitting={isSubmitting}
                 isDirty={isDirty}
                 isCreate={isCreate}
-                createText="Create village"
-                updateText="Update village"
+                createText="Create Village"
+                updateText="Update Village"
                 submittingCreateText="Creating..."
                 submittingUpdateText="Updating..."
               />

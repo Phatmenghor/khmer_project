@@ -53,10 +53,8 @@ export default function ProvinceModal({
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
-
   const dispatch = useAppDispatch();
 
-  // Get operations state from Redux
   const operations = useAppSelector(selectOperations);
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
@@ -66,8 +64,6 @@ export default function ProvinceModal({
     control,
     handleSubmit,
     reset,
-    setValue,
-    watch,
     formState: { errors, isDirty },
   } = useForm<ProvinceFormData>({
     resolver: zodResolver(
@@ -81,50 +77,35 @@ export default function ProvinceModal({
     mode: "onChange",
   });
 
-  // Fetch province data for edit mode
   useEffect(() => {
-    const fetctProvinceData = async () => {
+    const fetchData = async () => {
       if (!provinceId || !isOpen || isCreate) return;
-
       try {
-        const resultAction = await dispatch(
-          fetchProvinceByIdService(provinceId)
-        );
-
+        const resultAction = await dispatch(fetchProvinceByIdService(provinceId));
         if (fetchProvinceByIdService.fulfilled.match(resultAction)) {
-          const resposne = resultAction.payload;
-
+          const data = resultAction.payload;
           reset({
-            id: resposne.id,
-            provinceCode: resposne.provinceCode,
-            provinceEn: resposne.provinceEn,
-            provinceKh: resposne.provinceKh,
+            id: data.id,
+            provinceCode: data.provinceCode,
+            provinceEn: data.provinceEn,
+            provinceKh: data.provinceKh,
           });
         }
       } catch (error) {
-        console.error("Error fetching privince data:", error);
+        console.error("Error fetching province data:", error);
       }
     };
-
-    fetctProvinceData();
+    fetchData();
   }, [provinceId, isOpen, isCreate, reset, dispatch]);
 
-  // Reset form for create mode
   useEffect(() => {
     if (isOpen && isCreate) {
-      reset({
-        provinceCode: "",
-        provinceEn: "",
-        provinceKh: "",
-      });
+      reset({ provinceCode: "", provinceEn: "", provinceKh: "" });
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens/closes
   useEffect(() => {
-    if (isOpen) {
-      dispatch(clearError());
-    }
+    if (isOpen) dispatch(clearError());
   }, [isOpen, dispatch]);
 
   const onSubmit = async (data: ProvinceFormData) => {
@@ -135,13 +116,8 @@ export default function ProvinceModal({
           provinceEn: data.provinceEn,
           provinceKh: data.provinceKh,
         };
-
         const result = await dispatch(createProvinceService(payload)).unwrap();
-
-        showToast.success(
-          `Province "${result.provinceEn}" created successfully`
-        );
-
+        showToast.success(`Province "${result.provinceEn}" created successfully`);
         handleClose();
       } else {
         const payload: UpdateProvinceRequest = {
@@ -149,19 +125,13 @@ export default function ProvinceModal({
           provinceEn: data.provinceEn,
           provinceKh: data.provinceKh,
         };
-
         const result = await dispatch(
           updateProvinceService({ provinceId: data.id!, provinceData: payload })
         ).unwrap();
-
-        showToast.success(
-          `Province "${result.provinceEn}" updated successfully`
-        );
-
+        showToast.success(`Province "${result.provinceEn}" updated successfully`);
         handleClose();
       }
     } catch (error: any) {
-      console.error("Error saving province:", error);
       showToast.error(error || "Failed to save province");
     }
   };
@@ -177,14 +147,9 @@ export default function ProvinceModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 flex flex-col">
-        {/* Header */}
+      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
-          title={
-            isCreate
-              ? "Create New province"
-              : "Update province information below"
-          }
+          title={isCreate ? "Create Province" : "Edit Province"}
           description={
             isCreate
               ? "Fill out the form to create a new province"
@@ -194,9 +159,8 @@ export default function ProvinceModal({
           isCreate={isCreate}
         />
 
-        {/* Loading State - Edit Mode Only */}
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-6 flex items-center justify-center min-h-[300px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -204,52 +168,51 @@ export default function ProvinceModal({
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            {/* Body */}
             <FormBody>
-              {/* Error Display */}
               {reduxError && (
                 <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
-                    {reduxError}
-                  </p>
+                  <p className="text-sm text-destructive font-medium">{reduxError}</p>
                 </div>
               )}
 
-              {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
-                  control={control}
-                  name="provinceCode"
-                  label="Province Code"
-                  placeholder="Enter Province Code"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.provinceCode)}
-                />
-
-                <TextField
-                  control={control}
-                  name="provinceEn"
-                  label="Province EN"
-                  placeholder="Enter Province EN"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.provinceEn)}
-                />
-
-                <TextField
-                  control={control}
-                  name="provinceKh"
-                  label="Province KH"
-                  placeholder="Enter Province KH"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.provinceKh)}
-                />
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    Province Details <span className="text-destructive">*</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <TextField
+                      control={control}
+                      name="provinceCode"
+                      label="Province Code"
+                      placeholder="Enter Province Code"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.provinceCode)}
+                    />
+                    <TextField
+                      control={control}
+                      name="provinceEn"
+                      label="Province EN"
+                      placeholder="Enter Province EN"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.provinceEn)}
+                    />
+                    <TextField
+                      control={control}
+                      name="provinceKh"
+                      label="Province KH"
+                      placeholder="Enter Province KH"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.provinceKh)}
+                    />
+                  </div>
+                </div>
               </div>
             </FormBody>
 
-            {/* Footer */}
             <FormFooter
               isSubmitting={isSubmitting}
               isDirty={isDirty}
@@ -258,13 +221,12 @@ export default function ProvinceModal({
               updateMessage="Updating province..."
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
-
               <SubmitButton
                 isSubmitting={isSubmitting}
                 isDirty={isDirty}
                 isCreate={isCreate}
-                createText="Create province"
-                updateText="Update province"
+                createText="Create Province"
+                updateText="Update Province"
                 submittingCreateText="Creating..."
                 submittingUpdateText="Updating..."
               />

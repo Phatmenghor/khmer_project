@@ -50,10 +50,8 @@ export default function CommuneModal({
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
-
   const dispatch = useAppDispatch();
 
-  // Get operations state from Redux
   const operations = useAppSelector(selectOperations);
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
@@ -63,8 +61,6 @@ export default function CommuneModal({
     control,
     handleSubmit,
     reset,
-    setValue,
-    watch,
     formState: { errors, isDirty },
   } = useForm<CommuneFormData>({
     resolver: zodResolver(
@@ -79,50 +75,36 @@ export default function CommuneModal({
     mode: "onChange",
   });
 
-  // Fetch business data for edit mode
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
       if (!communeId || !isOpen || isCreate) return;
-
       try {
         const resultAction = await dispatch(fetchCommuneByIdService(communeId));
-
         if (fetchCommuneByIdService.fulfilled.match(resultAction)) {
-          const resposne = resultAction.payload;
-
+          const data = resultAction.payload;
           reset({
-            id: resposne.id,
-            communeCode: resposne.communeCode,
-            communeEn: resposne.communeEn,
-            communeKh: resposne.communeKh,
-            districtCode: resposne.districtCode,
+            id: data.id,
+            communeCode: data.communeCode,
+            communeEn: data.communeEn,
+            communeKh: data.communeKh,
+            districtCode: data.districtCode,
           });
         }
       } catch (error) {
         console.error("Error fetching commune data:", error);
       }
     };
-
-    fetchUserData();
+    fetchData();
   }, [communeId, isOpen, isCreate, reset, dispatch]);
 
-  // Reset form for create mode
   useEffect(() => {
     if (isOpen && isCreate) {
-      reset({
-        communeCode: "",
-        communeEn: "",
-        communeKh: "",
-        districtCode: "",
-      });
+      reset({ communeCode: "", communeEn: "", communeKh: "", districtCode: "" });
     }
   }, [isOpen, isCreate, reset]);
 
-  // Clear errors when modal opens/closes
   useEffect(() => {
-    if (isOpen) {
-      dispatch(clearError());
-    }
+    if (isOpen) dispatch(clearError());
   }, [isOpen, dispatch]);
 
   const onSubmit = async (data: CommuneFormData) => {
@@ -134,13 +116,8 @@ export default function CommuneModal({
           communeKh: data.communeKh,
           districtCode: data.districtCode,
         };
-
         const result = await dispatch(createCommuneService(payload)).unwrap();
-
-        showToast.success(
-          `Commune "${result.provinceEn}" created successfully`
-        );
-
+        showToast.success(`Commune "${result.communeEn}" created successfully`);
         handleClose();
       } else {
         const payload: UpdateCommuneRequest = {
@@ -149,19 +126,13 @@ export default function CommuneModal({
           communeKh: data.communeKh,
           districtCode: data.districtCode,
         };
-
         const result = await dispatch(
           updateCommuneService({ communeId: data.id!, communeData: payload })
         ).unwrap();
-
-        showToast.success(
-          `Commune "${result.provinceEn}" updated successfully`
-        );
-
+        showToast.success(`Commune "${result.communeEn}" updated successfully`);
         handleClose();
       }
     } catch (error: any) {
-      console.error("Error saving commune:", error);
       showToast.error(error || "Failed to save commune");
     }
   };
@@ -177,24 +148,20 @@ export default function CommuneModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 flex flex-col">
-        {/* Header */}
+      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
-          title={
-            isCreate ? "Create New Commune" : "Update Commune information below"
-          }
+          title={isCreate ? "Create Commune" : "Edit Commune"}
           description={
             isCreate
-              ? "Fill out the form to create a new Commune"
-              : "Update Commune information below"
+              ? "Fill out the form to create a new commune"
+              : "Update commune information below"
           }
           showAvatar={false}
           isCreate={isCreate}
         />
 
-        {/* Loading State - Edit Mode Only */}
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-6 flex items-center justify-center min-h-[300px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -202,77 +169,74 @@ export default function CommuneModal({
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            {/* Body */}
             <FormBody>
-              {/* Error Display */}
               {reduxError && (
                 <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
-                    {reduxError}
-                  </p>
+                  <p className="text-sm text-destructive font-medium">{reduxError}</p>
                 </div>
               )}
 
-              {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
-                  control={control}
-                  name="communeCode"
-                  label="Commune Code"
-                  placeholder="Enter Commune Code"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.communeCode)}
-                />
-
-                <TextField
-                  control={control}
-                  name="communeEn"
-                  label="Commune EN"
-                  placeholder="Enter Commune EN"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.communeEn)}
-                />
-
-                <TextField
-                  control={control}
-                  name="communeKh"
-                  label="Commune KH"
-                  placeholder="Enter Commune KH"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.communeKh)}
-                />
-
-                <TextField
-                  control={control}
-                  name="districtCode"
-                  label="District Code"
-                  placeholder="Enter District Code"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.districtCode)}
-                />
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    Commune Details <span className="text-destructive">*</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <TextField
+                      control={control}
+                      name="communeCode"
+                      label="Commune Code"
+                      placeholder="Enter Commune Code"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.communeCode)}
+                    />
+                    <TextField
+                      control={control}
+                      name="communeEn"
+                      label="Commune EN"
+                      placeholder="Enter Commune EN"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.communeEn)}
+                    />
+                    <TextField
+                      control={control}
+                      name="communeKh"
+                      label="Commune KH"
+                      placeholder="Enter Commune KH"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.communeKh)}
+                    />
+                    <TextField
+                      control={control}
+                      name="districtCode"
+                      label="District Code"
+                      placeholder="Enter District Code"
+                      disabled={isSubmitting}
+                      required
+                      error={getFieldError(errors.districtCode)}
+                    />
+                  </div>
+                </div>
               </div>
             </FormBody>
 
-            {/* Footer */}
             <FormFooter
               isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage="Creating province..."
-              updateMessage="Updating province..."
+              createMessage="Creating commune..."
+              updateMessage="Updating commune..."
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
-
               <SubmitButton
                 isSubmitting={isSubmitting}
                 isDirty={isDirty}
                 isCreate={isCreate}
-                createText="Create province"
-                updateText="Update province"
+                createText="Create Commune"
+                updateText="Update Commune"
                 submittingCreateText="Creating..."
                 submittingUpdateText="Updating..."
               />
