@@ -82,20 +82,22 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         businessEntity.setOwnerId(ownerUserEntity.getId());
         businessRepository.save(businessEntity);
 
-        Subscription subscriptionRecord = createSubscription(businessEntity.getId(), creationRequestData);
+        Subscription subscriptionRecord = null;
+        SubscriptionPayment paymentRecord = null;
 
-        SubscriptionPayment paymentRecord = creationRequestData.hasPaymentInfo() && creationRequestData.isPaymentInfoComplete()
-                ? createSubscriptionPayment(subscriptionRecord, creationRequestData)
-                : null;
-
-        businessEntity.activateSubscription();
-        businessRepository.save(businessEntity);
+        if (creationRequestData.getPlanId() != null) {
+            subscriptionRecord = createSubscription(businessEntity.getId(), creationRequestData);
+            paymentRecord = createSubscriptionPayment(subscriptionRecord, creationRequestData);
+            businessEntity.activateSubscription();
+            businessRepository.save(businessEntity);
+        }
 
         BusinessOwnerCreateResponse response = mapper.toCreateResponse(ownerUserEntity, businessEntity, subscriptionRecord, paymentRecord);
         response.setCreatedComponents(buildCreatedComponentsList(paymentRecord != null));
 
         log.info("Business owner created successfully: owner_id={}, business_id={}, subscription_id={}, has_payment={}",
-                ownerUserEntity.getId(), businessEntity.getId(), subscriptionRecord.getId(), paymentRecord != null);
+                ownerUserEntity.getId(), businessEntity.getId(),
+                subscriptionRecord != null ? subscriptionRecord.getId() : null, paymentRecord != null);
         return response;
     }
 
@@ -160,22 +162,38 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         User ownerEntity = getOwnerOrThrow(ownerId);
         Business businessEntity = ownerEntity.getBusiness();
-        Subscription currentSubscriptionRecord = getCurrentSubscription(businessEntity.getId());
+        Subscription currentSubscription = getCurrentSubscription(businessEntity.getId());
 
         SubscriptionPlan planToUse = renewRequestData.getNewPlanId() != null
                 ? getPlanOrThrow(renewRequestData.getNewPlanId())
-                : currentSubscriptionRecord.getPlan();
+                : currentSubscription.getPlan();
 
-        currentSubscriptionRecord.setPlan(planToUse);
-        currentSubscriptionRecord.renew();
-        subscriptionRepository.save(currentSubscriptionRecord);
+        // Create a new subscription record (old one stays as history)
+        LocalDateTime newStartDate = currentSubscription.isExpired()
+                ? LocalDateTime.now() : currentSubscription.getEndDate();
 
-        if (renewRequestData.hasPaymentInfo() && renewRequestData.isPaymentInfoComplete()) {
-            createSubscriptionPaymentForRenewal(currentSubscriptionRecord, renewRequestData.getPaymentAmount(),
-                    renewRequestData.getPaymentMethod(), renewRequestData.getPaymentReference(), renewRequestData.getPaymentNotes());
-        }
+        Subscription newSubscription = new Subscription();
+        newSubscription.setBusinessId(businessEntity.getId());
+        newSubscription.setPlanId(planToUse.getId());
+        newSubscription.setPlan(planToUse);
+        newSubscription.setStartDate(newStartDate);
+        newSubscription.setEndDate(planToUse.calculateEndDate(newStartDate));
+        newSubscription.setAutoRenew(currentSubscription.getAutoRenew());
+        subscriptionRepository.save(newSubscription);
 
-        log.info("Subscription renewed successfully: owner_id={}, subscription_id={}", ownerId, currentSubscriptionRecord.getId());
+        // Always create a payment record for this renewal
+        BigDecimal amount = renewRequestData.getPaymentAmount() != null
+                ? renewRequestData.getPaymentAmount() : planToUse.getPrice();
+        String method = renewRequestData.getPaymentMethod() != null && !renewRequestData.getPaymentMethod().isBlank()
+                ? renewRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
+        createSubscriptionPaymentForRenewal(newSubscription, amount, method,
+                renewRequestData.getPaymentReference(), renewRequestData.getPaymentNotes());
+
+        businessEntity.activateSubscription();
+        businessRepository.save(businessEntity);
+
+        log.info("Subscription renewed: owner_id={}, old_subscription_id={}, new_subscription_id={}",
+                ownerId, currentSubscription.getId(), newSubscription.getId());
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
@@ -394,8 +412,11 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         paymentRecord.setBusinessId(subscriptionRecord.getBusinessId());
         paymentRecord.setPlanId(subscriptionRecord.getPlanId());
         paymentRecord.setSubscriptionId(subscriptionRecord.getId());
-        paymentRecord.setAmount(creationRequestData.getPaymentAmount());
-        paymentRecord.setPaymentMethod(PaymentMethod.valueOf(creationRequestData.getPaymentMethod()));
+        paymentRecord.setAmount(creationRequestData.getPaymentAmount() != null
+                ? creationRequestData.getPaymentAmount() : BigDecimal.ZERO);
+        String method = creationRequestData.getPaymentMethod();
+        paymentRecord.setPaymentMethod(method != null && !method.isBlank()
+                ? PaymentMethod.valueOf(method) : PaymentMethod.CASH);
         paymentRecord.setPaymentType(SubscriptionPaymentType.SUBSCRIPTION);
         paymentRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
         paymentRecord.setReferenceNumber(creationRequestData.getPaymentReference());
@@ -409,8 +430,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         paymentRecord.setBusinessId(subscriptionRecord.getBusinessId());
         paymentRecord.setPlanId(subscriptionRecord.getPlanId());
         paymentRecord.setSubscriptionId(subscriptionRecord.getId());
-        paymentRecord.setAmount(amount);
-        paymentRecord.setPaymentMethod(PaymentMethod.valueOf(method));
+        paymentRecord.setAmount(amount != null ? amount : BigDecimal.ZERO);
+        paymentRecord.setPaymentMethod(method != null && !method.isBlank()
+                ? PaymentMethod.valueOf(method) : PaymentMethod.CASH);
         paymentRecord.setPaymentType(SubscriptionPaymentType.RENEWAL);
         paymentRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
         paymentRecord.setReferenceNumber(reference);
