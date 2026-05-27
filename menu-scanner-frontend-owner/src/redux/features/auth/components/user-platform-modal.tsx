@@ -8,8 +8,10 @@ import { ModalMode, UserGropeType, AccountStatus } from "@/constants/app-resourc
 import {
   ACCOUNT_STATUS_CREATE_UPDATE,
   GENDER_OPTIONS,
-  USER_PLATFORM_ROLE_CREATE_UPDATE,
 } from "@/constants/app-resource/status/create-update-status";
+import { fetchAllRolesListService } from "../store/thunks/role-thunks";
+import { selectRolesList } from "../store/selectors/role-selectors";
+import { formatEnumLabel } from "@/utils/common/enum-convert";
 import Loading from "@/components/shared/common/loading";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
@@ -54,7 +56,13 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
   const userData = useAppSelector(selectSelectedUser);
+  const rolesList = useAppSelector(selectRolesList);
   const { isCreating, isUpdating } = operations;
+
+  const roleOptions = rolesList.map((role: any) => ({
+    value: role.name,
+    label: formatEnumLabel(role.name) ?? role.name,
+  }));
 
   const {
     control,
@@ -87,6 +95,17 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
 
   const userIdentifier = watch("userIdentifier");
   const email = watch("email");
+
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(
+        fetchAllRolesListService({
+          includeAll: false,
+          userTypes: [UserGropeType.PLATFORM_USER],
+        })
+      );
+    }
+  }, [isOpen, dispatch]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -285,7 +304,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                         name="roles"
                         label="Role"
                         placeholder="Select role"
-                        options={USER_PLATFORM_ROLE_CREATE_UPDATE}
+                        options={roleOptions}
                         required
                         disabled={isSubmitting}
                         error={getFieldError(errors.roles)}
@@ -321,7 +340,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                           name="roles"
                           label="Role"
                           placeholder="Select role"
-                          options={USER_PLATFORM_ROLE_CREATE_UPDATE}
+                          options={roleOptions}
                           required
                           disabled={isSubmitting}
                           error={getFieldError(errors.roles)}

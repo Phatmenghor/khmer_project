@@ -52,7 +52,7 @@ export function SelectField({
             >
               <SelectTrigger
                 className={`transition-colors ${
-                  error ? "border-red-500 focus:border-red-500" : ""
+                  error ? "border-destructive focus:border-destructive" : ""
                 }`}
               >
                 <SelectValue placeholder={placeholder} />
