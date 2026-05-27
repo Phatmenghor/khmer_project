@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { TopBar } from "./topbar";
+import { AdminFooter } from "./admin-footer";
 import { useIsMobile } from "@/redux/store/use-mobile";
 
 export default function DashboardLayout({
@@ -29,12 +30,13 @@ export default function DashboardLayout({
       />
       <div
         className={cn(
-          "dashboard-content flex-1 transition-all overflow-y-auto duration-300",
+          "dashboard-content flex flex-col flex-1 transition-all overflow-y-auto duration-300",
           isMobile ? "w-full" : isSidebarOpen ? "ml-56" : "ml-[60px]"
         )}
       >
         <TopBar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
-        <main className="dashboard-main mb-30 p-2 md:p-4">{children}</main>
+        <main className="dashboard-main flex-1 p-2 md:p-4">{children}</main>
+        <AdminFooter />
       </div>
     </div>
   );
