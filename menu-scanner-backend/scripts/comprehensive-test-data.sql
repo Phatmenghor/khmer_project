@@ -1667,3 +1667,549 @@ ORDER BY pp.business_name, pr.rating DESC;
 -- ✅ ORDERS: 30
 -- ✅ TOTAL RECORDS: ~300,000+
 -- ============================================================================
+
+
+-- ============================================================================
+-- EXTENDED TEST DATA — PART 2
+-- A. Subscription Plans (11)
+-- B. 20 more Businesses (biz03–22) with settings, hours, roles
+-- C. Subscriptions for all 22 businesses
+-- D. 20 Platform Users
+-- E. 20 Business Owner users (one per new business)
+-- F. 40 Business Staff users (2 per new business)
+-- G. 20 more Customer users (cust11–30)
+-- H. Location data (24 provinces × 4 districts × 5 communes × 6 villages)
+-- ============================================================================
+
+DO $$
+DECLARE
+  -- -------------------------------------------------------------------------
+  -- Shared constants
+  -- -------------------------------------------------------------------------
+  v_password  TEXT := '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW';
+  v_avatar    TEXT := 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce';
+
+  -- -------------------------------------------------------------------------
+  -- Province / Khmer name arrays
+  -- -------------------------------------------------------------------------
+  province_en TEXT[] := ARRAY[
+    'Phnom Penh','Siem Reap','Battambang','Preah Sihanouk','Kampong Cham',
+    'Kandal','Prey Veng','Takeo','Kampot','Kampong Thom',
+    'Kampong Speu','Kampong Chhnang','Pursat','Svay Rieng','Kratie',
+    'Stung Treng','Mondulkiri','Ratanakiri','Koh Kong','Pailin',
+    'Kep','Oddar Meanchey','Preah Vihear','Banteay Meanchey'
+  ];
+  province_kh TEXT[] := ARRAY[
+    'ភ្នំពេញ','សៀមរាប','បាត់ដំបង','ព្រះសីហនុ','កំពង់ចាម',
+    'កណ្ដាល','ព្រៃវែង','តាកែវ','កំពត','កំពង់ធំ',
+    'កំពង់ស្ពឺ','កំពង់ឆ្នាំង','ពោធិ៍សាត់','ស្វាយរៀង','ក្រចេះ',
+    'ស្ទឹងត្រែង','មណ្ឌលគិរី','រតនគិរី','កោះកុង','ប៉ៃលិន',
+    'កែប','ឧត្ដរមានជ័យ','ព្រះវិហារ','បន្ទាយមានជ័យ'
+  ];
+
+  -- -------------------------------------------------------------------------
+  -- Business name / city arrays (20 new businesses, index 1..20 → biz03..22)
+  -- -------------------------------------------------------------------------
+  biz_names TEXT[] := ARRAY[
+    'Angkor Boutique','Mekong Market','Phnom Penh Grocery','Khmer Kitchen',
+    'Royal Spa','Golden Gate Store','Sunrise Electronics','Lotus Cafe',
+    'Dragon Mart','Bayon Apparel','River View Restaurant','Silk Road Fashion',
+    'Heritage Handicrafts','Modern Living','Natures Best','City Center Mall',
+    'Premium Auto Parts','Eco Green Shop','Tech Haven','Digital World'
+  ];
+  biz_cities TEXT[] := ARRAY[
+    'Siem Reap','Phnom Penh','Phnom Penh','Battambang','Phnom Penh',
+    'Siem Reap','Phnom Penh','Kampot','Phnom Penh','Siem Reap',
+    'Phnom Penh','Siem Reap','Battambang','Phnom Penh','Kampong Cham',
+    'Phnom Penh','Phnom Penh','Siem Reap','Phnom Penh','Battambang'
+  ];
+
+  -- -------------------------------------------------------------------------
+  -- Khmer first / last name arrays (20 entries each)
+  -- -------------------------------------------------------------------------
+  kh_first TEXT[] := ARRAY[
+    'Sophea','Dara','Maly','Ratha','Bopha',
+    'Virak','Chenda','Narith','Pisey','Sovannak',
+    'Kimheng','Phearun','Sreyleap','Buntha','Chanthy',
+    'Makara','Oudom','Ratanak','Sreynich','Vuthy'
+  ];
+  kh_last TEXT[] := ARRAY[
+    'Sok','Chan','Lim','Phal','Sar',
+    'Heng','Keo','Nget','Ros','Seng',
+    'Mao','Khun','Chhun','Touch','Long',
+    'Em','Noun','Pen','Sam','Yem'
+  ];
+
+  -- -------------------------------------------------------------------------
+  -- Working variables
+  -- -------------------------------------------------------------------------
+  i           INT;
+  j           INT;
+  p           INT;
+  d           INT;
+  c           INT;
+  v           INT;
+
+  biz_id      UUID;
+  biz_set_id  UUID;
+  user_id     UUID;
+  profile_id  UUID;
+  plan_id     UUID;
+  sub_id      UUID;
+  role_owner  UUID;
+  role_admin  UUID;
+  role_mgr    UUID;
+  role_emp    UUID;
+  cust_role   UUID;
+
+  biz_idx     INT;   -- 1-based index into name/city arrays
+  day_name    TEXT;
+  days        TEXT[] := ARRAY['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'];
+
+  prov_code   VARCHAR(10);
+  dist_code   VARCHAR(10);
+  comm_code   VARCHAR(10);
+  vill_code   VARCHAR(10);
+
+BEGIN
+
+  -- ==========================================================================
+  -- A. SUBSCRIPTION PLANS (11 plans)
+  -- ==========================================================================
+  RAISE NOTICE 'A. Inserting subscription plans...';
+
+  INSERT INTO subscription_plans (id, name, description, price, duration_days, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES
+    ('aa000000-0000-0000-0000-000000000001','Free Trial',        'Try the platform free for 7 days',               0.00,    7, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
+    ('aa000000-0000-0000-0000-000000000002','Starter Monthly',   'Starter plan billed monthly',                   19.99,   30, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
+    ('aa000000-0000-0000-0000-000000000003','Basic Monthly',     'Basic plan billed monthly',                     39.99,   30, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
+    ('aa000000-0000-0000-0000-000000000004','Standard Monthly',  'Standard plan billed monthly',                  79.99,   30, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
+    ('aa000000-0000-0000-0000-000000000005','Professional Monthly','Professional plan billed monthly',           149.99,   30, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
+    ('aa000000-0000-0000-0000-000000000006','Enterprise Monthly','Enterprise plan billed monthly',               299.99,   30, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
+    ('aa000000-0000-0000-0000-000000000007','Basic Quarterly',   'Basic plan billed quarterly',                  109.99,   90, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
+    ('aa000000-0000-0000-0000-000000000008','Standard Quarterly','Standard plan billed quarterly',               219.99,   90, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
+    ('aa000000-0000-0000-0000-000000000009','Starter Yearly',    'Starter plan billed yearly',                   199.99,  365, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
+    ('aa000000-0000-0000-0000-000000000010','Standard Yearly',   'Standard plan billed yearly',                  799.99,  365, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin'),
+    ('aa000000-0000-0000-0000-000000000011','Professional Yearly','Professional plan billed yearly',            1499.99,  365, 'PUBLIC', 0, false, NOW(), NOW(), 'admin','admin')
+  ON CONFLICT DO NOTHING;
+
+  -- ==========================================================================
+  -- B. 20 NEW BUSINESSES (biz03-22)
+  -- ==========================================================================
+  RAISE NOTICE 'B. Inserting 20 new businesses with settings, hours and roles...';
+
+  FOR i IN 3..22 LOOP
+    biz_idx := i - 2;   -- 1-based index into name/city arrays
+    biz_id  := ('bbbbb000-0000-0000-0000-' || LPAD(i::TEXT, 12, '0'))::UUID;
+
+    -- ---- business row -------------------------------------------------------
+    INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      biz_id,
+      biz_names[biz_idx],
+      '+855-' || LPAD((10000000 + i)::TEXT, 9, '0'),
+      LOWER(REPLACE(biz_names[biz_idx], ' ', '')) || '@example.com',
+      biz_cities[biz_idx] || ', Cambodia',
+      'ACTIVE', true, 0, false,
+      NOW() - INTERVAL '1 day' * (22 - i),
+      NOW() - INTERVAL '1 day' * (22 - i),
+      'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+
+    -- ---- business_settings --------------------------------------------------
+    biz_set_id := gen_random_uuid();
+    INSERT INTO business_settings (
+      id, business_id, use_brands, tax_percentage,
+      business_name, logo_business_url, enable_stock, primary_color,
+      contact_address, contact_phone, contact_email,
+      telegram_group_chat_id, version, is_deleted,
+      created_at, updated_at, created_by, updated_by
+    ) VALUES (
+      biz_set_id, biz_id, true, 10.0,
+      biz_names[biz_idx], v_avatar, true,
+      '#' || LPAD(((i * 123456) % 16777215)::TEXT, 6, '0'),
+      biz_cities[biz_idx] || ', Cambodia',
+      '+855-' || LPAD((10000000 + i)::TEXT, 9, '0'),
+      LOWER(REPLACE(biz_names[biz_idx], ' ', '')) || '@example.com',
+      NULL, 0, false,
+      NOW() - INTERVAL '1 day' * (22 - i),
+      NOW() - INTERVAL '1 day' * (22 - i),
+      'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+
+    -- ---- business_hours (7 days) --------------------------------------------
+    FOREACH day_name IN ARRAY days LOOP
+      INSERT INTO business_hours (
+        id, business_setting_id, day, opening_time, closing_time,
+        is_closed, version, is_deleted, created_at, updated_at, created_by, updated_by
+      ) VALUES (
+        gen_random_uuid(), biz_set_id, day_name, '08:00', '22:00',
+        false, 0, false, NOW(), NOW(), 'admin', 'admin'
+      ) ON CONFLICT DO NOTHING;
+    END LOOP;
+
+    -- ---- roles for this business --------------------------------------------
+    role_owner := gen_random_uuid();
+    role_admin := gen_random_uuid();
+    role_mgr   := gen_random_uuid();
+    role_emp   := gen_random_uuid();
+
+    INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES
+      (role_owner, 'BUSINESS_OWNER',    'Business Owner role',    biz_id, 'BUSINESS_USER', 0, false, NOW(), NOW(), 'admin','admin'),
+      (role_admin, 'BUSINESS_ADMIN',    'Business Admin role',    biz_id, 'BUSINESS_USER', 0, false, NOW(), NOW(), 'admin','admin'),
+      (role_mgr,   'BUSINESS_MANAGER',  'Business Manager role',  biz_id, 'BUSINESS_USER', 0, false, NOW(), NOW(), 'admin','admin'),
+      (role_emp,   'BUSINESS_EMPLOYEE', 'Business Employee role', biz_id, 'BUSINESS_USER', 0, false, NOW(), NOW(), 'admin','admin')
+    ON CONFLICT DO NOTHING;
+
+  END LOOP;
+
+  -- ==========================================================================
+  -- C. SUBSCRIPTIONS FOR ALL 22 BUSINESSES
+  -- ==========================================================================
+  RAISE NOTICE 'C. Inserting subscriptions for all 22 businesses...';
+
+  -- Mega Store → plan 4 (Standard Monthly)
+  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    gen_random_uuid(),
+    '550cad56-cafd-4aba-baef-c4dcd53940d0',
+    'aa000000-0000-0000-0000-000000000004',
+    NOW() - INTERVAL '15 days',
+    NOW() + INTERVAL '15 days',
+    true, 0, false, NOW(), NOW(), 'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- Fashion Hub → plan 3 (Basic Monthly)
+  INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (
+    gen_random_uuid(),
+    '660cad56-cafd-4aba-baef-c4dcd53940d0',
+    'aa000000-0000-0000-0000-000000000003',
+    NOW() - INTERVAL '10 days',
+    NOW() + INTERVAL '20 days',
+    true, 0, false, NOW(), NOW(), 'admin', 'admin'
+  ) ON CONFLICT DO NOTHING;
+
+  -- New businesses 3-22 → varied plans based on (i % 11) + 1
+  FOR i IN 3..22 LOOP
+    biz_id  := ('bbbbb000-0000-0000-0000-' || LPAD(i::TEXT, 12, '0'))::UUID;
+    plan_id := ('aa000000-0000-0000-0000-' || LPAD(((i % 11) + 1)::TEXT, 12, '0'))::UUID;
+    INSERT INTO subscriptions (id, business_id, plan_id, start_date, end_date, auto_renew, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      gen_random_uuid(),
+      biz_id,
+      plan_id,
+      NOW() - INTERVAL '1 day' * (i % 20),
+      NOW() + INTERVAL '30 days' * (1 + (i % 3)),
+      true, 0, false, NOW(), NOW(), 'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+  END LOOP;
+
+  -- ==========================================================================
+  -- D. 20 PLATFORM_USER accounts
+  -- ==========================================================================
+  RAISE NOTICE 'D. Inserting 20 platform users...';
+
+  FOR i IN 1..20 LOOP
+    user_id    := ('aaaab000-0000-0000-0000-' || LPAD(i::TEXT, 12, '0'))::UUID;
+    profile_id := gen_random_uuid();
+
+    INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      user_id,
+      'platform' || LPAD(i::TEXT, 2, '0') || '@platform.com',
+      v_password,
+      'PLATFORM_USER', 'ACTIVE', 'ACTIVE', NULL,
+      0, false, NOW(), NOW(), 'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+
+    INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      profile_id,
+      user_id,
+      'platform' || LPAD(i::TEXT, 2, '0') || '@platform.com',
+      kh_first[((i - 1) % 20) + 1],
+      kh_last[((i - 1) % 20) + 1],
+      '+855-' || LPAD((60000000 + i)::TEXT, 9, '0'),
+      'platform' || LPAD(i::TEXT, 2, '0'),
+      CASE WHEN i % 2 = 0 THEN 'FEMALE' ELSE 'MALE' END,
+      ('1985-01-01'::DATE + INTERVAL '1 month' * ((i - 1) % 12)),
+      v_avatar,
+      0, false, NOW(), NOW(), 'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+
+  END LOOP;
+
+  -- ==========================================================================
+  -- E. 20 BUSINESS_OWNER users (one per new business biz03-22)
+  -- ==========================================================================
+  RAISE NOTICE 'E. Inserting 20 business owner users...';
+
+  FOR i IN 3..22 LOOP
+    biz_idx := i - 2;
+    user_id  := ('ccccc000-0000-0000-0000-' || LPAD(i::TEXT, 12, '0'))::UUID;
+    biz_id   := ('bbbbb000-0000-0000-0000-' || LPAD(i::TEXT, 12, '0'))::UUID;
+    profile_id := gen_random_uuid();
+
+    INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      user_id,
+      'bizowner' || LPAD(i::TEXT, 2, '0') || '@example.com',
+      v_password,
+      'BUSINESS_USER', 'ACTIVE', 'ACTIVE', biz_id,
+      0, false, NOW(), NOW(), 'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+
+    INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      profile_id,
+      user_id,
+      'bizowner' || LPAD(i::TEXT, 2, '0') || '@example.com',
+      kh_first[((biz_idx - 1) % 20) + 1],
+      kh_last[((biz_idx - 1) % 20) + 1],
+      '+855-' || LPAD((70000000 + i)::TEXT, 9, '0'),
+      'owner' || LPAD(i::TEXT, 2, '0'),
+      CASE WHEN i % 2 = 0 THEN 'FEMALE' ELSE 'MALE' END,
+      ('1980-06-01'::DATE + INTERVAL '1 month' * ((i - 3) % 12)),
+      v_avatar,
+      0, false, NOW(), NOW(), 'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+
+    -- Assign BUSINESS_OWNER role from their business
+    INSERT INTO user_roles (user_id, role_id)
+    SELECT user_id, r.id
+    FROM roles r
+    WHERE r.business_id = biz_id
+      AND r.name = 'BUSINESS_OWNER'
+    ON CONFLICT DO NOTHING;
+
+  END LOOP;
+
+  -- ==========================================================================
+  -- F. 40 BUSINESS STAFF users (2 per new business biz03-22)
+  --    IDs: 'ddddd000-0000-0000-' || LPAD(i,4,'0') || '-' || LPAD(j,12,'0')
+  --    i = staff index 1..2, j = business index 3..22
+  -- ==========================================================================
+  RAISE NOTICE 'F. Inserting 40 business staff users...';
+
+  FOR i IN 1..2 LOOP
+    FOR j IN 3..22 LOOP
+      biz_idx    := j - 2;
+      user_id    := ('ddddd000-0000-0000-' || LPAD(i::TEXT, 4, '0') || '-' || LPAD(j::TEXT, 12, '0'))::UUID;
+      biz_id     := ('bbbbb000-0000-0000-0000-' || LPAD(j::TEXT, 12, '0'))::UUID;
+      profile_id := gen_random_uuid();
+
+      INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
+      VALUES (
+        user_id,
+        'staff' || LPAD(i::TEXT, 2, '0') || '_biz' || LPAD(j::TEXT, 2, '0') || '@example.com',
+        v_password,
+        'BUSINESS_USER', 'ACTIVE', 'ACTIVE', biz_id,
+        0, false, NOW(), NOW(), 'admin', 'admin'
+      ) ON CONFLICT DO NOTHING;
+
+      INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+      VALUES (
+        profile_id,
+        user_id,
+        'staff' || LPAD(i::TEXT, 2, '0') || '_biz' || LPAD(j::TEXT, 2, '0') || '@example.com',
+        kh_first[((i + j - 1) % 20) + 1],
+        kh_last[((i + j) % 20) + 1],
+        '+855-' || LPAD((80000000 + i * 100 + j)::TEXT, 9, '0'),
+        'staff' || LPAD(i::TEXT, 2, '0') || 'biz' || LPAD(j::TEXT, 2, '0'),
+        CASE WHEN (i + j) % 2 = 0 THEN 'FEMALE' ELSE 'MALE' END,
+        ('1990-01-01'::DATE + INTERVAL '1 month' * ((i + j) % 12)),
+        v_avatar,
+        0, false, NOW(), NOW(), 'admin', 'admin'
+      ) ON CONFLICT DO NOTHING;
+
+      -- Assign BUSINESS_EMPLOYEE role from their business
+      INSERT INTO user_roles (user_id, role_id)
+      SELECT user_id, r.id
+      FROM roles r
+      WHERE r.business_id = biz_id
+        AND r.name = 'BUSINESS_EMPLOYEE'
+      ON CONFLICT DO NOTHING;
+
+    END LOOP;
+  END LOOP;
+
+  -- ==========================================================================
+  -- G. 20 MORE CUSTOMER users (cust11-30)
+  -- ==========================================================================
+  RAISE NOTICE 'G. Inserting customers 11-30...';
+
+  -- Ensure the global CUSTOMER role exists (create if absent)
+  INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES (gen_random_uuid(), 'CUSTOMER', 'Customer role', NULL, 'CUSTOMER', 0, false, NOW(), NOW(), 'admin', 'admin')
+  ON CONFLICT DO NOTHING;
+
+  FOR i IN 11..30 LOOP
+    user_id    := ('c0000000-0000-0000-0000-' || LPAD(i::TEXT, 12, '0'))::UUID;
+    profile_id := gen_random_uuid();
+
+    INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      user_id,
+      'customer' || i || '@example.com',
+      v_password,
+      'CUSTOMER', 'ACTIVE', 'ACTIVE', NULL,
+      0, false, NOW(), NOW(), 'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+
+    INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    VALUES (
+      profile_id,
+      user_id,
+      'customer' || i || '@example.com',
+      kh_first[((i - 1) % 20) + 1],
+      kh_last[((i - 1) % 20) + 1],
+      '+855-' || LPAD((90000000 + i)::TEXT, 9, '0'),
+      'cust' || i,
+      CASE WHEN i % 2 = 0 THEN 'FEMALE' ELSE 'MALE' END,
+      ('1995-03-01'::DATE + INTERVAL '1 month' * ((i - 11) % 12)),
+      v_avatar,
+      0, false, NOW(), NOW(), 'admin', 'admin'
+    ) ON CONFLICT DO NOTHING;
+
+    -- Assign CUSTOMER role
+    INSERT INTO user_roles (user_id, role_id)
+    SELECT user_id, r.id
+    FROM roles r
+    WHERE r.name = 'CUSTOMER' AND r.user_type = 'CUSTOMER'
+    LIMIT 1
+    ON CONFLICT DO NOTHING;
+
+  END LOOP;
+
+  -- ==========================================================================
+  -- H. LOCATION DATA
+  --    24 provinces × 4 districts × 5 communes × 6 villages
+  -- ==========================================================================
+  RAISE NOTICE 'H. Inserting location data (provinces/districts/communes/villages)...';
+
+  -- ---- Provinces (24) -------------------------------------------------------
+  FOR p IN 1..24 LOOP
+    prov_code := LPAD(p::TEXT, 2, '0');
+    INSERT INTO location_province_cbc (
+      id, province_code, province_en, province_kh,
+      version, is_deleted, created_at, updated_at, created_by, updated_by
+    ) VALUES (
+      gen_random_uuid(),
+      prov_code,
+      province_en[p],
+      province_kh[p],
+      0, false, NOW(), NOW(), 'admin', 'admin'
+    ) ON CONFLICT (province_code) DO NOTHING;
+  END LOOP;
+
+  -- ---- Districts (24 × 4 = 96) ----------------------------------------------
+  FOR p IN 1..24 LOOP
+    FOR d IN 1..4 LOOP
+      prov_code := LPAD(p::TEXT, 2, '0');
+      dist_code := LPAD(p::TEXT, 2, '0') || LPAD(d::TEXT, 2, '0');
+      INSERT INTO location_district_cbc (
+        id, district_code, district_en, district_kh, province_code,
+        version, is_deleted, created_at, updated_at, created_by, updated_by
+      ) VALUES (
+        gen_random_uuid(),
+        dist_code,
+        'District ' || d || ' of ' || province_en[p],
+        'ស្រុក ' || d || ' នៃ' || province_kh[p],
+        prov_code,
+        0, false, NOW(), NOW(), 'admin', 'admin'
+      ) ON CONFLICT (district_code) DO NOTHING;
+    END LOOP;
+  END LOOP;
+
+  -- ---- Communes (24 × 4 × 5 = 480) -----------------------------------------
+  FOR p IN 1..24 LOOP
+    FOR d IN 1..4 LOOP
+      FOR c IN 1..5 LOOP
+        dist_code := LPAD(p::TEXT, 2, '0') || LPAD(d::TEXT, 2, '0');
+        comm_code := LPAD(p::TEXT, 2, '0') || LPAD(d::TEXT, 2, '0') || LPAD(c::TEXT, 2, '0');
+        INSERT INTO location_commune_cbc (
+          id, commune_code, commune_en, commune_kh, district_code,
+          version, is_deleted, created_at, updated_at, created_by, updated_by
+        ) VALUES (
+          gen_random_uuid(),
+          comm_code,
+          'Commune ' || c || ', District ' || d,
+          'ឃុំ ' || c || ' ស្រុក ' || d,
+          dist_code,
+          0, false, NOW(), NOW(), 'admin', 'admin'
+        ) ON CONFLICT (commune_code) DO NOTHING;
+      END LOOP;
+    END LOOP;
+  END LOOP;
+
+  -- ---- Villages (24 × 4 × 5 × 6 = 2880) ------------------------------------
+  FOR p IN 1..24 LOOP
+    FOR d IN 1..4 LOOP
+      FOR c IN 1..5 LOOP
+        FOR v IN 1..6 LOOP
+          comm_code := LPAD(p::TEXT, 2, '0') || LPAD(d::TEXT, 2, '0') || LPAD(c::TEXT, 2, '0');
+          vill_code := LPAD(p::TEXT, 2, '0') || LPAD(d::TEXT, 2, '0') || LPAD(c::TEXT, 2, '0') || LPAD(v::TEXT, 2, '0');
+          INSERT INTO location_village_cbc (
+            id, village_code, village_en, village_kh, commune_code,
+            version, is_deleted, created_at, updated_at, created_by, updated_by
+          ) VALUES (
+            gen_random_uuid(),
+            vill_code,
+            'Village ' || v || ', Commune ' || c,
+            'ភូមិ ' || v || ' ឃុំ ' || c,
+            comm_code,
+            0, false, NOW(), NOW(), 'admin', 'admin'
+          ) ON CONFLICT (village_code) DO NOTHING;
+        END LOOP;
+      END LOOP;
+    END LOOP;
+  END LOOP;
+
+  -- ==========================================================================
+  -- SUMMARY
+  -- ==========================================================================
+  RAISE NOTICE '=======================================================';
+  RAISE NOTICE 'Extended test data insertion complete!';
+  RAISE NOTICE '  Subscription Plans : 11';
+  RAISE NOTICE '  New Businesses     : 20  (biz03-22)';
+  RAISE NOTICE '  Subscriptions      : 22  (all businesses)';
+  RAISE NOTICE '  Platform Users     : 20  (platform01-20)';
+  RAISE NOTICE '  Business Owners    : 20  (bizowner03-22)';
+  RAISE NOTICE '  Business Staff     : 40  (staff01/02 per biz03-22)';
+  RAISE NOTICE '  New Customers      : 20  (customer11-30)';
+  RAISE NOTICE '  Provinces          : 24';
+  RAISE NOTICE '  Districts          : 96  (24x4)';
+  RAISE NOTICE '  Communes           : 480 (24x4x5)';
+  RAISE NOTICE '  Villages           : 2880 (24x4x5x6)';
+  RAISE NOTICE '=======================================================';
+
+END $$;
+
+-- ==========================================================================
+-- VERIFICATION SELECTS
+-- ==========================================================================
+
+SELECT 'subscription_plans'      AS table_name, COUNT(*) AS row_count FROM subscription_plans
+UNION ALL
+SELECT 'subscriptions',           COUNT(*) FROM subscriptions
+UNION ALL
+SELECT 'location_province_cbc',   COUNT(*) FROM location_province_cbc
+UNION ALL
+SELECT 'location_district_cbc',   COUNT(*) FROM location_district_cbc
+UNION ALL
+SELECT 'location_commune_cbc',    COUNT(*) FROM location_commune_cbc
+UNION ALL
+SELECT 'location_village_cbc',    COUNT(*) FROM location_village_cbc
+UNION ALL
+SELECT 'users (PLATFORM_USER)',   COUNT(*) FROM users WHERE user_type = 'PLATFORM_USER'
+UNION ALL
+SELECT 'users (BUSINESS_USER)',   COUNT(*) FROM users WHERE user_type = 'BUSINESS_USER'
+UNION ALL
+SELECT 'users (CUSTOMER)',        COUNT(*) FROM users WHERE user_type = 'CUSTOMER'
+ORDER BY table_name;
+
+-- ============================================================================
+-- END OF EXTENDED TEST DATA — PART 2
+-- ============================================================================
