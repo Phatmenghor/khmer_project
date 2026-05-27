@@ -1826,7 +1826,7 @@ BEGIN
       created_at, updated_at, created_by, updated_by
     ) VALUES (
       biz_set_id, biz_id, true, 10.0,
-      biz_names[biz_idx], v_avatar, true,
+      biz_names[biz_idx], v_avatar, 'ENABLED',
       '#' || LPAD(((i * 123456) % 16777215)::TEXT, 6, '0'),
       biz_cities[biz_idx] || ', Cambodia',
       '+855-' || LPAD((10000000 + i)::TEXT, 9, '0'),
