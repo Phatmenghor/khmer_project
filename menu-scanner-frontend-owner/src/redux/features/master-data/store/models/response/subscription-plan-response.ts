@@ -13,7 +13,7 @@ export interface SubscriptionPlanResponseModel {
   name: string;
   description: string;
   price: number;
-  durationDays: number;
+  durationType: string;
   status: string;
   activeSubscriptionsCount: number;
 }

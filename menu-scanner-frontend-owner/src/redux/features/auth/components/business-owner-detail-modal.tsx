@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { DetailModal } from "@/components/shared/modal/detail-modal";
 import {
   DetailRow,
@@ -15,6 +14,7 @@ import {
 } from "../store/selectors/business-owner-selectors";
 import { fetchBusinessOwnerByIdService } from "../store/thunks/business-owner-thunks";
 import { clearSelectedBusinessOwner } from "../store/slice/business-owner-slice";
+import { getStatusColor } from "@/utils/styles/enum-style";
 
 interface BusinessOwnerDetailModalProps {
   businessOwnerId?: string;
@@ -28,24 +28,18 @@ export function BusinessOwnerDetailModal({
   onClose,
 }: BusinessOwnerDetailModalProps) {
   const dispatch = useAppDispatch();
-
-  // Use SEPARATE loading state - won't affect main page
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
-
-  // Get selected business Owner from Redux
   const businessOwnerData = useAppSelector(selectSelectedBusinessOwner);
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (!businessOwnerId || !isOpen) return;
-
       try {
         await dispatch(fetchBusinessOwnerByIdService(businessOwnerId)).unwrap();
       } catch (error: any) {
-        console.error("Error fetching user data:", error);
+        console.error("Error fetching business owner data:", error);
       }
     };
-
     fetchUserData();
   }, [businessOwnerId, isOpen, dispatch]);
 
@@ -59,224 +53,186 @@ export function BusinessOwnerDetailModal({
       isOpen={isOpen}
       onClose={handleClose}
       isLoading={isFetchingDetail}
-      title={"Businesss Owner Details"}
+      title="Business Owner Details"
       description={
-        businessOwnerData?.ownerFullName ||
-        "Loading business Owner information..."
+        businessOwnerData?.ownerFullName || "Loading business owner information..."
       }
-      avatarUrl={businessOwnerData?.ownerProfileImageUrl}
       avatarName={businessOwnerData?.ownerFullName}
     >
       {businessOwnerData ? (
         <div className="space-y-6">
-          {/* Personal Information */}
+          {/* Owner Information */}
           <DetailSection title="Owner Information">
             <DetailRow
               label="User Identifier"
-              value={businessOwnerData?.ownerId || "---"}
+              value={businessOwnerData.ownerUserIdentifier || "---"}
             />
-
             <DetailRow
               label="Full Name"
-              value={businessOwnerData?.ownerUserIdentifier || "---"}
+              value={businessOwnerData.ownerFullName || "---"}
             />
-
             <DetailRow
               label="Email"
-              value={businessOwnerData?.ownerEmail || "---"}
+              value={businessOwnerData.ownerEmail || "---"}
             />
-
             <DetailRow
-              label="Phone Number"
-              value={businessOwnerData?.ownerFullName || "---"}
+              label="Phone"
+              value={businessOwnerData.ownerPhone || "---"}
             />
-
             <DetailRow
-              label="Position"
-              value={businessOwnerData?.ownerPhone || "---"}
-            />
-
-            <DetailRow
-              label="Address"
-              value={businessOwnerData?.ownerAccountStatus || "---"}
+              label="Account Status"
+              value={
+                <Badge
+                  variant="outline"
+                  className={getStatusColor(businessOwnerData.ownerAccountStatus)}
+                >
+                  {businessOwnerData.ownerAccountStatus || "---"}
+                </Badge>
+              }
               isLast
             />
           </DetailSection>
 
+          {/* Business Information */}
           <DetailSection title="Business Information">
             <DetailRow
-              label="Full Name"
-              value={businessOwnerData?.businessId || "---"}
+              label="Business Name"
+              value={businessOwnerData.businessName || "---"}
             />
-
             <DetailRow
-              label="Email"
-              value={businessOwnerData?.businessName || "---"}
+              label="Business Email"
+              value={businessOwnerData.businessEmail || "---"}
             />
-
             <DetailRow
-              label="Phone Number"
-              value={businessOwnerData?.businessEmail || "---"}
+              label="Business Phone"
+              value={businessOwnerData.businessPhone || "---"}
             />
-
             <DetailRow
-              label="Position"
-              value={businessOwnerData?.businessPhone || "---"}
+              label="Business Address"
+              value={businessOwnerData.businessAddress || "---"}
             />
-
             <DetailRow
-              label="Address"
-              value={businessOwnerData?.businessAddress || "---"}
+              label="Business Status"
+              value={
+                <Badge
+                  variant="outline"
+                  className={getStatusColor(businessOwnerData.businessStatus)}
+                >
+                  {businessOwnerData.businessStatus || "---"}
+                </Badge>
+              }
+            />
+            <DetailRow
+              label="Subscription Active"
+              value={businessOwnerData.isSubscriptionActive ? "Yes" : "No"}
+            />
+            <DetailRow
+              label="Stock Management"
+              value={businessOwnerData.enableStock || "---"}
               isLast
-            />
-
-            <DetailRow
-              label="User Identifier"
-              value={businessOwnerData?.businessStatus || "---"}
             />
           </DetailSection>
 
-          <DetailSection title="Other Information">
+          {/* Subscription Information */}
+          <DetailSection title="Subscription Information">
             <DetailRow
-              label="Full Name"
-              value={businessOwnerData?.isSubscriptionActive || "---"}
+              label="Plan Name"
+              value={businessOwnerData.currentPlanName || "---"}
             />
-
             <DetailRow
-              label="Email"
-              value={dateTimeFormat(businessOwnerData?.businessCreatedAt ?? "")}
+              label="Plan Price"
+              value={
+                businessOwnerData.currentPlanPrice !== undefined
+                  ? `$${businessOwnerData.currentPlanPrice}`
+                  : "---"
+              }
             />
-
             <DetailRow
-              label="Phone Number"
-              value={businessOwnerData?.currentSubscriptionId || "---"}
+              label="Duration Type"
+              value={businessOwnerData.currentPlanDurationType || "---"}
             />
-
             <DetailRow
-              label="Position"
-              value={businessOwnerData?.currentPlanName || "---"}
+              label="Start Date"
+              value={businessOwnerData.subscriptionStartDate || "---"}
             />
-
             <DetailRow
-              label="Address"
-              value={businessOwnerData?.currentPlanPrice || "---"}
+              label="End Date"
+              value={businessOwnerData.subscriptionEndDate || "---"}
+            />
+            <DetailRow
+              label="Days Remaining"
+              value={
+                businessOwnerData.daysRemaining !== undefined
+                  ? `${businessOwnerData.daysRemaining} days`
+                  : "---"
+              }
+            />
+            <DetailRow
+              label="Days Active"
+              value={
+                businessOwnerData.daysActive !== undefined
+                  ? `${businessOwnerData.daysActive} days`
+                  : "---"
+              }
+            />
+            <DetailRow
+              label="Subscription Status"
+              value={
+                <Badge
+                  variant="outline"
+                  className={getStatusColor(businessOwnerData.subscriptionStatus)}
+                >
+                  {businessOwnerData.subscriptionStatus || "---"}
+                </Badge>
+              }
+            />
+            <DetailRow
+              label="Auto Renew"
+              value={businessOwnerData.autoRenew ? "Enabled" : "Disabled"}
               isLast
-            />
-
-            <DetailRow
-              label="User Identifier"
-              value={businessOwnerData?.currentPlanDurationDays || "---"}
-            />
-
-            <DetailRow
-              label="Email"
-              value={dateTimeFormat(
-                businessOwnerData?.subscriptionStartDate ?? ""
-              )}
-            />
-
-            <DetailRow
-              label="Email"
-              value={dateTimeFormat(
-                businessOwnerData?.subscriptionEndDate ?? ""
-              )}
-            />
-
-            <DetailRow
-              label="User Identifier"
-              value={businessOwnerData?.daysRemaining || "---"}
-            />
-
-            <DetailRow
-              label="User Identifier"
-              value={businessOwnerData?.daysActive || "---"}
-            />
-
-            <DetailRow
-              label="User Identifier"
-              value={businessOwnerData?.subscriptionStatus || "---"}
-            />
-
-            <DetailRow
-              label="User Identifier"
-              value={businessOwnerData?.autoRenew || "---"}
-            />
-
-            <DetailRow
-              label="User Identifier"
-              value={businessOwnerData?.isExpiringSoon || "---"}
-            />
-          </DetailSection>
-
-          <DetailSection title="Payment Information">
-            <DetailRow
-              label="Full Name"
-              value={businessOwnerData?.totalPaid || "---"}
-            />
-
-            <DetailRow
-              label="Phone Number"
-              value={businessOwnerData?.totalPending || "---"}
-            />
-
-            <DetailRow
-              label="Position"
-              value={businessOwnerData?.totalPayments || "---"}
-            />
-
-            <DetailRow
-              label="Address"
-              value={businessOwnerData?.completedPayments || "---"}
-            />
-
-            <DetailRow
-              label="Address"
-              value={businessOwnerData?.pendingPayments || "---"}
-            />
-
-            <DetailRow
-              label="Address"
-              value={businessOwnerData?.paymentStatus || "---"}
-            />
-
-            <DetailRow
-              label="Created At"
-              value={dateTimeFormat(businessOwnerData?.lastPaymentDate ?? "")}
             />
           </DetailSection>
 
           {/* System Information */}
           <DetailSection title="System Information">
             <DetailRow
-              label="User ID"
+              label="Owner ID"
               value={
                 <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
-                  {businessOwnerData?.id}
+                  {businessOwnerData.ownerId}
+                </span>
+              }
+            />
+            <DetailRow
+              label="Business ID"
+              value={
+                <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                  {businessOwnerData.businessId}
                 </span>
               }
             />
             <DetailRow
               label="Created At"
-              value={dateTimeFormat(businessOwnerData?.createdAt ?? "")}
+              value={businessOwnerData.createdAt || "---"}
             />
             <DetailRow
               label="Created By"
-              value={businessOwnerData?.createdBy || "---"}
+              value={businessOwnerData.createdBy || "---"}
             />
             <DetailRow
               label="Last Updated"
-              value={dateTimeFormat(businessOwnerData?.updatedAt ?? "")}
+              value={businessOwnerData.updatedAt || "---"}
             />
             <DetailRow
               label="Updated By"
-              value={businessOwnerData?.updatedBy || "---"}
+              value={businessOwnerData.updatedBy || "---"}
               isLast
             />
           </DetailSection>
         </div>
       ) : (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">No user data available</p>
+          <p className="text-muted-foreground">No business owner data available</p>
         </div>
       )}
     </DetailModal>

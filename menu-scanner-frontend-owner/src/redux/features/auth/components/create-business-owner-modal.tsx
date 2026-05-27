@@ -86,7 +86,6 @@ export default function CreateSubscriptionModal({ isOpen, onClose }: Props) {
         businessPhone: data.businessPhone,
         businessAddress: data.businessAddress,
         planId: data.planId,
-        customDurationDays: data.customDurationDays,
         paymentAmount: data.paymentAmount,
         paymentMethod: data.paymentMethod,
         paymentReference: data?.paymentReference || undefined,

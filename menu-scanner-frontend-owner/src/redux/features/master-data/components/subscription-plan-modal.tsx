@@ -42,7 +42,10 @@ import {
   UpdateSubscriptionPlanRequest,
 } from "../store/models/request/subscription-plan-request";
 import { SelectField } from "@/components/shared/form-field/select-field";
-import { SUBSCRIPTION_PLAN_CREATE_UPDATE } from "@/constants/app-resource/status/create-update-status";
+import {
+  SUBSCRIPTION_PLAN_CREATE_UPDATE,
+  SUBSCRIPTION_PLAN_DURATION_TYPE_OPTIONS,
+} from "@/constants/app-resource/status/create-update-status";
 import { getFieldError } from "@/utils/common/get-field-error";
 
 type Props = {
@@ -78,7 +81,7 @@ export default function SubscriptionPlanModal({
     ) as any,
     defaultValues: {
       name: "",
-      durationDays: 0,
+      durationType: "",
       price: 0,
       description: "",
       status: SubscriptionPlanStatus.PUBLIC,
@@ -100,7 +103,7 @@ export default function SubscriptionPlanModal({
           reset({
             id: response.id,
             name: response.name,
-            durationDays: response.durationDays,
+            durationType: response.durationType,
             price: response.price,
             description: response.description,
             status: response.status,
@@ -118,7 +121,7 @@ export default function SubscriptionPlanModal({
     if (isOpen && isCreate) {
       reset({
         name: "",
-        durationDays: 0,
+        durationType: "",
         price: 0,
         description: "",
         status: SubscriptionPlanStatus.PUBLIC,
@@ -137,7 +140,7 @@ export default function SubscriptionPlanModal({
       if (isCreate) {
         const payload: CreateSubscriptionPlanRequest = {
           name: data.name!,
-          durationDays: data.durationDays!,
+          durationType: data.durationType!,
           price: data.price!,
           description: data?.description,
           status: data.status!,
@@ -155,7 +158,7 @@ export default function SubscriptionPlanModal({
       } else {
         const payload: UpdateSubscriptionPlanRequest = {
           name: data.name!,
-          durationDays: data.durationDays!,
+          durationType: data.durationType!,
           price: data.price!,
           description: data?.description,
           status: data.status!,
@@ -240,14 +243,15 @@ export default function SubscriptionPlanModal({
                       error={getFieldError(errors.name)}
                     />
 
-                    <TextField
+                    <SelectField
                       control={control}
-                      name="durationDays"
-                      label="Duration Days"
-                      placeholder="Enter Duration Days"
-                      disabled={isSubmitting}
+                      name="durationType"
+                      label="Duration Type"
+                      placeholder="Select Duration Type"
+                      options={SUBSCRIPTION_PLAN_DURATION_TYPE_OPTIONS}
                       required
-                      error={getFieldError(errors.durationDays)}
+                      disabled={isSubmitting}
+                      error={getFieldError(errors.durationType)}
                     />
 
                     <TextField

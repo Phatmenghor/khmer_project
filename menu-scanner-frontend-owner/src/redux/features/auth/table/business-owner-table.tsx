@@ -3,7 +3,6 @@ import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Eye, Trash } from "lucide-react";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
 import { TableColumn } from "@/components/shared/common/data-table";
 import {
   AllBusinessOwnerResponseModel,
@@ -37,21 +36,6 @@ export const userBusinessOwnerTableColumns = ({
           {indexDisplay(data?.pageNo || 1, data?.pageSize || 10, index + 1)}
         </span>
       ),
-    },
-    {
-      key: "avatar",
-      label: "Avatar",
-      minWidth: "10px",
-      maxWidth: "400px",
-      render: (user) => {
-        return (
-          <CustomAvatar
-            imageUrl={user.ownerProfileImageUrl}
-            name={user?.ownerFullName}
-            size="lg"
-          />
-        );
-      },
     },
     {
       key: "userIdentifier",

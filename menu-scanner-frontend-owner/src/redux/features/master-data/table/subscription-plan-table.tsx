@@ -64,16 +64,14 @@ export const subscriptionPlanTableColumns = ({
       ),
     },
     {
-      key: "durationDays",
-      label: "Duration Days",
+      key: "durationType",
+      label: "Duration Type",
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
       render: (plan) => (
         <span className="text-xs text-muted-foreground">
-          {plan?.durationDays !== undefined && plan?.durationDays !== null
-            ? plan.durationDays
-            : "---"}
+          {plan?.durationType || "---"}
         </span>
       ),
     },

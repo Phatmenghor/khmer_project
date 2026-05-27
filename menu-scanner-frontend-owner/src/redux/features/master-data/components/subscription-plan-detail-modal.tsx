@@ -102,13 +102,8 @@ export function SubscriptionPlanDetailModal({
                       }
                     />
                     <DisplayField
-                      label="Duration Days"
-                      value={
-                        planData.durationDays !== undefined &&
-                        planData.durationDays !== null
-                          ? String(planData.durationDays)
-                          : "---"
-                      }
+                      label="Duration Type"
+                      value={planData.durationType || "---"}
                     />
                     <DisplayField
                       label="Active Subscriptions Count"

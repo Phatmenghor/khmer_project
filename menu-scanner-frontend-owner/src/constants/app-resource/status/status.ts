@@ -54,6 +54,12 @@ export enum SubscriptionPlanStatus {
   PRIVATE = "PRIVATE",
 }
 
+export enum SubscriptionPlanDurationType {
+  WEEKLY = "WEEKLY",
+  MONTHLY = "MONTHLY",
+  YEARLY = "YEARLY",
+}
+
 export enum UserGropeType {
   ALL = "ALL",
   PLATFORM_USER = "PLATFORM_USER",

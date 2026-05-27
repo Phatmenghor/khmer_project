@@ -16,7 +16,6 @@ export interface BusinessOwnerResponseModel {
   ownerFullName: string;
   ownerPhone: string;
   ownerAccountStatus: string;
-  ownerProfileImageUrl: string;
   businessId: string;
   businessName: string;
   businessEmail: string;
@@ -24,23 +23,18 @@ export interface BusinessOwnerResponseModel {
   businessAddress: string;
   businessStatus: string;
   isSubscriptionActive: boolean;
-  businessCreatedAt: string;
+  businessSettingId: string;
+  logoBusinessUrl: string;
+  enableStock: string;
   currentSubscriptionId: string;
+  currentPlanId: string;
   currentPlanName: string;
   currentPlanPrice: number;
-  currentPlanDurationDays: number;
+  currentPlanDurationType: string;
   subscriptionStartDate: string;
   subscriptionEndDate: string;
   daysRemaining: number;
   daysActive: number;
   subscriptionStatus: string;
   autoRenew: boolean;
-  isExpiringSoon: boolean;
-  totalPaid: number;
-  totalPending: number;
-  totalPayments: number;
-  completedPayments: number;
-  pendingPayments: number;
-  paymentStatus: string;
-  lastPaymentDate: string;
 }

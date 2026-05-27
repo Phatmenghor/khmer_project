@@ -4,6 +4,7 @@ import {
   PaymentMethod,
   PaymentStatus,
   PaymentType,
+  SubscriptionPlanDurationType,
   SubscriptionPlanStatus,
   UserRole,
 } from "./status";
@@ -54,6 +55,12 @@ export const BUSINESS_STATUS_CREATE_UPDATE = [
 export const SUBSCRIPTION_PLAN_CREATE_UPDATE = [
   { value: SubscriptionPlanStatus.PUBLIC, label: "Public" },
   { value: SubscriptionPlanStatus.PRIVATE, label: "Private" },
+];
+
+export const SUBSCRIPTION_PLAN_DURATION_TYPE_OPTIONS = [
+  { value: SubscriptionPlanDurationType.WEEKLY, label: "1 Week" },
+  { value: SubscriptionPlanDurationType.MONTHLY, label: "1 Month" },
+  { value: SubscriptionPlanDurationType.YEARLY, label: "1 Year" },
 ];
 
 export const SUBSCRIPTION_CREATE_UPDATE = [
