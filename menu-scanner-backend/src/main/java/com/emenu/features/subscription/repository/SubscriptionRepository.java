@@ -72,9 +72,35 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
     @Query("""
                 SELECT s FROM Subscription s
                 LEFT JOIN FETCH s.plan
-                WHERE s.businessId = :businessId 
+                WHERE s.businessId = :businessId
                 AND s.isDeleted = false
                 ORDER BY s.createdAt DESC
             """)
     List<Subscription> findByBusinessIdAndIsDeletedFalse(@Param("businessId") UUID businessId);
+
+    @Query("""
+                SELECT s FROM Subscription s
+                LEFT JOIN s.business b
+                LEFT JOIN s.plan p
+                WHERE s.isDeleted = false
+                AND (:businessId IS NULL OR s.businessId = :businessId)
+                AND (:planId IS NULL OR s.planId = :planId)
+                AND (:fromDate IS NULL OR CAST(s.startDate AS date) >= :fromDate)
+                AND (:toDate IS NULL OR CAST(s.startDate AS date) <= :toDate)
+                AND (
+                    :status IS NULL
+                    OR (:status = 'ACTIVE' AND s.endDate > :now)
+                    OR (:status = 'EXPIRED' AND s.endDate <= :now)
+                )
+                ORDER BY s.startDate DESC
+            """)
+    Page<Subscription> findHistoryWithFilters(
+            @Param("businessId") UUID businessId,
+            @Param("planId") UUID planId,
+            @Param("fromDate") LocalDate fromDate,
+            @Param("toDate") LocalDate toDate,
+            @Param("status") String status,
+            @Param("now") LocalDateTime now,
+            Pageable pageable
+    );
 }

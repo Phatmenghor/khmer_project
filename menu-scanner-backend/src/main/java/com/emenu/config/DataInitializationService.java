@@ -1,5 +1,6 @@
 package com.emenu.config;
 
+import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.UserType;
 import com.emenu.features.auth.models.Role;
@@ -8,6 +9,8 @@ import com.emenu.features.auth.models.UserProfile;
 import com.emenu.features.auth.models.UserEmployment;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.repository.UserRepository;
+import com.emenu.features.subscription.models.SubscriptionPlan;
+import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,6 +34,7 @@ public class DataInitializationService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
 
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
     private static final Object initLock = new Object();
@@ -65,6 +70,8 @@ public class DataInitializationService {
                 int rolesCreated = ensureRolesExist();
                 log.info("✅ Roles initialization completed - {} roles processed", rolesCreated);
 
+                int plansCreated = initializeDefaultSubscriptionPlans();
+                log.info("✅ Subscription plans initialization completed - {} plans processed", plansCreated);
 
                 if (createDefaultAdmin) {
                     int usersCreated = initializeDefaultUsers();
@@ -81,6 +88,33 @@ public class DataInitializationService {
                 throw new RuntimeException("Data initialization failed", e);
             }
         }
+    }
+
+    private int initializeDefaultSubscriptionPlans() {
+        record PlanConfig(String name, String description, int durationDays) {}
+        PlanConfig[] defaultPlans = {
+                new PlanConfig("1 Week", "Weekly subscription plan - 7 days access", 7),
+                new PlanConfig("1 Month", "Monthly subscription plan - 30 days access", 30),
+                new PlanConfig("1 Year", "Annual subscription plan - 365 days access", 365)
+        };
+
+        int created = 0;
+        for (PlanConfig config : defaultPlans) {
+            if (!subscriptionPlanRepository.existsByNameAndIsDeletedFalse(config.name())) {
+                SubscriptionPlan plan = new SubscriptionPlan();
+                plan.setName(config.name());
+                plan.setDescription(config.description());
+                plan.setPrice(BigDecimal.ZERO);
+                plan.setDurationDays(config.durationDays());
+                plan.setStatus(SubscriptionPlanStatus.PUBLIC);
+                subscriptionPlanRepository.save(plan);
+                created++;
+                log.info("✅ Created subscription plan: {} ({} days, $0)", config.name(), config.durationDays());
+            } else {
+                log.info("ℹ️ Subscription plan already exists: {}", config.name());
+            }
+        }
+        return defaultPlans.length;
     }
 
     private int ensureRolesExist() {

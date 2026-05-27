@@ -5,9 +5,11 @@ import com.emenu.enums.sub_scription.SubscriptionPaymentType;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.subscription.dto.filter.SubscriptionFilterRequest;
+import com.emenu.features.subscription.dto.filter.SubscriptionHistoryFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionCancelRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionCreateRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionRenewRequest;
+import com.emenu.features.subscription.dto.response.SubscriptionHistoryResponse;
 import com.emenu.features.subscription.dto.response.SubscriptionResponse;
 import com.emenu.features.subscription.dto.update.SubscriptionUpdateRequest;
 import com.emenu.features.subscription.mapper.SubscriptionMapper;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -212,6 +215,72 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         refund.setNotes("Refund: " + request.getRefundNotes());
         subscriptionPaymentRepository.save(refund);
         log.info("Refund created for subscription: {} - Amount: ${}", subscription.getId(), refund.getAmount());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginationResponse<SubscriptionHistoryResponse> getSubscriptionHistory(SubscriptionHistoryFilterRequest filter) {
+        log.info("Getting subscription history - businessId: {}, from: {}, to: {}", filter.getBusinessId(), filter.getFromDate(), filter.getToDate());
+
+        Pageable pageable = PaginationUtils.createPageable(filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
+        LocalDateTime now = LocalDateTime.now();
+
+        Page<Subscription> page = subscriptionRepository.findHistoryWithFilters(
+                filter.getBusinessId(),
+                filter.getPlanId(),
+                filter.getFromDate(),
+                filter.getToDate(),
+                filter.getStatus(),
+                now,
+                pageable
+        );
+
+        List<SubscriptionHistoryResponse> historyList = page.getContent().stream()
+                .map(this::toHistoryResponse)
+                .toList();
+
+        return paginationMapper.toPaginationResponse(page, historyList);
+    }
+
+    private SubscriptionHistoryResponse toHistoryResponse(Subscription subscription) {
+        SubscriptionHistoryResponse response = new SubscriptionHistoryResponse();
+        response.setSubscriptionId(subscription.getId());
+        response.setBusinessId(subscription.getBusinessId());
+        response.setStartDate(subscription.getStartDate());
+        response.setEndDate(subscription.getEndDate());
+        response.setStatus(subscription.getStatus());
+        response.setDaysRemaining(subscription.getDaysRemaining());
+
+        if (subscription.getBusiness() != null) {
+            response.setBusinessName(subscription.getBusiness().getName());
+        }
+        if (subscription.getPlan() != null) {
+            SubscriptionPlan plan = subscription.getPlan();
+            response.setPlanId(plan.getId());
+            response.setPlanName(plan.getName());
+            response.setPlanPrice(plan.getPrice());
+            response.setPlanDurationDays(plan.getDurationDays());
+        }
+
+        List<SubscriptionPayment> payments = subscriptionPaymentRepository
+                .findBySubscriptionIdAndIsDeletedFalse(subscription.getId());
+
+        List<SubscriptionHistoryResponse.PaymentItem> paymentItems = new ArrayList<>();
+        for (SubscriptionPayment payment : payments) {
+            SubscriptionHistoryResponse.PaymentItem item = new SubscriptionHistoryResponse.PaymentItem();
+            item.setPaymentId(payment.getId());
+            item.setAmount(payment.getAmount());
+            item.setPaymentMethod(payment.getPaymentMethod());
+            item.setPaymentType(payment.getPaymentType());
+            item.setStatus(payment.getStatus());
+            item.setReferenceNumber(payment.getReferenceNumber());
+            item.setNotes(payment.getNotes());
+            item.setPaidAt(payment.getCreatedAt());
+            paymentItems.add(item);
+        }
+        response.setPayments(paymentItems);
+
+        return response;
     }
 
     private void updateBusinessSubscriptionStatus(UUID businessId) {

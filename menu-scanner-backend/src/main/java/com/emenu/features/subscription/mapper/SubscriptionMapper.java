@@ -49,7 +49,5 @@ if (subscription.getPlan() != null) {
     response.setPlanPrice(0.0);
     response.setPlanDurationDays(0);
 }
-response.setPaymentStatus(subscription.getPaymentStatus());
-response.setPaymentAmount(subscription.getPaymentAmount().doubleValue());
     }
 }

@@ -21,6 +21,4 @@ public class SubscriptionResponse extends BaseAuditResponse {
     private Long daysRemaining;
     private Boolean autoRenew;
     private String status;
-    private String paymentStatus;
-    private Double paymentAmount;
 }
