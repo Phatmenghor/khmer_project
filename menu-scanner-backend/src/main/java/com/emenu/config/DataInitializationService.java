@@ -52,7 +52,6 @@ public class DataInitializationService {
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void initializeData() {
-        // ✅ ENHANCED: Double-checked locking pattern for thread safety
         if (initialized.get()) {
             log.info("Data initialization already completed. Skipping...");
             return;
@@ -65,38 +64,35 @@ public class DataInitializationService {
             }
 
             try {
-                log.info("🚀 Starting Cambodia E-Menu Platform data initialization...");
+                log.info("Starting Cambodia E-Menu Platform data initialization...");
 
-                // Initialize in strict order
                 int rolesCreated = ensureRolesExist();
-                log.info("✅ Roles initialization completed - {} roles processed", rolesCreated);
+                log.info("Roles initialization completed - {} roles processed", rolesCreated);
 
                 int plansCreated = initializeDefaultSubscriptionPlans();
-                log.info("✅ Subscription plans initialization completed - {} plans processed", plansCreated);
+                log.info("Subscription plans initialization completed - {} plans processed", plansCreated);
 
                 if (createDefaultAdmin) {
                     int usersCreated = initializeDefaultUsers();
-                    log.info("✅ Default users initialization completed - {} users processed", usersCreated);
+                    log.info("Default users initialization completed - {} users processed", usersCreated);
                 }
 
-                // Mark as initialized only after all steps complete
                 initialized.set(true);
-                log.info("🎉 Cambodia E-Menu Platform data initialization completed successfully!");
+                log.info("Cambodia E-Menu Platform data initialization completed successfully");
 
             } catch (Exception e) {
-                log.error("❌ Error during data initialization: {}", e.getMessage(), e);
-                // Don't set initialized flag on failure so it can be retried
+                log.error("Error during data initialization: {}", e.getMessage(), e);
                 throw new RuntimeException("Data initialization failed", e);
             }
         }
     }
 
     private int initializeDefaultSubscriptionPlans() {
-        record PlanConfig(String name, String description, int durationDays, SubscriptionPlanDurationType durationType) {}
+        record PlanConfig(String name, String description, SubscriptionPlanDurationType durationType) {}
         PlanConfig[] defaultPlans = {
-                new PlanConfig("1 Week",  "Weekly subscription plan",  7,   SubscriptionPlanDurationType.WEEKLY),
-                new PlanConfig("1 Month", "Monthly subscription plan", 30,  SubscriptionPlanDurationType.MONTHLY),
-                new PlanConfig("1 Year",  "Annual subscription plan",  365, SubscriptionPlanDurationType.YEARLY)
+                new PlanConfig("1 Week",  "Weekly subscription plan",  SubscriptionPlanDurationType.WEEKLY),
+                new PlanConfig("1 Month", "Monthly subscription plan", SubscriptionPlanDurationType.MONTHLY),
+                new PlanConfig("1 Year",  "Annual subscription plan",  SubscriptionPlanDurationType.YEARLY)
         };
 
         int created = 0;
@@ -106,14 +102,13 @@ public class DataInitializationService {
                 plan.setName(config.name());
                 plan.setDescription(config.description());
                 plan.setPrice(BigDecimal.ZERO);
-                plan.setDurationDays(config.durationDays());
                 plan.setDurationType(config.durationType());
                 plan.setStatus(SubscriptionPlanStatus.PUBLIC);
                 subscriptionPlanRepository.save(plan);
                 created++;
-                log.info("✅ Created subscription plan: {} ({}, $0)", config.name(), config.durationType());
+                log.info("Created subscription plan: {} - type: {}, price: $0", config.name(), config.durationType());
             } else {
-                log.info("ℹ️ Subscription plan already exists: {}", config.name());
+                log.info("Subscription plan already exists: {}", config.name());
             }
         }
         return defaultPlans.length;
@@ -121,7 +116,7 @@ public class DataInitializationService {
 
     private int ensureRolesExist() {
         try {
-            log.info("🔄 Ensuring system roles exist...");
+            log.info("Ensuring system roles exist...");
 
             record RoleConfig(String name, UserType userType) {}
             RoleConfig[] systemRoles = {
@@ -142,13 +137,13 @@ public class DataInitializationService {
                         role.setUserType(roleConfig.userType());
                         roleRepository.save(role);
                         createdCount++;
-                        log.info("✅ Created system role: {} for user type: {}", roleConfig.name(), roleConfig.userType());
+                        log.info("Created system role: {} for user type: {}", roleConfig.name(), roleConfig.userType());
                     } else {
-                        log.info("ℹ️ System role already exists: {}", roleConfig.name());
+                        log.info("System role already exists: {}", roleConfig.name());
                     }
                 } catch (Exception e) {
                     if (e.getMessage() != null && e.getMessage().contains("did not return a unique result")) {
-                        log.warn("⚠️ Found duplicate role: {}. System will use first available.", roleConfig.name());
+                        log.warn("Found duplicate role: {}. System will use first available.", roleConfig.name());
                     } else {
                         throw e;
                     }
@@ -156,30 +151,30 @@ public class DataInitializationService {
             }
 
             if (createdCount > 0) {
-                log.info("✅ Created {} system roles", createdCount);
+                log.info("Created {} system roles", createdCount);
             } else {
-                log.info("✅ All system roles already exist");
+                log.info("All system roles already exist");
             }
 
             return systemRoles.length;
 
         } catch (Exception e) {
-            log.error("❌ Error during roles verification: {}", e.getMessage(), e);
+            log.error("Error during roles verification: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to ensure roles exist", e);
         }
     }
 
     private int initializeDefaultUsers() {
         try {
-            log.info("🔄 Initializing default users...");
-            
+            log.info("Initializing default users...");
+
             int usersCreated = 0;
             usersCreated += createPlatformOwner();
-            
+
             return usersCreated;
-            
+
         } catch (Exception e) {
-            log.error("❌ Error initializing default users: {}", e.getMessage(), e);
+            log.error("Error initializing default users: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to initialize default users", e);
         }
     }
@@ -214,14 +209,14 @@ public class DataInitializationService {
                 admin.setEmployment(employment);
 
                 admin = userRepository.save(admin);
-                log.info("✅ Created platform owner: {} with ID: {}", adminUserIdentifier, admin.getId());
+                log.info("Created platform owner: {} with ID: {}", adminUserIdentifier, admin.getId());
                 return 1;
             } else {
-                log.info("ℹ️ Platform owner already exists: {}", adminUserIdentifier);
+                log.info("Platform owner already exists: {}", adminUserIdentifier);
                 return 0;
             }
         } catch (Exception e) {
-            log.error("❌ Error creating platform owner: {}", e.getMessage(), e);
+            log.error("Error creating platform owner: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to create platform owner", e);
         }
     }

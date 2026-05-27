@@ -3,6 +3,7 @@ package com.emenu.features.subscription.dto.response;
 import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.sub_scription.SubscriptionPaymentStatus;
 import com.emenu.enums.sub_scription.SubscriptionPaymentType;
+import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ public class SubscriptionHistoryResponse {
     private UUID planId;
     private String planName;
     private BigDecimal planPrice;
-    private Integer planDurationDays;
+    private SubscriptionPlanDurationType planDurationType;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private String status;

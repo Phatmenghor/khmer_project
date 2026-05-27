@@ -199,8 +199,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         currentSubscriptionRecord.setPlan(newPlanEntity);
 
         if (!changePlanRequestData.shouldKeepCurrentEndDate()) {
-            LocalDateTime newEndDate = currentSubscriptionRecord.getStartDate().plusDays(newPlanEntity.getDurationDays());
-            currentSubscriptionRecord.setEndDate(newEndDate);
+            currentSubscriptionRecord.setEndDate(newPlanEntity.calculateEndDate(currentSubscriptionRecord.getStartDate()));
         }
 
         subscriptionRepository.save(currentSubscriptionRecord);
@@ -391,11 +390,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         LocalDateTime startDateTime = LocalDateTime.now();
         subscriptionRecord.setStartDate(startDateTime);
-
-        Integer durationDays = creationRequestData.getCustomDurationDays() != null
-                ? creationRequestData.getCustomDurationDays()
-                : planEntity.getDurationDays();
-        subscriptionRecord.setEndDate(startDateTime.plusDays(durationDays));
+        subscriptionRecord.setEndDate(planEntity.calculateEndDate(startDateTime));
 
         subscriptionRecord.setAutoRenew(false);
 
@@ -500,7 +495,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         detailResponse.setCurrentPlanId(subscriptionRecord.getPlanId());
         detailResponse.setCurrentPlanName(subscriptionRecord.getPlan().getName());
         detailResponse.setCurrentPlanPrice(subscriptionRecord.getPlan().getPrice());
-        detailResponse.setCurrentPlanDurationDays(subscriptionRecord.getPlan().getDurationDays());
+        detailResponse.setCurrentPlanDurationType(subscriptionRecord.getPlan().getDurationType());
         detailResponse.setSubscriptionStartDate(subscriptionRecord.getStartDate());
         detailResponse.setSubscriptionEndDate(subscriptionRecord.getEndDate());
         detailResponse.setDaysRemaining(calculateDaysRemaining(subscriptionRecord.getEndDate()));

@@ -26,7 +26,7 @@ public interface BusinessOwnerMapper {
     @Mapping(target = "subscriptionId", source = "subscription.id")
     @Mapping(target = "planName", source = "subscription.plan.name")
     @Mapping(target = "planPrice", source = "subscription.plan.price")
-    @Mapping(target = "planDurationDays", source = "subscription.plan.durationDays")
+    @Mapping(target = "planDurationType", source = "subscription.plan.durationType")
     @Mapping(target = "subscriptionStartDate", source = "subscription.startDate")
     @Mapping(target = "subscriptionEndDate", source = "subscription.endDate")
     @Mapping(target = "daysRemaining", expression = "java(subscription.getDaysRemaining())")

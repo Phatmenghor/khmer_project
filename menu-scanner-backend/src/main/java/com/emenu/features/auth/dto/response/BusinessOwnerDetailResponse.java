@@ -1,5 +1,6 @@
 package com.emenu.features.auth.dto.response;
 
+import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.enums.sub_scription.SubscriptionStatus;
 import com.emenu.enums.user.BusinessStatus;
 import com.emenu.shared.dto.BaseAuditResponse;
@@ -53,7 +54,7 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private UUID currentPlanId;
     private String currentPlanName;
     private BigDecimal currentPlanPrice;
-    private Integer currentPlanDurationDays;
+    private SubscriptionPlanDurationType currentPlanDurationType;
     private LocalDateTime subscriptionStartDate;
     private LocalDateTime subscriptionEndDate;
     private Long daysRemaining;

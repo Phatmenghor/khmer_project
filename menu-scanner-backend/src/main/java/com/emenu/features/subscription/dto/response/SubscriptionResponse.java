@@ -1,5 +1,6 @@
 package com.emenu.features.subscription.dto.response;
 
+import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.shared.dto.BaseAuditResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +16,7 @@ public class SubscriptionResponse extends BaseAuditResponse {
     private UUID planId;
     private String planName;
     private Double planPrice;
-    private Integer planDurationDays;
+    private SubscriptionPlanDurationType planDurationType;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Long daysRemaining;

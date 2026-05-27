@@ -30,9 +30,6 @@ public class SubscriptionPlan extends BaseUUIDEntity {
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "duration_days", nullable = false)
-    private Integer durationDays;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private SubscriptionPlanStatus status = SubscriptionPlanStatus.PUBLIC;

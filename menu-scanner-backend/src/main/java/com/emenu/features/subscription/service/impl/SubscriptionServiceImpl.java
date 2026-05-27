@@ -259,7 +259,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             response.setPlanId(plan.getId());
             response.setPlanName(plan.getName());
             response.setPlanPrice(plan.getPrice());
-            response.setPlanDurationDays(plan.getDurationDays());
+            response.setPlanDurationType(plan.getDurationType());
         }
 
         List<SubscriptionPayment> payments = subscriptionPaymentRepository
