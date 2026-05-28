@@ -158,36 +158,6 @@ export default function SubscriptionActionModal({
     }
   };
 
-  const paymentFields = (control: any, errors: any, disabled: boolean) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t">
-      <TextField
-        control={control}
-        name="paymentAmount"
-        label="Payment Amount (Optional)"
-        type="number"
-        placeholder="0.00"
-        disabled={disabled}
-        error={getFieldError(errors.paymentAmount)}
-      />
-      <SelectField
-        control={control}
-        name="paymentMethod"
-        label="Payment Method (Optional)"
-        placeholder="Select method"
-        options={PAYMENT_METHOD_CREATE_UPDATE}
-        disabled={disabled}
-        error={getFieldError(errors.paymentMethod)}
-      />
-      <TextField
-        control={control}
-        name="paymentReference"
-        label="Reference No."
-        placeholder="Optional reference"
-        disabled={disabled}
-        error={getFieldError(errors.paymentReference)}
-      />
-    </div>
-  );
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -276,17 +246,44 @@ export default function SubscriptionActionModal({
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={renewForm.handleSubmit(onRenewSubmit)} className="space-y-4">
-                      <SelectField
-                        control={renewForm.control}
-                        name="newPlanId"
-                        label="Plan"
-                        placeholder="Select plan"
-                        options={planOptions}
-                        disabled={isSubmitting}
-                        required
-                        error={getFieldError(renewForm.formState.errors.newPlanId)}
-                      />
-                      {paymentFields(renewForm.control, renewForm.formState.errors, isSubmitting)}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <SelectField
+                          control={renewForm.control}
+                          name="newPlanId"
+                          label="Plan"
+                          placeholder="Select plan"
+                          options={planOptions}
+                          disabled={isSubmitting}
+                          required
+                          error={getFieldError(renewForm.formState.errors.newPlanId)}
+                        />
+                        <TextField
+                          control={renewForm.control}
+                          name="paymentAmount"
+                          label="Payment Amount (Optional)"
+                          type="number"
+                          placeholder="0.00"
+                          disabled={isSubmitting}
+                          error={getFieldError(renewForm.formState.errors.paymentAmount)}
+                        />
+                        <SelectField
+                          control={renewForm.control}
+                          name="paymentMethod"
+                          label="Payment Method (Optional)"
+                          placeholder="Select method"
+                          options={PAYMENT_METHOD_CREATE_UPDATE}
+                          disabled={isSubmitting}
+                          error={getFieldError(renewForm.formState.errors.paymentMethod)}
+                        />
+                        <TextField
+                          control={renewForm.control}
+                          name="paymentReference"
+                          label="Reference No."
+                          placeholder="Optional reference"
+                          disabled={isSubmitting}
+                          error={getFieldError(renewForm.formState.errors.paymentReference)}
+                        />
+                      </div>
                       <div className="flex justify-end gap-3 pt-2">
                         <CancelButton onClick={handleClose} disabled={isSubmitting} />
                         <SubmitButton isSubmitting={isSubmitting} isDirty={renewForm.formState.isDirty} isCreate={true} createText="Renew" submittingCreateText="Renewing..." />
@@ -308,17 +305,44 @@ export default function SubscriptionActionModal({
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={changePlanForm.handleSubmit(onChangePlanSubmit)} className="space-y-4">
-                      <SelectField
-                        control={changePlanForm.control}
-                        name="newPlanId"
-                        label="New Plan"
-                        placeholder="Select plan"
-                        options={planOptions}
-                        disabled={isSubmitting}
-                        required
-                        error={getFieldError(changePlanForm.formState.errors.newPlanId)}
-                      />
-                      {paymentFields(changePlanForm.control, changePlanForm.formState.errors, isSubmitting)}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <SelectField
+                          control={changePlanForm.control}
+                          name="newPlanId"
+                          label="New Plan"
+                          placeholder="Select plan"
+                          options={planOptions}
+                          disabled={isSubmitting}
+                          required
+                          error={getFieldError(changePlanForm.formState.errors.newPlanId)}
+                        />
+                        <TextField
+                          control={changePlanForm.control}
+                          name="paymentAmount"
+                          label="Payment Amount (Optional)"
+                          type="number"
+                          placeholder="0.00"
+                          disabled={isSubmitting}
+                          error={getFieldError(changePlanForm.formState.errors.paymentAmount)}
+                        />
+                        <SelectField
+                          control={changePlanForm.control}
+                          name="paymentMethod"
+                          label="Payment Method (Optional)"
+                          placeholder="Select method"
+                          options={PAYMENT_METHOD_CREATE_UPDATE}
+                          disabled={isSubmitting}
+                          error={getFieldError(changePlanForm.formState.errors.paymentMethod)}
+                        />
+                        <TextField
+                          control={changePlanForm.control}
+                          name="paymentReference"
+                          label="Reference No."
+                          placeholder="Optional reference"
+                          disabled={isSubmitting}
+                          error={getFieldError(changePlanForm.formState.errors.paymentReference)}
+                        />
+                      </div>
                       <div className="flex justify-end gap-3 pt-2">
                         <CancelButton onClick={handleClose} disabled={isSubmitting} />
                         <SubmitButton isSubmitting={isSubmitting} isDirty={changePlanForm.formState.isDirty} isCreate={true} createText="Change Plan" submittingCreateText="Changing..." />
