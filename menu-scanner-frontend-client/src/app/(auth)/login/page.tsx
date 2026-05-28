@@ -18,7 +18,7 @@ import { telegramAuthenticateService } from "@/features/auth/store/thunks/social
 import { ROUTES } from "@/constants/app-routes/routes";
 import { showToast } from "@/components/shared/common/show-toast";
 import { appImages } from "@/constants/app-resource/icons/app-images";
-import { SocialAuthConfig } from "@/constants/app-resource/default/default";
+import { AppDefault, SocialAuthConfig } from "@/constants/app-resource/default/default";
 import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
 import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 import { UserGropeType } from "@/constants/status/status";
@@ -56,6 +56,7 @@ export default function LoginPage() {
           userIdentifier: values.userIdentifier,
           password: values.password,
           userType: "BUSINESS_USER",
+          businessId: AppDefault.BUSINESS_ID,
         }),
       ).unwrap();
       showToast.success(Messages.auth.loginSuccess);
@@ -89,6 +90,7 @@ export default function LoginPage() {
         telegramAuthenticateService({
           telegramData,
           userType: UserGropeType.BUSINESS_USER,
+          businessId: AppDefault.BUSINESS_ID,
         }),
       ).unwrap();
       showToast.success(Messages.auth.welcomeBack);
