@@ -495,6 +495,17 @@ public class GlobalExceptionHandler {
     // GENERIC EXCEPTION HANDLER
     // ================================
 
+    @ExceptionHandler(org.springframework.dao.IncorrectResultSizeDataAccessException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIncorrectResultSizeDataAccessException(
+            org.springframework.dao.IncorrectResultSizeDataAccessException ex, HttpServletRequest request) {
+        log.error("Database query returned multiple results when one was expected: {}", ex.getMessage());
+
+        ApiResponse<Object> response = buildErrorResponse(
+            "There is a data integrity issue. Please contact support to resolve this problem.",
+            ErrorCodes.INTERNAL_SERVER_ERROR, request);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGenericException(
             Exception ex, HttpServletRequest request) {

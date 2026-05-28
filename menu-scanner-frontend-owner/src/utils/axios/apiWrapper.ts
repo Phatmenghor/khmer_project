@@ -25,6 +25,7 @@ export const createApiThunk = <ReturnType, ArgType = void>(
 
         // Standardized error handling
         let errorMessage = "An unexpected error occurred";
+        let status = error.response?.status;
 
         // Try to extract error message from various response formats
         if (error.response?.data?.message) {
@@ -37,9 +38,24 @@ export const createApiThunk = <ReturnType, ArgType = void>(
           errorMessage = error.message;
         }
 
+        // Provide more helpful messages for specific HTTP status codes
+        if (status === 500 && !errorMessage?.includes("unexpected")) {
+          // Keep the server's error message for 500 errors
+          errorMessage = error.response?.data?.message || "Server error. Please try again later.";
+        } else if (status === 400) {
+          // Keep validation error message for 400
+          errorMessage = error.response?.data?.message || "Invalid request. Please check your input.";
+        } else if (status === 401) {
+          errorMessage = "Authentication failed. Please login again.";
+        } else if (status === 403) {
+          errorMessage = "You don't have permission to perform this action.";
+        } else if (status === 404) {
+          errorMessage = "Resource not found.";
+        }
+
         return rejectWithValue({
           message: errorMessage,
-          status: error.response?.status,
+          status: status,
           data: error.response?.data,
         });
       }
