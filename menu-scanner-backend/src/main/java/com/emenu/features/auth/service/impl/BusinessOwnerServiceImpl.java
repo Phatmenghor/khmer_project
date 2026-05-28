@@ -457,14 +457,10 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private void validateBusinessOwnerCreation(BusinessOwnerCreateRequest creationRequestData) {
-        if (businessOwnerRepository.existsBusinessOwnerByEmail(creationRequestData.getOwnerEmail())) {
-            log.warn("Business owner creation failed - duplicate email: email={}", creationRequestData.getOwnerEmail());
-            throw new ValidationException("Email already exists: " + creationRequestData.getOwnerEmail());
-        }
-
-        if (businessRepository.existsByEmailAndIsDeletedFalse(creationRequestData.getBusinessEmail())) {
-            log.warn("Business owner creation failed - duplicate business email: business_email={}", creationRequestData.getBusinessEmail());
-            throw new ValidationException("Business email already exists: " + creationRequestData.getBusinessEmail());
+        // Only userIdentifier must be unique - allow duplicate emails and business details
+        if (businessOwnerRepository.existsByUserIdentifierAndIsDeletedFalse(creationRequestData.getOwnerUserIdentifier())) {
+            log.warn("Business owner creation failed - duplicate username: userIdentifier={}", creationRequestData.getOwnerUserIdentifier());
+            throw new ValidationException("Username already taken: " + creationRequestData.getOwnerUserIdentifier());
         }
 
         if (creationRequestData.getPlanId() != null && !planRepository.existsById(creationRequestData.getPlanId())) {

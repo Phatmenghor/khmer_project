@@ -240,28 +240,15 @@ public class GlobalExceptionHandler {
         // Extract specific field information from error message
         String msgLower = message.toLowerCase();
 
-        if (msgLower.contains("email")) {
-            errorData.put("field", "email");
-            if (message.contains("already registered") || message.contains("already taken") || message.contains("already exists")) {
-                errorData.put("type", "duplicate");
-                message = "This email address is already registered. Please use a different email or try signing in.";
-            } else if (message.contains("format") || message.contains("invalid")) {
-                errorData.put("type", "format");
-                message = "Please enter a valid email address (e.g., user@example.com).";
-            }
+        if (msgLower.contains("username") || msgLower.contains("already taken")) {
+            errorData.put("field", "ownerUserIdentifier");
+            errorData.put("type", "duplicate");
+            message = "This username is already taken. Please choose a different username.";
         } else if (msgLower.contains("phone")) {
             errorData.put("field", "phoneNumber");
             errorData.put("type", "format");
             errorData.put("example", "070 411260");
             message = "Please enter a valid phone number.";
-        } else if (msgLower.contains("username")) {
-            errorData.put("field", "ownerUserIdentifier");
-            errorData.put("type", "duplicate");
-            message = "This username is already taken. Please choose a different username.";
-        } else if (msgLower.contains("business name")) {
-            errorData.put("field", "businessName");
-            errorData.put("type", "duplicate");
-            message = "This business name is already registered. Please use a different name.";
         } else if (msgLower.contains("subdomain")) {
             errorData.put("field", "subdomain");
             if (message.contains("already taken") || message.contains("not available")) {
@@ -274,10 +261,6 @@ public class GlobalExceptionHandler {
                 errorData.put("type", "format");
                 message = "Subdomain must contain only lowercase letters, numbers, and hyphens (3-63 characters).";
             }
-        } else if (msgLower.contains("user identifier")) {
-            errorData.put("field", "userIdentifier");
-            errorData.put("type", "duplicate");
-            message = "This username is already taken. Please choose a different username.";
         } else if (msgLower.contains("plan")) {
             errorData.put("field", "plan");
             errorData.put("type", "not_found");
