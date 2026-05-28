@@ -16,13 +16,14 @@ public interface AuditLogMapper {
     AuditLogResponseDTO toResponseDTO(AuditLog auditLog);
 
     default AuditLogCreateHelper buildAuditLogHelper(
-            UUID userId, String userIdentifier, String userType,
+            UUID userId, String userIdentifier, String userEmail, String userType,
             String httpMethod, String endpoint, String ipAddress,
             String userAgent, String requestParams, String requestBody,
             Integer statusCode, Long responseTimeMs, String errorMessage, String sessionId) {
         return AuditLogCreateHelper.builder()
                 .userId(userId)
                 .userIdentifier(userIdentifier)
+                .userEmail(userEmail)
                 .userType(userType)
                 .httpMethod(httpMethod)
                 .endpoint(endpoint)

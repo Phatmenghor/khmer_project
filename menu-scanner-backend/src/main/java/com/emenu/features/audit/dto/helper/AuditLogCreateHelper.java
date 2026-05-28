@@ -14,6 +14,7 @@ import java.util.UUID;
 public class AuditLogCreateHelper {
     private UUID userId;
     private String userIdentifier;
+    private String userEmail;
     private String userType;
     private String httpMethod;
     private String endpoint;

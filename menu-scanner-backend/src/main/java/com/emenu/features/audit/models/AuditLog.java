@@ -23,6 +23,9 @@ public class AuditLog extends BaseUUIDEntity {
     @Column(name = "user_identifier", length = 255)
     private String userIdentifier;
 
+    @Column(name = "user_email", length = 255)
+    private String userEmail;
+
     @Column(name = "user_type", length = 50)
     private String userType;
 

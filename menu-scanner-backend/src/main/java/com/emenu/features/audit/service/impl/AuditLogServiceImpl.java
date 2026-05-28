@@ -16,6 +16,7 @@ import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.emenu.shared.utils.ClientIpUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -103,6 +104,9 @@ public class AuditLogServiceImpl implements AuditLogService {
             log.debug("Session not available for audit logging");
         }
 
+        // Extract email from request body for public endpoints (registration, etc)
+        String userEmail = extractEmailFromRequestBody(requestBody);
+
         // Truncate request body if needed
         String truncatedRequestBody = null;
         if (requestBody != null && !requestBody.isEmpty()) {
@@ -111,7 +115,7 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
 
         AuditLogCreateHelper helper = auditLogMapper.buildAuditLogHelper(
-                userId, userIdentifier, userType, httpMethod, endpoint, ipAddress,
+                userId, userIdentifier, userEmail, userType, httpMethod, endpoint, ipAddress,
                 userAgent, requestParams, truncatedRequestBody,
                 statusCode, responseTimeMs, errorMessage, sessionId);
 
@@ -124,8 +128,8 @@ public class AuditLogServiceImpl implements AuditLogService {
         try {
             AuditLog auditLog = auditLogMapper.createFromHelper(helper);
             auditLogRepository.save(auditLog);
-            log.info("Audit log saved successfully: endpoint={}, userIdentifier={}, statusCode={}, responseTime={}ms",
-                helper.getEndpoint(), helper.getUserIdentifier(), helper.getStatusCode(), helper.getResponseTimeMs());
+            log.info("Audit log saved successfully: endpoint={}, userIdentifier={}, userEmail={}, statusCode={}, responseTime={}ms",
+                helper.getEndpoint(), helper.getUserIdentifier(), helper.getUserEmail(), helper.getStatusCode(), helper.getResponseTimeMs());
         } catch (Exception e) {
             log.error("Failed to save audit log: endpoint={}, error={}", helper.getEndpoint(), e.getMessage(), e);
         }
@@ -187,5 +191,30 @@ public class AuditLogServiceImpl implements AuditLogService {
         String result = sb.toString();
         // Limit to 2000 chars
         return result.length() > 2000 ? result.substring(0, 2000) + "... [truncated]" : result;
+    }
+
+    private String extractEmailFromRequestBody(String requestBody) {
+        if (requestBody == null || requestBody.isEmpty()) {
+            return null;
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> map = mapper.readValue(requestBody, Map.class);
+
+            // Try to find email field - common patterns in auth/registration endpoints
+            Object email = map.get("ownerEmail");
+            if (email == null) {
+                email = map.get("email");
+            }
+            if (email == null) {
+                email = map.get("businessEmail");
+            }
+
+            return email != null ? email.toString() : null;
+        } catch (Exception e) {
+            log.debug("Could not extract email from request body: {}", e.getMessage());
+            return null;
+        }
     }
 }
