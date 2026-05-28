@@ -520,10 +520,10 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
             try {
                 refundRecord.setPaymentMethod(PaymentMethod.valueOf(refundMethodStr));
             } catch (IllegalArgumentException e) {
-                refundRecord.setPaymentMethod(PaymentMethod.BANK);
+                refundRecord.setPaymentMethod(PaymentMethod.CASH);
             }
         } else {
-            refundRecord.setPaymentMethod(PaymentMethod.BANK);
+            refundRecord.setPaymentMethod(PaymentMethod.CASH);
         }
         refundRecord.setPaymentType(SubscriptionPaymentType.REFUND);
         refundRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
