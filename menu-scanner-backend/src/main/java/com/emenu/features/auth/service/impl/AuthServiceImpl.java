@@ -162,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> {
                     log.warn("User login failed - user not found: identifier={}, type={}", userIdentifier, userTypeEnum);
                     return new ValidationException(
-                            "User '" + userIdentifier + "' not found as " + userTypeEnum.name().toLowerCase().replace("_", " ")
+                            "Account not found. Please check your email or username and try again."
                     );
                 });
     }
