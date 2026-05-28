@@ -2,32 +2,34 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import FadeIn from "@/components/landing/fade-in";
 
 const faqs = [
   {
-    q: "How does the 14-day free trial work?",
-    a: "Sign up and get full access to all Professional features for 14 days — no credit card required. After the trial, choose the plan that fits your needs or continue with our Starter plan.",
+    q: "Is EMenu Cambodia really free?",
+    a: "Yes! All three plans — 1 Week, 1 Month, and 1 Year — are completely free during our launch period. We believe every Cambodian restaurant deserves access to modern technology without financial barriers.",
   },
   {
-    q: "Can I use eMenu across multiple restaurant locations?",
-    a: "Yes! Our Professional and Enterprise plans support multiple locations. Each branch gets its own menu, QR codes, and analytics dashboard, all managed from one account.",
+    q: "How long does setup take?",
+    a: "Most restaurants are fully set up in under an hour. Register, add your menu items, download your QR codes, and you're live. Our onboarding guide walks you through every step.",
   },
   {
     q: "Do my customers need to download an app?",
-    a: "No app required. Guests simply scan the QR code with their phone's camera and the menu opens instantly in their browser. Completely frictionless experience.",
+    a: "No app required. Guests simply point their phone camera at the QR code and the menu opens instantly in their browser. Works on all smartphones — Android or iPhone.",
   },
   {
-    q: "How long does the initial setup take?",
-    a: "Most restaurants are fully set up within a few hours. Our onboarding guide walks you through every step, and our support team is available whenever you need help.",
+    q: "Can I use EMenu Cambodia for multiple locations?",
+    a: "Yes! The 1 Year plan supports multiple restaurant locations, each with its own menu, QR codes, and analytics — all managed from one central dashboard.",
   },
   {
-    q: "Can I customize the look of my digital menu?",
-    a: "Absolutely. You can add your logo, choose color themes, organize categories, add product photos, and write descriptions. Your digital menu will feel uniquely yours.",
+    q: "Is the menu available in Khmer?",
+    a: "Absolutely. EMenu Cambodia fully supports both Khmer and English so you can serve local and international guests equally well.",
   },
   {
-    q: "What payment methods does eMenu support?",
-    a: "eMenu supports cash, ABA Pay, Wing, credit/debit cards, and most major digital wallets used in Cambodia. All payment records are logged automatically.",
+    q: "What happens after my plan expires?",
+    a: "You can renew or switch plans from your dashboard at any time. We'll send you a reminder before your plan ends so you're never caught off guard.",
   },
 ];
 
@@ -35,53 +37,64 @@ export default function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="contact" className="bg-background">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-muted-foreground">
-            Everything you need to know about eMenu.
-          </p>
-        </div>
+    <section id="contact" className="bg-background py-32">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section header */}
+        <FadeIn direction="up" delay={0}>
+          <div className="text-center mb-16">
+            <Badge variant="outline" className="text-sm px-4 py-1.5 mb-6">
+              FAQ
+            </Badge>
+            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-5">
+              Got Questions?
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Everything you need to know about EMenu Cambodia.
+            </p>
+          </div>
+        </FadeIn>
 
-        <div className="space-y-2">
-          {faqs.map(({ q, a }, i) => (
-            <div
-              key={i}
-              className="border border-border rounded-lg overflow-hidden"
-            >
-              <button
-                onClick={() => setOpen(open === i ? null : i)}
-                className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-muted/40 transition-colors"
-              >
-                <span className={cn(
-                  "text-sm font-medium",
-                  open === i ? "text-primary" : "text-foreground"
-                )}>
-                  {q}
-                </span>
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform duration-200",
-                    open === i ? "rotate-180" : ""
-                  )}
-                />
-              </button>
+        {/* FAQ list */}
+        <FadeIn direction="up" delay={150}>
+          <div className="space-y-3">
+            {faqs.map(({ q, a }, i) => (
               <div
-                className={cn(
-                  "overflow-hidden transition-all duration-200",
-                  open === i ? "max-h-40" : "max-h-0"
-                )}
+                key={i}
+                className="border border-border rounded-xl overflow-hidden"
               >
-                <div className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed border-t border-border/50 pt-3">
-                  {a}
+                <button
+                  onClick={() => setOpen(open === i ? null : i)}
+                  className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-muted/40 transition-colors"
+                >
+                  <span
+                    className={cn(
+                      "text-xl font-medium pr-4",
+                      open === i ? "text-primary" : "text-foreground"
+                    )}
+                  >
+                    {q}
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "w-6 h-6 flex-shrink-0 text-muted-foreground transition-transform duration-200",
+                      open === i ? "rotate-180" : ""
+                    )}
+                  />
+                </button>
+                <div
+                  className={cn(
+                    "overflow-hidden transition-all duration-300",
+                    open === i ? "max-h-60" : "max-h-0"
+                  )}
+                >
+                  <div className="px-6 pb-5 text-base text-muted-foreground leading-relaxed border-t border-border/50 pt-4">
+                    {a}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </FadeIn>
       </div>
     </section>
   );

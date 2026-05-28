@@ -63,7 +63,8 @@ export default function FeaturesSection() {
               Everything Your Restaurant Needs
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Powerful tools to streamline operations, delight customers, and grow your business across Cambodia.
+              Powerful tools to streamline operations, delight customers, and
+              grow your business across Cambodia.
             </p>
           </div>
         </FadeIn>

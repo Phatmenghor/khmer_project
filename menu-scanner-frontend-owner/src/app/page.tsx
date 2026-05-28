@@ -10,20 +10,21 @@ import CtaSection from "@/components/landing/cta-section";
 import Footer from "@/components/landing/footer";
 
 export const metadata = {
-  title: "eMenu — Smart Digital Menus for Restaurants",
+  title: "EMenu Cambodia — Smart Digital Menus for Restaurants",
   description:
-    "Boost sales, reduce wait times, and delight guests with QR code ordering, real-time management, and powerful analytics — all in one platform. Trusted by 500+ restaurants in Cambodia.",
+    "EMenu Cambodia helps restaurants go paperless with QR code menus, real-time order management, and powerful analytics. Trusted by 500+ restaurants across Cambodia.",
   keywords: [
     "digital menu",
     "QR code ordering",
     "restaurant management",
     "Cambodia",
-    "eMenu",
+    "EMenu Cambodia",
+    "Khmer restaurant",
   ],
   openGraph: {
-    title: "eMenu — Smart Digital Menus for Restaurants",
+    title: "EMenu Cambodia — Smart Digital Menus for Restaurants",
     description:
-      "QR code ordering, real-time analytics, and powerful tools for Cambodia's restaurants.",
+      "QR code menus, real-time analytics, and powerful tools for Cambodia's restaurants. Setup in under an hour.",
     type: "website",
   },
 };
