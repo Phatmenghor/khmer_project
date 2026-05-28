@@ -107,12 +107,22 @@ public class SecurityUtils {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            if (authentication == null ||
-                    !authentication.isAuthenticated() ||
-                    "anonymousUser".equals(authentication.getPrincipal())) {
-                log.debug("No authenticated user - public access");
+            if (authentication == null) {
+                log.debug("[SEC] No authentication object in SecurityContext");
                 return Optional.empty();
             }
+
+            if (!authentication.isAuthenticated()) {
+                log.debug("[SEC] Authentication object exists but isAuthenticated=false");
+                return Optional.empty();
+            }
+
+            if ("anonymousUser".equals(authentication.getPrincipal())) {
+                log.debug("[SEC] Anonymous user - public access");
+                return Optional.empty();
+            }
+
+            log.debug("[SEC] Found authenticated user: {}", authentication.getName());
 
             String userIdentifier = authentication.getName();
             String userTypeStr = extractUserTypeFromToken();

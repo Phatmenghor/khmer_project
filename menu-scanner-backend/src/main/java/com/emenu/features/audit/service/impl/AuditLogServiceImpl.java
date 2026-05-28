@@ -79,9 +79,12 @@ public class AuditLogServiceImpl implements AuditLogService {
                 userId = user.getId();
                 userIdentifier = user.getUserIdentifier();
                 userType = user.getUserType().name();
+                log.debug("[AUDIT] Extracted user from SecurityContext: username={}, userType={}", userIdentifier, userType);
+            } else {
+                log.debug("[AUDIT] No user found in SecurityContext for endpoint: {}", request.getRequestURI());
             }
         } catch (Exception e) {
-            log.debug("User authentication context not available, using anonymous defaults");
+            log.debug("[AUDIT] Exception getting user from SecurityContext: {}", e.getMessage());
         }
 
         String httpMethod = request.getMethod();
