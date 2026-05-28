@@ -24,7 +24,7 @@ export default function HeroSection() {
               {/* Headline */}
               <div>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-slate-900">
-                Transform Your Restaurant
+                Transform Your Business
                 <br />
                 <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent animate-pulse">Into a Digital Powerhouse</span>
               </h1>
