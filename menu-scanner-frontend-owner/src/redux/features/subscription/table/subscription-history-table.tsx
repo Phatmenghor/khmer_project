@@ -97,31 +97,53 @@ export const subscriptionHistoryTableColumns = ({
       label: "Status",
       minWidth: "80px",
       maxWidth: "120px",
-      render: (row) => (
-        <span className="text-xs text-muted-foreground">{row.status || "---"}</span>
-      ),
+      render: (row) => {
+        const colorClass =
+          row.status === "ACTIVE"
+            ? "text-green-600 font-medium"
+            : "text-red-500";
+        return (
+          <span className={`text-xs ${colorClass}`}>{row.status || "---"}</span>
+        );
+      },
     },
     {
       key: "daysRemaining",
       label: "Days Left",
       minWidth: "80px",
       maxWidth: "100px",
-      render: (row) => (
-        <span className="text-xs text-muted-foreground">
-          {row.status === "EXPIRED" ? "—" : `${row.daysRemaining}d`}
-        </span>
-      ),
+      render: (row) => {
+        if (row.status === "EXPIRED") {
+          return <span className="text-xs text-muted-foreground">—</span>;
+        }
+        const days = row.daysRemaining ?? 0;
+        const colorClass =
+          days <= 7
+            ? "text-red-600 font-semibold"
+            : days <= 30
+            ? "text-yellow-600 font-medium"
+            : "text-green-600";
+        return <span className={`text-xs ${colorClass}`}>{days}d</span>;
+      },
     },
     {
       key: "paymentStatus",
       label: "Payment",
       minWidth: "100px",
       maxWidth: "140px",
-      render: (row) => (
-        <span className="text-xs text-muted-foreground">
-          {row.paymentStatus?.replace("_", " ") || "---"}
-        </span>
-      ),
+      render: (row) => {
+        const colorClass =
+          row.paymentStatus === "PAID"
+            ? "text-green-600 font-medium"
+            : row.paymentStatus === "PENDING" || row.paymentStatus === "PARTIALLY_PAID"
+            ? "text-yellow-600 font-medium"
+            : "text-red-500";
+        return (
+          <span className={`text-xs ${colorClass}`}>
+            {row.paymentStatus?.replace("_", " ") || "---"}
+          </span>
+        );
+      },
     },
     {
       key: "totalPaid",
