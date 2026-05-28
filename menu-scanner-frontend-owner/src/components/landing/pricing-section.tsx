@@ -105,7 +105,7 @@ export default function PricingSection() {
                       "w-full h-14 mt-8 font-bold text-base rounded-xl transition-all duration-300",
                       highlighted
                         ? "bg-primary text-white shadow-lg hover:shadow-xl hover:bg-primary/90"
-                        : "border-2 border-primary text-primary hover:bg-primary hover:text-white"
+                        : "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-white"
                     )}
                   >
                     Get Started
