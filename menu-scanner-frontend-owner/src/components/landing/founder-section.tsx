@@ -28,67 +28,50 @@ export default function FounderSection() {
         <div className="grid lg:grid-cols-2 gap-8 items-stretch">
           {/* Founder photo card - Left side */}
           <FadeIn direction="right" delay={100}>
-            <div className="flex flex-col gap-4 h-full">
-              {/* Photo Card */}
-              <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
-                {/* Animated bg dot */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
+            <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden h-full">
+              {/* Animated bg dot */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
 
-                <CardContent className="p-8 relative z-10 flex flex-col">
-                  <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg bg-white mb-8">
-                    <Image
-                      src={founder.image}
-                      alt={founder.name}
-                      fill
-                      className="object-cover"
-                      priority
-                    />
+              <CardContent className="p-8 relative z-10 flex flex-col">
+                <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg bg-white mb-8">
+                  <Image
+                    src={founder.image}
+                    alt={founder.name}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+                <div className="flex flex-col gap-3">
+                  <h3 className="text-2xl font-bold text-slate-900">{founder.name}</h3>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-slate-700">{founder.title}</p>
+                    <p className="text-slate-700">{founder.contact.location}</p>
+                    <p>
+                      <a
+                        href={`mailto:${founder.contact.email}`}
+                        className="text-primary hover:text-primary/80 transition-colors text-slate-700 hover:text-primary"
+                      >
+                        {founder.contact.email}
+                      </a>
+                    </p>
+                    <p>
+                      <a
+                        href={founder.contact.telegram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:text-primary/80 transition-colors text-slate-700 hover:text-primary"
+                      >
+                        {founder.contact.social}
+                      </a>
+                    </p>
                   </div>
-                  <div className="flex flex-col gap-3">
-                    <h3 className="text-2xl font-bold text-slate-900">{founder.name}</h3>
-                    <div className="space-y-2 text-sm">
-                      <p className="text-slate-700">{founder.title}</p>
-                      <p className="text-slate-700">{founder.contact.location}</p>
-                      <p>
-                        <a
-                          href={`mailto:${founder.contact.email}`}
-                          className="text-primary hover:text-primary/80 transition-colors text-slate-700 hover:text-primary"
-                        >
-                          {founder.contact.email}
-                        </a>
-                      </p>
-                      <p>
-                        <a
-                          href={founder.contact.telegram}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:text-primary/80 transition-colors text-slate-700 hover:text-primary"
-                        >
-                          {founder.contact.social}
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Highlights Grid - 2x2 */}
-              <div className="grid grid-cols-2 gap-3">
-                {founder.highlights.map((highlight, idx) => (
-                  <Card key={idx} className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden h-full">
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full blur-lg group-hover:scale-150 transition-transform duration-300"></div>
-                    <CardContent className="p-4 relative z-10 flex flex-col items-center text-center">
-                      <p className="text-xs font-semibold text-slate-700 leading-tight">
-                        {highlight}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </FadeIn>
 
-          {/* Story cards - Right side */}
+          {/* Story cards and highlights - Right side */}
           <FadeIn direction="left" delay={150}>
             <div className="space-y-4 h-full flex flex-col">
               {/* Vision Card */}
@@ -113,16 +96,19 @@ export default function FounderSection() {
                 </CardContent>
               </Card>
 
-              {/* Story Card */}
-              <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
-                <CardContent className="p-7 relative z-10 flex flex-col">
-                  <h4 className="text-lg font-bold text-slate-900 mb-3">Why Emenu Cambodia?</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
-                    {founder.story}
-                  </p>
-                </CardContent>
-              </Card>
+              {/* Highlights Grid - 2x2 */}
+              <div className="grid grid-cols-2 gap-3">
+                {founder.highlights.map((highlight, idx) => (
+                  <Card key={idx} className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden h-full">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full blur-lg group-hover:scale-150 transition-transform duration-300"></div>
+                    <CardContent className="p-4 relative z-10 flex flex-col items-center text-center">
+                      <p className="text-xs font-semibold text-slate-700 leading-tight">
+                        {highlight}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </FadeIn>
         </div>
