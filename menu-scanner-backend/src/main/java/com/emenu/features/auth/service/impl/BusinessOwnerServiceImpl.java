@@ -195,7 +195,8 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 : currentSubscription.getPlan();
 
         // Create a new subscription record (old one stays as history)
-        LocalDateTime newStartDate = currentSubscription.isExpired()
+        // Start from today if cancelled or expired, otherwise continue from end date
+        LocalDateTime newStartDate = (currentSubscription.isCancelled() || currentSubscription.isExpired())
                 ? LocalDateTime.now() : currentSubscription.getEndDate();
 
         Subscription newSubscription = new Subscription();
