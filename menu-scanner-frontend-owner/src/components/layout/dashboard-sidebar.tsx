@@ -198,14 +198,9 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                 className="h-10 w-auto object-contain"
                 priority
               />
-              <div className="flex flex-col">
-                <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
-                  Emenu Cambodia
-                </span>
-                <span className="text-muted-foreground text-xs font-medium tracking-wide">
-                  Dashboard
-                </span>
-              </div>
+              <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
+                Emenu Cambodia
+              </span>
             </Link>
           )}
 
