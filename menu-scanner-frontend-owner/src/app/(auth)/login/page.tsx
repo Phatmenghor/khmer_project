@@ -52,13 +52,14 @@ export default function LoginPage() {
           userIdentifier: values.userIdentifier,
           password: values.password,
           userType: "PLATFORM_USER",
-        })
+        }),
       ).unwrap();
       showToast.success("Welcome to the admin panel!");
-      router.replace(ROUTES.DASHBOARD.USERS);
+      router.replace(ROUTES.DASHBOARD.INDEX);
     } catch (err: unknown) {
       showToast.error(
-        (err as { message?: string })?.message || "Login failed. Please try again."
+        (err as { message?: string })?.message ||
+          "Login failed. Please try again.",
       );
     }
   }
@@ -70,13 +71,14 @@ export default function LoginPage() {
         telegramAuthenticateService({
           telegramData,
           userType: "PLATFORM_USER",
-        })
+        }),
       ).unwrap();
       showToast.success("Welcome back!");
       router.replace(ROUTES.DASHBOARD.USERS);
     } catch (err: unknown) {
       showToast.error(
-        (err as { message?: string })?.message || "Telegram login failed. Please try again."
+        (err as { message?: string })?.message ||
+          "Telegram login failed. Please try again.",
       );
     } finally {
       setIsTelegramLoading(false);
@@ -87,7 +89,6 @@ export default function LoginPage() {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-
       {/* ── Left — hero image ── */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden">
         <Image
@@ -104,9 +105,12 @@ export default function LoginPage() {
           <p className="text-xs font-semibold uppercase tracking-widest text-white/50 mb-3">
             Management System
           </p>
-          <h2 className="text-3xl font-bold leading-snug">Owner Control Panel</h2>
+          <h2 className="text-3xl font-bold leading-snug">
+            Owner Control Panel
+          </h2>
           <p className="text-sm text-white/50 mt-2 max-w-xs leading-relaxed">
-            Secure access to manage businesses, subscriptions, and platform operations.
+            Secure access to manage businesses, subscriptions, and platform
+            operations.
           </p>
         </div>
       </div>
@@ -114,7 +118,6 @@ export default function LoginPage() {
       {/* ── Right — form panel ── */}
       <div className="flex flex-1 items-center justify-center bg-muted/40 p-6">
         <Card className="w-full max-w-lg shadow-2xl border border-border/60 rounded-2xl overflow-hidden">
-
           {/* Card header */}
           <div className="bg-primary/5 border-b border-border/50 px-8 pt-8 pb-6">
             <div className="flex items-center gap-3 mb-5">
@@ -135,9 +138,11 @@ export default function LoginPage() {
 
           {/* Card body */}
           <CardContent className="px-8 py-7 space-y-5">
-
             {/* Credentials form */}
-            <form onSubmit={form.handleSubmit(handleLoginSubmit)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(handleLoginSubmit)}
+              className="space-y-4"
+            >
               <TextField
                 name="userIdentifier"
                 label="Email or Username"
@@ -197,7 +202,6 @@ export default function LoginPage() {
               loading={isTelegramLoading}
               className="w-full h-10"
             />
-
           </CardContent>
         </Card>
       </div>
