@@ -139,6 +139,7 @@ export default function UpdateBusinessOwnerModal({ isOpen, onClose, ownerId }: P
           title="Edit Business Owner"
           description="Update business owner information below"
           avatarName={businessName}
+          avatarImageUrl={ownerData?.logoBusinessUrl}
           showAvatar={true}
           isCreate={false}
         />

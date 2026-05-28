@@ -47,11 +47,15 @@ export default function ResetPasswordModal({
   const dispatch = useAppDispatch();
   const isResettingPassword = useAppSelector(selectIsResettingPassword);
   const [showPassword, setShowPassword] = useState(false);
-  const defaultPassword = AppDefault.RESET_PASSWORD;
+  const [password, setPassword] = useState(AppDefault.RESET_PASSWORD);
 
   const onReset = async () => {
     if (!userId) {
       toast.error("User ID missing");
+      return;
+    }
+    if (!password || password.length < 4) {
+      toast.error("Password must be at least 4 characters");
       return;
     }
 
@@ -59,8 +63,8 @@ export default function ResetPasswordModal({
       await dispatch(
         adminChangePasswordService({
           userId: userId,
-          newPassword: defaultPassword,
-          confirmPassword: defaultPassword,
+          newPassword: password,
+          confirmPassword: password,
         })
       ).unwrap();
 
@@ -73,12 +77,13 @@ export default function ResetPasswordModal({
 
   const handleClose = () => {
     setShowPassword(false);
+    setPassword(AppDefault.RESET_PASSWORD);
     onClose();
   };
 
   const copyPassword = async () => {
     try {
-      await navigator.clipboard.writeText(defaultPassword);
+      await navigator.clipboard.writeText(password);
       toast.success("Password copied to clipboard");
     } catch {
       toast.error("Failed to copy password");
@@ -137,9 +142,10 @@ export default function ResetPasswordModal({
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
-                  value={defaultPassword}
-                  readOnly
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="pr-20 font-mono text-sm h-12 py-3"
+                  placeholder="Enter new password"
                 />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
                   <Button
