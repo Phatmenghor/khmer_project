@@ -34,55 +34,55 @@ export default function HeroSection() {
       <div className="max-w-[1330px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
             <FadeIn direction="right" delay={0}>
-              <div className="space-y-6 sm:space-y-8 flex flex-col justify-center">
-              {/* Headline */}
-              <div>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight bg-gradient-to-r from-slate-900 via-primary to-slate-900 bg-clip-text text-transparent">
-                Transform Your Business
-                <br />
-                Into a Digital Powerhouse
-              </h1>
-            </div>
-
-            {/* Subheadline */}
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-700 leading-relaxed max-w-2xl font-medium">
-              Enterprise-grade platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, multi-language support, and global payment processing.
-            </p>
-
-            {/* Features as animated cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-6 sm:pt-8 bg-gradient-to-br from-primary/8 via-transparent to-primary/5 rounded-2xl sm:rounded-3xl p-4 sm:p-8 border-2 border-primary/20 backdrop-blur-sm">
-              {[
-                "30-day free trial",
-                "Full feature access",
-                "No credit card needed",
-                "24/7 global support",
-                "Auto-scaling infrastructure",
-                "GDPR & compliance ready"
-              ].map((feature, i) => (
-                <div key={i} className="flex items-center gap-2 sm:gap-3 group cursor-pointer" style={{animationDelay: `${i * 50}ms`}}>
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg group-hover:blur-xl transition-all"></div>
-                    <CheckCircle className="w-5 sm:w-6 h-5 sm:h-6 text-primary flex-shrink-0 relative z-10 animate-scale-in" style={{animationDelay: `${i * 50}ms`}} />
-                  </div>
-                  <span className="text-sm sm:text-base font-semibold text-slate-900 group-hover:text-primary transition-colors">{feature}</span>
+              <div className="flex flex-col justify-center h-full space-y-8 sm:space-y-10">
+                {/* Headline */}
+                <div className="space-y-3 sm:space-y-4">
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.1] tracking-tight bg-gradient-to-r from-slate-900 via-primary to-slate-900 bg-clip-text text-transparent">
+                    Transform Your Business
+                    <br />
+                    Into a Digital Powerhouse
+                  </h1>
                 </div>
-              ))}
-            </div>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6">
-              <Button size="lg" className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg rounded-xl sm:rounded-2xl group w-full sm:w-auto shadow-xl hover:shadow-2xl transition-all" asChild>
-                <Link href={ROUTES.PUBLIC.REGISTER}>
-                  Start Free Trial
-                  <ArrowRight className="ml-2 w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-1 transition" />
-                </Link>
-              </Button>
-              <Button size="lg" className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg rounded-xl sm:rounded-2xl border-2 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:border-primary/60 w-full sm:w-auto font-semibold transition-all" asChild>
-                <Link href="/">Schedule Demo</Link>
-              </Button>
-            </div>
-            </div>
-          </FadeIn>
+                {/* Subheadline */}
+                <p className="text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-2xl font-medium tracking-wide">
+                  Enterprise-grade platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, and global payment processing.
+                </p>
+
+                {/* Features Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-4">
+                  {[
+                    "30-day free trial",
+                    "Full feature access",
+                    "No credit card needed",
+                    "24/7 global support",
+                    "Auto-scaling infrastructure",
+                    "GDPR & compliance ready"
+                  ].map((feature, i) => (
+                    <div key={i} className="flex items-center gap-3 group" style={{animationDelay: `${i * 50}ms`}}>
+                      <div className="relative flex-shrink-0">
+                        <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg group-hover:blur-xl group-hover:scale-110 transition-all"></div>
+                        <CheckCircle className="w-6 h-6 text-primary relative z-10" />
+                      </div>
+                      <span className="text-sm sm:text-base font-semibold text-slate-900 group-hover:text-primary transition-colors">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTAs */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 sm:pt-8">
+                  <Button size="lg" className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white px-8 py-4 text-base sm:text-lg rounded-2xl group shadow-lg hover:shadow-2xl transition-all font-semibold" asChild>
+                    <Link href={ROUTES.PUBLIC.REGISTER}>
+                      Start Free Trial
+                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition" />
+                    </Link>
+                  </Button>
+                  <Button size="lg" className="px-8 py-4 text-base sm:text-lg rounded-2xl border-2 border-primary/30 bg-white text-primary hover:bg-primary/5 hover:border-primary/50 font-semibold transition-all" asChild>
+                    <Link href="/">Schedule Demo</Link>
+                  </Button>
+                </div>
+              </div>
+            </FadeIn>
 
             {/* Mobile App Image - Right side */}
             <FadeIn direction="left" delay={100}>
