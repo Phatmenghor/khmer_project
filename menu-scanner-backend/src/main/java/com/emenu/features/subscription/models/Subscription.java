@@ -51,8 +51,12 @@ public class Subscription extends BaseUUIDEntity {
     @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SubscriptionPayment> payments;
 
+    public boolean isCancelled() {
+        return cancellationReason != null;
+    }
+
     public boolean isActive() {
-        return !getIsDeleted() && !isExpired();
+        return !getIsDeleted() && !isExpired() && !isCancelled();
     }
 
     public boolean isExpired() {
@@ -60,6 +64,7 @@ public class Subscription extends BaseUUIDEntity {
     }
 
     public String getStatus() {
+        if (isCancelled()) return "CANCELLED";
         return isActive() ? "ACTIVE" : "EXPIRED";
     }
 

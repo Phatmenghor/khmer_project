@@ -117,4 +117,27 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
             @Param("now") LocalDateTime now,
             @Param("expiryThreshold") LocalDateTime expiryThreshold
     );
+
+    @Query("""
+                SELECT s FROM Subscription s
+                LEFT JOIN FETCH s.business b
+                LEFT JOIN FETCH s.plan p
+                WHERE s.isDeleted = false
+                AND s.cancellationReason IS NOT NULL
+                AND (:businessId IS NULL OR s.businessId = :businessId)
+                ORDER BY s.updatedAt DESC
+            """)
+    List<Subscription> findCancelledSubscriptions(
+            @Param("businessId") UUID businessId
+    );
+
+    @Query("""
+                SELECT s FROM Subscription s
+                LEFT JOIN FETCH s.business b
+                LEFT JOIN FETCH s.plan p
+                WHERE s.isDeleted = false
+                AND s.cancellationReason IS NOT NULL
+                ORDER BY s.updatedAt DESC
+            """)
+    List<Subscription> findAllCancelledSubscriptions();
 }
