@@ -14,19 +14,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BusinessOwnerChangePlanRequest {
-    
+
     @NotNull(message = "New plan ID is required")
     private UUID newPlanId;
     private BigDecimal paymentAmount;
     private String paymentMethod;
     private String paymentReference;
-    private String paymentNotes;
-
-    public boolean hasPaymentInfo() {
-        return paymentAmount != null;
-    }
-
-    public boolean isPaymentInfoComplete() {
-        return paymentAmount != null && paymentMethod != null;
-    }
 }

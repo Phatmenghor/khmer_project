@@ -214,7 +214,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         String method = renewRequestData.getPaymentMethod() != null && !renewRequestData.getPaymentMethod().isBlank()
                 ? renewRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
         createSubscriptionPaymentForRenewal(newSubscription, amount, method,
-                renewRequestData.getPaymentReference(), renewRequestData.getPaymentNotes());
+                renewRequestData.getPaymentReference());
 
         businessEntity.activateSubscription();
         businessRepository.save(businessEntity);
@@ -276,7 +276,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         String method = changePlanRequestData.getPaymentMethod() != null && !changePlanRequestData.getPaymentMethod().isBlank()
                 ? changePlanRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
         createSubscriptionPaymentForRenewal(newSubscription, amount, method,
-                changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
+                changePlanRequestData.getPaymentReference());
 
         currentSubscriptionRecord = newSubscription;
 
@@ -527,7 +527,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private void createSubscriptionPaymentForRenewal(Subscription subscriptionRecord, BigDecimal amount,
-                                                     String method, String reference, String notes) {
+                                                     String method, String reference) {
         SubscriptionPayment paymentRecord = new SubscriptionPayment();
         paymentRecord.setBusinessId(subscriptionRecord.getBusinessId());
         paymentRecord.setPlanId(subscriptionRecord.getPlanId());

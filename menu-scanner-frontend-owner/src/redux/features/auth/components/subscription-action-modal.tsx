@@ -340,16 +340,43 @@ export default function SubscriptionActionModal({
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={cancelForm.handleSubmit(onCancelSubmit)} className="space-y-4">
-                      <TextField
-                        control={cancelForm.control}
-                        name="reason"
-                        label="Reason"
-                        placeholder="Cancellation reason"
-                        required
-                        disabled={isSubmitting}
-                        error={getFieldError(cancelForm.formState.errors.reason)}
-                      />
-                      {paymentFields(cancelForm.control, cancelForm.formState.errors, isSubmitting)}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <TextField
+                          control={cancelForm.control}
+                          name="reason"
+                          label="Reason"
+                          placeholder="Cancellation reason"
+                          required
+                          disabled={isSubmitting}
+                          error={getFieldError(cancelForm.formState.errors.reason)}
+                        />
+                        <TextField
+                          control={cancelForm.control}
+                          name="paymentAmount"
+                          label="Payment Amount (Optional)"
+                          type="number"
+                          placeholder="0.00"
+                          disabled={isSubmitting}
+                          error={getFieldError(cancelForm.formState.errors.paymentAmount)}
+                        />
+                        <SelectField
+                          control={cancelForm.control}
+                          name="paymentMethod"
+                          label="Payment Method (Optional)"
+                          placeholder="Select method"
+                          options={PAYMENT_METHOD_CREATE_UPDATE}
+                          disabled={isSubmitting}
+                          error={getFieldError(cancelForm.formState.errors.paymentMethod)}
+                        />
+                        <TextField
+                          control={cancelForm.control}
+                          name="paymentReference"
+                          label="Reference No."
+                          placeholder="Optional reference"
+                          disabled={isSubmitting}
+                          error={getFieldError(cancelForm.formState.errors.paymentReference)}
+                        />
+                      </div>
                       <div className="flex justify-end gap-3 pt-2">
                         <CancelButton onClick={handleClose} disabled={isSubmitting} />
                         <SubmitButton isSubmitting={isSubmitting} isDirty={cancelForm.formState.isDirty} isCreate={true} createText="Cancel Subscription" submittingCreateText="Cancelling..." />
