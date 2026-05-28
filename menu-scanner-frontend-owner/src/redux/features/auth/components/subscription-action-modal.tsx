@@ -424,7 +424,7 @@ export default function SubscriptionActionModal({
                       </thead>
                       <tbody>
                         {subscriptionHistory.map((row, idx) => (
-                          <tr key={row.subscriptionId} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                          <tr key={`${row.subscriptionId}-${idx}`} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
                             <td className="px-4 py-3 text-xs text-muted-foreground">{idx + 1}</td>
                             <td className="px-4 py-3 text-xs font-medium">{row.planName || "---"}</td>
                             <td className="px-4 py-3 text-xs text-muted-foreground">{row.planDurationType || "---"}</td>
