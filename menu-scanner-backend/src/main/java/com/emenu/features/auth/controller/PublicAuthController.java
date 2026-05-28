@@ -1,0 +1,38 @@
+package com.emenu.features.auth.controller;
+
+import com.emenu.features.auth.dto.request.BusinessOwnerCreateRequest;
+import com.emenu.features.auth.dto.response.BusinessOwnerCreateResponse;
+import com.emenu.features.auth.service.BusinessOwnerService;
+import com.emenu.shared.dto.ApiResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/public")
+@RequiredArgsConstructor
+@Slf4j
+public class PublicAuthController {
+
+    private final BusinessOwnerService businessOwnerService;
+
+    /**
+     * Public endpoint for self-registration of new business owners
+     * No authentication required - Anyone can register
+     */
+    @PostMapping("/register-business-owner")
+    public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> registerBusinessOwner(
+            @Valid @RequestBody BusinessOwnerCreateRequest registerRequest) {
+        log.info("Endpoint: public/register-business-owner - business owner registration request received: business_name={}, owner_email={}",
+                registerRequest.getBusinessName(), registerRequest.getOwnerEmail());
+
+        BusinessOwnerCreateResponse response = businessOwnerService.createBusinessOwner(registerRequest);
+
+        log.info("Business owner registration completed successfully");
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Business owner registration successful. You can now login with your credentials.", response));
+    }
+}
