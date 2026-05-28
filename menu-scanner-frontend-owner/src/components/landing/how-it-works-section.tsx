@@ -27,12 +27,6 @@ const steps = [
 ];
 
 export default function HowItWorksSection() {
-  const colors = [
-    { gradient: "from-blue-50 via-blue-100/40 to-blue-50", border: "border-blue-300", text: "text-blue-600" },
-    { gradient: "from-purple-50 via-purple-100/40 to-purple-50", border: "border-purple-300", text: "text-purple-600" },
-    { gradient: "from-pink-50 via-pink-100/40 to-pink-50", border: "border-pink-300", text: "text-pink-600" }
-  ];
-
   return (
     <section id="how-it-works" className="relative py-24">
       {/* Animated Background */}
@@ -57,17 +51,17 @@ export default function HowItWorksSection() {
         <div className="grid sm:grid-cols-3 gap-6 mt-16">
           {steps.map(({ number, icon: Icon, title, description }, i) => (
             <FadeIn key={title} direction="up" delay={i * 140}>
-              <Card className={`relative bg-gradient-to-br ${colors[i].gradient} border-2 ${colors[i].border} hover:shadow-2xl hover:scale-105 transition-all duration-300 h-full group overflow-hidden`}>
+              <Card className="relative bg-white border-2 border-slate-200 hover:border-primary/30 hover:shadow-xl transition-all duration-300 h-full group overflow-hidden">
                 {/* Animated bg dot */}
-                <div className="absolute top-0 right-0 w-28 h-28 bg-white/40 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-14 -mt-14"></div>
+                <div className="absolute top-0 right-0 w-28 h-28 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-14 -mt-14"></div>
 
                 <CardContent className="p-8 relative z-10">
                   {/* Decorative number */}
-                  <div className="text-6xl font-black text-primary/15 leading-none select-none pointer-events-none mb-2">
+                  <div className="text-6xl font-black text-primary/10 leading-none select-none pointer-events-none mb-2">
                     {number}
                   </div>
                   {/* Icon */}
-                  <div className={`relative w-16 h-16 rounded-2xl bg-white flex items-center justify-center mb-6 group-hover:scale-125 transition-transform shadow-lg ${colors[i].text}`}>
+                  <div className="relative w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-125 transition-transform text-primary shadow-sm">
                     <Icon className="w-8 h-8" />
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
