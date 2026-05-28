@@ -15,7 +15,8 @@ import java.util.UUID;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, UUID> {
-    Optional<Role> findByNameAndIsDeletedFalse(String name);
+    @Query("SELECT r FROM Role r WHERE r.name = :name AND r.isDeleted = false ORDER BY r.createdAt DESC LIMIT 1")
+    Optional<Role> findByNameAndIsDeletedFalse(@Param("name") String name);
 
     Optional<Role> findByIdAndIsDeletedFalse(UUID id);
 
