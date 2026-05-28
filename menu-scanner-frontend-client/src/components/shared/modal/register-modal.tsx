@@ -95,10 +95,23 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
         showToast.success(Messages.auth.accountCreated);
         onOpenChange(false);
         registerForm.reset();
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       }
     } catch (err: unknown) {
-      showToast.error((err as { message?: string })?.message || "Registration failed. Please try again.");
+      const error = err as { payload?: { message?: string; data?: { message?: string } } } | { message?: string };
+      let errorMessage = "Registration failed. Please try again.";
+
+      if ('payload' in error && error.payload?.message) {
+        errorMessage = error.payload.message;
+      } else if ('payload' in error && error.payload?.data?.message) {
+        errorMessage = error.payload.data.message;
+      } else if ('message' in error && error.message) {
+        errorMessage = error.message;
+      }
+
+      showToast.error(errorMessage);
     }
   }
 

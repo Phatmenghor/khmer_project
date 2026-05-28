@@ -60,9 +60,22 @@ export default function LoginPage() {
         }),
       ).unwrap();
       showToast.success(Messages.auth.loginSuccess);
-      router.replace(ROUTES.ADMIN.DASHBOARD);
+      setTimeout(() => {
+        router.replace(ROUTES.ADMIN.DASHBOARD);
+      }, 500);
     } catch (err: unknown) {
-      showToast.error((err as { message?: string })?.message || Messages.auth.loginFailed);
+      const error = err as { payload?: { message?: string; data?: { message?: string } } } | { message?: string };
+      let errorMessage = Messages.auth.loginFailed;
+
+      if ('payload' in error && error.payload?.message) {
+        errorMessage = error.payload.message;
+      } else if ('payload' in error && error.payload?.data?.message) {
+        errorMessage = error.payload.data.message;
+      } else if ('message' in error && error.message) {
+        errorMessage = error.message;
+      }
+
+      showToast.error(errorMessage);
     }
   }
 
@@ -77,9 +90,22 @@ export default function LoginPage() {
         }),
       ).unwrap();
       showToast.success(Messages.auth.welcomeBack);
-      router.replace(ROUTES.ADMIN.DASHBOARD);
+      setTimeout(() => {
+        router.replace(ROUTES.ADMIN.DASHBOARD);
+      }, 500);
     } catch (err: unknown) {
-      showToast.error((err as { message?: string })?.message || Messages.auth.telegramFailed);
+      const error = err as { payload?: { message?: string; data?: { message?: string } } } | { message?: string };
+      let errorMessage = Messages.auth.telegramFailed;
+
+      if ('payload' in error && error.payload?.message) {
+        errorMessage = error.payload.message;
+      } else if ('payload' in error && error.payload?.data?.message) {
+        errorMessage = error.payload.data.message;
+      } else if ('message' in error && error.message) {
+        errorMessage = error.message;
+      }
+
+      showToast.error(errorMessage);
     } finally {
       setIsTelegramLoading(false);
     }
