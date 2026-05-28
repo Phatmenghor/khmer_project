@@ -5,12 +5,20 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { showToast } from "@/components/shared/common/show-toast";
 import { axiosClient } from "@/utils/axios";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const schema = z
   .object({
@@ -92,39 +100,24 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     }
   }
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-          {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-r from-primary/8 via-primary/3 to-primary/5 border-b border-primary/20 px-8 py-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold text-slate-900">
-                Start Your Free Trial
-              </h2>
-              <p className="text-base text-slate-600 mt-1">
-                Get full access to all features {plan && `for the ${plan} plan`}. No credit card required.
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
-            >
-              <X className="h-6 w-6" />
-            </button>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl h-[90vh] p-0 gap-0 flex flex-col">
+        {/* Header */}
+        <DialogHeader className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex flex-col gap-2">
+            <DialogTitle className="text-2xl font-bold text-foreground">
+              Start Your Free Trial
+            </DialogTitle>
+            <DialogDescription className="text-base text-muted-foreground">
+              Get full access to all features {plan && `for the ${plan} plan`}. No credit card required.
+            </DialogDescription>
           </div>
+        </DialogHeader>
 
-          {/* Content */}
-          <div className="p-8">
+        {/* Content */}
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-6">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
               {/* Owner section */}
               <div>
@@ -245,11 +238,11 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-3 pt-6">
                 <Button
                   type="button"
                   variant="outline"
-                  className="flex-1 h-12 font-semibold"
+                  className="flex-1"
                   onClick={onClose}
                   disabled={isSubmitting}
                 >
@@ -257,7 +250,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 h-12 font-semibold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white"
+                  className="flex-1 bg-primary hover:bg-primary/90"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -271,21 +264,26 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                 </Button>
               </div>
 
-              <p className="text-center text-sm text-slate-600">
+              <p className="text-center text-xs text-muted-foreground mt-4">
                 By registering you agree to our{" "}
-                <a href="#" className="text-primary font-medium hover:underline">
+                <a href="#" className="text-primary hover:underline">
                   Terms of Service
                 </a>
                 {" "}and{" "}
-                <a href="#" className="text-primary font-medium hover:underline">
+                <a href="#" className="text-primary hover:underline">
                   Privacy Policy
                 </a>
                 .
               </p>
             </form>
           </div>
+        </ScrollArea>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t bg-muted/30 flex-shrink-0 text-xs text-muted-foreground">
+          <p>✓ No credit card required  •  ✓ Full access to all features  •  ✓ Cancel anytime</p>
         </div>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }
