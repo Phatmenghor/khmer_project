@@ -32,8 +32,8 @@ export default function FounderSection() {
               {/* Animated bg dot */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
 
-              <CardContent className="p-8 relative z-10 flex flex-col">
-                <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg bg-white mb-8">
+              <CardContent className="p-4 sm:p-6 lg:p-8 relative z-10 flex flex-col">
+                <div className="relative aspect-video sm:aspect-square rounded-2xl overflow-hidden shadow-lg bg-white mb-4 sm:mb-6 lg:mb-8">
                   <Image
                     src={founder.image}
                     alt={founder.name}
@@ -42,15 +42,15 @@ export default function FounderSection() {
                     priority
                   />
                 </div>
-                <div className="flex flex-col gap-3">
-                  <h3 className="text-2xl font-bold text-slate-900">{founder.name}</h3>
-                  <div className="space-y-2 text-sm">
+                <div className="flex flex-col gap-2 sm:gap-3">
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900">{founder.name}</h3>
+                  <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
                     <p className="text-slate-700">{founder.title}</p>
                     <p className="text-slate-700">{founder.contact.location}</p>
                     <p>
                       <a
                         href={`mailto:${founder.contact.email}`}
-                        className="text-primary hover:text-primary/80 transition-colors text-slate-700 hover:text-primary"
+                        className="text-primary hover:text-primary/80 transition-colors text-slate-700 hover:text-primary break-all"
                       >
                         {founder.contact.email}
                       </a>
