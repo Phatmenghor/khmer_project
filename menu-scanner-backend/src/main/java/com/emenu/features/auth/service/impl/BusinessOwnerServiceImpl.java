@@ -515,11 +515,20 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         refundRecord.setPlanId(subscriptionRecord.getPlanId());
         refundRecord.setSubscriptionId(subscriptionRecord.getId());
         refundRecord.setAmount(cancelRequestData.getRefundAmount().negate());
-        refundRecord.setPaymentMethod(PaymentMethod.valueOf(cancelRequestData.getRefundMethod()));
+        String refundMethodStr = cancelRequestData.getRefundMethod();
+        if (refundMethodStr != null && !refundMethodStr.trim().isEmpty()) {
+            try {
+                refundRecord.setPaymentMethod(PaymentMethod.valueOf(refundMethodStr));
+            } catch (IllegalArgumentException e) {
+                refundRecord.setPaymentMethod(PaymentMethod.BANK);
+            }
+        } else {
+            refundRecord.setPaymentMethod(PaymentMethod.BANK);
+        }
         refundRecord.setPaymentType(SubscriptionPaymentType.REFUND);
         refundRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
         refundRecord.setReferenceNumber(cancelRequestData.getRefundReference());
-        refundRecord.setNotes("Refund: " + cancelRequestData.getReason());
+        refundRecord.setNotes("Subscription refund processed");
         subscriptionPaymentRepository.save(refundRecord);
     }
 

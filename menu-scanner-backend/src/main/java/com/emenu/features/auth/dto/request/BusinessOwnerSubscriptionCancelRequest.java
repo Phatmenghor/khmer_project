@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class BusinessOwnerSubscriptionCancelRequest {
 
-    @NotBlank(message = "Cancellation reason is required")
     private String reason;
     private String notes;
 

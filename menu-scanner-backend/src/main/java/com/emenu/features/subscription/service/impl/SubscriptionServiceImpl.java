@@ -222,10 +222,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         refund.setSubscriptionId(subscription.getId());
         refund.setPlanId(subscription.getPlanId());
         refund.setAmount(request.getRefundAmount().negate());
-        refund.setPaymentMethod(PaymentMethod.CASH);
+        refund.setPaymentMethod(PaymentMethod.BANK);
         refund.setPaymentType(SubscriptionPaymentType.REFUND);
         refund.setStatus(SubscriptionPaymentStatus.COMPLETED);
-        refund.setNotes("Refund: " + request.getRefundNotes());
+        refund.setNotes("Subscription refund processed");
         subscriptionPaymentRepository.save(refund);
         log.info("Refund created for subscription: {} - Amount: {}", subscription.getId(), refund.getAmount());
     }
