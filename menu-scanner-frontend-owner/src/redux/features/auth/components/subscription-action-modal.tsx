@@ -81,9 +81,9 @@ export default function SubscriptionActionModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || owner?.currentPlanId) return; // Skip if plan already selected
     dispatch(fetchAllSubscriptionPlanService({ pageNo: 1, pageSize: 100 }));
-  }, [isOpen, dispatch]);
+  }, [isOpen, owner?.currentPlanId, dispatch]);
 
   useEffect(() => {
     if (!isOpen || !owner?.businessId) return;
