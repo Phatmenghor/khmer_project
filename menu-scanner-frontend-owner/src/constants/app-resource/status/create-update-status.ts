@@ -77,9 +77,7 @@ export const PAYMENT_STATUS_CREATE_UPDATE = [
 
 export const PAYMENT_METHOD_CREATE_UPDATE = [
   { value: PaymentMethod.CASH, label: "Cash" },
-  { value: PaymentMethod.BANK_TRANSFER, label: "Bank Transfer" },
-  { value: PaymentMethod.ONLINE, label: "Online" },
-  { value: PaymentMethod.OTHER, label: "Other" },
+  { value: PaymentMethod.BANK, label: "Bank Transfer" },
 ];
 
 export const PAYMENT_TYPE_CREATE_UPDATE = [

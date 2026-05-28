@@ -105,9 +105,7 @@ export enum PaymentStatus {
 
 export enum PaymentMethod {
   CASH = "CASH",
-  BANK_TRANSFER = "BANK_TRANSFER",
-  ONLINE = "ONLINE",
-  OTHER = "OTHER",
+  BANK = "BANK",
 }
 
 export enum PaymentType {
