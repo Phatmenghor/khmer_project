@@ -126,6 +126,44 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     @Override
+    public BusinessOwnerCreateResponse registerBusinessOwner(BusinessOwnerPublicRegisterRequest registerRequest) {
+        log.info("Public business owner registration initiated: business_name={}, owner_email={}",
+                registerRequest.getBusinessName(), registerRequest.getOwnerEmail());
+
+        // Convert public registration request to create request without plan
+        BusinessOwnerCreateRequest createRequest = BusinessOwnerCreateRequest.builder()
+                .ownerUserIdentifier(registerRequest.getOwnerUserIdentifier())
+                .ownerEmail(registerRequest.getOwnerEmail())
+                .ownerPassword(registerRequest.getOwnerPassword())
+                .ownerFullName(registerRequest.getOwnerFullName())
+                .ownerPhone(registerRequest.getOwnerPhone())
+                .businessName(registerRequest.getBusinessName())
+                .businessEmail(registerRequest.getBusinessEmail())
+                .businessPhone(registerRequest.getBusinessPhone())
+                .businessAddress(registerRequest.getBusinessAddress())
+                .planId(null)
+                .build();
+
+        // Validate using existing validation (without plan requirement)
+        validateBusinessOwnerCreation(createRequest);
+
+        Business businessEntity = createBusiness(createRequest);
+        User ownerUserEntity = createOwnerUser(createRequest, businessEntity.getId());
+
+        businessEntity.setOwnerId(ownerUserEntity.getId());
+        businessRepository.save(businessEntity);
+
+        BusinessOwnerCreateResponse response = mapper.toCreateResponse(ownerUserEntity, businessEntity, null, null);
+        response.setCreatedComponents(buildCreatedComponentsList(false));
+
+        log.info("Business owner registered successfully via public registration: owner_id={}, business_id={}",
+                ownerUserEntity.getId(), businessEntity.getId());
+        webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "registered", "ownerId", ownerUserEntity.getId().toString()));
+
+        return response;
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public PaginationResponse<BusinessOwnerDetailResponse> getAllBusinessOwners(BusinessOwnerFilterRequest filterCriteria) {
         Pageable pageableRequest = PaginationUtils.createPageable(
@@ -429,7 +467,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
             throw new ValidationException("Business email already exists: " + creationRequestData.getBusinessEmail());
         }
 
-        if (!planRepository.existsById(creationRequestData.getPlanId())) {
+        if (creationRequestData.getPlanId() != null && !planRepository.existsById(creationRequestData.getPlanId())) {
             log.warn("Business owner creation failed - plan not found: plan_id={}", creationRequestData.getPlanId());
             throw new NotFoundException("Plan not found: " + creationRequestData.getPlanId());
         }

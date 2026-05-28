@@ -3,6 +3,7 @@ package com.emenu.features.auth.controller;
 import com.emenu.features.auth.dto.filter.BusinessOwnerFilterRequest;
 import com.emenu.features.auth.dto.request.BusinessOwnerChangePlanRequest;
 import com.emenu.features.auth.dto.request.BusinessOwnerCreateRequest;
+import com.emenu.features.auth.dto.request.BusinessOwnerPublicRegisterRequest;
 import com.emenu.features.auth.dto.request.BusinessOwnerSubscriptionCancelRequest;
 import com.emenu.features.auth.dto.request.BusinessOwnerSubscriptionRenewRequest;
 import com.emenu.features.auth.dto.request.BusinessOwnerUpdateRequest;
@@ -96,5 +97,15 @@ public class BusinessOwnerController {
         log.info("Endpoint: business-owners/{} - delete request received", ownerId);
         BusinessOwnerDetailResponse response = businessOwnerService.deleteBusinessOwner(ownerId);
         return ResponseEntity.ok(ApiResponse.success("Business owner deleted successfully", response));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> registerBusinessOwner(
+            @Valid @RequestBody BusinessOwnerPublicRegisterRequest registerRequest) {
+        log.info("Endpoint: business-owners/register - public registration request received: business_name={}, owner_email={}",
+                registerRequest.getBusinessName(), registerRequest.getOwnerEmail());
+        BusinessOwnerCreateResponse response = businessOwnerService.registerBusinessOwner(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Business owner registered successfully", response));
     }
 }

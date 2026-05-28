@@ -45,6 +45,7 @@ public class SecurityConfig {
                         // ===== PUBLIC ENDPOINTS =====
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/public/**").permitAll() // Includes /api/v1/public/business-settings/**
+                        .requestMatchers("/api/v1/business-owners/register").permitAll()
                         .requestMatchers("/api/images/**").permitAll()
 
                         .requestMatchers("/api/v1/users/admin-token").permitAll()
