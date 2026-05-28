@@ -106,6 +106,45 @@ public final class TelegramMessageBuilder {
         return sb.toString().trim();
     }
 
+    // ── Subscription alerts (admin group) ────────────────────────────────────
+
+    public static String businessOwnerRegistered(String ownerName, String businessName,
+                                                  String planName, String expiryDate) {
+        return "*NEW BUSINESS OWNER REGISTERED*\n\n" +
+            "Owner: " + esc(ownerName) + "\n" +
+            "Business: " + esc(businessName) + "\n" +
+            "Plan: " + esc(planName) + "\n" +
+            "Expiry Date: " + esc(expiryDate);
+    }
+
+    public static String subscriptionExpiringSoon(String businessName, long daysRemaining, String expiryDate) {
+        return "*ALERT: SUBSCRIPTION EXPIRING SOON*\n\n" +
+            "Business: " + esc(businessName) + "\n" +
+            "Days Remaining: " + daysRemaining + "\n" +
+            "Expiry Date: " + esc(expiryDate);
+    }
+
+    public static String subscriptionRenewed(String businessName, String planName, String newExpiryDate) {
+        return "*SUBSCRIPTION RENEWED*\n\n" +
+            "Business: " + esc(businessName) + "\n" +
+            "Plan: " + esc(planName) + "\n" +
+            "New Expiry Date: " + esc(newExpiryDate);
+    }
+
+    public static String subscriptionCancelled(String businessName) {
+        return "*SUBSCRIPTION CANCELLED*\n\n" +
+            "Business: " + esc(businessName);
+    }
+
+    public static String subscriptionPlanChanged(String businessName, String oldPlanName,
+                                                  String newPlanName, String newExpiryDate) {
+        return "*SUBSCRIPTION PLAN CHANGED*\n\n" +
+            "Business: " + esc(businessName) + "\n" +
+            "Old Plan: " + esc(oldPlanName) + "\n" +
+            "New Plan: " + esc(newPlanName) + "\n" +
+            "New Expiry Date: " + esc(newExpiryDate);
+    }
+
     // ── Test message ─────────────────────────────────────────────────────────
 
     public static String testMessage() {

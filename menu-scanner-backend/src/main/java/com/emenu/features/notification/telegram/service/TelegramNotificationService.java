@@ -20,6 +20,8 @@ public interface TelegramNotificationService {
 
     void sendHtmlToGroup(UUID businessId, String htmlMessage);
 
+    void sendAdminAlert(String message);
+
     // ── Bot management ────────────────────────────────────────────────────────
 
     /**
@@ -40,6 +42,22 @@ public interface TelegramNotificationService {
 
     void notifyNewStaff(UUID businessId, String name, String position,
                         String phone, String email, List<String> roles);
+
+    // ── Subscription notifications (async) ─────────────────────────────────────
+
+    void notifyBusinessOwnerRegistered(UUID businessId, String ownerName, String businessName,
+                                       String planName, String expiryDate);
+
+    void notifySubscriptionExpiringSoon(UUID businessId, String businessName,
+                                        long daysRemaining, String expiryDate);
+
+    void notifySubscriptionRenewed(UUID businessId, String businessName,
+                                   String planName, String newExpiryDate);
+
+    void notifySubscriptionCancelled(UUID businessId, String businessName);
+
+    void notifySubscriptionPlanChanged(UUID businessId, String businessName,
+                                       String oldPlanName, String newPlanName, String newExpiryDate);
 
     // ── Bot events ────────────────────────────────────────────────────────────
 

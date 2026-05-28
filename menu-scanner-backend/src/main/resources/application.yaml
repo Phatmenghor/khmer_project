@@ -49,9 +49,9 @@ springdoc:
 # Telegram
 telegram:
   bot:
-    token: "8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU"
+    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
     enabled: true
-    group-chat-id: "-1002784141362"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
 
 # Application
 app:

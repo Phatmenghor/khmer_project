@@ -103,4 +103,18 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
             @Param("now") LocalDateTime now,
             Pageable pageable
     );
+
+    @Query("""
+                SELECT s FROM Subscription s
+                LEFT JOIN FETCH s.business b
+                LEFT JOIN FETCH s.plan p
+                WHERE s.isDeleted = false
+                AND s.endDate > :now
+                AND s.endDate <= :expiryThreshold
+                ORDER BY s.endDate ASC
+            """)
+    List<Subscription> findExpiringSubscriptions(
+            @Param("now") LocalDateTime now,
+            @Param("expiryThreshold") LocalDateTime expiryThreshold
+    );
 }

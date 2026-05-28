@@ -27,6 +27,7 @@ import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.service.BusinessOwnerService;
 import com.emenu.features.auth.service.UserValidationService;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
+import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.emenu.features.subscription.models.Subscription;
 import com.emenu.features.subscription.models.SubscriptionPayment;
 import com.emenu.features.subscription.models.SubscriptionPlan;
@@ -72,6 +73,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private final UserValidationService userValidationService;
     private final PaginationMapper paginationMapper;
     private final WebSocketNotificationService webSocketNotificationService;
+    private final TelegramNotificationService telegramNotificationService;
 
     @Value("${app.subscription.expiry-soon-days:7}")
     private int expirySoonDays;
@@ -106,6 +108,20 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 ownerUserEntity.getId(), businessEntity.getId(),
                 subscriptionRecord != null ? subscriptionRecord.getId() : null, paymentRecord != null);
         webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "created", "ownerId", ownerUserEntity.getId().toString()));
+
+        // Send Telegram notification
+        if (subscriptionRecord != null) {
+            String planName = subscriptionRecord.getPlan() != null ? subscriptionRecord.getPlan().getName() : "N/A";
+            String expiryDate = subscriptionRecord.getEndDate().toLocalDate().toString();
+            telegramNotificationService.notifyBusinessOwnerRegistered(
+                businessEntity.getId(),
+                ownerUserEntity.getFullName(),
+                businessEntity.getName(),
+                planName,
+                expiryDate
+            );
+        }
+
         return response;
     }
 
@@ -203,6 +219,17 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         log.info("Subscription renewed: owner_id={}, old_subscription_id={}, new_subscription_id={}",
                 ownerId, currentSubscription.getId(), newSubscription.getId());
         webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "renewed", "ownerId", ownerId.toString()));
+
+        // Send Telegram notification
+        String planName = planToUse.getName();
+        String newExpiryDate = newSubscription.getEndDate().toLocalDate().toString();
+        telegramNotificationService.notifySubscriptionRenewed(
+            businessEntity.getId(),
+            businessEntity.getName(),
+            planName,
+            newExpiryDate
+        );
+
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
@@ -229,6 +256,19 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         log.info("Subscription plan changed successfully: owner_id={}, subscription_id={}, new_plan_id={}",
                 ownerId, currentSubscriptionRecord.getId(), changePlanRequestData.getNewPlanId());
         webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "planChanged", "ownerId", ownerId.toString()));
+
+        // Send Telegram notification
+        String oldPlanName = currentSubscriptionRecord.getPlan() != null ? currentSubscriptionRecord.getPlan().getName() : "N/A";
+        String newPlanName = newPlanEntity.getName();
+        String newExpiryDate = currentSubscriptionRecord.getEndDate().toLocalDate().toString();
+        telegramNotificationService.notifySubscriptionPlanChanged(
+            businessEntity.getId(),
+            businessEntity.getName(),
+            oldPlanName,
+            newPlanName,
+            newExpiryDate
+        );
+
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
@@ -262,6 +302,13 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         log.info("Subscription cancelled successfully: owner_id={}, subscription_id={}, refund_issued={}",
                 ownerId, currentSubscriptionRecord.getId(), cancelRequestData.hasRefundAmount());
         webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "cancelled", "ownerId", ownerId.toString()));
+
+        // Send Telegram notification
+        telegramNotificationService.notifySubscriptionCancelled(
+            businessEntity.getId(),
+            businessEntity.getName()
+        );
+
         return buildEnrichedDetailResponse(ownerEntity);
     }
 

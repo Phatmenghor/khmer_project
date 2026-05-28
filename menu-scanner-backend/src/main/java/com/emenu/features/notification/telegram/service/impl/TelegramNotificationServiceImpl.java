@@ -36,6 +36,9 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     @Value("${telegram.bot.enabled:true}")
     private boolean enabled;
 
+    @Value("${telegram.bot.group-chat-id}")
+    private String adminGroupChatId;
+
     private final BusinessSettingRepository businessSettingRepository;
     private final TelegramNotificationMapper telegramNotificationMapper;
     private final RestTemplate restTemplate;
@@ -74,6 +77,16 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     @Override
     public void sendHtmlToGroup(UUID businessId, String htmlMessage) {
         sendByBusinessId(businessId, htmlMessage, "HTML");
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void sendAdminAlert(String message) {
+        if (!enabled || adminGroupChatId == null || adminGroupChatId.isBlank()) {
+            log.debug("[Telegram] Admin alerts disabled or no admin group chat ID configured");
+            return;
+        }
+        sendToChatId(adminGroupChatId, message, "MarkdownV2");
     }
 
     // ── Bot management ────────────────────────────────────────────────────────
@@ -118,6 +131,47 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     public void notifyNewStaff(UUID businessId, String name, String position,
                                String phone, String email, List<String> roles) {
         sendByBusinessId(businessId, TelegramMessageBuilder.newStaff(name, position, phone, email, roles), "HTML");
+    }
+
+    // ── Subscription notifications (async) ─────────────────────────────────────
+
+    @Override
+    @Async("taskExecutor")
+    public void notifyBusinessOwnerRegistered(UUID businessId, String ownerName, String businessName,
+                                              String planName, String expiryDate) {
+        sendAdminAlert(TelegramMessageBuilder.businessOwnerRegistered(ownerName, businessName, planName, expiryDate));
+        log.info("[Telegram] Business owner registration alert sent for: {}", businessName);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifySubscriptionExpiringSoon(UUID businessId, String businessName,
+                                               long daysRemaining, String expiryDate) {
+        sendAdminAlert(TelegramMessageBuilder.subscriptionExpiringSoon(businessName, daysRemaining, expiryDate));
+        log.info("[Telegram] Subscription expiring soon alert sent for: {} (days remaining: {})", businessName, daysRemaining);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifySubscriptionRenewed(UUID businessId, String businessName,
+                                          String planName, String newExpiryDate) {
+        sendAdminAlert(TelegramMessageBuilder.subscriptionRenewed(businessName, planName, newExpiryDate));
+        log.info("[Telegram] Subscription renewal alert sent for: {}", businessName);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifySubscriptionCancelled(UUID businessId, String businessName) {
+        sendAdminAlert(TelegramMessageBuilder.subscriptionCancelled(businessName));
+        log.info("[Telegram] Subscription cancellation alert sent for: {}", businessName);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifySubscriptionPlanChanged(UUID businessId, String businessName,
+                                              String oldPlanName, String newPlanName, String newExpiryDate) {
+        sendAdminAlert(TelegramMessageBuilder.subscriptionPlanChanged(businessName, oldPlanName, newPlanName, newExpiryDate));
+        log.info("[Telegram] Subscription plan change alert sent for: {} (from {} to {})", businessName, oldPlanName, newPlanName);
     }
 
     // ── Bot events ────────────────────────────────────────────────────────────
