@@ -28,9 +28,9 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     "Master Data": true,
-    "Business": true,
+    Business: true,
     "User Management": true,
-    "Locations": true,
+    Locations: true,
   });
   const [collapsed, setCollapsed] = useState(false);
 
@@ -71,7 +71,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                 className={cn(
                   "w-full justify-start hover:bg-primary/10 hover:text-primary rounded relative",
                   isActive &&
-                    "bg-primary/15 text-primary font-medium border-l-2 border-primary"
+                    "bg-primary/15 text-primary font-medium border-l-2 border-primary",
                 )}
                 onClick={() =>
                   route.section && !isCollapsed && toggleSection(route.section)
@@ -123,7 +123,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                         className={cn(
                           "relative w-full justify-start hover:bg-primary/10 hover:text-primary pl-6 rounded z-20 border-l border-transparent hover:border-l-primary/30 transition-all duration-200",
                           pathname === subroute.href &&
-                            "bg-primary/15 text-primary font-medium border-l-2 border-primary shadow-sm"
+                            "bg-primary/15 text-primary font-medium border-l-2 border-primary shadow-sm",
                         )}
                       >
                         <Link
@@ -149,7 +149,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             className={cn(
               "w-full justify-start hover:bg-primary/10 hover:text-primary rounded",
               pathname === route.href &&
-                "bg-primary/15 text-primary font-medium border-l-2 border-primary"
+                "bg-primary/15 text-primary font-medium border-l-2 border-primary",
             )}
           >
             <Link
@@ -179,7 +179,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border/50 bg-background/95 backdrop-blur-xl transition-all duration-300 ease-out shadow-xl",
           collapsed ? "w-16" : "w-60",
-          isMobile && !isOpen && "hidden"
+          isMobile && !isOpen && "hidden",
         )}
       >
         <div className="relative flex h-20 items-center justify-between border-b border-border/50 px-4 bg-gradient-to-br from-primary/5 via-background/50 to-accent/5">
@@ -193,11 +193,12 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               <Image
                 src="/images/logo/my_logo.png"
                 alt="Emenu Cambodia Logo"
-                width={140}
-                height={50}
-                className="h-10 w-auto object-contain"
+                width={120}
+                height={120}
+                className="h-14 w-auto object-contain"
                 priority
               />
+
               <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
                 Emenu Cambodia
               </span>
@@ -227,7 +228,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             size="icon"
             onClick={toggleCollapsed}
             className={cn(
-              "relative h-9 w-9 rounded-xl transition-all duration-300 hover:bg-accent/50 hover:scale-110 group"
+              "relative h-9 w-9 rounded-xl transition-all duration-300 hover:bg-accent/50 hover:scale-110 group",
             )}
           >
             <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
