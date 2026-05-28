@@ -1,10 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { ArrowUp } from "lucide-react";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { LANDING_CONFIG } from "@/constants/landing-config";
 
 export default function Footer() {
   const { footer } = LANDING_CONFIG;
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <footer className="bg-gradient-to-b from-white to-slate-50">
@@ -47,9 +54,18 @@ export default function Footer() {
           <div className="border-t border-slate-200 pt-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-base text-slate-600 mb-4">
               <span>© {new Date().getFullYear()} {footer.company}. All rights reserved.</span>
-              <div className="flex gap-6">
-                <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+              <div className="flex items-center gap-6">
+                <div className="flex gap-6">
+                  <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
+                  <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+                </div>
+                <button
+                  onClick={scrollToTop}
+                  className="w-10 h-10 bg-primary hover:bg-primary/90 text-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all group"
+                  aria-label="Scroll to top"
+                >
+                  <ArrowUp className="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
+                </button>
               </div>
             </div>
             <p className="text-center text-sm text-slate-500 mt-6">
