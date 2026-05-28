@@ -73,8 +73,7 @@ export default function FounderSection() {
                     "from-green-50 to-green-100/50 border-green-200"
                   } border-2 group overflow-hidden h-full`}>
                     <div className="absolute top-0 right-0 w-16 h-16 bg-white/40 rounded-full blur-lg group-hover:scale-150 transition-transform duration-300"></div>
-                    <CardContent className="p-4 relative z-10 flex flex-col items-center text-center gap-2">
-                      <span className="text-2xl">{item.icon}</span>
+                    <CardContent className="p-4 relative z-10 flex flex-col items-center text-center">
                       <p className="text-xs font-semibold text-slate-800 leading-tight">
                         {item.text}
                       </p>
@@ -129,24 +128,6 @@ export default function FounderSection() {
                   </p>
                 </CardContent>
               </Card>
-
-              {/* Highlights Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                {founder.highlights.map((highlight, idx) => (
-                  <Card key={highlight} className={`bg-gradient-to-br ${
-                    idx === 0 ? "from-blue-50 to-blue-100/50 border-blue-200" :
-                    idx === 1 ? "from-purple-50 to-purple-100/50 border-purple-200" :
-                    idx === 2 ? "from-pink-50 to-pink-100/50 border-pink-200" :
-                    "from-green-50 to-green-100/50 border-green-200"
-                  } border-2`}>
-                    <CardContent className="p-4">
-                      <p className="text-xs font-bold text-slate-800 text-center">
-                        {highlight}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
             </div>
           </FadeIn>
         </div>
