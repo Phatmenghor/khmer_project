@@ -96,6 +96,17 @@ export default function FounderSection() {
                 </CardContent>
               </Card>
 
+              {/* Story Card */}
+              <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
+                <CardContent className="p-7 relative z-10 flex flex-col">
+                  <h4 className="text-lg font-bold text-slate-900 mb-3">Why Emenu Cambodia?</h4>
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                    {founder.story}
+                  </p>
+                </CardContent>
+              </Card>
+
               {/* Highlights Grid - 2x2 */}
               <div className="grid grid-cols-2 gap-3">
                 {founder.highlights.map((highlight, idx) => (
