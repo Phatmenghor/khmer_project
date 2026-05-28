@@ -97,11 +97,13 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       showToast.success("Account created! Please sign in to continue.");
       reset();
       onClose();
-    } catch (err: unknown) {
-      showToast.error(
-        (err as { message?: string })?.message ||
-          "Registration failed. Please try again."
-      );
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Registration failed. Please try again.";
+      showToast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
