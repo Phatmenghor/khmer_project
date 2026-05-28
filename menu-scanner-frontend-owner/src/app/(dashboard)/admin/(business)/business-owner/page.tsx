@@ -141,6 +141,7 @@ export default function BusinessOwnerPage() {
       await dispatch(
         updateBusinessOwnerService({ ownerId: user.ownerId, data: { autoRenew: checked } })
       ).unwrap();
+      showToast.success(`Auto renew ${checked ? "enabled" : "disabled"} for ${user.businessName || user.ownerFullName}`);
     } catch (error: any) {
       showToast.error(error || "Failed to update auto renew");
     }

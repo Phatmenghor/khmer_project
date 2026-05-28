@@ -136,6 +136,24 @@ export const userBusinessOwnerTableColumns = ({
       ),
     },
     {
+      key: "autoRenew",
+      label: "Auto Renew",
+      minWidth: "100px",
+      maxWidth: "140px",
+      render: (user) => (
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={user.autoRenew ?? false}
+            onCheckedChange={(checked) => handleToggleAutoRenew(user, checked)}
+            aria-label="Toggle auto renew"
+          />
+          <span className="text-xs text-muted-foreground">
+            {user.autoRenew ? "On" : "Off"}
+          </span>
+        </div>
+      ),
+    },
+    {
       key: "daysRemaining",
       label: "Days Remaining",
       minWidth: "10px",
@@ -170,19 +188,6 @@ export const userBusinessOwnerTableColumns = ({
           </span>
         );
       },
-    },
-    {
-      key: "autoRenew",
-      label: "Auto Renew",
-      minWidth: "80px",
-      maxWidth: "120px",
-      render: (user) => (
-        <Switch
-          checked={user.autoRenew ?? false}
-          onCheckedChange={(checked) => handleToggleAutoRenew(user, checked)}
-          aria-label="Toggle auto renew"
-        />
-      ),
     },
     {
       key: "actions",
