@@ -85,7 +85,7 @@ export const LANDING_CONFIG = {
   founder: {
     name: "Phat Menghor",
     title: "Founder & Full-Stack Software Engineer",
-    image: "/images/founder.jpg",
+    image: "/images/hero/founder.jpg",
     bio: "A passionate software engineer from Cambodia with a vision to transform how businesses operate across Asia and the world. With over a decade of experience building enterprise-grade SaaS platforms, Phat recognized a critical gap: many food businesses, especially in developing markets, lack access to affordable digital infrastructure.",
     story: "After working with multiple restaurants and witnessing their struggles with manual operations, outdated systems, and expensive solutions, Phat decided to build something different. Emenu Cambodia was created to democratize restaurant technology—combining world-class features typically found in expensive enterprise software with the simplicity and affordability that small to medium-sized restaurants need.",
     vision: "Empower food businesses globally to compete digitally, streamline operations, increase profitability, and deliver exceptional customer experiences. Every restaurant, regardless of size or location, deserves access to professional digital tools.",
