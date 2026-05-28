@@ -1,6 +1,5 @@
 package com.emenu.features.subscription.service.impl;
 
-import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
 import com.emenu.enums.user.UserType;
 import com.emenu.features.subscription.dto.filter.SubscriptionPlanFilterRequest;
@@ -142,14 +141,6 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     @Transactional(readOnly = true)
     public List<SubscriptionPlanResponse> getAllActivePlans() {
         List<SubscriptionPlan> plans = planRepository.findAllActivePlans();
-        return planMapper.toResponseList(plans);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<SubscriptionPlanResponse> getActivePlanByDurationType(SubscriptionPlanDurationType durationType) {
-        log.info("Fetching active plan with durationType: {}", durationType);
-        List<SubscriptionPlan> plans = planRepository.findByDurationTypeAndStatusPublic(durationType);
         return planMapper.toResponseList(plans);
     }
 }

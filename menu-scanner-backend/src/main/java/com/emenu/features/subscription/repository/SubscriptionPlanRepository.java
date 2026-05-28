@@ -1,6 +1,5 @@
 package com.emenu.features.subscription.repository;
 
-import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
 import com.emenu.features.subscription.models.SubscriptionPlan;
 import org.springframework.data.domain.Page;
@@ -42,14 +41,4 @@ public interface SubscriptionPlanRepository extends JpaRepository<SubscriptionPl
         ORDER BY sp.price ASC
         """)
     List<SubscriptionPlan> findAllActivePlans();
-
-    @Query("""
-        SELECT sp FROM SubscriptionPlan sp
-        WHERE sp.isDeleted = false
-        AND sp.status = 'PUBLIC'
-        AND sp.durationType = :durationType
-        """)
-    List<SubscriptionPlan> findByDurationTypeAndStatusPublic(
-            @Param("durationType") SubscriptionPlanDurationType durationType
-    );
 }
