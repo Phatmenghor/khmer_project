@@ -10,8 +10,7 @@ export function dateTimeFormat(timestamp: string | null | undefined): string {
       year: "numeric",
       hour: "numeric",
       minute: "2-digit",
-      second: "2-digit",
-      hour12: true, // To display AM/PM
+      hour12: true,
     };
 
     // Format the date and time in Cambodia time
