@@ -4,68 +4,60 @@ import FadeIn from "@/components/landing/fade-in";
 
 const steps = [
   {
-    number: "1",
+    number: "01",
     icon: ChefHat,
-    title: "Register Your Restaurant",
+    title: "Register Your Business",
     description:
-      "Sign up free, enter your restaurant details, and get your account ready in minutes.",
+      "Sign up free, enter your business details, and get your account ready in minutes. No credit card required.",
   },
   {
-    number: "2",
+    number: "02",
     icon: Utensils,
     title: "Build Your Digital Menu",
     description:
-      "Add your dishes, photos, prices, and categories. Organize your menu exactly how you want it.",
+      "Add your items, prices, and categories. Upload photos, write descriptions, and organize your menu exactly how you want.",
   },
   {
-    number: "3",
+    number: "03",
     icon: QrCode,
-    title: "Start Accepting Orders",
+    title: "Go Live & Take Orders",
     description:
-      "Print your QR codes, place them on tables, and watch orders come in — all in real-time.",
+      "Print your QR codes, place them on tables, and start receiving real-time orders instantly. Setup done.",
   },
 ];
 
 export default function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="bg-muted/40 py-32">
+    <section id="how-it-works" className="bg-slate-50 py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
-        <FadeIn direction="up" delay={0}>
+        <FadeIn direction="up">
           <div className="text-center mb-16">
-            <Badge variant="outline" className="text-sm px-4 py-1.5 mb-6">
+            <Badge className="mb-5 text-sm px-4 py-1.5 bg-primary/10 text-primary border-0 font-semibold">
               Simple Setup
             </Badge>
-            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-5">
-              Up and Running in Minutes
+            <h2 className="text-5xl sm:text-6xl font-bold text-slate-900 mb-5">
+              Up and Running in 3 Steps
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Three simple steps to transform your restaurant experience.
+            <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+              No technical skills needed. Most businesses are fully live within one hour of signing up.
             </p>
           </div>
         </FadeIn>
 
-        {/* Steps */}
         <div className="grid sm:grid-cols-3 gap-8 mt-16">
           {steps.map(({ number, icon: Icon, title, description }, i) => (
-            <FadeIn key={number} direction="up" delay={i * 150}>
-              <div className="relative text-center sm:text-left">
+            <FadeIn key={title} direction="up" delay={i * 150}>
+              <div className="relative bg-white rounded-3xl p-10 border border-slate-200 hover:border-primary/30 hover:shadow-md transition-all duration-300">
                 {/* Decorative number */}
-                <span className="text-[8rem] font-black text-primary/5 absolute top-0 right-4 leading-none select-none pointer-events-none">
+                <div className="absolute top-6 right-8 text-[5rem] font-black text-slate-100 leading-none select-none pointer-events-none">
                   {number}
-                </span>
-
-                {/* Icon */}
-                <div className="relative z-10 inline-flex sm:flex w-16 h-16 rounded-2xl bg-primary items-center justify-center shadow-lg">
-                  <Icon className="w-8 h-8 text-primary-foreground" />
                 </div>
-
-                <h3 className="text-2xl font-bold text-foreground mt-6 mb-3 relative z-10">
-                  {title}
-                </h3>
-                <p className="text-base text-muted-foreground leading-relaxed relative z-10">
-                  {description}
-                </p>
+                {/* Icon */}
+                <div className="relative w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25 mb-7">
+                  <Icon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">{title}</h3>
+                <p className="text-base text-slate-500 leading-relaxed">{description}</p>
               </div>
             </FadeIn>
           ))}

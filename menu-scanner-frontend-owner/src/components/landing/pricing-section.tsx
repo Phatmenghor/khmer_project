@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -12,166 +12,125 @@ const plans = [
     name: "1 Week",
     duration: "7 Days",
     popular: false,
-    bestValue: false,
-    description: "Perfect for trying out EMenu Cambodia with no commitment.",
+    description: "Perfect for trying out EMenu Cambodia with zero commitment.",
     features: [
       "Digital menu creation",
       "QR code generation",
-      "Basic analytics",
-      "1 restaurant location",
+      "Basic analytics dashboard",
+      "1 business location",
       "Email support",
     ],
-    ctaVariant: "outline" as const,
   },
   {
     name: "1 Month",
     duration: "30 Days",
     popular: true,
-    bestValue: false,
-    description: "The smart choice for restaurants ready to grow their business.",
+    description: "The smart choice for businesses ready to grow and serve more customers.",
     features: [
       "Digital menu creation",
       "QR code generation",
-      "Basic analytics",
-      "1 restaurant location",
-      "Email support",
       "Advanced analytics & reports",
       "Multiple menus",
       "Real-time order notifications",
+      "1 business location",
       "Priority email support",
       "Menu customization",
     ],
-    ctaVariant: "default" as const,
   },
   {
     name: "1 Year",
     duration: "365 Days",
     popular: false,
-    bestValue: true,
-    description:
-      "Full access for established restaurants serious about growth.",
+    description: "Full access for established businesses serious about long-term growth.",
     features: [
-      "Digital menu creation",
-      "QR code generation",
-      "Basic analytics",
-      "1 restaurant location",
-      "Email support",
-      "Advanced analytics & reports",
-      "Multiple menus",
-      "Real-time order notifications",
-      "Priority email support",
-      "Menu customization",
+      "Everything in 1 Month",
       "Multiple locations",
       "Custom branding",
+      "Staff management",
       "Dedicated account manager",
       "API access",
-      "Staff management",
+      "SLA uptime guarantee",
+      "Free onboarding support",
     ],
-    ctaVariant: "outline" as const,
   },
 ];
 
 export default function PricingSection() {
   return (
-    <section id="pricing" className="bg-background py-32">
+    <section id="pricing" className="bg-white py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
-        <FadeIn direction="up" delay={0}>
+        <FadeIn direction="up">
           <div className="text-center mb-16">
-            <Badge variant="outline" className="text-sm px-4 py-1.5 mb-6">
+            <Badge className="mb-5 text-sm px-4 py-1.5 bg-primary/10 text-primary border-0 font-semibold">
               Pricing
             </Badge>
-            <h2 className="text-5xl sm:text-6xl font-bold text-foreground mb-5">
+            <h2 className="text-5xl sm:text-6xl font-bold text-slate-900 mb-5">
               Simple, Transparent Pricing
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              All plans are completely free during our launch period.
+            <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+              All plans are completely free during our launch period. Pick the duration that works for your business.
             </p>
           </div>
         </FadeIn>
 
-        {/* Plan cards */}
-        <div className="grid sm:grid-cols-3 gap-6 mt-16 items-start">
-          {plans.map((plan, i) => (
-            <FadeIn key={plan.name} direction="up" delay={i * 150}>
+        <div className="grid sm:grid-cols-3 gap-6 mt-16">
+          {plans.map(({ name, duration, popular, description, features }, i) => (
+            <FadeIn key={name} direction="up" delay={i * 120}>
               <Card
                 className={cn(
-                  "relative border transition-all duration-200",
-                  plan.popular
-                    ? "ring-2 ring-primary border-primary/30 bg-primary/5"
-                    : "border-border/60"
+                  "relative border-slate-200 transition-all duration-300 h-full flex flex-col",
+                  popular
+                    ? "border-primary ring-2 ring-primary/20 shadow-xl shadow-primary/10"
+                    : "hover:border-slate-300 hover:shadow-md"
                 )}
               >
-                {/* Badge */}
-                {(plan.popular || plan.bestValue) && (
+                {popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <Badge
-                      className={cn(
-                        "text-sm px-4 py-1.5",
-                        plan.popular
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {plan.popular ? "Most Popular" : "Best Value"}
+                    <Badge className="text-sm px-5 py-1.5 bg-primary text-white border-0 shadow-md font-semibold">
+                      Most Popular
                     </Badge>
                   </div>
                 )}
 
-                <CardHeader className="pb-4 pt-8">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-2xl font-bold text-foreground">
-                      {plan.name}
-                    </span>
-                    <Badge variant="outline" className="text-sm px-3 py-1">
-                      {plan.duration}
+                {/* Card header */}
+                <div className={cn(
+                  "px-8 pt-8 pb-6 border-b",
+                  popular ? "bg-primary/5 border-primary/20" : "border-slate-100"
+                )}>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-2xl font-bold text-slate-900">{name}</span>
+                    <Badge variant="outline" className="text-sm border-slate-200 text-slate-500 font-medium">
+                      {duration}
                     </Badge>
                   </div>
-
-                  <div className="flex items-end gap-1 mt-3 mb-1">
-                    <span
-                      className={cn(
-                        "text-6xl font-bold",
-                        plan.popular ? "text-primary" : "text-foreground"
-                      )}
-                    >
+                  <div className="flex items-end gap-2 mb-3">
+                    <span className={cn("text-6xl font-extrabold", popular ? "text-primary" : "text-slate-900")}>
                       $0
                     </span>
-                    <span className="text-xl text-muted-foreground mb-2">
-                      {plan.name === "1 Week"
-                        ? "/week"
-                        : plan.name === "1 Month"
-                        ? "/month"
-                        : "/year"}
-                    </span>
+                    <span className="text-xl text-slate-400 mb-3 font-medium">/ free</span>
                   </div>
+                  <p className="text-base text-slate-500 leading-relaxed">{description}</p>
+                </div>
 
-                  <p className="text-base text-muted-foreground">
-                    {plan.description}
-                  </p>
-                </CardHeader>
-
-                <CardContent className="pt-0 p-10">
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-start gap-3 text-base"
-                      >
-                        <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                        <span className="text-foreground">{feature}</span>
+                <CardContent className="px-8 py-7 flex flex-col flex-1">
+                  <ul className="space-y-3 flex-1">
+                    {features.map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-base text-slate-600">
+                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        {f}
                       </li>
                     ))}
                   </ul>
 
                   <Button
-                    variant={plan.ctaVariant}
-                    className="w-full h-14 text-xl"
+                    variant={popular ? "default" : "outline"}
+                    className={cn(
+                      "w-full h-14 text-xl mt-8",
+                      !popular && "border-slate-200 text-slate-700 hover:bg-slate-50"
+                    )}
                     asChild
                   >
-                    <Link href={ROUTES.PUBLIC.REGISTER}>
-                      Get Started Free
-                    </Link>
+                    <Link href={ROUTES.PUBLIC.REGISTER}>Get Started Free</Link>
                   </Button>
                 </CardContent>
               </Card>

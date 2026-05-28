@@ -27,8 +27,8 @@ export default function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border/50 transition-all duration-200",
-        scrolled ? "shadow-md" : ""
+        "sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all duration-200",
+        scrolled ? "shadow-sm" : ""
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,9 +36,9 @@ export default function Navbar() {
           {/* Logo */}
           <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-              <QrCode className="w-5 h-5 text-primary-foreground" />
+              <QrCode className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg font-bold text-foreground tracking-tight">
+            <span className="text-lg font-bold text-slate-900 tracking-tight">
               EMenu Cambodia
             </span>
           </Link>
@@ -49,21 +49,15 @@ export default function Navbar() {
               <a
                 key={link.label}
                 href={link.href}
-                className="px-4 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                className="px-4 py-2 rounded-md text-base font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
               >
                 {link.label}
               </a>
             ))}
           </nav>
 
-          {/* Desktop actions */}
-          <div className="hidden md:flex items-center gap-3">
-            <Link
-              href={ROUTES.AUTH.LOGIN}
-              className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors px-2"
-            >
-              Sign In
-            </Link>
+          {/* Desktop CTA */}
+          <div className="hidden md:flex items-center">
             <Button className="h-12 px-8 text-base" asChild>
               <Link href={ROUTES.PUBLIC.REGISTER}>Get Started Free</Link>
             </Button>
@@ -76,32 +70,25 @@ export default function Navbar() {
             className="md:hidden w-12 h-12"
             onClick={() => setMobileOpen((v) => !v)}
           >
-            {mobileOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
         </div>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-background px-4 py-4 space-y-1">
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-1">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="block px-4 py-3 rounded-md text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent"
+              className="block px-4 py-3 rounded-md text-base font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100"
             >
               {link.label}
             </a>
           ))}
-          <div className="flex flex-col gap-2 pt-4 border-t border-border mt-3">
-            <Button variant="outline" className="w-full h-12 text-base" asChild>
-              <Link href={ROUTES.AUTH.LOGIN}>Sign In</Link>
-            </Button>
+          <div className="pt-4 border-t border-slate-200 mt-3">
             <Button className="w-full h-12 text-base" asChild>
               <Link href={ROUTES.PUBLIC.REGISTER}>Get Started Free</Link>
             </Button>
