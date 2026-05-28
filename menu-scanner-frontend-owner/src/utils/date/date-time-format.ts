@@ -1,24 +1,22 @@
 export function dateTimeFormat(timestamp: string | null | undefined): string {
-  if (timestamp) {
-    const date = new Date(timestamp);
+  if (!timestamp) return "- - -";
+  const date = new Date(timestamp);
+  if (isNaN(date.getTime())) return "- - -";
 
-    // Convert to Cambodia time (UTC +7)
-    const options: Intl.DateTimeFormatOptions = {
-      timeZone: "Asia/Phnom_Penh",
-      month: "numeric",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    };
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Phnom_Penh",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  }).formatToParts(date);
 
-    // Format the date and time in Cambodia time
-    const formattedDateTime = date.toLocaleString("en-US", options);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
 
-    return formattedDateTime;
-  }
-  return "- - -";
+  return `${get("day")}/${get("month")}/${get("year")}, ${get("hour")}:${get("minute")}:${get("second")} ${get("dayPeriod")}`;
 }
 
 export function formatDate(dateStr: string | null | undefined): string | undefined {
