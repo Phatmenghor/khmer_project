@@ -34,7 +34,7 @@ export default function HeroSection() {
       <div className="max-w-[1330px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
             <FadeIn direction="right" delay={0}>
-              <div className="flex flex-col justify-center h-full space-y-8 sm:space-y-10">
+              <div className="flex flex-col justify-start h-full space-y-8 sm:space-y-10">
                 {/* Headline */}
                 <div className="space-y-3 sm:space-y-4">
                   <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.1] tracking-tight bg-gradient-to-r from-slate-900 via-primary to-slate-900 bg-clip-text text-transparent">
@@ -86,7 +86,7 @@ export default function HeroSection() {
 
             {/* Mobile App Image - Right side */}
             <FadeIn direction="left" delay={100}>
-              <div className="relative h-full min-h-[500px] lg:min-h-[650px] rounded-3xl overflow-hidden shadow-2xl group">
+              <div className="relative h-auto min-h-[450px] lg:min-h-[550px] rounded-3xl overflow-hidden shadow-2xl group">
                 <Image
                   src="/images/hero/mobile-restaurant.jpg"
                   alt="Emenu Cambodia Mobile App"
