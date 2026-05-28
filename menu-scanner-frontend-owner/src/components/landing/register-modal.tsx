@@ -262,52 +262,42 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-3 pt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={onClose}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1 bg-primary hover:bg-primary/90"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating account...
-                    </>
-                  ) : (
-                    "Create Account & Start Free Trial"
+              {/* Footer with buttons inside form */}
+              <div className="flex justify-between items-center pt-6 -mx-6 -mb-6 px-6 py-4 border-t bg-muted/30">
+                <div className="text-sm text-muted-foreground flex items-center gap-2">
+                  {isSubmitting && (
+                    <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
                   )}
-                </Button>
+                  <span>{isSubmitting ? "Creating account..." : "Ready to create account"}</span>
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onClose}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-primary hover:bg-primary/90"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      "Create Account"
+                    )}
+                  </Button>
+                </div>
               </div>
-
-              <p className="text-center text-xs text-muted-foreground mt-4">
-                By registering you agree to our{" "}
-                <a href="#" className="text-primary hover:underline">
-                  Terms of Service
-                </a>
-                {" "}and{" "}
-                <a href="#" className="text-primary hover:underline">
-                  Privacy Policy
-                </a>
-                .
-              </p>
             </form>
           </div>
         </ScrollArea>
-
-        {/* Footer */}
-        <div className="px-6 py-4 border-t bg-muted/30 flex-shrink-0">
-          <p className="text-xs text-muted-foreground text-center">✓ No credit card required  •  ✓ Full access to all features  •  ✓ Cancel anytime</p>
-        </div>
       </DialogContent>
     </Dialog>
   );
