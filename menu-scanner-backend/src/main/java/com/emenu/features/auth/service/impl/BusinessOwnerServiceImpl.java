@@ -205,7 +205,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         newSubscription.setStartDate(newStartDate);
         newSubscription.setEndDate(planToUse.calculateEndDate(newStartDate));
         newSubscription.setAutoRenew(currentSubscription.getAutoRenew());
-        subscriptionRepository.save(newSubscription);
+        newSubscription = subscriptionRepository.save(newSubscription);
 
         // Always create a payment record for this renewal
         BigDecimal amount = renewRequestData.getPaymentAmount() != null
