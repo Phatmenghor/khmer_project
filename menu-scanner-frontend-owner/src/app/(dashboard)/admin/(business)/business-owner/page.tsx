@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAppSelector } from "@/redux/store";
 import { setGlobalPageSize } from "@/redux/store/slices/global-settings-slice";
@@ -31,6 +31,7 @@ import {
   setPageNo,
   setSearchFilter,
   setSubscriptionStatusFilter,
+  updateBusinessOwnerDataSilently,
 } from "@/redux/features/auth/store/slice/business-owner-slice";
 import {
   deleteBusinessOwnerService,
@@ -89,6 +90,7 @@ export default function BusinessOwnerPage() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const wsVersion = useAppSelector((state) => state.websocket.versions.businessOwner);
   const debouncedSearch = useDebounce(filters.search, 400);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.DASHBOARD.BUSINESS_OWNER,
@@ -103,6 +105,7 @@ export default function BusinessOwnerPage() {
     }
   }, [searchParams, filters.pageNo, dispatch]);
 
+  // Initial fetch on filter/page change
   useEffect(() => {
     dispatch(
       fetchAllBusinessOwnerService({
@@ -122,6 +125,44 @@ export default function BusinessOwnerPage() {
       })
     );
   }, [dispatch, debouncedSearch, filters.subscriptionStatus, filters.autoRenew, filters.pageNo, globalPageSize, wsVersion]);
+
+  // Background polling for real-time updates (silent refresh every 30 seconds)
+  useEffect(() => {
+    const startPolling = () => {
+      pollingIntervalRef.current = setInterval(async () => {
+        try {
+          const { axiosClientWithAuth } = await import("@/utils/axios");
+          const response = await axiosClientWithAuth.post("/api/v1/business-owners/all", {
+            search: debouncedSearch,
+            pageNo: filters.pageNo,
+            pageSize: globalPageSize,
+            subscriptionStatuses:
+              filters.subscriptionStatus === SubscriptionStatus.ALL
+                ? []
+                : [filters.subscriptionStatus],
+            autoRenew:
+              filters.autoRenew === Status.ACTIVE
+                ? true
+                : filters.autoRenew === Status.INACTIVE
+                ? false
+                : undefined,
+          });
+          // Silently update data without showing loading indicator
+          dispatch(updateBusinessOwnerDataSilently(response.data.data));
+        } catch (error) {
+          // Silent error - don't disrupt user experience
+        }
+      }, 30000); // Refresh every 30 seconds
+    };
+
+    startPolling();
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, [dispatch, debouncedSearch, filters.subscriptionStatus, filters.autoRenew, filters.pageNo, globalPageSize]);
 
   const handleViewUserDetail = (user: BusinessOwnerResponseModel) => {
     setDetailModalState({ isOpen: true, ownerId: user.ownerId || "" });

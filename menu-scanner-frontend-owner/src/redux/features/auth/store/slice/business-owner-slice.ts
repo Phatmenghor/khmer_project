@@ -85,6 +85,12 @@ const businessOwnerSlice = createSlice({
     resetState: () => {
       return initialState;
     },
+
+    // Silent background update (no loading indicator)
+    updateBusinessOwnerDataSilently: (state, action: PayloadAction<any>) => {
+      state.data = action.payload;
+      state.error = null;
+    },
   },
 
   extraReducers: (builder) => {
@@ -279,6 +285,7 @@ export const {
   clearSelectedBusinessOwner,
   resetFilters,
   resetState,
+  updateBusinessOwnerDataSilently,
 } = businessOwnerSlice.actions;
 
 export default businessOwnerSlice.reducer;
