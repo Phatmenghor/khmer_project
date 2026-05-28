@@ -6,9 +6,17 @@ import { cn } from "@/lib/utils";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { LANDING_CONFIG } from "@/constants/landing-config";
+import { RegisterModal } from "./register-modal";
+import { useState } from "react";
 
 export default function PricingSection() {
-  return (
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>();
+
+  const handlePlanClick = (planName: string) => {
+    setSelectedPlan(planName);
+    setIsModalOpen(true);
+  };
     <section id="pricing" className="relative py-24">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
@@ -79,15 +87,15 @@ export default function PricingSection() {
                   </ul>
 
                   <Button
+                    onClick={() => handlePlanClick(name)}
                     className={cn(
                       "w-full h-14 mt-8 font-bold text-base rounded-xl transition-all",
                       highlighted
                         ? "bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-lg hover:shadow-xl"
                         : "border-2 border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/60"
                     )}
-                    asChild
                   >
-                    <Link href={ROUTES.PUBLIC.REGISTER}>Get Started Free</Link>
+                    Get Started Free
                   </Button>
                 </CardContent>
               </Card>
@@ -95,6 +103,13 @@ export default function PricingSection() {
           ))}
         </div>
       </div>
+
+      {/* Register Modal */}
+      <RegisterModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        plan={selectedPlan}
+      />
     </section>
   );
 }
