@@ -42,9 +42,17 @@ export function SubscriptionHistoryDetailModal({
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center gap-4 pr-8">
             <div className="h-14 w-14 rounded-lg overflow-hidden bg-primary/10 border border-border flex-shrink-0 flex items-center justify-center">
-              <span className="text-lg font-semibold text-primary">
-                {h?.businessName?.charAt(0)?.toUpperCase() || "S"}
-              </span>
+              {h?.logoBusinessUrl ? (
+                <img
+                  src={h.logoBusinessUrl}
+                  alt={h.businessName || "Business"}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-lg font-semibold text-primary">
+                  {h?.businessName?.charAt(0)?.toUpperCase() || "S"}
+                </span>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-foreground">

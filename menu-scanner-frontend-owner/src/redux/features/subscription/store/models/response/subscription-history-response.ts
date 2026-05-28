@@ -16,6 +16,7 @@ export interface SubscriptionHistoryResponseModel {
   subscriptionId: string;
   businessId: string;
   businessName: string;
+  logoBusinessUrl?: string;
   planId: string;
   planName: string;
   planPrice: number;

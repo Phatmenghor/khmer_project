@@ -17,6 +17,7 @@ public class SubscriptionHistoryResponse {
     private UUID subscriptionId;
     private UUID businessId;
     private String businessName;
+    private String logoBusinessUrl;
     private UUID planId;
     private String planName;
     private BigDecimal planPrice;

@@ -5,6 +5,7 @@ import com.emenu.enums.sub_scription.SubscriptionPaymentStatus;
 import com.emenu.enums.sub_scription.SubscriptionPaymentType;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.repository.BusinessRepository;
+import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.subscription.dto.filter.SubscriptionHistoryFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionCancelRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionRenewRequest;
@@ -41,6 +42,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionPlanRepository planRepository;
     private final BusinessRepository businessRepository;
+    private final BusinessSettingRepository businessSettingRepository;
     private final SubscriptionPaymentRepository subscriptionPaymentRepository;
     private final PaginationMapper paginationMapper;
 
@@ -150,6 +152,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         if (subscription.getBusiness() != null) {
             response.setBusinessName(subscription.getBusiness().getName());
         }
+        businessSettingRepository.findByBusinessIdAndIsDeletedFalse(subscription.getBusinessId())
+                .ifPresent(s -> response.setLogoBusinessUrl(s.getLogoBusinessUrl()));
         if (subscription.getPlan() != null) {
             SubscriptionPlan plan = subscription.getPlan();
             response.setPlanId(plan.getId());
