@@ -7,29 +7,10 @@ import { Button } from "@/components/ui/button";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 
-const typewriterStyles = `
-  @keyframes typewriter {
-    0% { max-width: 0; }
-    100% { max-width: 100%; }
-  }
-
-  @keyframes blink {
-    0%, 49% { border-right-color: transparent; }
-    50%, 100% { border-right-color: currentColor; }
-  }
-
+const scrollStyles = `
   @keyframes scroll-bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(10px); }
-  }
-
-  .typewriter {
-    overflow: hidden;
-    display: inline-block;
-    white-space: nowrap;
-    animation: typewriter 2.8s steps(23, end) forwards, blink 0.75s step-end infinite 2.8s;
-    border-right: 3px solid;
-    border-right-color: currentColor;
   }
 
   .scroll-indicator {
@@ -40,7 +21,7 @@ const typewriterStyles = `
 export default function HeroSection() {
   return (
     <>
-      <style>{typewriterStyles}</style>
+      <style>{scrollStyles}</style>
       <section className="relative overflow-hidden pt-16 sm:pt-24 pb-20 sm:pb-24">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
@@ -53,12 +34,12 @@ export default function HeroSection() {
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
             <FadeIn direction="right" delay={0}>
               <div className="space-y-6 sm:space-y-8 flex flex-col justify-center">
-              {/* Headline with Typewriter Effect */}
+              {/* Headline */}
               <div>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-slate-900">
-                <span className="typewriter inline-block" style={{animationDelay: "0.3s"}}>Transform Your Business</span>
+                Transform Your Business
                 <br />
-                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent animate-pulse" style={{animationDelay: "3.1s"}}>Into a Digital Powerhouse</span>
+                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent animate-pulse">Into a Digital Powerhouse</span>
               </h1>
             </div>
 
