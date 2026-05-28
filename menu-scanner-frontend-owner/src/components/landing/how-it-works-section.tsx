@@ -1,5 +1,4 @@
 import { ChefHat, Utensils, QrCode } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import FadeIn from "@/components/landing/fade-in";
 
 const steps = [
@@ -28,17 +27,14 @@ const steps = [
 
 export default function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="bg-slate-50 py-32">
+    <section id="how-it-works" className="bg-white py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn direction="up">
           <div className="text-center mb-16">
-            <Badge className="mb-5 text-sm px-4 py-1.5 bg-primary/10 text-primary border-0 font-semibold">
-              Simple Setup
-            </Badge>
             <h2 className="text-5xl sm:text-6xl font-bold text-slate-900 mb-5">
-              Up and Running in 3 Steps
+              Get Started in 3 Simple Steps
             </h2>
-            <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
               No technical skills needed. Most businesses are fully live within one hour of signing up.
             </p>
           </div>
@@ -47,17 +43,17 @@ export default function HowItWorksSection() {
         <div className="grid sm:grid-cols-3 gap-8 mt-16">
           {steps.map(({ number, icon: Icon, title, description }, i) => (
             <FadeIn key={title} direction="up" delay={i * 150}>
-              <div className="relative bg-white rounded-3xl p-10 border border-slate-200 hover:border-primary/30 hover:shadow-md transition-all duration-300">
+              <div className="relative bg-white rounded-2xl p-10 border border-slate-200 hover:border-amber-700/40 hover:shadow-lg transition-all duration-300">
                 {/* Decorative number */}
-                <div className="absolute top-6 right-8 text-[5rem] font-black text-slate-100 leading-none select-none pointer-events-none">
+                <div className="absolute top-6 right-8 text-[5rem] font-black text-amber-100 leading-none select-none pointer-events-none">
                   {number}
                 </div>
                 {/* Icon */}
-                <div className="relative w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25 mb-7">
-                  <Icon className="w-8 h-8 text-white" />
+                <div className="relative w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center shadow-md shadow-amber-700/10 mb-7 text-amber-700">
+                  <Icon className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-3">{title}</h3>
-                <p className="text-base text-slate-500 leading-relaxed">{description}</p>
+                <p className="text-base text-slate-600 leading-relaxed">{description}</p>
               </div>
             </FadeIn>
           ))}
