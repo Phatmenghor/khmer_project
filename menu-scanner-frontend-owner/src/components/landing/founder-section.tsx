@@ -46,10 +46,9 @@ export default function FounderSection() {
                   </div>
                   <div className="flex flex-col gap-3">
                     <h3 className="text-3xl font-bold text-primary">@{founder.contact.social}</h3>
-                    <p className="text-sm text-primary font-semibold">Emenu Cambodia</p>
-                    <div className="space-y-2 pt-2">
+                    <div className="space-y-2">
                       <p className="text-base text-slate-900">
-                        <span className="font-semibold">Title:</span> {founder.title}
+                        <span className="font-semibold">Title:</span> Founder Emenu Cambodia & Full-Stack Software Engineer
                       </p>
                       <p className="text-base text-slate-900">
                         <span className="font-semibold">Location:</span> {founder.contact.location}
