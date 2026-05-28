@@ -1,11 +1,8 @@
 import FadeIn from "@/components/landing/fade-in";
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp } from "lucide-react";
 import { LANDING_CONFIG } from "@/constants/landing-config";
 
 export default function StatsSection() {
-  const statIcons = ["🚀", "📈", "⭐", "⚡"];
-
   return (
     <section className="relative py-24">
       {/* Animated Background */}
@@ -35,9 +32,6 @@ export default function StatsSection() {
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
 
                 <CardContent className="p-8 text-center relative z-10">
-                  <div className="text-5xl mb-3">
-                    {statIcons[i]}
-                  </div>
                   <div className="text-5xl font-bold text-primary mb-3">{number}</div>
                   <div className="text-base font-bold text-slate-900 mb-2">{label}</div>
                   <div className="text-sm text-slate-700 font-medium">{description}</div>
