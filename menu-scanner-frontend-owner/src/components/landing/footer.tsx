@@ -18,9 +18,9 @@ export default function Footer() {
                 <Image
                   src="/images/logo/my_logo.png"
                   alt="Emenu Cambodia Logo"
-                  width={100}
-                  height={50}
-                  className="h-12 w-auto"
+                  width={150}
+                  height={80}
+                  className="h-16 w-auto"
                   priority
                 />
               </Link>
