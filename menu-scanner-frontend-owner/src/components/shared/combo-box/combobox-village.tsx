@@ -207,18 +207,18 @@ export function ComboboxSelectVillage({
                     key={item.id}
                     value={item.villageEn || item.villageKh}
                     onSelect={() => handleSelect(item)}
-                    className={sizeClasses[size]}
+                    className="min-h-fit py-2 px-2 whitespace-normal"
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "mr-2 h-4 w-4 shrink-0",
                         (item.id === "all" && !dataSelect) ||
                           dataSelect?.id === item.id
                           ? "opacity-100"
                           : "opacity-0"
                       )}
                     />
-                    {item.villageEn || item.villageKh}
+                    <span className="break-words">{item.villageEn || item.villageKh}</span>
                   </CommandItem>
                 ))}
               </CommandGroup>
