@@ -127,10 +127,10 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
     @Override
     public BusinessOwnerCreateResponse registerBusinessOwner(BusinessOwnerPublicRegisterRequest registerRequest) {
-        log.info("Public business owner registration initiated: business_name={}, owner_email={}",
-                registerRequest.getBusinessName(), registerRequest.getOwnerEmail());
+        log.info("Public business owner registration initiated: business_name={}, owner_email={}, planId={}",
+                registerRequest.getBusinessName(), registerRequest.getOwnerEmail(), registerRequest.getPlanId());
 
-        // Convert public registration request to create request without plan
+        // Convert public registration request to create request
         BusinessOwnerCreateRequest createRequest = BusinessOwnerCreateRequest.builder()
                 .ownerUserIdentifier(registerRequest.getOwnerUserIdentifier())
                 .ownerEmail(registerRequest.getOwnerEmail())
@@ -141,10 +141,10 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 .businessEmail(registerRequest.getBusinessEmail())
                 .businessPhone(registerRequest.getBusinessPhone())
                 .businessAddress(registerRequest.getBusinessAddress())
-                .planId(null)
+                .planId(registerRequest.getPlanId())
                 .build();
 
-        // Validate using existing validation (without plan requirement)
+        // Validate using existing validation
         validateBusinessOwnerCreation(createRequest);
 
         Business businessEntity = createBusiness(createRequest);
@@ -153,11 +153,22 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         businessEntity.setOwnerId(ownerUserEntity.getId());
         businessRepository.save(businessEntity);
 
-        BusinessOwnerCreateResponse response = mapper.toCreateResponse(ownerUserEntity, businessEntity, null, null);
-        response.setCreatedComponents(buildCreatedComponentsList(false));
+        Subscription subscriptionRecord = null;
+        SubscriptionPayment paymentRecord = null;
 
-        log.info("Business owner registered successfully via public registration: owner_id={}, business_id={}",
-                ownerUserEntity.getId(), businessEntity.getId());
+        // Create subscription if plan was selected during registration
+        if (createRequest.getPlanId() != null) {
+            subscriptionRecord = createSubscription(businessEntity.getId(), createRequest);
+            paymentRecord = createSubscriptionPayment(subscriptionRecord, createRequest);
+            businessEntity.activateSubscription();
+            businessRepository.save(businessEntity);
+        }
+
+        BusinessOwnerCreateResponse response = mapper.toCreateResponse(ownerUserEntity, businessEntity, subscriptionRecord, paymentRecord);
+        response.setCreatedComponents(buildCreatedComponentsList(paymentRecord != null));
+
+        log.info("Business owner registered successfully via public registration: owner_id={}, business_id={}, subscription_id={}",
+                ownerUserEntity.getId(), businessEntity.getId(), subscriptionRecord != null ? subscriptionRecord.getId() : null);
         webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "registered", "ownerId", ownerUserEntity.getId().toString()));
 
         return response;

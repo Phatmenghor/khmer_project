@@ -41,6 +41,7 @@ const schema = z
 type FormData = z.infer<typeof schema>;
 
 interface PlanData {
+  id?: string;
   name: string;
   price: string;
   period: string;
@@ -83,7 +84,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
   async function onSubmit(values: FormData) {
     setIsSubmitting(true);
     try {
-      await axiosClient.post("/api/v1/business-owners/register", {
+      const payload: any = {
         ownerFullName: values.ownerFullName,
         ownerUserIdentifier: values.ownerUserIdentifier,
         ownerEmail: values.ownerEmail,
@@ -93,7 +94,14 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         businessEmail: values.businessEmail,
         businessPhone: values.businessPhone,
         businessAddress: values.businessAddress,
-      });
+      };
+
+      // Include planId if user selected a plan from pricing page
+      if (plan?.id) {
+        payload.planId = plan.id;
+      }
+
+      await axiosClient.post("/api/v1/business-owners/register", payload);
       showToast.success("Account created! Please sign in to continue.");
       reset();
       onClose();
