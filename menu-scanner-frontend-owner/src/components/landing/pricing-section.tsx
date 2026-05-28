@@ -108,6 +108,7 @@ export default function PricingSection() {
                         : "border-2 border-primary text-primary hover:bg-primary hover:text-white"
                     )}
                   >
+                    Get Started
                   </Button>
                 </CardContent>
               </Card>
