@@ -34,14 +34,14 @@ export function ScrollToTop() {
       onClick={scrollToTop}
       size="icon"
       className={cn(
-        "fixed bottom-6 right-6 z-50 h-12 w-12 rounded-full shadow-lg transition-all duration-300 bg-primary hover:bg-primary/90",
+        "fixed bottom-6 right-6 z-50 h-12 w-12 rounded-full shadow-lg transition-all duration-500 ease-in-out bg-primary hover:bg-primary/90 hover:shadow-2xl group",
         isVisible
-          ? "translate-y-0 opacity-100"
-          : "translate-y-16 opacity-0 pointer-events-none"
+          ? "translate-y-0 opacity-100 pointer-events-auto"
+          : "translate-y-20 opacity-0 pointer-events-none"
       )}
       aria-label="Scroll to top"
     >
-      <ArrowUp className="h-5 w-5" />
+      <ArrowUp className="h-5 w-5 group-hover:-translate-y-1 transition-transform duration-300" />
     </Button>
   );
 }
