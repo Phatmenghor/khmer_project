@@ -102,6 +102,8 @@ export const subscriptionHistoryTableColumns = ({
         const colorClass =
           row.status === "ACTIVE"
             ? "text-green-600 font-medium"
+            : row.status === "CANCELLED"
+            ? "text-orange-500 font-medium"
             : "text-red-500";
         return (
           <span className={`text-xs ${colorClass}`}>{row.status || "---"}</span>
@@ -114,7 +116,7 @@ export const subscriptionHistoryTableColumns = ({
       minWidth: "80px",
       maxWidth: "100px",
       render: (row) => {
-        if (row.status === "EXPIRED") {
+        if (row.status === "EXPIRED" || row.status === "CANCELLED") {
           return <span className="text-xs text-muted-foreground">—</span>;
         }
         const days = row.daysRemaining ?? 0;

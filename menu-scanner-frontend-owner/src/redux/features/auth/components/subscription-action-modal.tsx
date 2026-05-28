@@ -235,7 +235,7 @@ export default function SubscriptionActionModal({
             </div>
             <div className="bg-background border border-border rounded-md px-3 py-1.5 flex items-center gap-2">
               <span className="text-muted-foreground">Status</span>
-              <span className={`font-semibold ${owner?.subscriptionStatus === "ACTIVE" ? "text-green-600" : owner?.subscriptionStatus === "EXPIRING_SOON" ? "text-yellow-600" : "text-red-500"}`}>
+              <span className={`font-semibold ${owner?.subscriptionStatus === "ACTIVE" ? "text-green-600" : owner?.subscriptionStatus === "EXPIRING_SOON" ? "text-yellow-600" : owner?.subscriptionStatus === "CANCELLED" ? "text-orange-500" : "text-red-500"}`}>
                 {owner?.subscriptionStatus || "---"}
               </span>
             </div>
@@ -424,7 +424,7 @@ export default function SubscriptionActionModal({
                             <td className="px-4 py-3 text-xs text-muted-foreground">{row.startDate || "---"}</td>
                             <td className="px-4 py-3 text-xs text-muted-foreground">{row.endDate || "---"}</td>
                             <td className="px-4 py-3 text-xs">
-                              <span className={row.status === "ACTIVE" ? "text-green-600 font-medium" : "text-red-500"}>{row.status || "---"}</span>
+                              <span className={row.status === "ACTIVE" ? "text-green-600 font-medium" : row.status === "CANCELLED" ? "text-orange-500 font-medium" : "text-red-500"}>{row.status || "---"}</span>
                             </td>
                             <td className="px-4 py-3 text-xs">
                               <span className={row.paymentStatus === "PAID" ? "text-green-600 font-medium" : row.paymentStatus === "PENDING" || row.paymentStatus === "PARTIALLY_PAID" ? "text-yellow-600 font-medium" : "text-red-500"}>

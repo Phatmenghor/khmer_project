@@ -117,7 +117,7 @@ export function SubscriptionHistoryDetailModal({
                     <DisplayField label="End Date" value={h.endDate || "---"} />
                     <DisplayField
                       label="Days Remaining"
-                      value={h.status === "EXPIRED" ? "Expired" : `${h.daysRemaining} days`}
+                      value={h.status === "EXPIRED" ? "Expired" : h.status === "CANCELLED" ? "Cancelled" : `${h.daysRemaining} days`}
                     />
                     <DisplayField
                       label="Auto Renew"
