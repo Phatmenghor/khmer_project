@@ -44,26 +44,36 @@ export default function FounderSection() {
                       priority
                     />
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <h3 className="text-3xl font-bold text-slate-900">{founder.name}</h3>
+                  <div className="flex flex-col gap-3">
+                    <h3 className="text-3xl font-bold text-primary">@{founder.contact.social}</h3>
                     <p className="text-sm text-primary font-semibold">Emenu Cambodia</p>
-                    <p className="text-lg text-primary font-bold">{founder.title}</p>
-                    <p className="text-base text-slate-700 font-medium">{founder.contact.location}</p>
-                    <div className="flex flex-col gap-2 pt-2">
-                      <a
-                        href={`mailto:${founder.contact.email}`}
-                        className="text-primary hover:text-primary/80 font-semibold transition-colors text-sm"
-                      >
-                        {founder.contact.email}
-                      </a>
-                      <a
-                        href={founder.contact.telegram}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:text-primary/80 font-semibold transition-colors text-sm"
-                      >
-                        @{founder.contact.social}
-                      </a>
+                    <div className="space-y-2 pt-2">
+                      <p className="text-base text-slate-900">
+                        <span className="font-semibold">Title:</span> {founder.title}
+                      </p>
+                      <p className="text-base text-slate-900">
+                        <span className="font-semibold">Location:</span> {founder.contact.location}
+                      </p>
+                      <p className="text-base text-slate-900">
+                        <span className="font-semibold">Email:</span>{" "}
+                        <a
+                          href={`mailto:${founder.contact.email}`}
+                          className="text-primary hover:text-primary/80 transition-colors"
+                        >
+                          {founder.contact.email}
+                        </a>
+                      </p>
+                      <p className="text-base text-slate-900">
+                        <span className="font-semibold">Telegram:</span>{" "}
+                        <a
+                          href={founder.contact.telegram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary/80 transition-colors"
+                        >
+                          @{founder.contact.social}
+                        </a>
+                      </p>
                     </div>
                   </div>
                 </CardContent>
