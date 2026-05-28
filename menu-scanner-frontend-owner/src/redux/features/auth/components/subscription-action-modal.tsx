@@ -235,7 +235,7 @@ export default function SubscriptionActionModal({
             </div>
             <div className="bg-background border border-border rounded-md px-3 py-1.5 flex items-center gap-2">
               <span className="text-muted-foreground">Status</span>
-              <span className={`font-semibold ${owner?.subscriptionStatus === "ACTIVE" ? "text-green-600" : owner?.subscriptionStatus === "EXPIRING_SOON" ? "text-yellow-600" : owner?.subscriptionStatus === "CANCELLED" ? "text-orange-500" : "text-red-500"}`}>
+              <span className={`font-semibold ${owner?.subscriptionStatus === "ACTIVE" ? "text-green-600" : owner?.subscriptionStatus === "EXPIRING_SOON" ? "text-yellow-600" : owner?.subscriptionStatus === "CANCELLED" ? "text-orange-500" : owner?.subscriptionStatus === "CHANGE_PLAN" ? "text-blue-600" : "text-red-500"}`}>
                 {owner?.subscriptionStatus || "---"}
               </span>
             </div>

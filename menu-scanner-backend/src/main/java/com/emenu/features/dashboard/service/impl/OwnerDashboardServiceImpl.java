@@ -180,14 +180,19 @@ public class OwnerDashboardServiceImpl implements OwnerDashboardService {
                 "SELECT COUNT(s) FROM Subscription s WHERE s.isDeleted = false AND s.cancellationReason IS NOT NULL")
                 .getSingleResult();
 
-        long total = active + expired + cancelled;
+        Long planChanged = (Long) em.createQuery(
+                "SELECT COUNT(s) FROM Subscription s WHERE s.isDeleted = false AND s.planChangeReason IS NOT NULL")
+                .getSingleResult();
+
+        long total = active + expired + cancelled + planChanged;
 
         return OwnerDashboardStatusBreakdownResponse.builder()
-                .active(active).expiringSoon(expiringSoon).expired(expired).cancelled(cancelled).total(total)
+                .active(active).expiringSoon(expiringSoon).expired(expired).cancelled(cancelled).planChanged(planChanged).total(total)
                 .activePercent(total > 0 ? roundOne(active * 100.0 / total) : 0.0)
                 .expiringSoonPercent(total > 0 ? roundOne(expiringSoon * 100.0 / total) : 0.0)
                 .expiredPercent(total > 0 ? roundOne(expired * 100.0 / total) : 0.0)
                 .cancelledPercent(total > 0 ? roundOne(cancelled * 100.0 / total) : 0.0)
+                .planChangedPercent(total > 0 ? roundOne(planChanged * 100.0 / total) : 0.0)
                 .build();
     }
 

@@ -28,11 +28,13 @@ export interface OwnerDashboardStatusBreakdownResponse {
   expiringSoon: number;
   expired: number;
   cancelled: number;
+  planChanged: number;
   total: number;
   activePercent: number;
   expiringSoonPercent: number;
   expiredPercent: number;
   cancelledPercent: number;
+  planChangedPercent: number;
 }
 
 export interface RecentOwner {

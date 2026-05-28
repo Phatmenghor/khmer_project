@@ -119,6 +119,13 @@ export function SubscriptionStatusCard({
               barColor="bg-orange-500"
               textColor="text-orange-600 dark:text-orange-400"
             />
+            <StatusRow
+              label="Plan Changed"
+              count={statusBreakdown.planChanged}
+              percent={statusBreakdown.planChangedPercent}
+              barColor="bg-blue-500"
+              textColor="text-blue-600 dark:text-blue-400"
+            />
           </>
         ) : (
           <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
