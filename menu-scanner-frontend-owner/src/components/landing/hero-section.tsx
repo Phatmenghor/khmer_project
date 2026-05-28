@@ -27,7 +27,7 @@ const typewriterStyles = `
     overflow: hidden;
     display: inline-block;
     white-space: nowrap;
-    animation: typewriter 3.5s steps(45, end) forwards, blink 0.75s step-end infinite 3.5s;
+    animation: typewriter 2.8s steps(23, end) forwards, blink 0.75s step-end infinite 2.8s;
     border-right: 3px solid;
     border-right-color: currentColor;
   }
@@ -58,7 +58,7 @@ export default function HeroSection() {
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-slate-900">
                 <span className="typewriter inline-block" style={{animationDelay: "0.3s"}}>Transform Your Business</span>
                 <br />
-                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent animate-pulse" style={{animationDelay: "3.8s"}}>Into a Digital Powerhouse</span>
+                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent animate-pulse" style={{animationDelay: "3.1s"}}>Into a Digital Powerhouse</span>
               </h1>
             </div>
 
