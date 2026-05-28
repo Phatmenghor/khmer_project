@@ -3,6 +3,7 @@ import { indexDisplay } from "@/utils/common/common";
 import { formatDate } from "@/utils/date/date-time-format";
 import { Edit, Eye, RotateCw, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
+import { Switch } from "@/components/ui/switch";
 import {
   AllBusinessOwnerResponseModel,
   BusinessOwnerResponseModel,
@@ -13,6 +14,7 @@ interface BusinessOwnerTableHandlers {
   handleEditOwner: (user: BusinessOwnerResponseModel) => void;
   handleResetPassword: (user: BusinessOwnerResponseModel) => void;
   handleDeleteUser: (user: BusinessOwnerResponseModel) => void;
+  handleToggleAutoRenew: (user: BusinessOwnerResponseModel, checked: boolean) => void;
 }
 
 interface BusinessOwnerTableOptions {
@@ -24,7 +26,7 @@ export const userBusinessOwnerTableColumns = ({
   data,
   handlers,
 }: BusinessOwnerTableOptions): TableColumn<BusinessOwnerResponseModel>[] => {
-  const { handleViewUserDetail, handleEditOwner, handleResetPassword, handleDeleteUser } = handlers;
+  const { handleViewUserDetail, handleEditOwner, handleResetPassword, handleDeleteUser, handleToggleAutoRenew } = handlers;
 
   return [
     {
@@ -168,6 +170,19 @@ export const userBusinessOwnerTableColumns = ({
           </span>
         );
       },
+    },
+    {
+      key: "autoRenew",
+      label: "Auto Renew",
+      minWidth: "80px",
+      maxWidth: "120px",
+      render: (user) => (
+        <Switch
+          checked={user.autoRenew ?? false}
+          onCheckedChange={(checked) => handleToggleAutoRenew(user, checked)}
+          aria-label="Toggle auto renew"
+        />
+      ),
     },
     {
       key: "actions",

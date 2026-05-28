@@ -290,6 +290,14 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
             businessRepository.save(businessEntity);
         }
 
+        if (request.getAutoRenew() != null && ownerEntity.getBusiness() != null) {
+            subscriptionRepository.findCurrentActiveByBusinessId(ownerEntity.getBusiness().getId(), LocalDateTime.now())
+                    .ifPresent(sub -> {
+                        sub.setAutoRenew(request.getAutoRenew());
+                        subscriptionRepository.save(sub);
+                    });
+        }
+
         log.info("Business owner updated successfully: owner_id={}", ownerId);
         return buildEnrichedDetailResponse(ownerEntity);
     }

@@ -31,4 +31,7 @@ public class BusinessOwnerUpdateRequest {
     private String businessDescription;
 
     private BusinessStatus businessStatus;
+
+    // Subscription fields
+    private Boolean autoRenew;
 }

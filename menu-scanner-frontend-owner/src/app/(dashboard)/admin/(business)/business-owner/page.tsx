@@ -35,6 +35,7 @@ import {
 import {
   deleteBusinessOwnerService,
   fetchAllBusinessOwnerService,
+  updateBusinessOwnerService,
 } from "@/redux/features/auth/store/thunks/business-owner-thunks";
 import { userBusinessOwnerTableColumns } from "@/redux/features/auth/table/business-owner-table";
 import CreateBusinessOwnerModal from "@/redux/features/auth/components/create-business-owner-modal";
@@ -135,8 +136,18 @@ export default function BusinessOwnerPage() {
     setDeleteState({ isOpen: true, owner: user });
   };
 
+  const handleToggleAutoRenew = async (user: BusinessOwnerResponseModel, checked: boolean) => {
+    try {
+      await dispatch(
+        updateBusinessOwnerService({ ownerId: user.ownerId, data: { autoRenew: checked } })
+      ).unwrap();
+    } catch (error: any) {
+      showToast.error(error || "Failed to update auto renew");
+    }
+  };
+
   const tableHandlers = useMemo(
-    () => ({ handleViewUserDetail, handleEditOwner, handleResetPassword, handleDeleteUser }),
+    () => ({ handleViewUserDetail, handleEditOwner, handleResetPassword, handleDeleteUser, handleToggleAutoRenew }),
     []
   );
 

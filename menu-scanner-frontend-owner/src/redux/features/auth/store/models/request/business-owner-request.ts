@@ -28,6 +28,7 @@ export interface UpdateBusinessOwnerRequest {
   businessPhone?: string;
   businessAddress?: string;
   businessStatus?: string;
+  autoRenew?: boolean;
 }
 
 export interface UpdateBusinessOwnerParams {
