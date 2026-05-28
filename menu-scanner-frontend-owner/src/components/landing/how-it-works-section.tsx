@@ -34,7 +34,7 @@ export default function HowItWorksSection() {
   ];
 
   return (
-    <section id="how-it-works" className="relative py-24">
+    <section className="relative py-24">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white"></div>

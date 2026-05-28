@@ -38,7 +38,7 @@ export default function CtaSection() {
               className="h-14 px-10 text-lg bg-white/20 text-white hover:bg-white/30 border border-white/40 shadow-none font-semibold"
               asChild
             >
-              <a href="#pricing">{cta.secondaryCTA}</a>
+              <Link href="/">{cta.secondaryCTA}</Link>
             </Button>
           </div>
 

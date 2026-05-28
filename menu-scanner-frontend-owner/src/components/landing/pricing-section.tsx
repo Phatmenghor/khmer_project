@@ -9,7 +9,7 @@ import { LANDING_CONFIG } from "@/constants/landing-config";
 
 export default function PricingSection() {
   return (
-    <section id="pricing" className="relative py-24">
+    <section className="relative py-24">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white"></div>

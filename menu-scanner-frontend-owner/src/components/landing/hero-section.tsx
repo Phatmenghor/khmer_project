@@ -77,7 +77,7 @@ export default function HeroSection() {
                 </Link>
               </Button>
               <Button size="lg" className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg rounded-xl sm:rounded-2xl border-2 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:border-primary/60 w-full sm:w-auto font-semibold transition-all" asChild>
-                <a href="#features">Schedule Demo</a>
+                <Link href="/">Schedule Demo</Link>
               </Button>
             </div>
             </div>
