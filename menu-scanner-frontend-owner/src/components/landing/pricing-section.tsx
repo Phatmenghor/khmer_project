@@ -44,7 +44,7 @@ export default function PricingSection() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16 pointer-events-none"></div>
 
                 {highlighted && (
-                  <div className="flex justify-center pt-4 px-8">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
                     <div className="text-sm px-6 py-2 bg-gradient-to-r from-primary to-primary/90 text-white border-0 shadow-lg font-bold whitespace-nowrap rounded-full">
                       🌟 Most Popular
                     </div>
@@ -55,7 +55,7 @@ export default function PricingSection() {
                 {/* Header */}
                 <div className={cn(
                   "px-8 pb-8 relative z-10",
-                  highlighted ? "bg-gradient-to-r from-primary/10 to-transparent pt-8" : "pt-12"
+                  highlighted ? "bg-gradient-to-r from-primary/10 to-transparent pt-16" : "pt-12"
                 )}>
                   <h3 className="text-2xl font-bold text-slate-900 mb-4">{name}</h3>
                   <div className="flex items-baseline gap-2 mb-4">
