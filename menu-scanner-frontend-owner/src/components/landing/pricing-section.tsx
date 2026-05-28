@@ -43,13 +43,6 @@ export default function PricingSection() {
                 {/* Animated bg dot */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
 
-                {highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
-                    <div className="text-sm px-6 py-2 bg-gradient-to-r from-primary to-primary/90 text-white border-0 shadow-lg font-bold whitespace-nowrap rounded-full">
-                      🌟 Most Popular
-                    </div>
-                  </div>
-                )}
 
                 {/* Header */}
                 <div className={cn(
