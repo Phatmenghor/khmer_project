@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Globe, Briefcase, UtensilsCrossed, Zap } from "lucide-react";
 import FadeIn from "@/components/landing/fade-in";
 import { LANDING_CONFIG } from "@/constants/landing-config";
 import { Card, CardContent } from "@/components/ui/card";
@@ -107,19 +108,31 @@ export default function FounderSection() {
                 </CardContent>
               </Card>
 
-              {/* Highlights Grid - 2x2 */}
-              <div className="grid grid-cols-2 gap-3">
-                {founder.highlights.map((highlight, idx) => (
-                  <Card key={idx} className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden h-full">
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full blur-lg group-hover:scale-150 transition-transform duration-300"></div>
-                    <CardContent className="p-4 relative z-10 flex flex-col items-center text-center">
-                      <p className="text-xs font-semibold text-slate-700 leading-tight">
-                        {highlight}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              {/* Highlights Card */}
+              <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
+                <CardContent className="p-7 relative z-10 flex flex-col">
+                  <h4 className="text-lg font-bold text-slate-900 mb-5">Highlights</h4>
+                  <div className="space-y-4">
+                    <div className="flex gap-3 items-start">
+                      <Globe className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-slate-700 font-medium">{founder.highlights[0]}</p>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <Briefcase className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-slate-700 font-medium">{founder.highlights[1]}</p>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <UtensilsCrossed className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-slate-700 font-medium">{founder.highlights[2]}</p>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <Zap className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-slate-700 font-medium">{founder.highlights[3]}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </FadeIn>
         </div>
