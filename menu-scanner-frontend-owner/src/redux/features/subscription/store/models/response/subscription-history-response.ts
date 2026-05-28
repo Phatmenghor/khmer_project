@@ -7,7 +7,6 @@ export interface SubscriptionHistoryPaymentItem {
   paymentType: string;
   status: string;
   referenceNumber: string | null;
-  notes: string | null;
   imageUrl: string | null;
   paidAt: string;
 }

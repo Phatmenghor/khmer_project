@@ -75,7 +75,7 @@ export default function SubscriptionActionModal({
   // --- Cancel form ---
   const cancelForm = useForm<CancelSubscriptionData>({
     resolver: zodResolver(cancelSubscriptionSchema),
-    defaultValues: { reason: "", notes: "", refundAmount: 0, refundMethod: "", refundReference: "" },
+    defaultValues: { reason: "", refundAmount: 0, refundMethod: "", refundReference: "" },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -375,16 +375,6 @@ export default function SubscriptionActionModal({
                           disabled={isSubmitting}
                           error={getFieldError(cancelForm.formState.errors.refundReference)}
                         />
-                        <div className="md:col-span-2">
-                          <TextField
-                            control={cancelForm.control}
-                            name="notes"
-                            label="Additional Notes"
-                            placeholder="Optional notes"
-                            disabled={isSubmitting}
-                            error={getFieldError(cancelForm.formState.errors.notes)}
-                          />
-                        </div>
                       </div>
                       <div className="flex justify-end gap-3 pt-2">
                         <CancelButton onClick={handleClose} disabled={isSubmitting} />

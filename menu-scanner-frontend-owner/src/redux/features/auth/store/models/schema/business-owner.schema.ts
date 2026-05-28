@@ -54,8 +54,7 @@ export const renewSubscriptionSchema = z.object({
  * Cancel Subscription Schema (no ID - comes from URL params)
  */
 export const cancelSubscriptionSchema = z.object({
-  reason: z.string().min(1, "Cancellation reason is required"),
-  notes: z.string().optional().or(z.literal("")),
+  reason: z.string().optional().or(z.literal("")),
   refundAmount: z.number().min(0, "Refund amount must be non-negative"),
   refundMethod: z.string().optional().or(z.literal("")),
   refundReference: z.string().optional().or(z.literal("")),

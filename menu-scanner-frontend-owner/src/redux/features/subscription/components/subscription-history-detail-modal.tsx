@@ -148,9 +148,6 @@ export function SubscriptionHistoryDetailModal({
                         <DisplayField label="Payment Method" value={h.payment.paymentMethod || "---"} />
                         <DisplayField label="Payment Type" value={h.payment.paymentType || "---"} />
                         <DisplayField label="Reference No." value={h.payment.referenceNumber || "---"} />
-                        <div className="md:col-span-2">
-                          <DisplayField label="Notes" value={h.payment.notes || "---"} />
-                        </div>
                         {h.payment.paidAt && (
                           <DisplayField
                             label="Paid At"

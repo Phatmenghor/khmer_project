@@ -25,5 +25,4 @@ export interface PaymentResponseModel {
   status: string;
   statusDescription: string;
   referenceNumber: string;
-  notes: string;
 }
