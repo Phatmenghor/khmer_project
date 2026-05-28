@@ -59,7 +59,7 @@ export default function LoginPage() {
         router.replace(ROUTES.DASHBOARD.INDEX);
       }, 500);
     } catch (err: any) {
-      let errorMessage = "Login failed. Please try again.";
+      let errorMessage: string = "Login failed. Please try again.";
 
       // Handle different error formats from Redux thunk
       if (typeof err === 'string') {
@@ -92,7 +92,7 @@ export default function LoginPage() {
         router.replace(ROUTES.DASHBOARD.USERS);
       }, 500);
     } catch (err: any) {
-      let errorMessage = "Telegram login failed. Please try again.";
+      let errorMessage: string = "Telegram login failed. Please try again.";
 
       // Handle different error formats from Redux thunk
       if (typeof err === 'string') {

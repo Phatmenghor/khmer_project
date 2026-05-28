@@ -64,7 +64,7 @@ export default function LoginPage() {
         router.replace(ROUTES.ADMIN.DASHBOARD);
       }, 500);
     } catch (err: any) {
-      let errorMessage = Messages.auth.loginFailed;
+      let errorMessage: string = Messages.auth.loginFailed;
 
       // Handle different error formats from Redux thunk
       if (typeof err === 'string') {
@@ -98,7 +98,7 @@ export default function LoginPage() {
         router.replace(ROUTES.ADMIN.DASHBOARD);
       }, 500);
     } catch (err: any) {
-      let errorMessage = Messages.auth.telegramFailed;
+      let errorMessage: string = Messages.auth.telegramFailed;
 
       // Handle different error formats from Redux thunk
       if (typeof err === 'string') {

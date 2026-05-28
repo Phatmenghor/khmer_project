@@ -71,7 +71,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
         window.location.reload();
       }, 500);
     } catch (err: any) {
-      let errorMessage = "Login failed. Please check your credentials.";
+      let errorMessage: string = "Login failed. Please check your credentials.";
 
       // Handle different error formats from Redux thunk
       if (typeof err === 'string') {

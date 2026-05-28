@@ -100,7 +100,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
         }, 500);
       }
     } catch (err: any) {
-      let errorMessage = "Registration failed. Please try again.";
+      let errorMessage: string = "Registration failed. Please try again.";
 
       // Handle different error formats from Redux thunk
       if (typeof err === 'string') {

@@ -74,7 +74,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         }, 500);
       }
     } catch (err: any) {
-      let errorMessage = "Login failed. Please try again.";
+      let errorMessage: string = "Login failed. Please try again.";
 
       // Handle different error formats (axios)
       if (typeof err === 'string') {
