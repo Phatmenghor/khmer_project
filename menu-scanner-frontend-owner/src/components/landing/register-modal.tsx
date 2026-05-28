@@ -138,11 +138,8 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
             {/* Selected Plan Display */}
             {plan && (
               <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="font-semibold text-foreground">{plan.name} Plan</h4>
-                    <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
-                  </div>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-foreground">{plan.name} Plan</h4>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-primary">{plan.price}</div>
                     <div className="text-xs text-muted-foreground">{plan.period}</div>
