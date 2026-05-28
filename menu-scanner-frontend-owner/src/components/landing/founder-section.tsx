@@ -44,7 +44,7 @@ export default function FounderSection() {
                       priority
                     />
                   </div>
-                  <div className="text-center flex flex-col gap-2">
+                  <div className="flex flex-col gap-2">
                     <h3 className="text-3xl font-bold text-slate-900">{founder.name}</h3>
                     <p className="text-sm text-primary font-semibold">Emenu Cambodia</p>
                     <p className="text-lg text-primary font-bold">{founder.title}</p>
@@ -52,7 +52,7 @@ export default function FounderSection() {
                     <div className="flex flex-col gap-2 pt-2">
                       <a
                         href={`mailto:${founder.contact.email}`}
-                        className="inline-flex text-primary hover:text-primary/80 font-semibold transition-colors text-sm justify-center"
+                        className="text-primary hover:text-primary/80 font-semibold transition-colors text-sm"
                       >
                         {founder.contact.email}
                       </a>
@@ -60,7 +60,7 @@ export default function FounderSection() {
                         href={founder.contact.telegram}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex text-primary hover:text-primary/80 font-semibold transition-colors text-sm justify-center"
+                        className="text-primary hover:text-primary/80 font-semibold transition-colors text-sm"
                       >
                         @{founder.contact.social}
                       </a>
