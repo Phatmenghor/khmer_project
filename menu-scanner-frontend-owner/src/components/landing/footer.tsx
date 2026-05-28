@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { LANDING_CONFIG } from "@/constants/landing-config";
@@ -14,7 +15,14 @@ export default function Footer() {
             {/* Brand */}
             <div>
               <Link href={ROUTES.PUBLIC.HOME} className="inline-block mb-6">
-                <h3 className="text-2xl font-bold text-slate-900">{footer.company}</h3>
+                <Image
+                  src="/images/logo/my_logo.png"
+                  alt="Emenu Cambodia Logo"
+                  width={100}
+                  height={50}
+                  className="h-12 w-auto"
+                  priority
+                />
               </Link>
               <p className="text-base text-slate-600 leading-relaxed mb-4">
                 {footer.description}

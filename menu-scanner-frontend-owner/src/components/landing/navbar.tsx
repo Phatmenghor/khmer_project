@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { QrCode, Menu, X, ArrowUp } from "lucide-react";
+import Image from "next/image";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -43,12 +44,14 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-              <QrCode className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-lg font-bold text-slate-900 tracking-tight">
-              Emenu Cambodia
-            </span>
+            <Image
+              src="/images/logo/my_logo.png"
+              alt="Emenu Cambodia Logo"
+              width={40}
+              height={40}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop nav and CTA - Right side */}
