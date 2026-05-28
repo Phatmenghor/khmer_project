@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { DisplayField } from "@/components/shared/form-field/display-field";
@@ -13,6 +13,8 @@ import {
 import { fetchBusinessOwnerByIdService } from "../store/thunks/business-owner-thunks";
 import { clearSelectedBusinessOwner } from "../store/slice/business-owner-slice";
 import Loading from "@/components/shared/common/loading";
+import { fetchAllSubscriptionsByBusinessIdService } from "@/redux/features/subscription/store/thunks/subscription-history-thunks";
+import { SubscriptionHistoryResponseModel } from "@/redux/features/subscription/store/models/response/subscription-history-response";
 
 interface BusinessOwnerDetailModalProps {
   businessOwnerId?: string;
@@ -29,20 +31,27 @@ export function BusinessOwnerDetailModal({
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const d = useAppSelector(selectSelectedBusinessOwner);
 
+  const [subscriptionHistory, setSubscriptionHistory] = useState<SubscriptionHistoryResponseModel[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
   useEffect(() => {
-    const fetchData = async () => {
-      if (!businessOwnerId || !isOpen) return;
-      try {
-        await dispatch(fetchBusinessOwnerByIdService(businessOwnerId)).unwrap();
-      } catch (error: any) {
-        console.error("Error fetching business owner data:", error);
-      }
-    };
-    fetchData();
+    if (!businessOwnerId || !isOpen) return;
+    dispatch(fetchBusinessOwnerByIdService(businessOwnerId)).unwrap().catch(console.error);
   }, [businessOwnerId, isOpen, dispatch]);
+
+  useEffect(() => {
+    if (!d?.businessId || !isOpen) return;
+    setIsLoadingHistory(true);
+    dispatch(fetchAllSubscriptionsByBusinessIdService(d.businessId))
+      .unwrap()
+      .then((data: SubscriptionHistoryResponseModel[]) => setSubscriptionHistory(data ?? []))
+      .catch(console.error)
+      .finally(() => setIsLoadingHistory(false));
+  }, [d?.businessId, isOpen, dispatch]);
 
   const handleClose = () => {
     dispatch(clearSelectedBusinessOwner());
+    setSubscriptionHistory([]);
     onClose();
   };
 
@@ -143,6 +152,66 @@ export function BusinessOwnerDetailModal({
                     />
                     <DisplayField label="Auto Renew" value={d.autoRenew ? "Enabled" : "Disabled"} />
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Subscription History */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Subscription History</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {isLoadingHistory ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loading />
+                    </div>
+                  ) : subscriptionHistory.length === 0 ? (
+                    <div className="flex items-center justify-center py-8">
+                      <p className="text-sm text-muted-foreground">No subscription history found</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b bg-muted/30">
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">#</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Plan</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Duration</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Price</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Start Date</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">End Date</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Status</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Payment</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Total Paid</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {subscriptionHistory.map((row, idx) => (
+                            <tr
+                              key={row.subscriptionId}
+                              className="border-b last:border-0 hover:bg-muted/20 transition-colors"
+                            >
+                              <td className="px-4 py-3 text-xs text-muted-foreground">{idx + 1}</td>
+                              <td className="px-4 py-3 text-xs font-medium">{row.planName || "---"}</td>
+                              <td className="px-4 py-3 text-xs text-muted-foreground">{row.planDurationType || "---"}</td>
+                              <td className="px-4 py-3 text-xs text-muted-foreground">
+                                ${row.planPrice?.toFixed(2) ?? "0.00"}
+                              </td>
+                              <td className="px-4 py-3 text-xs text-muted-foreground">{row.startDate || "---"}</td>
+                              <td className="px-4 py-3 text-xs text-muted-foreground">{row.endDate || "---"}</td>
+                              <td className="px-4 py-3 text-xs text-muted-foreground">{row.status || "---"}</td>
+                              <td className="px-4 py-3 text-xs text-muted-foreground">
+                                {row.paymentStatus?.replace("_", " ") || "---"}
+                              </td>
+                              <td className="px-4 py-3 text-xs text-muted-foreground">
+                                ${row.totalPaid?.toFixed(2) ?? "0.00"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

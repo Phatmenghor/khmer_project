@@ -99,6 +99,19 @@ export const userBusinessOwnerTableColumns = ({
       ),
     },
     {
+      key: "currentPlanPrice",
+      label: "Plan Price",
+      minWidth: "10px",
+      maxWidth: "120px",
+      render: (user) => (
+        <span className="text-xs text-muted-foreground">
+          {user?.currentPlanPrice !== undefined && user?.currentPlanPrice !== null
+            ? `$${user.currentPlanPrice}`
+            : "---"}
+        </span>
+      ),
+    },
+    {
       key: "subscriptionStartDate",
       label: "Start Date",
       minWidth: "10px",

@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,6 +29,14 @@ public class SubscriptionController {
         log.info("Endpoint: subscriptions/history - businessId: {}, from: {}, to: {}",
                 filter.getBusinessId(), filter.getFromDate(), filter.getToDate());
         PaginationResponse<SubscriptionHistoryResponse> response = subscriptionService.getSubscriptionHistory(filter);
+        return ResponseEntity.ok(ApiResponse.success("Subscription history retrieved successfully", response));
+    }
+
+    @GetMapping("/business/{businessId}")
+    public ResponseEntity<ApiResponse<List<SubscriptionHistoryResponse>>> getAllByBusinessId(
+            @PathVariable UUID businessId) {
+        log.info("Endpoint: subscriptions/business/{} - all history request", businessId);
+        List<SubscriptionHistoryResponse> response = subscriptionService.getAllByBusinessId(businessId);
         return ResponseEntity.ok(ApiResponse.success("Subscription history retrieved successfully", response));
     }
 

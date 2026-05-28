@@ -22,3 +22,13 @@ export const fetchSubscriptionHistoryByIdService = createApiThunk<any, string>(
     return response.data.data;
   }
 );
+
+export const fetchAllSubscriptionsByBusinessIdService = createApiThunk<
+  any,
+  string
+>("subscription-history/fetchAllByBusinessId", async (businessId) => {
+  const response = await axiosClientWithAuth.get(
+    `/api/v1/subscriptions/business/${businessId}`
+  );
+  return response.data.data;
+});

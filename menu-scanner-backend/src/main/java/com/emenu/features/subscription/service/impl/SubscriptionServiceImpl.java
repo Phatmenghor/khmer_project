@@ -123,6 +123,16 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return paginationMapper.toPaginationResponse(page, historyList);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubscriptionHistoryResponse> getAllByBusinessId(UUID businessId) {
+        log.info("Getting all subscriptions for business: {}", businessId);
+        return subscriptionRepository.findByBusinessIdAndIsDeletedFalse(businessId)
+                .stream()
+                .map(this::toHistoryResponse)
+                .toList();
+    }
+
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
