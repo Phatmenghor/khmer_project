@@ -42,7 +42,6 @@ export default function PricingSection() {
           "/api/v1/public/subscription-plans"
         );
         const fetchedPlans = response.data.data || [];
-        console.log("PricingSection - API response plans:", fetchedPlans);
 
         // Map API response to display format, matching by durationType with static config
         const displayPlans = fetchedPlans.map((apiPlan) => {
@@ -52,7 +51,7 @@ export default function PricingSection() {
           );
           const period = getPeriodLabel(apiPlan.durationType);
 
-          const mapped = {
+          return {
             id: apiPlan.id,
             name: apiPlan.name || staticPlan?.name || "Plan",
             price: `$${apiPlan.price}`,
@@ -61,14 +60,10 @@ export default function PricingSection() {
             features: staticPlan?.features || [],
             highlighted: staticPlan?.highlighted || false,
           };
-          console.log("PricingSection - Mapped plan:", mapped);
-          return mapped;
         });
 
-        console.log("PricingSection - Display plans:", displayPlans);
         setPlans(displayPlans);
       } catch (error) {
-        console.warn("Failed to fetch subscription plans, using defaults", error);
         // Fallback: display static plans without IDs (user will need API to work for registration)
         setPlans(getDefaultPlans());
       } finally {
@@ -102,7 +97,6 @@ export default function PricingSection() {
   };
 
   const handlePlanClick = (plan: PlanData) => {
-    console.log("PricingSection - Plan selected:", plan);
     setSelectedPlan(plan);
     setIsModalOpen(true);
   };

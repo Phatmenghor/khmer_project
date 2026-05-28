@@ -97,14 +97,9 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       };
 
       // Include planId if user selected a plan from pricing page
-      console.log("RegisterModal - Plan object:", plan);
       if (plan?.id) {
         payload.planId = plan.id;
-        console.log("RegisterModal - Plan ID added to payload:", plan.id);
-      } else {
-        console.log("RegisterModal - No plan ID available");
       }
-      console.log("RegisterModal - Final payload:", payload);
 
       await axiosClient.post("/api/v1/business-owners/register", payload);
       showToast.success("Account created! Please sign in to continue.");
@@ -147,8 +142,6 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   <div>
                     <h4 className="font-semibold text-foreground">{plan.name} Plan</h4>
                     <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
-                    {plan.id && <p className="text-xs text-muted-foreground mt-2">Plan ID: {plan.id}</p>}
-                    {!plan.id && <p className="text-xs text-red-500 mt-2">⚠️ Plan ID not available</p>}
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-primary">{plan.price}</div>
