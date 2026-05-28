@@ -188,16 +188,24 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
           {!collapsed && (
             <Link
               href="/"
-              className="relative flex items-center gap-2 group transition-all duration-300 hover:scale-[1.02]"
+              className="relative flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
             >
               <Image
                 src="/images/logo/my_logo.png"
                 alt="Emenu Cambodia Logo"
                 width={140}
                 height={50}
-                className="h-12 w-auto object-contain"
+                className="h-10 w-auto object-contain"
                 priority
               />
+              <div className="flex flex-col">
+                <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
+                  Emenu Cambodia
+                </span>
+                <span className="text-muted-foreground text-xs font-medium tracking-wide">
+                  Dashboard
+                </span>
+              </div>
             </Link>
           )}
 
