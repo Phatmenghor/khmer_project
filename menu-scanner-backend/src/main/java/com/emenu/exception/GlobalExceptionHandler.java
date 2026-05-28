@@ -238,37 +238,50 @@ public class GlobalExceptionHandler {
         Map<String, Object> errorData = new HashMap<>();
 
         // Extract specific field information from error message
-        if (message.toLowerCase().contains("email")) {
+        String msgLower = message.toLowerCase();
+
+        if (msgLower.contains("email")) {
             errorData.put("field", "email");
-            if (message.contains("already registered") || message.contains("already taken")) {
+            if (message.contains("already registered") || message.contains("already taken") || message.contains("already exists")) {
                 errorData.put("type", "duplicate");
+                message = "This email address is already registered. Please use a different email or try signing in.";
             } else if (message.contains("format") || message.contains("invalid")) {
                 errorData.put("type", "format");
+                message = "Please enter a valid email address (e.g., user@example.com).";
             }
-        } else if (message.toLowerCase().contains("phone")) {
+        } else if (msgLower.contains("phone")) {
             errorData.put("field", "phoneNumber");
             errorData.put("type", "format");
             errorData.put("example", "070 411260");
-        } else if (message.toLowerCase().contains("subdomain")) {
+            message = "Please enter a valid phone number.";
+        } else if (msgLower.contains("username")) {
+            errorData.put("field", "ownerUserIdentifier");
+            errorData.put("type", "duplicate");
+            message = "This username is already taken. Please choose a different username.";
+        } else if (msgLower.contains("business name")) {
+            errorData.put("field", "businessName");
+            errorData.put("type", "duplicate");
+            message = "This business name is already registered. Please use a different name.";
+        } else if (msgLower.contains("subdomain")) {
             errorData.put("field", "subdomain");
             if (message.contains("already taken") || message.contains("not available")) {
                 errorData.put("type", "duplicate");
-                errorData.put("suggestion", "Please choose a different subdomain name");
+                message = "This subdomain is not available. Please choose a different subdomain.";
             } else if (message.contains("reserved")) {
                 errorData.put("type", "reserved");
-                errorData.put("suggestion", "This subdomain is reserved. Please choose a different name");
+                message = "This subdomain is reserved. Please choose a different one.";
             } else if (message.contains("format") || message.contains("invalid")) {
                 errorData.put("type", "format");
-                errorData.put("suggestion", "Use only lowercase letters, numbers, and hyphens (3-63 characters)");
+                message = "Subdomain must contain only lowercase letters, numbers, and hyphens (3-63 characters).";
             }
-        } else if (message.toLowerCase().contains("business name")) {
-            errorData.put("field", "businessName");
-            errorData.put("type", "duplicate");
-            errorData.put("suggestion", "Please choose a different business name");
-        } else if (message.toLowerCase().contains("user identifier")) {
+        } else if (msgLower.contains("user identifier")) {
             errorData.put("field", "userIdentifier");
             errorData.put("type", "duplicate");
-            errorData.put("suggestion", "Please choose a different user identifier");
+            message = "This username is already taken. Please choose a different username.";
+        } else if (msgLower.contains("plan")) {
+            errorData.put("field", "plan");
+            errorData.put("type", "not_found");
+            message = "The selected subscription plan is not available. Please choose a different plan.";
         }
 
         ApiResponse<Object> response = buildErrorResponse(message, ErrorCodes.VALIDATION_ERROR, request);
