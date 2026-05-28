@@ -65,7 +65,7 @@ export default function HeroSection() {
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition" />
                 </Link>
               </Button>
-              <Button size="lg" className="px-8 py-4 text-lg rounded-2xl border-2 border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60 w-full sm:w-auto font-semibold transition-all" asChild>
+              <Button size="lg" className="px-8 py-4 text-lg rounded-2xl border-2 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:border-primary/60 w-full sm:w-auto font-semibold transition-all" asChild>
                 <a href="#features">Schedule Demo</a>
               </Button>
             </div>
