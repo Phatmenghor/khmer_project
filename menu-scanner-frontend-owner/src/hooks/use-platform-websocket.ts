@@ -3,8 +3,10 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useAppDispatch } from "@/redux/store";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { bumpVersion, WebSocketResource } from "@/redux/store/slices/websocket-slice";
+import { updateBusinessOwnerDataSilently } from "@/redux/features/auth/store/slice/business-owner-slice";
+import { axiosClientWithAuth } from "@/utils/axios";
 
 const EVENT_TYPE_MAP: Record<string, WebSocketResource> = {
   BUSINESS_OWNER_CHANGED: "businessOwner",
@@ -21,6 +23,22 @@ export function usePlatformWebSocket() {
   const clientRef = useRef<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  const handleBusinessOwnerUpdate = useCallback(async (event: any) => {
+    try {
+      // Silently fetch updated business owner data
+      const response = await axiosClientWithAuth.post("/api/v1/business-owners/all", {
+        pageNo: 1,
+        pageSize: 100,
+        subscriptionStatuses: [],
+      });
+      // Update Redux silently (no loading indicator)
+      dispatch(updateBusinessOwnerDataSilently(response.data.data));
+      console.log("[WS] Business owner data updated globally");
+    } catch (error) {
+      console.error("[WS] Failed to update business owner data:", error);
+    }
+  }, [dispatch]);
+
   const connect = useCallback(() => {
     const wsUrl = `${window.location.origin}/ws`;
 
@@ -35,9 +53,17 @@ export function usePlatformWebSocket() {
           try {
             const event = JSON.parse(message.body);
             const resource = EVENT_TYPE_MAP[event.type];
+
             if (resource) {
-              dispatch(bumpVersion(resource));
-              console.log(`[WS] Platform event: ${event.type} → bumped ${resource}`);
+              console.log(`[WS] Platform event: ${event.type}`);
+
+              // Handle specific resource updates with silent data refresh
+              if (event.type === "BUSINESS_OWNER_CHANGED") {
+                handleBusinessOwnerUpdate(event);
+              } else {
+                // For other events, just bump version (existing behavior)
+                dispatch(bumpVersion(resource));
+              }
             }
           } catch {
             // ignore malformed messages
@@ -56,7 +82,7 @@ export function usePlatformWebSocket() {
 
     client.activate();
     clientRef.current = client;
-  }, [dispatch]);
+  }, [dispatch, handleBusinessOwnerUpdate]);
 
   useEffect(() => {
     connect();
