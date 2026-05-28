@@ -74,6 +74,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                     var authMap = AUTHENTICATED_USER.get();
                     authMap.put("username", username);
                     authMap.put("userType", userType);
+                    log.debug("[JWT] Stored in ThreadLocal - username: {}, userType: {}", authMap.get("username"), authMap.get("userType"));
 
                     log.debug("[JWT] Authentication set in SecurityContext for user: {}", username);
                 } else {

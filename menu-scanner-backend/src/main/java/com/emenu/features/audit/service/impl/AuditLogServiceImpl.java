@@ -77,6 +77,7 @@ public class AuditLogServiceImpl implements AuditLogService {
         var authMap = JWTAuthenticationFilter.AUTHENTICATED_USER.get();
         String authUsername = authMap.get("username");
         String authUserType = authMap.get("userType");
+        log.debug("[AUDIT] ThreadLocal values - username: {}, userType: {}, map size: {}", authUsername, authUserType, authMap.size());
 
         if (authUsername != null && authUserType != null) {
             try {
