@@ -116,7 +116,6 @@ export default function SubscriptionHistoryPage() {
     filters.status,
     filters.pageNo,
     globalPageSize,
-    wsVersion,
   ]);
 
   const handleBusinessChange = (item: BusinessOption | null) => {

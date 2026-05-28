@@ -141,7 +141,6 @@ export default function UserPage() {
     filters.role,
     filters.pageNo,
     globalPageSize,
-    wsVersion,
   ]);
 
   // Event handlers

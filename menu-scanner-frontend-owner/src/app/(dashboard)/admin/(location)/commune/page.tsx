@@ -106,7 +106,6 @@ export default function CommunePage() {
     globalPageSize,
     selectedProvince,
     selectedDistrict,
-    wsVersion,
   ]);
 
   // Event handlers

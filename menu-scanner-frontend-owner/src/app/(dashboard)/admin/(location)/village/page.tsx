@@ -112,7 +112,6 @@ export default function VillagePage() {
     selectedProvince,
     selectedDistrict,
     selectedCommune,
-    wsVersion,
   ]);
 
   // Event handlers
