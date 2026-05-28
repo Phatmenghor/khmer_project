@@ -281,7 +281,7 @@ export const LANDING_CONFIG = {
       Resources: ["Help Center", "Community", "Status Page"],
       Legal: ["Privacy Policy", "Terms of Service", "Compliance", "Cookie Policy"]
     },
-    social: "Follow us on social media for updates, tips, and success stories"
+    social: "Made with ❤️ by Emenu Cambodia"
   }
 };
 

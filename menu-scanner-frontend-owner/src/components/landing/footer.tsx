@@ -72,7 +72,7 @@ export default function Footer() {
                 </a>
               </div>
             </div>
-            <p className="text-center text-sm text-slate-500 mt-6">
+            <p className="text-center text-base font-semibold text-primary mt-8 mb-2">
               {footer.social}
             </p>
             <div className="flex gap-6 justify-center text-sm text-slate-600">
