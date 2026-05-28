@@ -99,21 +99,19 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
           window.location.reload();
         }, 500);
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       let errorMessage = "Registration failed. Please try again.";
 
-      // API wrapper returns error message as plain string
+      // Handle different error formats from Redux thunk
       if (typeof err === 'string') {
         errorMessage = err;
-      } else if (typeof err === 'object' && err !== null) {
-        const error = err as any;
-        // Try different error structures
-        if (error.message) {
-          errorMessage = error.message;
-        } else if (error.payload?.message) {
-          errorMessage = error.payload.message;
-        } else if (error.payload?.data?.message) {
-          errorMessage = error.payload.data.message;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      } else if (err?.payload) {
+        if (typeof err.payload === 'string') {
+          errorMessage = err.payload;
+        } else if (err.payload?.message) {
+          errorMessage = err.payload.message;
         }
       }
 

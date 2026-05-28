@@ -73,22 +73,18 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           router.push(ROUTES.DASHBOARD.INDEX);
         }, 500);
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       let errorMessage = "Login failed. Please try again.";
 
-      // Direct axios error - check response data
+      // Handle different error formats (axios)
       if (typeof err === 'string') {
         errorMessage = err;
-      } else if (typeof err === 'object' && err !== null) {
-        const error = err as any;
-        // Try different error structures
-        if (error.response?.data?.message) {
-          errorMessage = error.response.data.message;
-        } else if (error.response?.data?.error) {
-          errorMessage = error.response.data.error;
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
+      } else if (err?.message) {
+        errorMessage = err.message;
+      } else if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err?.response?.data?.error) {
+        errorMessage = err.response.data.error;
       }
 
       showToast.error(errorMessage);
