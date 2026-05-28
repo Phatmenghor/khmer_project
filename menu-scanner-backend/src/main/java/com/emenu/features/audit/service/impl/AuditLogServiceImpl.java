@@ -77,20 +77,18 @@ public class AuditLogServiceImpl implements AuditLogService {
         var authMap = JWTAuthenticationFilter.AUTHENTICATED_USER.get();
         String authUsername = authMap.get("username");
         String authUserType = authMap.get("userType");
-        log.debug("[AUDIT] ThreadLocal values - username: {}, userType: {}, map size: {}", authUsername, authUserType, authMap.size());
+        String authUserId = authMap.get("userId");
+        String authUserIdentifier = authMap.get("userIdentifier");
+        log.debug("[AUDIT] ThreadLocal values - username: {}, userType: {}, userId: {}, userIdentifier: {}", authUsername, authUserType, authUserId, authUserIdentifier);
 
-        if (authUsername != null && authUserType != null) {
+        if (authUserId != null && authUserIdentifier != null) {
             try {
-                var userOpt = securityUtils.getCurrentUserOptional();
-                if (userOpt.isPresent()) {
-                    var user = userOpt.get();
-                    userId = user.getId();
-                    userIdentifier = user.getUserIdentifier();
-                    userType = user.getUserType().name();
-                    log.debug("[AUDIT] Extracted user from ThreadLocal: username={}, userType={}", userIdentifier, userType);
-                }
+                userId = java.util.UUID.fromString(authUserId);
+                userIdentifier = authUserIdentifier;
+                userType = authUserType != null ? authUserType : "ANONYMOUS";
+                log.debug("[AUDIT] Extracted user from ThreadLocal: userId={}, userIdentifier={}, userType={}", userId, userIdentifier, userType);
             } catch (Exception e) {
-                log.debug("[AUDIT] Exception getting user from SecurityContext: {}", e.getMessage());
+                log.debug("[AUDIT] Exception extracting user from ThreadLocal: {}", e.getMessage());
             }
         } else {
             log.debug("[AUDIT] No authenticated user in ThreadLocal for endpoint: {}", request.getRequestURI());

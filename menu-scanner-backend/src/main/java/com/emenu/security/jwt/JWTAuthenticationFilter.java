@@ -1,5 +1,7 @@
 package com.emenu.security.jwt;
 
+import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final JWTGenerator jwtGenerator;
     private final CustomUserDetailsService customUserDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
+    private final UserRepository userRepository;
 
     // ThreadLocal to store authenticated user info for audit logging
     public static final ThreadLocal<Map<String, String>> AUTHENTICATED_USER = ThreadLocal.withInitial(HashMap::new);
@@ -70,11 +74,28 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-                    // Store user info in ThreadLocal for audit logging (survives after SecurityContext is cleared)
-                    var authMap = AUTHENTICATED_USER.get();
-                    authMap.put("username", username);
-                    authMap.put("userType", userType);
-                    log.debug("[JWT] Stored in ThreadLocal - username: {}, userType: {}", authMap.get("username"), authMap.get("userType"));
+                    // Extract full user info and store in ThreadLocal for audit logging
+                    try {
+                        Optional<User> userOpt = null;
+                        if (userType != null) {
+                            var userTypeEnum = com.emenu.enums.user.UserType.valueOf(userType);
+                            userOpt = userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(username, userTypeEnum);
+                        } else {
+                            userOpt = userRepository.findByUserIdentifierAndIsDeletedFalse(username);
+                        }
+
+                        if (userOpt != null && userOpt.isPresent()) {
+                            User user = userOpt.get();
+                            var authMap = AUTHENTICATED_USER.get();
+                            authMap.put("username", username);
+                            authMap.put("userType", userType);
+                            authMap.put("userId", user.getId().toString());
+                            authMap.put("userIdentifier", user.getUserIdentifier());
+                            log.debug("[JWT] Stored in ThreadLocal - userId: {}, username: {}, userType: {}", user.getId(), username, userType);
+                        }
+                    } catch (Exception e) {
+                        log.debug("[JWT] Failed to extract user from database: {}", e.getMessage());
+                    }
 
                     log.debug("[JWT] Authentication set in SecurityContext for user: {}", username);
                 } else {
