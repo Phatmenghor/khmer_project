@@ -17,8 +17,7 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-white via-primary/3 to-white"></div>
       </div>
 
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="max-w-8xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
             <FadeIn direction="right" delay={0}>
               <div className="space-y-6 sm:space-y-8 flex flex-col justify-center">
@@ -86,7 +85,6 @@ export default function HeroSection() {
               </div>
             </FadeIn>
           </div>
-        </div>
       </div>
     </section>
   );
