@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -35,14 +35,6 @@ const schema = z
   });
 
 type FormData = z.infer<typeof schema>;
-
-const benefits = [
-  "30-day free trial - Full access",
-  "No credit card required",
-  "All features included",
-  "24/7 global support",
-  "Auto-scaling infrastructure",
-];
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -99,70 +91,17 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen w-full overflow-hidden">
-      {/* ── Left — brand panel ── */}
-      <div className="hidden lg:flex w-[42%] flex-col bg-gradient-to-b from-slate-900 to-slate-800 px-10 py-12 text-white">
-        {/* Logo */}
-        <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-2.5 mb-16">
-          <Image
-            src="/images/logo/my_logo.png"
-            alt="Emenu Cambodia Logo"
-            width={100}
-            height={60}
-            className="h-12 w-auto"
-            priority
-          />
-        </Link>
-
-        {/* Heading */}
-        <div className="flex-1">
-          <h2 className="text-4xl font-bold text-white leading-snug mb-3">
-            Transform Your Restaurant Into a Digital Powerhouse
-          </h2>
-          <p className="text-base text-white/70 mb-8 max-w-md leading-relaxed">
-            Join 500+ restaurants in Cambodia using Emenu Cambodia to digitize their business and grow faster with our professional platform.
-          </p>
-
-          <ul className="space-y-3">
-            {benefits.map((b) => (
-              <li key={b} className="flex items-center gap-2.5 text-sm text-background/80">
-                <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                {b}
-              </li>
-            ))}
-          </ul>
-
-          {/* Decorative stats */}
-          <div className="mt-10 grid grid-cols-2 gap-4">
-            {[
-              { value: "500+", label: "Businesses Active" },
-              { value: "50K+", label: "Orders Processed" },
-              { value: "99.9%", label: "Uptime" },
-              { value: "<1hr", label: "Setup Time" },
-            ].map(({ value, label }) => (
-              <div key={label} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                <div className="text-xl font-bold text-primary">{value}</div>
-                <div className="text-xs text-white/50">{label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <p className="text-xs text-white/30 mt-8">
-          © {new Date().getFullYear()} Emenu Cambodia. All rights reserved.
-        </p>
-      </div>
-
-      {/* ── Right — form panel ── */}
-      <div className="flex flex-1 items-start justify-center bg-muted/40 p-6 overflow-y-auto">
-        <div className="w-full max-w-2xl py-8">
-          {/* Mobile logo */}
-          <Link href={ROUTES.PUBLIC.HOME} className="flex lg:hidden items-center gap-2 mb-6">
+      {/* ── Form panel ── */}
+      <div className="flex flex-1 items-start justify-center bg-gradient-to-b from-white to-slate-50 p-6 overflow-y-auto">
+        <div className="w-full max-w-3xl py-8">
+          {/* Logo */}
+          <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-2 mb-8">
             <Image
               src="/images/logo/my_logo.png"
               alt="Emenu Cambodia Logo"
               width={80}
               height={50}
-              className="h-10 w-auto"
+              className="h-12 w-auto"
               priority
             />
           </Link>
