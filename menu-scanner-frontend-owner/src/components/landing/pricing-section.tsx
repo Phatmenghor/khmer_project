@@ -44,28 +44,32 @@ export default function PricingSection() {
         const fetchedPlans = response.data.data || [];
         console.log("PricingSection - API response plans:", fetchedPlans);
 
-        // Map API response to display format, enriching with hardcoded features and highlighted status
-        const displayPlans = fetchedPlans.map((plan, index) => {
-          const hardcodedPlan = LANDING_CONFIG.pricing.plans[index];
-          const period = getPeriodLabel(plan.durationType);
+        // Map API response to display format, matching by durationType with static config
+        const displayPlans = fetchedPlans.map((apiPlan) => {
+          // Find matching static plan by durationType
+          const staticPlan = LANDING_CONFIG.pricing.plans.find(
+            p => p.durationType === apiPlan.durationType
+          );
+          const period = getPeriodLabel(apiPlan.durationType);
 
           const mapped = {
-            id: plan.id,
-            name: plan.name,
-            price: `$${plan.price}`,
+            id: apiPlan.id,
+            name: apiPlan.name || staticPlan?.name || "Plan",
+            price: `$${apiPlan.price}`,
             period,
-            description: plan.description,
-            features: hardcodedPlan?.features || [],
-            highlighted: hardcodedPlan?.highlighted || false,
+            description: apiPlan.description || staticPlan?.description || "",
+            features: staticPlan?.features || [],
+            highlighted: staticPlan?.highlighted || false,
           };
           console.log("PricingSection - Mapped plan:", mapped);
           return mapped;
         });
 
         console.log("PricingSection - Display plans:", displayPlans);
-        setPlans(displayPlans.length > 0 ? displayPlans : getDefaultPlans());
+        setPlans(displayPlans);
       } catch (error) {
         console.warn("Failed to fetch subscription plans, using defaults", error);
+        // Fallback: display static plans without IDs (user will need API to work for registration)
         setPlans(getDefaultPlans());
       } finally {
         setIsLoading(false);
@@ -86,8 +90,8 @@ export default function PricingSection() {
   };
 
   const getDefaultPlans = () => {
-    return LANDING_CONFIG.pricing.plans.map(({ id, name, price, period, description, features, highlighted }) => ({
-      id,
+    // Return static plans without IDs (API must be working for actual registration with plan)
+    return LANDING_CONFIG.pricing.plans.map(({ name, price, period, description, features, highlighted }) => ({
       name,
       price: `$${price}`,
       period,
