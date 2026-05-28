@@ -30,9 +30,9 @@ export default function FounderSection() {
           <FadeIn direction="right" delay={100}>
             <div className="flex flex-col gap-4 h-full">
               {/* Photo Card */}
-              <Card className="bg-gradient-to-br from-blue-50 via-blue-100/40 to-blue-50 border-2 border-blue-300 group overflow-hidden">
+              <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
                 {/* Animated bg dot */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
 
                 <CardContent className="p-8 relative z-10 flex flex-col">
                   <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg bg-white mb-8">
@@ -45,30 +45,24 @@ export default function FounderSection() {
                     />
                   </div>
                   <div className="flex flex-col gap-3">
-                    <h3 className="text-3xl font-bold text-primary">{founder.contact.social}</h3>
-                    <div className="space-y-2">
-                      <p className="text-base text-slate-900">
-                        <span className="font-semibold">Title:</span> Founder Emenu Cambodia & Full-Stack Software Engineer
-                      </p>
-                      <p className="text-base text-slate-900">
-                        <span className="font-semibold">Location:</span> {founder.contact.location}
-                      </p>
-                      <p className="text-base text-slate-900">
-                        <span className="font-semibold">Email:</span>{" "}
+                    <h3 className="text-2xl font-bold text-slate-900">{founder.name}</h3>
+                    <div className="space-y-2 text-sm">
+                      <p className="text-slate-700">{founder.title}</p>
+                      <p className="text-slate-700">{founder.contact.location}</p>
+                      <p>
                         <a
                           href={`mailto:${founder.contact.email}`}
-                          className="text-primary hover:text-primary/80 transition-colors"
+                          className="text-primary hover:text-primary/80 transition-colors text-slate-700 hover:text-primary"
                         >
                           {founder.contact.email}
                         </a>
                       </p>
-                      <p className="text-base text-slate-900">
-                        <span className="font-semibold">Telegram:</span>{" "}
+                      <p>
                         <a
                           href={founder.contact.telegram}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-primary hover:text-primary/80 transition-colors"
+                          className="text-primary hover:text-primary/80 transition-colors text-slate-700 hover:text-primary"
                         >
                           {founder.contact.social}
                         </a>
@@ -78,24 +72,14 @@ export default function FounderSection() {
                 </CardContent>
               </Card>
 
-              {/* Details Grid - 2x2 */}
+              {/* Highlights Grid - 2x2 */}
               <div className="grid grid-cols-2 gap-3">
-                {[
-                  { icon: "🇰🇭", text: "Built in Cambodia for the world 🌍" },
-                  { icon: "💼", text: "10+ years enterprise software experience" },
-                  { icon: "🍽️", text: "Passionate about restaurant technology" },
-                  { icon: "💰", text: "Committed to affordable digital solutions" }
-                ].map((item, idx) => (
-                  <Card key={idx} className={`bg-gradient-to-br ${
-                    idx === 0 ? "from-blue-50 to-blue-100/50 border-blue-200" :
-                    idx === 1 ? "from-purple-50 to-purple-100/50 border-purple-200" :
-                    idx === 2 ? "from-pink-50 to-pink-100/50 border-pink-200" :
-                    "from-green-50 to-green-100/50 border-green-200"
-                  } border-2 group overflow-hidden h-full`}>
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/40 rounded-full blur-lg group-hover:scale-150 transition-transform duration-300"></div>
+                {founder.highlights.map((highlight, idx) => (
+                  <Card key={idx} className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden h-full">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full blur-lg group-hover:scale-150 transition-transform duration-300"></div>
                     <CardContent className="p-4 relative z-10 flex flex-col items-center text-center">
-                      <p className="text-xs font-semibold text-slate-800 leading-tight">
-                        {item.text}
+                      <p className="text-xs font-semibold text-slate-700 leading-tight">
+                        {highlight}
                       </p>
                     </CardContent>
                   </Card>
@@ -108,12 +92,9 @@ export default function FounderSection() {
           <FadeIn direction="left" delay={150}>
             <div className="space-y-4 h-full flex flex-col">
               {/* Vision Card */}
-              <Card className="bg-gradient-to-br from-purple-50 via-purple-100/40 to-purple-50 border-2 border-purple-300 group overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-white/50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
+              <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
                 <CardContent className="p-7 relative z-10 flex flex-col">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-purple-600/20 mb-4">
-                    <span className="text-xl font-bold text-purple-600">💡</span>
-                  </div>
                   <h4 className="text-lg font-bold text-slate-900 mb-3">The Vision</h4>
                   <p className="text-sm text-slate-700 leading-relaxed font-medium">
                     {founder.vision}
@@ -122,12 +103,9 @@ export default function FounderSection() {
               </Card>
 
               {/* Bio Card */}
-              <Card className="bg-gradient-to-br from-pink-50 via-pink-100/40 to-pink-50 border-2 border-pink-300 group overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-white/50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
+              <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
                 <CardContent className="p-7 relative z-10 flex flex-col">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-pink-600/20 mb-4">
-                    <span className="text-xl font-bold text-pink-600">🚀</span>
-                  </div>
                   <h4 className="text-lg font-bold text-slate-900 mb-3">Background</h4>
                   <p className="text-sm text-slate-700 leading-relaxed font-medium">
                     {founder.bio}
@@ -136,12 +114,9 @@ export default function FounderSection() {
               </Card>
 
               {/* Story Card */}
-              <Card className="bg-gradient-to-br from-green-50 via-green-100/40 to-green-50 border-2 border-green-300 group overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-white/50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
+              <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
                 <CardContent className="p-7 relative z-10 flex flex-col">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-green-600/20 mb-4">
-                    <span className="text-xl font-bold text-green-600">🎯</span>
-                  </div>
                   <h4 className="text-lg font-bold text-slate-900 mb-3">Why Emenu Cambodia?</h4>
                   <p className="text-sm text-slate-700 leading-relaxed font-medium">
                     {founder.story}
