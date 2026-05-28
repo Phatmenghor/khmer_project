@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, QrCode, CheckCircle2, Building2 } from "lucide-react";
+import { Loader2, CheckCircle2, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -36,11 +37,11 @@ const schema = z
 type FormData = z.infer<typeof schema>;
 
 const benefits = [
-  "Full access to all Professional features",
+  "30-day free trial - Full access",
   "No credit card required",
-  "14-day free trial included",
-  "Free onboarding support",
-  "Cancel anytime",
+  "All features included",
+  "24/7 global support",
+  "Auto-scaling infrastructure",
 ];
 
 export default function RegisterPage() {
@@ -99,22 +100,26 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen w-full overflow-hidden">
       {/* ── Left — brand panel ── */}
-      <div className="hidden lg:flex w-[42%] flex-col bg-foreground px-10 py-12 text-background">
+      <div className="hidden lg:flex w-[42%] flex-col bg-gradient-to-b from-slate-900 to-slate-800 px-10 py-12 text-white">
         {/* Logo */}
         <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-2.5 mb-16">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <QrCode className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <span className="text-lg font-bold text-background tracking-tight">eMenu</span>
+          <Image
+            src="/images/logo/my_logo.png"
+            alt="Emenu Cambodia Logo"
+            width={100}
+            height={60}
+            className="h-12 w-auto"
+            priority
+          />
         </Link>
 
         {/* Heading */}
         <div className="flex-1">
-          <h2 className="text-3xl font-bold text-background leading-snug mb-3">
-            Start your free 14-day trial
+          <h2 className="text-4xl font-bold text-white leading-snug mb-3">
+            Transform Your Restaurant Into a Digital Powerhouse
           </h2>
-          <p className="text-sm text-background/60 mb-8 max-w-xs leading-relaxed">
-            Join 500+ restaurants in Cambodia using eMenu to digitize their menus and grow faster.
+          <p className="text-base text-white/70 mb-8 max-w-md leading-relaxed">
+            Join 500+ restaurants in Cambodia using Emenu Cambodia to digitize their business and grow faster with our professional platform.
           </p>
 
           <ul className="space-y-3">
@@ -129,21 +134,21 @@ export default function RegisterPage() {
           {/* Decorative stats */}
           <div className="mt-10 grid grid-cols-2 gap-4">
             {[
-              { value: "500+", label: "Restaurants" },
-              { value: "1M+", label: "Orders served" },
-              { value: "50+", label: "Cities" },
+              { value: "500+", label: "Businesses Active" },
+              { value: "50K+", label: "Orders Processed" },
               { value: "99.9%", label: "Uptime" },
+              { value: "<1hr", label: "Setup Time" },
             ].map(({ value, label }) => (
-              <div key={label} className="bg-background/5 rounded-lg p-4 border border-background/10">
+              <div key={label} className="bg-white/5 rounded-lg p-4 border border-white/10">
                 <div className="text-xl font-bold text-primary">{value}</div>
-                <div className="text-xs text-background/50">{label}</div>
+                <div className="text-xs text-white/50">{label}</div>
               </div>
             ))}
           </div>
         </div>
 
-        <p className="text-xs text-background/30 mt-8">
-          © {new Date().getFullYear()} eMenu. All rights reserved.
+        <p className="text-xs text-white/30 mt-8">
+          © {new Date().getFullYear()} Emenu Cambodia. All rights reserved.
         </p>
       </div>
 
@@ -152,10 +157,14 @@ export default function RegisterPage() {
         <div className="w-full max-w-2xl py-8">
           {/* Mobile logo */}
           <Link href={ROUTES.PUBLIC.HOME} className="flex lg:hidden items-center gap-2 mb-6">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-              <QrCode className="w-3.5 h-3.5 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-foreground">eMenu</span>
+            <Image
+              src="/images/logo/my_logo.png"
+              alt="Emenu Cambodia Logo"
+              width={80}
+              height={50}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
 
           <div className="text-right text-sm text-muted-foreground mb-6">
@@ -165,22 +174,22 @@ export default function RegisterPage() {
             </Link>
           </div>
 
-          <Card className="shadow-2xl border border-border/60 rounded-2xl overflow-hidden">
+          <Card className="shadow-2xl border-2 border-primary/20 rounded-2xl overflow-hidden bg-white">
             {/* Card header */}
-            <div className="bg-primary/5 border-b border-border/50 px-8 pt-8 pb-6">
+            <div className="bg-gradient-to-r from-primary/8 via-primary/3 to-primary/5 border-b border-primary/20 px-8 pt-8 pb-6">
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-                  <Building2 className="h-5 w-5 text-primary-foreground" />
+                  <Building2 className="h-5 w-5 text-white" />
                 </div>
                 <span className="text-xs font-semibold uppercase tracking-widest text-primary">
-                  New Account
+                  Create Account
                 </span>
               </div>
-              <h1 className="text-2xl font-bold text-foreground leading-tight">
+              <h1 className="text-3xl font-bold text-slate-900 leading-tight">
                 Register Your Business
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Set up your restaurant account and start your free trial.
+              <p className="text-base text-slate-600 mt-2">
+                Set up your restaurant account and get access to our complete platform. Start your 30-day free trial today.
               </p>
             </div>
 
@@ -306,7 +315,7 @@ export default function RegisterPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-11 font-semibold text-base"
+                  className="w-full h-12 font-bold text-base bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white rounded-xl"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -319,11 +328,11 @@ export default function RegisterPage() {
                   )}
                 </Button>
 
-                <p className="text-center text-xs text-muted-foreground">
+                <p className="text-center text-sm text-slate-600">
                   By registering you agree to our{" "}
-                  <a href="#" className="text-primary hover:underline">Terms of Service</a>
+                  <a href="#" className="text-primary font-medium hover:underline">Terms of Service</a>
                   {" "}and{" "}
-                  <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
+                  <a href="#" className="text-primary font-medium hover:underline">Privacy Policy</a>.
                 </p>
               </form>
             </CardContent>
