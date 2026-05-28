@@ -9,8 +9,8 @@ import { clearAllTokens } from "@/utils/local-storage/token";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { useIsMobile } from "@/redux/store/use-mobile";
+import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
-import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -55,42 +55,39 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         </div>
       </header>
       <Dialog open={showLogoutAlert} onOpenChange={setShowLogoutAlert}>
-        <DialogContent className="w-full sm:max-w-md rounded-2xl p-0 gap-0 flex flex-col max-h-[90vh]">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg shrink-0">
-                <LogOut className="h-6 w-6 text-red-600 dark:text-red-400" />
-              </div>
-              <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                <DialogTitle className="text-xl font-semibold">Sign Out</DialogTitle>
-                <DialogDescription className="text-sm">
-                  Are you sure you want to sign out of your account? You'll need to sign in again to access your dashboard and saved data.
-                </DialogDescription>
-              </div>
-            </div>
-          </DialogHeader>
+        <DialogContent className="w-full sm:max-w-md max-h-[92dvh] p-0 gap-0 flex flex-col">
+          <FormHeader
+            title="Sign Out"
+            description="Are you sure you want to sign out of your account? You'll need to sign in again to access your dashboard and saved data."
+            isCreate={false}
+          />
 
-          <FormBody className="flex-1" contentClassName="py-4">
-            <div className="text-sm text-muted-foreground leading-relaxed">
-              This action will end your current session and you'll be redirected to the login page.
+          <FormBody className="flex-1">
+            <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+              <p className="text-sm text-amber-900 dark:text-amber-100 font-medium">
+                ⚠️ This action will end your current session. You'll be redirected to the login page.
+              </p>
             </div>
           </FormBody>
 
-          <div className="flex justify-end gap-2 p-6 border-t bg-muted/30 flex-shrink-0">
-            <Button
-              variant="outline"
-              onClick={() => setShowLogoutAlert(false)}
-              className="rounded-lg w-full sm:w-auto"
-            >
-              Stay Signed In
-            </Button>
-            <Button
-              onClick={handleLogout}
-              className="rounded-lg w-full sm:w-auto bg-red-600 hover:bg-red-700 focus:ring-red-600 gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
+          <div className="flex justify-between items-center p-6 border-t bg-muted/30 flex-shrink-0">
+            <div></div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowLogoutAlert(false)}
+                className="rounded-lg"
+              >
+                Stay Signed In
+              </Button>
+              <Button
+                onClick={handleLogout}
+                className="rounded-lg bg-red-600 hover:bg-red-700 focus:ring-red-600 gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
