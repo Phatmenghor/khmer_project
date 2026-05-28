@@ -72,11 +72,7 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
     @Override
     @Async("taskExecutor")
     public void notifyPlatformEvent(String type, Map<String, Object> payload) {
-        WebSocketEvent event = WebSocketEvent.builder()
-                .type(type)
-                .payload(payload)
-                .build();
-        messagingTemplate.convertAndSend("/topic/platform", event);
-        log.info("[WS] Platform event {} sent", type);
+        // Platform events disabled - frontend no longer uses WebSocket real-time except Dashboard
+        // All platform event broadcasting has been removed (BUSINESS_OWNER_CHANGED, USER_CHANGED, etc)
     }
 }
