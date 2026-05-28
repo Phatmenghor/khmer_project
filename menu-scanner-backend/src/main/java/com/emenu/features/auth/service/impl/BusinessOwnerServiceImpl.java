@@ -288,7 +288,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                         currentSubscriptionRecord.getId(), SubscriptionPaymentStatus.PENDING)
                 .ifPresent(paymentRecord -> {
                     paymentRecord.setStatus(SubscriptionPaymentStatus.CANCELLED);
-                    paymentRecord.setNotes("Cancelled: " + cancelRequestData.getReason());
+                    paymentRecord.setNotes("Subscription cancelled");
                     subscriptionPaymentRepository.save(paymentRecord);
                 });
 
