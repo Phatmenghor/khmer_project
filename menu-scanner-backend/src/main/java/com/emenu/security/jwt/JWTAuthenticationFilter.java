@@ -74,26 +74,18 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-                    // Extract full user info and store in ThreadLocal for audit logging
+                    // Store user info from token claims in ThreadLocal for audit logging
                     try {
-                        Optional<User> userOpt = null;
-                        if (userType != null) {
-                            var userTypeEnum = com.emenu.enums.user.UserType.valueOf(userType);
-                            userOpt = userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(username, userTypeEnum);
-                        } else {
-                            userOpt = userRepository.findByUserIdentifierAndIsDeletedFalse(username);
+                        String userId = jwtGenerator.getUserIdFromJWT(token);
+                        String userIdentifier = jwtGenerator.getUserIdentifierFromJWT(token);
+                        var authMap = AUTHENTICATED_USER.get();
+                        if (userId != null) {
+                            authMap.put("userId", userId);
                         }
-
-                        if (userOpt != null && userOpt.isPresent()) {
-                            User user = userOpt.get();
-                            var authMap = AUTHENTICATED_USER.get();
-                            authMap.put("username", username);
-                            authMap.put("userType", userType);
-                            authMap.put("userId", user.getId().toString());
-                            authMap.put("userIdentifier", user.getUserIdentifier());
-                        }
+                        authMap.put("userIdentifier", userIdentifier);
+                        authMap.put("userType", userType);
                     } catch (Exception e) {
-                        log.debug("[JWT] Failed to extract user from database: {}", e.getMessage());
+                        log.debug("[JWT] Failed to extract user info from token: {}", e.getMessage());
                     }
 
                     log.debug("[JWT] Authentication set in SecurityContext for user: {}", username);

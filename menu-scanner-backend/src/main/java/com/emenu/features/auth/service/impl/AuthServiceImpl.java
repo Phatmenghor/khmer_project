@@ -84,7 +84,9 @@ public class AuthServiceImpl implements AuthService {
         String accessTokenString = jwtGenerator.generateAccessTokenFromUsername(
                 userEntity.getUserIdentifier(),
                 roleNames,
-                userEntity.getUserType().name()
+                userEntity.getUserType().name(),
+                userEntity.getId().toString(),
+                userEntity.getUserIdentifier()
         );
 
         String clientIpAddress = clientContextUtils.getClientIpAddress();
@@ -331,7 +333,9 @@ public class AuthServiceImpl implements AuthService {
         String newAccessTokenString = jwtGenerator.generateAccessTokenFromUsername(
                 userEntity.getUserIdentifier(),
                 roleNames,
-                userEntity.getUserType().name()
+                userEntity.getUserType().name(),
+                userEntity.getId().toString(),
+                userEntity.getUserIdentifier()
         );
 
         String clientIpAddress = clientContextUtils.getClientIpAddress();

@@ -35,7 +35,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         String tokenString = jwtGenerator.generateRefreshToken(
                 userEntity.getUserIdentifier(),
                 userEntity.getUserType().name(),
-                userEntity.getBusinessId() != null ? userEntity.getBusinessId().toString() : null
+                userEntity.getBusinessId() != null ? userEntity.getBusinessId().toString() : null,
+                userEntity.getId().toString(),
+                userEntity.getUserIdentifier()
         );
 
         RefreshTokenCreateHelper tokenCreateHelper = RefreshTokenCreateHelper.builder()

@@ -79,14 +79,16 @@ public class AuditLogServiceImpl implements AuditLogService {
         String authUserIdentifier = authMap.get("userIdentifier");
         String authUserType = authMap.get("userType");
 
-        if (authUserId != null && authUserIdentifier != null) {
-            try {
-                userId = java.util.UUID.fromString(authUserId);
-                userIdentifier = authUserIdentifier;
-                userType = authUserType != null ? authUserType : "ANONYMOUS";
-            } catch (Exception e) {
-                log.debug("Exception extracting user from ThreadLocal: {}", e.getMessage());
+        if (authUserIdentifier != null) {
+            if (authUserId != null) {
+                try {
+                    userId = java.util.UUID.fromString(authUserId);
+                } catch (Exception e) {
+                    log.debug("Invalid userId format from token: {}", authUserId);
+                }
             }
+            userIdentifier = authUserIdentifier;
+            userType = authUserType != null ? authUserType : "ANONYMOUS";
         }
 
         String httpMethod = request.getMethod();

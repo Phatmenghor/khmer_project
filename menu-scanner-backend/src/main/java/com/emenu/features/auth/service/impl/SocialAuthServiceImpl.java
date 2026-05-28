@@ -60,7 +60,9 @@ public class SocialAuthServiceImpl implements SocialAuthService {
         String accessTokenString = jwtGenerator.generateAccessTokenFromUsername(
                 userEntity.getUserIdentifier(),
                 roleNames,
-                userEntity.getUserType().name()
+                userEntity.getUserType().name(),
+                userEntity.getId().toString(),
+                userEntity.getUserIdentifier()
         );
         String refreshTokenString = refreshTokenService.createRefreshToken(
                 userEntity, authRequestData.getIpAddress(), authRequestData.getDeviceInfo()).getToken();
