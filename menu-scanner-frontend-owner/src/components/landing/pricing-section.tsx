@@ -127,8 +127,8 @@ export default function PricingSection() {
           </div>
         ) : (
           <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-6 mt-16 items-start">
-            {plans.map(({ name, price, period, description, features = [], highlighted = false }, i) => {
-              const planData: PlanData = { name, price, period, description };
+            {plans.map(({ id, name, price, period, description, features = [], highlighted = false }, i) => {
+              const planData: PlanData = { id, name, price, period, description };
               return (
               <FadeIn key={name} direction="up" delay={i * 140}>
               <Card
