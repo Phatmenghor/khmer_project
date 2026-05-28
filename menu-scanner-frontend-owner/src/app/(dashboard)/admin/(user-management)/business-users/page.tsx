@@ -75,7 +75,6 @@ export default function UserPage() {
   });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const wsVersion = useAppSelector((state) => state.websocket.versions.user);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -105,7 +104,7 @@ export default function UserPage() {
             : [filters.accountStatus],
       })
     );
-  }, [dispatch, debouncedSearch, filters.accountStatus, filters.pageNo, globalPageSize, wsVersion]);
+  }, [dispatch, debouncedSearch, filters.accountStatus, filters.pageNo, globalPageSize]);
 
   const handleEditUser = (user: UserResponseModel) => {
     setModalState({ isOpen: true, mode: ModalMode.UPDATE_MODE, userId: user.id || "" });

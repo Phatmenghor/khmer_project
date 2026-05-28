@@ -61,7 +61,6 @@ export default function UserPage() {
 
   const rolesList = useAppSelector(selectRolesList);
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const wsVersion = useAppSelector((state) => state.websocket.versions.user);
 
   const roleFilterOptions = [
     { value: UserRole.ALL, label: "All Roles" },

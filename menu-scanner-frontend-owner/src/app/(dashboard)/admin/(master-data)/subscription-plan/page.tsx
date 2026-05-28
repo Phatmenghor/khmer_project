@@ -68,7 +68,6 @@ export default function SubscriptionPlanPage() {
   });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const wsVersion = useAppSelector((state) => state.websocket.versions.subscriptionPlan);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -99,7 +98,7 @@ export default function SubscriptionPlanPage() {
             : [filters.statuses],
       })
     );
-  }, [dispatch, debouncedSearch, filters.statuses, filters.pageNo, globalPageSize, wsVersion]);
+  }, [dispatch, debouncedSearch, filters.statuses, filters.pageNo, globalPageSize]);
 
   // Event handlers
   const handleCreatePlan = () => {

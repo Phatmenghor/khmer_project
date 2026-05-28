@@ -62,7 +62,6 @@ export default function ProvincePage() {
   });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const wsVersion = useAppSelector((state) => state.websocket.versions.location);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -89,7 +88,7 @@ export default function ProvincePage() {
         pageSize: globalPageSize,
       })
     );
-  }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize, wsVersion]);
+  }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
 
   // Event handlers
   const handleCreateProvince = () => {
