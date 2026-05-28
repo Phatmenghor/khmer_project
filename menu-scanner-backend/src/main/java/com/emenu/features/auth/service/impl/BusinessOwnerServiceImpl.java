@@ -245,26 +245,53 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         Subscription currentSubscriptionRecord = getCurrentSubscription(businessEntity.getId());
         SubscriptionPlan newPlanEntity = getPlanOrThrow(changePlanRequestData.getNewPlanId());
 
-        currentSubscriptionRecord.setPlan(newPlanEntity);
-        currentSubscriptionRecord.setStartDate(LocalDateTime.now());
-        currentSubscriptionRecord.setEndDate(newPlanEntity.calculateEndDate(LocalDateTime.now()));
+        String oldPlanName = currentSubscriptionRecord.getPlan() != null ? currentSubscriptionRecord.getPlan().getName() : "N/A";
 
-        subscriptionRepository.save(currentSubscriptionRecord);
+        // If current subscription is cancelled or expired, create a new subscription; otherwise update the current one
+        if (currentSubscriptionRecord.isCancelled() || currentSubscriptionRecord.isExpired()) {
+            // Create new subscription like renewal
+            Subscription newSubscription = new Subscription();
+            newSubscription.setBusinessId(businessEntity.getId());
+            newSubscription.setPlanId(newPlanEntity.getId());
+            newSubscription.setPlan(newPlanEntity);
+            newSubscription.setStartDate(LocalDateTime.now());
+            newSubscription.setEndDate(newPlanEntity.calculateEndDate(LocalDateTime.now()));
+            newSubscription.setAutoRenew(currentSubscriptionRecord.getAutoRenew());
+            newSubscription = subscriptionRepository.save(newSubscription);
 
-        // Always create a payment record for plan change
-        BigDecimal amount = changePlanRequestData.getPaymentAmount() != null
-                ? changePlanRequestData.getPaymentAmount() : BigDecimal.ZERO;
-        String method = changePlanRequestData.getPaymentMethod() != null && !changePlanRequestData.getPaymentMethod().isBlank()
-                ? changePlanRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
-        createSubscriptionPaymentForRenewal(currentSubscriptionRecord, amount, method,
-                changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
+            // Create payment record for the new subscription
+            BigDecimal amount = changePlanRequestData.getPaymentAmount() != null
+                    ? changePlanRequestData.getPaymentAmount() : BigDecimal.ZERO;
+            String method = changePlanRequestData.getPaymentMethod() != null && !changePlanRequestData.getPaymentMethod().isBlank()
+                    ? changePlanRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
+            createSubscriptionPaymentForRenewal(newSubscription, amount, method,
+                    changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
+
+            currentSubscriptionRecord = newSubscription;
+        } else {
+            // Update existing active subscription
+            currentSubscriptionRecord.setPlan(newPlanEntity);
+            currentSubscriptionRecord.setStartDate(LocalDateTime.now());
+            currentSubscriptionRecord.setEndDate(newPlanEntity.calculateEndDate(LocalDateTime.now()));
+            subscriptionRepository.save(currentSubscriptionRecord);
+
+            // Create payment record for plan change
+            BigDecimal amount = changePlanRequestData.getPaymentAmount() != null
+                    ? changePlanRequestData.getPaymentAmount() : BigDecimal.ZERO;
+            String method = changePlanRequestData.getPaymentMethod() != null && !changePlanRequestData.getPaymentMethod().isBlank()
+                    ? changePlanRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
+            createSubscriptionPaymentForRenewal(currentSubscriptionRecord, amount, method,
+                    changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
+        }
+
+        businessEntity.activateSubscription();
+        businessRepository.save(businessEntity);
 
         log.info("Subscription plan changed successfully: owner_id={}, subscription_id={}, new_plan_id={}",
                 ownerId, currentSubscriptionRecord.getId(), changePlanRequestData.getNewPlanId());
         webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "planChanged", "ownerId", ownerId.toString()));
 
         // Send Telegram notification
-        String oldPlanName = currentSubscriptionRecord.getPlan() != null ? currentSubscriptionRecord.getPlan().getName() : "N/A";
         String newPlanName = newPlanEntity.getName();
         String newExpiryDate = currentSubscriptionRecord.getEndDate().toLocalDate().toString();
         telegramNotificationService.notifySubscriptionPlanChanged(
