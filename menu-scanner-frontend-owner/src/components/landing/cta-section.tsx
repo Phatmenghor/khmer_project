@@ -36,8 +36,8 @@ export default function CtaSection() {
             </Button>
           </div>
 
-          <div className="mt-10 pt-10 border-t border-white/20">
-            <p className="text-base text-white/90">
+          <div className="mt-10">
+            <p className="text-sm text-white/80 text-center">
               {cta.disclaimer}
             </p>
           </div>

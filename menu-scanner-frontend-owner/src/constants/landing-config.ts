@@ -86,11 +86,18 @@ export const LANDING_CONFIG = {
     name: "Phat Menghor",
     title: "Founder & Full-Stack Software Engineer",
     image: "/images/founder.jpg",
-    bio: "A software developer passionate about empowering restaurants worldwide with affordable digital solutions. Built EMenu Platform to provide professional-grade technology that's simple, powerful, and accessible to businesses of all sizes.",
-    vision: "Every restaurant deserves access to world-class digital tools that increase efficiency, boost sales, and delight customers.",
+    bio: "A passionate software engineer from Cambodia with a vision to transform how restaurants operate across Asia and the world. With over a decade of experience building enterprise-grade SaaS platforms, Phat recognized a critical gap: many food businesses, especially in developing markets, lack access to affordable digital infrastructure.",
+    story: "After working with multiple restaurants and witnessing their struggles with manual operations, outdated systems, and expensive solutions, Phat decided to build something different. EMenu Platform was created to democratize restaurant technology—combining world-class features typically found in expensive enterprise software with the simplicity and affordability that small to medium-sized restaurants need.",
+    vision: "Empower food businesses globally to compete digitally, streamline operations, increase profitability, and deliver exceptional customer experiences. Every restaurant, regardless of size or location, deserves access to professional digital tools.",
+    highlights: [
+      "Built in Cambodia 🇰🇭 for the world 🌍",
+      "10+ years enterprise software experience",
+      "Passionate about restaurant technology",
+      "Committed to affordable digital solutions"
+    ],
     contact: {
       email: "support@emenu-platform.com",
-      location: "Global 🌍"
+      location: "Cambodia 🇰🇭"
     }
   },
 

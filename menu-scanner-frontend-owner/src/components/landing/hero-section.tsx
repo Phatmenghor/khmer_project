@@ -8,24 +8,24 @@ import { ROUTES } from "@/constants/app-routes/routes";
 
 export default function HeroSection() {
   return (
-    <section className="relative bg-white overflow-hidden pt-32 pb-24">
+    <section className="relative bg-white overflow-hidden pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn direction="up" delay={0}>
           <div className="space-y-8 max-w-3xl">
             {/* Headline */}
-            <h1 className="text-6xl sm:text-7xl font-bold leading-tight text-slate-900">
+            <h1 className="text-5xl sm:text-6xl font-bold leading-tight text-slate-900">
               Transform Your Restaurant
               <br />
               <span className="text-primary">Into a Digital Powerhouse</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg sm:text-xl text-gray-700 leading-relaxed max-w-2xl">
-              Enterprise-grade platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, multi-language support, and global payment processing. Everything restaurant owners need to compete globally and scale their business.
+            <p className="text-base sm:text-lg text-gray-700 leading-relaxed max-w-2xl">
+              Enterprise-grade platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, multi-language support, and global payment processing.
             </p>
 
-            {/* Features */}
-            <div className="grid sm:grid-cols-2 gap-3 pt-4">
+            {/* Features as cards */}
+            <div className="grid sm:grid-cols-2 gap-3 pt-6 bg-primary/5 rounded-2xl p-6 border border-primary/10">
               {[
                 "30-day free trial",
                 "Full feature access",
@@ -35,32 +35,26 @@ export default function HeroSection() {
                 "GDPR & compliance ready"
               ].map((feature, i) => (
                 <div key={i} className="flex items-center gap-2 text-gray-800">
-                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                  <span>{feature}</span>
+                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 animate-scale-in" style={{animationDelay: `${i * 50}ms`}} />
+                  <span className="text-sm font-medium">{feature}</span>
                 </div>
               ))}
             </div>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-8">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 py-7 text-lg rounded-xl group w-full sm:w-auto shadow-md" asChild>
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-base rounded-xl group w-full sm:w-auto shadow-lg transition-all hover:shadow-xl" asChild>
                 <Link href={ROUTES.PUBLIC.REGISTER}>
                   Start Free Trial
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition" />
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="px-8 py-7 text-lg rounded-xl border-2 border-gray-300 text-slate-900 hover:bg-gray-50 w-full sm:w-auto" asChild>
+              <Button size="lg" variant="outline" className="px-8 py-3 text-base rounded-xl border-2 border-primary/20 text-slate-900 hover:bg-primary/5 w-full sm:w-auto" asChild>
                 <a href="#features">Schedule Demo</a>
               </Button>
             </div>
           </div>
         </FadeIn>
-      </div>
-
-      {/* Colored bars at bottom */}
-      <div className="mt-16 flex flex-col gap-0">
-        <div className="h-1 bg-primary" />
-        <div className="h-1 bg-primary/80" />
       </div>
     </section>
   );

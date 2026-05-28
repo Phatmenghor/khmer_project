@@ -9,11 +9,12 @@ import { LANDING_CONFIG } from "@/constants/landing-config";
 
 export default function PricingSection() {
   return (
-    <section id="pricing" className="bg-white py-32">
+    <section id="pricing" className="bg-white py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn direction="up">
-          <div className="text-center mb-16">
-            <p className="text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">Simple Pricing</h2>
+            <p className="text-base text-slate-600 leading-relaxed max-w-3xl mx-auto">
               {LANDING_CONFIG.pricing.subtitle}
             </p>
           </div>

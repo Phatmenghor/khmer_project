@@ -7,7 +7,7 @@ export default function Footer() {
   const { footer } = LANDING_CONFIG;
 
   return (
-    <footer className="bg-slate-50 border-t border-slate-200">
+    <footer className="bg-gradient-to-b from-white to-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <FadeIn direction="up">
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
@@ -48,8 +48,8 @@ export default function Footer() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-base text-slate-600 mb-4">
               <span>© {new Date().getFullYear()} {footer.company}. All rights reserved.</span>
               <div className="flex gap-6">
-                <a href="#" className="hover:text-amber-700 transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-amber-700 transition-colors">Terms of Service</a>
+                <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
+                <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
               </div>
             </div>
             <p className="text-center text-sm text-slate-500 mt-6">

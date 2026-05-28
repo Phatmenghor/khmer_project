@@ -36,14 +36,14 @@ export default function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="contact" className="bg-white py-32">
+    <section id="contact" className="bg-white py-20">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn direction="up">
-          <div className="text-center mb-14">
-            <h2 className="text-5xl sm:text-6xl font-bold text-slate-900 mb-5">
-              Frequently Asked Questions
+          <div className="text-center mb-12">
+            <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">
+              Questions Answered
             </h2>
-            <p className="text-xl text-slate-600">
+            <p className="text-base text-slate-600">
               Everything you need to know about EMenu Platform
             </p>
           </div>
