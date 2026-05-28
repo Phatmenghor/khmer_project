@@ -9,6 +9,7 @@ import com.emenu.features.location.models.Village;
 import com.emenu.features.location.repository.CommuneRepository;
 import com.emenu.features.location.repository.VillageRepository;
 import com.emenu.features.location.service.VillageService;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -30,6 +32,7 @@ public class VillageServiceImpl implements VillageService {
     private final VillageMapper villageMapper;
     private final CommuneRepository communeRepository;
     private final PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     @Transactional
@@ -44,6 +47,7 @@ public class VillageServiceImpl implements VillageService {
         VillageResponse response = villageMapper.toResponse(villageWithRelations);
 
         log.info("Village created successfully: id={}, code={}", savedVillage.getId(), villageWithRelations.getVillageCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "created", "type", "village"));
         return response;
     }
 
@@ -108,6 +112,7 @@ public class VillageServiceImpl implements VillageService {
 
         Village updatedVillage = findVillageById(id);
         log.info("Village updated successfully: id={}, code={}", id, updatedVillage.getVillageCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "updated", "type", "village"));
         return villageMapper.toResponse(updatedVillage);
     }
 
@@ -118,6 +123,7 @@ public class VillageServiceImpl implements VillageService {
         village.softDelete();
         villageRepository.save(village);
         log.info("Village deleted successfully: id={}, code={}", id, village.getVillageCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "deleted", "type", "village"));
     }
 
     private Village findVillageById(UUID id) {

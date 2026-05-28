@@ -9,6 +9,7 @@ import com.emenu.features.location.models.District;
 import com.emenu.features.location.repository.DistrictRepository;
 import com.emenu.features.location.repository.ProvinceRepository;
 import com.emenu.features.location.service.DistrictService;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -30,6 +32,7 @@ public class DistrictServiceImpl implements DistrictService {
     private final DistrictMapper districtMapper;
     private final ProvinceRepository provinceRepository;
     private final PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     @Transactional
@@ -44,6 +47,7 @@ public class DistrictServiceImpl implements DistrictService {
         DistrictResponse response = districtMapper.toResponse(districtWithProvince);
 
         log.info("District created successfully: id={}, code={}", savedDistrict.getId(), districtWithProvince.getDistrictCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "created", "type", "district"));
         return response;
     }
 
@@ -108,6 +112,7 @@ public class DistrictServiceImpl implements DistrictService {
 
         District updatedDistrict = findDistrictById(id);
         log.info("District updated successfully: id={}, code={}", id, updatedDistrict.getDistrictCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "updated", "type", "district"));
         return districtMapper.toResponse(updatedDistrict);
     }
 
@@ -118,6 +123,7 @@ public class DistrictServiceImpl implements DistrictService {
         district.softDelete();
         districtRepository.save(district);
         log.info("District deleted successfully: id={}, code={}", id, district.getDistrictCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "deleted", "type", "district"));
     }
 
     private District findDistrictById(UUID id) {

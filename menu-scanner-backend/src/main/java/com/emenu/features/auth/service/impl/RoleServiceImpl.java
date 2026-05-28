@@ -15,6 +15,7 @@ import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.service.RoleService;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.shared.constants.AuthConstants;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -44,6 +46,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleMapper roleMapper;
     private final ResponseBuilderMapper responseBuilderMapper;
     private final PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     public RoleResponse createRole(RoleCreateRequest request) {
@@ -77,6 +80,7 @@ public class RoleServiceImpl implements RoleService {
 
         Role savedRole = roleRepository.save(role);
         log.info("Role created successfully: id={}, name={}, type={}", savedRole.getId(), savedRole.getName(), savedRole.getUserType());
+        webSocketNotificationService.notifyPlatformEvent("ROLE_CHANGED", Map.of("action", "created", "roleId", savedRole.getId().toString()));
 
         return roleMapper.toResponse(savedRole);
     }
@@ -197,6 +201,7 @@ public class RoleServiceImpl implements RoleService {
         roleMapper.updateEntity(request, role);
         Role savedRole = roleRepository.save(role);
         log.info("Role updated successfully: id={}, name={}", savedRole.getId(), savedRole.getName());
+        webSocketNotificationService.notifyPlatformEvent("ROLE_CHANGED", Map.of("action", "updated", "roleId", savedRole.getId().toString()));
 
         return roleMapper.toResponse(savedRole);
     }
@@ -235,6 +240,7 @@ public class RoleServiceImpl implements RoleService {
         Role deletedRole = roleRepository.save(role);
 
         log.info("Role deleted successfully: id={}, name={}", deletedRole.getId(), deletedRole.getName());
+        webSocketNotificationService.notifyPlatformEvent("ROLE_CHANGED", Map.of("action", "deleted", "roleId", deletedRole.getId().toString()));
         return roleMapper.toResponse(deletedRole);
     }
 

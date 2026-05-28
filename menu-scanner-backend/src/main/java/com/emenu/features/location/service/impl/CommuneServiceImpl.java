@@ -9,6 +9,7 @@ import com.emenu.features.location.models.Commune;
 import com.emenu.features.location.repository.CommuneRepository;
 import com.emenu.features.location.repository.DistrictRepository;
 import com.emenu.features.location.service.CommuneService;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -30,6 +32,7 @@ public class CommuneServiceImpl implements CommuneService {
     private final CommuneMapper communeMapper;
     private final DistrictRepository districtRepository;
     private final PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     @Transactional
@@ -44,6 +47,7 @@ public class CommuneServiceImpl implements CommuneService {
         CommuneResponse response = communeMapper.toResponse(communeWithRelations);
 
         log.info("Commune created successfully: id={}, code={}", savedCommune.getId(), communeWithRelations.getCommuneCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "created", "type", "commune"));
         return response;
     }
 
@@ -109,6 +113,7 @@ public class CommuneServiceImpl implements CommuneService {
 
         Commune updatedCommune = findCommuneById(id);
         log.info("Commune updated successfully: id={}, code={}", id, updatedCommune.getCommuneCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "updated", "type", "commune"));
         return communeMapper.toResponse(updatedCommune);
     }
 
@@ -119,6 +124,7 @@ public class CommuneServiceImpl implements CommuneService {
         commune.softDelete();
         communeRepository.save(commune);
         log.info("Commune deleted successfully: id={}, code={}", id, commune.getCommuneCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "deleted", "type", "commune"));
     }
 
     private Commune findCommuneById(UUID id) {

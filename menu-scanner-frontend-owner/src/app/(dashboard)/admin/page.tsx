@@ -3,6 +3,7 @@
 import { useCallback, useEffect } from "react";
 import { format } from "date-fns";
 import { showToast } from "@/components/shared/common/show-toast";
+import { useAppSelector } from "@/redux/store";
 import { useOwnerDashboardState } from "@/redux/features/owner-dashboard/store/state/owner-dashboard-state";
 import {
   fetchOwnerDashboardSummaryService,
@@ -37,6 +38,8 @@ export default function AdminDashboardPage() {
     error,
   } = useOwnerDashboardState();
 
+  const wsVersion = useAppSelector((state) => state.websocket.versions.dashboard);
+
   const fetchAll = useCallback(() => {
     dispatch(fetchOwnerDashboardSummaryService());
     dispatch(fetchOwnerDashboardTrendsService());
@@ -50,7 +53,7 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchAll();
-  }, [fetchAll]);
+  }, [fetchAll, wsVersion]);
 
   useEffect(() => {
     if (error) showToast.error(error);

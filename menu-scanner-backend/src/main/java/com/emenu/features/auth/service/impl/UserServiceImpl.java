@@ -20,6 +20,7 @@ import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.features.auth.service.UserService;
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import com.emenu.shared.dto.PaginationResponse;
@@ -61,6 +62,7 @@ public class UserServiceImpl implements UserService {
     private final SecurityUtils securityUtils;
     private final PaginationMapper paginationMapper;
     private final TelegramNotificationService telegramNotificationService;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     public UserResponse createUser(UserCreateRequest requestData) {
@@ -81,6 +83,7 @@ public class UserServiceImpl implements UserService {
                 savedUserEntity.getId(), savedUserEntity.getUserIdentifier(),
                 savedUserEntity.getUserType(),
                 countTotalRelatedRecords(savedUserEntity));
+        webSocketNotificationService.notifyPlatformEvent("USER_CHANGED", Map.of("action", "created", "userId", savedUserEntity.getId().toString()));
 
         if (requestData.getBusinessId() != null) {
             String firstName = requestData.getFirstName() != null ? requestData.getFirstName() : "";
@@ -248,6 +251,7 @@ public class UserServiceImpl implements UserService {
         log.info("User updated successfully: id={}, identifier={}, total_changes={}",
                 updatedUserEntity.getId(), updatedUserEntity.getUserIdentifier(),
                 countTotalRelatedRecords(updatedUserEntity));
+        webSocketNotificationService.notifyPlatformEvent("USER_CHANGED", Map.of("action", "updated", "userId", updatedUserEntity.getId().toString()));
 
         return userMapper.toResponse(updatedUserEntity);
     }
@@ -356,6 +360,7 @@ public class UserServiceImpl implements UserService {
         userEntity.softDelete();
         userRepository.save(userEntity);
         log.info("User deleted successfully: id={}, identifier={}", userEntity.getId(), userEntity.getUserIdentifier());
+        webSocketNotificationService.notifyPlatformEvent("USER_CHANGED", Map.of("action", "deleted", "userId", userEntity.getId().toString()));
 
         return userMapper.toResponse(userEntity);
     }

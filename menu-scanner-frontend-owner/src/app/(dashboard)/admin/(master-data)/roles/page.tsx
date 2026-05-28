@@ -58,6 +58,7 @@ export default function RolesPage() {
   });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const wsVersion = useAppSelector((state) => state.websocket.versions.role);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -73,7 +74,7 @@ export default function RolesPage() {
         userTypes: ["PLATFORM_USER"],
       }),
     );
-  }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
+  }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize, wsVersion]);
 
   useEffect(() => {
     return () => {

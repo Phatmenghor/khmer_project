@@ -51,6 +51,7 @@ export default function SubscriptionHistoryPage() {
   } = useSubscriptionHistoryState();
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const wsVersion = useAppSelector((state) => state.websocket.versions.subscription);
   const appDispatch = useAppDispatch();
 
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessOption | null>(null);
@@ -116,6 +117,7 @@ export default function SubscriptionHistoryPage() {
     filters.status,
     filters.pageNo,
     globalPageSize,
+    wsVersion,
   ]);
 
   const handleBusinessChange = (item: BusinessOption | null) => {

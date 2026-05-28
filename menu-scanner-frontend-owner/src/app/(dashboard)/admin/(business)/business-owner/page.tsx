@@ -87,6 +87,7 @@ export default function BusinessOwnerPage() {
   });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const wsVersion = useAppSelector((state) => state.websocket.versions.businessOwner);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -120,7 +121,7 @@ export default function BusinessOwnerPage() {
             : undefined,
       })
     );
-  }, [dispatch, debouncedSearch, filters.subscriptionStatus, filters.autoRenew, filters.pageNo, globalPageSize]);
+  }, [dispatch, debouncedSearch, filters.subscriptionStatus, filters.autoRenew, filters.pageNo, globalPageSize, wsVersion]);
 
   const handleViewUserDetail = (user: BusinessOwnerResponseModel) => {
     setDetailModalState({ isOpen: true, ownerId: user.ownerId || "" });

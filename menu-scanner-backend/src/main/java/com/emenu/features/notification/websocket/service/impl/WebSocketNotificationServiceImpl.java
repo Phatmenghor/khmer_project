@@ -68,4 +68,15 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
         messagingTemplate.convertAndSend("/topic/" + bid + "/stock", event);
         log.info("[WS] STOCK_UPDATED sent for business {}", bid);
     }
+
+    @Override
+    @Async("taskExecutor")
+    public void notifyPlatformEvent(String type, Map<String, Object> payload) {
+        WebSocketEvent event = WebSocketEvent.builder()
+                .type(type)
+                .payload(payload)
+                .build();
+        messagingTemplate.convertAndSend("/topic/platform", event);
+        log.info("[WS] Platform event {} sent", type);
+    }
 }

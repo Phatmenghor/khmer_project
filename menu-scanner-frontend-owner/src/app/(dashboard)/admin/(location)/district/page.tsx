@@ -67,6 +67,7 @@ export default function DistrictPage() {
   });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const wsVersion = useAppSelector((state) => state.websocket.versions.location);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -94,7 +95,7 @@ export default function DistrictPage() {
         provinceCode: selectedProvince?.provinceCode,
       })
     );
-  }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize, selectedProvince]);
+  }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize, selectedProvince, wsVersion]);
 
   // Event handlers
   const handleCreateDistrict = () => {

@@ -1,4 +1,5 @@
 import globalSettingsReducer from "./slices/global-settings-slice";
+import websocketReducer from "./slices/websocket-slice";
 import authReducer from "../features/auth/store/slice/auth-slice";
 import usersReducer from "../features/auth/store/slice/users-slice";
 import businessOwnerReducer from "../features/auth/store/slice/business-owner-slice";
@@ -17,6 +18,7 @@ import ownerDashboardReducer from "../features/owner-dashboard/store/slice/owner
 
 export const reducers = {
   globalSettings: globalSettingsReducer,
+  websocket: websocketReducer,
   auth: authReducer,
   users: usersReducer,
   businessOwner: businessOwnerReducer,

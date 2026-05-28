@@ -26,6 +26,7 @@ import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.service.BusinessOwnerService;
 import com.emenu.features.auth.service.UserValidationService;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.features.subscription.models.Subscription;
 import com.emenu.features.subscription.models.SubscriptionPayment;
 import com.emenu.features.subscription.models.SubscriptionPlan;
@@ -50,6 +51,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -69,6 +71,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private final BusinessOwnerMapper mapper;
     private final UserValidationService userValidationService;
     private final PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Value("${app.subscription.expiry-soon-days:7}")
     private int expirySoonDays;
@@ -102,6 +105,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         log.info("Business owner created successfully: owner_id={}, business_id={}, subscription_id={}, has_payment={}",
                 ownerUserEntity.getId(), businessEntity.getId(),
                 subscriptionRecord != null ? subscriptionRecord.getId() : null, paymentRecord != null);
+        webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "created", "ownerId", ownerUserEntity.getId().toString()));
         return response;
     }
 
@@ -198,6 +202,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         log.info("Subscription renewed: owner_id={}, old_subscription_id={}, new_subscription_id={}",
                 ownerId, currentSubscription.getId(), newSubscription.getId());
+        webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "renewed", "ownerId", ownerId.toString()));
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
@@ -223,6 +228,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         log.info("Subscription plan changed successfully: owner_id={}, subscription_id={}, new_plan_id={}",
                 ownerId, currentSubscriptionRecord.getId(), changePlanRequestData.getNewPlanId());
+        webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "planChanged", "ownerId", ownerId.toString()));
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
@@ -255,6 +261,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         log.info("Subscription cancelled successfully: owner_id={}, subscription_id={}, refund_issued={}",
                 ownerId, currentSubscriptionRecord.getId(), cancelRequestData.hasRefundAmount());
+        webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "cancelled", "ownerId", ownerId.toString()));
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
@@ -301,6 +308,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         }
 
         log.info("Business owner updated successfully: owner_id={}", ownerId);
+        webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "updated", "ownerId", ownerId.toString()));
         return buildEnrichedDetailResponse(ownerEntity);
     }
 
@@ -325,6 +333,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         log.info("Business owner deleted successfully: owner_id={}, business_id={}, subscriptions_deleted={}",
                 ownerId, businessEntity.getId(), subscriptionRecords.size());
+        webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "deleted", "ownerId", ownerId.toString()));
         return buildEnrichedDetailResponse(ownerEntity);
     }
 

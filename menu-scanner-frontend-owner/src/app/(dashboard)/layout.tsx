@@ -1,5 +1,6 @@
 // src/app/(dashboard)/layout.tsx
 import DashboardLayout from "@/components/layout/dashboard-layout";
+import { WebSocketProvider } from "@/components/layout/websocket-provider";
 import type { ReactNode } from "react";
 
 interface DashboardGroupLayoutProps {
@@ -19,7 +20,9 @@ export default function DashboardGroupLayout({
 }: DashboardGroupLayoutProps) {
   return (
     <DashboardLayout>
-      <div className="flex-1 space-y-4 pl-4">{children}</div>
+      <WebSocketProvider>
+        <div className="flex-1 space-y-4 pl-4">{children}</div>
+      </WebSocketProvider>
     </DashboardLayout>
   );
 }

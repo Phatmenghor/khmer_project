@@ -11,6 +11,7 @@ import com.emenu.features.subscription.models.SubscriptionPlan;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.features.subscription.service.SubscriptionPlanService;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -34,6 +36,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionPlanMapper planMapper;
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     public SubscriptionPlanResponse createPlan(SubscriptionPlanCreateRequest request) {
@@ -48,6 +51,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         SubscriptionPlan savedPlan = planRepository.save(plan);
 
         log.info("Subscription plan created successfully: {} with ID: {}", savedPlan.getName(), savedPlan.getId());
+        webSocketNotificationService.notifyPlatformEvent("SUBSCRIPTION_PLAN_CHANGED", Map.of("action", "created", "planId", savedPlan.getId().toString()));
         return planMapper.toResponse(savedPlan);
     }
 
@@ -98,6 +102,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         SubscriptionPlan updatedPlan = planRepository.save(plan);
 
         log.info("Subscription plan updated successfully: {} - {}", updatedPlan.getId(), updatedPlan.getName());
+        webSocketNotificationService.notifyPlatformEvent("SUBSCRIPTION_PLAN_CHANGED", Map.of("action", "updated", "planId", updatedPlan.getId().toString()));
         return planMapper.toResponse(updatedPlan);
     }
 
@@ -117,6 +122,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         planRepository.save(plan);
 
         log.info("Subscription plan deleted successfully: {} - {}", plan.getId(), plan.getName());
+        webSocketNotificationService.notifyPlatformEvent("SUBSCRIPTION_PLAN_CHANGED", Map.of("action", "deleted", "planId", plan.getId().toString()));
     }
 
 

@@ -71,6 +71,7 @@ export default function CommunePage() {
   });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const wsVersion = useAppSelector((state) => state.websocket.versions.location);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -106,6 +107,7 @@ export default function CommunePage() {
     globalPageSize,
     selectedProvince,
     selectedDistrict,
+    wsVersion,
   ]);
 
   // Event handlers

@@ -8,6 +8,7 @@ import com.emenu.features.location.mapper.ProvinceMapper;
 import com.emenu.features.location.models.Province;
 import com.emenu.features.location.repository.ProvinceRepository;
 import com.emenu.features.location.service.ProvinceService;
+import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -29,6 +31,7 @@ public class ProvinceServiceImpl implements ProvinceService {
     private final ProvinceRepository provinceRepository;
     private final ProvinceMapper provinceMapper;
     private final PaginationMapper paginationMapper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
     public ProvinceResponse createProvince(ProvinceRequest request) {
@@ -38,6 +41,7 @@ public class ProvinceServiceImpl implements ProvinceService {
         Province savedProvince = provinceRepository.save(province);
 
         log.info("Province created successfully: id={}, code={}", savedProvince.getId(), savedProvince.getProvinceCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "created", "type", "province"));
         return provinceMapper.toResponse(savedProvince);
     }
 
@@ -88,6 +92,7 @@ public class ProvinceServiceImpl implements ProvinceService {
         provinceMapper.updateEntity(request, province);
         Province updatedProvince = provinceRepository.save(province);
         log.info("Province updated successfully: id={}, code={}", id, updatedProvince.getProvinceCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "updated", "type", "province"));
         return provinceMapper.toResponse(updatedProvince);
     }
 
@@ -97,6 +102,7 @@ public class ProvinceServiceImpl implements ProvinceService {
         province.softDelete();
         provinceRepository.save(province);
         log.info("Province deleted successfully: id={}, code={}", id, province.getProvinceCode());
+        webSocketNotificationService.notifyPlatformEvent("LOCATION_CHANGED", Map.of("action", "deleted", "type", "province"));
     }
 
     private Province findProvinceById(UUID id) {

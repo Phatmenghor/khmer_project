@@ -75,6 +75,7 @@ export default function VillagePage() {
   });
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const wsVersion = useAppSelector((state) => state.websocket.versions.location);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
@@ -112,6 +113,7 @@ export default function VillagePage() {
     selectedProvince,
     selectedDistrict,
     selectedCommune,
+    wsVersion,
   ]);
 
   // Event handlers
