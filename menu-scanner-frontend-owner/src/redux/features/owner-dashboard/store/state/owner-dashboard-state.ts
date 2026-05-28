@@ -1,35 +1,30 @@
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
-  selectOwnerDashboardPeriod,
   selectOwnerDashboardSummary,
   selectOwnerDashboardTrends,
   selectOwnerDashboardStatusBreakdown,
   selectOwnerDashboardRecentOwners,
   selectOwnerDashboardPlanBreakdown,
+  selectOwnerDashboardCustomerTrends,
+  selectOwnerDashboardUserTrends,
+  selectOwnerDashboardPaymentTrends,
   selectOwnerDashboardLoading,
   selectOwnerDashboardError,
 } from "../selectors/owner-dashboard-selectors";
 
 export function useOwnerDashboardState() {
   const dispatch = useAppDispatch();
-  const period = useAppSelector(selectOwnerDashboardPeriod);
-  const summary = useAppSelector(selectOwnerDashboardSummary);
-  const trends = useAppSelector(selectOwnerDashboardTrends);
-  const statusBreakdown = useAppSelector(selectOwnerDashboardStatusBreakdown);
-  const recentOwners = useAppSelector(selectOwnerDashboardRecentOwners);
-  const planBreakdown = useAppSelector(selectOwnerDashboardPlanBreakdown);
-  const loading = useAppSelector(selectOwnerDashboardLoading);
-  const error = useAppSelector(selectOwnerDashboardError);
-
   return {
     dispatch,
-    period,
-    summary,
-    trends,
-    statusBreakdown,
-    recentOwners,
-    planBreakdown,
-    loading,
-    error,
+    summary: useAppSelector(selectOwnerDashboardSummary),
+    trends: useAppSelector(selectOwnerDashboardTrends),
+    statusBreakdown: useAppSelector(selectOwnerDashboardStatusBreakdown),
+    recentOwners: useAppSelector(selectOwnerDashboardRecentOwners),
+    planBreakdown: useAppSelector(selectOwnerDashboardPlanBreakdown),
+    customerTrends: useAppSelector(selectOwnerDashboardCustomerTrends),
+    userTrends: useAppSelector(selectOwnerDashboardUserTrends),
+    paymentTrends: useAppSelector(selectOwnerDashboardPaymentTrends),
+    loading: useAppSelector(selectOwnerDashboardLoading),
+    error: useAppSelector(selectOwnerDashboardError),
   };
 }

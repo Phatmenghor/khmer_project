@@ -58,3 +58,15 @@ export interface PlanStat {
 export interface OwnerDashboardPlanBreakdownResponse {
   data: PlanStat[];
 }
+
+export interface OwnerDashboardDailyPoint {
+  date: string;
+  count: number;
+  amount: number;
+}
+
+export interface OwnerDashboardDailyTrendsResponse {
+  data: OwnerDashboardDailyPoint[];
+  totalCount: number;
+  totalAmount: number;
+}

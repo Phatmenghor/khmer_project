@@ -1,5 +1,6 @@
 package com.emenu.features.dashboard.controller;
 
+import com.emenu.features.dashboard.dto.response.OwnerDashboardDailyTrendsResponse;
 import com.emenu.features.dashboard.dto.response.OwnerDashboardPlanBreakdownResponse;
 import com.emenu.features.dashboard.dto.response.OwnerDashboardRecentOwnersResponse;
 import com.emenu.features.dashboard.dto.response.OwnerDashboardStatusBreakdownResponse;
@@ -12,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,19 +24,17 @@ public class OwnerDashboardController {
     private final OwnerDashboardService ownerDashboardService;
 
     @GetMapping("/summary")
-    public ResponseEntity<ApiResponse<OwnerDashboardSummaryResponse>> getSummary(
-            @RequestParam(defaultValue = "30D") String period) {
-        log.info("Endpoint: owner-dashboard/summary - period={}", period);
+    public ResponseEntity<ApiResponse<OwnerDashboardSummaryResponse>> getSummary() {
+        log.info("Endpoint: owner-dashboard/summary");
         return ResponseEntity.ok(ApiResponse.success("Owner dashboard summary",
-                ownerDashboardService.getSummary(period)));
+                ownerDashboardService.getSummary()));
     }
 
     @GetMapping("/trends")
-    public ResponseEntity<ApiResponse<OwnerDashboardTrendsResponse>> getTrends(
-            @RequestParam(defaultValue = "30D") String period) {
-        log.info("Endpoint: owner-dashboard/trends - period={}", period);
+    public ResponseEntity<ApiResponse<OwnerDashboardTrendsResponse>> getTrends() {
+        log.info("Endpoint: owner-dashboard/trends");
         return ResponseEntity.ok(ApiResponse.success("Subscription trends",
-                ownerDashboardService.getTrends(period)));
+                ownerDashboardService.getTrends()));
     }
 
     @GetMapping("/status-breakdown")
@@ -58,5 +56,26 @@ public class OwnerDashboardController {
         log.info("Endpoint: owner-dashboard/plan-breakdown");
         return ResponseEntity.ok(ApiResponse.success("Plan breakdown",
                 ownerDashboardService.getPlanBreakdown()));
+    }
+
+    @GetMapping("/customer-trends")
+    public ResponseEntity<ApiResponse<OwnerDashboardDailyTrendsResponse>> getCustomerTrends() {
+        log.info("Endpoint: owner-dashboard/customer-trends");
+        return ResponseEntity.ok(ApiResponse.success("Customer registration trends",
+                ownerDashboardService.getCustomerTrends()));
+    }
+
+    @GetMapping("/user-trends")
+    public ResponseEntity<ApiResponse<OwnerDashboardDailyTrendsResponse>> getUserTrends() {
+        log.info("Endpoint: owner-dashboard/user-trends");
+        return ResponseEntity.ok(ApiResponse.success("Business user registration trends",
+                ownerDashboardService.getUserTrends()));
+    }
+
+    @GetMapping("/payment-trends")
+    public ResponseEntity<ApiResponse<OwnerDashboardDailyTrendsResponse>> getPaymentTrends() {
+        log.info("Endpoint: owner-dashboard/payment-trends");
+        return ResponseEntity.ok(ApiResponse.success("Payment trends",
+                ownerDashboardService.getPaymentTrends()));
     }
 }

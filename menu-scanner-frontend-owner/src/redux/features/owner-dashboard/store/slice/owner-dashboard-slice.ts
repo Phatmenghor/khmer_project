@@ -1,11 +1,11 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import {
-  OwnerDashboardPeriod,
   OwnerDashboardSummaryResponse,
   OwnerDashboardTrendsResponse,
   OwnerDashboardStatusBreakdownResponse,
   OwnerDashboardRecentOwnersResponse,
   OwnerDashboardPlanBreakdownResponse,
+  OwnerDashboardDailyTrendsResponse,
 } from "../models/response/owner-dashboard-response";
 import {
   fetchOwnerDashboardSummaryService,
@@ -13,38 +13,51 @@ import {
   fetchOwnerDashboardStatusBreakdownService,
   fetchOwnerDashboardRecentOwnersService,
   fetchOwnerDashboardPlanBreakdownService,
+  fetchOwnerDashboardCustomerTrendsService,
+  fetchOwnerDashboardUserTrendsService,
+  fetchOwnerDashboardPaymentTrendsService,
 } from "../thunks/owner-dashboard-thunks";
 
 interface OwnerDashboardState {
-  period: OwnerDashboardPeriod;
   summary: OwnerDashboardSummaryResponse | null;
   trends: OwnerDashboardTrendsResponse | null;
   statusBreakdown: OwnerDashboardStatusBreakdownResponse | null;
   recentOwners: OwnerDashboardRecentOwnersResponse | null;
   planBreakdown: OwnerDashboardPlanBreakdownResponse | null;
+  customerTrends: OwnerDashboardDailyTrendsResponse | null;
+  userTrends: OwnerDashboardDailyTrendsResponse | null;
+  paymentTrends: OwnerDashboardDailyTrendsResponse | null;
   loading: {
     summary: boolean;
     trends: boolean;
     statusBreakdown: boolean;
     recentOwners: boolean;
     planBreakdown: boolean;
+    customerTrends: boolean;
+    userTrends: boolean;
+    paymentTrends: boolean;
   };
   error: string | null;
 }
 
 const initialState: OwnerDashboardState = {
-  period: "30D",
   summary: null,
   trends: null,
   statusBreakdown: null,
   recentOwners: null,
   planBreakdown: null,
+  customerTrends: null,
+  userTrends: null,
+  paymentTrends: null,
   loading: {
     summary: false,
     trends: false,
     statusBreakdown: false,
     recentOwners: false,
     planBreakdown: false,
+    customerTrends: false,
+    userTrends: false,
+    paymentTrends: false,
   },
   error: null,
 };
@@ -53,108 +66,52 @@ const ownerDashboardSlice = createSlice({
   name: "ownerDashboard",
   initialState,
   reducers: {
-    setPeriod(state, action: PayloadAction<OwnerDashboardPeriod>) {
-      state.period = action.payload;
-    },
     resetState() {
       return initialState;
     },
   },
   extraReducers: (builder) => {
-    // Summary
     builder
-      .addCase(fetchOwnerDashboardSummaryService.pending, (state) => {
-        state.loading.summary = true;
-        state.error = null;
-      })
-      .addCase(fetchOwnerDashboardSummaryService.fulfilled, (state, action) => {
-        state.loading.summary = false;
-        state.summary = action.payload;
-      })
-      .addCase(fetchOwnerDashboardSummaryService.rejected, (state, action) => {
-        state.loading.summary = false;
-        state.error = action.payload as string;
-      });
+      .addCase(fetchOwnerDashboardSummaryService.pending, (s) => { s.loading.summary = true; s.error = null; })
+      .addCase(fetchOwnerDashboardSummaryService.fulfilled, (s, a) => { s.loading.summary = false; s.summary = a.payload; })
+      .addCase(fetchOwnerDashboardSummaryService.rejected, (s, a) => { s.loading.summary = false; s.error = a.payload as string; });
 
-    // Trends
     builder
-      .addCase(fetchOwnerDashboardTrendsService.pending, (state) => {
-        state.loading.trends = true;
-        state.error = null;
-      })
-      .addCase(fetchOwnerDashboardTrendsService.fulfilled, (state, action) => {
-        state.loading.trends = false;
-        state.trends = action.payload;
-      })
-      .addCase(fetchOwnerDashboardTrendsService.rejected, (state, action) => {
-        state.loading.trends = false;
-        state.error = action.payload as string;
-      });
+      .addCase(fetchOwnerDashboardTrendsService.pending, (s) => { s.loading.trends = true; s.error = null; })
+      .addCase(fetchOwnerDashboardTrendsService.fulfilled, (s, a) => { s.loading.trends = false; s.trends = a.payload; })
+      .addCase(fetchOwnerDashboardTrendsService.rejected, (s, a) => { s.loading.trends = false; s.error = a.payload as string; });
 
-    // Status Breakdown
     builder
-      .addCase(fetchOwnerDashboardStatusBreakdownService.pending, (state) => {
-        state.loading.statusBreakdown = true;
-        state.error = null;
-      })
-      .addCase(
-        fetchOwnerDashboardStatusBreakdownService.fulfilled,
-        (state, action) => {
-          state.loading.statusBreakdown = false;
-          state.statusBreakdown = action.payload;
-        }
-      )
-      .addCase(
-        fetchOwnerDashboardStatusBreakdownService.rejected,
-        (state, action) => {
-          state.loading.statusBreakdown = false;
-          state.error = action.payload as string;
-        }
-      );
+      .addCase(fetchOwnerDashboardStatusBreakdownService.pending, (s) => { s.loading.statusBreakdown = true; s.error = null; })
+      .addCase(fetchOwnerDashboardStatusBreakdownService.fulfilled, (s, a) => { s.loading.statusBreakdown = false; s.statusBreakdown = a.payload; })
+      .addCase(fetchOwnerDashboardStatusBreakdownService.rejected, (s, a) => { s.loading.statusBreakdown = false; s.error = a.payload as string; });
 
-    // Recent Owners
     builder
-      .addCase(fetchOwnerDashboardRecentOwnersService.pending, (state) => {
-        state.loading.recentOwners = true;
-        state.error = null;
-      })
-      .addCase(
-        fetchOwnerDashboardRecentOwnersService.fulfilled,
-        (state, action) => {
-          state.loading.recentOwners = false;
-          state.recentOwners = action.payload;
-        }
-      )
-      .addCase(
-        fetchOwnerDashboardRecentOwnersService.rejected,
-        (state, action) => {
-          state.loading.recentOwners = false;
-          state.error = action.payload as string;
-        }
-      );
+      .addCase(fetchOwnerDashboardRecentOwnersService.pending, (s) => { s.loading.recentOwners = true; s.error = null; })
+      .addCase(fetchOwnerDashboardRecentOwnersService.fulfilled, (s, a) => { s.loading.recentOwners = false; s.recentOwners = a.payload; })
+      .addCase(fetchOwnerDashboardRecentOwnersService.rejected, (s, a) => { s.loading.recentOwners = false; s.error = a.payload as string; });
 
-    // Plan Breakdown
     builder
-      .addCase(fetchOwnerDashboardPlanBreakdownService.pending, (state) => {
-        state.loading.planBreakdown = true;
-        state.error = null;
-      })
-      .addCase(
-        fetchOwnerDashboardPlanBreakdownService.fulfilled,
-        (state, action) => {
-          state.loading.planBreakdown = false;
-          state.planBreakdown = action.payload;
-        }
-      )
-      .addCase(
-        fetchOwnerDashboardPlanBreakdownService.rejected,
-        (state, action) => {
-          state.loading.planBreakdown = false;
-          state.error = action.payload as string;
-        }
-      );
+      .addCase(fetchOwnerDashboardPlanBreakdownService.pending, (s) => { s.loading.planBreakdown = true; s.error = null; })
+      .addCase(fetchOwnerDashboardPlanBreakdownService.fulfilled, (s, a) => { s.loading.planBreakdown = false; s.planBreakdown = a.payload; })
+      .addCase(fetchOwnerDashboardPlanBreakdownService.rejected, (s, a) => { s.loading.planBreakdown = false; s.error = a.payload as string; });
+
+    builder
+      .addCase(fetchOwnerDashboardCustomerTrendsService.pending, (s) => { s.loading.customerTrends = true; s.error = null; })
+      .addCase(fetchOwnerDashboardCustomerTrendsService.fulfilled, (s, a) => { s.loading.customerTrends = false; s.customerTrends = a.payload; })
+      .addCase(fetchOwnerDashboardCustomerTrendsService.rejected, (s, a) => { s.loading.customerTrends = false; s.error = a.payload as string; });
+
+    builder
+      .addCase(fetchOwnerDashboardUserTrendsService.pending, (s) => { s.loading.userTrends = true; s.error = null; })
+      .addCase(fetchOwnerDashboardUserTrendsService.fulfilled, (s, a) => { s.loading.userTrends = false; s.userTrends = a.payload; })
+      .addCase(fetchOwnerDashboardUserTrendsService.rejected, (s, a) => { s.loading.userTrends = false; s.error = a.payload as string; });
+
+    builder
+      .addCase(fetchOwnerDashboardPaymentTrendsService.pending, (s) => { s.loading.paymentTrends = true; s.error = null; })
+      .addCase(fetchOwnerDashboardPaymentTrendsService.fulfilled, (s, a) => { s.loading.paymentTrends = false; s.paymentTrends = a.payload; })
+      .addCase(fetchOwnerDashboardPaymentTrendsService.rejected, (s, a) => { s.loading.paymentTrends = false; s.error = a.payload as string; });
   },
 });
 
-export const { setPeriod, resetState } = ownerDashboardSlice.actions;
+export const { resetState } = ownerDashboardSlice.actions;
 export default ownerDashboardSlice.reducer;
