@@ -57,10 +57,19 @@ export default function LoginPage() {
       showToast.success("Welcome to the admin panel!");
       router.replace(ROUTES.DASHBOARD.INDEX);
     } catch (err: unknown) {
-      showToast.error(
-        (err as { message?: string })?.message ||
-          "Login failed. Please try again.",
-      );
+      const error = err as { payload?: { message?: string; data?: { message?: string } } } | { message?: string };
+      let errorMessage = "Login failed. Please try again.";
+      
+      // Try to extract error message from Redux payload
+      if ('payload' in error && error.payload?.message) {
+        errorMessage = error.payload.message;
+      } else if ('payload' in error && error.payload?.data?.message) {
+        errorMessage = error.payload.data.message;
+      } else if ('message' in error && error.message) {
+        errorMessage = error.message;
+      }
+      
+      showToast.error(errorMessage);
     }
   }
 
@@ -76,10 +85,19 @@ export default function LoginPage() {
       showToast.success("Welcome back!");
       router.replace(ROUTES.DASHBOARD.USERS);
     } catch (err: unknown) {
-      showToast.error(
-        (err as { message?: string })?.message ||
-          "Telegram login failed. Please try again.",
-      );
+      const error = err as { payload?: { message?: string; data?: { message?: string } } } | { message?: string };
+      let errorMessage = "Telegram login failed. Please try again.";
+      
+      // Try to extract error message from Redux payload
+      if ('payload' in error && error.payload?.message) {
+        errorMessage = error.payload.message;
+      } else if ('payload' in error && error.payload?.data?.message) {
+        errorMessage = error.payload.data.message;
+      } else if ('message' in error && error.message) {
+        errorMessage = error.message;
+      }
+      
+      showToast.error(errorMessage);
     } finally {
       setIsTelegramLoading(false);
     }

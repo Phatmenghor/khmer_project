@@ -24,15 +24,24 @@ export const createApiThunk = <ReturnType, ArgType = void>(
         }
 
         // Standardized error handling
+        let errorMessage = "An unexpected error occurred";
+
+        // Try to extract error message from various response formats
         if (error.response?.data?.message) {
-          return rejectWithValue(error.response.data.message);
+          errorMessage = error.response.data.message;
+        } else if (error.response?.data?.error?.message) {
+          errorMessage = error.response.data.error.message;
+        } else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.message) {
+          errorMessage = error.message;
         }
 
-        if (error.message) {
-          return rejectWithValue(error.message);
-        }
-
-        return rejectWithValue("An unexpected error occurred");
+        return rejectWithValue({
+          message: errorMessage,
+          status: error.response?.status,
+          data: error.response?.data,
+        });
       }
     }
   );
