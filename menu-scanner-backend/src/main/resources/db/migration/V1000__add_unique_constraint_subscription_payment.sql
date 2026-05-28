@@ -2,9 +2,10 @@
 -- Delete all but the most recent payment for each subscription
 
 -- Step 1: Delete duplicate payments, keeping only the newest one per subscription
+-- Using created_at to determine the most recent payment since MAX() doesn't work with UUIDs
 DELETE FROM subscription_payments
-WHERE id NOT IN (
-  SELECT MAX(id)
+WHERE (subscription_id, created_at) NOT IN (
+  SELECT subscription_id, MAX(created_at)
   FROM subscription_payments
   GROUP BY subscription_id
 );
