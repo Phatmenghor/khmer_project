@@ -1,22 +1,26 @@
+import FadeIn from "@/components/landing/fade-in";
+
 const stats = [
-  { value: "500+", label: "Active Restaurants" },
-  { value: "1M+", label: "Orders Processed" },
-  { value: "50+", label: "Cities Covered" },
-  { value: "99.9%", label: "Platform Uptime" },
+  { value: "500+", label: "Restaurants Active" },
+  { value: "50,000+", label: "Orders Processed" },
+  { value: "99.9%", label: "Uptime" },
+  { value: "< 1hr", label: "Average Setup Time" },
 ];
 
 export default function StatsSection() {
   return (
-    <section className="border-y border-border bg-muted/40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map(({ value, label }) => (
-            <div key={label} className="text-center">
-              <div className="text-3xl sm:text-4xl font-extrabold text-primary mb-1">
-                {value}
+    <section className="bg-foreground text-background py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          {stats.map(({ value, label }, i) => (
+            <FadeIn key={label} direction="up" delay={i * 100}>
+              <div className="text-center">
+                <div className="text-6xl font-bold text-primary mb-2">
+                  {value}
+                </div>
+                <div className="text-xl text-background/60">{label}</div>
               </div>
-              <div className="text-sm text-muted-foreground font-medium">{label}</div>
-            </div>
+            </FadeIn>
           ))}
         </div>
       </div>
