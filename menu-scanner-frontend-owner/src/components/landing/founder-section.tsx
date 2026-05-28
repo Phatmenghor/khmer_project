@@ -45,7 +45,7 @@ export default function FounderSection() {
                     />
                   </div>
                   <div className="flex flex-col gap-3">
-                    <h3 className="text-3xl font-bold text-primary">@{founder.contact.social}</h3>
+                    <h3 className="text-3xl font-bold text-primary">{founder.contact.social}</h3>
                     <div className="space-y-2">
                       <p className="text-base text-slate-900">
                         <span className="font-semibold">Title:</span> Founder Emenu Cambodia & Full-Stack Software Engineer
@@ -70,7 +70,7 @@ export default function FounderSection() {
                           rel="noopener noreferrer"
                           className="text-primary hover:text-primary/80 transition-colors"
                         >
-                          @{founder.contact.social}
+                          {founder.contact.social}
                         </a>
                       </p>
                     </div>
