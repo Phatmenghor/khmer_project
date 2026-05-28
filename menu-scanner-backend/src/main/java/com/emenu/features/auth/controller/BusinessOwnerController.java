@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -29,7 +28,6 @@ public class BusinessOwnerController {
 
     private final BusinessOwnerService businessOwnerService;
 
-    @Secured("ROLE_PLATFORM_USER")
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<BusinessOwnerDetailResponse>>> getAllBusinessOwners(
             @RequestBody BusinessOwnerFilterRequest filterRequest) {
@@ -38,7 +36,6 @@ public class BusinessOwnerController {
         return ResponseEntity.ok(ApiResponse.success("Business owners retrieved successfully", response));
     }
 
-    @Secured("ROLE_PLATFORM_USER")
     @GetMapping("/{ownerId}")
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> getBusinessOwnerDetail(
             @PathVariable UUID ownerId) {
@@ -47,7 +44,6 @@ public class BusinessOwnerController {
         return ResponseEntity.ok(ApiResponse.success("Business owner details retrieved successfully", response));
     }
 
-    @Secured("ROLE_PLATFORM_USER")
     @PostMapping
     public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> createBusinessOwner(
             @Valid @RequestBody BusinessOwnerCreateRequest createRequest) {
@@ -58,7 +54,6 @@ public class BusinessOwnerController {
                 .body(ApiResponse.success("Business owner created successfully", response));
     }
 
-    @Secured("ROLE_PLATFORM_USER")
     @PutMapping("/{ownerId}")
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> updateBusinessOwner(
             @PathVariable UUID ownerId,
@@ -68,7 +63,6 @@ public class BusinessOwnerController {
         return ResponseEntity.ok(ApiResponse.success("Business owner updated successfully", response));
     }
 
-    @Secured("ROLE_PLATFORM_USER")
     @PutMapping("/{ownerId}/subscription/renew")
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> renewSubscription(
             @PathVariable UUID ownerId,
@@ -78,7 +72,6 @@ public class BusinessOwnerController {
         return ResponseEntity.ok(ApiResponse.success("Subscription renewed successfully", response));
     }
 
-    @Secured("ROLE_PLATFORM_USER")
     @PutMapping("/{ownerId}/subscription/change-plan")
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> changePlan(
             @PathVariable UUID ownerId,
@@ -88,7 +81,6 @@ public class BusinessOwnerController {
         return ResponseEntity.ok(ApiResponse.success("Subscription plan changed successfully", response));
     }
 
-    @Secured("ROLE_PLATFORM_USER")
     @PutMapping("/{ownerId}/subscription/cancel")
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> cancelSubscription(
             @PathVariable UUID ownerId,
@@ -98,7 +90,6 @@ public class BusinessOwnerController {
         return ResponseEntity.ok(ApiResponse.success("Subscription cancelled successfully", response));
     }
 
-    @Secured("ROLE_PLATFORM_USER")
     @DeleteMapping("/{ownerId}")
     public ResponseEntity<ApiResponse<BusinessOwnerDetailResponse>> deleteBusinessOwner(
             @PathVariable UUID ownerId) {
