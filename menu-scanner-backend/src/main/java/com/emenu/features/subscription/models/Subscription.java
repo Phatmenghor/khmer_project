@@ -44,6 +44,9 @@ public class Subscription extends BaseUUIDEntity {
     @Column(name = "auto_renew", nullable = false)
     private Boolean autoRenew = false;
 
+    @Column(name = "cancellation_reason", columnDefinition = "TEXT")
+    private String cancellationReason;
+
     @OneToOne(mappedBy = "subscription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SubscriptionPayment payment;
 

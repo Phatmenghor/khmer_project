@@ -39,7 +39,6 @@ public class SubscriptionHistoryResponse {
         private SubscriptionPaymentType paymentType;
         private SubscriptionPaymentStatus status;
         private String referenceNumber;
-        private String notes;
         private String imageUrl;
         private LocalDateTime paidAt;
     }

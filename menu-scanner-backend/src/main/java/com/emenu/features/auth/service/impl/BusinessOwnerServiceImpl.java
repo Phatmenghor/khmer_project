@@ -281,6 +281,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         Subscription currentSubscriptionRecord = getCurrentSubscription(businessEntity.getId());
 
         currentSubscriptionRecord.cancel();
+        currentSubscriptionRecord.setCancellationReason(cancelRequestData.getReason());
         subscriptionRepository.save(currentSubscriptionRecord);
 
         subscriptionPaymentRepository
@@ -288,7 +289,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                         currentSubscriptionRecord.getId(), SubscriptionPaymentStatus.PENDING)
                 .ifPresent(paymentRecord -> {
                     paymentRecord.setStatus(SubscriptionPaymentStatus.CANCELLED);
-                    paymentRecord.setNotes("Subscription cancelled");
                     subscriptionPaymentRepository.save(paymentRecord);
                 });
 
@@ -489,7 +489,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         paymentRecord.setPaymentType(SubscriptionPaymentType.SUBSCRIPTION);
         paymentRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
         paymentRecord.setReferenceNumber(creationRequestData.getPaymentReference());
-        paymentRecord.setNotes(creationRequestData.getPaymentNotes());
         return subscriptionPaymentRepository.save(paymentRecord);
     }
 
@@ -505,7 +504,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         paymentRecord.setPaymentType(SubscriptionPaymentType.RENEWAL);
         paymentRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
         paymentRecord.setReferenceNumber(reference);
-        paymentRecord.setNotes(notes);
         subscriptionPaymentRepository.save(paymentRecord);
     }
 
@@ -528,7 +526,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         refundRecord.setPaymentType(SubscriptionPaymentType.REFUND);
         refundRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
         refundRecord.setReferenceNumber(cancelRequestData.getRefundReference());
-        refundRecord.setNotes("Subscription refund processed");
         subscriptionPaymentRepository.save(refundRecord);
     }
 

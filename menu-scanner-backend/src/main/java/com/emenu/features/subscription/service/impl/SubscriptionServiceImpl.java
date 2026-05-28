@@ -90,11 +90,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
         subscription.cancel();
+        subscription.setCancellationReason(request.getReason());
         subscriptionPaymentRepository
                 .findBySubscriptionIdAndStatusAndIsDeletedFalse(subscription.getId(), SubscriptionPaymentStatus.PENDING)
                 .ifPresent(p -> {
                     p.setStatus(SubscriptionPaymentStatus.CANCELLED);
-                    p.setNotes("Cancelled due to subscription cancellation");
                     subscriptionPaymentRepository.save(p);
                 });
         Subscription cancelledSubscription = subscriptionRepository.save(subscription);
@@ -173,7 +173,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             item.setPaymentType(p.getPaymentType());
             item.setStatus(p.getStatus());
             item.setReferenceNumber(p.getReferenceNumber());
-            item.setNotes(p.getNotes());
             item.setImageUrl(p.getImageUrl());
             item.setPaidAt(p.getCreatedAt());
             response.setPayment(item);
@@ -210,7 +209,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         payment.setPaymentType(SubscriptionPaymentType.RENEWAL);
         payment.setStatus(SubscriptionPaymentStatus.COMPLETED);
         payment.setReferenceNumber(request.getPaymentReferenceNumber());
-        payment.setNotes(request.getPaymentNotes());
         payment.setImageUrl(request.getPaymentImageUrl());
         subscriptionPaymentRepository.save(payment);
         log.info("Renewal payment created for subscription: {} - Amount: {}", subscription.getId(), payment.getAmount());
@@ -222,10 +220,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         refund.setSubscriptionId(subscription.getId());
         refund.setPlanId(subscription.getPlanId());
         refund.setAmount(request.getRefundAmount().negate());
-        refund.setPaymentMethod(PaymentMethod.BANK);
+        refund.setPaymentMethod(PaymentMethod.CASH);
         refund.setPaymentType(SubscriptionPaymentType.REFUND);
         refund.setStatus(SubscriptionPaymentStatus.COMPLETED);
-        refund.setNotes("Subscription refund processed");
         subscriptionPaymentRepository.save(refund);
         log.info("Refund created for subscription: {} - Amount: {}", subscription.getId(), refund.getAmount());
     }

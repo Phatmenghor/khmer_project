@@ -61,9 +61,6 @@ public class SubscriptionPayment extends BaseUUIDEntity {
     @Column(name = "reference_number", length = 100)
     private String referenceNumber;
 
-    @Column(name = "notes", columnDefinition = "TEXT")
-    private String notes;
-
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 }
