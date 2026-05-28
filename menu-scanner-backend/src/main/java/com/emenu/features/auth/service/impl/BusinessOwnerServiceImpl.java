@@ -311,12 +311,8 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         businessEntity.deactivateSubscription();
         businessRepository.save(businessEntity);
 
-        if (cancelRequestData.hasRefundAmount()) {
-            createRefundPayment(currentSubscriptionRecord, cancelRequestData);
-        }
-
-        log.info("Subscription cancelled successfully: owner_id={}, subscription_id={}, refund_issued={}",
-                ownerId, currentSubscriptionRecord.getId(), cancelRequestData.hasRefundAmount());
+        log.info("Subscription cancelled successfully: owner_id={}, subscription_id={}",
+                ownerId, currentSubscriptionRecord.getId());
         webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "cancelled", "ownerId", ownerId.toString()));
 
         // Send Telegram notification
@@ -521,28 +517,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         paymentRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
         paymentRecord.setReferenceNumber(reference);
         subscriptionPaymentRepository.save(paymentRecord);
-    }
-
-    private void createRefundPayment(Subscription subscriptionRecord, BusinessOwnerSubscriptionCancelRequest cancelRequestData) {
-        SubscriptionPayment refundRecord = new SubscriptionPayment();
-        refundRecord.setBusinessId(subscriptionRecord.getBusinessId());
-        refundRecord.setPlanId(subscriptionRecord.getPlanId());
-        refundRecord.setSubscriptionId(subscriptionRecord.getId());
-        refundRecord.setAmount(cancelRequestData.getRefundAmount().negate());
-        String refundMethodStr = cancelRequestData.getRefundMethod();
-        if (refundMethodStr != null && !refundMethodStr.trim().isEmpty()) {
-            try {
-                refundRecord.setPaymentMethod(PaymentMethod.valueOf(refundMethodStr));
-            } catch (IllegalArgumentException e) {
-                refundRecord.setPaymentMethod(PaymentMethod.CASH);
-            }
-        } else {
-            refundRecord.setPaymentMethod(PaymentMethod.CASH);
-        }
-        refundRecord.setPaymentType(SubscriptionPaymentType.REFUND);
-        refundRecord.setStatus(SubscriptionPaymentStatus.COMPLETED);
-        refundRecord.setReferenceNumber(cancelRequestData.getRefundReference());
-        subscriptionPaymentRepository.save(refundRecord);
     }
 
     private BusinessOwnerDetailResponse buildEnrichedDetailResponse(User ownerEntity) {
