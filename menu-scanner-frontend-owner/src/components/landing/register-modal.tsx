@@ -147,13 +147,22 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         <ScrollArea className="flex-1 min-h-0">
           <div className="px-6 py-8">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-              {/* Account Credentials - Top Priority */}
+              {/* Account Credentials Section */}
               <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
                   <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">1</span>
                   Account Credentials
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-5">
+                  <TextField
+                    name="ownerFullName"
+                    label="Full Name"
+                    placeholder="Sokha Nhem"
+                    control={control}
+                    error={errors.ownerFullName}
+                    disabled={isSubmitting}
+                    required
+                  />
                   <TextField
                     name="ownerUserIdentifier"
                     label="Username"
@@ -170,6 +179,16 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                     placeholder="owner@example.com"
                     control={control}
                     error={errors.ownerEmail}
+                    disabled={isSubmitting}
+                    required
+                  />
+                  <TextField
+                    name="ownerPhone"
+                    label="Phone Number"
+                    type="tel"
+                    placeholder="+855 12 345 678"
+                    control={control}
+                    error={errors.ownerPhone}
                     disabled={isSubmitting}
                     required
                   />
@@ -198,39 +217,10 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                 </div>
               </div>
 
-              {/* Owner Information */}
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">2</span>
-                  Owner Information
-                </h3>
-                <div className="grid sm:grid-cols-2 gap-5">
-                  <TextField
-                    name="ownerFullName"
-                    label="Full Name"
-                    placeholder="Sokha Nhem"
-                    control={control}
-                    error={errors.ownerFullName}
-                    disabled={isSubmitting}
-                    required
-                  />
-                  <TextField
-                    name="ownerPhone"
-                    label="Phone Number"
-                    type="tel"
-                    placeholder="+855 12 345 678"
-                    control={control}
-                    error={errors.ownerPhone}
-                    disabled={isSubmitting}
-                    required
-                  />
-                </div>
-              </div>
-
               {/* Business section */}
               <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">3</span>
+                  <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">2</span>
                   Business Information
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-5">
