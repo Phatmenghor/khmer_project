@@ -17,17 +17,14 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-white via-primary/3 to-white"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          <FadeIn direction="right" delay={0}>
-            <div className="space-y-6 sm:space-y-8">
-            {/* Headline */}
-            <div>
-              <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full border border-primary/30">
-                <Sparkles className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-primary" />
-                <span className="text-[10px] sm:text-xs font-semibold text-primary">Professional Restaurant Management</span>
-              </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-slate-900">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="max-w-8xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
+            <FadeIn direction="right" delay={0}>
+              <div className="space-y-6 sm:space-y-8 flex flex-col justify-center">
+              {/* Headline */}
+              <div>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-slate-900">
                 Transform Your Restaurant
                 <br />
                 <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent animate-pulse">Into a Digital Powerhouse</span>
@@ -74,19 +71,21 @@ export default function HeroSection() {
             </div>
           </FadeIn>
 
-          {/* Mobile App Image - Right side */}
-          <FadeIn direction="left" delay={100}>
-            <div className="relative h-[500px] lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl">
-              <Image
-                src="/images/hero/mobile-restaurant.jpg"
-                alt="Emenu Cambodia Mobile App"
-                fill
-                className="object-cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            </div>
-          </FadeIn>
+            {/* Mobile App Image - Right side */}
+            <FadeIn direction="left" delay={100}>
+              <div className="relative h-full min-h-[500px] lg:min-h-[650px] rounded-3xl overflow-hidden shadow-2xl group">
+                <Image
+                  src="/images/hero/mobile-restaurant.jpg"
+                  alt="Emenu Cambodia Mobile App"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                <div className="absolute inset-0 bg-primary/5 mix-blend-overlay"></div>
+              </div>
+            </FadeIn>
+          </div>
         </div>
       </div>
     </section>
