@@ -96,8 +96,10 @@ export const LANDING_CONFIG = {
       "Committed to affordable digital solutions"
     ],
     contact: {
-      email: "support@emenu-platform.com",
-      location: "Cambodia 🇰🇭"
+      email: "phatmenghor7@gmail.com",
+      location: "Cambodia 🇰🇭",
+      telegram: "https://t.me/Hor_HOrz",
+      social: "Hor_HOrz"
     }
   },
 

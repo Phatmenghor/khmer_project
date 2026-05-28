@@ -46,14 +46,25 @@ export default function FounderSection() {
                   </div>
                   <div className="text-center flex flex-col gap-2">
                     <h3 className="text-3xl font-bold text-slate-900">{founder.name}</h3>
+                    <p className="text-sm text-primary font-semibold">Emenu Cambodia</p>
                     <p className="text-lg text-primary font-bold">{founder.title}</p>
                     <p className="text-base text-slate-700 font-medium">{founder.contact.location}</p>
-                    <a
-                      href={`mailto:${founder.contact.email}`}
-                      className="inline-flex text-primary hover:text-primary/80 font-semibold transition-colors text-sm justify-center mt-2"
-                    >
-                      {founder.contact.email}
-                    </a>
+                    <div className="flex flex-col gap-2 pt-2">
+                      <a
+                        href={`mailto:${founder.contact.email}`}
+                        className="inline-flex text-primary hover:text-primary/80 font-semibold transition-colors text-sm justify-center"
+                      >
+                        {founder.contact.email}
+                      </a>
+                      <a
+                        href={founder.contact.telegram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex text-primary hover:text-primary/80 font-semibold transition-colors text-sm justify-center"
+                      >
+                        @{founder.contact.social}
+                      </a>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
