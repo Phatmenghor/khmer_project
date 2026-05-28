@@ -11,7 +11,7 @@ import CtaSection from "@/components/landing/cta-section";
 import Footer from "@/components/landing/footer";
 
 export const metadata = {
-  title: "EMenu Platform — Professional SaaS for Food & Hospitality Businesses",
+  title: "EMenu Platform — Transform Your Restaurant Into a Digital Powerhouse",
   description:
     "Enterprise-grade platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, and global payment processing. Everything restaurant owners need to compete globally and scale their business.",
   keywords: [
@@ -26,7 +26,7 @@ export const metadata = {
     "multi-location management"
   ],
   openGraph: {
-    title: "EMenu Platform — Professional SaaS for Food & Hospitality Businesses",
+    title: "EMenu Platform — Transform Your Restaurant Into a Digital Powerhouse",
     description:
       "Complete platform with QR menus, POS, real-time orders, loyalty programs, analytics, and global support. Free 30-day trial.",
     type: "website",
