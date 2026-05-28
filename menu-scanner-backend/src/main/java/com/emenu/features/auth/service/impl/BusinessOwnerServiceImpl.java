@@ -37,6 +37,7 @@ import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -68,6 +69,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private final BusinessOwnerMapper mapper;
     private final UserValidationService userValidationService;
     private final PaginationMapper paginationMapper;
+
+    @Value("${app.subscription.expiry-soon-days:7}")
+    private int expirySoonDays;
 
     @Override
     public BusinessOwnerCreateResponse createBusinessOwner(BusinessOwnerCreateRequest creationRequestData) {
@@ -528,7 +532,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         if (subscriptionRecord.isExpired()) {
             return SubscriptionStatus.EXPIRED;
         }
-        if (subscriptionRecord.isExpiringSoon(7)) {
+        if (subscriptionRecord.isExpiringSoon(expirySoonDays)) {
             return SubscriptionStatus.EXPIRING_SOON;
         }
         return SubscriptionStatus.ACTIVE;

@@ -2,6 +2,7 @@ import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { Eye } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
+import { SubscriptionConfig } from "@/constants/app-resource/default/default";
 import {
   AllSubscriptionHistoryResponseModel,
   SubscriptionHistoryResponseModel,
@@ -118,9 +119,9 @@ export const subscriptionHistoryTableColumns = ({
         }
         const days = row.daysRemaining ?? 0;
         const colorClass =
-          days <= 7
+          days <= SubscriptionConfig.EXPIRY_CRITICAL_DAYS
             ? "text-red-600 font-semibold"
-            : days <= 30
+            : days <= SubscriptionConfig.EXPIRY_WARNING_DAYS
             ? "text-yellow-600 font-medium"
             : "text-green-600";
         return <span className={`text-xs ${colorClass}`}>{days}d</span>;

@@ -34,6 +34,7 @@ import { BusinessOwnerResponseModel } from "../store/models/response/business-ow
 import { fetchAllSubscriptionsByBusinessIdService } from "@/redux/features/subscription/store/thunks/subscription-history-thunks";
 import { SubscriptionHistoryResponseModel } from "@/redux/features/subscription/store/models/response/subscription-history-response";
 import { Info, RefreshCw, ArrowRightLeft, XCircle } from "lucide-react";
+import { SubscriptionConfig } from "@/constants/app-resource/default/default";
 
 interface SubscriptionActionModalProps {
   owner: BusinessOwnerResponseModel | null;
@@ -228,7 +229,7 @@ export default function SubscriptionActionModal({
             </div>
             <div className="bg-background border border-border rounded-md px-3 py-1.5 flex items-center gap-2">
               <span className="text-muted-foreground">Days Left</span>
-              <span className={`font-semibold ${(owner?.daysRemaining ?? 0) <= 7 ? "text-red-600" : (owner?.daysRemaining ?? 0) <= 30 ? "text-yellow-600" : "text-green-600"}`}>
+              <span className={`font-semibold ${(owner?.daysRemaining ?? 0) <= SubscriptionConfig.EXPIRY_CRITICAL_DAYS ? "text-red-600" : (owner?.daysRemaining ?? 0) <= SubscriptionConfig.EXPIRY_WARNING_DAYS ? "text-yellow-600" : "text-green-600"}`}>
                 {owner?.daysRemaining ?? 0}d
               </span>
             </div>

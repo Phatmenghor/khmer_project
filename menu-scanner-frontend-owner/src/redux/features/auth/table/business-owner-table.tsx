@@ -4,6 +4,7 @@ import { formatDate } from "@/utils/date/date-time-format";
 import { CreditCard, Edit, Eye, RotateCw, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { Switch } from "@/components/ui/switch";
+import { SubscriptionConfig } from "@/constants/app-resource/default/default";
 import {
   AllBusinessOwnerResponseModel,
   BusinessOwnerResponseModel,
@@ -162,9 +163,9 @@ export const userBusinessOwnerTableColumns = ({
       render: (user) => {
         const days = user?.daysRemaining || 0;
         const colorClass =
-          days <= 7
+          days <= SubscriptionConfig.EXPIRY_CRITICAL_DAYS
             ? "text-red-600 font-semibold"
-            : days <= 30
+            : days <= SubscriptionConfig.EXPIRY_WARNING_DAYS
             ? "text-yellow-600 font-medium"
             : "text-green-600";
         return <span className={`text-xs ${colorClass}`}>{days} days</span>;

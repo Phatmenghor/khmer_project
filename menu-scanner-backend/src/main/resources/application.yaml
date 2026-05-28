@@ -63,6 +63,8 @@ app:
     admin-email: "phatmenghor19@gmail.com"
     admin-password: "88889999"
     # Test data now generated via SQL script: test-data-with-freepik-urls.sql
+  subscription:
+    expiry-soon-days: 7   # days before end date to flag as expiring-soon
     # Run directly in pgAdmin for instant data population with Freepik images
   security:
     token-cleanup:
