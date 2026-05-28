@@ -13,8 +13,10 @@ public class OwnerDashboardStatusBreakdownResponse {
     private long active;
     private long expiringSoon;
     private long expired;
+    private long cancelled;
     private long total;
     private double activePercent;
     private double expiringSoonPercent;
     private double expiredPercent;
+    private double cancelledPercent;
 }

@@ -164,25 +164,30 @@ public class OwnerDashboardServiceImpl implements OwnerDashboardService {
         LocalDateTime threshold = now.plusDays(expirySoonDays);
 
         Long active = (Long) em.createQuery(
-                "SELECT COUNT(s) FROM Subscription s WHERE s.endDate > :now AND s.isDeleted = false")
+                "SELECT COUNT(s) FROM Subscription s WHERE s.endDate > :now AND s.isDeleted = false AND s.cancellationReason IS NULL")
                 .setParameter("now", now).getSingleResult();
 
         Long expiringSoon = (Long) em.createQuery(
                 "SELECT COUNT(s) FROM Subscription s " +
-                "WHERE s.endDate > :now AND s.endDate <= :threshold AND s.isDeleted = false")
+                "WHERE s.endDate > :now AND s.endDate <= :threshold AND s.isDeleted = false AND s.cancellationReason IS NULL")
                 .setParameter("now", now).setParameter("threshold", threshold).getSingleResult();
 
         Long expired = (Long) em.createQuery(
-                "SELECT COUNT(s) FROM Subscription s WHERE s.endDate <= :now AND s.isDeleted = false")
+                "SELECT COUNT(s) FROM Subscription s WHERE s.endDate <= :now AND s.isDeleted = false AND s.cancellationReason IS NULL")
                 .setParameter("now", now).getSingleResult();
 
-        long total = active + expired;
+        Long cancelled = (Long) em.createQuery(
+                "SELECT COUNT(s) FROM Subscription s WHERE s.isDeleted = false AND s.cancellationReason IS NOT NULL")
+                .getSingleResult();
+
+        long total = active + expired + cancelled;
 
         return OwnerDashboardStatusBreakdownResponse.builder()
-                .active(active).expiringSoon(expiringSoon).expired(expired).total(total)
+                .active(active).expiringSoon(expiringSoon).expired(expired).cancelled(cancelled).total(total)
                 .activePercent(total > 0 ? roundOne(active * 100.0 / total) : 0.0)
                 .expiringSoonPercent(total > 0 ? roundOne(expiringSoon * 100.0 / total) : 0.0)
                 .expiredPercent(total > 0 ? roundOne(expired * 100.0 / total) : 0.0)
+                .cancelledPercent(total > 0 ? roundOne(cancelled * 100.0 / total) : 0.0)
                 .build();
     }
 
@@ -228,7 +233,8 @@ public class OwnerDashboardServiceImpl implements OwnerDashboardService {
                 Subscription sub = latestSub.get();
                 planName     = sub.getPlan() != null ? sub.getPlan().getName() : null;
                 daysRemaining = sub.getDaysRemaining();
-                status = sub.isExpired() ? "EXPIRED"
+                status = sub.isCancelled() ? "CANCELLED"
+                        : sub.isExpired() ? "EXPIRED"
                         : sub.isExpiringSoon(expirySoonDays) ? "EXPIRING_SOON" : "ACTIVE";
             }
 

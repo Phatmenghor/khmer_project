@@ -112,6 +112,13 @@ export function SubscriptionStatusCard({
               barColor="bg-rose-500"
               textColor="text-rose-600 dark:text-rose-400"
             />
+            <StatusRow
+              label="Cancelled"
+              count={statusBreakdown.cancelled}
+              percent={statusBreakdown.cancelledPercent}
+              barColor="bg-orange-500"
+              textColor="text-orange-600 dark:text-orange-400"
+            />
           </>
         ) : (
           <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
