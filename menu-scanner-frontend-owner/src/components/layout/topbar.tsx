@@ -58,6 +58,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         <DialogContent className="w-full sm:max-w-lg max-h-[92dvh] p-0 gap-0 flex flex-col">
           <FormHeader
             title="Sign Out"
+            description="End your current session"
             isCreate={false}
           />
 
