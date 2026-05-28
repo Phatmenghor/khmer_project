@@ -171,6 +171,19 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 ownerUserEntity.getId(), businessEntity.getId(), subscriptionRecord != null ? subscriptionRecord.getId() : null);
         webSocketNotificationService.notifyPlatformEvent("BUSINESS_OWNER_CHANGED", Map.of("action", "registered", "ownerId", ownerUserEntity.getId().toString()));
 
+        // Send Telegram notification if subscription was created
+        if (subscriptionRecord != null) {
+            String planName = subscriptionRecord.getPlan() != null ? subscriptionRecord.getPlan().getName() : "N/A";
+            String expiryDate = subscriptionRecord.getEndDate().toLocalDate().toString();
+            telegramNotificationService.notifyBusinessOwnerRegistered(
+                businessEntity.getId(),
+                ownerUserEntity.getFullName(),
+                businessEntity.getName(),
+                planName,
+                expiryDate
+            );
+        }
+
         return response;
     }
 
