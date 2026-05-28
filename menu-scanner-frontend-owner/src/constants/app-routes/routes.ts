@@ -8,6 +8,10 @@ import {
 } from "lucide-react";
 
 export const ROUTES = {
+  PUBLIC: {
+    HOME: "/",
+    REGISTER: "/register",
+  },
   AUTH: {
     LOGIN: "/login",
   },
