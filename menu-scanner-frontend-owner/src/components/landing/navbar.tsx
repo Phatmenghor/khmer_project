@@ -18,10 +18,10 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { label: "Features", href: "/" },
-    { label: "Pricing", href: "/" },
-    { label: "How It Works", href: "/" },
-    { label: "Contact", href: "/" },
+    { label: "Features", href: "#features" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "How It Works", href: "#how-it-works" },
+    { label: "Contact", href: "#contact" },
   ];
 
   return (
@@ -43,22 +43,23 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="px-4 py-2 rounded-md text-base font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-              >
-                {link.label}
-              </a>
-            ))}
-          </nav>
+          {/* Desktop nav and CTA - Right side */}
+          <div className="hidden md:flex items-center gap-6">
+            {/* Navigation Links */}
+            <nav className="flex items-center gap-1">
+              {navLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center">
-            <Button className="h-12 px-8 text-base bg-primary hover:bg-primary/90 text-white" asChild>
+            {/* CTA Button */}
+            <Button className="h-12 px-8 text-base bg-primary hover:bg-primary/90 text-white rounded-lg" asChild>
               <Link href={ROUTES.PUBLIC.REGISTER}>Get Started Free</Link>
             </Button>
           </div>

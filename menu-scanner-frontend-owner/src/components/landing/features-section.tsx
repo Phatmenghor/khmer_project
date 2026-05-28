@@ -27,7 +27,7 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section className="relative py-24">
+    <section id="features" className="relative py-24">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-white via-primary/2 to-slate-50"></div>
