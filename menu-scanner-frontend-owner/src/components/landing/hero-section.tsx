@@ -2,14 +2,45 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CheckCircle, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 
+const typewriterStyles = `
+  @keyframes typewriter {
+    0% { width: 0; }
+    100% { width: 100%; }
+  }
+
+  @keyframes blink {
+    0%, 49% { border-right-color: transparent; }
+    50%, 100% { border-right-color: currentColor; }
+  }
+
+  @keyframes scroll-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+  }
+
+  .typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typewriter 3.5s steps(40, end) forwards, blink 0.75s step-end infinite 3.5s;
+    border-right: 2px solid;
+    border-right-color: currentColor;
+  }
+
+  .scroll-indicator {
+    animation: scroll-bounce 2s infinite;
+  }
+`;
+
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden pt-16 sm:pt-24 pb-16 sm:pb-20">
+    <>
+      <style>{typewriterStyles}</style>
+      <section className="relative overflow-hidden pt-16 sm:pt-24 pb-20 sm:pb-24">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "4s"}}></div>
@@ -21,12 +52,12 @@ export default function HeroSection() {
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
             <FadeIn direction="right" delay={0}>
               <div className="space-y-6 sm:space-y-8 flex flex-col justify-center">
-              {/* Headline */}
+              {/* Headline with Typewriter Effect */}
               <div>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-slate-900">
-                Transform Your Business
+                <span className="typewriter inline-block" style={{animationDelay: "0.3s"}}>Transform Your Business</span>
                 <br />
-                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent animate-pulse">Into a Digital Powerhouse</span>
+                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent animate-pulse" style={{animationDelay: "3.8s"}}>Into a Digital Powerhouse</span>
               </h1>
             </div>
 
@@ -85,7 +116,14 @@ export default function HeroSection() {
               </div>
             </FadeIn>
           </div>
-      </div>
-    </section>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2">
+          <p className="text-xs sm:text-sm text-slate-500 font-medium">Scroll to explore</p>
+          <ChevronDown className="w-5 h-5 text-primary scroll-indicator" />
+        </div>
+      </section>
+    </>
   );
 }
