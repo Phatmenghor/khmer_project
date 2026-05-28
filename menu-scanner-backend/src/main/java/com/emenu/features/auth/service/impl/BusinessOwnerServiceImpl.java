@@ -208,6 +208,10 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         newSubscription.setAutoRenew(currentSubscription.getAutoRenew());
         newSubscription = subscriptionRepository.save(newSubscription);
 
+        // End the old subscription at the start of new one (marks it as expired for history)
+        currentSubscription.setEndDate(newStartDate);
+        subscriptionRepository.save(currentSubscription);
+
         // Always create a payment record for this renewal
         BigDecimal amount = renewRequestData.getPaymentAmount() != null
                 ? renewRequestData.getPaymentAmount() : BigDecimal.ZERO;
@@ -248,14 +252,19 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         String oldPlanName = currentSubscriptionRecord.getPlan() != null ? currentSubscriptionRecord.getPlan().getName() : "N/A";
 
         // Always create a new subscription for plan change (consistent audit trail)
+        LocalDateTime newStartDate = LocalDateTime.now();
         Subscription newSubscription = new Subscription();
         newSubscription.setBusinessId(businessEntity.getId());
         newSubscription.setPlanId(newPlanEntity.getId());
         newSubscription.setPlan(newPlanEntity);
-        newSubscription.setStartDate(LocalDateTime.now());
-        newSubscription.setEndDate(newPlanEntity.calculateEndDate(LocalDateTime.now()));
+        newSubscription.setStartDate(newStartDate);
+        newSubscription.setEndDate(newPlanEntity.calculateEndDate(newStartDate));
         newSubscription.setAutoRenew(currentSubscriptionRecord.getAutoRenew());
         newSubscription = subscriptionRepository.save(newSubscription);
+
+        // End the old subscription at the start of new one (marks it as expired for history)
+        currentSubscriptionRecord.setEndDate(newStartDate);
+        subscriptionRepository.save(currentSubscriptionRecord);
 
         // Create payment record for the new subscription
         BigDecimal amount = changePlanRequestData.getPaymentAmount() != null
