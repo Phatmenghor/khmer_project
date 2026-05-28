@@ -108,6 +108,7 @@ export const LANDING_CONFIG = {
     subtitle: "Start free, upgrade anytime as your business grows.",
     plans: [
       {
+        id: "550e8400-e29b-41d4-a716-446655440101",
         name: "1 Week",
         price: "$0",
         period: "7 days",
@@ -125,6 +126,7 @@ export const LANDING_CONFIG = {
         ]
       },
       {
+        id: "550e8400-e29b-41d4-a716-446655440102",
         name: "1 Month",
         price: "$0",
         period: "30 days",
@@ -143,6 +145,7 @@ export const LANDING_CONFIG = {
         highlighted: true
       },
       {
+        id: "550e8400-e29b-41d4-a716-446655440103",
         name: "1 Year",
         price: "$0",
         period: "365 days",
