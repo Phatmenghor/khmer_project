@@ -23,21 +23,34 @@ export function usePlatformWebSocket() {
   const clientRef = useRef<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  // Get current business owner state to use current pagination
+  const businessOwnerState = useAppSelector(state => state.businessOwners);
+
   const handleBusinessOwnerUpdate = useCallback(async (event: any) => {
     try {
-      // Silently fetch updated business owner data
+      // Fetch using the current pagination state of this tab
       const response = await axiosClientWithAuth.post("/api/v1/business-owners/all", {
-        pageNo: 1,
-        pageSize: 100,
-        subscriptionStatuses: [],
+        search: businessOwnerState.filters.search,
+        pageNo: businessOwnerState.filters.pageNo,
+        pageSize: 15, // Default page size
+        subscriptionStatuses:
+          businessOwnerState.filters.subscriptionStatus === "ALL"
+            ? []
+            : [businessOwnerState.filters.subscriptionStatus],
+        autoRenew:
+          businessOwnerState.filters.autoRenew === "ACTIVE"
+            ? true
+            : businessOwnerState.filters.autoRenew === "INACTIVE"
+            ? false
+            : undefined,
       });
       // Update Redux silently (no loading indicator)
       dispatch(updateBusinessOwnerDataSilently(response.data.data));
-      console.log("[WS] Business owner data updated globally");
+      console.log(`[WS] Business owner data updated for page ${businessOwnerState.filters.pageNo}`);
     } catch (error) {
       console.error("[WS] Failed to update business owner data:", error);
     }
-  }, [dispatch]);
+  }, [dispatch, businessOwnerState]);
 
   const connect = useCallback(() => {
     const wsUrl = `${window.location.origin}/ws`;
