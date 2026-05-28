@@ -68,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
 
         if (!passwordEncoder.matches(loginRequestData.getPassword(), userEntity.getPassword())) {
             log.warn("User login failed - invalid password: identifier={}", loginRequestData.getUserIdentifier());
-            throw new ValidationException("Invalid credentials");
+            throw new ValidationException("Your password is incorrect. Please try again or reset your password if you've forgotten it.");
         }
 
         securityUtils.validateAccountStatus(userEntity);
