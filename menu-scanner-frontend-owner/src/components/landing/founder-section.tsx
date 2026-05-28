@@ -28,36 +28,61 @@ export default function FounderSection() {
         <div className="grid lg:grid-cols-2 gap-8 items-stretch">
           {/* Founder photo card - Left side */}
           <FadeIn direction="right" delay={100}>
-            <Card className="bg-gradient-to-br from-blue-50 via-blue-100/40 to-blue-50 border-2 border-blue-300 h-full group overflow-hidden">
-              {/* Animated bg dot */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
+            <div className="flex flex-col gap-4 h-full">
+              {/* Photo Card */}
+              <Card className="bg-gradient-to-br from-blue-50 via-blue-100/40 to-blue-50 border-2 border-blue-300 group overflow-hidden">
+                {/* Animated bg dot */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
 
-              <CardContent className="p-8 relative z-10 h-full flex flex-col">
-                <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg bg-white mb-8">
-                  <Image
-                    src={founder.image}
-                    alt={founder.name}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-                <div className="text-center flex-1 flex flex-col justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-primary mb-2">Emenu Cambodia</p>
-                    <h3 className="text-3xl font-bold text-slate-900">{founder.name}</h3>
-                    <p className="text-lg text-primary font-bold mt-2">{founder.title}</p>
-                    <p className="text-base text-slate-700 font-medium mt-2">{founder.contact.location}</p>
+                <CardContent className="p-8 relative z-10 flex flex-col">
+                  <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg bg-white mb-8">
+                    <Image
+                      src={founder.image}
+                      alt={founder.name}
+                      fill
+                      className="object-cover"
+                      priority
+                    />
                   </div>
-                  <a
-                    href={`mailto:${founder.contact.email}`}
-                    className="inline-flex text-primary hover:text-primary/80 font-semibold transition-colors text-sm justify-center"
-                  >
-                    {founder.contact.email}
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="text-center flex flex-col gap-2">
+                    <h3 className="text-3xl font-bold text-slate-900">{founder.name}</h3>
+                    <p className="text-lg text-primary font-bold">{founder.title}</p>
+                    <p className="text-base text-slate-700 font-medium">{founder.contact.location}</p>
+                    <a
+                      href={`mailto:${founder.contact.email}`}
+                      className="inline-flex text-primary hover:text-primary/80 font-semibold transition-colors text-sm justify-center mt-2"
+                    >
+                      {founder.contact.email}
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Details Grid - 2x2 */}
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: "🇰🇭", text: "Built in Cambodia for the world 🌍" },
+                  { icon: "💼", text: "10+ years enterprise software experience" },
+                  { icon: "🍽️", text: "Passionate about restaurant technology" },
+                  { icon: "💰", text: "Committed to affordable digital solutions" }
+                ].map((item, idx) => (
+                  <Card key={idx} className={`bg-gradient-to-br ${
+                    idx === 0 ? "from-blue-50 to-blue-100/50 border-blue-200" :
+                    idx === 1 ? "from-purple-50 to-purple-100/50 border-purple-200" :
+                    idx === 2 ? "from-pink-50 to-pink-100/50 border-pink-200" :
+                    "from-green-50 to-green-100/50 border-green-200"
+                  } border-2 group overflow-hidden h-full`}>
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-white/40 rounded-full blur-lg group-hover:scale-150 transition-transform duration-300"></div>
+                    <CardContent className="p-4 relative z-10 flex flex-col items-center text-center gap-2">
+                      <span className="text-2xl">{item.icon}</span>
+                      <p className="text-xs font-semibold text-slate-800 leading-tight">
+                        {item.text}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </FadeIn>
 
           {/* Story cards - Right side */}
