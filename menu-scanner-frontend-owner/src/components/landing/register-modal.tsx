@@ -109,7 +109,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl h-[90vh] p-0 gap-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <DialogHeader className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex flex-col gap-4">
