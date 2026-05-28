@@ -91,7 +91,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                             authMap.put("userType", userType);
                             authMap.put("userId", user.getId().toString());
                             authMap.put("userIdentifier", user.getUserIdentifier());
-                            log.debug("[JWT] Stored in ThreadLocal - userId: {}, username: {}, userType: {}", user.getId(), username, userType);
                         }
                     } catch (Exception e) {
                         log.debug("[JWT] Failed to extract user from database: {}", e.getMessage());

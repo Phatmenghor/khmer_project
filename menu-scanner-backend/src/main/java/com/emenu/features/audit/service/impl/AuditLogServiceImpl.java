@@ -75,23 +75,18 @@ public class AuditLogServiceImpl implements AuditLogService {
 
         // Get authenticated user info from ThreadLocal (set by JWT filter)
         var authMap = JWTAuthenticationFilter.AUTHENTICATED_USER.get();
-        String authUsername = authMap.get("username");
-        String authUserType = authMap.get("userType");
         String authUserId = authMap.get("userId");
         String authUserIdentifier = authMap.get("userIdentifier");
-        log.debug("[AUDIT] ThreadLocal values - username: {}, userType: {}, userId: {}, userIdentifier: {}", authUsername, authUserType, authUserId, authUserIdentifier);
+        String authUserType = authMap.get("userType");
 
         if (authUserId != null && authUserIdentifier != null) {
             try {
                 userId = java.util.UUID.fromString(authUserId);
                 userIdentifier = authUserIdentifier;
                 userType = authUserType != null ? authUserType : "ANONYMOUS";
-                log.debug("[AUDIT] Extracted user from ThreadLocal: userId={}, userIdentifier={}, userType={}", userId, userIdentifier, userType);
             } catch (Exception e) {
-                log.debug("[AUDIT] Exception extracting user from ThreadLocal: {}", e.getMessage());
+                log.debug("Exception extracting user from ThreadLocal: {}", e.getMessage());
             }
-        } else {
-            log.debug("[AUDIT] No authenticated user in ThreadLocal for endpoint: {}", request.getRequestURI());
         }
 
         String httpMethod = request.getMethod();
