@@ -647,10 +647,11 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private Subscription getCurrentSubscription(UUID businessId) {
-        return subscriptionRepository.findCurrentActiveByBusinessId(businessId, LocalDateTime.now())
+        return subscriptionRepository.findByBusinessIdAndIsDeletedFalse(businessId).stream()
+                .max((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
                 .orElseThrow(() -> {
-                    log.warn("Active subscription not found: business_id={}", businessId);
-                    return new NotFoundException("No active subscription found");
+                    log.warn("Subscription not found: business_id={}", businessId);
+                    return new NotFoundException("No subscription found");
                 });
     }
 
