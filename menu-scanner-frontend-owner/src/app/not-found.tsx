@@ -39,7 +39,7 @@ export default function NotFoundPage() {
           </Button>
           <Button asChild>
             <Link
-              href="/dashboard/admin/platform-users"
+              href="/admin/platform-users"
               className="flex items-center gap-2"
             >
               <Home className="h-4 w-4" />
