@@ -3,10 +3,8 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { useAppDispatch } from "@/redux/store";
 import { bumpVersion, WebSocketResource } from "@/redux/store/slices/websocket-slice";
-import { updateBusinessOwnerDataSilently } from "@/redux/features/auth/store/slice/business-owner-slice";
-import { axiosClientWithAuth } from "@/utils/axios";
 
 const EVENT_TYPE_MAP: Record<string, WebSocketResource> = {
   BUSINESS_OWNER_CHANGED: "businessOwner",
@@ -23,35 +21,6 @@ export function usePlatformWebSocket() {
   const clientRef = useRef<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
-  // Get current business owner state to use current pagination
-  const businessOwnerState = useAppSelector(state => state.businessOwners);
-
-  const handleBusinessOwnerUpdate = useCallback(async (event: any) => {
-    try {
-      // Fetch using the current pagination state of this tab
-      const response = await axiosClientWithAuth.post("/api/v1/business-owners/all", {
-        search: businessOwnerState.filters.search,
-        pageNo: businessOwnerState.filters.pageNo,
-        pageSize: 15, // Default page size
-        subscriptionStatuses:
-          businessOwnerState.filters.subscriptionStatus === "ALL"
-            ? []
-            : [businessOwnerState.filters.subscriptionStatus],
-        autoRenew:
-          businessOwnerState.filters.autoRenew === "ACTIVE"
-            ? true
-            : businessOwnerState.filters.autoRenew === "INACTIVE"
-            ? false
-            : undefined,
-      });
-      // Update Redux silently (no loading indicator)
-      dispatch(updateBusinessOwnerDataSilently(response.data.data));
-      console.log(`[WS] Business owner data updated for page ${businessOwnerState.filters.pageNo}`);
-    } catch (error) {
-      console.error("[WS] Failed to update business owner data:", error);
-    }
-  }, [dispatch, businessOwnerState]);
-
   const connect = useCallback(() => {
     const wsUrl = `${window.location.origin}/ws`;
 
@@ -66,17 +35,10 @@ export function usePlatformWebSocket() {
           try {
             const event = JSON.parse(message.body);
             const resource = EVENT_TYPE_MAP[event.type];
-
             if (resource) {
-              console.log(`[WS] Platform event: ${event.type}`);
-
-              // Handle specific resource updates with silent data refresh
-              if (event.type === "BUSINESS_OWNER_CHANGED") {
-                handleBusinessOwnerUpdate(event);
-              } else {
-                // For other events, just bump version (existing behavior)
-                dispatch(bumpVersion(resource));
-              }
+              // Bump version - pages will use this to decide if they should refresh
+              dispatch(bumpVersion(resource));
+              console.log(`[WS] Platform event: ${event.type} → bumped ${resource}`);
             }
           } catch {
             // ignore malformed messages
@@ -95,7 +57,7 @@ export function usePlatformWebSocket() {
 
     client.activate();
     clientRef.current = client;
-  }, [dispatch, handleBusinessOwnerUpdate]);
+  }, [dispatch]);
 
   useEffect(() => {
     connect();
