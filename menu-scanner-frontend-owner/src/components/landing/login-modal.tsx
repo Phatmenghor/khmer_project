@@ -73,12 +73,22 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           router.push(ROUTES.DASHBOARD.INDEX);
         }, 500);
       }
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err?.message ||
-        "Login failed. Please try again.";
+    } catch (err: unknown) {
+      let errorMessage = "Login failed. Please try again.";
+
+      if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (typeof err === 'object' && err !== null) {
+        const error = err as any;
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+      }
+
       showToast.error(errorMessage);
     } finally {
       setIsSubmitting(false);

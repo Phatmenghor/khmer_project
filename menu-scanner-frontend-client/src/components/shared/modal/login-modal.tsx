@@ -71,15 +71,19 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
         window.location.reload();
       }, 500);
     } catch (err: unknown) {
-      const error = err as { payload?: { message?: string; data?: { message?: string } } } | { message?: string };
       let errorMessage = "Login failed. Please check your credentials.";
 
-      if ('payload' in error && error.payload?.message) {
-        errorMessage = error.payload.message;
-      } else if ('payload' in error && error.payload?.data?.message) {
-        errorMessage = error.payload.data.message;
-      } else if ('message' in error && error.message) {
-        errorMessage = error.message;
+      if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (typeof err === 'object' && err !== null) {
+        const error = err as any;
+        if (error.payload?.message) {
+          errorMessage = error.payload.message;
+        } else if (error.payload?.data?.message) {
+          errorMessage = error.payload.data.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
       }
 
       showToast.error(errorMessage);

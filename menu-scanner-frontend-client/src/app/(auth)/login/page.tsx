@@ -64,15 +64,19 @@ export default function LoginPage() {
         router.replace(ROUTES.ADMIN.DASHBOARD);
       }, 500);
     } catch (err: unknown) {
-      const error = err as { payload?: { message?: string; data?: { message?: string } } } | { message?: string };
       let errorMessage = Messages.auth.loginFailed;
 
-      if ('payload' in error && error.payload?.message) {
-        errorMessage = error.payload.message;
-      } else if ('payload' in error && error.payload?.data?.message) {
-        errorMessage = error.payload.data.message;
-      } else if ('message' in error && error.message) {
-        errorMessage = error.message;
+      if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (typeof err === 'object' && err !== null) {
+        const error = err as any;
+        if (error.payload?.message) {
+          errorMessage = error.payload.message;
+        } else if (error.payload?.data?.message) {
+          errorMessage = error.payload.data.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
       }
 
       showToast.error(errorMessage);
@@ -94,15 +98,19 @@ export default function LoginPage() {
         router.replace(ROUTES.ADMIN.DASHBOARD);
       }, 500);
     } catch (err: unknown) {
-      const error = err as { payload?: { message?: string; data?: { message?: string } } } | { message?: string };
       let errorMessage = Messages.auth.telegramFailed;
 
-      if ('payload' in error && error.payload?.message) {
-        errorMessage = error.payload.message;
-      } else if ('payload' in error && error.payload?.data?.message) {
-        errorMessage = error.payload.data.message;
-      } else if ('message' in error && error.message) {
-        errorMessage = error.message;
+      if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (typeof err === 'object' && err !== null) {
+        const error = err as any;
+        if (error.payload?.message) {
+          errorMessage = error.payload.message;
+        } else if (error.payload?.data?.message) {
+          errorMessage = error.payload.data.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
       }
 
       showToast.error(errorMessage);
