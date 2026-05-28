@@ -381,7 +381,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         }
 
         if (request.getAutoRenew() != null && ownerEntity.getBusiness() != null) {
-            subscriptionRepository.findCurrentActiveByBusinessId(ownerEntity.getBusiness().getId(), LocalDateTime.now())
+            subscriptionRepository.findLatestByBusinessId(ownerEntity.getBusiness().getId())
                     .ifPresent(sub -> {
                         sub.setAutoRenew(request.getAutoRenew());
                         subscriptionRepository.save(sub);
