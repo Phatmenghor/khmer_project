@@ -36,14 +36,21 @@ export default function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="contact" className="bg-white py-20">
+    <section id="contact" className="relative py-24">
+      {/* Animated Background */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white"></div>
+        <div className="absolute top-1/2 left-0 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-pulse" style={{animationDuration: "6s"}}></div>
+        <div className="absolute top-1/2 right-0 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-pulse" style={{animationDuration: "7s", animationDelay: "2s"}}></div>
+      </div>
+
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn direction="up">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">
-              Questions Answered
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Questions Answered</span>
             </h2>
-            <p className="text-base text-slate-600">
+            <p className="text-lg text-slate-700 font-medium">
               Everything you need to know about EMenu Platform
             </p>
           </div>

@@ -7,14 +7,21 @@ export default function FounderSection() {
   const founder = LANDING_CONFIG.founder;
 
   return (
-    <section className="bg-gradient-to-b from-slate-50 to-white py-20">
+    <section className="relative py-24">
+      {/* Animated Background */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-primary/2 to-slate-50"></div>
+        <div className="absolute top-1/3 left-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "6s"}}></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "8s", animationDelay: "2s"}}></div>
+      </div>
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn direction="up">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-3">
-              Meet the Founder
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meet the Founder</span>
             </h2>
-            <p className="text-base text-slate-600">The vision behind EMenu Platform</p>
+            <p className="text-lg text-slate-700 font-medium">The vision behind EMenu Platform</p>
           </div>
         </FadeIn>
 
