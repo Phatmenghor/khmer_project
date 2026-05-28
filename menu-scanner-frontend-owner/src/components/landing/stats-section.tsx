@@ -7,17 +7,15 @@ const stats = [
 
 export default function StatsSection() {
   return (
-    <section className="bg-gray-50 border-y border-gray-100 py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
-          {stats.map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-4xl lg:text-5xl font-extrabold text-[#A23469] mb-2 tracking-tight">
-                {stat.value}
+    <section className="border-y border-border bg-muted/40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {stats.map(({ value, label }) => (
+            <div key={label} className="text-center">
+              <div className="text-3xl sm:text-4xl font-extrabold text-primary mb-1">
+                {value}
               </div>
-              <div className="text-sm lg:text-base text-gray-500 font-medium">
-                {stat.label}
-              </div>
+              <div className="text-sm text-muted-foreground font-medium">{label}</div>
             </div>
           ))}
         </div>
