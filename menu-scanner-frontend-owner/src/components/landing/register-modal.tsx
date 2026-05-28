@@ -109,7 +109,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-screen sm:w-full sm:max-w-7xl max-h-[100dvh] sm:max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded-lg bottom-0 sm:bottom-auto left-0 sm:left-auto">
+      <DialogContent className="w-screen sm:w-full sm:max-w-7xl max-h-[100dvh] sm:max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded-lg fixed sm:relative left-0 bottom-0 sm:bottom-auto sm:left-auto top-auto sm:top-1/2 sm:-translate-y-1/2">
         {/* Mobile drag handle */}
         <div className="sm:hidden h-1 bg-slate-300 rounded-full w-12 mx-auto mt-3"></div>
 
