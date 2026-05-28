@@ -62,33 +62,33 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         </div>
       </header>
       <AlertDialog open={showLogoutAlert} onOpenChange={setShowLogoutAlert}>
-        <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogContent className="w-full sm:max-w-md rounded-2xl">
           <AlertDialogHeader>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-900/20">
                 <LogOut className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <AlertDialogTitle className="text-left text-lg font-semibold">
+                <AlertDialogTitle className="text-left text-lg font-bold">
                   Sign Out
                 </AlertDialogTitle>
               </div>
             </div>
-            <AlertDialogDescription className="text-left text-sm text-muted-foreground mt-2">
+            <AlertDialogDescription className="text-left text-sm text-muted-foreground mt-2 leading-relaxed">
               Are you sure you want to sign out of your account? You'll need to
               sign in again to access your dashboard and saved data.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2">
-            <AlertDialogCancel className="duration-300 mt-2 sm:mt-0 w-full sm:w-auto">
+          <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-end gap-2">
+            <AlertDialogCancel className="rounded-xl mt-0 w-full sm:w-auto">
               Stay Signed In
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleLogout}
-              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 focus:ring-red-600 rounded-xl gap-2"
             >
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut className="h-4 w-4" />
               Sign Out
             </AlertDialogAction>
           </AlertDialogFooter>
