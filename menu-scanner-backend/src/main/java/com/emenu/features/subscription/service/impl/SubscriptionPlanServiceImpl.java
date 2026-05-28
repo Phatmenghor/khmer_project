@@ -136,4 +136,11 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         long subscriptionCount = subscriptionRepository.countByPlan(planId);
         return subscriptionCount > 0;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubscriptionPlanResponse> getAllActivePlans() {
+        List<SubscriptionPlan> plans = planRepository.findAllActivePlans();
+        return planMapper.toResponseList(plans);
+    }
 }

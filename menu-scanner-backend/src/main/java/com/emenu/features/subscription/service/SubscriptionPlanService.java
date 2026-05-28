@@ -6,6 +6,7 @@ import com.emenu.features.subscription.dto.response.SubscriptionPlanResponse;
 import com.emenu.features.subscription.dto.update.SubscriptionPlanUpdateRequest;
 import com.emenu.shared.dto.PaginationResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface SubscriptionPlanService {
@@ -16,4 +17,5 @@ public interface SubscriptionPlanService {
     SubscriptionPlanResponse getPlanById(UUID planId);
     SubscriptionPlanResponse updatePlan(UUID planId, SubscriptionPlanUpdateRequest request);
     void deletePlan(UUID planId);
+    List<SubscriptionPlanResponse> getAllActivePlans();
 }

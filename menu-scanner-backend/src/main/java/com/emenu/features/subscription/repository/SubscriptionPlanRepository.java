@@ -33,4 +33,12 @@ public interface SubscriptionPlanRepository extends JpaRepository<SubscriptionPl
             @Param("search") String search,
             Pageable pageable
     );
+
+    @Query("""
+        SELECT sp FROM SubscriptionPlan sp
+        WHERE sp.isDeleted = false
+        AND sp.status = 'ACTIVE'
+        ORDER BY sp.price ASC
+        """)
+    List<SubscriptionPlan> findAllActivePlans();
 }

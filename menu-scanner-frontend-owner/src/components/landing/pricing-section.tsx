@@ -9,18 +9,88 @@ import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { LANDING_CONFIG } from "@/constants/landing-config";
 import { RegisterModal } from "./register-modal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { axiosClient } from "@/utils/axios";
 
 interface PlanData {
+  id?: string;
   name: string;
   price: string;
   period: string;
   description: string;
 }
 
+interface SubscriptionPlanResponse {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  durationType: string;
+  status: string;
+}
+
 export default function PricingSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanData>();
+  const [plans, setPlans] = useState<(PlanData & { features?: string[]; highlighted?: boolean })[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await axiosClient.get<{ data: SubscriptionPlanResponse[] }>(
+          "/api/v1/public/subscription-plans"
+        );
+        const fetchedPlans = response.data.data || [];
+
+        // Map API response to display format, enriching with hardcoded features and highlighted status
+        const displayPlans = fetchedPlans.map((plan, index) => {
+          const hardcodedPlan = LANDING_CONFIG.pricing.plans[index];
+          const period = getPeriodLabel(plan.durationType);
+
+          return {
+            id: plan.id,
+            name: plan.name,
+            price: `$${plan.price}`,
+            period,
+            description: plan.description,
+            features: hardcodedPlan?.features || [],
+            highlighted: hardcodedPlan?.highlighted || false,
+          };
+        });
+
+        setPlans(displayPlans.length > 0 ? displayPlans : getDefaultPlans());
+      } catch (error) {
+        console.warn("Failed to fetch subscription plans, using defaults", error);
+        setPlans(getDefaultPlans());
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPlans();
+  }, []);
+
+  const getPeriodLabel = (durationType: string): string => {
+    const typeMap: { [key: string]: string } = {
+      DAILY: "/ day",
+      WEEKLY: "/ week",
+      MONTHLY: "/ month",
+      YEARLY: "/ year",
+    };
+    return typeMap[durationType] || "/ month";
+  };
+
+  const getDefaultPlans = () => {
+    return LANDING_CONFIG.pricing.plans.map(({ name, price, period, description, features, highlighted }) => ({
+      name,
+      price: `$${price}`,
+      period,
+      description,
+      features,
+      highlighted,
+    }));
+  };
 
   const handlePlanClick = (plan: PlanData) => {
     setSelectedPlan(plan);
@@ -48,11 +118,19 @@ export default function PricingSection() {
           </div>
         </FadeIn>
 
-        <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-6 mt-16 items-start">
-          {LANDING_CONFIG.pricing.plans.map(({ name, price, period, description, features, highlighted }, i) => {
-            const planData: PlanData = { name, price, period, description };
-            return (
-            <FadeIn key={name} direction="up" delay={i * 140}>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="inline-block w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+              <p className="mt-4 text-slate-600">Loading pricing plans...</p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-6 mt-16 items-start">
+            {plans.map(({ name, price, period, description, features = [], highlighted = false }, i) => {
+              const planData: PlanData = { name, price, period, description };
+              return (
+              <FadeIn key={name} direction="up" delay={i * 140}>
               <Card
                 className={cn(
                   "relative border-2 transition-all duration-300 flex flex-col h-full group",
@@ -113,9 +191,10 @@ export default function PricingSection() {
                 </CardContent>
               </Card>
             </FadeIn>
-          );
-          })}
-        </div>
+              );
+              })}
+            </div>
+          )}
       </div>
 
       {/* Register Modal */}

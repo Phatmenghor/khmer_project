@@ -3,7 +3,7 @@
  * Redux thunks for SubscriptionPlan CRUD operations
  */
 
-import { axiosClientWithAuth } from "@/utils/axios";
+import { axiosClientWithAuth, axiosClient } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/apiWrapper";
 import {
   AllSubscriptionPlanRequest,
@@ -77,6 +77,19 @@ export const deleteSubscriptionPlanService = createApiThunk<any, string>(
   async (userId) => {
     const response = await axiosClientWithAuth.delete(
       `/api/v1/subscription-plans/${userId}`
+    );
+    return response.data.data;
+  }
+);
+
+/**
+ * Fetch all active SubscriptionPlans (public endpoint - no authentication required)
+ */
+export const fetchAllPublicSubscriptionPlansService = createApiThunk<any, void>(
+  "subscription-plans/fetchPublic",
+  async () => {
+    const response = await axiosClient.get(
+      "/api/v1/public/subscription-plans"
     );
     return response.data.data;
   }
