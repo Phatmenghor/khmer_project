@@ -25,10 +25,10 @@ export default function FounderSection() {
           </div>
         </FadeIn>
 
-        <div className="grid lg:grid-cols-2 gap-8 items-stretch">
+        <div className="grid lg:grid-cols-2 gap-8">
           {/* Founder photo card - Left side */}
           <FadeIn direction="right" delay={100}>
-            <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden h-full">
+            <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
               {/* Animated bg dot */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
 
@@ -73,7 +73,7 @@ export default function FounderSection() {
 
           {/* Story cards and highlights - Right side */}
           <FadeIn direction="left" delay={150}>
-            <div className="space-y-4 h-full flex flex-col">
+            <div className="space-y-4 flex flex-col">
               {/* Vision Card */}
               <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
