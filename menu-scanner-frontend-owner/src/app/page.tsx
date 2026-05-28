@@ -9,6 +9,7 @@ import FounderSection from "@/components/landing/founder-section";
 import FaqSection from "@/components/landing/faq-section";
 import CtaSection from "@/components/landing/cta-section";
 import Footer from "@/components/landing/footer";
+import { ScrollToTop } from "@/components/landing/scroll-to-top";
 
 export const metadata = {
   title: "Emenu Cambodia — Transform Your Restaurant Into a Digital Powerhouse",
@@ -49,6 +50,7 @@ export default function LandingPage() {
         <CtaSection />
       </main>
       <Footer />
+      <ScrollToTop />
     </>
   );
 }
