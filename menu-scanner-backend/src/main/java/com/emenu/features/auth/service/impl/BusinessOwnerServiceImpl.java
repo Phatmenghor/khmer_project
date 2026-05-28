@@ -246,10 +246,19 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         SubscriptionPlan newPlanEntity = getPlanOrThrow(changePlanRequestData.getNewPlanId());
 
         String oldPlanName = currentSubscriptionRecord.getPlan() != null ? currentSubscriptionRecord.getPlan().getName() : "N/A";
+        UUID currentSubId = currentSubscriptionRecord.getId();
 
         // Mark old subscription as plan changed (keep original dates for history)
         currentSubscriptionRecord.setPlanChangeReason("Plan changed to " + newPlanEntity.getName());
         subscriptionRepository.save(currentSubscriptionRecord);
+
+        // Mark all previous ACTIVE subscriptions as plan changed too
+        subscriptionRepository.findByBusinessIdAndIsDeletedFalse(businessEntity.getId()).stream()
+                .filter(s -> !s.getId().equals(currentSubId) && s.isActive())
+                .forEach(s -> {
+                    s.setPlanChangeReason("Superseded by later plan change");
+                    subscriptionRepository.save(s);
+                });
 
         // Always create a new subscription for plan change (consistent audit trail)
         Subscription newSubscription = new Subscription();
@@ -303,6 +312,15 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         currentSubscriptionRecord.cancel();
         currentSubscriptionRecord.setCancellationReason(cancelRequestData.getReason());
         subscriptionRepository.save(currentSubscriptionRecord);
+
+        // Mark all previous ACTIVE subscriptions as CANCELLED too
+        UUID currentSubId = currentSubscriptionRecord.getId();
+        subscriptionRepository.findByBusinessIdAndIsDeletedFalse(businessEntity.getId()).stream()
+                .filter(s -> !s.getId().equals(currentSubId) && s.isActive())
+                .forEach(s -> {
+                    s.setCancellationReason("Superseded by later cancellation");
+                    subscriptionRepository.save(s);
+                });
 
         subscriptionPaymentRepository
                 .findBySubscriptionIdAndStatusAndIsDeletedFalse(
