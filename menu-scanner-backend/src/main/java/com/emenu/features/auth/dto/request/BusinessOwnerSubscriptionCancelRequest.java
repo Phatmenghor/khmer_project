@@ -1,5 +1,7 @@
 package com.emenu.features.auth.dto.request;
 
+import com.emenu.config.BigDecimalDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,15 +15,17 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BusinessOwnerSubscriptionCancelRequest {
-    
+
     @NotBlank(message = "Cancellation reason is required")
     private String reason;
     private String notes;
+
+    @JsonDeserialize(using = BigDecimalDeserializer.class)
     private BigDecimal refundAmount;
     private String refundMethod;
     private String refundReference;
     
     public boolean hasRefundAmount() {
-        return refundAmount != null && refundAmount.compareTo(BigDecimal.ZERO) > 0;
+        return refundAmount != null && refundAmount.compareTo(BigDecimal.ZERO) >= 0;
     }
 }
