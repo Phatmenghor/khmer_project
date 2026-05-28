@@ -1,5 +1,6 @@
 package com.emenu.features.subscription.service;
 
+import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.features.subscription.dto.filter.SubscriptionPlanFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionPlanCreateRequest;
 import com.emenu.features.subscription.dto.response.SubscriptionPlanResponse;
@@ -18,4 +19,5 @@ public interface SubscriptionPlanService {
     SubscriptionPlanResponse updatePlan(UUID planId, SubscriptionPlanUpdateRequest request);
     void deletePlan(UUID planId);
     List<SubscriptionPlanResponse> getAllActivePlans();
+    List<SubscriptionPlanResponse> getActivePlanByDurationType(SubscriptionPlanDurationType durationType);
 }
