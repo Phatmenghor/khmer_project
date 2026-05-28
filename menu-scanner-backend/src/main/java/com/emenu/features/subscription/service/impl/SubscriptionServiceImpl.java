@@ -162,8 +162,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             response.setPlanDurationType(plan.getDurationType());
         }
 
-        Optional<SubscriptionPayment> paymentOpt = subscriptionPaymentRepository
-                .findBySubscriptionIdAndIsDeletedFalse(subscription.getId());
+        SubscriptionPayment latestPayment = subscription.getLatestPayment();
+        Optional<SubscriptionPayment> paymentOpt = Optional.ofNullable(latestPayment);
 
         paymentOpt.ifPresent(p -> {
             SubscriptionHistoryResponse.PaymentItem item = new SubscriptionHistoryResponse.PaymentItem();
@@ -186,7 +186,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         String paymentStatus = "UNPAID";
         if (paymentOpt.isPresent()) {
-            SubscriptionPayment p = paymentOpt.get();
+            SubscriptionPayment p = latestPayment;
             if (p.getStatus().isPending()) {
                 paymentStatus = "PENDING";
             } else if (p.getStatus().isCompleted()) {
