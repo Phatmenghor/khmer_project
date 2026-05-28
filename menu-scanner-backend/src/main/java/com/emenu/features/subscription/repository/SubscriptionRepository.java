@@ -17,10 +17,10 @@ import java.util.UUID;
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, UUID> {
 
-    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p WHERE s.id = :id AND s.isDeleted = false")
+    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p LEFT JOIN FETCH s.payment WHERE s.id = :id AND s.isDeleted = false")
     Optional<Subscription> findByIdAndIsDeletedFalse(@Param("id") UUID id);
 
-    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p WHERE s.businessId = :businessId AND s.endDate > :now AND s.isDeleted = false ORDER BY s.endDate DESC")
+    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p LEFT JOIN FETCH s.payment WHERE s.businessId = :businessId AND s.endDate > :now AND s.isDeleted = false ORDER BY s.endDate DESC")
     Optional<Subscription> findCurrentActiveByBusinessId(@Param("businessId") UUID businessId, @Param("now") LocalDateTime now);
 
     @Query("SELECT COUNT(s) FROM Subscription s WHERE s.planId = :planId AND s.isDeleted = false")
@@ -66,12 +66,13 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
             Pageable pageable
     );
 
-    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p WHERE s.id = :id")
+    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p LEFT JOIN FETCH s.payment WHERE s.id = :id")
     Optional<Subscription> findByIdWithRelationships(@Param("id") UUID id);
 
     @Query("""
                 SELECT s FROM Subscription s
                 LEFT JOIN FETCH s.plan
+                LEFT JOIN FETCH s.payment
                 WHERE s.businessId = :businessId
                 AND s.isDeleted = false
                 ORDER BY s.createdAt DESC
@@ -108,6 +109,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
                 SELECT s FROM Subscription s
                 LEFT JOIN FETCH s.business b
                 LEFT JOIN FETCH s.plan p
+                LEFT JOIN FETCH s.payment
                 WHERE s.isDeleted = false
                 AND s.endDate > :now
                 AND s.endDate <= :expiryThreshold
@@ -122,6 +124,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
                 SELECT s FROM Subscription s
                 LEFT JOIN FETCH s.business b
                 LEFT JOIN FETCH s.plan p
+                LEFT JOIN FETCH s.payment
                 WHERE s.isDeleted = false
                 AND s.cancellationReason IS NOT NULL
                 AND (:businessId IS NULL OR s.businessId = :businessId)
@@ -135,6 +138,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
                 SELECT s FROM Subscription s
                 LEFT JOIN FETCH s.business b
                 LEFT JOIN FETCH s.plan p
+                LEFT JOIN FETCH s.payment
                 WHERE s.isDeleted = false
                 AND s.cancellationReason IS NOT NULL
                 ORDER BY s.updatedAt DESC
@@ -145,6 +149,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
                 SELECT s FROM Subscription s
                 LEFT JOIN FETCH s.business b
                 LEFT JOIN FETCH s.plan p
+                LEFT JOIN FETCH s.payment
                 WHERE s.businessId = :businessId
                 AND s.isDeleted = false
                 ORDER BY s.createdAt DESC

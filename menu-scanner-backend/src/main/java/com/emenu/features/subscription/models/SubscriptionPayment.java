@@ -29,10 +29,10 @@ public class SubscriptionPayment extends BaseUUIDEntity {
     @JoinColumn(name = "business_id", insertable = false, updatable = false)
     private Business business;
 
-    @Column(name = "subscription_id", nullable = false)
+    @Column(name = "subscription_id", nullable = false, unique = true)
     private UUID subscriptionId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id", insertable = false, updatable = false)
     private Subscription subscription;
 

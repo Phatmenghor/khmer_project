@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -48,8 +47,8 @@ public class Subscription extends BaseUUIDEntity {
     @Column(name = "cancellation_reason", columnDefinition = "TEXT")
     private String cancellationReason;
 
-    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<SubscriptionPayment> payments;
+    @OneToOne(mappedBy = "subscription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private SubscriptionPayment payment;
 
     public boolean isCancelled() {
         return cancellationReason != null;
@@ -85,14 +84,5 @@ public class Subscription extends BaseUUIDEntity {
 
     public void cancel() {
         this.autoRenew = false;
-    }
-
-    public SubscriptionPayment getLatestPayment() {
-        if (payments == null || payments.isEmpty()) {
-            return null;
-        }
-        return payments.stream()
-                .max((p1, p2) -> p1.getCreatedAt().compareTo(p2.getCreatedAt()))
-                .orElse(null);
     }
 }
