@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -39,6 +40,9 @@ public class AuditLogFilter extends OncePerRequestFilter {
         long startTime = System.currentTimeMillis();
         Exception exception = null;
 
+        // Capture security context BEFORE endpoint executes (while it's still available)
+        var securityContextBeforeEndpoint = SecurityContextHolder.getContext().getAuthentication();
+
         try {
             filterChain.doFilter(wrappedRequest, wrappedResponse);
         } catch (Exception e) {
@@ -61,6 +65,11 @@ public class AuditLogFilter extends OncePerRequestFilter {
             }
 
             try {
+                // Restore security context so audit logging can access it
+                if (securityContextBeforeEndpoint != null) {
+                    SecurityContextHolder.getContext().setAuthentication(securityContextBeforeEndpoint);
+                }
+
                 auditLogService.logAccessWithBodies(
                     wrappedRequest,
                     statusCode,
@@ -70,6 +79,9 @@ public class AuditLogFilter extends OncePerRequestFilter {
                 );
             } catch (Exception e) {
                 log.error("Failed to log audit entry: endpoint={}, error={}", uri, e.getMessage());
+            } finally {
+                // Clear security context after audit logging
+                SecurityContextHolder.clearContext();
             }
 
             wrappedResponse.copyBodyToResponse();
