@@ -27,10 +27,14 @@ public interface SubscriptionPlanMapper {
 
     @AfterMapping
     default void setCalculatedFields(@MappingTarget SubscriptionPlanResponse response, SubscriptionPlan plan) {
-if (plan.getSubscriptions() != null) {
-    response.setActiveSubscriptionsCount((long) plan.getSubscriptions().size());
-} else {
-    response.setActiveSubscriptionsCount(0L);
-}
+        try {
+            if (plan.getSubscriptions() != null) {
+                response.setActiveSubscriptionsCount((long) plan.getSubscriptions().size());
+            } else {
+                response.setActiveSubscriptionsCount(0L);
+            }
+        } catch (Exception e) {
+            response.setActiveSubscriptionsCount(0L);
+        }
     }
 }
