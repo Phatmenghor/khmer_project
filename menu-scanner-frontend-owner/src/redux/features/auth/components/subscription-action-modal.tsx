@@ -201,7 +201,8 @@ export default function SubscriptionActionModal({
       <DialogTitle className="sr-only">Subscription Management</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0 space-y-3">
+          {/* Row 1: logo + title */}
           <div className="flex items-center gap-4 pr-8">
             <div className="h-14 w-14 rounded-lg overflow-hidden bg-primary/10 border border-border flex-shrink-0 flex items-center justify-center">
               {owner?.logoBusinessUrl ? (
@@ -212,30 +213,36 @@ export default function SubscriptionActionModal({
                 </span>
               )}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0">
               <h2 className="text-lg font-semibold text-foreground">Subscription Management</h2>
               <p className="text-sm text-muted-foreground mt-0.5">
                 {owner?.businessName} — {owner?.currentPlanName || "No active plan"}
               </p>
             </div>
-            {/* Current subscription info chips */}
-            <div className="hidden md:flex items-center gap-3 text-xs">
-              <div className="bg-muted rounded-md px-3 py-1.5 flex flex-col items-center">
-                <span className="text-muted-foreground">End Date</span>
-                <span className="font-medium">{owner?.subscriptionEndDate || "---"}</span>
-              </div>
-              <div className="bg-muted rounded-md px-3 py-1.5 flex flex-col items-center">
-                <span className="text-muted-foreground">Days Left</span>
-                <span className={`font-semibold ${(owner?.daysRemaining ?? 0) <= 7 ? "text-red-600" : (owner?.daysRemaining ?? 0) <= 30 ? "text-yellow-600" : "text-green-600"}`}>
-                  {owner?.daysRemaining ?? 0}d
-                </span>
-              </div>
-              <div className="bg-muted rounded-md px-3 py-1.5 flex flex-col items-center">
-                <span className="text-muted-foreground">Status</span>
-                <span className={`font-medium ${owner?.subscriptionStatus === "ACTIVE" ? "text-green-600" : owner?.subscriptionStatus === "EXPIRING_SOON" ? "text-yellow-600" : "text-red-500"}`}>
-                  {owner?.subscriptionStatus || "---"}
-                </span>
-              </div>
+          </div>
+          {/* Row 2: subscription snapshot chips */}
+          <div className="flex flex-wrap gap-2 text-xs">
+            <div className="bg-background border border-border rounded-md px-3 py-1.5 flex items-center gap-2">
+              <span className="text-muted-foreground">End Date</span>
+              <span className="font-semibold text-foreground">{owner?.subscriptionEndDate || "---"}</span>
+            </div>
+            <div className="bg-background border border-border rounded-md px-3 py-1.5 flex items-center gap-2">
+              <span className="text-muted-foreground">Days Left</span>
+              <span className={`font-semibold ${(owner?.daysRemaining ?? 0) <= 7 ? "text-red-600" : (owner?.daysRemaining ?? 0) <= 30 ? "text-yellow-600" : "text-green-600"}`}>
+                {owner?.daysRemaining ?? 0}d
+              </span>
+            </div>
+            <div className="bg-background border border-border rounded-md px-3 py-1.5 flex items-center gap-2">
+              <span className="text-muted-foreground">Status</span>
+              <span className={`font-semibold ${owner?.subscriptionStatus === "ACTIVE" ? "text-green-600" : owner?.subscriptionStatus === "EXPIRING_SOON" ? "text-yellow-600" : "text-red-500"}`}>
+                {owner?.subscriptionStatus || "---"}
+              </span>
+            </div>
+            <div className="bg-background border border-border rounded-md px-3 py-1.5 flex items-center gap-2">
+              <span className="text-muted-foreground">Price</span>
+              <span className="font-semibold text-foreground">
+                {owner?.currentPlanPrice != null ? `$${owner.currentPlanPrice}` : "---"}
+              </span>
             </div>
           </div>
         </div>
