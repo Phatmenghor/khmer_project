@@ -19,6 +19,8 @@ export default function PricingSection() {
     setSelectedPlan(planName);
     setIsModalOpen(true);
   };
+
+  return (
     <section id="pricing" className="relative py-24">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
