@@ -97,9 +97,14 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       };
 
       // Include planId if user selected a plan from pricing page
+      console.log("RegisterModal - Plan object:", plan);
       if (plan?.id) {
         payload.planId = plan.id;
+        console.log("RegisterModal - Plan ID added to payload:", plan.id);
+      } else {
+        console.log("RegisterModal - No plan ID available");
       }
+      console.log("RegisterModal - Final payload:", payload);
 
       await axiosClient.post("/api/v1/business-owners/register", payload);
       showToast.success("Account created! Please sign in to continue.");

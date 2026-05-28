@@ -42,13 +42,14 @@ export default function PricingSection() {
           "/api/v1/public/subscription-plans"
         );
         const fetchedPlans = response.data.data || [];
+        console.log("PricingSection - API response plans:", fetchedPlans);
 
         // Map API response to display format, enriching with hardcoded features and highlighted status
         const displayPlans = fetchedPlans.map((plan, index) => {
           const hardcodedPlan = LANDING_CONFIG.pricing.plans[index];
           const period = getPeriodLabel(plan.durationType);
 
-          return {
+          const mapped = {
             id: plan.id,
             name: plan.name,
             price: `$${plan.price}`,
@@ -57,8 +58,11 @@ export default function PricingSection() {
             features: hardcodedPlan?.features || [],
             highlighted: hardcodedPlan?.highlighted || false,
           };
+          console.log("PricingSection - Mapped plan:", mapped);
+          return mapped;
         });
 
+        console.log("PricingSection - Display plans:", displayPlans);
         setPlans(displayPlans.length > 0 ? displayPlans : getDefaultPlans());
       } catch (error) {
         console.warn("Failed to fetch subscription plans, using defaults", error);
@@ -93,6 +97,7 @@ export default function PricingSection() {
   };
 
   const handlePlanClick = (plan: PlanData) => {
+    console.log("PricingSection - Plan selected:", plan);
     setSelectedPlan(plan);
     setIsModalOpen(true);
   };
