@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, CheckCircle2, Building2 } from "lucide-react";
+import { Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -170,18 +170,10 @@ export default function RegisterPage() {
           <Card className="shadow-2xl border-2 border-primary/20 rounded-2xl overflow-hidden bg-white">
             {/* Card header */}
             <div className="bg-gradient-to-r from-primary/8 via-primary/3 to-primary/5 border-b border-primary/20 px-8 pt-8 pb-6">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-                  <Building2 className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-xs font-semibold uppercase tracking-widest text-primary">
-                  Create Account
-                </span>
-              </div>
-              <h1 className="text-3xl font-bold text-slate-900 leading-tight">
+              <h1 className="text-3xl font-bold text-slate-900 leading-tight mb-3">
                 Start Your Free Trial
               </h1>
-              <p className="text-base text-slate-600 mt-2">
+              <p className="text-base text-slate-600">
                 Get full access to all features completely free for 30 days. No credit card required. Upgrade anytime as your business grows.
               </p>
             </div>
