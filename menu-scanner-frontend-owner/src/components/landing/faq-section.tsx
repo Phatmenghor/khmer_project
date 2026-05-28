@@ -52,20 +52,20 @@ export default function FaqSection() {
         <FadeIn direction="up" delay={100}>
           <div className="space-y-3">
             {faqs.map(({ q, a }, i) => (
-              <div key={i} className="border border-slate-200 rounded-2xl overflow-hidden bg-white hover:border-amber-700/30 transition-colors">
+              <div key={i} className="border border-slate-200 rounded-2xl overflow-hidden bg-white hover:border-primary/30 transition-colors">
                 <button
                   onClick={() => setOpen(open === i ? null : i)}
                   className="w-full flex items-center justify-between px-7 py-5 text-left"
                 >
                   <span className={cn(
                     "text-lg font-semibold pr-4",
-                    open === i ? "text-amber-700" : "text-slate-900"
+                    open === i ? "text-primary" : "text-slate-900"
                   )}>
                     {q}
                   </span>
                   <ChevronDown className={cn(
                     "h-5 w-5 flex-shrink-0 text-slate-400 transition-transform duration-200",
-                    open === i ? "rotate-180 text-amber-700" : ""
+                    open === i ? "rotate-180 text-primary" : ""
                   )} />
                 </button>
                 <div className={cn(

@@ -17,7 +17,7 @@ export default function StatsSection() {
           {LANDING_CONFIG.stats.items.map(({ number, label, description }, i) => (
             <FadeIn key={label} direction="up" delay={i * 100}>
               <div className="text-center">
-                <div className="text-6xl font-bold text-amber-700 mb-3">{number}</div>
+                <div className="text-6xl font-bold text-primary mb-3">{number}</div>
                 <div className="text-lg font-semibold text-slate-900 mb-1">{label}</div>
                 <div className="text-sm text-slate-600">{description}</div>
               </div>

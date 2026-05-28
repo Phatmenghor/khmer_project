@@ -16,7 +16,7 @@ export default function HeroSection() {
             <h1 className="text-6xl sm:text-7xl font-bold leading-tight text-slate-900">
               Transform Your Restaurant
               <br />
-              <span className="text-amber-700">Into a Digital Powerhouse</span>
+              <span className="text-primary">Into a Digital Powerhouse</span>
             </h1>
 
             {/* Subheadline */}
@@ -43,7 +43,7 @@ export default function HeroSection() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 pt-8">
-              <Button size="lg" className="bg-amber-700 hover:bg-amber-800 text-white px-8 py-7 text-lg rounded-xl group w-full sm:w-auto shadow-md" asChild>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-white px-8 py-7 text-lg rounded-xl group w-full sm:w-auto shadow-md" asChild>
                 <Link href={ROUTES.PUBLIC.REGISTER}>
                   Start Free Trial
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition" />
@@ -59,8 +59,8 @@ export default function HeroSection() {
 
       {/* Colored bars at bottom */}
       <div className="mt-16 flex flex-col gap-0">
-        <div className="h-1 bg-amber-700" />
-        <div className="h-1 bg-amber-600" />
+        <div className="h-1 bg-primary" />
+        <div className="h-1 bg-primary/80" />
       </div>
     </section>
   );

@@ -35,7 +35,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-700 flex items-center justify-center shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
               <QrCode className="w-5 h-5 text-white" />
             </div>
             <span className="text-lg font-bold text-slate-900 tracking-tight">
@@ -58,7 +58,7 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center">
-            <Button className="h-12 px-8 text-base bg-amber-700 hover:bg-amber-800 text-white" asChild>
+            <Button className="h-12 px-8 text-base bg-primary hover:bg-primary/90 text-white" asChild>
               <Link href={ROUTES.PUBLIC.REGISTER}>Get Started Free</Link>
             </Button>
           </div>

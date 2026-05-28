@@ -29,9 +29,9 @@ export default function FeaturesSection() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {LANDING_CONFIG.features.items.map(({ icon, title, description }, i) => (
             <FadeIn key={title} direction="up" delay={i * 80}>
-              <Card className="border-slate-200 hover:border-amber-700/40 hover:shadow-lg transition-all duration-300 h-full group">
+              <Card className="border-slate-200 hover:border-primary/40 hover:shadow-lg transition-all duration-300 h-full group">
                 <CardContent className="p-8">
-                  <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center mb-6 group-hover:bg-amber-100 transition-colors text-amber-700">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors text-primary">
                     {iconMap[icon]}
                   </div>
                   <h3 className="text-lg font-bold text-slate-900 mb-3">{title}</h3>

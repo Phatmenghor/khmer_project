@@ -43,13 +43,13 @@ export default function HowItWorksSection() {
         <div className="grid sm:grid-cols-3 gap-8 mt-16">
           {steps.map(({ number, icon: Icon, title, description }, i) => (
             <FadeIn key={title} direction="up" delay={i * 150}>
-              <div className="relative bg-white rounded-2xl p-10 border border-slate-200 hover:border-amber-700/40 hover:shadow-lg transition-all duration-300">
+              <div className="relative bg-white rounded-2xl p-10 border border-slate-200 hover:border-primary/40 hover:shadow-lg transition-all duration-300">
                 {/* Decorative number */}
-                <div className="absolute top-6 right-8 text-[5rem] font-black text-amber-100 leading-none select-none pointer-events-none">
+                <div className="absolute top-6 right-8 text-[5rem] font-black text-primary/10 leading-none select-none pointer-events-none">
                   {number}
                 </div>
                 {/* Icon */}
-                <div className="relative w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center shadow-md shadow-amber-700/10 mb-7 text-amber-700">
+                <div className="relative w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shadow-md shadow-primary/10 mb-7 text-primary">
                   <Icon className="w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-3">{title}</h3>

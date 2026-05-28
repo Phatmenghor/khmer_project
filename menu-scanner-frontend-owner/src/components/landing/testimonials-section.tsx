@@ -10,7 +10,7 @@ const testimonials = [
     role: "Restaurant Owner",
     location: "Phnom Penh",
     initials: "SK",
-    color: "bg-amber-100 text-amber-700",
+    color: "bg-primary/20 text-primary",
   },
   {
     quote:
@@ -19,7 +19,7 @@ const testimonials = [
     role: "F&B Manager",
     location: "Siem Reap",
     initials: "DC",
-    color: "bg-amber-100 text-amber-700",
+    color: "bg-primary/20 text-primary",
   },
   {
     quote:
@@ -28,7 +28,7 @@ const testimonials = [
     role: "Café Owner",
     location: "Southeast Asia",
     initials: "LP",
-    color: "bg-amber-100 text-amber-700",
+    color: "bg-primary/20 text-primary",
   },
 ];
 
@@ -54,7 +54,7 @@ export default function TestimonialsSection() {
                 <CardContent className="p-10 flex flex-col h-full">
                   <div className="flex gap-1 mb-6">
                     {Array.from({ length: 5 }).map((_, j) => (
-                      <Star key={j} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                      <Star key={j} className="w-5 h-5 fill-primary text-primary" />
                     ))}
                   </div>
                   <p className="text-base leading-relaxed text-slate-600 italic flex-1 mb-8">

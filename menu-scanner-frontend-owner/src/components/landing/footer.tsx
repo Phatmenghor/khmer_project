@@ -34,7 +34,7 @@ export default function Footer() {
                 <ul className="space-y-3">
                   {(links as string[]).map((label) => (
                     <li key={label}>
-                      <a href="#" className="text-base text-slate-600 hover:text-amber-700 transition-colors">
+                      <a href="#" className="text-base text-slate-600 hover:text-primary transition-colors">
                         {label}
                       </a>
                     </li>
@@ -55,6 +55,10 @@ export default function Footer() {
             <p className="text-center text-sm text-slate-500 mt-6">
               {footer.social}
             </p>
+            <div className="flex gap-6 justify-center text-sm text-slate-600">
+              <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+            </div>
           </div>
         </FadeIn>
       </div>

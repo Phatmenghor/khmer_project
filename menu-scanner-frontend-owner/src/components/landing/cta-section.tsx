@@ -9,7 +9,7 @@ export default function CtaSection() {
   const { cta } = LANDING_CONFIG;
 
   return (
-    <section className="bg-amber-700 py-32">
+    <section className="bg-primary py-32">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <FadeIn direction="up">
           <h2 className="text-5xl sm:text-6xl font-bold text-white leading-tight mb-6">
@@ -19,7 +19,7 @@ export default function CtaSection() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
             <Button
               size="lg"
-              className="h-14 px-10 text-lg gap-2 bg-white text-amber-700 hover:bg-white/95 shadow-2xl font-bold border-0"
+              className="h-14 px-10 text-lg gap-2 bg-white text-primary hover:bg-white/95 shadow-2xl font-bold border-0"
               asChild
             >
               <Link href={ROUTES.PUBLIC.REGISTER}>

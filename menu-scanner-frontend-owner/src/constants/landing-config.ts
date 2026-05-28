@@ -84,22 +84,10 @@ export const LANDING_CONFIG = {
   // Founder Section
   founder: {
     name: "Phat Menghor",
-    title: "Founder & Chief Technology Officer",
-    image: "/images/founder.jpg", // Add your photo here
-    bio: "Full-stack software engineer and architect with 10+ years of expertise in enterprise SaaS platforms, distributed systems, and restaurant technology. Created EMenu Platform to solve the critical need for affordable, professional digital infrastructure for food businesses worldwide.",
-    vision: "Our mission is to empower food businesses of all sizes across the globe to compete digitally, streamline operations, and grow their customer base through modern technology that's affordable and easy to use.",
-    expertise: [
-      "Enterprise Spring Boot & Java Architecture",
-      "React/Next.js & TypeScript Frontend Development",
-      "PostgreSQL & Advanced Database Optimization",
-      "Docker, Kubernetes & Cloud Infrastructure",
-      "JWT, OAuth & Enterprise Security",
-      "Real-time Systems & WebSocket Technology",
-      "Payment Gateway Integration & Processing",
-      "Multi-tenant SaaS Architecture",
-      "API Design & REST/GraphQL",
-      "DevOps & CI/CD Pipelines"
-    ],
+    title: "Founder & Full-Stack Software Engineer",
+    image: "/images/founder.jpg",
+    bio: "A software developer passionate about empowering restaurants worldwide with affordable digital solutions. Built EMenu Platform to provide professional-grade technology that's simple, powerful, and accessible to businesses of all sizes.",
+    vision: "Every restaurant deserves access to world-class digital tools that increase efficiency, boost sales, and delight customers.",
     contact: {
       email: "support@emenu-platform.com",
       location: "Global 🌍"
@@ -108,82 +96,58 @@ export const LANDING_CONFIG = {
 
   // Pricing Section
   pricing: {
-    subtitle: "Pay only for what you need. Upgrade anytime as your business grows.",
+    subtitle: "Start free, upgrade anytime as your business grows.",
     plans: [
       {
-        name: "Free Trial",
+        name: "1 Week",
         price: "$0",
-        period: "30 days full access",
-        description: "Perfect to test all features with no commitment",
+        period: "7 days",
+        description: "Try the full platform completely free",
         features: [
-          "1 staff member account",
-          "10 menu items",
-          "2 table management",
-          "Basic analytics dashboard",
-          "Email notifications",
-          "QR code menu",
-          "Order management",
-          "Email support",
-          "Mobile responsive"
+          "QR code digital menu",
+          "Real-time order management",
+          "Staff management (up to 3)",
+          "Analytics dashboard",
+          "Telegram notifications",
+          "24/7 customer support",
+          "Mobile responsive",
+          "Payment processing",
+          "No credit card required"
         ]
       },
       {
-        name: "Basic",
-        price: "$29.99",
-        period: "/month",
-        description: "Ideal for small cafes and restaurants",
+        name: "1 Month",
+        price: "$0",
+        period: "30 days",
+        description: "Full platform access, completely free",
         features: [
-          "3 staff member accounts",
-          "50 menu items",
-          "10 table management",
+          "QR code digital menu",
+          "Real-time order management",
+          "Staff management (unlimited)",
           "Advanced analytics & reports",
-          "Customer loyalty program",
-          "Telegram bot notifications",
-          "Priority email support",
-          "Order status tracking",
+          "Loyalty program",
+          "Telegram & email integration",
+          "24/7 priority support",
           "Payment processing",
-          "Custom branding options"
+          "API access"
         ],
         highlighted: true
       },
       {
-        name: "Professional",
-        price: "$79.99",
-        period: "/month",
-        description: "Best for growing restaurants",
+        name: "1 Year",
+        price: "$0",
+        period: "365 days",
+        description: "Best value for serious businesses",
         features: [
-          "10 staff member accounts",
-          "200 menu items",
-          "25 table management",
-          "Complete analytics suite with exports",
-          "Advanced loyalty features",
-          "Telegram & email integration",
-          "24/7 priority email & phone support",
-          "API access for integrations",
-          "Delivery partner integration",
-          "Custom branded mobile app",
-          "Advanced reporting & forecasting",
-          "Daily automatic backups"
-        ]
-      },
-      {
-        name: "Enterprise",
-        price: "Custom",
-        period: "tailored pricing",
-        description: "For large chains and franchises",
-        features: [
+          "QR code digital menu",
+          "Real-time order management",
           "Unlimited staff accounts",
-          "Unlimited menu items",
-          "Unlimited table management",
-          "Dedicated account manager",
-          "Custom feature development",
-          "White-label solutions",
-          "Multi-location management",
-          "Advanced integrations",
+          "Complete analytics suite",
+          "Advanced loyalty features",
+          "Multi-location support",
           "24/7 dedicated support",
-          "Training for entire team",
-          "SLA guarantee",
-          "Custom API endpoints"
+          "Delivery integrations",
+          "Custom branded features"
         ]
       }
     ]
