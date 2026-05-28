@@ -8,13 +8,14 @@ import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 
 const scrollStyles = `
-  @keyframes scroll-bounce {
-    0%, 100% { transform: translateY(0); }
+  @keyframes scroll-bounce-updown {
+    0% { transform: translateY(-10px); }
     50% { transform: translateY(10px); }
+    100% { transform: translateY(-10px); }
   }
 
   .scroll-indicator {
-    animation: scroll-bounce 2s infinite;
+    animation: scroll-bounce-updown 2s ease-in-out infinite;
   }
 `;
 
@@ -30,16 +31,16 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-white via-primary/3 to-white"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1430px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
             <FadeIn direction="right" delay={0}>
               <div className="space-y-6 sm:space-y-8 flex flex-col justify-center">
               {/* Headline */}
               <div>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight text-slate-900">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight bg-gradient-to-r from-slate-900 via-primary to-slate-900 bg-clip-text text-transparent">
                 Transform Your Business
                 <br />
-                <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent animate-pulse">Into a Digital Powerhouse</span>
+                Into a Digital Powerhouse
               </h1>
             </div>
 
