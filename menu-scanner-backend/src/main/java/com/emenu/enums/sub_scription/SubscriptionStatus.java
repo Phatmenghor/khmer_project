@@ -7,7 +7,8 @@ public enum SubscriptionStatus {
     ACTIVE("Active", "Subscription is currently active"),
     EXPIRED("Expired", "Subscription has expired"),
     EXPIRING_SOON("Expiring Soon", "Subscription expiring within specified days"),
-    CANCELLED("Cancelled", "Subscription has been cancelled");
+    CANCELLED("Cancelled", "Subscription has been cancelled"),
+    CHANGE_PLAN("Plan Changed", "Subscription plan was changed");
 
     private final String displayName;
     private final String description;
@@ -31,5 +32,9 @@ public enum SubscriptionStatus {
 
     public boolean isCancelled() {
         return this == CANCELLED;
+    }
+
+    public boolean isPlanChanged() {
+        return this == CHANGE_PLAN;
     }
 }

@@ -47,6 +47,9 @@ public class Subscription extends BaseUUIDEntity {
     @Column(name = "cancellation_reason", columnDefinition = "TEXT")
     private String cancellationReason;
 
+    @Column(name = "plan_change_reason", columnDefinition = "TEXT")
+    private String planChangeReason;
+
     @OneToOne(mappedBy = "subscription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SubscriptionPayment payment;
 
@@ -54,8 +57,12 @@ public class Subscription extends BaseUUIDEntity {
         return cancellationReason != null;
     }
 
+    public boolean isPlanChanged() {
+        return planChangeReason != null;
+    }
+
     public boolean isActive() {
-        return !getIsDeleted() && !isExpired() && !isCancelled();
+        return !getIsDeleted() && !isExpired() && !isCancelled() && !isPlanChanged();
     }
 
     public boolean isExpired() {
@@ -63,6 +70,7 @@ public class Subscription extends BaseUUIDEntity {
     }
 
     public String getStatus() {
+        if (isPlanChanged()) return "CHANGE_PLAN";
         if (isCancelled()) return "CANCELLED";
         return isActive() ? "ACTIVE" : "EXPIRED";
     }

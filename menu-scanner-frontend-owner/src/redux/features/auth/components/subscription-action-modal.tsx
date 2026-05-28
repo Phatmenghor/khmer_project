@@ -405,7 +405,7 @@ export default function SubscriptionActionModal({
                             <td className="px-4 py-3 text-xs text-muted-foreground">{row.startDate || "---"}</td>
                             <td className="px-4 py-3 text-xs text-muted-foreground">{row.endDate || "---"}</td>
                             <td className="px-4 py-3 text-xs">
-                              <span className={row.status === "ACTIVE" ? "text-green-600 font-medium" : row.status === "CANCELLED" ? "text-orange-500 font-medium" : "text-red-500"}>{row.status || "---"}</span>
+                              <span className={row.status === "ACTIVE" ? "text-green-600 font-medium" : row.status === "CANCELLED" ? "text-orange-500 font-medium" : row.status === "CHANGE_PLAN" ? "text-blue-600 font-medium" : "text-red-500"}>{row.status || "---"}</span>
                             </td>
                             <td className="px-4 py-3 text-xs">
                               <span className={row.paymentStatus === "PAID" ? "text-green-600 font-medium" : row.paymentStatus === "PENDING" || row.paymentStatus === "PARTIALLY_PAID" ? "text-yellow-600 font-medium" : "text-red-500"}>

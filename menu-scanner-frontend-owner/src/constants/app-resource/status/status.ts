@@ -87,6 +87,8 @@ export enum SubscriptionStatus {
   ACTIVE = "ACTIVE",
   EXPIRED = "EXPIRED",
   EXPIRING_SOON = "EXPIRING_SOON",
+  CANCELLED = "CANCELLED",
+  CHANGE_PLAN = "CHANGE_PLAN",
 }
 
 export enum ExchangeRateStatus {
