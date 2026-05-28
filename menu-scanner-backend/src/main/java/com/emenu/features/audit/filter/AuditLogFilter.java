@@ -85,6 +85,7 @@ public class AuditLogFilter extends OncePerRequestFilter {
                uri.startsWith("/swagger-ui/") ||
                uri.startsWith("/v3/api-docs") ||
                uri.startsWith("/actuator/") ||
+               uri.startsWith("/ws/") ||
                uri.equals("/health") ||
                uri.equals("/favicon.ico") ||
                uri.endsWith(".css") ||
