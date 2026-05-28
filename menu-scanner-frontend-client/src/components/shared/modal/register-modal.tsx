@@ -102,16 +102,18 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
     } catch (err: unknown) {
       let errorMessage = "Registration failed. Please try again.";
 
+      // API wrapper returns error message as plain string
       if (typeof err === 'string') {
         errorMessage = err;
       } else if (typeof err === 'object' && err !== null) {
         const error = err as any;
-        if (error.payload?.message) {
+        // Try different error structures
+        if (error.message) {
+          errorMessage = error.message;
+        } else if (error.payload?.message) {
           errorMessage = error.payload.message;
         } else if (error.payload?.data?.message) {
           errorMessage = error.payload.data.message;
-        } else if (error.message) {
-          errorMessage = error.message;
         }
       }
 

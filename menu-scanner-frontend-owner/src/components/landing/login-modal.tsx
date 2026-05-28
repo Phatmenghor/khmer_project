@@ -76,10 +76,12 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     } catch (err: unknown) {
       let errorMessage = "Login failed. Please try again.";
 
+      // Direct axios error - check response data
       if (typeof err === 'string') {
         errorMessage = err;
       } else if (typeof err === 'object' && err !== null) {
         const error = err as any;
+        // Try different error structures
         if (error.response?.data?.message) {
           errorMessage = error.response.data.message;
         } else if (error.response?.data?.error) {
