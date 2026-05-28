@@ -72,4 +72,12 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
         AND u.isDeleted = false
     """)
     boolean existsBusinessOwnerByEmail(@Param("email") String email);
+
+    @Query("""
+        SELECT COUNT(u) > 0 FROM User u
+        WHERE u.userIdentifier = :userIdentifier
+        AND u.userType = 'BUSINESS_USER'
+        AND u.isDeleted = false
+    """)
+    boolean existsByUserIdentifierAndIsDeletedFalse(@Param("userIdentifier") String userIdentifier);
 }
