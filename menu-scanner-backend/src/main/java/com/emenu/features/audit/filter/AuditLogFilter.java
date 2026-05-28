@@ -1,6 +1,7 @@
 package com.emenu.features.audit.filter;
 
 import com.emenu.features.audit.service.AuditLogService;
+import com.emenu.security.jwt.JWTAuthenticationFilter;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -71,6 +71,9 @@ public class AuditLogFilter extends OncePerRequestFilter {
                 );
             } catch (Exception e) {
                 log.error("Failed to log audit entry: endpoint={}, error={}", uri, e.getMessage());
+            } finally {
+                // Clear authenticated user info from ThreadLocal after audit logging
+                JWTAuthenticationFilter.AUTHENTICATED_USER.remove();
             }
 
             wrappedResponse.copyBodyToResponse();

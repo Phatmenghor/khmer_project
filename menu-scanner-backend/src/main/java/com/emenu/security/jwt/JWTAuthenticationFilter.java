@@ -17,6 +17,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -26,6 +28,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final JWTGenerator jwtGenerator;
     private final CustomUserDetailsService customUserDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
+
+    // ThreadLocal to store authenticated user info for audit logging
+    public static final ThreadLocal<Map<String, String>> AUTHENTICATED_USER = ThreadLocal.withInitial(HashMap::new);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -65,9 +70,10 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-                    // Store user info in request attributes for audit logging (SecurityContext gets cleared later)
-                    request.setAttribute("AUTHENTICATED_USERNAME", username);
-                    request.setAttribute("AUTHENTICATED_USERTYPE", userType);
+                    // Store user info in ThreadLocal for audit logging (survives after SecurityContext is cleared)
+                    var authMap = AUTHENTICATED_USER.get();
+                    authMap.put("username", username);
+                    authMap.put("userType", userType);
 
                     log.debug("[JWT] Authentication set in SecurityContext for user: {}", username);
                 } else {

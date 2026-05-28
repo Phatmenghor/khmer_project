@@ -11,6 +11,7 @@ import com.emenu.features.audit.models.AuditLog;
 import com.emenu.features.audit.repository.AuditLogRepository;
 import com.emenu.features.audit.service.AuditLogService;
 import com.emenu.security.SecurityUtils;
+import com.emenu.security.jwt.JWTAuthenticationFilter;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -72,9 +73,10 @@ public class AuditLogServiceImpl implements AuditLogService {
         String userIdentifier = "anonymous";
         String userType = "ANONYMOUS";
 
-        // First, try to get user from request attributes (set by JWT filter)
-        String authUsername = (String) request.getAttribute("AUTHENTICATED_USERNAME");
-        String authUserType = (String) request.getAttribute("AUTHENTICATED_USERTYPE");
+        // Get authenticated user info from ThreadLocal (set by JWT filter)
+        var authMap = JWTAuthenticationFilter.AUTHENTICATED_USER.get();
+        String authUsername = authMap.get("username");
+        String authUserType = authMap.get("userType");
 
         if (authUsername != null && authUserType != null) {
             try {
@@ -84,13 +86,13 @@ public class AuditLogServiceImpl implements AuditLogService {
                     userId = user.getId();
                     userIdentifier = user.getUserIdentifier();
                     userType = user.getUserType().name();
-                    log.debug("[AUDIT] Extracted user from request attributes: username={}, userType={}", userIdentifier, userType);
+                    log.debug("[AUDIT] Extracted user from ThreadLocal: username={}, userType={}", userIdentifier, userType);
                 }
             } catch (Exception e) {
                 log.debug("[AUDIT] Exception getting user from SecurityContext: {}", e.getMessage());
             }
         } else {
-            log.debug("[AUDIT] No authenticated user in request attributes for endpoint: {}", request.getRequestURI());
+            log.debug("[AUDIT] No authenticated user in ThreadLocal for endpoint: {}", request.getRequestURI());
         }
 
         String httpMethod = request.getMethod();
