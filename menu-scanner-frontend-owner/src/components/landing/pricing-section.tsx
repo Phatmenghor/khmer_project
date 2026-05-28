@@ -86,7 +86,13 @@ export default function PricingSection() {
   };
 
   const getDefaultPlans = () => {
-    return LANDING_CONFIG.pricing.plans.map(({ name, price, period, description, features, highlighted }) => ({
+    const defaultIds = [
+      "550e8400-e29b-41d4-a716-446655440001",
+      "550e8400-e29b-41d4-a716-446655440002",
+      "550e8400-e29b-41d4-a716-446655440003"
+    ];
+    return LANDING_CONFIG.pricing.plans.map(({ name, price, period, description, features, highlighted }, index) => ({
+      id: defaultIds[index],
       name,
       price: `$${price}`,
       period,
