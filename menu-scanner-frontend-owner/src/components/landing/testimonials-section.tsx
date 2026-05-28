@@ -54,7 +54,7 @@ export default function TestimonialsSection() {
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Success Stories</span>
             </h2>
             <p className="text-lg text-slate-700 max-w-2xl mx-auto font-medium">
-              See how restaurants are transforming operations with EMenu Platform.
+              See how restaurants are transforming operations with Emenu Cambodia.
             </p>
           </div>
         </FadeIn>

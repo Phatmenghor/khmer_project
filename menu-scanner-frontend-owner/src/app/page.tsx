@@ -11,10 +11,11 @@ import CtaSection from "@/components/landing/cta-section";
 import Footer from "@/components/landing/footer";
 
 export const metadata = {
-  title: "EMenu Platform — Transform Your Restaurant Into a Digital Powerhouse",
+  title: "Emenu Cambodia — Transform Your Restaurant Into a Digital Powerhouse",
   description:
-    "Enterprise-grade platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, and global payment processing. Everything restaurant owners need to compete globally and scale their business.",
+    "Professional restaurant management platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, and payment processing. Everything restaurant owners need to succeed.",
   keywords: [
+    "Emenu Cambodia",
     "digital menu platform",
     "QR code menu system",
     "POS system software",
@@ -22,13 +23,12 @@ export const metadata = {
     "food business software",
     "online ordering system",
     "customer loyalty program",
-    "restaurant analytics",
-    "multi-location management"
+    "restaurant analytics"
   ],
   openGraph: {
-    title: "EMenu Platform — Transform Your Restaurant Into a Digital Powerhouse",
+    title: "Emenu Cambodia — Transform Your Restaurant Into a Digital Powerhouse",
     description:
-      "Complete platform with QR menus, POS, real-time orders, loyalty programs, analytics, and global support. Free 30-day trial.",
+      "Complete restaurant platform with QR menus, POS, real-time orders, loyalty programs, analytics. Free trial available.",
     type: "website",
   },
 };

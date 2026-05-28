@@ -21,7 +21,7 @@ export default function FounderSection() {
             <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-3">
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meet the Founder</span>
             </h2>
-            <p className="text-lg text-slate-700 font-medium">The vision behind EMenu Platform</p>
+            <p className="text-lg text-slate-700 font-medium">The vision behind Emenu Cambodia</p>
           </div>
         </FadeIn>
 
@@ -83,7 +83,7 @@ export default function FounderSection() {
                   <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary/20 mb-4">
                     <span className="text-lg font-bold text-primary">🎯</span>
                   </div>
-                  <h4 className="text-lg font-bold text-slate-900 mb-3">Why EMenu?</h4>
+                  <h4 className="text-lg font-bold text-slate-900 mb-3">Why Emenu Cambodia?</h4>
                   <p className="text-sm text-slate-700 leading-relaxed">
                     {founder.story}
                   </p>

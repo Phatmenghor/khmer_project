@@ -2,7 +2,7 @@
 export const LANDING_CONFIG = {
   // Navigation
   nav: {
-    logo: "EMenu Platform",
+    logo: "Emenu Cambodia",
     logoUrl: "/logo.png",
   },
 
@@ -72,7 +72,7 @@ export const LANDING_CONFIG = {
 
   // Stats Section
   stats: {
-    subtitle: "Real results from real businesses using EMenu Platform",
+    subtitle: "Real results from real businesses using Emenu Cambodia",
     items: [
       { number: "500+", label: "Businesses Active", description: "Growing daily across all continents" },
       { number: "50,000+", label: "Orders Processed", description: "Successfully delivered monthly" },
@@ -87,7 +87,7 @@ export const LANDING_CONFIG = {
     title: "Founder & Full-Stack Software Engineer",
     image: "/images/founder.jpg",
     bio: "A passionate software engineer from Cambodia with a vision to transform how restaurants operate across Asia and the world. With over a decade of experience building enterprise-grade SaaS platforms, Phat recognized a critical gap: many food businesses, especially in developing markets, lack access to affordable digital infrastructure.",
-    story: "After working with multiple restaurants and witnessing their struggles with manual operations, outdated systems, and expensive solutions, Phat decided to build something different. EMenu Platform was created to democratize restaurant technology—combining world-class features typically found in expensive enterprise software with the simplicity and affordability that small to medium-sized restaurants need.",
+    story: "After working with multiple restaurants and witnessing their struggles with manual operations, outdated systems, and expensive solutions, Phat decided to build something different. Emenu Cambodia was created to democratize restaurant technology—combining world-class features typically found in expensive enterprise software with the simplicity and affordability that small to medium-sized restaurants need.",
     vision: "Empower food businesses globally to compete digitally, streamline operations, increase profitability, and deliver exceptional customer experiences. Every restaurant, regardless of size or location, deserves access to professional digital tools.",
     highlights: [
       "Built in Cambodia 🇰🇭 for the world 🌍",
@@ -257,7 +257,7 @@ export const LANDING_CONFIG = {
 
   // CTA Section
   cta: {
-    subtitle: "Join thousands of restaurants, cafes, and food businesses worldwide using EMenu Platform to increase efficiency, boost sales, and delight customers.",
+    subtitle: "Join thousands of restaurants, cafes, and food businesses worldwide using Emenu Cambodia to increase efficiency, boost sales, and delight customers.",
     primaryCTA: "Start Your Free 30-Day Trial",
     secondaryCTA: "Schedule a Personalized Demo",
     disclaimer: "✓ No credit card required  •  ✓ Full access to all features  •  ✓ Cancel anytime  •  ✓ 24/7 support"
@@ -265,7 +265,7 @@ export const LANDING_CONFIG = {
 
   // Footer
   footer: {
-    company: "EMenu Platform",
+    company: "Emenu Cambodia",
     tagline: "Professional digital menu and POS solution for modern food businesses worldwide",
     description: "Trusted by restaurants, cafes, delivery services, and food enterprises. Simple, affordable, powerful.",
     contact: {

@@ -39,7 +39,7 @@ export default function Navbar() {
               <QrCode className="w-5 h-5 text-white" />
             </div>
             <span className="text-lg font-bold text-slate-900 tracking-tight">
-              EMenu Platform
+              Emenu Cambodia
             </span>
           </Link>
 
