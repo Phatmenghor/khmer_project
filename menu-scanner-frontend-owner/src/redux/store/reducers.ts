@@ -13,6 +13,7 @@ import districtReducer from "../features/location/store/slice/district-slice";
 import villageReducer from "../features/location/store/slice/village-slice";
 
 import subscriptionHistoryReducer from "../features/subscription/store/slice/subscription-history-slice";
+import ownerDashboardReducer from "../features/owner-dashboard/store/slice/owner-dashboard-slice";
 
 export const reducers = {
   globalSettings: globalSettingsReducer,
@@ -27,4 +28,5 @@ export const reducers = {
   district: districtReducer,
   village: villageReducer,
   subscriptionHistory: subscriptionHistoryReducer,
+  ownerDashboard: ownerDashboardReducer,
 };
