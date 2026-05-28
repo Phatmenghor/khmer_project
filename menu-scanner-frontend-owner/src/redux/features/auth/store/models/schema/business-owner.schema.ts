@@ -46,8 +46,6 @@ export const renewSubscriptionSchema = z.object({
   paymentAmount: z.number().min(0, "Payment amount must be non-negative").optional(),
   paymentMethod: z.string().optional().or(z.literal("")),
   paymentReference: z.string().optional().or(z.literal("")),
-  paymentNotes: z.string().optional().or(z.literal("")),
-  paymentInfoComplete: z.boolean().optional(),
 });
 
 /**
@@ -65,8 +63,6 @@ export const changePlanSchema = z.object({
   paymentAmount: z.number().min(0, "Payment amount must be non-negative").optional(),
   paymentMethod: z.string().optional().or(z.literal("")),
   paymentReference: z.string().optional().or(z.literal("")),
-  paymentNotes: z.string().optional().or(z.literal("")),
-  paymentInfoComplete: z.boolean().optional(),
 });
 
 /**

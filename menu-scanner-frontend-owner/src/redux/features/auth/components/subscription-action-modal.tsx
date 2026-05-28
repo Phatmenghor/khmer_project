@@ -186,14 +186,6 @@ export default function SubscriptionActionModal({
         disabled={disabled}
         error={getFieldError(errors.paymentReference)}
       />
-      <TextField
-        control={control}
-        name="paymentNotes"
-        label="Notes"
-        placeholder="Optional notes"
-        disabled={disabled}
-        error={getFieldError(errors.paymentNotes)}
-      />
     </div>
   );
 
