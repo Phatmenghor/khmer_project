@@ -44,6 +44,7 @@ export default function FounderSection() {
                 </div>
                 <div className="text-center flex-1 flex flex-col justify-between">
                   <div>
+                    <p className="text-sm font-semibold text-primary mb-2">Emenu Cambodia</p>
                     <h3 className="text-3xl font-bold text-slate-900">{founder.name}</h3>
                     <p className="text-lg text-primary font-bold mt-2">{founder.title}</p>
                     <p className="text-base text-slate-700 font-medium mt-2">{founder.contact.location}</p>
