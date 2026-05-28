@@ -75,7 +75,7 @@ export default function SubscriptionActionModal({
   // --- Cancel form ---
   const cancelForm = useForm<CancelSubscriptionData>({
     resolver: zodResolver(cancelSubscriptionSchema),
-    defaultValues: { reason: "", refundAmount: 0, refundMethod: "", refundReference: "" },
+    defaultValues: { reason: "" },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -348,42 +348,15 @@ export default function SubscriptionActionModal({
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={cancelForm.handleSubmit(onCancelSubmit)} className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <TextField
-                          control={cancelForm.control}
-                          name="reason"
-                          label="Reason"
-                          placeholder="Cancellation reason"
-                          required
-                          disabled={isSubmitting}
-                          error={getFieldError(cancelForm.formState.errors.reason)}
-                        />
-                        <TextField
-                          control={cancelForm.control}
-                          name="refundAmount"
-                          label="Refund Amount"
-                          type="number"
-                          placeholder="0.00"
-                          disabled={isSubmitting}
-                          error={getFieldError(cancelForm.formState.errors.refundAmount)}
-                        />
-                        <TextField
-                          control={cancelForm.control}
-                          name="refundMethod"
-                          label="Refund Method"
-                          placeholder="e.g. Cash, Transfer"
-                          disabled={isSubmitting}
-                          error={getFieldError(cancelForm.formState.errors.refundMethod)}
-                        />
-                        <TextField
-                          control={cancelForm.control}
-                          name="refundReference"
-                          label="Refund Reference"
-                          placeholder="Optional reference"
-                          disabled={isSubmitting}
-                          error={getFieldError(cancelForm.formState.errors.refundReference)}
-                        />
-                      </div>
+                      <TextField
+                        control={cancelForm.control}
+                        name="reason"
+                        label="Reason"
+                        placeholder="Cancellation reason"
+                        required
+                        disabled={isSubmitting}
+                        error={getFieldError(cancelForm.formState.errors.reason)}
+                      />
                       <div className="flex justify-end gap-3 pt-2">
                         <CancelButton onClick={handleClose} disabled={isSubmitting} />
                         <SubmitButton isSubmitting={isSubmitting} isDirty={cancelForm.formState.isDirty} isCreate={true} createText="Cancel Subscription" submittingCreateText="Cancelling..." />

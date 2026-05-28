@@ -55,9 +55,6 @@ export const renewSubscriptionSchema = z.object({
  */
 export const cancelSubscriptionSchema = z.object({
   reason: z.string().optional().or(z.literal("")),
-  refundAmount: z.number().min(0, "Refund amount must be non-negative"),
-  refundMethod: z.string().optional().or(z.literal("")),
-  refundReference: z.string().optional().or(z.literal("")),
 });
 
 /**
