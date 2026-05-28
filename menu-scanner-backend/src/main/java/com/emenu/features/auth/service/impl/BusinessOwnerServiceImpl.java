@@ -561,8 +561,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private void enrichSubscriptionData(BusinessOwnerDetailResponse detailResponse, UUID businessId) {
-        subscriptionRepository.findByBusinessIdAndIsDeletedFalse(businessId).stream()
-                .max((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
+        subscriptionRepository.findLatestByBusinessId(businessId)
                 .ifPresentOrElse(
                         subscriptionRecord -> populateSubscriptionInfo(detailResponse, subscriptionRecord),
                         () -> detailResponse.setSubscriptionStatus(SubscriptionStatus.EXPIRED)
@@ -647,8 +646,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private Subscription getCurrentSubscription(UUID businessId) {
-        return subscriptionRepository.findByBusinessIdAndIsDeletedFalse(businessId).stream()
-                .max((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
+        return subscriptionRepository.findLatestByBusinessId(businessId)
                 .orElseThrow(() -> {
                     log.warn("Subscription not found: business_id={}", businessId);
                     return new NotFoundException("No subscription found");

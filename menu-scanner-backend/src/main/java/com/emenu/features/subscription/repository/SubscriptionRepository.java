@@ -140,4 +140,15 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
                 ORDER BY s.updatedAt DESC
             """)
     List<Subscription> findAllCancelledSubscriptions();
+
+    @Query("""
+                SELECT s FROM Subscription s
+                LEFT JOIN FETCH s.business b
+                LEFT JOIN FETCH s.plan p
+                WHERE s.businessId = :businessId
+                AND s.isDeleted = false
+                ORDER BY s.createdAt DESC
+                LIMIT 1
+            """)
+    Optional<Subscription> findLatestByBusinessId(@Param("businessId") UUID businessId);
 }
