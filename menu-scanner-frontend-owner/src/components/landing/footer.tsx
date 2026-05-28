@@ -14,7 +14,7 @@ export default function Footer() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
             {/* Brand */}
             <div>
-              <Link href={ROUTES.PUBLIC.HOME} className="inline-block mb-6">
+              <Link href={ROUTES.PUBLIC.HOME} className="inline-block">
                 <Image
                   src="/images/logo/my_logo.png"
                   alt="Emenu Cambodia Logo"
@@ -38,11 +38,16 @@ export default function Footer() {
             {/* Link columns from config */}
             {Object.entries(footer.links).map(([category, links]) => (
               <div key={category}>
-                <h4 className="text-base font-bold text-slate-900 mb-4">{category}</h4>
+                <h4 className="text-base font-bold text-slate-900 mb-4">
+                  {category}
+                </h4>
                 <ul className="space-y-3">
                   {(links as string[]).map((label) => (
                     <li key={label}>
-                      <a href="#" className="text-base text-slate-600 hover:text-primary transition-colors">
+                      <a
+                        href="#"
+                        className="text-base text-slate-600 hover:text-primary transition-colors"
+                      >
                         {label}
                       </a>
                     </li>
@@ -54,18 +59,29 @@ export default function Footer() {
 
           <div className="border-t border-slate-200 pt-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-base text-slate-600 mb-4">
-              <span>© {new Date().getFullYear()} {footer.company}. All rights reserved.</span>
+              <span>
+                © {new Date().getFullYear()} {footer.company}. All rights
+                reserved.
+              </span>
               <div className="flex gap-6">
-                <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+                <a href="#" className="hover:text-primary transition-colors">
+                  Privacy Policy
+                </a>
+                <a href="#" className="hover:text-primary transition-colors">
+                  Terms of Service
+                </a>
               </div>
             </div>
             <p className="text-center text-sm text-slate-500 mt-6">
               {footer.social}
             </p>
             <div className="flex gap-6 justify-center text-sm text-slate-600">
-              <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-primary transition-colors">
+                Privacy Policy
+              </a>
+              <a href="#" className="hover:text-primary transition-colors">
+                Terms of Service
+              </a>
             </div>
           </div>
         </FadeIn>

@@ -37,19 +37,19 @@ export default function Navbar() {
     <header
       className={cn(
         "sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all duration-200",
-        scrolled ? "shadow-sm" : ""
+        scrolled ? "shadow-sm" : "",
       )}
     >
       <div className="max-w-[1330px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-3">
+        <div className="flex items-center justify-between ">
           {/* Logo */}
           <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-3">
             <Image
               src="/images/logo/my_logo.png"
               alt="Emenu Cambodia Logo"
-              width={100}
-              height={60}
-              className="h-14 w-auto"
+              width={120}
+              height={120}
+              className="h-20 w-auto"
               priority
             />
           </Link>
@@ -70,7 +70,10 @@ export default function Navbar() {
             </nav>
 
             {/* CTA Button */}
-            <Button className="h-12 px-8 text-base bg-primary hover:bg-primary/90 text-white rounded-lg" asChild>
+            <Button
+              className="h-12 px-8 text-base bg-primary hover:bg-primary/90 text-white rounded-lg"
+              asChild
+            >
               <Link href={ROUTES.PUBLIC.REGISTER}>Get Started Free</Link>
             </Button>
           </div>
@@ -82,7 +85,11 @@ export default function Navbar() {
             className="md:hidden w-12 h-12"
             onClick={() => setMobileOpen((v) => !v)}
           >
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </Button>
         </div>
       </div>
