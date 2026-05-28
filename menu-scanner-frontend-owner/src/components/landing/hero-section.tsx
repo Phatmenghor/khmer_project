@@ -9,8 +9,8 @@ import { ROUTES } from "@/constants/app-routes/routes";
 
 const typewriterStyles = `
   @keyframes typewriter {
-    0% { width: 0; }
-    100% { width: 100%; }
+    0% { max-width: 0; }
+    100% { max-width: 100%; }
   }
 
   @keyframes blink {
@@ -25,9 +25,10 @@ const typewriterStyles = `
 
   .typewriter {
     overflow: hidden;
+    display: inline-block;
     white-space: nowrap;
-    animation: typewriter 3.5s steps(40, end) forwards, blink 0.75s step-end infinite 3.5s;
-    border-right: 2px solid;
+    animation: typewriter 3.5s steps(45, end) forwards, blink 0.75s step-end infinite 3.5s;
+    border-right: 3px solid;
     border-right-color: currentColor;
   }
 
