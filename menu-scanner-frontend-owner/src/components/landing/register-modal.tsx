@@ -40,10 +40,17 @@ const schema = z
 
 type FormData = z.infer<typeof schema>;
 
+interface PlanData {
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+}
+
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  plan?: string;
+  plan?: PlanData;
 }
 
 export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
@@ -105,13 +112,31 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       <DialogContent className="max-w-2xl h-[90vh] p-0 gap-0 flex flex-col">
         {/* Header */}
         <DialogHeader className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex flex-col gap-2">
-            <DialogTitle className="text-2xl font-bold text-foreground">
-              Start Your Free Trial
-            </DialogTitle>
-            <DialogDescription className="text-base text-muted-foreground">
-              Get full access to all features {plan && `for the ${plan} plan`}. No credit card required.
-            </DialogDescription>
+          <div className="flex flex-col gap-4">
+            <div>
+              <DialogTitle className="text-2xl font-bold text-foreground">
+                Create Your Account
+              </DialogTitle>
+              <DialogDescription className="text-base text-muted-foreground mt-1">
+                Register to get started with your business
+              </DialogDescription>
+            </div>
+
+            {/* Selected Plan Display */}
+            {plan && (
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h4 className="font-semibold text-foreground">{plan.name} Plan</h4>
+                    <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-primary">{plan.price}</div>
+                    <div className="text-xs text-muted-foreground">{plan.period}</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </DialogHeader>
 
@@ -280,8 +305,8 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         </ScrollArea>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t bg-muted/30 flex-shrink-0 text-xs text-muted-foreground">
-          <p>✓ No credit card required  •  ✓ Full access to all features  •  ✓ Cancel anytime</p>
+        <div className="px-6 py-4 border-t bg-muted/30 flex-shrink-0">
+          <p className="text-xs text-muted-foreground text-center">✓ No credit card required  •  ✓ Full access to all features  •  ✓ Cancel anytime</p>
         </div>
       </DialogContent>
     </Dialog>

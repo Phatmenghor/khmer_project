@@ -11,12 +11,19 @@ import { LANDING_CONFIG } from "@/constants/landing-config";
 import { RegisterModal } from "./register-modal";
 import { useState } from "react";
 
+interface PlanData {
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+}
+
 export default function PricingSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<string>();
+  const [selectedPlan, setSelectedPlan] = useState<PlanData>();
 
-  const handlePlanClick = (planName: string) => {
-    setSelectedPlan(planName);
+  const handlePlanClick = (plan: PlanData) => {
+    setSelectedPlan(plan);
     setIsModalOpen(true);
   };
 
@@ -42,7 +49,9 @@ export default function PricingSection() {
         </FadeIn>
 
         <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-6 mt-16 items-start">
-          {LANDING_CONFIG.pricing.plans.map(({ name, price, period, description, features, highlighted }, i) => (
+          {LANDING_CONFIG.pricing.plans.map(({ name, price, period, description, features, highlighted }, i) => {
+            const planData: PlanData = { name, price, period, description };
+            return (
             <FadeIn key={name} direction="up" delay={i * 140}>
               <Card
                 className={cn(
@@ -91,20 +100,21 @@ export default function PricingSection() {
                   </ul>
 
                   <Button
-                    onClick={() => handlePlanClick(name)}
+                    onClick={() => handlePlanClick(planData)}
                     className={cn(
-                      "w-full h-14 mt-8 font-bold text-base rounded-xl transition-all",
+                      "w-full h-14 mt-8 font-bold text-base rounded-xl transition-all duration-300",
                       highlighted
-                        ? "bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white shadow-lg hover:shadow-xl"
-                        : "border-2 border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/60"
+                        ? "bg-primary text-white shadow-lg hover:shadow-xl hover:bg-primary/90"
+                        : "border-2 border-primary text-primary hover:bg-primary hover:text-white"
                     )}
                   >
-                    Get Started Free
+                    Get Started with {name} Plan
                   </Button>
                 </CardContent>
               </Card>
             </FadeIn>
-          ))}
+          );
+          })}
         </div>
       </div>
 
