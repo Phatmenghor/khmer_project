@@ -188,28 +188,33 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
           {!collapsed && (
             <Link
               href="/"
-              className="relative flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
+              className="relative flex items-center gap-2 group transition-all duration-300 hover:scale-[1.02]"
             >
-              <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                  <Image
-                    src="/assets/favicon.ico"
-                    alt="KSIT Logo"
-                    width={24}
-                    height={24}
-                    className="rounded object-contain"
-                    priority
-                  />
-                </div>
-                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
-                  Menu Scanner
-                </span>
-                <span className="text-muted-foreground text-xs font-medium tracking-wide">
-                  Dashboard
-                </span>
+              <Image
+                src="/images/logo/my_logo.png"
+                alt="Emenu Cambodia Logo"
+                width={140}
+                height={50}
+                className="h-12 w-auto object-contain"
+                priority
+              />
+            </Link>
+          )}
+
+          {collapsed && (
+            <Link
+              href="/"
+              className="relative flex items-center justify-center group transition-all duration-300 hover:scale-[1.02]"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
+                <Image
+                  src="/images/logo/my_logo.png"
+                  alt="Emenu Cambodia Logo"
+                  width={40}
+                  height={40}
+                  className="w-8 h-8 object-contain"
+                  priority
+                />
               </div>
             </Link>
           )}
