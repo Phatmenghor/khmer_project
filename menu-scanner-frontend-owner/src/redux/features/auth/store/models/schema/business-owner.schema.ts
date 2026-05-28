@@ -66,7 +66,6 @@ export const cancelSubscriptionSchema = z.object({
  */
 export const changePlanSchema = z.object({
   newPlanId: z.string().uuid("Invalid plan ID format"),
-  keepCurrentEndDate: z.boolean(),
   paymentAmount: z.number().min(0, "Payment amount must be non-negative"),
   paymentMethod: z.string().min(1, "Payment method is required"),
   paymentReference: z.string().optional().or(z.literal("")),

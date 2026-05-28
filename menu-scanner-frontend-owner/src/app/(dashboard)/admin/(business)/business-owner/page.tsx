@@ -42,6 +42,7 @@ import CreateBusinessOwnerModal from "@/redux/features/auth/components/create-bu
 import { BusinessOwnerDetailModal } from "@/redux/features/auth/components/business-owner-detail-modal";
 import UpdateBusinessOwnerModal from "@/redux/features/auth/components/update-business-owner-modal";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
+import SubscriptionActionModal from "@/redux/features/auth/components/subscription-action-modal";
 
 export default function BusinessOwnerPage() {
   const searchParams = useSearchParams();
@@ -76,6 +77,11 @@ export default function BusinessOwnerPage() {
   });
 
   const [deleteState, setDeleteState] = useState({
+    isOpen: false,
+    owner: null as BusinessOwnerResponseModel | null,
+  });
+
+  const [subscriptionActionState, setSubscriptionActionState] = useState({
     isOpen: false,
     owner: null as BusinessOwnerResponseModel | null,
   });
@@ -136,6 +142,10 @@ export default function BusinessOwnerPage() {
     setDeleteState({ isOpen: true, owner: user });
   };
 
+  const handleSubscriptionAction = (user: BusinessOwnerResponseModel) => {
+    setSubscriptionActionState({ isOpen: true, owner: user });
+  };
+
   const handleToggleAutoRenew = async (user: BusinessOwnerResponseModel, checked: boolean) => {
     try {
       await dispatch(
@@ -148,7 +158,7 @@ export default function BusinessOwnerPage() {
   };
 
   const tableHandlers = useMemo(
-    () => ({ handleViewUserDetail, handleEditOwner, handleResetPassword, handleDeleteUser, handleToggleAutoRenew }),
+    () => ({ handleViewUserDetail, handleEditOwner, handleResetPassword, handleDeleteUser, handleToggleAutoRenew, handleSubscriptionAction }),
     []
   );
 
@@ -261,6 +271,19 @@ export default function BusinessOwnerPage() {
         onClose={() => setResetPasswordState({ isOpen: false, userId: "", userName: "" })}
         userId={resetPasswordState.userId}
         userName={resetPasswordState.userName}
+      />
+
+      <SubscriptionActionModal
+        owner={subscriptionActionState.owner}
+        isOpen={subscriptionActionState.isOpen}
+        onClose={() => setSubscriptionActionState({ isOpen: false, owner: null })}
+        onSuccess={() => dispatch(fetchAllBusinessOwnerService({
+          search: debouncedSearch,
+          pageNo: filters.pageNo,
+          pageSize: globalPageSize,
+          subscriptionStatuses: filters.subscriptionStatus === SubscriptionStatus.ALL ? [] : [filters.subscriptionStatus],
+          autoRenew: filters.autoRenew === Status.ACTIVE ? true : filters.autoRenew === Status.INACTIVE ? false : undefined,
+        }))}
       />
 
       <DeleteConfirmationModal

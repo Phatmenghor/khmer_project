@@ -77,7 +77,7 @@ export const updateBusinessOwnerChangePlanService = createApiThunk<
   UpdateBusinessOwnerChangePlanParams
 >("business-owners/change-plan", async ({ ownerId, businessOwnerData }) => {
   const response = await axiosClientWithAuth.put(
-    `/api/v1/business-owners/${ownerId}/change-plan`,
+    `/api/v1/business-owners/${ownerId}/subscription/change-plan`,
     businessOwnerData
   );
   return response.data.data;
@@ -90,8 +90,8 @@ export const updateBusinessOwnerRenewService = createApiThunk<
   any,
   UpdateBusinessOwnerRenewParams
 >("business-owners/renew", async ({ ownerId, businessOwnerData }) => {
-  const response = await axiosClientWithAuth.post(
-    `/api/v1/business-owners/${ownerId}/renew`,
+  const response = await axiosClientWithAuth.put(
+    `/api/v1/business-owners/${ownerId}/subscription/renew`,
     businessOwnerData
   );
   return response.data.data;
@@ -105,7 +105,7 @@ export const updateBusinessOwnerCancelService = createApiThunk<
   UpdateBusinessOwnerCancelParams
 >("business-owners/cancel", async ({ ownerId, businessOwnerData }) => {
   const response = await axiosClientWithAuth.put(
-    `/api/v1/business-owners/${ownerId}/cancel`,
+    `/api/v1/business-owners/${ownerId}/subscription/cancel`,
     businessOwnerData
   );
   return response.data.data;

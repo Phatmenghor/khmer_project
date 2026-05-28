@@ -1,7 +1,7 @@
 import { ActionButton } from "@/components/button/action-button";
 import { indexDisplay } from "@/utils/common/common";
 import { formatDate } from "@/utils/date/date-time-format";
-import { Edit, Eye, RotateCw, Trash } from "lucide-react";
+import { CreditCard, Edit, Eye, RotateCw, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -15,6 +15,7 @@ interface BusinessOwnerTableHandlers {
   handleResetPassword: (user: BusinessOwnerResponseModel) => void;
   handleDeleteUser: (user: BusinessOwnerResponseModel) => void;
   handleToggleAutoRenew: (user: BusinessOwnerResponseModel, checked: boolean) => void;
+  handleSubscriptionAction: (user: BusinessOwnerResponseModel) => void;
 }
 
 interface BusinessOwnerTableOptions {
@@ -26,7 +27,7 @@ export const userBusinessOwnerTableColumns = ({
   data,
   handlers,
 }: BusinessOwnerTableOptions): TableColumn<BusinessOwnerResponseModel>[] => {
-  const { handleViewUserDetail, handleEditOwner, handleResetPassword, handleDeleteUser, handleToggleAutoRenew } = handlers;
+  const { handleViewUserDetail, handleEditOwner, handleResetPassword, handleDeleteUser, handleToggleAutoRenew, handleSubscriptionAction } = handlers;
 
   return [
     {
@@ -196,6 +197,12 @@ export const userBusinessOwnerTableColumns = ({
       maxWidth: "400px",
       render: (user) => (
         <div className="flex items-center gap-1">
+          <ActionButton
+            icon={<CreditCard className="w-4 h-4" />}
+            tooltip="Subscription"
+            onClick={() => handleSubscriptionAction(user)}
+            size="sm"
+          />
           <ActionButton
             icon={<Eye className="w-4 h-4" />}
             tooltip="View Details"

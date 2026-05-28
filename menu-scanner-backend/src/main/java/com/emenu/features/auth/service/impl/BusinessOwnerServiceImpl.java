@@ -207,10 +207,8 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         SubscriptionPlan newPlanEntity = getPlanOrThrow(changePlanRequestData.getNewPlanId());
 
         currentSubscriptionRecord.setPlan(newPlanEntity);
-
-        if (!changePlanRequestData.shouldKeepCurrentEndDate()) {
-            currentSubscriptionRecord.setEndDate(newPlanEntity.calculateEndDate(currentSubscriptionRecord.getStartDate()));
-        }
+        currentSubscriptionRecord.setStartDate(LocalDateTime.now());
+        currentSubscriptionRecord.setEndDate(newPlanEntity.calculateEndDate(LocalDateTime.now()));
 
         subscriptionRepository.save(currentSubscriptionRecord);
 

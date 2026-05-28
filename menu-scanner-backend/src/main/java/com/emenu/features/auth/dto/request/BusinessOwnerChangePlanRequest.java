@@ -17,21 +17,16 @@ public class BusinessOwnerChangePlanRequest {
     
     @NotNull(message = "New plan ID is required")
     private UUID newPlanId;
-    private Boolean keepCurrentEndDate;
     private BigDecimal paymentAmount;
     private String paymentMethod;
     private String paymentReference;
     private String paymentNotes;
-    
+
     public boolean hasPaymentInfo() {
         return paymentAmount != null;
     }
-    
+
     public boolean isPaymentInfoComplete() {
         return paymentAmount != null && paymentMethod != null;
-    }
-    
-    public boolean shouldKeepCurrentEndDate() {
-        return keepCurrentEndDate != null && keepCurrentEndDate;
     }
 }
