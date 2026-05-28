@@ -17,14 +17,9 @@ import java.math.BigDecimal;
 public class BusinessOwnerSubscriptionCancelRequest {
 
     private String reason;
-    private String notes;
 
     @JsonDeserialize(using = BigDecimalDeserializer.class)
-    private BigDecimal refundAmount;
-    private String refundMethod;
-    private String refundReference;
-    
-    public boolean hasRefundAmount() {
-        return refundAmount != null && refundAmount.compareTo(BigDecimal.ZERO) >= 0;
-    }
+    private BigDecimal paymentAmount;
+    private String paymentMethod;
+    private String paymentReference;
 }

@@ -75,7 +75,7 @@ export default function SubscriptionActionModal({
   // --- Cancel form ---
   const cancelForm = useForm<CancelSubscriptionData>({
     resolver: zodResolver(cancelSubscriptionSchema),
-    defaultValues: { reason: "" },
+    defaultValues: { reason: "", paymentAmount: undefined, paymentMethod: "", paymentReference: "" },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -349,6 +349,7 @@ export default function SubscriptionActionModal({
                         disabled={isSubmitting}
                         error={getFieldError(cancelForm.formState.errors.reason)}
                       />
+                      {paymentFields(cancelForm.control, cancelForm.formState.errors, isSubmitting)}
                       <div className="flex justify-end gap-3 pt-2">
                         <CancelButton onClick={handleClose} disabled={isSubmitting} />
                         <SubmitButton isSubmitting={isSubmitting} isDirty={cancelForm.formState.isDirty} isCreate={true} createText="Cancel Subscription" submittingCreateText="Cancelling..." />
