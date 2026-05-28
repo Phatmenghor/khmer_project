@@ -147,6 +147,8 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   <div>
                     <h4 className="font-semibold text-foreground">{plan.name} Plan</h4>
                     <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
+                    {plan.id && <p className="text-xs text-muted-foreground mt-2">Plan ID: {plan.id}</p>}
+                    {!plan.id && <p className="text-xs text-red-500 mt-2">⚠️ Plan ID not available</p>}
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-primary">{plan.price}</div>
