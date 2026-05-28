@@ -64,6 +64,11 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                             );
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+                    // Store user info in request attributes for audit logging (SecurityContext gets cleared later)
+                    request.setAttribute("AUTHENTICATED_USERNAME", username);
+                    request.setAttribute("AUTHENTICATED_USERTYPE", userType);
+
                     log.debug("[JWT] Authentication set in SecurityContext for user: {}", username);
                 } else {
                     log.debug("[JWT] Token validation failed for endpoint: {}", endpoint);

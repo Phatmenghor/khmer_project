@@ -72,19 +72,25 @@ public class AuditLogServiceImpl implements AuditLogService {
         String userIdentifier = "anonymous";
         String userType = "ANONYMOUS";
 
-        try {
-            var userOpt = securityUtils.getCurrentUserOptional();
-            if (userOpt.isPresent()) {
-                var user = userOpt.get();
-                userId = user.getId();
-                userIdentifier = user.getUserIdentifier();
-                userType = user.getUserType().name();
-                log.debug("[AUDIT] Extracted user from SecurityContext: username={}, userType={}", userIdentifier, userType);
-            } else {
-                log.debug("[AUDIT] No user found in SecurityContext for endpoint: {}", request.getRequestURI());
+        // First, try to get user from request attributes (set by JWT filter)
+        String authUsername = (String) request.getAttribute("AUTHENTICATED_USERNAME");
+        String authUserType = (String) request.getAttribute("AUTHENTICATED_USERTYPE");
+
+        if (authUsername != null && authUserType != null) {
+            try {
+                var userOpt = securityUtils.getCurrentUserOptional();
+                if (userOpt.isPresent()) {
+                    var user = userOpt.get();
+                    userId = user.getId();
+                    userIdentifier = user.getUserIdentifier();
+                    userType = user.getUserType().name();
+                    log.debug("[AUDIT] Extracted user from request attributes: username={}, userType={}", userIdentifier, userType);
+                }
+            } catch (Exception e) {
+                log.debug("[AUDIT] Exception getting user from SecurityContext: {}", e.getMessage());
             }
-        } catch (Exception e) {
-            log.debug("[AUDIT] Exception getting user from SecurityContext: {}", e.getMessage());
+        } else {
+            log.debug("[AUDIT] No authenticated user in request attributes for endpoint: {}", request.getRequestURI());
         }
 
         String httpMethod = request.getMethod();
