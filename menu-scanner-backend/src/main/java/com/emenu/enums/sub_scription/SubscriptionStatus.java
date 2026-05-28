@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum SubscriptionStatus {
     ACTIVE("Active", "Subscription is currently active"),
     EXPIRED("Expired", "Subscription has expired"),
-    EXPIRING_SOON("Expiring Soon", "Subscription expiring within specified days");
+    EXPIRING_SOON("Expiring Soon", "Subscription expiring within specified days"),
+    CANCELLED("Cancelled", "Subscription has been cancelled");
 
     private final String displayName;
     private final String description;
@@ -26,5 +27,9 @@ public enum SubscriptionStatus {
 
     public boolean isExpiringSoon() {
         return this == EXPIRING_SOON;
+    }
+
+    public boolean isCancelled() {
+        return this == CANCELLED;
     }
 }

@@ -36,9 +36,10 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
         AND b.isDeleted = false
         AND (
             :subscriptionStatuses IS NULL
-            OR (:hasActive = true AND s.endDate > :now)
-            OR (:hasExpired = true AND s.endDate <= :now)
-            OR (:hasExpiringSoon = true AND s.endDate > :now AND s.endDate <= :expiryThreshold)
+            OR (:hasActive = true AND s.endDate > :now AND s.cancellationReason IS NULL)
+            OR (:hasExpired = true AND s.endDate <= :now AND s.cancellationReason IS NULL)
+            OR (:hasExpiringSoon = true AND s.endDate > :now AND s.endDate <= :expiryThreshold AND s.cancellationReason IS NULL)
+            OR (:hasCancelled = true AND s.cancellationReason IS NOT NULL)
         )
         AND (:autoRenew IS NULL OR s.autoRenew = :autoRenew)
         AND (:search IS NULL OR :search = '' OR
@@ -55,6 +56,7 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID> {
             @Param("hasActive") boolean hasActive,
             @Param("hasExpired") boolean hasExpired,
             @Param("hasExpiringSoon") boolean hasExpiringSoon,
+            @Param("hasCancelled") boolean hasCancelled,
             @Param("now") LocalDateTime now,
             @Param("expiryThreshold") LocalDateTime expiryThreshold,
             @Param("autoRenew") Boolean autoRenew,

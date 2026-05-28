@@ -141,6 +141,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         boolean hasActiveSubscription = filterSubscriptionStatuses != null && filterSubscriptionStatuses.contains(SubscriptionStatus.ACTIVE);
         boolean hasExpiredSubscription = filterSubscriptionStatuses != null && filterSubscriptionStatuses.contains(SubscriptionStatus.EXPIRED);
         boolean hasExpiringSubscription = filterSubscriptionStatuses != null && filterSubscriptionStatuses.contains(SubscriptionStatus.EXPIRING_SOON);
+        boolean hasCancelledSubscription = filterSubscriptionStatuses != null && filterSubscriptionStatuses.contains(SubscriptionStatus.CANCELLED);
 
         LocalDateTime currentDateTime = LocalDateTime.now();
         LocalDateTime expiryThreshold = currentDateTime.plusDays(filterCriteria.getExpiringSoonDays());
@@ -150,6 +151,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 hasActiveSubscription,
                 hasExpiredSubscription,
                 hasExpiringSubscription,
+                hasCancelledSubscription,
                 currentDateTime,
                 expiryThreshold,
                 filterCriteria.getAutoRenew(),
@@ -555,7 +557,8 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private void enrichSubscriptionData(BusinessOwnerDetailResponse detailResponse, UUID businessId) {
-        subscriptionRepository.findCurrentActiveByBusinessId(businessId, LocalDateTime.now())
+        subscriptionRepository.findByBusinessIdAndIsDeletedFalse(businessId).stream()
+                .max((s1, s2) -> s1.getCreatedAt().compareTo(s2.getCreatedAt()))
                 .ifPresentOrElse(
                         subscriptionRecord -> populateSubscriptionInfo(detailResponse, subscriptionRecord),
                         () -> detailResponse.setSubscriptionStatus(SubscriptionStatus.EXPIRED)
@@ -591,6 +594,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private SubscriptionStatus determineSubscriptionStatus(Subscription subscriptionRecord) {
+        if (subscriptionRecord.isCancelled()) {
+            return SubscriptionStatus.CANCELLED;
+        }
         if (subscriptionRecord.isExpired()) {
             return SubscriptionStatus.EXPIRED;
         }
