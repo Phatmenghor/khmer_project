@@ -200,6 +200,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
+            @SuppressWarnings("unchecked")
             Map<String, Object> map = mapper.readValue(requestBody, Map.class);
 
             // Try to find email field - common patterns in auth/registration endpoints
