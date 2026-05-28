@@ -88,42 +88,42 @@ export default function FounderSection() {
           <FadeIn direction="left" delay={150}>
             <div className="space-y-4 h-full flex flex-col">
               {/* Vision Card */}
-              <Card className="bg-gradient-to-br from-purple-50 via-purple-100/40 to-purple-50 border-2 border-purple-300 group overflow-hidden flex-1">
+              <Card className="bg-gradient-to-br from-purple-50 via-purple-100/40 to-purple-50 border-2 border-purple-300 group overflow-hidden flex-1 min-h-[280px]">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-white/50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
-                <CardContent className="p-6 relative z-10">
+                <CardContent className="p-7 relative z-10 h-full flex flex-col">
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-purple-600/20 mb-4">
                     <span className="text-xl font-bold text-purple-600">💡</span>
                   </div>
                   <h4 className="text-lg font-bold text-slate-900 mb-3">The Vision</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium flex-1">
                     {founder.vision}
                   </p>
                 </CardContent>
               </Card>
 
               {/* Bio Card */}
-              <Card className="bg-gradient-to-br from-pink-50 via-pink-100/40 to-pink-50 border-2 border-pink-300 group overflow-hidden flex-1">
+              <Card className="bg-gradient-to-br from-pink-50 via-pink-100/40 to-pink-50 border-2 border-pink-300 group overflow-hidden flex-1 min-h-[280px]">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-white/50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
-                <CardContent className="p-6 relative z-10">
+                <CardContent className="p-7 relative z-10 h-full flex flex-col">
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-pink-600/20 mb-4">
                     <span className="text-xl font-bold text-pink-600">🚀</span>
                   </div>
                   <h4 className="text-lg font-bold text-slate-900 mb-3">Background</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium flex-1">
                     {founder.bio}
                   </p>
                 </CardContent>
               </Card>
 
               {/* Story Card */}
-              <Card className="bg-gradient-to-br from-green-50 via-green-100/40 to-green-50 border-2 border-green-300 group overflow-hidden flex-1">
+              <Card className="bg-gradient-to-br from-green-50 via-green-100/40 to-green-50 border-2 border-green-300 group overflow-hidden flex-1 min-h-[280px]">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-white/50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
-                <CardContent className="p-6 relative z-10">
+                <CardContent className="p-7 relative z-10 h-full flex flex-col">
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-green-600/20 mb-4">
                     <span className="text-xl font-bold text-green-600">🎯</span>
                   </div>
                   <h4 className="text-lg font-bold text-slate-900 mb-3">Why Emenu Cambodia?</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium flex-1">
                     {founder.story}
                   </p>
                 </CardContent>
