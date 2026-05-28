@@ -73,10 +73,13 @@ public class AuditLogServiceImpl implements AuditLogService {
         String userType = "ANONYMOUS";
 
         try {
-            userId = securityUtils.getCurrentUserId();
-            userIdentifier = securityUtils.getCurrentUserIdentifier();
-            UserType type = securityUtils.getCurrentUserType();
-            userType = type != null ? type.name() : "ANONYMOUS";
+            var userOpt = securityUtils.getCurrentUserOptional();
+            if (userOpt.isPresent()) {
+                var user = userOpt.get();
+                userId = user.getId();
+                userIdentifier = user.getUserIdentifier();
+                userType = user.getUserType().name();
+            }
         } catch (Exception e) {
             log.debug("User authentication context not available, using anonymous defaults");
         }
