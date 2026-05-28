@@ -1,4 +1,4 @@
-import { QrCode, Smartphone, BarChart3, Zap, Globe, Shield } from "lucide-react";
+import { QrCode, ShoppingCart, BarChart3, Send, MapPin, Monitor } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import FadeIn from "@/components/landing/fade-in";
@@ -6,39 +6,39 @@ import FadeIn from "@/components/landing/fade-in";
 const features = [
   {
     icon: QrCode,
-    title: "Instant QR Menus",
+    title: "QR Digital Menu",
     description:
-      "Generate QR codes for every table. Customers scan and browse your full menu instantly — no app download needed.",
+      "Generate QR codes for every table. Customers scan to browse your full menu instantly — no app, no friction.",
   },
   {
-    icon: Smartphone,
-    title: "Mobile-First Design",
+    icon: Monitor,
+    title: "Real-Time POS System",
     description:
-      "Your menu looks perfect on any device. Optimized for the smartphones your customers already carry.",
+      "A complete point-of-sale system built for your business. Manage orders, tables, and payments all from one dashboard.",
+  },
+  {
+    icon: ShoppingCart,
+    title: "E-Commerce Storefront",
+    description:
+      "Sell online with your own branded storefront. Accept online orders and grow your revenue beyond your physical location.",
+  },
+  {
+    icon: Send,
+    title: "Telegram Bot Integration",
+    description:
+      "Receive real-time order notifications and manage your business directly from Telegram. Never miss an order.",
+  },
+  {
+    icon: MapPin,
+    title: "Live Location & Tracking",
+    description:
+      "Track deliveries and locations in real-time. Keep customers informed and your team coordinated at every step.",
   },
   {
     icon: BarChart3,
-    title: "Real-Time Analytics",
+    title: "Business Analytics Dashboard",
     description:
-      "Track top items, peak hours, and revenue trends. Make smarter decisions backed by live data every day.",
-  },
-  {
-    icon: Zap,
-    title: "Live Order Updates",
-    description:
-      "Orders update instantly across all devices. Kitchen, cashier, and manager always stay in perfect sync.",
-  },
-  {
-    icon: Globe,
-    title: "Khmer & English",
-    description:
-      "Full bilingual support for Khmer and English. Serve local and international guests with equal ease.",
-  },
-  {
-    icon: Shield,
-    title: "Secure & Reliable",
-    description:
-      "Bank-grade security with 99.9% uptime. Your business runs 24/7 without interruptions or data loss.",
+      "See top items, peak hours, revenue trends, and more. Make smarter decisions with data that updates live every day.",
   },
 ];
 
@@ -49,14 +49,14 @@ export default function FeaturesSection() {
         <FadeIn direction="up">
           <div className="text-center mb-16">
             <Badge className="mb-5 text-sm px-4 py-1.5 bg-primary/10 text-primary border-0 font-semibold">
-              Features
+              Full Platform
             </Badge>
             <h2 className="text-5xl sm:text-6xl font-bold text-slate-900 mb-5">
-              Everything You Need to Go Digital
+              Everything Your Business Needs
             </h2>
             <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
-              From QR code menus to real-time analytics — EMenu Cambodia gives your business
-              every tool to operate smarter and serve faster.
+              When you register on EMenu Cambodia, you get instant access to the full platform —
+              from digital menus to e-commerce, POS, Telegram bot, and live analytics. All included, all free.
             </p>
           </div>
         </FadeIn>
@@ -76,6 +76,18 @@ export default function FeaturesSection() {
             </FadeIn>
           ))}
         </div>
+
+        {/* Access note */}
+        <FadeIn direction="up" delay={200}>
+          <div className="mt-14 text-center bg-primary/5 border border-primary/20 rounded-3xl px-8 py-8">
+            <p className="text-xl font-semibold text-slate-900">
+              🎉 All features above are available on every plan — 1 Week, 1 Month, and 1 Year.
+            </p>
+            <p className="text-base text-slate-500 mt-2">
+              No locked features. No upsells. Register once and access everything immediately.
+            </p>
+          </div>
+        </FadeIn>
       </div>
     </section>
   );

@@ -7,51 +7,42 @@ import { cn } from "@/lib/utils";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 
+const allFeatures = [
+  "QR Digital Menu & Ordering",
+  "Real-Time POS System",
+  "E-Commerce Storefront",
+  "Telegram Bot Integration",
+  "Live Location & Order Tracking",
+  "Business Analytics Dashboard",
+  "Multiple Menus & Categories",
+  "Multiple Business Locations",
+  "Custom Branding",
+  "Staff Management",
+  "24/7 Customer Support",
+  "Free Onboarding Assistance",
+];
+
 const plans = [
   {
     name: "1 Week",
     duration: "7 Days",
     popular: false,
-    description: "Perfect for trying out EMenu Cambodia with zero commitment.",
-    features: [
-      "Digital menu creation",
-      "QR code generation",
-      "Basic analytics dashboard",
-      "1 business location",
-      "Email support",
-    ],
+    label: null,
+    description: "Try the full platform free for 7 days. No commitment, no card.",
   },
   {
     name: "1 Month",
     duration: "30 Days",
     popular: true,
-    description: "The smart choice for businesses ready to grow and serve more customers.",
-    features: [
-      "Digital menu creation",
-      "QR code generation",
-      "Advanced analytics & reports",
-      "Multiple menus",
-      "Real-time order notifications",
-      "1 business location",
-      "Priority email support",
-      "Menu customization",
-    ],
+    label: "Most Popular",
+    description: "The go-to plan for growing businesses ready to operate fully digital.",
   },
   {
     name: "1 Year",
     duration: "365 Days",
     popular: false,
-    description: "Full access for established businesses serious about long-term growth.",
-    features: [
-      "Everything in 1 Month",
-      "Multiple locations",
-      "Custom branding",
-      "Staff management",
-      "Dedicated account manager",
-      "API access",
-      "SLA uptime guarantee",
-      "Free onboarding support",
-    ],
+    label: "Best Value",
+    description: "Full access all year. Best for established businesses scaling fast.",
   },
 ];
 
@@ -68,33 +59,41 @@ export default function PricingSection() {
               Simple, Transparent Pricing
             </h2>
             <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
-              All plans are completely free during our launch period. Pick the duration that works for your business.
+              Every plan gives you full access to every feature — no restrictions.
+              Choose the duration that fits your business, and start for free today.
             </p>
           </div>
         </FadeIn>
 
-        <div className="grid sm:grid-cols-3 gap-6 mt-16">
-          {plans.map(({ name, duration, popular, description, features }, i) => (
+        <div className="grid sm:grid-cols-3 gap-6 mt-16 items-start">
+          {plans.map(({ name, duration, popular, label, description }, i) => (
             <FadeIn key={name} direction="up" delay={i * 120}>
               <Card
                 className={cn(
-                  "relative border-slate-200 transition-all duration-300 h-full flex flex-col",
+                  "relative border-slate-200 transition-all duration-300 flex flex-col",
                   popular
                     ? "border-primary ring-2 ring-primary/20 shadow-xl shadow-primary/10"
                     : "hover:border-slate-300 hover:shadow-md"
                 )}
               >
                 {popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <Badge className="text-sm px-5 py-1.5 bg-primary text-white border-0 shadow-md font-semibold">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                    <Badge className="text-sm px-5 py-1.5 bg-primary text-white border-0 shadow-md font-semibold whitespace-nowrap">
                       Most Popular
                     </Badge>
                   </div>
                 )}
+                {!popular && label && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                    <Badge variant="outline" className="text-sm px-5 py-1.5 bg-white border-slate-300 text-slate-600 font-semibold whitespace-nowrap shadow-sm">
+                      {label}
+                    </Badge>
+                  </div>
+                )}
 
-                {/* Card header */}
+                {/* Header */}
                 <div className={cn(
-                  "px-8 pt-8 pb-6 border-b",
+                  "px-8 pt-10 pb-6 border-b",
                   popular ? "bg-primary/5 border-primary/20" : "border-slate-100"
                 )}>
                   <div className="flex items-center justify-between mb-4">
@@ -112,9 +111,13 @@ export default function PricingSection() {
                   <p className="text-base text-slate-500 leading-relaxed">{description}</p>
                 </div>
 
+                {/* Features — same for all plans */}
                 <CardContent className="px-8 py-7 flex flex-col flex-1">
+                  <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">
+                    Everything Included
+                  </p>
                   <ul className="space-y-3 flex-1">
-                    {features.map((f) => (
+                    {allFeatures.map((f) => (
                       <li key={f} className="flex items-start gap-3 text-base text-slate-600">
                         <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                         {f}
@@ -125,7 +128,7 @@ export default function PricingSection() {
                   <Button
                     variant={popular ? "default" : "outline"}
                     className={cn(
-                      "w-full h-14 text-xl mt-8",
+                      "w-full h-14 text-xl mt-8 font-semibold",
                       !popular && "border-slate-200 text-slate-700 hover:bg-slate-50"
                     )}
                     asChild
@@ -137,6 +140,12 @@ export default function PricingSection() {
             </FadeIn>
           ))}
         </div>
+
+        <FadeIn direction="up" delay={300}>
+          <p className="text-center text-base text-slate-400 mt-8">
+            All plans include the same full-access features. The only difference is duration.
+          </p>
+        </FadeIn>
       </div>
     </section>
   );
