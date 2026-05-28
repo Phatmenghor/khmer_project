@@ -190,7 +190,7 @@ export default function BusinessOwnerPage() {
 
   const handleToggleAutoRenew = async (user: BusinessOwnerResponseModel, checked: boolean) => {
     try {
-      // Optimistic update - update Redux store immediately
+      // Optimistic update - update Redux store immediately (NO loading)
       if (businessOwnerData) {
         const updatedData = {
           ...businessOwnerData,
@@ -201,14 +201,16 @@ export default function BusinessOwnerPage() {
         dispatch(updateBusinessOwnerDataSilently(updatedData));
       }
 
-      // Then update on server
-      await dispatch(
-        updateBusinessOwnerService({ ownerId: user.ownerId, data: { autoRenew: checked } })
-      ).unwrap();
-      showToast.success(`Auto renew ${checked ? "enabled" : "disabled"} for ${user.businessName || user.ownerFullName}`);
+      // Silent background update - no thunk, no loading state
+      const { axiosClientWithAuth } = await import("@/utils/axios");
+      await axiosClientWithAuth.put(`/api/v1/business-owners/${user.ownerId}`, {
+        autoRenew: checked,
+      });
+
+      showToast.success(`Auto renew ${checked ? "enabled" : "disabled"}`);
     } catch (error: any) {
-      showToast.error(error || "Failed to update auto renew");
-      // Revert optimistic update on error (next polling will fetch correct data)
+      showToast.error(error?.response?.data?.message || "Failed to update auto renew");
+      // Revert on error - next polling will fetch correct data
     }
   };
 
