@@ -209,7 +209,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         // Always create a payment record for this renewal
         BigDecimal amount = renewRequestData.getPaymentAmount() != null
-                ? renewRequestData.getPaymentAmount() : planToUse.getPrice();
+                ? renewRequestData.getPaymentAmount() : BigDecimal.ZERO;
         String method = renewRequestData.getPaymentMethod() != null && !renewRequestData.getPaymentMethod().isBlank()
                 ? renewRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
         createSubscriptionPaymentForRenewal(newSubscription, amount, method,

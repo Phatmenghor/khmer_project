@@ -63,7 +63,7 @@ export default function SubscriptionActionModal({
   // --- Renew form ---
   const renewForm = useForm<RenewSubscriptionData>({
     resolver: zodResolver(renewSubscriptionSchema),
-    defaultValues: { newPlanId: "", paymentAmount: 0, paymentMethod: "", paymentReference: "", paymentNotes: "", paymentInfoComplete: true },
+    defaultValues: { newPlanId: "", paymentAmount: undefined, paymentMethod: "", paymentReference: "", paymentNotes: "" },
   });
 
   // --- Change Plan form ---
@@ -163,7 +163,7 @@ export default function SubscriptionActionModal({
       <TextField
         control={control}
         name="paymentAmount"
-        label="Payment Amount"
+        label="Payment Amount (Optional)"
         type="number"
         placeholder="0.00"
         disabled={disabled}
@@ -172,7 +172,7 @@ export default function SubscriptionActionModal({
       <SelectField
         control={control}
         name="paymentMethod"
-        label="Payment Method"
+        label="Payment Method (Optional)"
         placeholder="Select method"
         options={PAYMENT_METHOD_CREATE_UPDATE}
         disabled={disabled}
@@ -291,6 +291,7 @@ export default function SubscriptionActionModal({
                         placeholder="Select plan"
                         options={planOptions}
                         disabled={isSubmitting}
+                        required
                         error={getFieldError(renewForm.formState.errors.newPlanId)}
                       />
                       {paymentFields(renewForm.control, renewForm.formState.errors, isSubmitting)}

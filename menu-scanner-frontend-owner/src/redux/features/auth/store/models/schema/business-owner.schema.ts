@@ -42,12 +42,12 @@ export const createBusinessOwnerSchema = z.object({
  * Update/Renew Subscription Schema (no ID - comes from URL params)
  */
 export const renewSubscriptionSchema = z.object({
-  newPlanId: z.string().uuid("Invalid plan ID format"),
-  paymentAmount: z.number().min(0, "Payment amount must be non-negative"),
-  paymentMethod: z.string().min(1, "Payment method is required"),
+  newPlanId: z.string().uuid("Invalid plan ID format").min(1, "Plan is required"),
+  paymentAmount: z.number().min(0, "Payment amount must be non-negative").optional(),
+  paymentMethod: z.string().optional().or(z.literal("")),
   paymentReference: z.string().optional().or(z.literal("")),
   paymentNotes: z.string().optional().or(z.literal("")),
-  paymentInfoComplete: z.boolean(),
+  paymentInfoComplete: z.boolean().optional(),
 });
 
 /**
