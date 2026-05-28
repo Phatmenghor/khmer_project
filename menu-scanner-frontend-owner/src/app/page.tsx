@@ -42,9 +42,9 @@ export default function LandingPage() {
         <StatsSection />
         <FeaturesSection />
         <HowItWorksSection />
+        <FounderSection />
         <PricingSection />
         <TestimonialsSection />
-        <FounderSection />
         <FaqSection />
         <CtaSection />
       </main>

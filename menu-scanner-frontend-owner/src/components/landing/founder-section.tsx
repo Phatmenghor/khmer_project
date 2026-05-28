@@ -15,7 +15,7 @@ export default function FounderSection() {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "8s", animationDelay: "2s"}}></div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn direction="up">
           <div className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-3">
@@ -25,12 +25,15 @@ export default function FounderSection() {
           </div>
         </FadeIn>
 
-        <div className="grid lg:grid-cols-2 gap-10 items-start">
-          {/* Founder photo card */}
+        <div className="grid lg:grid-cols-2 gap-8 items-stretch">
+          {/* Founder photo card - Left side */}
           <FadeIn direction="right" delay={100}>
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 overflow-hidden">
-              <CardContent className="p-6">
-                <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg bg-white">
+            <Card className="bg-gradient-to-br from-blue-50 via-blue-100/40 to-blue-50 border-2 border-blue-300 h-full group overflow-hidden">
+              {/* Animated bg dot */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
+
+              <CardContent className="p-8 relative z-10 h-full flex flex-col">
+                <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg bg-white mb-8">
                   <Image
                     src={founder.image}
                     alt={founder.name}
@@ -39,82 +42,85 @@ export default function FounderSection() {
                     priority
                   />
                 </div>
-                <div className="text-center mt-8">
-                  <h3 className="text-2xl font-bold text-slate-900">{founder.name}</h3>
-                  <p className="text-base text-primary font-semibold mt-2">{founder.title}</p>
-                  <p className="text-sm text-slate-600 mt-2">{founder.contact.location}</p>
+                <div className="text-center flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-3xl font-bold text-slate-900">{founder.name}</h3>
+                    <p className="text-lg text-primary font-bold mt-2">{founder.title}</p>
+                    <p className="text-base text-slate-700 font-medium mt-2">{founder.contact.location}</p>
+                  </div>
+                  <a
+                    href={`mailto:${founder.contact.email}`}
+                    className="inline-flex text-primary hover:text-primary/80 font-semibold transition-colors text-sm justify-center"
+                  >
+                    {founder.contact.email}
+                  </a>
                 </div>
               </CardContent>
             </Card>
           </FadeIn>
 
-          {/* Story cards */}
+          {/* Story cards - Right side */}
           <FadeIn direction="left" delay={150}>
-            <div className="space-y-6">
+            <div className="space-y-4 h-full flex flex-col">
               {/* Vision Card */}
-              <Card className="bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
-                <CardContent className="p-6">
-                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary/20 mb-4">
-                    <span className="text-lg font-bold text-primary">💡</span>
+              <Card className="bg-gradient-to-br from-purple-50 via-purple-100/40 to-purple-50 border-2 border-purple-300 group overflow-hidden flex-1">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
+                <CardContent className="p-6 relative z-10">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-purple-600/20 mb-4">
+                    <span className="text-xl font-bold text-purple-600">💡</span>
                   </div>
                   <h4 className="text-lg font-bold text-slate-900 mb-3">The Vision</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed">
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
                     {founder.vision}
                   </p>
                 </CardContent>
               </Card>
 
               {/* Bio Card */}
-              <Card className="bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
-                <CardContent className="p-6">
-                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary/20 mb-4">
-                    <span className="text-lg font-bold text-primary">🚀</span>
+              <Card className="bg-gradient-to-br from-pink-50 via-pink-100/40 to-pink-50 border-2 border-pink-300 group overflow-hidden flex-1">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
+                <CardContent className="p-6 relative z-10">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-pink-600/20 mb-4">
+                    <span className="text-xl font-bold text-pink-600">🚀</span>
                   </div>
                   <h4 className="text-lg font-bold text-slate-900 mb-3">Background</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed">
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
                     {founder.bio}
                   </p>
                 </CardContent>
               </Card>
 
               {/* Story Card */}
-              <Card className="bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
-                <CardContent className="p-6">
-                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary/20 mb-4">
-                    <span className="text-lg font-bold text-primary">🎯</span>
+              <Card className="bg-gradient-to-br from-green-50 via-green-100/40 to-green-50 border-2 border-green-300 group overflow-hidden flex-1">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
+                <CardContent className="p-6 relative z-10">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-green-600/20 mb-4">
+                    <span className="text-xl font-bold text-green-600">🎯</span>
                   </div>
                   <h4 className="text-lg font-bold text-slate-900 mb-3">Why Emenu Cambodia?</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed">
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
                     {founder.story}
                   </p>
                 </CardContent>
               </Card>
 
-              {/* Highlights */}
+              {/* Highlights Grid */}
               <div className="grid grid-cols-2 gap-3">
-                {founder.highlights.map((highlight) => (
-                  <Card key={highlight} className="bg-primary/5 border-primary/20">
+                {founder.highlights.map((highlight, idx) => (
+                  <Card key={highlight} className={`bg-gradient-to-br ${
+                    idx === 0 ? "from-blue-50 to-blue-100/50 border-blue-200" :
+                    idx === 1 ? "from-purple-50 to-purple-100/50 border-purple-200" :
+                    idx === 2 ? "from-pink-50 to-pink-100/50 border-pink-200" :
+                    "from-green-50 to-green-100/50 border-green-200"
+                  } border-2`}>
                     <CardContent className="p-4">
-                      <p className="text-xs font-medium text-slate-700 text-center">
+                      <p className="text-xs font-bold text-slate-800 text-center">
                         {highlight}
                       </p>
                     </CardContent>
                   </Card>
                 ))}
               </div>
-
-              {/* Contact Card */}
-              <Card className="bg-primary/10 border-primary/30">
-                <CardContent className="p-6 text-center">
-                  <p className="text-sm text-slate-600 mb-3">Questions? Let's talk</p>
-                  <a
-                    href={`mailto:${founder.contact.email}`}
-                    className="inline-flex text-primary hover:text-primary/80 font-semibold transition-colors text-sm"
-                  >
-                    {founder.contact.email}
-                  </a>
-                </CardContent>
-              </Card>
             </div>
           </FadeIn>
         </div>
