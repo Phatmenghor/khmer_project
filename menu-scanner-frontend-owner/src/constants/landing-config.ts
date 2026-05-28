@@ -25,7 +25,6 @@ export const LANDING_CONFIG = {
 
   // Features Section
   features: {
-    title: "Complete Platform for Restaurant Management",
     subtitle: "Powerful features designed for modern food businesses",
     items: [
       {
@@ -73,7 +72,6 @@ export const LANDING_CONFIG = {
 
   // Stats Section
   stats: {
-    title: "Trusted by Food Businesses Globally",
     subtitle: "Real results from real businesses using EMenu Platform",
     items: [
       { number: "500+", label: "Businesses Active", description: "Growing daily across all continents" },
@@ -110,7 +108,6 @@ export const LANDING_CONFIG = {
 
   // Pricing Section
   pricing: {
-    title: "Simple, Transparent Pricing for Every Business Size",
     subtitle: "Pay only for what you need. Upgrade anytime as your business grows.",
     plans: [
       {
@@ -194,7 +191,6 @@ export const LANDING_CONFIG = {
 
   // Business Types
   businessTypes: {
-    title: "Trusted by Food Businesses Worldwide",
     subtitle: "From small cafes to large restaurant chains",
     types: [
       { name: "Fine Dining Restaurants", icon: "🍽️" },
@@ -214,7 +210,6 @@ export const LANDING_CONFIG = {
 
   // Security Section
   security: {
-    title: "Enterprise-Grade Security & Compliance",
     subtitle: "Your business data and customer information protected with bank-level security",
     features: [
       {
@@ -252,7 +247,6 @@ export const LANDING_CONFIG = {
 
   // Support Section
   support: {
-    title: "World-Class Support & Complete Feature Set",
     subtitle: "We're committed to your success",
     features: [
       {
@@ -292,7 +286,6 @@ export const LANDING_CONFIG = {
 
   // CTA Section
   cta: {
-    title: "Ready to Transform Your Food Business?",
     subtitle: "Join thousands of restaurants, cafes, and food businesses worldwide using EMenu Platform to increase efficiency, boost sales, and delight customers.",
     primaryCTA: "Start Your Free 30-Day Trial",
     secondaryCTA: "Schedule a Personalized Demo",
