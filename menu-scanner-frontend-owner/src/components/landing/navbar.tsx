@@ -72,9 +72,11 @@ export default function Navbar() {
             {/* CTA Button */}
             <Button
               className="h-12 px-8 text-base bg-primary hover:bg-primary/90 text-white rounded-lg"
-              asChild
+              onClick={() => {
+                document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
-              <Link href={ROUTES.PUBLIC.REGISTER}>Get Started Free</Link>
+              Get Started Free
             </Button>
           </div>
 
@@ -108,8 +110,14 @@ export default function Navbar() {
             </a>
           ))}
           <div className="pt-4 border-t border-slate-200 mt-3">
-            <Button className="w-full h-12 text-base" asChild>
-              <Link href={ROUTES.PUBLIC.REGISTER}>Get Started Free</Link>
+            <Button
+              className="w-full h-12 text-base bg-primary hover:bg-primary/90 text-white"
+              onClick={() => {
+                setMobileOpen(false);
+                document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Get Started Free
             </Button>
           </div>
         </div>

@@ -1,8 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FadeIn from "@/components/landing/fade-in";
-import { ROUTES } from "@/constants/app-routes/routes";
 import { LANDING_CONFIG } from "@/constants/landing-config";
 
 export default function CtaSection() {
@@ -26,12 +27,10 @@ export default function CtaSection() {
             <Button
               size="lg"
               className="h-14 px-10 text-lg gap-2 bg-white text-primary hover:bg-white/95 shadow-2xl font-bold border-0"
-              asChild
+              onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
             >
-              <Link href={ROUTES.PUBLIC.REGISTER}>
-                {cta.primaryCTA}
-                <ArrowRight className="w-5 h-5" />
-              </Link>
+              {cta.primaryCTA}
+              <ArrowRight className="w-5 h-5" />
             </Button>
             <Button
               size="lg"

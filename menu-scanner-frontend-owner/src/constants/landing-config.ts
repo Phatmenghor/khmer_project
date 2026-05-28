@@ -14,7 +14,7 @@ export const LANDING_CONFIG = {
     primaryCTA: "Start Your Free Trial",
     secondaryCTA: "Schedule Demo",
     features: [
-      "30-day free trial - Full access",
+      "Free trial - Full access",
       "No credit card needed",
       "All features included",
       "24/7 global support",
@@ -260,7 +260,7 @@ export const LANDING_CONFIG = {
   // CTA Section
   cta: {
     subtitle: "Join thousands of restaurants, cafes, and food businesses worldwide using Emenu Cambodia to increase efficiency, boost sales, and delight customers.",
-    primaryCTA: "Start Your Free 30-Day Trial",
+    primaryCTA: "Start Free Trial",
     secondaryCTA: "Schedule a Personalized Demo",
     disclaimer: "✓ No credit card required  •  ✓ Full access to all features  •  ✓ Cancel anytime  •  ✓ 24/7 support"
   },

@@ -142,15 +142,15 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
 
         {/* Content */}
         <ScrollArea className="flex-1 min-h-0">
-          <div className="p-6">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <div className="px-6 py-8">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
               {/* Owner section */}
               <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
                   <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">1</span>
                   Owner Information
                 </h3>
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-5">
                   <TextField
                     name="ownerFullName"
                     label="Full Name"
@@ -220,7 +220,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">2</span>
                   Business Information
                 </h3>
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-5">
                   <TextField
                     name="businessName"
                     label="Business Name"

@@ -52,7 +52,7 @@ export default function HeroSection() {
                 {/* Features Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-4">
                   {[
-                    "30-day free trial",
+                    "Free trial included",
                     "Full feature access",
                     "No credit card needed",
                     "24/7 global support",
@@ -71,11 +71,13 @@ export default function HeroSection() {
 
                 {/* CTAs */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-6 sm:pt-8">
-                  <Button size="lg" className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white px-8 py-4 text-base sm:text-lg rounded-2xl group shadow-lg hover:shadow-2xl transition-all font-semibold" asChild>
-                    <Link href={ROUTES.PUBLIC.REGISTER}>
-                      Start Free Trial
-                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition" />
-                    </Link>
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white px-8 py-4 text-base sm:text-lg rounded-2xl group shadow-lg hover:shadow-2xl transition-all font-semibold"
+                    onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+                  >
+                    Start Free Trial
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition" />
                   </Button>
                   <Button size="lg" className="px-8 py-4 text-base sm:text-lg rounded-2xl border-2 border-primary/30 bg-white text-primary hover:bg-primary/5 hover:border-primary/50 font-semibold transition-all" asChild>
                     <Link href="/">Schedule Demo</Link>
