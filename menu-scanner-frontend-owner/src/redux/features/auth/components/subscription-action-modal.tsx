@@ -69,7 +69,7 @@ export default function SubscriptionActionModal({
   // --- Change Plan form ---
   const changePlanForm = useForm<ChangePlanData>({
     resolver: zodResolver(changePlanSchema),
-    defaultValues: { newPlanId: "", paymentAmount: 0, paymentMethod: "", paymentReference: "", paymentNotes: "", paymentInfoComplete: true },
+    defaultValues: { newPlanId: "", paymentAmount: undefined, paymentMethod: "", paymentReference: "", paymentNotes: "" },
   });
 
   // --- Cancel form ---
@@ -323,6 +323,7 @@ export default function SubscriptionActionModal({
                         placeholder="Select plan"
                         options={planOptions}
                         disabled={isSubmitting}
+                        required
                         error={getFieldError(changePlanForm.formState.errors.newPlanId)}
                       />
                       {paymentFields(changePlanForm.control, changePlanForm.formState.errors, isSubmitting)}

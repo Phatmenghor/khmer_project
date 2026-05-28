@@ -251,10 +251,13 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         subscriptionRepository.save(currentSubscriptionRecord);
 
-        if (changePlanRequestData.hasPaymentInfo() && changePlanRequestData.isPaymentInfoComplete()) {
-            createSubscriptionPaymentForRenewal(currentSubscriptionRecord, changePlanRequestData.getPaymentAmount(),
-                    changePlanRequestData.getPaymentMethod(), changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
-        }
+        // Always create a payment record for plan change
+        BigDecimal amount = changePlanRequestData.getPaymentAmount() != null
+                ? changePlanRequestData.getPaymentAmount() : BigDecimal.ZERO;
+        String method = changePlanRequestData.getPaymentMethod() != null && !changePlanRequestData.getPaymentMethod().isBlank()
+                ? changePlanRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
+        createSubscriptionPaymentForRenewal(currentSubscriptionRecord, amount, method,
+                changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
 
         log.info("Subscription plan changed successfully: owner_id={}, subscription_id={}, new_plan_id={}",
                 ownerId, currentSubscriptionRecord.getId(), changePlanRequestData.getNewPlanId());
