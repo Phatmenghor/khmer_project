@@ -153,7 +153,7 @@ public class AuthServiceImpl implements AuthService {
                     .orElseThrow(() -> {
                         log.warn("User login failed - user not found in business: identifier={}, business_id={}", userIdentifier, businessIdValue);
                         return new ValidationException(
-                                "User '" + userIdentifier + "' not found in the specified business"
+                                "Business user account not found. Please check your email or username and ensure you're using the correct business account."
                         );
                     });
         }
@@ -161,8 +161,9 @@ public class AuthServiceImpl implements AuthService {
         return userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userTypeEnum)
                 .orElseThrow(() -> {
                     log.warn("User login failed - user not found: identifier={}, type={}", userIdentifier, userTypeEnum);
+                    String userTypeLabel = userTypeEnum.name().toLowerCase().replace("_", " ");
                     return new ValidationException(
-                            "Account not found. Please check your email or username and try again."
+                            "Account not found as " + userTypeLabel + ". Please check your email or username and ensure you're logging in with the correct account type."
                     );
                 });
     }
