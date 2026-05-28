@@ -11,22 +11,24 @@ import CtaSection from "@/components/landing/cta-section";
 import Footer from "@/components/landing/footer";
 
 export const metadata = {
-  title: "EMenu Cambodia — Full Digital Platform for Every Business",
+  title: "EMenu Platform — Professional SaaS for Food & Hospitality Businesses",
   description:
-    "EMenu Cambodia gives restaurants, cafés, and food businesses QR menus, real-time POS, e-commerce, Telegram bot, live tracking, and analytics — all free. Built for Cambodia.",
+    "Enterprise-grade platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, and global payment processing. Everything restaurant owners need to compete globally and scale their business.",
   keywords: [
-    "digital menu Cambodia",
-    "QR code menu",
-    "POS system Cambodia",
-    "e-commerce Cambodia",
-    "restaurant management",
-    "EMenu Cambodia",
-    "Khmer business platform",
+    "digital menu platform",
+    "QR code menu system",
+    "POS system software",
+    "restaurant management platform",
+    "food business software",
+    "online ordering system",
+    "customer loyalty program",
+    "restaurant analytics",
+    "multi-location management"
   ],
   openGraph: {
-    title: "EMenu Cambodia — Full Digital Platform for Every Business",
+    title: "EMenu Platform — Professional SaaS for Food & Hospitality Businesses",
     description:
-      "QR menus, POS, e-commerce, Telegram bot, and analytics — all in one platform. Free for businesses across Cambodia.",
+      "Complete platform with QR menus, POS, real-time orders, loyalty programs, analytics, and global support. Free 30-day trial.",
     type: "website",
   },
 };
