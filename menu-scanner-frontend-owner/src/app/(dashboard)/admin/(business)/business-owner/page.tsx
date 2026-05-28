@@ -152,7 +152,7 @@ export default function BusinessOwnerPage() {
         } catch (error) {
           // Silent error - don't disrupt user experience
         }
-      }, 30000); // Refresh every 30 seconds
+      }, 10000); // Refresh every 10 seconds for real-time sync across browsers
     };
 
     startPolling();
@@ -190,12 +190,25 @@ export default function BusinessOwnerPage() {
 
   const handleToggleAutoRenew = async (user: BusinessOwnerResponseModel, checked: boolean) => {
     try {
+      // Optimistic update - update Redux store immediately
+      if (businessOwnerData) {
+        const updatedData = {
+          ...businessOwnerData,
+          content: businessOwnerData.content.map((owner: BusinessOwnerResponseModel) =>
+            owner.ownerId === user.ownerId ? { ...owner, autoRenew: checked } : owner
+          ),
+        };
+        dispatch(updateBusinessOwnerDataSilently(updatedData));
+      }
+
+      // Then update on server
       await dispatch(
         updateBusinessOwnerService({ ownerId: user.ownerId, data: { autoRenew: checked } })
       ).unwrap();
       showToast.success(`Auto renew ${checked ? "enabled" : "disabled"} for ${user.businessName || user.ownerFullName}`);
     } catch (error: any) {
       showToast.error(error || "Failed to update auto renew");
+      // Revert optimistic update on error (next polling will fetch correct data)
     }
   };
 
