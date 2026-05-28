@@ -247,42 +247,25 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         String oldPlanName = currentSubscriptionRecord.getPlan() != null ? currentSubscriptionRecord.getPlan().getName() : "N/A";
 
-        // If current subscription is cancelled or expired, create a new subscription; otherwise update the current one
-        if (currentSubscriptionRecord.isCancelled() || currentSubscriptionRecord.isExpired()) {
-            // Create new subscription like renewal
-            Subscription newSubscription = new Subscription();
-            newSubscription.setBusinessId(businessEntity.getId());
-            newSubscription.setPlanId(newPlanEntity.getId());
-            newSubscription.setPlan(newPlanEntity);
-            newSubscription.setStartDate(LocalDateTime.now());
-            newSubscription.setEndDate(newPlanEntity.calculateEndDate(LocalDateTime.now()));
-            newSubscription.setAutoRenew(currentSubscriptionRecord.getAutoRenew());
-            newSubscription = subscriptionRepository.save(newSubscription);
+        // Always create a new subscription for plan change (consistent audit trail)
+        Subscription newSubscription = new Subscription();
+        newSubscription.setBusinessId(businessEntity.getId());
+        newSubscription.setPlanId(newPlanEntity.getId());
+        newSubscription.setPlan(newPlanEntity);
+        newSubscription.setStartDate(LocalDateTime.now());
+        newSubscription.setEndDate(newPlanEntity.calculateEndDate(LocalDateTime.now()));
+        newSubscription.setAutoRenew(currentSubscriptionRecord.getAutoRenew());
+        newSubscription = subscriptionRepository.save(newSubscription);
 
-            // Create payment record for the new subscription
-            BigDecimal amount = changePlanRequestData.getPaymentAmount() != null
-                    ? changePlanRequestData.getPaymentAmount() : BigDecimal.ZERO;
-            String method = changePlanRequestData.getPaymentMethod() != null && !changePlanRequestData.getPaymentMethod().isBlank()
-                    ? changePlanRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
-            createSubscriptionPaymentForRenewal(newSubscription, amount, method,
-                    changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
+        // Create payment record for the new subscription
+        BigDecimal amount = changePlanRequestData.getPaymentAmount() != null
+                ? changePlanRequestData.getPaymentAmount() : BigDecimal.ZERO;
+        String method = changePlanRequestData.getPaymentMethod() != null && !changePlanRequestData.getPaymentMethod().isBlank()
+                ? changePlanRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
+        createSubscriptionPaymentForRenewal(newSubscription, amount, method,
+                changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
 
-            currentSubscriptionRecord = newSubscription;
-        } else {
-            // Update existing active subscription
-            currentSubscriptionRecord.setPlan(newPlanEntity);
-            currentSubscriptionRecord.setStartDate(LocalDateTime.now());
-            currentSubscriptionRecord.setEndDate(newPlanEntity.calculateEndDate(LocalDateTime.now()));
-            subscriptionRepository.save(currentSubscriptionRecord);
-
-            // Create payment record for plan change
-            BigDecimal amount = changePlanRequestData.getPaymentAmount() != null
-                    ? changePlanRequestData.getPaymentAmount() : BigDecimal.ZERO;
-            String method = changePlanRequestData.getPaymentMethod() != null && !changePlanRequestData.getPaymentMethod().isBlank()
-                    ? changePlanRequestData.getPaymentMethod() : PaymentMethod.CASH.name();
-            createSubscriptionPaymentForRenewal(currentSubscriptionRecord, amount, method,
-                    changePlanRequestData.getPaymentReference(), changePlanRequestData.getPaymentNotes());
-        }
+        currentSubscriptionRecord = newSubscription;
 
         businessEntity.activateSubscription();
         businessRepository.save(businessEntity);
