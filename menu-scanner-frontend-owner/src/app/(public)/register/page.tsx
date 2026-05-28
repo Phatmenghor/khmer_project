@@ -167,13 +167,6 @@ export default function RegisterPage() {
             />
           </Link>
 
-          <div className="text-right text-sm text-muted-foreground mb-6">
-            Already have an account?{" "}
-            <Link href={ROUTES.AUTH.LOGIN} className="text-primary font-medium hover:underline">
-              Sign In
-            </Link>
-          </div>
-
           <Card className="shadow-2xl border-2 border-primary/20 rounded-2xl overflow-hidden bg-white">
             {/* Card header */}
             <div className="bg-gradient-to-r from-primary/8 via-primary/3 to-primary/5 border-b border-primary/20 px-8 pt-8 pb-6">
@@ -186,10 +179,10 @@ export default function RegisterPage() {
                 </span>
               </div>
               <h1 className="text-3xl font-bold text-slate-900 leading-tight">
-                Register Your Business
+                Start Your Free Trial
               </h1>
               <p className="text-base text-slate-600 mt-2">
-                Set up your restaurant account and get access to our complete platform. Start your 30-day free trial today.
+                Get full access to all features completely free for 30 days. No credit card required. Upgrade anytime as your business grows.
               </p>
             </div>
 
