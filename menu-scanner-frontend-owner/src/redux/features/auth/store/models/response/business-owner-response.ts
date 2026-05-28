@@ -36,5 +36,6 @@ export interface BusinessOwnerResponseModel {
   daysRemaining: number;
   daysActive: number;
   subscriptionStatus: string;
+  subscriptionCancellationReason: string | null;
   autoRenew: boolean;
 }

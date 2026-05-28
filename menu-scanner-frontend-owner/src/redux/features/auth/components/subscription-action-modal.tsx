@@ -239,6 +239,12 @@ export default function SubscriptionActionModal({
                 {owner?.subscriptionStatus || "---"}
               </span>
             </div>
+            {owner?.subscriptionCancellationReason && (
+              <div className="bg-background border border-border rounded-md px-3 py-1.5 flex items-center gap-2">
+                <span className="text-muted-foreground">Cancellation Reason</span>
+                <span className="font-semibold text-foreground">{owner.subscriptionCancellationReason}</span>
+              </div>
+            )}
             <div className="bg-background border border-border rounded-md px-3 py-1.5 flex items-center gap-2">
               <span className="text-muted-foreground">Price</span>
               <span className="font-semibold text-foreground">

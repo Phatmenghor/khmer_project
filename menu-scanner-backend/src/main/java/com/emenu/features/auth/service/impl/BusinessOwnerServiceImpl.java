@@ -576,6 +576,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         detailResponse.setDaysRemaining(calculateDaysRemaining(subscriptionRecord.getEndDate().toLocalDate()));
         detailResponse.setDaysActive(calculateDaysActive(subscriptionRecord.getStartDate().toLocalDate()));
         detailResponse.setSubscriptionStatus(determineSubscriptionStatus(subscriptionRecord));
+        detailResponse.setSubscriptionCancellationReason(subscriptionRecord.getCancellationReason());
         detailResponse.setAutoRenew(subscriptionRecord.getAutoRenew());
     }
 

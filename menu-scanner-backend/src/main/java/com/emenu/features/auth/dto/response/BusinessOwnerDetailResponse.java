@@ -48,6 +48,7 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private Long daysRemaining;
     private Long daysActive;
     private SubscriptionStatus subscriptionStatus;
+    private String subscriptionCancellationReason;
     private Boolean autoRenew;
 
 }
