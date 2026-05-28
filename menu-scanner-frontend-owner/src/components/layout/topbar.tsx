@@ -55,18 +55,25 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         </div>
       </header>
       <Dialog open={showLogoutAlert} onOpenChange={setShowLogoutAlert}>
-        <DialogContent className="w-full sm:max-w-md max-h-[92dvh] p-0 gap-0 flex flex-col">
+        <DialogContent className="w-full sm:max-w-lg max-h-[92dvh] p-0 gap-0 flex flex-col">
           <FormHeader
             title="Sign Out"
-            description="Are you sure you want to sign out of your account? You'll need to sign in again to access your dashboard and saved data."
             isCreate={false}
           />
 
           <FormBody className="flex-1">
-            <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-              <p className="text-sm text-amber-900 dark:text-amber-100 font-medium">
-                ⚠️ This action will end your current session. You'll be redirected to the login page.
-              </p>
+            <div className="space-y-6">
+              <div className="p-5 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg">
+                <p className="text-base text-red-900 dark:text-red-100 font-medium leading-relaxed">
+                  Are you sure you want to sign out of your account? You'll need to sign in again to access your dashboard and saved data.
+                </p>
+              </div>
+
+              <div className="p-5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg">
+                <p className="text-sm text-amber-900 dark:text-amber-100 leading-relaxed">
+                  <span className="font-semibold">⚠️ Important:</span> This action will end your current session and you'll be redirected to the login page. Make sure you've saved any ongoing work before proceeding.
+                </p>
+              </div>
             </div>
           </FormBody>
 
