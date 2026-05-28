@@ -156,21 +156,45 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   Account Credentials
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-5">
+                  {/* Login Fields - First Priority */}
+                  <TextField
+                    name="ownerUserIdentifier"
+                    label="Username *"
+                    placeholder="sokha.nhem"
+                    control={control}
+                    error={errors.ownerUserIdentifier}
+                    disabled={isSubmitting}
+                    required
+                  />
+                  <PasswordField
+                    name="ownerPassword"
+                    label="Password *"
+                    placeholder="Min. 6 characters"
+                    control={control}
+                    error={errors.ownerPassword}
+                    disabled={isSubmitting}
+                    required
+                    showPassword={showPassword}
+                    onTogglePassword={() => setShowPassword((v) => !v)}
+                  />
+                  <PasswordField
+                    name="confirmPassword"
+                    label="Confirm Password"
+                    placeholder="Re-enter password"
+                    control={control}
+                    error={errors.confirmPassword}
+                    disabled={isSubmitting}
+                    required
+                    showPassword={showConfirm}
+                    onTogglePassword={() => setShowConfirm((v) => !v)}
+                  />
+                  {/* Personal Information */}
                   <TextField
                     name="ownerFullName"
                     label="Full Name"
                     placeholder="Sokha Nhem"
                     control={control}
                     error={errors.ownerFullName}
-                    disabled={isSubmitting}
-                    required
-                  />
-                  <TextField
-                    name="ownerUserIdentifier"
-                    label="Username"
-                    placeholder="sokha.nhem"
-                    control={control}
-                    error={errors.ownerUserIdentifier}
                     disabled={isSubmitting}
                     required
                   />
@@ -193,28 +217,6 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                     error={errors.ownerPhone}
                     disabled={isSubmitting}
                     required
-                  />
-                  <PasswordField
-                    name="ownerPassword"
-                    label="Password"
-                    placeholder="Min. 6 characters"
-                    control={control}
-                    error={errors.ownerPassword}
-                    disabled={isSubmitting}
-                    required
-                    showPassword={showPassword}
-                    onTogglePassword={() => setShowPassword((v) => !v)}
-                  />
-                  <PasswordField
-                    name="confirmPassword"
-                    label="Confirm Password"
-                    placeholder="Re-enter password"
-                    control={control}
-                    error={errors.confirmPassword}
-                    disabled={isSubmitting}
-                    required
-                    showPassword={showConfirm}
-                    onTogglePassword={() => setShowConfirm((v) => !v)}
                   />
                 </div>
               </div>
