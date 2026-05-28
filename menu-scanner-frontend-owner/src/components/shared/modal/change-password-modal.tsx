@@ -5,9 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { TextField } from "@/components/shared/form-field/text-field";
+import { PasswordField } from "@/components/shared/form-field/password-field";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
@@ -56,7 +54,6 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
     mode: "onChange",
   });
 
-  // Clear errors when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -69,18 +66,17 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
 
   const onSubmit = async (data: ChangePasswordFormData) => {
     try {
-      const payload = {
-        currentPassword: data.currentPassword,
-        newPassword: data.newPassword,
-        confirmPassword: data.confirmPassword,
-      };
-
-      await dispatch(changePasswordService(payload)).unwrap();
+      await dispatch(
+        changePasswordService({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+          confirmPassword: data.confirmPassword,
+        })
+      ).unwrap();
 
       showToast.success("Password changed successfully");
       handleClose();
     } catch (error: any) {
-      console.error("Error changing password:", error);
       showToast.error(error || "Failed to change password");
     }
   };
@@ -96,8 +92,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] p-0 flex flex-col">
-        {/* Header */}
+      <DialogContent className="w-full sm:max-w-lg max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title="Change Password"
           description="Update your password to keep your account secure"
@@ -109,9 +104,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-hidden"
         >
-          {/* Body */}
           <FormBody>
-            {/* Error Display */}
             {reduxError && (
               <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
                 <p className="text-sm text-destructive font-medium">
@@ -120,98 +113,45 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
               </div>
             )}
 
-            {/* Form Fields */}
             <div className="space-y-4">
-              {/* Current Password */}
-              <div className="relative">
-                <TextField
-                  control={control}
-                  name="currentPassword"
-                  label="Current Password"
-                  type={showCurrentPassword ? "text" : "password"}
-                  placeholder="Enter your current password"
-                  disabled={isProfileLoading}
-                  required
-                  error={getFieldError(errors.currentPassword)}
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  disabled={isProfileLoading}
-                >
-                  {showCurrentPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
+              <PasswordField
+                control={control}
+                name="currentPassword"
+                label="Current Password"
+                placeholder="Enter your current password"
+                required
+                disabled={isProfileLoading}
+                showPassword={showCurrentPassword}
+                onTogglePassword={() => setShowCurrentPassword((v) => !v)}
+                error={getFieldError(errors.currentPassword)}
+              />
 
-              {/* New Password */}
-              <div className="relative">
-                <TextField
-                  control={control}
-                  name="newPassword"
-                  label="New Password"
-                  type={showNewPassword ? "text" : "password"}
-                  placeholder="Enter your new password"
-                  disabled={isProfileLoading}
-                  required
-                  error={getFieldError(errors.newPassword)}
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  disabled={isProfileLoading}
-                >
-                  {showNewPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
+              <PasswordField
+                control={control}
+                name="newPassword"
+                label="New Password"
+                placeholder="Enter your new password"
+                required
+                disabled={isProfileLoading}
+                showPassword={showNewPassword}
+                onTogglePassword={() => setShowNewPassword((v) => !v)}
+                error={getFieldError(errors.newPassword)}
+              />
 
-              {/* Confirm Password */}
-              <div className="relative">
-                <TextField
-                  control={control}
-                  name="confirmPassword"
-                  label="Confirm Password"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your new password"
-                  disabled={isProfileLoading}
-                  required
-                  error={getFieldError(errors.confirmPassword)}
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  disabled={isProfileLoading}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
+              <PasswordField
+                control={control}
+                name="confirmPassword"
+                label="Confirm Password"
+                placeholder="Confirm your new password"
+                required
+                disabled={isProfileLoading}
+                showPassword={showConfirmPassword}
+                onTogglePassword={() => setShowConfirmPassword((v) => !v)}
+                error={getFieldError(errors.confirmPassword)}
+              />
             </div>
           </FormBody>
 
-          {/* Footer */}
           <FormFooter
             isSubmitting={isProfileLoading}
             isDirty={isDirty}
@@ -220,7 +160,6 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
             updateMessage=""
           >
             <CancelButton onClick={handleClose} disabled={isProfileLoading} />
-
             <SubmitButton
               isSubmitting={isProfileLoading}
               isDirty={isDirty}
