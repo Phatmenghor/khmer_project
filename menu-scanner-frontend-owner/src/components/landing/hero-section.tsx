@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,8 +18,9 @@ export default function HeroSection() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <FadeIn direction="up" delay={0}>
-          <div className="space-y-6 sm:space-y-8 max-w-3xl">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <FadeIn direction="right" delay={0}>
+            <div className="space-y-6 sm:space-y-8">
             {/* Headline */}
             <div>
               <div className="inline-flex items-center gap-2 mb-3 sm:mb-4 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary/10 rounded-full border border-primary/30">
@@ -69,8 +71,23 @@ export default function HeroSection() {
                 <a href="#features">Schedule Demo</a>
               </Button>
             </div>
-          </div>
-        </FadeIn>
+            </div>
+          </FadeIn>
+
+          {/* Mobile App Image - Right side */}
+          <FadeIn direction="left" delay={100}>
+            <div className="relative h-[500px] lg:h-[600px] rounded-3xl overflow-hidden shadow-2xl">
+              <Image
+                src="/images/hero/mobile-restaurant.jpg"
+                alt="Emenu Cambodia Mobile App"
+                fill
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            </div>
+          </FadeIn>
+        </div>
       </div>
     </section>
   );
