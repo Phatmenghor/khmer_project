@@ -26,9 +26,6 @@ public class BusinessSetting extends BaseUUIDEntity {
     @JoinColumn(name = "business_id", insertable = false, updatable = false)
     private Business business;
 
-    @Column(name = "business_name")
-    private String businessName;
-
     @Column(name = "tax_percentage")
     private Double taxPercentage;
 
@@ -41,15 +38,6 @@ public class BusinessSetting extends BaseUUIDEntity {
 
     @Column(name = "primary_color")
     private String primaryColor;
-
-    @Column(name = "contact_address")
-    private String contactAddress;
-
-    @Column(name = "contact_phone")
-    private String contactPhone;
-
-    @Column(name = "contact_email")
-    private String contactEmail;
 
     @OneToMany(
         mappedBy = "businessSetting",

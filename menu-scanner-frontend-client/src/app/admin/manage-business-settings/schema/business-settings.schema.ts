@@ -2,7 +2,7 @@ import { z } from "zod";
 
 
 export const businessSettingsSchema = z.object({
-  businessName: z.string().min(1, "Business name is required"),
+  businessName: z.string().optional(),
   taxPercentage: z.string().optional(),
   logoBusinessUrl: z.string(),
   enableStock: z.enum(["ENABLED", "DISABLED"]),
@@ -29,7 +29,7 @@ export const businessSettingsSchema = z.object({
 
   contactAddress: z.string().optional(),
   contactPhone: z.string().optional(),
-  contactEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
+  contactEmail: z.string().optional().or(z.literal("")),
 
   businessHours: z.array(
     z.object({

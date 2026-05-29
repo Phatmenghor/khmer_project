@@ -219,7 +219,6 @@ export default function BusinessSettingsPage() {
         .filter(sm => sm.name && sm.linkUrl);
 
       const payload = {
-        businessName: data.businessName,
         taxPercentage: data.taxPercentage
           ? parseFloat(data.taxPercentage)
           : null,
@@ -227,9 +226,6 @@ export default function BusinessSettingsPage() {
         enableStock: data.enableStock,
         socialMedia: filteredSocialMedia,
         primaryColor: data.primaryColor,
-        contactAddress: data.contactAddress,
-        contactPhone: data.contactPhone,
-        contactEmail: data.contactEmail,
         businessHours: filteredBusinessHours,
         useBrands: data.useBrands,
         lowStockThreshold: data.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
@@ -339,14 +335,12 @@ export default function BusinessSettingsPage() {
                 <Input
                   id="businessName"
                   placeholder="Your business name"
+                  disabled={true}
                   {...form.register("businessName")}
-                  className={form.formState.errors.businessName ? "border-red-500" : ""}
+                  className="bg-muted/50 cursor-not-allowed"
                 />
-                {form.formState.errors.businessName && (
-                  <p className="text-xs text-red-500">{form.formState.errors.businessName.message}</p>
-                )}
                 <p className="text-xs text-muted-foreground">
-                  Your business name displayed throughout the site
+                  Read-only field from Business profile
                 </p>
               </div>
 
@@ -468,12 +462,12 @@ export default function BusinessSettingsPage() {
                     id="contactAddress"
                     placeholder="123 Street Name, Phnom Penh, Cambodia"
                     rows={3}
-                    disabled={isSaving}
-                    className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-all duration-200 resize-none"
+                    disabled={true}
+                    className="w-full px-3 py-2 rounded-md border border-input bg-muted/50 text-foreground placeholder:text-muted-foreground cursor-not-allowed resize-none"
                     {...form.register("contactAddress")}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Physical address displayed in footer
+                    Read-only field from Business profile
                   </p>
                 </div>
 
@@ -483,24 +477,27 @@ export default function BusinessSettingsPage() {
                   <Input
                     id="contactPhone"
                     placeholder="+855 12 345 678"
+                    disabled={true}
+                    className="bg-muted/50 cursor-not-allowed"
                     {...form.register("contactPhone")}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Phone number for customer inquiries
+                    Read-only field from Business profile
                   </p>
                 </div>
 
-                {}
                 <div className="space-y-2">
                   <Label htmlFor="contactEmail">Contact Email</Label>
                   <Input
                     id="contactEmail"
                     type="email"
                     placeholder="support@example.com"
+                    disabled={true}
+                    className="bg-muted/50 cursor-not-allowed"
                     {...form.register("contactEmail")}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Email for customer support
+                    Read-only field from Business profile
                   </p>
                 </div>
               </div>

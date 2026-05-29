@@ -13,6 +13,10 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = { SocialMediaMapper.class, BusinessHoursMapper.class })
 public interface BusinessSettingMapper {
 
+    @Mapping(source = "business.name", target = "businessName")
+    @Mapping(source = "business.address", target = "contactAddress")
+    @Mapping(source = "business.phone", target = "contactPhone")
+    @Mapping(source = "business.email", target = "contactEmail")
     BusinessSettingResponse toResponse(BusinessSetting businessSetting);
 
     @AfterMapping
