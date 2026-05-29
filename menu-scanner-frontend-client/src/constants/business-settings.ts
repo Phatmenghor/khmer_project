@@ -3,7 +3,7 @@
 
 export const BUSINESS_SETTINGS_DEFAULTS = {
 
-  BUSINESS_NAME: "Emenu Scanner",
+  BUSINESS_NAME: "Emen Cambodia",
 
 
   PRIMARY_COLOR: "#57823D",

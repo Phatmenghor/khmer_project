@@ -91,6 +91,8 @@ export default function BusinessSettingsPage() {
     },
   });
 
+  const { isDirty, dirtyFields } = form.formState;
+
 
   useEffect(() => {
     if (reduxBusinessSettings?.businessId) {
@@ -420,15 +422,13 @@ export default function BusinessSettingsPage() {
                 <div className="flex gap-3">
                   <Input
                     type="color"
-                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
+                    {...form.register("primaryColor")}
                     disabled={isSaving}
                     className="w-20 h-10 cursor-pointer"
                   />
                   <Input
                     placeholder={BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
+                    {...form.register("primaryColor")}
                     disabled={isSaving}
                     className="flex-1"
                   />
@@ -890,7 +890,7 @@ export default function BusinessSettingsPage() {
           </Button>
           <Button
             type="submit"
-            disabled={isSaving || !form.formState.isDirty}
+            disabled={isSaving || (!isDirty && Object.keys(dirtyFields).length === 0)}
             className="min-w-[140px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
           >
             {isSaving ? (
