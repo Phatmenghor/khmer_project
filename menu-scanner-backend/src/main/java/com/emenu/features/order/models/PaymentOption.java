@@ -2,7 +2,6 @@ package com.emenu.features.order.models;
 
 import com.emenu.enums.common.Status;
 import com.emenu.enums.payment.PaymentOptionType;
-import com.emenu.enums.payment.PaymentType;
 import com.emenu.features.auth.models.Business;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
