@@ -1,5 +1,6 @@
 package com.emenu.features.auth.mapper;
 
+import com.emenu.features.auth.dto.request.BusinessHoursRequest;
 import com.emenu.features.auth.dto.response.BusinessHoursResponse;
 import com.emenu.features.auth.models.BusinessHours;
 import org.mapstruct.Mapper;
@@ -16,4 +17,6 @@ public interface BusinessHoursMapper {
     @Mapping(source = "openTime", target = "openingTime")
     @Mapping(source = "closeTime", target = "closingTime")
     BusinessHours toEntity(BusinessHoursResponse response);
+
+    BusinessHours toEntity(BusinessHoursRequest request);
 }

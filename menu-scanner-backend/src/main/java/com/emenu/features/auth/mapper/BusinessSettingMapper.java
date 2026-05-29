@@ -31,6 +31,13 @@ public interface BusinessSettingMapper {
     void updateEntity(BusinessSettingUpdateRequest request, @MappingTarget BusinessSetting businessSetting);
 
     @AfterMapping
+    default void setBusinessSettingIdForHours(@MappingTarget BusinessSetting businessSetting) {
+        if (businessSetting.getBusinessHours() != null) {
+            businessSetting.getBusinessHours().forEach(hour -> hour.setBusinessSettingId(businessSetting.getId()));
+        }
+    }
+
+    @AfterMapping
     default void applyDefaultsAfterCreate(@MappingTarget BusinessSetting businessSetting) {
         if (businessSetting.getPrimaryColor() == null) {
             businessSetting.setPrimaryColor(BusinessConstants.DEFAULT_PRIMARY_COLOR);
