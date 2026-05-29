@@ -2,6 +2,7 @@ package com.emenu.features.order.models;
 
 import com.emenu.enums.common.Status;
 import com.emenu.enums.payment.PaymentOptionType;
+import com.emenu.enums.payment.PaymentType;
 import com.emenu.features.auth.models.Business;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
@@ -36,6 +37,11 @@ public class PaymentOption extends BaseUUIDEntity {
     @Column(name = "payment_option_type", nullable = false)
     @Builder.Default
     private PaymentOptionType paymentOptionType = PaymentOptionType.CASH;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_type", nullable = false)
+    @Builder.Default
+    private PaymentType paymentType = PaymentType.SUBSCRIPTION;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

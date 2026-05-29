@@ -2,6 +2,7 @@ package com.emenu.features.order.dto.response;
 
 import com.emenu.enums.common.Status;
 import com.emenu.enums.payment.PaymentOptionType;
+import com.emenu.enums.payment.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class PaymentOptionResponse {
     private UUID businessId;
     private String name;
     private PaymentOptionType paymentOptionType;
+    private PaymentType paymentType;
     private Status status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

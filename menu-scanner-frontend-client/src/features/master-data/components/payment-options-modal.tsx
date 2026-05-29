@@ -33,8 +33,16 @@ import { PaymentOptionResponse } from "../store/models/response/payment-option-r
 
 type PaymentOptionFormData = z.infer<typeof createPaymentOptionSchema>;
 
-const PAYMENT_TYPE_OPTIONS = [
+const PAYMENT_OPTION_TYPE_OPTIONS = [
   { value: "CASH", label: "Cash" },
+];
+
+const PAYMENT_TYPE_OPTIONS = [
+  { value: "SUBSCRIPTION", label: "Subscription" },
+  { value: "USER_PLAN", label: "User Plan" },
+  { value: "BUSINESS_RECORD", label: "Business Record" },
+  { value: "REFUND", label: "Refund" },
+  { value: "OTHER", label: "Other" },
 ];
 
 const STATUS_OPTIONS = [
@@ -73,6 +81,7 @@ export default function PaymentOptionsModal({
     defaultValues: {
       name: "",
       paymentOptionType: "",
+      paymentType: "SUBSCRIPTION",
       status: Status.ACTIVE,
     },
     mode: "onChange",
@@ -85,12 +94,14 @@ export default function PaymentOptionsModal({
       reset({
         name: "",
         paymentOptionType: "",
+        paymentType: "SUBSCRIPTION",
         status: Status.ACTIVE,
       });
     } else if (paymentOption) {
       reset({
         name: paymentOption.name || "",
         paymentOptionType: paymentOption.paymentOptionType || "",
+        paymentType: (paymentOption.paymentType || "SUBSCRIPTION") as any,
         status: (paymentOption.status || Status.ACTIVE) as "ACTIVE" | "INACTIVE",
       });
     }
@@ -166,12 +177,23 @@ export default function PaymentOptionsModal({
               <SelectField
                 control={control}
                 name="paymentOptionType"
+                label="Payment Option Type"
+                placeholder="Select payment option type"
+                options={PAYMENT_OPTION_TYPE_OPTIONS}
+                required
+                disabled={isSubmitting}
+                error={errors.paymentOptionType}
+              />
+
+              <SelectField
+                control={control}
+                name="paymentType"
                 label="Payment Type"
                 placeholder="Select payment type"
                 options={PAYMENT_TYPE_OPTIONS}
                 required
                 disabled={isSubmitting}
-                error={errors.paymentOptionType}
+                error={errors.paymentType}
               />
 
               <SelectField

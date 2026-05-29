@@ -2,6 +2,7 @@ package com.emenu.features.order.dto.request;
 
 import com.emenu.enums.common.Status;
 import com.emenu.enums.payment.PaymentOptionType;
+import com.emenu.enums.payment.PaymentType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,9 @@ public class PaymentOptionRequest {
 
     @NotNull(message = "Payment option type is required")
     private PaymentOptionType paymentOptionType;
+
+    @NotNull(message = "Payment type is required")
+    private PaymentType paymentType;
 
     @NotNull(message = "Status is required")
     private Status status;
