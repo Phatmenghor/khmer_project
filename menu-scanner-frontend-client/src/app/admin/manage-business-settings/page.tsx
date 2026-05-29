@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { showToast } from "@/components/shared/common/show-toast";
-import { Loader2, Save, Plus, Trash2, Eye, EyeOff, Send, Settings } from "lucide-react";
+import { Loader2, Save, Plus, Trash2, Eye, EyeOff, Send } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -19,7 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PageContainer } from "@/components/shared/common/page-container";
-import { PageHeader } from "@/components/shared/common/page-header";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import {
@@ -286,11 +285,7 @@ export default function BusinessSettingsPage() {
   return (
     <PageContainer className="py-6">
       <div className="flex flex-1 flex-col gap-6">
-        <PageHeader
-          icon={Settings}
-          title="Business Settings"
-          subtitle="Manage your business configuration and social media accounts"
-        />
+        <h1 className="text-3xl font-bold">Business Settings</h1>
 
       {hasErrors && (
         <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
