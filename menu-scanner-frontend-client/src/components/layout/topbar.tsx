@@ -8,16 +8,9 @@ import {
   Maximize2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { FormHeader } from "@/components/shared/form-field/form-header";
+import { FormBody } from "@/components/shared/form-field/form-body";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -178,39 +171,51 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
         </div>
       </header>
 
-      <AlertDialog open={showLogoutAlert} onOpenChange={setShowLogoutAlert}>
-        <AlertDialogContent className="w-full sm:max-w-md rounded-2xl">
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-100 dark:bg-red-900/20">
-                <LogOut className="h-5 w-5 text-red-600 dark:text-red-400" />
+      <Dialog open={showLogoutAlert} onOpenChange={setShowLogoutAlert}>
+        <DialogContent className="w-full sm:max-w-lg max-h-[92dvh] p-0 gap-0 flex flex-col">
+          <FormHeader
+            title="Sign Out"
+            description="End your current session"
+            isCreate={false}
+          />
+
+          <FormBody className="flex-1">
+            <div className="space-y-6">
+              <div className="p-5 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg">
+                <p className="text-base text-red-900 dark:text-red-100 font-medium leading-relaxed">
+                  Are you sure you want to sign out of your account? You'll need to sign in again to access your dashboard and saved data.
+                </p>
               </div>
-              <div>
-                <AlertDialogTitle className="text-left text-lg font-bold">
-                  Sign Out
-                </AlertDialogTitle>
+
+              <div className="p-5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg">
+                <p className="text-sm text-amber-900 dark:text-amber-100 leading-relaxed">
+                  <span className="font-semibold">⚠️ Important:</span> This action will end your current session and you'll be redirected to the login page. Make sure you've saved any ongoing work before proceeding.
+                </p>
               </div>
             </div>
-            <AlertDialogDescription className="text-left text-sm text-muted-foreground mt-2 leading-relaxed">
-              Are you sure you want to sign out of your account? You'll need to
-              sign in again to access your dashboard and saved data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+          </FormBody>
 
-          <AlertDialogFooter className="flex-col-reverse sm:flex-row sm:justify-end gap-2">
-            <AlertDialogCancel className="rounded-xl mt-0 w-full sm:w-auto">
-              Stay Signed In
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmLogout}
-              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 focus:ring-red-600 rounded-xl gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          <div className="flex justify-between items-center p-6 border-t bg-muted/30 flex-shrink-0">
+            <div></div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowLogoutAlert(false)}
+                className="rounded-lg"
+              >
+                Stay Signed In
+              </Button>
+              <Button
+                onClick={confirmLogout}
+                className="rounded-lg bg-red-600 hover:bg-red-700 focus:ring-red-600 gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
