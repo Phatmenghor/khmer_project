@@ -152,32 +152,34 @@ export function CustomTimePicker({
           </button>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[90vw] sm:w-80 md:w-96 lg:w-full p-0 max-w-96" align="start">
+      <PopoverContent className="w-[95vw] xs:w-80 sm:w-96 p-0 max-w-md" align="start" side="bottom">
         {}
-        <div className="p-3 border-b bg-muted/30 flex items-center justify-between">
-          <span className="text-sm font-medium">Select Time</span>
+        <div className="p-2 sm:p-3 border-b bg-muted/30 flex items-center justify-between sticky top-0 z-10">
+          <span className="text-xs sm:text-sm font-semibold">Select Time</span>
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="h-6 w-6 flex items-center justify-center opacity-50 hover:opacity-100 hover:bg-accent rounded transition-colors"
+            className="h-7 w-7 flex items-center justify-center opacity-50 hover:opacity-100 hover:bg-accent rounded transition-colors"
+            title="Close"
           >
-            <X className="h-3 w-3" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
         {}
-        <div className="p-3 sm:p-4 space-y-4">
+        <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
           {}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
-            <div className="flex flex-col gap-2 flex-1 sm:flex-none">
-              <label className="text-xs font-medium text-muted-foreground">Hour</label>
+          <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-2 xs:gap-1 sm:gap-2">
+            {/* Hour Selector */}
+            <div className="flex flex-col gap-1.5 flex-1 xs:flex-none xs:min-w-16">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Hour</label>
               <Select value={selectedHour} onValueChange={setSelectedHour}>
-                <SelectTrigger className="h-10 w-full sm:w-20 text-sm border-input">
+                <SelectTrigger className="h-10 w-full xs:w-16 text-sm font-medium border-input">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="max-h-[200px]">
+                <SelectContent className="max-h-48 min-w-12">
                   {hours.map((hour) => (
-                    <SelectItem key={hour} value={hour}>
+                    <SelectItem key={hour} value={hour} className="text-center">
                       {hour}
                     </SelectItem>
                   ))}
@@ -185,17 +187,19 @@ export function CustomTimePicker({
               </Select>
             </div>
 
-            <div className="text-2xl font-bold sm:mt-6">:</div>
+            {/* Separator */}
+            <div className="text-xl sm:text-2xl font-bold text-muted-foreground xs:mt-5">:</div>
 
-            <div className="flex flex-col gap-2 flex-1 sm:flex-none">
-              <label className="text-xs font-medium text-muted-foreground">Minute</label>
+            {/* Minute Selector */}
+            <div className="flex flex-col gap-1.5 flex-1 xs:flex-none xs:min-w-16">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Min</label>
               <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                <SelectTrigger className="h-10 w-full sm:w-20 text-sm border-input">
+                <SelectTrigger className="h-10 w-full xs:w-16 text-sm font-medium border-input">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="max-h-[200px]">
+                <SelectContent className="max-h-48 min-w-12">
                   {minutes.map((minute) => (
-                    <SelectItem key={minute} value={minute}>
+                    <SelectItem key={minute} value={minute} className="text-center">
                       {minute}
                     </SelectItem>
                   ))}
@@ -203,19 +207,20 @@ export function CustomTimePicker({
               </Select>
             </div>
 
-            <div className="flex flex-col gap-2 flex-1 sm:flex-none">
-              <label className="text-xs font-medium text-muted-foreground">Period</label>
-              <div className="flex gap-1 sm:gap-2 border rounded-md p-1 bg-muted w-full sm:w-auto">
+            {/* Period Selector */}
+            <div className="flex flex-col gap-1.5 flex-1 xs:flex-none xs:min-w-20">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Period</label>
+              <div className="flex gap-1 border rounded-lg p-1 bg-muted">
                 {["AM", "PM"].map((period) => (
                   <button
                     key={period}
                     type="button"
                     onClick={() => setSelectedPeriod(period as "AM" | "PM")}
                     className={cn(
-                      "px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded transition-colors flex-1 sm:flex-none",
+                      "flex-1 px-2 sm:px-3 py-2 text-xs sm:text-sm font-semibold rounded transition-all",
                       selectedPeriod === period
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background text-muted-foreground hover:text-foreground"
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "bg-background text-muted-foreground hover:text-foreground hover:bg-accent"
                     )}
                   >
                     {period}
@@ -226,16 +231,16 @@ export function CustomTimePicker({
           </div>
 
           {}
-          <div className="p-3 bg-muted rounded-lg text-center">
-            <span className="text-xs text-muted-foreground">Selected Time: </span>
-            <div className="text-lg font-bold text-primary">
+          <div className="p-3 sm:p-4 bg-primary/10 border border-primary/20 rounded-lg text-center space-y-1">
+            <span className="text-xs text-muted-foreground block uppercase tracking-wide font-semibold">Selected Time</span>
+            <div className="text-xl sm:text-2xl font-bold text-primary">
               {formatTimeDisplay(selectedHour, selectedMinute, selectedPeriod)}
             </div>
           </div>
         </div>
 
         {}
-        <div className="p-2 sm:p-3 border-t bg-muted/30 flex gap-2">
+        <div className="p-2 sm:p-3 border-t bg-muted/30 flex gap-2 sticky bottom-0">
           <Button
             variant="outline"
             size="sm"
@@ -253,7 +258,7 @@ export function CustomTimePicker({
               onChange(formatTimeForForm());
               setIsOpen(false);
             }}
-            className="flex-1 h-8 text-xs"
+            className="flex-1 h-9 text-xs sm:text-sm font-medium"
           >
             Now
           </Button>
@@ -261,7 +266,7 @@ export function CustomTimePicker({
             variant="default"
             size="sm"
             onClick={applyTime}
-            className="flex-1 h-8 text-xs"
+            className="flex-1 h-9 text-xs sm:text-sm font-medium"
           >
             Apply
           </Button>

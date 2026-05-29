@@ -643,11 +643,11 @@ export default function BusinessSettingsPage() {
                     return (
                       <div
                         key={index}
-                        className={`border rounded-lg p-4 relative lg:col-span-2 ${
+                        className={`border rounded-lg p-3 sm:p-4 relative ${
                           hasError ? "border-red-500 bg-red-50 dark:bg-red-950/20" : ""
                         }`}
                       >
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                           <div className="space-y-2">
                             <Label className="text-sm font-medium">
                               Day
@@ -716,23 +716,26 @@ export default function BusinessSettingsPage() {
                           </div>
                         )}
                         {!isSaving && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => {
-                              const currentHours =
-                                form.getValues("businessHours") || [];
-                              form.setValue(
-                                "businessHours",
-                                currentHours.filter((_, i) => i !== index),
-                                { shouldDirty: true }
-                              );
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                              onClick={() => {
+                                const currentHours =
+                                  form.getValues("businessHours") || [];
+                                form.setValue(
+                                  "businessHours",
+                                  currentHours.filter((_, i) => i !== index),
+                                  { shouldDirty: true }
+                                );
+                              }}
+                              title="Delete this business hour entry"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         )}
                       </div>
                     );
