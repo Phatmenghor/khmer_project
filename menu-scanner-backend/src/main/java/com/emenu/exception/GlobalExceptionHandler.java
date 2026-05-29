@@ -237,7 +237,6 @@ public class GlobalExceptionHandler {
         String message = ex.getMessage();
         Map<String, Object> errorData = new HashMap<>();
         String msgLower = message.toLowerCase();
-        String requestUri = request.getRequestURI().toLowerCase();
 
         // ✅ CHECK FOR LOGIN-SPECIFIC ERRORS FIRST (PASS THROUGH UNCHANGED)
         // These patterns indicate login flow errors that should NOT be transformed
@@ -255,33 +254,11 @@ public class GlobalExceptionHandler {
             // Don't transform - keep original message
             // Don't add errorData - this is not a form field error
         }
-        // ✅ REGISTRATION-SPECIFIC ERRORS
-        else if ((requestUri.contains("/register") || requestUri.contains("/owner")) &&
-                 (msgLower.contains("user identifier") || (msgLower.contains("unique") && msgLower.contains("identifier")))) {
-            errorData.put("field", "ownerUserIdentifier");
+        // ✅ DUPLICATE USERNAME/USER IDENTIFIER (registration or any user context)
+        else if (msgLower.contains("already taken") && msgLower.contains("username")) {
+            errorData.put("field", "userIdentifier");
             errorData.put("type", "duplicate");
             message = "This username is already taken. Please choose a different username.";
-        }
-        // ✅ PHONE VALIDATION (registration)
-        else if (msgLower.contains("phone")) {
-            errorData.put("field", "phoneNumber");
-            errorData.put("type", "format");
-            errorData.put("example", "070 411260");
-            message = "Please enter a valid phone number.";
-        }
-        // ✅ SUBDOMAIN ERRORS (registration/business creation)
-        else if (msgLower.contains("subdomain")) {
-            errorData.put("field", "subdomain");
-            if (message.contains("already taken") || message.contains("not available")) {
-                errorData.put("type", "duplicate");
-                message = "This subdomain is not available. Please choose a different subdomain.";
-            } else if (message.contains("reserved")) {
-                errorData.put("type", "reserved");
-                message = "This subdomain is reserved. Please choose a different one.";
-            } else if (message.contains("format") || message.contains("invalid")) {
-                errorData.put("type", "format");
-                message = "Subdomain must contain only lowercase letters, numbers, and hyphens (3-63 characters).";
-            }
         }
         // ✅ PLAN ERRORS
         else if (msgLower.contains("plan")) {
@@ -451,7 +428,7 @@ public class GlobalExceptionHandler {
             errorData.put("type", "duplicate");
             errorData.put("constraint", "UNIQUE_BUSINESS_NAME");
         } else if (containsPattern(fullMessage, new String[]{"user_identifier", "users_user_identifier"})) {
-            message = "User identifier is already taken. Please choose a different identifier.";
+            message = "This username is already taken. Please choose a different username.";
             errorData.put("field", "userIdentifier");
             errorData.put("type", "duplicate");
             errorData.put("constraint", "UNIQUE_USER_IDENTIFIER");
