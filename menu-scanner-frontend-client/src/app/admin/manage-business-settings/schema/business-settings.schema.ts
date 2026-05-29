@@ -11,7 +11,19 @@ export const businessSettingsSchema = z.object({
       name: z.string().optional(),
       linkUrl: z.string().optional(),
       imageUrl: z.string().optional(),
-    })
+    }).refine(
+      (item) => {
+        // If name is empty, all fields can be empty
+        if (!item.name || item.name.trim() === "") {
+          return true;
+        }
+        // If name is selected, linkUrl is required
+        return item.linkUrl && item.linkUrl.trim() !== "";
+      },
+      {
+        message: "Profile link is required when platform name is selected",
+      }
+    )
   ).optional(),
   primaryColor: z.string().min(1, "Primary color is required"),
 

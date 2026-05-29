@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -159,13 +159,12 @@ export default function BusinessSettingsPage() {
   };
 
 
-  const handleLogoSelect = (imageData: string) => {
-
+  const handleLogoSelect = useCallback((imageData: string) => {
     form.setValue("logoBusinessUrl", imageData, {
       shouldDirty: true,
     });
     showToast.success(Messages.business.logoSelected);
-  };
+  }, [form]);
 
 
   const onSubmit = async (data: BusinessSettingsFormData) => {
@@ -461,67 +460,55 @@ export default function BusinessSettingsPage() {
         {}
         <Card>
           <CardHeader>
-            <CardTitle>Brand Colors</CardTitle>
+            <CardTitle>Brand & Features</CardTitle>
             <p className="text-sm text-muted-foreground mt-2">
-              Customize your brand color (applies site-wide)
+              Customize your brand and configure storefront features
             </p>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {}
-              <div className="space-y-2">
-                <Label>Primary Color</Label>
+          <CardContent className="space-y-6">
+            {}
+            <div className="space-y-2">
+              <Label>Primary Color</Label>
+              <input
+                type="hidden"
+                {...form.register("primaryColor")}
+              />
+              <div className="flex gap-3">
                 <input
-                  type="hidden"
-                  {...form.register("primaryColor")}
+                  type="color"
+                  value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
+                  onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
+                  disabled={isSaving}
+                  className="w-20 h-10 cursor-pointer rounded border border-input"
                 />
-                <div className="flex gap-3">
-                  <input
-                    type="color"
-                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
-                    disabled={isSaving}
-                    className="w-20 h-10 cursor-pointer"
-                  />
-                  <input
-                    placeholder={BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
-                    disabled={isSaving}
-                    className={`flex-1 px-3 py-2 border rounded-md ${form.formState.errors.primaryColor ? "border-red-500" : "border-input"}`}
-                  />
-                </div>
-                {form.formState.errors.primaryColor && (
-                  <p className="text-xs text-red-500">{form.formState.errors.primaryColor.message}</p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  Main brand color
-                </p>
+                <input
+                  placeholder={BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
+                  value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
+                  onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
+                  disabled={isSaving}
+                  className={`flex-1 px-3 py-2 border rounded-md ${form.formState.errors.primaryColor ? "border-red-500" : "border-input"}`}
+                />
               </div>
+              {form.formState.errors.primaryColor && (
+                <p className="text-xs text-red-500">{form.formState.errors.primaryColor.message}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Main brand color applied site-wide
+              </p>
             </div>
-          </CardContent>
-        </Card>
 
-        {}
-        <Card>
-          <CardHeader>
-            <CardTitle>Feature Configuration</CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              Enable or disable features on your storefront
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+            {}
+            <div className="border-t pt-6">
               <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">Brands</h4>
+                    <h4 className="font-semibold">Show Brands</h4>
                     <Badge variant={form.watch("useBrands") ? "default" : "secondary"}>
                       {form.watch("useBrands") ? "Enabled" : "Disabled"}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Show product brands in your storefront
+                    Display product brands in your storefront
                   </p>
                 </div>
                 <Button
@@ -795,10 +782,15 @@ export default function BusinessSettingsPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {form.watch("socialMedia")?.map((social, index) => (
+                  {form.watch("socialMedia")?.map((social, index) => {
+                    const socialErrors = (form.formState.errors.socialMedia as any)?.[index];
+                    const hasError = !!socialErrors;
+                    return (
                     <div
                       key={index}
-                      className="border rounded-lg p-4 relative lg:col-span-2"
+                      className={`border rounded-lg p-4 relative lg:col-span-2 ${
+                        hasError ? "border-red-500 bg-red-50 dark:bg-red-950/20" : ""
+                      }`}
                     >
                       <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -865,12 +857,17 @@ export default function BusinessSettingsPage() {
                           </div>
                         </div>
                       </div>
+                      {hasError && (
+                        <div className="mt-3 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-xs text-red-700 dark:text-red-200">
+                          {socialErrors.message}
+                        </div>
+                      )}
                       {!isSaving && (
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
                           onClick={() => {
                             const currentSocialMedia =
                               form.getValues("socialMedia") || [];
@@ -885,7 +882,8 @@ export default function BusinessSettingsPage() {
                         </Button>
                       )}
                     </div>
-                  ))}
+                  );
+                  })}
                 </div>
               </CardContent>
             </Card>
