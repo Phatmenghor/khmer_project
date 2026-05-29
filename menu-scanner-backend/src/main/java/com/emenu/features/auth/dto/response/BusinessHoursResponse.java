@@ -14,5 +14,4 @@ public class BusinessHoursResponse {
     private String day;
     private String openTime;
     private String closeTime;
-    private Boolean isClosed;
 }

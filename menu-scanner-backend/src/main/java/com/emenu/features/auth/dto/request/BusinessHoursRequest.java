@@ -14,5 +14,4 @@ public class BusinessHoursRequest {
     private String day;
     private String openingTime;
     private String closingTime;
-    private Boolean isClosed;
 }

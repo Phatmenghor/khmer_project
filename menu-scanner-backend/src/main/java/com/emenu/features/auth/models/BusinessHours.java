@@ -32,7 +32,4 @@ public class BusinessHours extends BaseUUIDEntity {
 
     @Column(name = "closing_time")
     private String closingTime;
-
-    @Column(name = "is_closed", nullable = false)
-    private Boolean isClosed = false;
 }
