@@ -1,4 +1,4 @@
-import { apiInstance } from "@/api/axios-instance";
+import { axiosClientWithAuth } from "@/utils/axios";
 import {
   SubscriptionHistoryResponse,
   PaginationResponse,
@@ -6,9 +6,9 @@ import {
 
 class SubscriptionService {
   async getCurrentSubscription(): Promise<SubscriptionHistoryResponse> {
-    const { data } = await apiInstance.get<{
+    const { data } = await axiosClientWithAuth.get<{
       data: SubscriptionHistoryResponse;
-    }>("/subscriptions/current");
+    }>("/api/v1/subscriptions/current");
     return data.data;
   }
 
@@ -17,9 +17,9 @@ class SubscriptionService {
     pageNo?: number,
     pageSize?: number
   ): Promise<PaginationResponse<SubscriptionHistoryResponse>> {
-    const { data } = await apiInstance.post<{
+    const { data } = await axiosClientWithAuth.post<{
       data: PaginationResponse<SubscriptionHistoryResponse>;
-    }>("/subscriptions/history", {
+    }>("/api/v1/subscriptions/history", {
       businessId,
       pageNo: pageNo || 1,
       pageSize: pageSize || 10,
