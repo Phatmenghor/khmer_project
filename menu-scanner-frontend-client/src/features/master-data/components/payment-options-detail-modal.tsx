@@ -22,7 +22,7 @@ export function PaymentOptionDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogTitle className="sr-only">Payment Option Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">No payment option data available</p>
           </div>
@@ -34,7 +34,7 @@ export function PaymentOptionDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTitle className="sr-only">Payment Option Details - {paymentOption.name}</DialogTitle>
-      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
         <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
