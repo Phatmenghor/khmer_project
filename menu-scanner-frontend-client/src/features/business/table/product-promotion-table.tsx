@@ -1,5 +1,5 @@
 import { indexDisplay } from "@/utils/common/common";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { dateTimeFormat, dateFormatLocal } from "@/utils/date/date-time-format";
 import { Edit, Eye, Trash, RotateCcw } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
@@ -222,7 +222,7 @@ export const productPromotionTableColumns = ({
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground">
-          {dateTimeFormat(product?.displayPromotionFromDate) || "---"}
+          {dateFormatLocal(product?.displayPromotionFromDate) || "---"}
         </span>
       ),
     },
@@ -235,7 +235,7 @@ export const productPromotionTableColumns = ({
       truncate: true,
       render: (product) => (
         <span className="text-xs text-muted-foreground">
-          {dateTimeFormat(product?.displayPromotionToDate) || "---"}
+          {dateFormatLocal(product?.displayPromotionToDate) || "---"}
         </span>
       ),
     },
