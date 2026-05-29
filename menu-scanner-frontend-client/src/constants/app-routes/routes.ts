@@ -7,6 +7,7 @@ import {
   ShoppingCart,
   Settings,
   QrCode,
+  User,
 } from "lucide-react";
 
 export const ROUTES = {
@@ -21,7 +22,7 @@ export const ROUTES = {
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin",
-    PROFILE: "/admin/profile",
+    PROFILE: "/profile",
     ADMIN_SESSIONS: "/admin/admin-sessions",
     USERS: "/admin/users",
     ROLES: "/admin/users/roles",
@@ -75,6 +76,11 @@ export const SIDEBAR_MENU: MenuItem[] = [
     title: "Dashboard",
     href: ROUTES.ADMIN.DASHBOARD,
     icon: Home,
+  },
+  {
+    title: "Profile",
+    href: ROUTES.ADMIN.PROFILE,
+    icon: User,
   },
 
   {
