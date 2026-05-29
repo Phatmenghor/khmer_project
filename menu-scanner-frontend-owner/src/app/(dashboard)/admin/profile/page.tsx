@@ -15,8 +15,8 @@ import { DisplayField } from "@/components/shared/form-field/display-field";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
 import {
-  getProfileService,
-  updateProfileService,
+  getBusinessProfileService,
+  updateBusinessProfileService,
   deleteAccountService,
 } from "@/redux/features/auth/store/thunks/auth-thunks";
 import {
@@ -91,7 +91,7 @@ export default function AdminProfilePage() {
   useEffect(() => {
     if (authReady && accessToken && !userProfile && !isProfileLoading && !profileFetchedRef.current) {
       profileFetchedRef.current = true;
-      dispatch(getProfileService());
+      dispatch(getBusinessProfileService());
     }
   }, [authReady, accessToken, dispatch, userProfile, isProfileLoading]);
 
@@ -147,8 +147,8 @@ export default function AdminProfilePage() {
       if (profileImageUrl) payload.profileImageUrl = profileImageUrl;
       if (data.remark) payload.remark = data.remark;
 
-      await dispatch(updateProfileService(payload)).unwrap();
-      await dispatch(getProfileService()).unwrap();
+      await dispatch(updateBusinessProfileService(payload)).unwrap();
+      await dispatch(getBusinessProfileService()).unwrap();
       showToast.success("Profile updated successfully");
       setIsEditing(false);
     } catch (error: unknown) {
@@ -171,8 +171,8 @@ export default function AdminProfilePage() {
         }
       }
       setValue("profileImageUrl", profileImageUrl, { shouldDirty: true });
-      await dispatch(updateProfileService({ profileImageUrl })).unwrap();
-      await dispatch(getProfileService()).unwrap();
+      await dispatch(updateBusinessProfileService({ profileImageUrl })).unwrap();
+      await dispatch(getBusinessProfileService()).unwrap();
       showToast.success("Profile picture updated successfully");
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || "Failed to update profile picture");
@@ -479,8 +479,8 @@ export default function AdminProfilePage() {
         onImageRemove={async () => {
           try {
             setIsUploadingImage(true);
-            await dispatch(updateProfileService({ profileImageUrl: "" })).unwrap();
-            await dispatch(getProfileService()).unwrap();
+            await dispatch(updateBusinessProfileService({ profileImageUrl: "" })).unwrap();
+            await dispatch(getBusinessProfileService()).unwrap();
             showToast.success("Profile picture removed successfully");
             setIsProfilePictureModalOpen(false);
           } catch (error: unknown) {
