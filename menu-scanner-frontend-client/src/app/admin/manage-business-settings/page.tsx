@@ -170,6 +170,7 @@ export default function BusinessSettingsPage() {
 
   const onSubmit = async (data: BusinessSettingsFormData) => {
     try {
+      console.log("Form submitted with data:", data);
       setIsSaving(true);
 
 
@@ -296,7 +297,18 @@ export default function BusinessSettingsPage() {
         </Card>
       )}
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit(
+          (data) => {
+            console.log("Form is valid, submitting...", data);
+            return onSubmit(data);
+          },
+          (errors) => {
+            console.log("Form validation failed:", errors);
+          }
+        )}
+        className="space-y-6"
+      >
         {}
         <Card>
           <CardHeader>
