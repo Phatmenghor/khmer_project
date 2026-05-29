@@ -14,7 +14,7 @@ import java.util.List;
 public interface BusinessSettingMapper {
 
     @Mapping(source = "business.name", target = "businessName")
-    @Mapping(source = "business.address", target = "contactAddress")
+    @Mapping(source = "business.description", target = "contactAddress")
     @Mapping(source = "business.phone", target = "contactPhone")
     @Mapping(source = "business.email", target = "contactEmail")
     BusinessSettingResponse toResponse(BusinessSetting businessSetting);
