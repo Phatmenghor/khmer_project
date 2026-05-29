@@ -550,42 +550,37 @@ export default function BusinessSettingsPage() {
               </div>
 
               {}
-              <div className="flex items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors h-fit">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold">Show Brands</h4>
-                    <Badge variant={form.watch("useBrands") ? "default" : "secondary"}>
-                      {form.watch("useBrands") ? "Enabled" : "Disabled"}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Display product brands in your storefront
-                  </p>
+              <div className="space-y-2">
+                <Label>Show Brands</Label>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={form.watch("useBrands") ? "default" : "outline"}
+                    size="sm"
+                    onClick={() =>
+                      form.setValue("useBrands", !form.watch("useBrands"), {
+                        shouldDirty: true,
+                      })
+                    }
+                    disabled={isSaving}
+                    className="flex-1 h-10"
+                  >
+                    {form.watch("useBrands") ? (
+                      <>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Enabled
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="h-4 w-4 mr-2" />
+                        Disabled
+                      </>
+                    )}
+                  </Button>
                 </div>
-                <Button
-                  type="button"
-                  variant={form.watch("useBrands") ? "default" : "outline"}
-                  size="sm"
-                  onClick={() =>
-                    form.setValue("useBrands", !form.watch("useBrands"), {
-                      shouldDirty: true,
-                    })
-                  }
-                  disabled={isSaving}
-                  className="ml-4 flex-shrink-0"
-                >
-                  {form.watch("useBrands") ? (
-                    <>
-                      <Eye className="h-4 w-4 mr-2" />
-                      Show
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff className="h-4 w-4 mr-2" />
-                      Hide
-                    </>
-                  )}
-                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Display product brands in your storefront
+                </p>
               </div>
             </div>
           </CardContent>
