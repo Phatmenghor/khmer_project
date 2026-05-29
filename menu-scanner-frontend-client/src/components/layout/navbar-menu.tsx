@@ -169,7 +169,6 @@ function NavbarMenuComponent({
                     imageUrl={profileImage || profile?.profileImageUrl}
                     name={fullName || profile?.fullName || "User"}
                     size="md"
-                    enableImagePreview={true}
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold line-clamp-1">

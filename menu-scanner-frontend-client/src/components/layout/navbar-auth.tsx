@@ -75,7 +75,6 @@ function NavbarAuthComponent({
         imageUrl={profileImage || profile?.profileImageUrl}
         name={fullName || profile?.fullName || "User"}
         size="lg"
-        enableImagePreview={true}
       />
       <div className="flex flex-col space-y-0.5 flex-1 min-w-0">
         <p className="text-sm font-semibold line-clamp-1">
@@ -96,7 +95,6 @@ function NavbarAuthComponent({
             imageUrl={profileImage || profile?.profileImageUrl}
             name={fullName || profile?.fullName || "User"}
             size="md"
-            enableImagePreview={true}
           />
         </div>
       }
