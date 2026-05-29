@@ -78,6 +78,21 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("Platform user profile updated", response));
     }
 
+    @GetMapping("/business-profile")
+    public ResponseEntity<ApiResponse<UserDetailResponse>> getBusinessUserProfile() {
+        log.info("Endpoint: business-profile - business user profile retrieval request received");
+        UserDetailResponse response = userService.getBusinessUserProfile();
+        return ResponseEntity.ok(ApiResponse.success("Business user profile retrieved", response));
+    }
+
+    @PutMapping("/business-profile")
+    public ResponseEntity<ApiResponse<UserDetailResponse>> updateBusinessUserProfile(
+            @Valid @RequestBody UserUpdateRequest updateRequestData) {
+        log.info("Endpoint: business-profile - business user profile update request received");
+        UserDetailResponse response = userService.updateBusinessUserProfile(updateRequestData);
+        return ResponseEntity.ok(ApiResponse.success("Business user profile updated", response));
+    }
+
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<PaginationResponse<UserResponse>>> getAllUsers(
             @Valid @RequestBody UserFilterRequest filterRequestData) {

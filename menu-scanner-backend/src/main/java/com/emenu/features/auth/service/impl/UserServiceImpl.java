@@ -450,6 +450,28 @@ public class UserServiceImpl implements UserService {
         return updateUser(currentUserContext.getId(), profileUpdateRequest);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public UserDetailResponse getBusinessUserProfile() {
+        User currentUserContext = securityUtils.getCurrentUser();
+        if (currentUserContext.getUserType() != UserType.BUSINESS_USER) {
+            throw new ValidationException("This endpoint is only accessible to BUSINESS_USER users.");
+        }
+        log.info("Business user profile retrieved: id={}", currentUserContext.getId());
+        return userMapper.toDetailResponse(currentUserContext);
+    }
+
+    @Override
+    @Transactional
+    public UserDetailResponse updateBusinessUserProfile(UserUpdateRequest profileUpdateRequest) {
+        User currentUserContext = securityUtils.getCurrentUser();
+        if (currentUserContext.getUserType() != UserType.BUSINESS_USER) {
+            throw new ValidationException("This endpoint is only accessible to BUSINESS_USER users.");
+        }
+        log.info("Business user profile update initiated: id={}", currentUserContext.getId());
+        updateUser(currentUserContext.getId(), profileUpdateRequest);
+        return userMapper.toDetailResponse(securityUtils.getCurrentUser());
+    }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
