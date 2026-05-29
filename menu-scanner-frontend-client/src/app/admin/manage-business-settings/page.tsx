@@ -330,6 +330,7 @@ export default function BusinessSettingsPage() {
                     form.setValue(
                       "enableStock",
                       value as "ENABLED" | "DISABLED",
+                      { shouldDirty: true }
                     )
                   }
                 >
@@ -564,7 +565,7 @@ export default function BusinessSettingsPage() {
                 form.setValue("businessHours", [
                   ...currentHours,
                   { day: "", openingTime: "", closingTime: "" },
-                ]);
+                ], { shouldDirty: true });
               }}
               disabled={isSaving}
             >
@@ -690,7 +691,7 @@ export default function BusinessSettingsPage() {
                 form.setValue("socialMedia", [
                   ...currentSocialMedia,
                   { name: "", imageUrl: "", linkUrl: "" },
-                ]);
+                ], { shouldDirty: true });
               }}
               disabled={isSaving}
             >
