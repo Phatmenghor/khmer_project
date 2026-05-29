@@ -330,7 +330,7 @@ export default function BusinessSettingsPage() {
         {}
         <Card>
           <CardHeader>
-            <CardTitle>Basic Settings</CardTitle>
+            <CardTitle>Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -457,6 +457,52 @@ export default function BusinessSettingsPage() {
               {}
               <div />
             </div>
+
+            {}
+            <div className="border-t pt-6">
+              <h4 className="text-sm font-semibold mb-4">Contact Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {}
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="contactAddress">Contact Address</Label>
+                  <Input
+                    id="contactAddress"
+                    placeholder="123 Street Name, Phnom Penh, Cambodia"
+                    {...form.register("contactAddress")}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Physical address displayed in footer
+                  </p>
+                </div>
+
+                {}
+                <div className="space-y-2">
+                  <Label htmlFor="contactPhone">Contact Phone</Label>
+                  <Input
+                    id="contactPhone"
+                    placeholder="+855 12 345 678"
+                    {...form.register("contactPhone")}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Phone number for customer inquiries
+                  </p>
+                </div>
+
+                {}
+                <div className="space-y-2">
+                  <Label htmlFor="contactEmail">Contact Email</Label>
+                  <Input
+                    id="contactEmail"
+                    type="email"
+                    placeholder="support@example.com"
+                    {...form.register("contactEmail")}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Email for customer support
+                  </p>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -538,56 +584,6 @@ export default function BusinessSettingsPage() {
                     </>
                   )}
                 </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {}
-        <Card>
-          <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {}
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="contactAddress">Contact Address</Label>
-                <Input
-                  id="contactAddress"
-                  placeholder="123 Street Name, Phnom Penh, Cambodia"
-                  {...form.register("contactAddress")}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Physical address displayed in footer
-                </p>
-              </div>
-
-              {}
-              <div className="space-y-2">
-                <Label htmlFor="contactPhone">Contact Phone</Label>
-                <Input
-                  id="contactPhone"
-                  placeholder="+855 12 345 678"
-                  {...form.register("contactPhone")}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Phone number for customer inquiries
-                </p>
-              </div>
-
-              {}
-              <div className="space-y-2">
-                <Label htmlFor="contactEmail">Contact Email</Label>
-                <Input
-                  id="contactEmail"
-                  type="email"
-                  placeholder="support@example.com"
-                  {...form.register("contactEmail")}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Email for customer support
-                </p>
               </div>
             </div>
           </CardContent>
