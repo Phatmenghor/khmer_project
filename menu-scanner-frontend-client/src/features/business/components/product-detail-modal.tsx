@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { dateTimeFormat } from "@/utils/date/date-time-format";
+import { dateTimeFormat, dateFormatLocal } from "@/utils/date/date-time-format";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   selectIsFetchingDetail,
@@ -203,13 +203,13 @@ export function ProductDetailModal({
                       />
                       <DisplayField
                         label="Promotion Valid From"
-                        value={dateTimeFormat(
+                        value={dateFormatLocal(
                           productData.displayPromotionFromDate ?? "",
                         )}
                       />
                       <DisplayField
                         label="Promotion Valid Until"
-                        value={dateTimeFormat(
+                        value={dateFormatLocal(
                           productData.displayPromotionToDate ?? "",
                         )}
                       />
@@ -304,13 +304,13 @@ export function ProductDetailModal({
                                 />
                                 <DisplayField
                                   label="Promotion From"
-                                  value={dateTimeFormat(
+                                  value={dateFormatLocal(
                                     size.promotionFromDate ?? "",
                                   )}
                                 />
                                 <DisplayField
                                   label="Promotion To"
-                                  value={dateTimeFormat(
+                                  value={dateFormatLocal(
                                     size.promotionToDate ?? "",
                                   )}
                                 />
