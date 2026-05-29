@@ -14,6 +14,7 @@ export interface PaymentOptionResponse {
   paymentOptionType: PaymentOptionType;
   paymentType: "SUBSCRIPTION" | "USER_PLAN" | "BUSINESS_RECORD" | "REFUND" | "OTHER";
   status: Status;
+  imageUrl?: string;
   createdAt: string;
   updatedAt: string;
 }

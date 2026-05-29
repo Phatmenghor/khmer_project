@@ -47,4 +47,7 @@ public class PaymentOption extends BaseUUIDEntity {
     @Column(name = "status", nullable = false)
     @Builder.Default
     private Status status = Status.ACTIVE;
+
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
 }

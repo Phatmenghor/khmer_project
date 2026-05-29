@@ -13,9 +13,11 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
+import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, Status } from "@/constants/status/status";
 import { useAppDispatch, useAppSelector } from "@/store";
+import { uploadImage } from "@/utils/common/upload-image";
 import {
   createPaymentOptionService,
   updatePaymentOptionService,
@@ -73,6 +75,8 @@ export default function PaymentOptionsModal({
     control,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<PaymentOptionFormData>({
     resolver: zodResolver(
@@ -83,9 +87,12 @@ export default function PaymentOptionsModal({
       paymentOptionType: "",
       paymentType: "SUBSCRIPTION",
       status: Status.ACTIVE,
+      imageUrl: "",
     },
     mode: "onChange",
   });
+
+  const imageUrl = watch("imageUrl");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -96,6 +103,7 @@ export default function PaymentOptionsModal({
         paymentOptionType: "",
         paymentType: "SUBSCRIPTION",
         status: Status.ACTIVE,
+        imageUrl: "",
       });
     } else if (paymentOption) {
       reset({
@@ -103,6 +111,7 @@ export default function PaymentOptionsModal({
         paymentOptionType: paymentOption.paymentOptionType || "",
         paymentType: (paymentOption.paymentType || "SUBSCRIPTION") as any,
         status: (paymentOption.status || Status.ACTIVE) as "ACTIVE" | "INACTIVE",
+        imageUrl: paymentOption.imageUrl || "",
       });
     }
   }, [isOpen, isCreate, paymentOption, reset]);
@@ -116,15 +125,19 @@ export default function PaymentOptionsModal({
 
   const onSubmit = async (data: PaymentOptionFormData) => {
     try {
+      let processedData = { ...data };
+      if (data.imageUrl && !data.imageUrl.startsWith("http")) {
+        processedData.imageUrl = await uploadImage(data.imageUrl);
+      }
       if (isCreate) {
-        await dispatch(createPaymentOptionService(data)).unwrap();
+        await dispatch(createPaymentOptionService(processedData)).unwrap();
         showToast.success(Messages.payment.created);
         handleClose();
       } else if (paymentOption?.id) {
         await dispatch(
           updatePaymentOptionService({
             id: paymentOption.id,
-            payload: data,
+            payload: processedData,
           })
         ).unwrap();
         showToast.success(Messages.payment.updated);
@@ -205,6 +218,17 @@ export default function PaymentOptionsModal({
                 required
                 disabled={isSubmitting}
                 error={errors.status}
+              />
+
+              <ClickableImageUpload
+                label="QR Code / Payment Method Image"
+                value={imageUrl}
+                onChange={(base64) => setValue("imageUrl", base64, { shouldDirty: true })}
+                disabled={isSubmitting}
+                placeholder="Click to upload QR code or payment method image"
+                helperText="PNG, JPG, GIF up to 10MB"
+                height="h-48"
+                aspectRatio="square"
               />
             </div>
           </FormBody>

@@ -56,16 +56,30 @@ export function PaymentOptionDetailModal({
                 <CardTitle>Payment Option Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <DisplayField label="Payment Method Name" value={paymentOption.name || "-"} />
-                  <DisplayField
-                    label="Payment Type"
-                    value={formatEnumValue(paymentOption.paymentOptionType) || "-"}
-                  />
-                  <DisplayField
-                    label="Status"
-                    value={formatEnumValue(paymentOption.status) || "-"}
-                  />
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="w-full md:w-1/2 space-y-4">
+                    <DisplayField label="Payment Method Name" value={paymentOption.name || "-"} />
+                    <DisplayField
+                      label="Payment Type"
+                      value={formatEnumValue(paymentOption.paymentOptionType) || "-"}
+                    />
+                    <DisplayField
+                      label="Status"
+                      value={formatEnumValue(paymentOption.status) || "-"}
+                    />
+                  </div>
+                  {paymentOption.imageUrl && (
+                    <div className="w-full md:w-1/2">
+                      <p className="text-sm font-medium text-foreground mb-3">QR Code / Payment Method Image</p>
+                      <div className="h-40 w-40 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+                        <img
+                          src={paymentOption.imageUrl}
+                          alt={paymentOption.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -10,6 +10,7 @@ export const createPaymentOptionSchema = z.object({
   status: z.enum(["ACTIVE", "INACTIVE"], {
     errorMap: () => ({ message: "Status is required" }),
   }),
+  imageUrl: z.string().optional().default(""),
 });
 
 
@@ -22,6 +23,7 @@ export const updatePaymentOptionSchema = z.object({
   status: z.enum(["ACTIVE", "INACTIVE"], {
     errorMap: () => ({ message: "Status is required" }),
   }),
+  imageUrl: z.string().optional().default(""),
 });
 
 export type CreatePaymentOptionData = z.infer<

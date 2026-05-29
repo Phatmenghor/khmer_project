@@ -23,6 +23,7 @@ public class PaymentOptionResponse {
     private PaymentOptionType paymentOptionType;
     private PaymentType paymentType;
     private Status status;
+    private String imageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

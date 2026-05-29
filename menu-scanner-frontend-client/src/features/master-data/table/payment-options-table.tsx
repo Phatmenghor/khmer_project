@@ -41,6 +41,31 @@ export const paymentOptionsTableColumns = ({
       ),
     },
     {
+      key: "image",
+      label: "Image",
+      minWidth: "10px",
+      maxWidth: "400px",
+      render: (option) => {
+        return (
+          <div className="h-10 w-10 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+            {option.imageUrl ? (
+              <img
+                src={option.imageUrl}
+                alt={option?.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
+                <span className="text-xs font-semibold text-primary">
+                  {option?.name?.charAt(0)?.toUpperCase() || "P"}
+                </span>
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
       key: "name",
       label: "Payment Method",
       minWidth: "10px",
