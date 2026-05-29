@@ -421,17 +421,19 @@ export default function BusinessSettingsPage() {
               <div className="space-y-2">
                 <Label>Primary Color</Label>
                 <div className="flex gap-3">
-                  <Input
+                  <input
                     type="color"
-                    {...form.register("primaryColor")}
+                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
+                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
                     className="w-20 h-10 cursor-pointer"
                   />
-                  <Input
+                  <input
                     placeholder={BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                    {...form.register("primaryColor")}
+                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
+                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
-                    className="flex-1"
+                    className="flex-1 px-3 py-2 border border-input rounded-md"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
