@@ -7,7 +7,6 @@ import {
   ShoppingCart,
   Settings,
   QrCode,
-  User,
 } from "lucide-react";
 
 export const ROUTES = {
@@ -76,11 +75,6 @@ export const SIDEBAR_MENU: MenuItem[] = [
     title: "Dashboard",
     href: ROUTES.ADMIN.DASHBOARD,
     icon: Home,
-  },
-  {
-    title: "Profile",
-    href: ROUTES.ADMIN.PROFILE,
-    icon: User,
   },
 
   {
