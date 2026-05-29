@@ -5,7 +5,7 @@ import { z } from "zod";
  * Create Subscription Schema
  */
 export const createBusinessOwnerSchema = z.object({
-  ownerUserIdentifier: z
+  userIdentifier: z
     .string()
     .min(1, "Owner identifier is required")
     .min(3, "Owner identifier must be at least 3 characters"),

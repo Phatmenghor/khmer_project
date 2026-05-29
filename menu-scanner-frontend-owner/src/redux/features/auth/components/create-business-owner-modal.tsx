@@ -59,7 +59,7 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
   } = useForm<CreateBusinessOwnerData>({
     resolver: zodResolver(createBusinessOwnerSchema),
     defaultValues: {
-      ownerUserIdentifier: "",
+      userIdentifier: "",
       ownerEmail: "",
       ownerPassword: "",
       ownerFullName: "",
@@ -91,7 +91,7 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
     try {
       const result = await dispatch(
         createBusinessOwnerService({
-          ownerUserIdentifier: data.ownerUserIdentifier,
+          ownerUserIdentifier: data.userIdentifier,
           ownerEmail: data.ownerEmail,
           ownerPassword: data.ownerPassword,
           ownerFullName: data.ownerFullName,
@@ -156,12 +156,12 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <TextField
                     control={control}
-                    name="ownerUserIdentifier"
+                    name="userIdentifier"
                     label="User Identifier"
                     placeholder="Enter user identifier"
                     required
                     disabled={isCreating}
-                    error={getFieldError(errors.ownerUserIdentifier)}
+                    error={getFieldError(errors.userIdentifier)}
                   />
                   <TextField
                     control={control}
