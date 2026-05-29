@@ -60,7 +60,11 @@ function convertResponseToFormData(
     contactAddress: response.contactAddress || "",
     contactPhone: response.contactPhone || "",
     contactEmail: response.contactEmail || "",
-    businessHours: response.businessHours || [],
+    businessHours: (response.businessHours || []).map(hour => ({
+      day: hour.day || "",
+      openingTime: hour.openTime || "",
+      closingTime: hour.closeTime || "",
+    })),
     useBrands: response.useBrands ?? false,
     lowStockThreshold: response.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
     telegramGroupChatId: response.telegramGroupChatId ?? "",
