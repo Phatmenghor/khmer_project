@@ -239,17 +239,24 @@ public class GlobalExceptionHandler {
 
         // Extract specific field information from error message
         String msgLower = message.toLowerCase();
+        String requestUri = request.getRequestURI().toLowerCase();
 
-        if (msgLower.contains("username") || msgLower.contains("already taken")) {
+        // ✅ REGISTRATION-SPECIFIC ERRORS (only for /register, /business-owner/register endpoints)
+        if ((requestUri.contains("/register") || requestUri.contains("/owner")) &&
+            (msgLower.contains("user identifier") || msgLower.contains("unique") && msgLower.contains("identifier"))) {
             errorData.put("field", "ownerUserIdentifier");
             errorData.put("type", "duplicate");
             message = "This username is already taken. Please choose a different username.";
-        } else if (msgLower.contains("phone")) {
+        }
+        // ✅ PHONE VALIDATION (registration)
+        else if (msgLower.contains("phone")) {
             errorData.put("field", "phoneNumber");
             errorData.put("type", "format");
             errorData.put("example", "070 411260");
             message = "Please enter a valid phone number.";
-        } else if (msgLower.contains("subdomain")) {
+        }
+        // ✅ SUBDOMAIN ERRORS (registration/business creation)
+        else if (msgLower.contains("subdomain")) {
             errorData.put("field", "subdomain");
             if (message.contains("already taken") || message.contains("not available")) {
                 errorData.put("type", "duplicate");
@@ -261,11 +268,16 @@ public class GlobalExceptionHandler {
                 errorData.put("type", "format");
                 message = "Subdomain must contain only lowercase letters, numbers, and hyphens (3-63 characters).";
             }
-        } else if (msgLower.contains("plan")) {
+        }
+        // ✅ PLAN ERRORS
+        else if (msgLower.contains("plan")) {
             errorData.put("field", "plan");
             errorData.put("type", "not_found");
             message = "The selected subscription plan is not available. Please choose a different plan.";
         }
+        // ✅ LOGIN-SPECIFIC ERRORS - PASS THROUGH UNCHANGED
+        // Messages like "Business user account not found", "Your password is incorrect", etc.
+        // These should NOT be transformed to "username already taken"
 
         ApiResponse<Object> response = buildErrorResponse(message, ErrorCodes.VALIDATION_ERROR, request);
         if (!errorData.isEmpty()) {
