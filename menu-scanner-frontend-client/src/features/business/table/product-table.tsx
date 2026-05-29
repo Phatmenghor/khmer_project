@@ -84,6 +84,13 @@ function SizesDisplay({ sizes }: { sizes: { id: string; name: string; finalPrice
           }}
         >
           {size.name} ${parseFloat(size.finalPrice.toString()).toFixed(2)}
+          {size.hasPromotion && (
+            <span className="text-red-600 font-semibold ml-1">
+              {size.promotionType === "FIXED_AMOUNT"
+                ? `-$${size.promotionValue}`
+                : `-${size.promotionValue}%`}
+            </span>
+          )}
         </div>
       ))}
     </div>
