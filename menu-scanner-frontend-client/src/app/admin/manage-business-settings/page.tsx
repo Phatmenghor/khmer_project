@@ -465,9 +465,12 @@ export default function BusinessSettingsPage() {
                 {}
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="contactAddress">Contact Address</Label>
-                  <Input
+                  <textarea
                     id="contactAddress"
                     placeholder="123 Street Name, Phnom Penh, Cambodia"
+                    rows={3}
+                    disabled={isSaving}
+                    className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-all duration-200 resize-none"
                     {...form.register("contactAddress")}
                   />
                   <p className="text-xs text-muted-foreground">
