@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/store";
+import { useAppDispatch } from "@/store";
 import { getCurrentSubscriptionService } from "@/features/auth/store/thunks/subscription-thunks";
-import { FormHeader } from "@/components/shared/form-field/form-header";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -49,12 +48,12 @@ export default function PlanPage() {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <FormHeader
-          title="My Plan"
-          description="View and manage your subscription plan"
-          showAvatar={false}
-          isCreate={false}
-        />
+        <div className="border-b px-6 py-6 space-y-1">
+          <h1 className="text-2xl font-semibold text-foreground">My Plan</h1>
+          <p className="text-sm text-muted-foreground">
+            View and manage your subscription plan
+          </p>
+        </div>
         <div className="p-6 space-y-6">
           <Card>
             <CardHeader>
@@ -74,12 +73,12 @@ export default function PlanPage() {
   if (error || !currentSubscription) {
     return (
       <div className="min-h-screen">
-        <FormHeader
-          title="My Plan"
-          description="View and manage your subscription plan"
-          showAvatar={false}
-          isCreate={false}
-        />
+        <div className="border-b px-6 py-6 space-y-1">
+          <h1 className="text-2xl font-semibold text-foreground">My Plan</h1>
+          <p className="text-sm text-muted-foreground">
+            View and manage your subscription plan
+          </p>
+        </div>
         <div className="p-6">
           <Card>
             <CardContent className="pt-6">
@@ -137,12 +136,12 @@ export default function PlanPage() {
 
   return (
     <div className="min-h-screen pb-6">
-      <FormHeader
-        title="My Plan"
-        description="View and manage your subscription plan"
-        showAvatar={false}
-        isCreate={false}
-      />
+      <div className="border-b px-6 py-6 space-y-1">
+        <h1 className="text-2xl font-semibold text-foreground">My Plan</h1>
+        <p className="text-sm text-muted-foreground">
+          View and manage your subscription plan
+        </p>
+      </div>
 
       <div className="p-6 space-y-6">
         {/* Current Plan Card */}
