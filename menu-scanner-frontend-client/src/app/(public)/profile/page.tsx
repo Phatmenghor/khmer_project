@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Edit, Loader2, Trash2, Lock, User, Camera } from "lucide-react";
+import { Edit, Loader2, Trash2, Lock, User, Camera, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,7 +27,8 @@ import {
 } from "@/features/auth/store/selectors/auth-selectors";
 import { showToast } from "@/components/shared/common/show-toast";
 import { clearError } from "@/features/auth/store/slice/auth-slice";
-import ChangePasswordModal from "@/components/shared/modal/change-password-modal";
+import { changePasswordService } from "@/features/auth/store/thunks/auth-thunks";
+import { changePasswordSchema } from "@/features/auth/store/models/schema/user.schema";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ProfilePictureModal } from "@/components/shared/modal/profile-picture-modal";
 import { useRouter } from "next/navigation";
@@ -56,6 +57,8 @@ const customerProfileSchema = z.object({
 
 type CustomerProfileFormData = z.infer<typeof customerProfileSchema>;
 
+type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+
 export default function PublicProfilePage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -66,13 +69,16 @@ export default function PublicProfilePage() {
   const socialSync = useAppSelector((state) => state.auth.socialSync);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
     useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] =
     useState(false);
   const [activeSection, setActiveSection] = useState("profile");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const {
     control,
@@ -95,6 +101,21 @@ export default function PublicProfilePage() {
     },
     mode: "onChange",
   });
+
+  const {
+    control: passwordControl,
+    handleSubmit: handlePasswordSubmit,
+    reset: resetPassword,
+    formState: { errors: passwordErrors, isDirty: passwordIsDirty },
+  } = useForm<ChangePasswordFormData>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+    mode: "onChange",
+  })
 
 
   useEffect(() => {
@@ -237,6 +258,29 @@ export default function PublicProfilePage() {
     }
   };
 
+
+  const onPasswordSubmit = async (data: ChangePasswordFormData) => {
+    try {
+      setIsChangingPassword(true);
+      const payload = {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+        confirmPassword: data.confirmPassword,
+      };
+
+      await dispatch(changePasswordService(payload)).unwrap();
+      
+      showToast.success(Messages.auth.passwordChanged);
+      resetPassword();
+      setShowCurrentPassword(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to change password");
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
   if (isProfileLoading && !userProfile) {
     return <Loading />;
   }
@@ -580,27 +624,136 @@ export default function PublicProfilePage() {
               </div>
 
               {}
+              {}
               <Card>
                 <CardContent className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-foreground">
-                        Change Password
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Update your password to keep your account secure
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsChangePasswordModalOpen(true)}
-                      className="w-full sm:w-auto"
-                    >
-                      <Lock className="h-4 w-4 mr-2" />
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-foreground">
                       Change Password
-                    </Button>
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Update your password to keep your account secure
+                    </p>
                   </div>
+
+                  <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="space-y-4">
+                    {/* Current Password */}
+                    <div className="relative">
+                      <TextField
+                        control={passwordControl}
+                        name="currentPassword"
+                        label="Current Password"
+                        type={showCurrentPassword ? "text" : "password"}
+                        placeholder="Enter your current password"
+                        disabled={isChangingPassword}
+                        required
+                        error={passwordErrors.currentPassword}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        disabled={isChangingPassword}
+                      >
+                        {showCurrentPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* New Password */}
+                    <div className="relative">
+                      <TextField
+                        control={passwordControl}
+                        name="newPassword"
+                        label="New Password"
+                        type={showNewPassword ? "text" : "password"}
+                        placeholder="Enter your new password"
+                        disabled={isChangingPassword}
+                        required
+                        error={passwordErrors.newPassword}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        disabled={isChangingPassword}
+                      >
+                        {showNewPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div className="relative">
+                      <TextField
+                        control={passwordControl}
+                        name="confirmPassword"
+                        label="Confirm Password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Confirm your new password"
+                        disabled={isChangingPassword}
+                        required
+                        error={passwordErrors.confirmPassword}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        disabled={isChangingPassword}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* Submit Buttons */}
+                    <div className="flex gap-2 justify-end pt-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          resetPassword();
+                          setShowCurrentPassword(false);
+                          setShowNewPassword(false);
+                          setShowConfirmPassword(false);
+                        }}
+                        disabled={isChangingPassword}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={!passwordIsDirty || isChangingPassword}
+                      >
+                        {isChangingPassword ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Changing...
+                          </>
+                        ) : (
+                          "Change Password"
+                        )}
+                      </Button>
+                    </div>
+                  </form>
                 </CardContent>
               </Card>
 
@@ -632,10 +785,6 @@ export default function PublicProfilePage() {
           )}
 
           {}
-          <ChangePasswordModal
-            isOpen={isChangePasswordModalOpen}
-            onClose={() => setIsChangePasswordModalOpen(false)}
-          />
 
           {}
           <DeleteConfirmationModal

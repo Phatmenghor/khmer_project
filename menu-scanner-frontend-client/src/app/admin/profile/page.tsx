@@ -1476,27 +1476,6 @@ export default function AdminProfilePage() {
             </div>
 
             {}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-foreground">
-                      Active Sessions
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Manage your active sessions and sign out from other
-                      devices
-                    </p>
-                  </div>
-                  <Link href="/admin/sessions">
-                    <Button className="bg-primary hover:bg-primary/90 text-white">
-                      <Monitor className="h-4 w-4 mr-2" />
-                      View Sessions
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
 
             {}
             <Card>
