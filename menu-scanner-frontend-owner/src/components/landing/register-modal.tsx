@@ -23,7 +23,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const schema = z
   .object({
     ownerFullName: z.string().min(1, "Full name is required"),
-    ownerUserIdentifier: z.string().min(3, "Username must be at least 3 characters"),
+    userIdentifier: z.string().min(3, "Username must be at least 3 characters"),
     ownerEmail: z.string().email("Invalid email address"),
     ownerPhone: z.string().min(6, "Phone number is required"),
     ownerPassword: z.string().min(6, "Password must be at least 6 characters"),
@@ -68,7 +68,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     resolver: zodResolver(schema),
     defaultValues: {
       ownerFullName: "",
-      ownerUserIdentifier: "",
+      userIdentifier: "",
       ownerEmail: "",
       ownerPhone: "",
       ownerPassword: "",
@@ -86,7 +86,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     try {
       const payload: any = {
         ownerFullName: values.ownerFullName,
-        ownerUserIdentifier: values.ownerUserIdentifier,
+        ownerUserIdentifier: values.userIdentifier,
         ownerEmail: values.ownerEmail,
         ownerPhone: values.ownerPhone,
         ownerPassword: values.ownerPassword,
@@ -163,11 +163,11 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                 <div className="grid sm:grid-cols-2 gap-5">
                   {/* Login Fields - First Priority */}
                   <TextField
-                    name="ownerUserIdentifier"
+                    name="userIdentifier"
                     label="Username *"
                     placeholder="sokha.nhem"
                     control={control}
-                    error={errors.ownerUserIdentifier}
+                    error={errors.userIdentifier}
                     disabled={isSubmitting}
                     required
                   />
