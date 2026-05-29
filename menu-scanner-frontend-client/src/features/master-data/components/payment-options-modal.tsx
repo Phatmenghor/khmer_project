@@ -37,6 +37,7 @@ type PaymentOptionFormData = z.infer<typeof createPaymentOptionSchema>;
 
 const PAYMENT_OPTION_TYPE_OPTIONS = [
   { value: "CASH", label: "Cash" },
+  { value: "BANK", label: "Bank Transfer" },
 ];
 
 const STATUS_OPTIONS = [
