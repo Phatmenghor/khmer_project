@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import Image from "next/image";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useBusinessColors } from "@/hooks/use-business-colors";
 import { cn } from "@/lib/utils";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import {
@@ -66,6 +67,8 @@ function ProductImagePreview({
 }
 
 function SizesDisplay({ sizes }: { sizes: { id: string; name: string; finalPrice: number; hasPromotion?: boolean; promotionType?: string; promotionValue?: number }[] | undefined }) {
+  const { primary: secondary } = useBusinessColors();
+
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;
   }
@@ -77,7 +80,7 @@ function SizesDisplay({ sizes }: { sizes: { id: string; name: string; finalPrice
           key={size.id}
           className="px-2 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
           style={{
-            border: "0.5px solid #FCD34D",
+            border: `0.5px solid ${secondary}`,
           }}
         >
           {size.name} ${parseFloat(size.finalPrice.toString()).toFixed(2)}
@@ -134,32 +137,6 @@ export const productTableColumns = ({
     },
 
     {
-      key: "sku",
-      label: "SKU",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground font-mono">
-          {product?.sku || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "barcode",
-      label: "Barcode",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground font-mono">
-          {product?.barcode || "---"}
-        </span>
-      ),
-    },
-
-    {
       key: "pricing",
       label: "Price",
       minWidth: "150px",
@@ -193,6 +170,32 @@ export const productTableColumns = ({
       minWidth: "25px",
       maxWidth: "400px",
       render: (product) => <SizesDisplay sizes={product?.sizes} />,
+    },
+
+    {
+      key: "sku",
+      label: "SKU",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.sku || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "barcode",
+      label: "Barcode",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.barcode || "---"}
+        </span>
+      ),
     },
 
     {
