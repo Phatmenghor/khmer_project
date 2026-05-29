@@ -17,6 +17,8 @@ public interface SubscriptionService {
 
     SubscriptionHistoryResponse getSubscriptionById(UUID subscriptionId);
 
+    SubscriptionHistoryResponse getCurrentSubscriptionByBusinessId(UUID businessId);
+
     SubscriptionHistoryResponse renewSubscription(UUID subscriptionId, SubscriptionRenewRequest request);
 
     SubscriptionHistoryResponse cancelSubscription(UUID subscriptionId, SubscriptionCancelRequest request);

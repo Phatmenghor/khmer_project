@@ -5,6 +5,7 @@ import com.emenu.features.subscription.dto.request.SubscriptionCancelRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionRenewRequest;
 import com.emenu.features.subscription.dto.response.SubscriptionHistoryResponse;
 import com.emenu.features.subscription.service.SubscriptionService;
+import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.ApiResponse;
 import com.emenu.shared.dto.PaginationResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
+    private final SecurityUtils securityUtils;
 
     @PostMapping("/history")
     public ResponseEntity<ApiResponse<PaginationResponse<SubscriptionHistoryResponse>>> getSubscriptionHistory(
@@ -45,6 +47,14 @@ public class SubscriptionController {
         log.info("Endpoint: subscriptions/{} - detail request", id);
         SubscriptionHistoryResponse response = subscriptionService.getSubscriptionById(id);
         return ResponseEntity.ok(ApiResponse.success("Subscription retrieved successfully", response));
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<ApiResponse<SubscriptionHistoryResponse>> getCurrentSubscription() {
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        log.info("Endpoint: subscriptions/current - current subscription request for business: {}", businessId);
+        SubscriptionHistoryResponse response = subscriptionService.getCurrentSubscriptionByBusinessId(businessId);
+        return ResponseEntity.ok(ApiResponse.success("Current subscription retrieved successfully", response));
     }
 
     @PostMapping("/{id}/renew")

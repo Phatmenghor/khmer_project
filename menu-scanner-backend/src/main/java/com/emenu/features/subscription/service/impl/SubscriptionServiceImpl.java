@@ -135,6 +135,16 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public SubscriptionHistoryResponse getCurrentSubscriptionByBusinessId(UUID businessId) {
+        log.info("Getting current subscription for business: {}", businessId);
+        Subscription subscription = subscriptionRepository.findCurrentActiveByBusinessId(businessId, LocalDateTime.now())
+                .orElseThrow(() -> new RuntimeException("No active subscription found for business: " + businessId));
+        subscription = subscriptionRepository.findByIdWithRelationships(subscription.getId()).orElse(subscription);
+        return toHistoryResponse(subscription);
+    }
+
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------

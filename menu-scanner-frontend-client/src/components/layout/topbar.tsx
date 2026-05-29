@@ -6,6 +6,7 @@ import {
   ChevronRight,
   UserCircle,
   Maximize2,
+  CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -149,6 +150,11 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
                       label: "My Profile",
                       icon: <UserCircle className="h-4 w-4" />,
                       onClick: () => router.push(ROUTES.ADMIN.PROFILE),
+                    },
+                    {
+                      label: "My Plan",
+                      icon: <CreditCard className="h-4 w-4" />,
+                      onClick: () => router.push("/admin/plan"),
                     },
                   ],
                 },
