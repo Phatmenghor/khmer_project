@@ -636,85 +636,107 @@ export default function BusinessSettingsPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {form.watch("businessHours")?.map((hours, index) => (
-                    <div
-                      key={index}
-                      className="border rounded-lg p-4 relative lg:col-span-2"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">
-                            Day
-                          </Label>
-                          <Input
-                            placeholder="e.g., Monday"
-                            value={hours.day}
-                            onChange={(e) => {
-                              const updated = [
-                                ...(form.getValues("businessHours") || []),
-                              ];
-                              updated[index].day = e.target.value;
-                              form.setValue("businessHours", updated, { shouldDirty: true });
-                            }}
-                            disabled={isSaving}
-                          />
+                  {form.watch("businessHours")?.map((hours, index) => {
+                    const hourErrors = (form.formState.errors.businessHours as any)?.[index];
+                    const hasError = !!hourErrors;
+
+                    return (
+                      <div
+                        key={index}
+                        className={`border rounded-lg p-4 relative lg:col-span-2 ${
+                          hasError ? "border-red-500 bg-red-50 dark:bg-red-950/20" : ""
+                        }`}
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Day
+                            </Label>
+                            <Input
+                              placeholder="e.g., Monday"
+                              value={hours.day}
+                              onChange={(e) => {
+                                const updated = [
+                                  ...(form.getValues("businessHours") || []),
+                                ];
+                                updated[index].day = e.target.value;
+                                form.setValue("businessHours", updated, { shouldDirty: true });
+                              }}
+                              disabled={isSaving}
+                              className={hourErrors?.day ? "border-red-500" : ""}
+                            />
+                            {hourErrors?.day && (
+                              <p className="text-xs text-red-500">{hourErrors.day.message}</p>
+                            )}
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Opening Time
+                            </Label>
+                            <CustomTimePicker
+                              value={hours.openingTime}
+                              onChange={(time) => {
+                                const updated = [
+                                  ...(form.getValues("businessHours") || []),
+                                ];
+                                updated[index].openingTime = time;
+                                form.setValue("businessHours", updated, { shouldDirty: true });
+                              }}
+                              disabled={isSaving}
+                              placeholder="Select opening time"
+                            />
+                            {hourErrors?.openingTime && (
+                              <p className="text-xs text-red-500">{hourErrors.openingTime.message}</p>
+                            )}
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">
+                              Closing Time
+                            </Label>
+                            <CustomTimePicker
+                              value={hours.closingTime}
+                              onChange={(time) => {
+                                const updated = [
+                                  ...(form.getValues("businessHours") || []),
+                                ];
+                                updated[index].closingTime = time;
+                                form.setValue("businessHours", updated, { shouldDirty: true });
+                              }}
+                              disabled={isSaving}
+                              placeholder="Select closing time"
+                            />
+                            {hourErrors?.closingTime && (
+                              <p className="text-xs text-red-500">{hourErrors.closingTime.message}</p>
+                            )}
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">
-                            Opening Time
-                          </Label>
-                          <CustomTimePicker
-                            value={hours.openingTime}
-                            onChange={(time) => {
-                              const updated = [
-                                ...(form.getValues("businessHours") || []),
-                              ];
-                              updated[index].openingTime = time;
-                              form.setValue("businessHours", updated, { shouldDirty: true });
+                        {hasError && !hourErrors?.day && (
+                          <div className="mt-3 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-xs text-red-700 dark:text-red-200">
+                            {hourErrors.message}
+                          </div>
+                        )}
+                        {!isSaving && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => {
+                              const currentHours =
+                                form.getValues("businessHours") || [];
+                              form.setValue(
+                                "businessHours",
+                                currentHours.filter((_, i) => i !== index),
+                                { shouldDirty: true }
+                              );
                             }}
-                            disabled={isSaving}
-                            placeholder="Select opening time"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">
-                            Closing Time
-                          </Label>
-                          <CustomTimePicker
-                            value={hours.closingTime}
-                            onChange={(time) => {
-                              const updated = [
-                                ...(form.getValues("businessHours") || []),
-                              ];
-                              updated[index].closingTime = time;
-                              form.setValue("businessHours", updated, { shouldDirty: true });
-                            }}
-                            disabled={isSaving}
-                            placeholder="Select closing time"
-                          />
-                        </div>
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
-                      {!isSaving && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => {
-                            const currentHours =
-                              form.getValues("businessHours") || [];
-                            form.setValue(
-                              "businessHours",
-                              currentHours.filter((_, i) => i !== index),
-                              { shouldDirty: true }
-                            );
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
