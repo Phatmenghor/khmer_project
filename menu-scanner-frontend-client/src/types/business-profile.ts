@@ -90,12 +90,18 @@ export interface ContactInfo {
 
 export interface SocialMediaLinks {
   socialMedia?: SocialMediaInfo[];
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
+  linkedin?: string;
+  website?: string;
 }
 
 export interface BusinessHours {
   day: DayOfWeek;
   openTime?: string;
   closeTime?: string;
+  isOpen?: boolean;
 }
 
 export enum DayOfWeek {

@@ -4,6 +4,7 @@ import React from "react";
 import {
   Controller,
   FieldValues,
+  Path,
 } from "react-hook-form";
 import { DatePickerFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
@@ -30,7 +31,7 @@ export function DateTimePickerField<T extends FieldValues = any>({
       </Label>
       <Controller
         control={control}
-        name={name}
+        name={name as Path<T>}
         render={({ field }) => (
           <CustomDateTimePicker
             className={className}

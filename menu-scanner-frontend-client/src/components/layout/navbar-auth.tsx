@@ -16,7 +16,7 @@ interface NavbarAuthProps {
     profileImageUrl?: string;
     fullName?: string;
     email?: string;
-  };
+  } | null;
   onLoginClick: () => void;
   onLogout: () => void;
   openOnHover: boolean;

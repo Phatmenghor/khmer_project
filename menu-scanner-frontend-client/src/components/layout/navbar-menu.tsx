@@ -31,7 +31,7 @@ interface NavbarMenuProps {
     profileImageUrl?: string;
     fullName?: string;
     email?: string;
-  };
+  } | null;
   onNavigateHome: () => void;
   onNavigate: (href: string) => void;
   onLogin: () => void;

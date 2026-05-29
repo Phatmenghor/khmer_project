@@ -65,7 +65,7 @@ export interface TimePickerFormFieldProps<T extends FieldValues = any> extends B
  * Extended props for date picker form fields
  */
 export interface DatePickerFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
-  mode?: "date" | "datetime" | "time";
+  mode?: "date" | "datetime";
   minDate?: Date;
   maxDate?: Date;
 }

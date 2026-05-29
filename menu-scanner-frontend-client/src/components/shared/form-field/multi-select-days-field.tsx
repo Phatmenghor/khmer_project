@@ -48,7 +48,7 @@ export function MultiSelectDaysField<T extends FieldValues = any>({
   return (
     <Controller
       control={control}
-      name={name}
+      name={name as Path<T>}
       render={({ field }) => {
         return (
           <MultiSelectDaysContent
