@@ -144,6 +144,32 @@ export const productTableColumns = ({
     },
 
     {
+      key: "sku",
+      label: "SKU",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.sku || "---"}
+        </span>
+      ),
+    },
+
+    {
+      key: "barcode",
+      label: "Barcode",
+      minWidth: "10px",
+      maxWidth: "120px",
+      truncate: true,
+      render: (product) => (
+        <span className="text-xs text-muted-foreground font-mono">
+          {product?.barcode || "---"}
+        </span>
+      ),
+    },
+
+    {
       key: "pricing",
       label: "Price",
       minWidth: "150px",
@@ -177,32 +203,6 @@ export const productTableColumns = ({
       minWidth: "25px",
       maxWidth: "400px",
       render: (product) => <SizesDisplay sizes={product?.sizes} />,
-    },
-
-    {
-      key: "sku",
-      label: "SKU",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground font-mono">
-          {product?.sku || "---"}
-        </span>
-      ),
-    },
-
-    {
-      key: "barcode",
-      label: "Barcode",
-      minWidth: "10px",
-      maxWidth: "120px",
-      truncate: true,
-      render: (product) => (
-        <span className="text-xs text-muted-foreground font-mono">
-          {product?.barcode || "---"}
-        </span>
-      ),
     },
 
     {
