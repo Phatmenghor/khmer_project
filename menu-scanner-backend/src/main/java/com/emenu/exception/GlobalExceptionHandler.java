@@ -236,14 +236,28 @@ public class GlobalExceptionHandler {
 
         String message = ex.getMessage();
         Map<String, Object> errorData = new HashMap<>();
-
-        // Extract specific field information from error message
         String msgLower = message.toLowerCase();
         String requestUri = request.getRequestURI().toLowerCase();
 
-        // ✅ REGISTRATION-SPECIFIC ERRORS (only for /register, /business-owner/register endpoints)
-        if ((requestUri.contains("/register") || requestUri.contains("/owner")) &&
-            (msgLower.contains("user identifier") || msgLower.contains("unique") && msgLower.contains("identifier"))) {
+        // ✅ CHECK FOR LOGIN-SPECIFIC ERRORS FIRST (PASS THROUGH UNCHANGED)
+        // These patterns indicate login flow errors that should NOT be transformed
+        boolean isLoginError = msgLower.contains("account not found") ||
+                               msgLower.contains("password is incorrect") ||
+                               msgLower.contains("user type mismatch") ||
+                               msgLower.contains("business id is required") ||
+                               msgLower.contains("business not found") ||
+                               msgLower.contains("subscription has expired") ||
+                               msgLower.contains("business account is currently") ||
+                               msgLower.contains("user not found");
+
+        // If it's a login error, pass through without transformation
+        if (isLoginError) {
+            // Don't transform - keep original message
+            // Don't add errorData - this is not a form field error
+        }
+        // ✅ REGISTRATION-SPECIFIC ERRORS
+        else if ((requestUri.contains("/register") || requestUri.contains("/owner")) &&
+                 (msgLower.contains("user identifier") || (msgLower.contains("unique") && msgLower.contains("identifier")))) {
             errorData.put("field", "ownerUserIdentifier");
             errorData.put("type", "duplicate");
             message = "This username is already taken. Please choose a different username.";
@@ -275,9 +289,6 @@ public class GlobalExceptionHandler {
             errorData.put("type", "not_found");
             message = "The selected subscription plan is not available. Please choose a different plan.";
         }
-        // ✅ LOGIN-SPECIFIC ERRORS - PASS THROUGH UNCHANGED
-        // Messages like "Business user account not found", "Your password is incorrect", etc.
-        // These should NOT be transformed to "username already taken"
 
         ApiResponse<Object> response = buildErrorResponse(message, ErrorCodes.VALIDATION_ERROR, request);
         if (!errorData.isEmpty()) {
