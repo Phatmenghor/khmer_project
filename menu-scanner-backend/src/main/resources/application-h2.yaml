@@ -1,0 +1,36 @@
+# ============================================================
+# application-h2.yaml  –  H2 IN-MEMORY DATABASE (Testing)
+# ============================================================
+# Uses H2 in-memory database for quick testing without PostgreSQL
+# ============================================================
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        format_sql: false
+
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.emenu: DEBUG
+    org.springframework: WARN
+    org.hibernate: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
