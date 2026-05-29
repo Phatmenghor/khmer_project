@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { SubscriptionHistoryResponse } from "@/types/subscription";
 import { formatDate } from "@/utils/date/date-time-format";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 export default function PlanPage() {
   const dispatch = useAppDispatch();
