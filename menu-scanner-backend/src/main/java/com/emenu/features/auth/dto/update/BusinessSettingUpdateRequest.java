@@ -13,6 +13,8 @@ import java.util.List;
 @Data
 public class BusinessSettingUpdateRequest {
 
+    private String businessName;
+
     @DecimalMin(value = "0.0")
     @DecimalMax(value = "100.0")
     private Double taxPercentage;
@@ -24,6 +26,12 @@ public class BusinessSettingUpdateRequest {
     private List<SocialMediaRequest> socialMedia;
 
     private String primaryColor;
+
+    private String contactAddress;
+
+    private String contactPhone;
+
+    private String contactEmail;
 
     private List<BusinessHoursRequest> businessHours;
 
