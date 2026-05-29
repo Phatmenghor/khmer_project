@@ -420,6 +420,10 @@ export default function BusinessSettingsPage() {
               {}
               <div className="space-y-2">
                 <Label>Primary Color</Label>
+                <input
+                  type="hidden"
+                  {...form.register("primaryColor")}
+                />
                 <div className="flex gap-3">
                   <input
                     type="color"
