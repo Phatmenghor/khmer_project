@@ -267,6 +267,10 @@ export default function BusinessSettingsPage() {
     );
   }
 
+  // Debug: Log form state
+  const formErrors = form.formState.errors;
+  const hasErrors = Object.keys(formErrors).length > 0;
+
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 py-6">
       {}
@@ -276,6 +280,21 @@ export default function BusinessSettingsPage() {
           Manage your business configuration and social media accounts
         </p>
       </div>
+
+      {hasErrors && (
+        <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
+          <CardContent className="pt-6">
+            <p className="text-sm font-semibold text-red-900 dark:text-red-100 mb-2">
+              Please fix the following errors:
+            </p>
+            <ul className="text-sm text-red-800 dark:text-red-200 space-y-1">
+              {Object.entries(formErrors).map(([field, error]: any) => (
+                <li key={field}>• {field}: {error?.message || 'Invalid value'}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {}
@@ -292,7 +311,11 @@ export default function BusinessSettingsPage() {
                   id="businessName"
                   placeholder="Your business name"
                   {...form.register("businessName")}
+                  className={form.formState.errors.businessName ? "border-red-500" : ""}
                 />
+                {form.formState.errors.businessName && (
+                  <p className="text-xs text-red-500">{form.formState.errors.businessName.message}</p>
+                )}
                 <p className="text-xs text-muted-foreground">
                   Your business name displayed throughout the site
                 </p>
@@ -437,9 +460,12 @@ export default function BusinessSettingsPage() {
                     value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
                     onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
                     disabled={isSaving}
-                    className="flex-1 px-3 py-2 border border-input rounded-md"
+                    className={`flex-1 px-3 py-2 border rounded-md ${form.formState.errors.primaryColor ? "border-red-500" : "border-input"}`}
                   />
                 </div>
+                {form.formState.errors.primaryColor && (
+                  <p className="text-xs text-red-500">{form.formState.errors.primaryColor.message}</p>
+                )}
                 <p className="text-xs text-muted-foreground">
                   Main brand color
                 </p>
