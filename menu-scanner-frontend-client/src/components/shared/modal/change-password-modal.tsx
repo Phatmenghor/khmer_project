@@ -6,9 +6,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { TextField } from "@/components/shared/form-field/text-field";
+import { PasswordField } from "@/components/shared/form-field/password-field";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
@@ -122,92 +120,41 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
 
             {}
             <div className="space-y-4">
-              {}
-              <div className="relative">
-                <TextField
-                  control={control}
-                  name="currentPassword"
-                  label="Current Password"
-                  type={showCurrentPassword ? "text" : "password"}
-                  placeholder="Enter your current password"
-                  disabled={isProfileLoading}
-                  required
-                  error={errors.currentPassword}
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  disabled={isProfileLoading}
-                >
-                  {showCurrentPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
+              <PasswordField
+                control={control}
+                name="currentPassword"
+                label="Current Password"
+                placeholder="Enter your current password"
+                disabled={isProfileLoading}
+                required
+                error={errors.currentPassword}
+                showPassword={showCurrentPassword}
+                onTogglePassword={() => setShowCurrentPassword(!showCurrentPassword)}
+              />
 
-              {}
-              <div className="relative">
-                <TextField
-                  control={control}
-                  name="newPassword"
-                  label="New Password"
-                  type={showNewPassword ? "text" : "password"}
-                  placeholder="Enter your new password"
-                  disabled={isProfileLoading}
-                  required
-                  error={errors.newPassword}
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  disabled={isProfileLoading}
-                >
-                  {showNewPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
+              <PasswordField
+                control={control}
+                name="newPassword"
+                label="New Password"
+                placeholder="Enter your new password"
+                disabled={isProfileLoading}
+                required
+                error={errors.newPassword}
+                showPassword={showNewPassword}
+                onTogglePassword={() => setShowNewPassword(!showNewPassword)}
+              />
 
-              {}
-              <div className="relative">
-                <TextField
-                  control={control}
-                  name="confirmPassword"
-                  label="Confirm Password"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your new password"
-                  disabled={isProfileLoading}
-                  required
-                  error={errors.confirmPassword}
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  disabled={isProfileLoading}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
+              <PasswordField
+                control={control}
+                name="confirmPassword"
+                label="Confirm Password"
+                placeholder="Confirm your new password"
+                disabled={isProfileLoading}
+                required
+                error={errors.confirmPassword}
+                showPassword={showConfirmPassword}
+                onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+              />
             </div>
           </FormBody>
 

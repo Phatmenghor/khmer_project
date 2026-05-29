@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TextField } from "@/components/shared/form-field/text-field";
+import { PasswordField } from "@/components/shared/form-field/password-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { DisplayField } from "@/components/shared/form-field/display-field";
@@ -637,92 +638,41 @@ export default function PublicProfilePage() {
                   </div>
 
                   <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="space-y-4">
-                    {/* Current Password */}
-                    <div className="relative">
-                      <TextField
-                        control={passwordControl}
-                        name="currentPassword"
-                        label="Current Password"
-                        type={showCurrentPassword ? "text" : "password"}
-                        placeholder="Enter your current password"
-                        disabled={isChangingPassword}
-                        required
-                        error={passwordErrors.currentPassword}
-                        className="pr-10"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        disabled={isChangingPassword}
-                      >
-                        {showCurrentPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
+                    <PasswordField
+                      control={passwordControl}
+                      name="currentPassword"
+                      label="Current Password"
+                      placeholder="Enter your current password"
+                      disabled={isChangingPassword}
+                      required
+                      error={passwordErrors.currentPassword}
+                      showPassword={showCurrentPassword}
+                      onTogglePassword={() => setShowCurrentPassword(!showCurrentPassword)}
+                    />
 
-                    {/* New Password */}
-                    <div className="relative">
-                      <TextField
-                        control={passwordControl}
-                        name="newPassword"
-                        label="New Password"
-                        type={showNewPassword ? "text" : "password"}
-                        placeholder="Enter your new password"
-                        disabled={isChangingPassword}
-                        required
-                        error={passwordErrors.newPassword}
-                        className="pr-10"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        disabled={isChangingPassword}
-                      >
-                        {showNewPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
+                    <PasswordField
+                      control={passwordControl}
+                      name="newPassword"
+                      label="New Password"
+                      placeholder="Enter your new password"
+                      disabled={isChangingPassword}
+                      required
+                      error={passwordErrors.newPassword}
+                      showPassword={showNewPassword}
+                      onTogglePassword={() => setShowNewPassword(!showNewPassword)}
+                    />
 
-                    {/* Confirm Password */}
-                    <div className="relative">
-                      <TextField
-                        control={passwordControl}
-                        name="confirmPassword"
-                        label="Confirm Password"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm your new password"
-                        disabled={isChangingPassword}
-                        required
-                        error={passwordErrors.confirmPassword}
-                        className="pr-10"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-[28px] h-10 px-3 hover:bg-transparent"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        disabled={isChangingPassword}
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </div>
+                    <PasswordField
+                      control={passwordControl}
+                      name="confirmPassword"
+                      label="Confirm Password"
+                      placeholder="Confirm your new password"
+                      disabled={isChangingPassword}
+                      required
+                      error={passwordErrors.confirmPassword}
+                      showPassword={showConfirmPassword}
+                      onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+                    />
 
                     {/* Submit Buttons */}
                     <div className="flex gap-2 justify-end pt-4">
