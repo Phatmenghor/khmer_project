@@ -31,9 +31,12 @@ public interface BusinessSettingMapper {
     void updateEntity(BusinessSettingUpdateRequest request, @MappingTarget BusinessSetting businessSetting);
 
     @AfterMapping
-    default void setBusinessSettingIdForHours(@MappingTarget BusinessSetting businessSetting) {
+    default void setBusinessSettingIdForRelations(@MappingTarget BusinessSetting businessSetting) {
         if (businessSetting.getBusinessHours() != null) {
             businessSetting.getBusinessHours().forEach(hour -> hour.setBusinessSettingId(businessSetting.getId()));
+        }
+        if (businessSetting.getSocialMedia() != null) {
+            businessSetting.getSocialMedia().forEach(media -> media.setBusinessSettingId(businessSetting.getId()));
         }
     }
 
