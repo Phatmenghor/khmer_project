@@ -16,6 +16,7 @@ import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.RefreshToken;
 import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.subscription.models.Subscription;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.repository.UserRepository;
@@ -28,6 +29,7 @@ import com.emenu.security.SecurityUtils;
 import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.security.jwt.TokenBlacklistService;
 import com.emenu.shared.constants.AuthConstants;
+import com.emenu.shared.constants.AuthStatusMessages;
 import com.emenu.shared.utils.TokenUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,8 +76,12 @@ public class AuthServiceImpl implements AuthService {
 
         securityUtils.validateAccountStatus(userEntity);
 
+        String subscriptionWarning = null;
         if (userEntity.isBusinessUser() && userEntity.getBusinessId() != null) {
-            validateBusinessLoginContext(userEntity);
+            subscriptionWarning = validateBusinessSubscriptionAndStatus(userEntity);
+        } else if (userEntity.isPlatformUser() || userEntity.isCustomer()) {
+            // PLATFORM_USER and CUSTOMER only need account status validation (already done above)
+            log.debug("User type {} requires only account status validation", userEntity.getUserType());
         }
 
         List<String> roleNames = userEntity.getRoles().stream()
@@ -100,6 +107,9 @@ public class AuthServiceImpl implements AuthService {
 
         LoginResponse loginResponse = userMapper.toLoginResponse(userEntity, accessTokenString);
         loginResponse.setRefreshToken(refreshTokenEntity.getToken());
+        if (subscriptionWarning != null) {
+            loginResponse.setSubscriptionWarningMessage(subscriptionWarning);
+        }
 
         if (userEntity.isBusinessUser() && userEntity.getBusinessId() != null) {
             Business businessEntity = businessRepository.findById(userEntity.getBusinessId()).orElse(null);
@@ -129,6 +139,55 @@ public class AuthServiceImpl implements AuthService {
             log.warn("User login failed - no active subscription: business_id={}", userEntity.getBusinessId());
             throw new ValidationException("Your business subscription has expired. Please renew your subscription to continue.");
         }
+    }
+
+    private String validateBusinessSubscriptionAndStatus(User userEntity) {
+        Business businessEntity = businessRepository.findById(userEntity.getBusinessId())
+                .orElseThrow(() -> {
+                    log.warn("User login failed - business not found: business_id={}", userEntity.getBusinessId());
+                    return new ValidationException(AuthStatusMessages.BUSINESS_NOT_FOUND);
+                });
+
+        // Check business status first
+        if (!businessEntity.isActive()) {
+            log.warn("User login failed - business not active: business_id={}, status={}",
+                    userEntity.getBusinessId(), businessEntity.getStatus());
+            if (businessEntity.getStatus().name().equals("SUSPENDED")) {
+                throw new ValidationException(AuthStatusMessages.BUSINESS_SUSPENDED);
+            } else {
+                throw new ValidationException(AuthStatusMessages.BUSINESS_INACTIVE);
+            }
+        }
+
+        // Check subscription status
+        if (businessEntity.hasActiveSubscription()) {
+            // Subscription is active, proceed
+            log.debug("Business subscription is active: business_id={}", userEntity.getBusinessId());
+            return null;
+        }
+
+        // Subscription not active, check if in grace period
+        if (businessEntity.isInSubscriptionGracePeriod()) {
+            long daysRemaining = businessEntity.getDaysRemainingInGracePeriod();
+            Subscription subscription = businessEntity.getMostRecentSubscription();
+
+            if (subscription != null && daysRemaining > 0) {
+                log.warn("User login during subscription grace period: business_id={}, days_remaining={}",
+                        userEntity.getBusinessId(), daysRemaining);
+                // Allow login but return warning message
+                return AuthStatusMessages.formatGracePeriodMessage(
+                        subscription.getEndDate(),
+                        daysRemaining
+                );
+            }
+        } else {
+            // Grace period expired, block login
+            log.warn("User login failed - subscription grace period expired: business_id={}",
+                    userEntity.getBusinessId());
+            throw new ValidationException(AuthStatusMessages.SUBSCRIPTION_GRACE_PERIOD_EXPIRED);
+        }
+
+        return null;
     }
 
     private User findUserWithContext(LoginRequest loginRequestData) {
@@ -322,8 +381,12 @@ public class AuthServiceImpl implements AuthService {
 
         securityUtils.validateAccountStatus(userEntity);
 
+        String subscriptionWarning = null;
         if (userEntity.isBusinessUser() && userEntity.getBusinessId() != null) {
-            validateBusinessLoginContext(userEntity);
+            subscriptionWarning = validateBusinessSubscriptionAndStatus(userEntity);
+        } else if (userEntity.isPlatformUser() || userEntity.isCustomer()) {
+            // PLATFORM_USER and CUSTOMER only need account status validation (already done above)
+            log.debug("User type {} requires only account status validation", userEntity.getUserType());
         }
 
         List<String> roleNames = userEntity.getRoles().stream()
@@ -351,7 +414,11 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Token refresh completed successfully: identifier={}, user_id={}", userEntity.getUserIdentifier(), userEntity.getId());
 
-        return refreshTokenResponseMapper.toResponse(newAccessTokenString, newRefreshTokenEntity.getToken());
+        RefreshTokenResponse response = refreshTokenResponseMapper.toResponse(newAccessTokenString, newRefreshTokenEntity.getToken());
+        if (subscriptionWarning != null) {
+            response.setSubscriptionWarningMessage(subscriptionWarning);
+        }
+        return response;
     }
 
     private User findUserByRefreshTokenContext(String userIdentifier, String userTypeString, String businessIdString) {

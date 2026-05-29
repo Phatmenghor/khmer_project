@@ -99,6 +99,7 @@ public class User extends BaseUUIDEntity {
 
     public boolean isActive() { return AccountStatus.ACTIVE.equals(accountStatus); }
     public boolean isBusinessUser() { return UserType.BUSINESS_USER.equals(userType); }
+    public boolean isPlatformUser() { return UserType.PLATFORM_USER.equals(userType); }
     public boolean isCustomer() { return UserType.CUSTOMER.equals(userType); }
 
     public void syncTelegram(Long telegramId, String username, String firstName, String lastName, String photoUrl) {

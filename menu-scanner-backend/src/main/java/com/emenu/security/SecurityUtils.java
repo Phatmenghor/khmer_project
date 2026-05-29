@@ -7,6 +7,7 @@ import com.emenu.exception.custom.*;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.security.jwt.JWTGenerator;
+import com.emenu.shared.constants.AuthStatusMessages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,15 +87,15 @@ public class SecurityUtils {
 
     public void validateAccountStatus(User user) {
         if (user.getStatus() == Status.INACTIVE) {
-            throw new ValidationException("Account has been disabled by platform");
+            throw new ValidationException(AuthStatusMessages.ACCOUNT_INACTIVE);
         }
 
         if (user.getAccountStatus() == AccountStatus.LOCKED) {
-            throw new ValidationException("Account is locked");
+            throw new ValidationException(AuthStatusMessages.ACCOUNT_LOCKED);
         }
 
         if (user.getAccountStatus() == AccountStatus.END_WORK) {
-            throw new ValidationException("Account has been ended");
+            throw new ValidationException(AuthStatusMessages.ACCOUNT_ENDED);
         }
     }
 
