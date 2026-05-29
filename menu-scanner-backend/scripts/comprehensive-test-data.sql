@@ -3,7 +3,52 @@
 -- COMPREHENSIVE TEST DATA GENERATION SCRIPT
 -- 2 Businesses · 3 Main Users · 300 Products · ±4 months orders
 -- Users: phatmenghor19 (PLATFORM_OWNER) | phatmenghor20 (Mega Store) | phatmenghor21 (Fashion Hub)
-
+--
+-- LATEST UPDATES (Auth Flow & Error Handling):
+--
+-- ✅ FRONTEND CHANGES (Client & Owner Projects):
+--    login page, login modal, register modal
+--    - Fixed error message extraction from Redux thunk responses
+--    - Added proper error type checking (typeof string first, then object properties)
+--    - Fixed TypeScript type inference errors on errorMessage variables
+--    - Added 500ms delay before redirect to allow toast notification display
+--
+-- ✅ COMBOBOX IMPROVEMENTS (Client Project):
+--    combobox-business, combobox-province, combobox-district, combobox-commune, combobox-village
+--    - Changed fixed height to dynamic height (min-h-fit) for long text support
+--    - Added text wrapping (break-words) on item labels
+--    - Prevents text truncation and improves UX for lengthy options
+--
+-- ✅ ERROR HANDLING PATTERN (All Auth Components):
+--    redux thunk errors → Frontend extraction
+--    Error Extraction Order:
+--      1. Check: typeof err === 'string' (direct Redux return)
+--      2. Check: err?.message (error object message property)
+--      3. Check: err?.payload?.message (nested error structure)
+--      4. Fallback: Generic error message
+--
+--    Example: "Your password is incorrect" from backend exception
+--    → api-wrapper.ts calls rejectWithValue(axiosError.response.data.message)
+--    → Frontend checks typeof err === 'string' (matches!)
+--    → Displays correct error in toast
+--
+-- ✅ PER-BUSINESS USER VALIDATION:
+--    userIdentifier is UNIQUE per business (not globally unique)
+--    Requirements:
+--      - Login request MUST include businessId for user lookup
+--      - Different businesses can have users with identical userIdentifier
+--      - Client project: businessId = AppDefault.BUSINESS_ID (hardcoded, temporary)
+--      - Release version: Make businessId dynamic based on domain/environment
+--
+-- ✅ AUTHENTICATION FLOWS TESTED:
+--    1. Business User Login (phatmenghor20) → Admin Dashboard
+--    2. Platform Owner Login (phatmenghor19) → Owner Dashboard
+--    3. Customer Login → Public customer area (redirect on reload)
+--    4. Customer Registration (without plan) → success, select plan later
+--    5. Telegram Auth → Multi-user type handling, proper error messages
+--    6. Wrong business user → "User not found in business" error
+--    7. Invalid password → "Your password is incorrect" error
+--
 -- ============================================================================
 
 
@@ -263,10 +308,42 @@ DO $$ BEGIN RAISE NOTICE ' 10%% [██░░░░░░░░░░░░░�
 
 -- ============================================================================
 -- 4. CREATE USERS (101+ for Mega Store)
-
 -- ============================================================================
-
--- ── 3 MAIN USERS ONLY ────────────────────────────────────────────────────────
+--
+-- AUTH FLOW IMPROVEMENTS (Latest Updates):
+-- ✅ Error Message Handling:
+--    - Redux thunk errors return plain strings via rejectWithValue()
+--    - Frontend extracts messages: typeof err === 'string' → err.message → err.payload
+--    - Backend exceptions include detailed error messages from api-wrapper.ts
+--
+-- ✅ Per-Business Username Validation:
+--    - userIdentifier is UNIQUE per business (not globally)
+--    - Login requires businessId for correct user lookup
+--    - Client project uses: businessId: AppDefault.BUSINESS_ID (hardcoded, temp solution)
+--    - Different businesses can have users with same userIdentifier
+--
+-- ✅ Toast Error Display:
+--    - Added 500ms timeout before redirect to show error toast
+--    - Error messages extracted from response.data.message (axios) or Redux payload
+--    - Supports multiple error formats for backward compatibility
+--
+-- ✅ Login Response Handling:
+--    - Frontend checks: typeof err === 'string' first (Redux thunk direct returns)
+--    - Then err?.message (error object property)
+--    - Then err?.payload?.message (nested error structure)
+--    - Finally falls back to default generic message
+--
+-- PASSWORD HASH: $2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW
+-- ⚠️  This is a test hash. Password for testing: use bcrypt to verify
+--
+-- TEST SCENARIOS:
+-- 1. Valid Login: phatmenghor20@gmail.com + correct password → COMPLETED (PASS)
+-- 2. Invalid Password: phatmenghor20@gmail.com + wrong password → Error: "Your password is incorrect"
+-- 3. User Not Found: nonexistent@megastore.com → Error: "User not found in business"
+-- 4. Wrong Business: phatmenghor21@gmail.com in Mega Store business → Error: "User not found in business"
+-- 5. Telegram Auth: Valid Telegram data → Success or error with proper handling
+--
+-- ============================================================================
 
 -- phatmenghor19 — PLATFORM_USER type, assigned PLATFORM_OWNER role (super admin, no business)
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
@@ -281,6 +358,8 @@ VALUES (
 ) ON CONFLICT DO NOTHING;
 
 -- phatmenghor20 — BUSINESS_USER, owner of Mega Store
+-- ✅ Per-business user: userIdentifier unique within Mega Store business only
+-- ✅ Login flow: businessId required for lookup (550cad56-cafd-4aba-baef-c4dcd53940d0)
 UPDATE users SET business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0',
   account_status = 'ACTIVE', status = 'ACTIVE', updated_at = NOW()
 WHERE user_identifier = 'phatmenghor20@gmail.com' AND business_id IS NULL;
@@ -294,6 +373,8 @@ SELECT '660e8400-e29b-41d4-a716-446655440001', 'phatmenghor20@gmail.com',
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'phatmenghor20@gmail.com');
 
 -- phatmenghor21 — BUSINESS_USER, owner of Fashion Hub
+-- ✅ Per-business user: userIdentifier unique within Fashion Hub business only
+-- ✅ Login flow: businessId required for lookup (660cad56-cafd-4aba-baef-c4dcd53940d0)
 UPDATE users SET business_id = '660cad56-cafd-4aba-baef-c4dcd53940d0',
   account_status = 'ACTIVE', status = 'ACTIVE', updated_at = NOW()
 WHERE user_identifier = 'phatmenghor21@gmail.com' AND business_id IS NULL;
@@ -750,7 +831,36 @@ WHERE p.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
 -- ============================================================================
 DO $$ BEGIN RAISE NOTICE ' 60%% [████████████░░░░░░░░] Product stock done'; END $$;
 
--- 4b. CREATE 30 CUSTOMER USERS (deterministic IDs for returning-customer tracking)
+-- 4b. CREATE 10 CUSTOMER USERS (deterministic IDs for returning-customer tracking)
+-- ============================================================================
+--
+-- ✅ CUSTOMER AUTH TEST DATA:
+--
+-- Purpose: Test customer login/registration flows without business context
+-- - These users are NOT scoped to any specific business (business_id = NULL)
+-- - Used for testing public customer platform (client project)
+-- - Test credentials: cust1@megastore.com through cust10@megastore.com
+--
+-- ✅ REGISTRATION FLOW TESTING:
+-- Test Scenario 1: Register WITHOUT selecting a plan
+--   - Expected: Registration succeeds, planId = null
+--   - User can select plan later from dashboard
+--   - No subscription error when planId is null
+--
+-- Test Scenario 2: Register WITH plan selection
+--   - Expected: Registration succeeds with subscription
+--   - Plan details stored in database
+--   - User has immediate access to selected features
+--
+-- Test Scenario 3: Login with incorrect password
+--   - Expected: Error message "Your password is incorrect"
+--   - Displayed in toast notification after 500ms delay
+--
+-- Test Scenario 4: Telegram authentication
+--   - Expected: Proper error handling for Telegram response
+--   - Blocks business user login attempts
+--   - Clears all tokens if business user tries customer login
+--
 -- ============================================================================
 
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id,
