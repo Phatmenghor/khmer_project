@@ -8,11 +8,11 @@ export const businessSettingsSchema = z.object({
   enableStock: z.enum(["ENABLED", "DISABLED"]),
   socialMedia: z.array(
     z.object({
-      name: z.string(),
-      linkUrl: z.string(),
+      name: z.string().optional(),
+      linkUrl: z.string().optional(),
       imageUrl: z.string().optional(),
     })
-  ),
+  ).optional(),
   primaryColor: z.string().min(1, "Primary color is required"),
 
   contactAddress: z.string().optional(),
@@ -21,9 +21,9 @@ export const businessSettingsSchema = z.object({
 
   businessHours: z.array(
     z.object({
-      day: z.string(),
-      openingTime: z.string(),
-      closingTime: z.string(),
+      day: z.string().optional(),
+      openingTime: z.string().optional(),
+      closingTime: z.string().optional(),
     })
   ).optional(),
 

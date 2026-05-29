@@ -204,6 +204,14 @@ export default function BusinessSettingsPage() {
       );
 
 
+      // Filter out empty business hours entries
+      const filteredBusinessHours = (data.businessHours || [])
+        .filter(bh => bh.day && bh.openingTime && bh.closingTime);
+
+      // Filter out empty social media entries
+      const filteredSocialMedia = uploadedSocialMedia
+        .filter(sm => sm.name && sm.linkUrl);
+
       const payload = {
         businessName: data.businessName,
         taxPercentage: data.taxPercentage
@@ -211,12 +219,12 @@ export default function BusinessSettingsPage() {
           : null,
         logoBusinessUrl: logoBusinessUrl,
         enableStock: data.enableStock,
-        socialMedia: uploadedSocialMedia,
+        socialMedia: filteredSocialMedia,
         primaryColor: data.primaryColor,
         contactAddress: data.contactAddress,
         contactPhone: data.contactPhone,
         contactEmail: data.contactEmail,
-        businessHours: data.businessHours,
+        businessHours: filteredBusinessHours,
         useBrands: data.useBrands,
         lowStockThreshold: data.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
         telegramGroupChatId: data.telegramGroupChatId || null,
