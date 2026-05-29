@@ -18,7 +18,7 @@ public class PaymentOptionRequest {
     @NotBlank(message = "Payment option name is required")
     private String name;
 
-    @NotNull(message = "Payment option type is required")
+    @NotNull(message = "Type is required")
     private PaymentOptionType paymentOptionType;
 
     @NotNull(message = "Status is required")

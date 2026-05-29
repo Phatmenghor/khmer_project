@@ -180,8 +180,8 @@ export default function PaymentOptionsModal({
               <SelectField
                 control={control}
                 name="paymentOptionType"
-                label="Payment Option Type"
-                placeholder="Select payment option type"
+                label="Type"
+                placeholder="Select type"
                 options={PAYMENT_OPTION_TYPE_OPTIONS}
                 required
                 disabled={isSubmitting}

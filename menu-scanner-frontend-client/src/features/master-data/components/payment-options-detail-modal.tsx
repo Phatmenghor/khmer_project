@@ -60,7 +60,7 @@ export function PaymentOptionDetailModal({
                   <div className="w-full md:w-1/2 space-y-4">
                     <DisplayField label="Payment Method Name" value={paymentOption.name || "-"} />
                     <DisplayField
-                      label="Payment Type"
+                      label="Type"
                       value={formatEnumValue(paymentOption.paymentOptionType) || "-"}
                     />
                     <DisplayField
