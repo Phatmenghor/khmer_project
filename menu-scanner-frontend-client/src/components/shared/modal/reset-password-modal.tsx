@@ -51,6 +51,7 @@ export default function ResetPasswordModal({
   const isResettingPassword = useAppSelector(selectIsResettingPassword);
 
   const [showPassword, setShowPassword] = useState(false);
+  const [customPassword, setCustomPassword] = useState(AppDefault.RESET_PASSWORD);
   const defaultPassword = AppDefault.RESET_PASSWORD;
 
   const onReset = async () => {
@@ -59,12 +60,17 @@ export default function ResetPasswordModal({
       return;
     }
 
+    if (!customPassword || customPassword.trim() === "") {
+      toast.error("Please enter a password");
+      return;
+    }
+
     try {
       await dispatch(
         adminChangePasswordService({
           userId: userId,
-          newPassword: defaultPassword,
-          confirmPassword: defaultPassword,
+          newPassword: customPassword,
+          confirmPassword: customPassword,
         })
       ).unwrap();
 
@@ -78,12 +84,13 @@ export default function ResetPasswordModal({
 
   const handleClose = () => {
     setShowPassword(false);
+    setCustomPassword(defaultPassword);
     onClose();
   };
 
   const copyPassword = async () => {
     try {
-      await navigator.clipboard.writeText(defaultPassword);
+      await navigator.clipboard.writeText(customPassword);
       toast.success("Password copied to clipboard");
     } catch (error) {
       toast.error("Failed to copy password");
@@ -138,9 +145,11 @@ export default function ResetPasswordModal({
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
-                  value={defaultPassword}
-                  readOnly
+                  value={customPassword}
+                  onChange={(e) => setCustomPassword(e.target.value)}
+                  placeholder="Enter new password"
                   className="pr-20 font-mono text-sm h-12 py-3"
+                  disabled={isResettingPassword}
                 />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
                   <Button
