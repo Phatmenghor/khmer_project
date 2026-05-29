@@ -13,12 +13,17 @@ import java.util.UUID;
 public class BusinessSettingResponse extends BaseAuditResponse {
 
     private UUID businessId;
+    private String businessName;
     private Double taxPercentage;
     private String logoBusinessUrl;
     private StockStatus enableStock;
     private List<SocialMediaResponse> socialMedia;
     private String primaryColor;
     private List<BusinessHoursResponse> businessHours;
+
+    private String contactAddress;
+    private String contactPhone;
+    private String contactEmail;
 
     private Boolean useBrands;
     private Integer lowStockThreshold;
