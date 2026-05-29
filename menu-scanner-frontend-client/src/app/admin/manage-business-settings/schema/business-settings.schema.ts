@@ -24,7 +24,20 @@ export const businessSettingsSchema = z.object({
       day: z.string().optional(),
       openingTime: z.string().optional(),
       closingTime: z.string().optional(),
-    })
+    }).refine(
+      (item) => {
+        // If day is empty, all fields can be empty
+        if (!item.day || item.day.trim() === "") {
+          return true;
+        }
+        // If day is selected, opening and closing times are required
+        return item.openingTime && item.openingTime.trim() !== "" &&
+               item.closingTime && item.closingTime.trim() !== "";
+      },
+      {
+        message: "Opening and closing times are required when a day is selected",
+      }
+    )
   ).optional(),
 
   useBrands: z.boolean().optional(),
