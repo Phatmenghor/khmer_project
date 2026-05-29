@@ -57,6 +57,27 @@ export const updateProfileService = createApiThunk<any, any>(
 );
 
 
+export const getCustomerProfileService = createApiThunk<any, void>(
+  "auth/getCustomerProfile",
+  async () => {
+    const response = await axiosClientWithAuth.get("/api/v1/users/customer-profile");
+    return response.data.data;
+  }
+);
+
+
+export const updateCustomerProfileService = createApiThunk<any, any>(
+  "auth/updateCustomerProfile",
+  async (profileData) => {
+    const response = await axiosClientWithAuth.put(
+      "/api/v1/users/customer-profile",
+      profileData
+    );
+    return response.data.data;
+  }
+);
+
+
 export const changePasswordService = createApiThunk<any, ChangePasswordRequest>(
   "auth/changePassword",
   async (passwordData) => {

@@ -16,8 +16,8 @@ import { DateTimePickerField } from "@/components/shared/form-field/date-picker-
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
-  getProfileService,
-  updateProfileService,
+  getCustomerProfileService,
+  updateCustomerProfileService,
   deleteAccountService,
 } from "@/features/auth/store/thunks/auth-thunks";
 import {
@@ -99,7 +99,7 @@ export default function PublicProfilePage() {
 
   useEffect(() => {
     if (!userProfile && !isProfileLoading) {
-      dispatch(getProfileService());
+      dispatch(getCustomerProfileService());
     }
   }, [dispatch, userProfile, isProfileLoading]);
 
@@ -156,10 +156,10 @@ export default function PublicProfilePage() {
       if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth;
       if (profileImageUrl) payload.profileImageUrl = profileImageUrl;
 
-      await dispatch(updateProfileService(payload)).unwrap();
+      await dispatch(updateCustomerProfileService(payload)).unwrap();
 
 
-      await dispatch(getProfileService()).unwrap();
+      await dispatch(getCustomerProfileService()).unwrap();
 
       showToast.success(Messages.profile.updated);
       setIsEditing(false);
@@ -209,8 +209,8 @@ export default function PublicProfilePage() {
         profileImageUrl,
       };
 
-      await dispatch(updateProfileService(payload)).unwrap();
-      await dispatch(getProfileService()).unwrap();
+      await dispatch(updateCustomerProfileService(payload)).unwrap();
+      await dispatch(getCustomerProfileService()).unwrap();
 
       showToast.success(Messages.profile.pictureUpdated);
     } catch (error: unknown) {
