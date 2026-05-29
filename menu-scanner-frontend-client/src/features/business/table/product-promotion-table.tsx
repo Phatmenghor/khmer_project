@@ -185,14 +185,16 @@ export const productPromotionTableColumns = ({
       maxWidth: "250px",
       render: (product) => (
         <div className="space-y-1">
-          <span className="text-xs font-semibold text-foreground">
-            ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
-          </span>
-          {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
-            <div className="text-xs text-muted-foreground line-through">
-              ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
+              <span className="text-xs text-muted-foreground line-through">
+                ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
+              </span>
+            )}
+            <span className="text-xs font-semibold text-foreground">
+              ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
+            </span>
+          </div>
           {product?.hasPromotion && (
             <div className="text-xs font-semibold text-red-600">
               {product.displayPromotionType === "PERCENTAGE"
