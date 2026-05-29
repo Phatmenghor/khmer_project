@@ -162,12 +162,26 @@ export const productTableColumns = ({
     {
       key: "pricing",
       label: "Price",
-      minWidth: "80px",
-      maxWidth: "120px",
+      minWidth: "150px",
+      maxWidth: "250px",
       render: (product) => (
-        <span className="text-xs font-semibold text-foreground">
-          ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
-        </span>
+        <div className="space-y-1">
+          <span className="text-xs font-semibold text-foreground">
+            ${parseFloat(product?.displayPrice?.toString() || "0").toFixed(2)}
+          </span>
+          {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
+            <div className="text-xs text-muted-foreground line-through">
+              ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
+            </div>
+          )}
+          {product?.hasPromotion && (
+            <div className="text-xs font-semibold text-red-600">
+              {product.displayPromotionType === "PERCENTAGE"
+                ? `-${product.displayPromotionValue}%`
+                : `-$${product.displayPromotionValue}`}
+            </div>
+          )}
+        </div>
       ),
     },
 
