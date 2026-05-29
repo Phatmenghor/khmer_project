@@ -313,6 +313,14 @@ export default function BusinessSettingsPage() {
           },
           (errors) => {
             console.log("Form validation failed:", errors);
+            const errorCount = Object.keys(errors).length;
+            if (errorCount > 0) {
+              const firstErrorField = Object.keys(errors)[0];
+              const firstError = errors[firstErrorField as keyof typeof errors];
+              const errorMessage = (firstError as any)?.message ||
+                                   `Please fix ${errorCount} validation error${errorCount > 1 ? 's' : ''}`;
+              showToast.error(errorMessage);
+            }
           }
         )}
         className="space-y-6"
