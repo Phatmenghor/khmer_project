@@ -39,14 +39,6 @@ const PAYMENT_OPTION_TYPE_OPTIONS = [
   { value: "CASH", label: "Cash" },
 ];
 
-const PAYMENT_TYPE_OPTIONS = [
-  { value: "SUBSCRIPTION", label: "Subscription" },
-  { value: "USER_PLAN", label: "User Plan" },
-  { value: "BUSINESS_RECORD", label: "Business Record" },
-  { value: "REFUND", label: "Refund" },
-  { value: "OTHER", label: "Other" },
-];
-
 const STATUS_OPTIONS = [
   { value: "ACTIVE", label: "Active" },
   { value: "INACTIVE", label: "Inactive" },
@@ -85,7 +77,6 @@ export default function PaymentOptionsModal({
     defaultValues: {
       name: "",
       paymentOptionType: "",
-      paymentType: "SUBSCRIPTION",
       status: Status.ACTIVE,
       imageUrl: "",
     },
@@ -101,7 +92,6 @@ export default function PaymentOptionsModal({
       reset({
         name: "",
         paymentOptionType: "",
-        paymentType: "SUBSCRIPTION",
         status: Status.ACTIVE,
         imageUrl: "",
       });
@@ -109,7 +99,6 @@ export default function PaymentOptionsModal({
       reset({
         name: paymentOption.name || "",
         paymentOptionType: paymentOption.paymentOptionType || "",
-        paymentType: (paymentOption.paymentType || "SUBSCRIPTION") as any,
         status: (paymentOption.status || Status.ACTIVE) as "ACTIVE" | "INACTIVE",
         imageUrl: paymentOption.imageUrl || "",
       });
@@ -196,17 +185,6 @@ export default function PaymentOptionsModal({
                 required
                 disabled={isSubmitting}
                 error={errors.paymentOptionType}
-              />
-
-              <SelectField
-                control={control}
-                name="paymentType"
-                label="Payment Type"
-                placeholder="Select payment type"
-                options={PAYMENT_TYPE_OPTIONS}
-                required
-                disabled={isSubmitting}
-                error={errors.paymentType}
               />
 
               <SelectField

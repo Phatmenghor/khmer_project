@@ -39,11 +39,6 @@ public class PaymentOption extends BaseUUIDEntity {
     private PaymentOptionType paymentOptionType = PaymentOptionType.CASH;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_type", nullable = false)
-    @Builder.Default
-    private PaymentType paymentType = PaymentType.SUBSCRIPTION;
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     @Builder.Default
     private Status status = Status.ACTIVE;
