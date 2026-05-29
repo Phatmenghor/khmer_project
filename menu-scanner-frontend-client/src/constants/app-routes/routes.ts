@@ -22,7 +22,7 @@ export const ROUTES = {
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin",
-    PROFILE: "/profile",
+    PROFILE: "/admin/profile",
     ADMIN_SESSIONS: "/admin/admin-sessions",
     USERS: "/admin/users",
     ROLES: "/admin/users/roles",
