@@ -25,7 +25,7 @@ export const loginService = createApiThunk<any, LoginCredentialsRequest>(
 export const getProfileService = createApiThunk<any, void>(
   "auth/getProfile",
   async () => {
-    const response = await axiosClientWithAuth.get("/api/v1/users/platform-profile");
+    const response = await axiosClientWithAuth.get("/api/v1/users/business-profile");
     return response.data.data;
   }
 );
@@ -34,7 +34,7 @@ export const updateProfileService = createApiThunk<any, any>(
   "auth/updateProfile",
   async (profileData) => {
     const response = await axiosClientWithAuth.put(
-      "/api/v1/users/platform-profile",
+      "/api/v1/users/business-profile",
       profileData
     );
     return response.data.data;
