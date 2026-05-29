@@ -648,8 +648,8 @@ export default function BusinessSettingsPage() {
                         }`}
                       >
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">
+                          <div className="space-y-2 min-w-0">
+                            <Label className="text-sm font-medium truncate line-clamp-1">
                               Day
                             </Label>
                             <Input
@@ -669,8 +669,8 @@ export default function BusinessSettingsPage() {
                               <p className="text-xs text-red-500">{hourErrors.day.message}</p>
                             )}
                           </div>
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">
+                          <div className="space-y-2 min-w-0">
+                            <Label className="text-sm font-medium truncate line-clamp-1">
                               Opening Time
                             </Label>
                             <CustomTimePicker
@@ -689,8 +689,8 @@ export default function BusinessSettingsPage() {
                               <p className="text-xs text-red-500">{hourErrors.openingTime.message}</p>
                             )}
                           </div>
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium">
+                          <div className="space-y-2 min-w-0">
+                            <Label className="text-sm font-medium truncate line-clamp-1">
                               Closing Time
                             </Label>
                             <CustomTimePicker
