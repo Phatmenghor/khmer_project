@@ -513,41 +513,41 @@ export default function BusinessSettingsPage() {
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {}
-            <div className="space-y-2">
-              <Label>Primary Color</Label>
-              <input
-                type="hidden"
-                {...form.register("primaryColor")}
-              />
-              <div className="flex gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {}
+              <div className="space-y-2">
+                <Label>Primary Color</Label>
                 <input
-                  type="color"
-                  value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                  onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
-                  disabled={isSaving}
-                  className="w-20 h-10 cursor-pointer rounded border border-input"
+                  type="hidden"
+                  {...form.register("primaryColor")}
                 />
-                <input
-                  placeholder={BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                  value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                  onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
-                  disabled={isSaving}
-                  className={`flex-1 px-3 py-2 border rounded-md ${form.formState.errors.primaryColor ? "border-red-500" : "border-input"}`}
-                />
+                <div className="flex gap-3">
+                  <input
+                    type="color"
+                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
+                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
+                    disabled={isSaving}
+                    className="w-20 h-10 cursor-pointer rounded border border-input"
+                  />
+                  <input
+                    placeholder={BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
+                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
+                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
+                    disabled={isSaving}
+                    className={`flex-1 px-3 py-2 border rounded-md ${form.formState.errors.primaryColor ? "border-red-500" : "border-input"}`}
+                  />
+                </div>
+                {form.formState.errors.primaryColor && (
+                  <p className="text-xs text-red-500">{form.formState.errors.primaryColor.message}</p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Main brand color applied site-wide
+                </p>
               </div>
-              {form.formState.errors.primaryColor && (
-                <p className="text-xs text-red-500">{form.formState.errors.primaryColor.message}</p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Main brand color applied site-wide
-              </p>
-            </div>
 
-            {}
-            <div className="border-t pt-6">
-              <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex-1">
+              {}
+              <div className="flex items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors h-fit">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h4 className="font-semibold">Show Brands</h4>
                     <Badge variant={form.watch("useBrands") ? "default" : "secondary"}>
@@ -568,7 +568,7 @@ export default function BusinessSettingsPage() {
                     })
                   }
                   disabled={isSaving}
-                  className="ml-4"
+                  className="ml-4 flex-shrink-0"
                 >
                   {form.watch("useBrands") ? (
                     <>
