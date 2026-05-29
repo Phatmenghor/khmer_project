@@ -307,7 +307,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             profileLink={ROUTES.ADMIN.PROFILE}
             showEmail={true}
             showOnlineIndicator={true}
-            enableImagePreview={true}
+            enableImagePreview={false}
             avatarSize="md"
           />
         )}

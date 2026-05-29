@@ -31,7 +31,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
   profileLink,
   showEmail = true,
   showOnlineIndicator = true,
-  enableImagePreview = true,
+  enableImagePreview = false,
   className = "",
   avatarSize = "md",
 }) => {
