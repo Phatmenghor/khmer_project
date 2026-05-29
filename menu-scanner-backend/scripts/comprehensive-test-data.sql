@@ -2016,7 +2016,7 @@ BEGIN
       'admin', 'admin'
     ) ON CONFLICT DO NOTHING;
 
-    INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
     VALUES (
       gen_random_uuid(),
       '550cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -2027,8 +2027,6 @@ BEGIN
       CASE WHEN i = 1    THEN 'SUBSCRIPTION' ELSE 'RENEWAL' END,
       'COMPLETED',
       'REF-MEGA-' || LPAD(i::TEXT, 3, '0'),
-      CASE WHEN i = 1 THEN 'Initial monthly subscription activation'
-                       ELSE 'Monthly renewal #' || (i - 1) END,
       0, false,
       NOW() - INTERVAL '29 months 10 days' + (i - 1) * INTERVAL '1 month',
       NOW() - INTERVAL '29 months 10 days' + (i - 1) * INTERVAL '1 month',
@@ -2123,13 +2121,12 @@ BEGIN
     END CASE;
 
     -- Initial SUBSCRIPTION payment linked to this business's subscription
-    INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
     VALUES (
       gen_random_uuid(),
       biz_id, sub_id, plan_id,
       0.00, 'CASH', 'SUBSCRIPTION', 'COMPLETED',
       'REF-BIZ' || LPAD(i::TEXT, 2, '0') || '-001',
-      'Initial subscription activation',
       0, false, NOW(), NOW(), 'admin', 'admin'
     ) ON CONFLICT DO NOTHING;
 
@@ -2142,7 +2139,7 @@ BEGIN
   RAISE NOTICE 'C2. Inserting subscription payments for Fashion Hub...';
 
   -- Fashion Hub — Sub 1 (expired weekly): initial subscription payment
-  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
   VALUES (
     gen_random_uuid(),
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -2150,7 +2147,6 @@ BEGIN
     week_plan_id,
     0.00, 'CASH', 'SUBSCRIPTION', 'COMPLETED',
     'REF-FASH-WEEK-001',
-    'Initial weekly subscription activation — 1 Week plan',
     0, false,
     NOW() - INTERVAL '3 weeks',
     NOW() - INTERVAL '3 weeks',
@@ -2158,7 +2154,7 @@ BEGIN
   ) ON CONFLICT DO NOTHING;
 
   -- Fashion Hub — Sub 2 (expired monthly): renewal payment
-  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
   VALUES (
     gen_random_uuid(),
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -2166,7 +2162,6 @@ BEGIN
     month_plan_id,
     0.00, 'BANK', 'RENEWAL', 'COMPLETED',
     'REF-FASH-MON-001',
-    'Monthly renewal after weekly plan expired',
     0, false,
     NOW() - INTERVAL '6 weeks',
     NOW() - INTERVAL '6 weeks',
@@ -2174,7 +2169,7 @@ BEGIN
   ) ON CONFLICT DO NOTHING;
 
   -- Fashion Hub — Sub 3 (active): renewal payment
-  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, notes, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  INSERT INTO subscription_payments (id, business_id, subscription_id, plan_id, amount, payment_method, payment_type, status, reference_number, version, is_deleted, created_at, updated_at, created_by, updated_by)
   VALUES (
     gen_random_uuid(),
     '660cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -2182,7 +2177,6 @@ BEGIN
     month_plan_id,
     0.00, 'CASH', 'RENEWAL', 'COMPLETED',
     'REF-FASH-MON-002',
-    'Current active monthly subscription',
     0, false,
     NOW() - INTERVAL '5 days',
     NOW() - INTERVAL '5 days',
