@@ -23,26 +23,28 @@ export default function DashboardLayout({
 
   const isPosPage = pathname.includes("/pos");
 
-  // Restore fullscreen state from localStorage when POS page loads
+  // Generate route key for storing fullscreen state per route
+  const getRouteKey = () => {
+    const routeKey = pathname.replace(/\//g, "_").replace(/^_/, "") || "home";
+    return `fullscreen:${routeKey}`;
+  };
+
+  // Restore fullscreen state from localStorage when route changes
   useEffect(() => {
-    if (isPosPage) {
-      const savedFullscreenState = localStorage.getItem("pos:fullscreen");
-      if (savedFullscreenState === "true") {
-        setIsFullscreen(true);
-      }
+    const routeKey = getRouteKey();
+    const savedFullscreenState = localStorage.getItem(routeKey);
+    if (savedFullscreenState === "true") {
+      setIsFullscreen(true);
     } else {
-      // Clear fullscreen when leaving POS page
       setIsFullscreen(false);
-      localStorage.removeItem("pos:fullscreen");
     }
-  }, [isPosPage]);
+  }, [pathname]);
 
   // Save fullscreen state to localStorage when it changes
   useEffect(() => {
-    if (isPosPage) {
-      localStorage.setItem("pos:fullscreen", isFullscreen.toString());
-    }
-  }, [isFullscreen, isPosPage]);
+    const routeKey = getRouteKey();
+    localStorage.setItem(routeKey, isFullscreen.toString());
+  }, [isFullscreen, pathname]);
 
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
