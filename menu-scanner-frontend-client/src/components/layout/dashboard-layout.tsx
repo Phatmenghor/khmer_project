@@ -47,8 +47,9 @@ export default function DashboardLayout({
     }
 
     const newUrl = `${pathname}?${params.toString()}`.replace(/\?$/, "");
-    window.history.replaceState({ path: newUrl }, "", newUrl);
-  }, [isFullscreen, pathname, isPosPage]);
+    // Use router.replace to properly update URL in Next.js
+    router.replace(newUrl, { scroll: false });
+  }, [isFullscreen, pathname, isPosPage, router]);
 
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
