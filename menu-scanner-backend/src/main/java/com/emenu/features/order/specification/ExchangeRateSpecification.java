@@ -5,8 +5,15 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class ExchangeRateSpecification {
 
-    public static Specification<ExchangeRate> active() {
+    public static Specification<ExchangeRate> notDeleted() {
         return (root, query, cb) -> cb.equal(root.get("isDeleted"), false);
+    }
+
+    public static Specification<ExchangeRate> byIsActive(Boolean isActive) {
+        return (root, query, cb) -> {
+            if (isActive == null) return cb.conjunction();
+            return cb.equal(root.get("isActive"), isActive);
+        };
     }
 
     public static Specification<ExchangeRate> searchByCurrencyCode(String search) {
@@ -17,7 +24,7 @@ public class ExchangeRateSpecification {
         };
     }
 
-    public static Specification<ExchangeRate> filterExchangeRates(String search) {
-        return active().and(searchByCurrencyCode(search));
+    public static Specification<ExchangeRate> filterExchangeRates(Boolean isActive, String search) {
+        return notDeleted().and(byIsActive(isActive)).and(searchByCurrencyCode(search));
     }
 }

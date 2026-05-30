@@ -8,6 +8,7 @@ import com.emenu.features.order.dto.update.ExchangeRateUpdateRequest;
 import com.emenu.features.order.mapper.ExchangeRateMapper;
 import com.emenu.features.order.models.ExchangeRate;
 import com.emenu.features.order.repository.ExchangeRateRepository;
+import com.emenu.features.order.specification.*;
 import com.emenu.features.order.service.ExchangeRateService;
 import com.emenu.shared.constants.Constants;
 import com.emenu.shared.dto.PaginationResponse;
@@ -55,11 +56,12 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
-        Page<ExchangeRate> page = exchangeRateRepository.findAllWithFilters(
+        Specification<ExchangeRate> spec = ExchangeRateSpecification.filterExchangeRates(
                 filter.getIsActive(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+
+        Page<ExchangeRate> page = exchangeRateRepository.findAll(spec, pageable);
         return paginationMapper.toPaginationResponse(page, exchangeRateMapper.toResponseList(page.getContent()));
     }
 

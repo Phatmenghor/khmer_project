@@ -6,6 +6,7 @@ import com.emenu.enums.payment.PaymentType;
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.repository.BusinessRepository;
+import com.emenu.features.order.specification.*;
 import com.emenu.features.order.dto.filter.PaymentFilterRequest;
 import com.emenu.features.order.dto.request.PaymentCreateRequest;
 import com.emenu.features.order.dto.response.PaymentResponse;
@@ -13,11 +14,14 @@ import com.emenu.features.order.dto.update.PaymentUpdateRequest;
 import com.emenu.features.order.mapper.PaymentMapper;
 import com.emenu.features.order.models.Payment;
 import com.emenu.features.order.repository.PaymentRepository;
+import com.emenu.features.order.specification.*;
 import com.emenu.features.order.service.ExchangeRateService;
 import com.emenu.features.order.service.PaymentService;
 import com.emenu.features.subscription.models.Subscription;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
+import com.emenu.features.order.specification.*;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
+import com.emenu.features.order.specification.*;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.generate.PaymentReferenceGenerator;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -72,16 +76,18 @@ public class PaymentServiceImpl implements PaymentService {
                 ? filter.getPaymentMethods() : null;
         List<PaymentStatus> paymentStatuses = (filter.getStatuses() != null && !filter.getStatuses().isEmpty())
                 ? filter.getStatuses() : null;
-        Page<Payment> paymentPage = paymentRepository.findAllWithFilters(
+
+        Specification<Payment> spec = PaymentSpecification.filterPayments(
                 filter.getBusinessId(),
                 filter.getPlanId(),
                 paymentMethods,
                 paymentStatuses,
                 filter.getCreatedFrom(),
                 filter.getCreatedTo(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+
+        Page<Payment> paymentPage = paymentRepository.findAll(spec, pageable);
         return paginationMapper.toPaginationResponse(paymentPage, paymentMapper.toResponseList(paymentPage.getContent()));
     }
 
