@@ -38,19 +38,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
            "ORDER BY h.createdAt ASC")
     List<OrderStatusHistory> findStatusHistoryByOrderId(@Param("orderId") UUID orderId);
 
-    @Query("SELECT o FROM Order o WHERE o.customerId = :customerId AND o.isDeleted = false ORDER BY o.createdAt DESC")
-    List<Order> findByCustomerIdOrderByCreatedAtDesc(@Param("customerId") UUID customerId);
-
-    @Query("SELECT o FROM Order o WHERE o.businessId = :businessId AND o.isDeleted = false ORDER BY o.createdAt DESC")
-    List<Order> findByBusinessIdOrderByCreatedAtDesc(@Param("businessId") UUID businessId);
-
-    @Query("SELECT o FROM Order o WHERE o.businessId = :businessId AND o.orderStatus = :orderStatus AND o.isDeleted = false ORDER BY o.createdAt DESC")
-    List<Order> findByBusinessIdAndOrderStatusOrderByCreatedAtDesc(@Param("businessId") UUID businessId, @Param("orderStatus") OrderStatus orderStatus);
-
     boolean existsByOrderNumber(String orderNumber);
-
-    @Query("SELECT COUNT(o) FROM Order o WHERE o.businessId = :businessId AND o.orderStatus = :orderStatus AND o.isDeleted = false")
-    long countByBusinessIdAndOrderStatus(@Param("businessId") UUID businessId, @Param("orderStatus") OrderStatus orderStatus);
 
     @Query("SELECT DISTINCT o FROM Order o " +
            "LEFT JOIN FETCH o.business b " +

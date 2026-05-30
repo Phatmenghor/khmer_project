@@ -78,6 +78,15 @@ public class OrderSpecification {
         };
     }
 
+    public static Specification<Order> hasCustomerId(UUID customerId) {
+        return (root, query, cb) -> {
+            if (customerId == null) {
+                return cb.conjunction();
+            }
+            return cb.equal(root.get("customerId"), customerId);
+        };
+    }
+
     public static Specification<Order> buildFilterSpecification(
             UUID businessId,
             OrderStatus orderStatus,
