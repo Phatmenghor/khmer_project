@@ -711,7 +711,7 @@ export default function PosPage() {
         {}
         <div className="flex-1 flex flex-col overflow-hidden relative">
           {}
-          <div className="flex flex-wrap items-end gap-2 max-md:gap-1 max-md:p-2 md:p-3 border-b bg-muted/20 shrink-0">
+          <div className="flex flex-wrap items-end gap-2 max-md:gap-1 max-md:p-2 md:p-3 border-b bg-muted/20 shrink-0 py-0.5">
             <div className="relative flex-1 max-md:min-w-[140px] md:min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 max-md:h-3.5 max-md:w-3.5 h-4 w-4 text-muted-foreground" />
               <Input
