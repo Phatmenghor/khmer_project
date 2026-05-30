@@ -119,12 +119,11 @@ export default function PendingOrdersAdminPage() {
       const element = document.createElement("div");
       element.style.position = "absolute";
       element.style.left = "-9999px";
-      element.style.width = "80mm";
-      element.style.height = "auto";
+      element.style.width = "100%";
+      element.style.maxWidth = "900px";
+      element.style.background = "white";
+      element.style.padding = "24px";
       element.style.fontFamily = "monospace";
-      element.style.fontSize = "11px";
-      element.style.backgroundColor = "#fff";
-      element.style.padding = "4mm";
 
       const date = new Date(order.createdAt);
       const formattedDate = date.toLocaleDateString("en-US", {
@@ -144,89 +143,133 @@ export default function PendingOrdersAdminPage() {
       const tax = order.pricing?.taxAmount || 0;
       const delivery = order.pricing?.deliveryFee || 0;
       const total = order.pricing?.finalTotal || 0;
+      const customizationTotal = order.pricing?.customizationTotal || 0;
 
-      const itemsHTML = order.items.map(item => {
+      // Build items HTML with proper fallbacks
+      const itemsHTML = order.items.map((item, idx) => {
         const itemTotal = (item.finalPrice || 0) * item.quantity;
+        const productName = item.product?.name || item.productName || "Product";
+        const sizeName = item.product?.sizeName || item.sizeName || null;
+        const hasPromo = item.hasPromotion && item.promotionType;
+        const promoLabel = hasPromo ? 
+          (item.promotionType === "PERCENTAGE" 
+            ? `${item.promotionValue}% OFF` 
+            : `$${item.promotionValue} OFF`) 
+          : null;
+
         return `
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px;">
-            <span style="flex: 1;">${item.productName}</span>
-            <span style="width: 16px; text-align: center;">${item.quantity}</span>
-            <span style="width: 30px; text-align: right;">—</span>
-            <span style="width: 50px; text-align: right;">$${itemTotal.toFixed(2)}</span>
+          <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #ccc;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span style="flex: 1; font-weight: bold;">${idx + 1}. ${productName}${sizeName ? ' (Size: ' + sizeName + ')' : ''}</span>
+              <span style="width: 40px; text-align: center;">${item.quantity}</span>
+              <span style="width: 50px; text-align: right;">$${item.finalPrice?.toFixed(2) || '0.00'}</span>
+              <span style="width: 60px; text-align: right; font-weight: bold;">$${itemTotal.toFixed(2)}</span>
+            </div>
+            ${promoLabel ? `<div style="color: #27ae60; font-weight: bold; font-size: 10px; margin-left: 8px;">✓ PROMOTION: ${promoLabel}</div>` : ''}
+            ${item.customizations && item.customizations.length > 0 ? `
+              <div style="margin-left: 16px; font-size: 10px; color: #666;">
+                ${item.customizations.map(c => `<div>• ${c.name}: +$${c.priceAdjustment?.toFixed(2) || '0.00'}</div>`).join('')}
+              </div>
+            ` : ''}
           </div>
         `;
       }).join('');
 
+      // Promotions summary
+      const promotionalItems = order.items.filter(i => i.hasPromotion && i.promotionType);
+      const promoSummary = promotionalItems.length > 0 ? `
+        <div style="background: #f0fdf4; border-left: 3px solid #22c55e; padding: 8px; margin: 8px 0; font-size: 11px;">
+          <div style="font-weight: bold; color: #16a34a; margin-bottom: 6px;">🎉 PROMOTIONS APPLIED</div>
+          ${promotionalItems.map(item => {
+            const prodName = item.product?.name || item.productName || "Product";
+            const promoText = item.promotionType === "PERCENTAGE" 
+              ? `-${item.promotionValue}%` 
+              : `-$${item.promotionValue}`;
+            return `<div style="display: flex; justify-content: space-between; color: #16a34a;"><span>${prodName}</span><span style="font-weight: bold;">${promoText}</span></div>`;
+          }).join('')}
+        </div>
+      ` : '';
+
       element.innerHTML = `
-        <div style="width: 80mm; background: white;">
+        <div style="width: 100%; max-width: 900px; background: white; font-family: monospace; font-size: 12px;">
           <!-- Header -->
-          <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px;">
-            <div style="font-weight: bold; font-size: 13px; letter-spacing: 1px;">RECEIPT</div>
+          <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+            <div style="font-weight: bold; font-size: 16px; letter-spacing: 2px;">RECEIPT</div>
+            <div style="font-size: 10px; color: #666; margin-top: 4px;">Professional Receipt Document</div>
           </div>
 
           <!-- Order Info -->
-          <div style="text-align: center; font-size: 10px; margin-bottom: 6px; border-bottom: 1px solid #666; padding-bottom: 4px;">
-            <div>Order #: ${order.orderNumber}</div>
-            <div>Date: ${formattedDate} • ${formattedTime}</div>
-            <div style="font-weight: bold;">${order.businessName || 'Restaurant'}</div>
+          <div style="text-align: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #666;">
+            <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">${order.businessName || 'Business'}</div>
+            <div style="font-size: 11px;">Order #: <strong>${order.orderNumber}</strong></div>
+            <div style="font-size: 11px;">Date: ${formattedDate} • ${formattedTime}</div>
+            ${order.customerName ? `<div style="font-size: 11px;">Customer: ${order.customerName}</div>` : ''}
           </div>
 
           <!-- Items Section -->
-          <div style="margin-bottom: 6px; border-bottom: 1px solid #666; padding-bottom: 4px;">
-            <div style="text-align: center; font-weight: bold; font-size: 10px; border-bottom: 1px solid #666; padding-bottom: 2px; margin-bottom: 4px;">ITEMS</div>
-            <div style="margin-bottom: 4px;">
-              <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 10px; margin-bottom: 2px;">
-                <span style="flex: 1;">NAME</span>
-                <span style="width: 16px; text-align: center;">QTY</span>
-                <span style="width: 30px; text-align: right;">DSC</span>
-                <span style="width: 50px; text-align: right;">TOTAL</span>
-              </div>
-              <div style="border-bottom: 1px solid #ccc; margin-bottom: 2px;"></div>
-              ${itemsHTML}
+          <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #666;">
+            <div style="text-align: center; font-weight: bold; margin-bottom: 8px;">ITEMS (${order.items.length})</div>
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 11px; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 2px solid #000;">
+              <span style="flex: 1;">DESCRIPTION</span>
+              <span style="width: 40px; text-align: center;">QTY</span>
+              <span style="width: 50px; text-align: right;">PRICE</span>
+              <span style="width: 60px; text-align: right;">TOTAL</span>
             </div>
+            ${itemsHTML}
           </div>
 
-          <!-- Order Summary -->
-          <div style="margin-bottom: 6px; border-bottom: 2px solid #000; padding-bottom: 6px;">
-            <div style="text-align: center; font-weight: bold; font-size: 10px; margin-bottom: 4px;">ORDER SUMMARY</div>
-            <div style="font-size: 10px; line-height: 1.6;">
-              <div style="display: flex; justify-content: space-between;">
-                <span>Payment Method</span>
-                <span style="font-weight: bold;">${order.payment?.paymentStatus || 'CASH'}</span>
+          <!-- Promotions -->
+          ${promoSummary}
+
+          <!-- Pricing Summary -->
+          <div style="margin-bottom: 12px; padding: 8px; background: #f9f9f9; border: 1px solid #ddd;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span>Subtotal</span>
+              <span style="font-weight: bold;">$${subtotal.toFixed(2)}</span>
+            </div>
+            ${customizationTotal > 0 ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span>Add-ons</span>
+                <span style="font-weight: bold;">+$${customizationTotal.toFixed(2)}</span>
               </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span>Subtotal w/ Add-ons</span>
-                <span style="font-weight: bold;">$${subtotal.toFixed(2)}</span>
+            ` : ''}
+            ${discount > 0 ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px; background: #ffe0e0; padding: 4px;">
+                <span style="color: #d32f2f; font-weight: bold;">Discount</span>
+                <span style="color: #d32f2f; font-weight: bold;">-$${discount.toFixed(2)}</span>
               </div>
-              ${discount > 0 ? `
-              <div style="display: flex; justify-content: space-between; color: #d32f2f;">
-                <span>Discount (Promotions)</span>
-                <span style="font-weight: bold;">-$${discount.toFixed(2)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span>Subtotal After Discount</span>
-                <span style="font-weight: bold;">$${subtotalAfterDiscount.toFixed(2)}</span>
-              </div>
-              ` : ''}
-              <div style="display: flex; justify-content: space-between;">
+            ` : ''}
+            ${tax > 0 ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                 <span>Tax</span>
                 <span style="font-weight: bold;">+$${tax.toFixed(2)}</span>
               </div>
-              <div style="display: flex; justify-content: space-between;">
+            ` : ''}
+            ${delivery > 0 ? `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                 <span>Delivery Fee</span>
-                <span style="font-weight: bold;">${delivery > 0 ? `+$${delivery.toFixed(2)}` : 'Free'}</span>
+                <span style="font-weight: bold;">+$${delivery.toFixed(2)}</span>
               </div>
-              <div style="border-top: 1px solid #666; padding-top: 3px; margin-top: 3px; display: flex; justify-content: space-between; font-weight: bold; font-size: 11px;">
-                <span>TOTAL AMOUNT</span>
-                <span>$${total.toFixed(2)}</span>
-              </div>
-            </div>
+            ` : ''}
+          </div>
+
+          <!-- Total -->
+          <div style="background: #000; color: white; padding: 12px; text-align: center; margin-bottom: 12px; font-weight: bold;">
+            <div style="font-size: 11px; margin-bottom: 4px;">FINAL AMOUNT DUE</div>
+            <div style="font-size: 18px;">TOTAL: $${total.toFixed(2)}</div>
+          </div>
+
+          <!-- Payment -->
+          <div style="margin-bottom: 12px; padding: 8px; border: 1px solid #666;">
+            <div style="font-weight: bold;">Payment Method: ${order.payment?.paymentMethod || 'N/A'}</div>
+            <div style="font-size: 11px;">Status: ${order.payment?.paymentStatus || 'N/A'}</div>
           </div>
 
           <!-- Footer -->
-          <div style="text-align: center; font-size: 10px; padding-top: 4px;">
-            <div>Thank you for your order!</div>
-            <div>Please visit again</div>
+          <div style="text-align: center; padding-top: 8px; border-top: 3px solid #000;">
+            <div style="font-weight: bold; margin-bottom: 4px;">✓ Thank You For Your Order!</div>
+            <div style="font-size: 10px; color: #666;">Please keep this receipt for your records</div>
+            <div style="font-size: 9px; color: #999; margin-top: 4px;">Generated: ${formattedDate} at ${formattedTime}</div>
           </div>
         </div>
       `;
@@ -238,22 +281,27 @@ export default function PendingOrdersAdminPage() {
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        width: 900,
       });
 
+      const pdfWidth = 210;
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
-        format: [80, 250],
+        format: "a4",
       });
 
       const imgData = canvas.toDataURL("image/png");
-      const imgHeight = (canvas.height * 80) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, 80, imgHeight);
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, imgHeight);
       pdf.save(`receipt-${order.orderNumber}.pdf`);
 
       document.body.removeChild(element);
       showToast.success("Receipt downloaded successfully");
     } catch (error) {
+      console.error("Receipt download error:", error);
       showToast.error("Failed to generate receipt");
     }
   };
