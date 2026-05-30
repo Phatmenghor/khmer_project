@@ -1,0 +1,86 @@
+package com.emenu.features.notification.telegram.config;
+
+import com.emenu.features.notification.telegram.service.TelegramNotificationService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Automatically configures Telegram webhook on application startup.
+ * If TELEGRAM_WEBHOOK_URL is set, this will register the webhook with Telegram Bot API.
+ * This eliminates the need for manual webhook setup after deployment.
+ */
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class TelegramWebhookInitializer implements ApplicationRunner {
+
+    @Value("${telegram.bot.token}")
+    private String botToken;
+
+    @Value("${telegram.bot.enabled:true}")
+    private boolean telegramEnabled;
+
+    @Value("${telegram.bot.auto-setup:false}")
+    private boolean autoSetup;
+
+    @Value("${telegram.bot.webhook-url:}")
+    private String webhookUrl;
+
+    private final RestTemplate restTemplate;
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        if (!telegramEnabled) {
+            log.debug("[Telegram] Bot is disabled, skipping webhook initialization");
+            return;
+        }
+
+        if (!autoSetup) {
+            log.debug("[Telegram] Auto-setup is disabled, skipping webhook initialization");
+            return;
+        }
+
+        if (webhookUrl == null || webhookUrl.isBlank()) {
+            log.debug("[Telegram] No webhook URL configured, skipping auto-setup");
+            log.info("[Telegram] To enable auto-setup, set TELEGRAM_WEBHOOK_URL environment variable");
+            return;
+        }
+
+        setupWebhook();
+    }
+
+    /**
+     * Setup webhook with Telegram Bot API
+     */
+    private void setupWebhook() {
+        try {
+            log.info("[Telegram] Setting up webhook with URL: {}", webhookUrl);
+
+            String apiUrl = String.format("https://api.telegram.org/bot%s/setWebhook", botToken);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("url", webhookUrl);
+
+            String response = restTemplate.postForObject(apiUrl, body, String.class);
+
+            log.info("[Telegram] Webhook setup response: {}", response);
+
+            if (response != null && response.contains("true")) {
+                log.info("[Telegram] ✅ Webhook successfully configured: {}", webhookUrl);
+            } else {
+                log.warn("[Telegram] ⚠️ Webhook setup returned unexpected response: {}", response);
+            }
+        } catch (Exception e) {
+            log.error("[Telegram] ❌ Failed to setup webhook: {}", e.getMessage(), e);
+            log.error("[Telegram] Please manually set webhook or check your configuration");
+        }
+    }
+}
