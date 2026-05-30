@@ -1250,6 +1250,16 @@ export default function PosPage() {
           }}
           isEditing={!!editingCartItemId}
           cartItems={cartItems}
+          initialQuantities={new Map(
+            cartItems.map((item) => [item.id, item.quantity])
+          )}
+          initialCustomizations={
+            editingCartItemId
+              ? cartItems
+                  .find((item) => item.id === editingCartItemId)
+                  ?.customizations?.map((c) => c.productCustomizationId) || []
+              : []
+          }
         />
       )}
 
