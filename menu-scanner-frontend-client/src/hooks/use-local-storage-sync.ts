@@ -31,7 +31,7 @@ export function useLocalStorageSync(
 ) {
   const {
     storageKey = "pos:cart",
-    debounceMs = 1000,
+    debounceMs = 0,
     enabled = true,
     onCartLoaded,
     onCartSaved,
@@ -186,7 +186,7 @@ export function useLocalStorageSync(
 export function useSimpleLocalStorageSync() {
   return useLocalStorageSync({
     storageKey: "pos:cart",
-    debounceMs: 1000,
+    debounceMs: 0,
     enabled: true,
   });
 }
