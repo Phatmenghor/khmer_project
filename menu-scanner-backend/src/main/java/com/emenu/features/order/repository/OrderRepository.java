@@ -66,8 +66,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
            "AND (:businessId IS NULL OR o.businessId = :businessId) " +
            "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +
            "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus) " +
-           "AND (:startDate IS NULL OR o.createdAt >= :startDate) " +
-           "AND (:endDate IS NULL OR o.createdAt <= :endDate) " +
+           "AND (:startDate IS NULL OR o.createdAt >= CAST(:startDate AS java.time.LocalDateTime)) " +
+           "AND (:endDate IS NULL OR o.createdAt <= CAST(:endDate AS java.time.LocalDateTime)) " +
            "AND (:search IS NULL OR :search = '' OR LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Order> findByFiltersAndOrderNumber(
             @Param("businessId") UUID businessId,
