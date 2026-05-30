@@ -39,7 +39,6 @@ import {
   PAYMENT_STATUS_ADMIN_FILTER,
 } from "@/constants/status/filter-status";
 import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { generateReceiptHTML } from "@/utils/receipt/receipt-template";
 import { OrderReceipt } from "@/components/shared/receipt/order-receipt";
 
@@ -130,39 +129,45 @@ export default function OrdersAdminPage() {
   const handleDownloadReceipt = async (order: OrderResponse) => {
     if (!order.id) return;
     try {
-      // Create container and generate receipt HTML using template
+      // Create container with receipt HTML
       const element = document.createElement("div");
       element.style.position = "absolute";
       element.style.left = "-9999px";
-      element.style.width = "100%";
-      element.style.maxWidth = "900px";
+      element.style.width = "305px";
       element.innerHTML = generateReceiptHTML(order);
       document.body.appendChild(element);
 
-      // Convert to canvas and generate PDF
+      // Convert to high-quality image using html2canvas
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
-        logging: false,
+        allowTaint: true,
         backgroundColor: '#ffffff',
-        width: 900,
+        width: 305,
+        logging: false,
       });
 
-      const pdfWidth = 210;
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
+      // Download as PNG
+      await new Promise<void>((resolve) => {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            resolve();
+            return;
+          }
+          const dlUrl = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = dlUrl;
+          a.download = `receipt-${order.orderNumber}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(dlUrl);
+          showToast.success("Receipt downloaded successfully");
+          resolve();
+        }, "image/png");
       });
-
-      const imgData = canvas.toDataURL("image/png");
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`receipt-${order.orderNumber}.pdf`);
 
       document.body.removeChild(element);
-      showToast.success("Receipt downloaded successfully");
     } catch (error) {
       console.error("Receipt download error:", error);
       showToast.error("Failed to generate receipt");
