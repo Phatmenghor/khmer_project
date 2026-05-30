@@ -54,10 +54,10 @@ export function generateReceiptHTML(order: OrderResponse): string {
       }
 
       const displayName = sizeName
-        ? `${productName} ${sizeName}`.substring(0, 26)
-        : productName.substring(0, 26);
+        ? `${productName} ${sizeName}`.substring(0, 20)
+        : productName.substring(0, 20);
 
-      let itemHTML = `${padRight(displayName, 26)} ${padLeft(String(item.quantity), 2)} ${padLeft(promoLabel, 7)} ${padLeft(formatPrice(itemTotal), 9)}`;
+      let itemHTML = `${padRight(displayName, 20)} ${padLeft(formatPrice(item.finalPrice || 0), 7)} ${padLeft(String(item.quantity), 3)} ${padLeft(promoLabel, 7)} ${padLeft(formatPrice(itemTotal), 7)}`;
 
       if (item.customizations && item.customizations.length > 0) {
         itemHTML += "\n" + item.customizations
@@ -109,7 +109,7 @@ ${order.customerName ? `Cust: ${order.customerName.substring(0, 32)}` : ""}
 ${dividerLine}
 ITEMS
 ${dividerLine}
-${padRight("NAME", 26)} ${padLeft("QTY", 2)} ${padLeft("DISC", 7)} ${padLeft("TOTAL", 9)}
+${padRight("NAME", 20)} ${padLeft("PRICE", 7)} ${padLeft("QTY", 3)} ${padLeft("DISC", 7)} ${padLeft("TOTAL", 7)}
 ${dividerLine}
 ${itemsHTML}
 ${dividerLine}
