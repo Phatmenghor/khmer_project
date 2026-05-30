@@ -97,24 +97,34 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
     urlUpdateTimeoutRef.current = setTimeout(() => {
       try {
 
-        const params = new URLSearchParams();
+        const params = new URLSearchParams(window.location.search);
 
+        // Update filter parameters
         if (searchTerm) {
           params.set("search", searchTerm);
+        } else {
+          params.delete("search");
         }
 
         if (selectedCategory?.id) {
           params.set("categoryId", selectedCategory.id);
+        } else {
+          params.delete("categoryId");
         }
 
         if (selectedBrand?.id) {
           params.set("brandId", selectedBrand.id);
+        } else {
+          params.delete("brandId");
         }
 
         if (promotionFilter) {
           params.set("promotion", "true");
+        } else {
+          params.delete("promotion");
         }
 
+        // Preserve fullscreen parameter (don't overwrite it)
 
         const queryString = params.toString();
         const newUrl = queryString ? `?${queryString}` : "";
