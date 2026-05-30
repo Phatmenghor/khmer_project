@@ -2,10 +2,11 @@
 
 import { useRef } from "react";
 import { Download, Printer, Check } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Receipt } from "./receipt";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface POSOrderSuccessModalProps {
   open: boolean;
@@ -78,6 +79,9 @@ export function POSOrderSuccessModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
+      <VisuallyHidden>
+        <DialogTitle>Order Success</DialogTitle>
+      </VisuallyHidden>
       <DialogContent className="w-full sm:max-w-[500px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
         {/* Success Header */}
         <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-6 text-white">
