@@ -71,7 +71,7 @@ export default function DashboardLayout({
 
   if (isFullscreen && isPosPage) {
     return (
-      <div className="fixed inset-0 z-[100] bg-background flex flex-col">
+      <div className="fixed inset-0 z-40 bg-background flex flex-col">
         <div className="hidden md:flex h-16 items-center border-b bg-background/95 backdrop-blur px-5">
           <Button
             variant="ghost"
