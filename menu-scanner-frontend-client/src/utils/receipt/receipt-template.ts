@@ -49,15 +49,17 @@ export function generateReceiptHTML(order: OrderResponse): string {
       let promoLabel = "";
       if (item.hasPromotion && item.promotionType) {
         promoLabel = item.promotionType === "PERCENTAGE"
-          ? `-${item.promotionValue}%`
-          : `-${formatPrice(item.promotionValue || 0)}`;
+          ? `${item.promotionValue}%`
+          : `${(item.promotionValue || 0).toFixed(2)}`;
       }
 
       const displayName = sizeName
         ? `${productName} ${sizeName}`.substring(0, 20)
         : productName.substring(0, 20);
 
-      let itemHTML = `${padRight(displayName, 20)} ${padLeft(formatPrice(item.finalPrice || 0), 7)} ${padLeft(String(item.quantity), 3)} ${padLeft(promoLabel, 7)} ${padLeft(formatPrice(itemTotal), 7)}`;
+      const priceDisplay = (item.finalPrice || 0).toFixed(2);
+      const totalDisplay = itemTotal.toFixed(2);
+      let itemHTML = `${padRight(displayName, 20)} ${padLeft(priceDisplay, 7)} ${padLeft(String(item.quantity), 3)} ${padLeft(promoLabel, 7)} ${padLeft(totalDisplay, 7)}`;
 
       if (item.customizations && item.customizations.length > 0) {
         itemHTML += "\n" + item.customizations
