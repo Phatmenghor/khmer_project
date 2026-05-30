@@ -252,6 +252,11 @@ export default function PosPage() {
   const [editingItemForPrice, setEditingItemForPrice] = useState<PosPageCartItem | null>(null);
 
 
+  // Clear browser history when entering POS page
+  useEffect(() => {
+    window.history.replaceState({ path: window.location.pathname }, "", window.location.pathname);
+  }, []);
+
   const [orderDiscount, setOrderDiscount] = useState<OrderDiscountType>(null);
 
 
