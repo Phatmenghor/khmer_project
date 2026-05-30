@@ -1,8 +1,8 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,20 +20,21 @@ export default function DashboardLayout({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const isMobile = useIsMobile();
   const pathname = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const isInitialized = useRef(false);
 
   const isPosPage = pathname.includes("/pos");
 
-  // Restore fullscreen state from URL query parameter
+  // Restore fullscreen state from URL on initial load only
   useEffect(() => {
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+
     const fullscreenParam = searchParams?.get("fullscreen");
     if (fullscreenParam === "true" || fullscreenParam === "1") {
       setIsFullscreen(true);
-    } else {
-      setIsFullscreen(false);
     }
-  }, [searchParams, pathname]);
+  }, []);
 
   // Update URL when fullscreen state changes (only on POS page)
   useEffect(() => {
@@ -47,9 +48,8 @@ export default function DashboardLayout({
     }
 
     const newUrl = `${pathname}?${params.toString()}`.replace(/\?$/, "");
-    // Use router.replace to properly update URL in Next.js
-    router.replace(newUrl, { scroll: false });
-  }, [isFullscreen, pathname, isPosPage, router]);
+    window.history.replaceState({ path: newUrl }, "", newUrl);
+  }, [isFullscreen, pathname, isPosPage]);
 
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
