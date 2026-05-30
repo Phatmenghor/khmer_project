@@ -1,9 +1,9 @@
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 
 /**
- * Generate clean monospace receipt HTML from order data
+ * Generate clean monospace receipt HTML optimized for 80mm thermal printer
  * Used for PDF download on admin orders pages and POS receipts
- * Simple text-based design suitable for thermal printers
+ * Standard thermal printer format with proper line wrapping
  */
 export function generateReceiptHTML(order: OrderResponse): string {
   // Format date and time
@@ -27,12 +27,21 @@ export function generateReceiptHTML(order: OrderResponse): string {
   const customizationTotal = order.pricing?.customizationTotal || 0;
   const total = order.pricing?.finalTotal || 0;
 
-  // Helper function to pad strings
+  // 80mm thermal printer width = ~42 characters in monospace
+  const LINE_WIDTH = 42;
+
+  // Helper functions for 80mm thermal format
   const padRight = (str: string, length: number) => str.padEnd(length, " ");
   const padLeft = (str: string, length: number) => str.padStart(length, " ");
+  const centerText = (str: string, width: number) => {
+    const padding = Math.floor((width - str.length) / 2);
+    return " ".repeat(padding) + str;
+  };
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+  const dividerLine = "─".repeat(LINE_WIDTH);
+  const headerLine = "═".repeat(LINE_WIDTH);
 
-  // Generate items text
+  // Generate items text for thermal printer
   const itemsText = order.items
     .map((item) => {
       const productName = item.product?.name || item.productName || "Product";
@@ -46,13 +55,24 @@ export function generateReceiptHTML(order: OrderResponse): string {
           : `-${formatPrice(item.promotionValue || 0)}`;
       }
 
-      const displayName = sizeName ? `${productName} ${sizeName}` : productName;
-      const line = `${padRight(displayName, 20)} ${padLeft(String(item.quantity), 3)} ${padLeft(promoLabel, 10)} ${padLeft(formatPrice(itemTotal), 10)}`;
+      // Format item name to fit 80mm (accounting for qty and price columns)
+      const maxNameLength = 18;
+      const displayName = sizeName
+        ? `${productName} ${sizeName}`.substring(0, maxNameLength)
+        : productName.substring(0, maxNameLength);
+
+      const qtyStr = String(item.quantity);
+      const totalStr = formatPrice(itemTotal);
+
+      const line = `${padRight(displayName, maxNameLength)} ${padLeft(qtyStr, 2)} ${padLeft(promoLabel, 8)} ${padLeft(totalStr, 9)}`;
 
       let customizationLines = "";
       if (item.customizations && item.customizations.length > 0) {
         customizationLines = item.customizations
-          .map((c) => `  └─ ${padRight(c.name, 18)} ${padLeft(formatPrice(c.priceAdjustment || 0), 10)}`)
+          .map((c) => {
+            const customName = c.name.substring(0, 20);
+            return `  └─ ${padRight(customName, 20)} ${padLeft(formatPrice(c.priceAdjustment || 0), 9)}`;
+          })
           .join("\n");
       }
 
@@ -60,26 +80,27 @@ export function generateReceiptHTML(order: OrderResponse): string {
     })
     .join("\n");
 
-  // Header line
-  const headerLine = "════════════════════════════════════════════════════";
-  const dividerLine = "────────────────────────────────────────────────────";
+  // Summary line helper
+  const summaryLine = (label: string, value: string) => {
+    const labelPart = padRight(label, LINE_WIDTH - value.length);
+    return labelPart + value;
+  };
 
-  // Return complete text receipt
+  // Return complete text receipt optimized for 80mm
   return `
-    <pre style="font-family: monospace; font-size: 12px; line-height: 1.4; padding: 20px; white-space: pre-wrap; word-wrap: break-word; background: white; color: black;">
-${headerLine}
-                    RECEIPT
+    <pre style="font-family: monospace; font-size: 11px; line-height: 1.3; padding: 0; white-space: pre-wrap; word-wrap: break-word; background: white; color: black; max-width: 300px;">
+${centerText("RECEIPT", LINE_WIDTH)}
 ${headerLine}
 
 Order #: ${order.orderNumber}
-Date: ${formattedDate} • ${formattedTime}
-Business: ${order.businessName || "Business"}
-${order.customerName ? `Customer: ${order.customerName}` : ""}
+Date: ${formattedDate} ${formattedTime}
+${padRight("Business:", 10)} ${(order.businessName || "Business").substring(0, 30)}
+${order.customerName ? `${padRight("Customer:", 10)} ${order.customerName.substring(0, 30)}` : ""}
 
 ${dividerLine}
 ITEMS
 ${dividerLine}
-${padRight("NAME", 20)} ${padLeft("QTY", 3)} ${padLeft("DISCOUNT", 10)} ${padLeft("TOTAL", 10)}
+${padRight("NAME", 18)} ${padLeft("QTY", 2)} ${padLeft("DISC", 8)} ${padLeft("TOTAL", 9)}
 ${dividerLine}
 ${itemsText}
 
@@ -87,20 +108,20 @@ ${headerLine}
 ORDER SUMMARY
 ${headerLine}
 
-${padRight("Payment Method", 35)} ${order.payment?.paymentMethod || "N/A"}
+Payment: ${order.payment?.paymentMethod || "N/A"}
 
-${padRight("Subtotal w/ Add-ons", 35)} ${padLeft(formatPrice(subtotal + customizationTotal), 10)}
-${discount > 0 ? `${padRight("Discount (Promotions)", 35)} ${padLeft(`-${formatPrice(discount)}`, 10)}\n${padRight("Subtotal After Discount", 35)} ${padLeft(formatPrice(subtotal + customizationTotal - discount), 10)}` : ""}
-
-${tax > 0 ? `${padRight(`Tax (${order.pricing?.taxPercentage || 0}%)`, 35)} ${padLeft(`+${formatPrice(tax)}`, 10)}` : ""}
-${delivery > 0 ? `${padRight("Delivery Fee", 35)} ${padLeft(`+${formatPrice(delivery)}`, 10)}` : ""}
+${summaryLine("Subtotal w/ Add-ons", padLeft(formatPrice(subtotal + customizationTotal), 9))}
+${discount > 0 ? `${summaryLine("Discount (Promotions)", padLeft(`-${formatPrice(discount)}`, 9))}` : ""}
+${discount > 0 ? `${summaryLine("Subtotal After Discount", padLeft(formatPrice(subtotal + customizationTotal - discount), 9))}` : ""}
+${tax > 0 ? `${summaryLine(`Tax (${order.pricing?.taxPercentage || 0}%)`, padLeft(`+${formatPrice(tax)}`, 9))}` : ""}
+${delivery > 0 ? `${summaryLine("Delivery Fee", padLeft(`+${formatPrice(delivery)}`, 9))}` : ""}
 
 ${headerLine}
-${padRight("TOTAL AMOUNT", 35)} ${padLeft(formatPrice(total), 10)}
+${summaryLine("TOTAL AMOUNT", padLeft(formatPrice(total), 9))}
 ${headerLine}
 
-    Thank you for your order!
-      Please visit again
+${centerText("Thank you for your order!", LINE_WIDTH)}
+${centerText("Please visit again", LINE_WIDTH)}
 
 ${headerLine}
     </pre>
@@ -108,14 +129,16 @@ ${headerLine}
 }
 
 /**
- * Customize receipt template styling
- * Modify these values to change receipt appearance globally
+ * Receipt configuration for 80mm thermal printer
+ * Optimize line width and formatting for thermal output
  */
 export const RECEIPT_STYLES = {
-  // Monospace receipt configuration
+  // Thermal printer settings
+  paperWidth: "80mm",
+  characterWidth: 42,
   font: "monospace",
-  fontSize: "12px",
-  lineHeight: "1.4",
+  fontSize: "11px",
+  lineHeight: "1.3",
   backgroundColor: "white",
   textColor: "black",
 };
