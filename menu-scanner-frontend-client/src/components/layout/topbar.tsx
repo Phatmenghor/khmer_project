@@ -102,7 +102,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
         {}
         <div className="flex items-center gap-2 shrink-0">
           {}
-          {onFullscreenClick && (
+          {onFullscreenClick && pathname.includes("/admin/pos") && (
             <Button
               variant="ghost"
               size="icon"
