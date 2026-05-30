@@ -29,7 +29,7 @@ function SizeCustomizationComponent({
         {selectedSizeCustoms.size > 0 && (
           <Badge
             variant="secondary"
-            className="text-xs bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800"
+            className="text-xs bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-800"
           >
             {selectedSizeCustoms.size} selected
           </Badge>
@@ -44,32 +44,32 @@ function SizeCustomizationComponent({
               key={customization.id}
               onClick={() => onToggleCustomization(customization.id)}
               className={cn(
-                "w-full flex items-center justify-between rounded-xl px-3.5 py-3 transition-all duration-200 cursor-pointer text-left border-2",
+                "w-full flex items-center justify-between rounded-lg px-3 py-2.5 transition-all duration-200 cursor-pointer text-left border",
                 isSelected
-                  ? "bg-emerald-50 border-emerald-400 dark:bg-emerald-950/30 dark:border-emerald-700"
-                  : "border-border hover:border-emerald-300 hover:bg-emerald-50/40 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/20",
+                  ? "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/30 dark:border-yellow-700"
+                  : "border-border hover:border-yellow-300 hover:bg-yellow-50/50 dark:hover:border-yellow-700 dark:hover:bg-yellow-950/20",
               )}
             >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="flex items-center gap-2.5 flex-1 min-w-0">
                 <div
                   className={cn(
-                    "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200",
+                    "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200",
                     isSelected
-                      ? "border-emerald-500 bg-emerald-500"
+                      ? "border-yellow-500 bg-yellow-500"
                       : "border-border bg-background",
                   )}
                 >
-                  {isSelected && <Check className="h-3 w-3 text-white" />}
+                  {isSelected && <Check className="h-2.5 w-2.5 text-white" />}
                 </div>
-                <span className="font-medium text-sm text-foreground truncate">
+                <span className="font-medium text-xs text-foreground truncate">
                   {customization.name}
                 </span>
               </div>
               <span
                 className={cn(
-                  "text-sm font-semibold shrink-0 ml-2 px-2 py-0.5 rounded-full",
+                  "text-xs font-semibold shrink-0 ml-2 px-1.5 py-0.5 rounded-full",
                   isSelected
-                    ? "text-emerald-600 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-950/40"
+                    ? "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-950/40"
                     : "text-muted-foreground bg-muted/60",
                 )}
               >
