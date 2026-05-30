@@ -1,17 +1,17 @@
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 
 /**
- * Generate professional receipt HTML from order data
- * Used for PDF download on admin orders pages
- * Easy to customize - modify this template for consistent styling across app
+ * Generate clean monospace receipt HTML from order data
+ * Used for PDF download on admin orders pages and POS receipts
+ * Simple text-based design suitable for thermal printers
  */
 export function generateReceiptHTML(order: OrderResponse): string {
   // Format date and time
   const date = new Date(order.createdAt);
   const formattedDate = date.toLocaleDateString("en-US", {
     year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
+    month: "short",
+    day: "numeric",
   });
   const formattedTime = date.toLocaleTimeString("en-US", {
     hour: "2-digit",
@@ -27,169 +27,83 @@ export function generateReceiptHTML(order: OrderResponse): string {
   const customizationTotal = order.pricing?.customizationTotal || 0;
   const total = order.pricing?.finalTotal || 0;
 
-  // Generate items HTML
-  const itemsHTML = order.items
-    .map((item, idx) => {
-      const itemTotal = (item.finalPrice || 0) * item.quantity;
+  // Helper function to pad strings
+  const padRight = (str: string, length: number) => str.padEnd(length, " ");
+  const padLeft = (str: string, length: number) => str.padStart(length, " ");
+  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+
+  // Generate items text
+  const itemsText = order.items
+    .map((item) => {
       const productName = item.product?.name || item.productName || "Product";
-      const sizeName = item.product?.sizeName || item.sizeName || null;
-      const hasPromo = item.hasPromotion && item.promotionType;
-      const promoLabel = hasPromo
-        ? item.promotionType === "PERCENTAGE"
-          ? `${item.promotionValue}% OFF`
-          : `$${item.promotionValue} OFF`
-        : null;
+      const sizeName = item.product?.sizeName || item.sizeName;
+      const itemTotal = (item.finalPrice || 0) * item.quantity;
 
-      return `
-        <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #ccc;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span style="flex: 1; font-weight: bold;">${idx + 1}. ${productName}${sizeName ? " (Size: " + sizeName + ")" : ""}</span>
-            <span style="width: 40px; text-align: center;">${item.quantity}</span>
-            <span style="width: 50px; text-align: right;">$${item.finalPrice?.toFixed(2) || "0.00"}</span>
-            <span style="width: 60px; text-align: right; font-weight: bold;">$${itemTotal.toFixed(2)}</span>
-          </div>
-          ${promoLabel ? `<div style="color: #27ae60; font-weight: bold; font-size: 10px; margin-left: 8px;">✓ PROMOTION: ${promoLabel}</div>` : ""}
-          ${
-            item.customizations && item.customizations.length > 0
-              ? `
-              <div style="margin-left: 16px; font-size: 10px; color: #666;">
-                ${item.customizations
-                  .map(
-                    (c) =>
-                      `<div>• ${c.name}: +$${c.priceAdjustment?.toFixed(2) || "0.00"}</div>`
-                  )
-                  .join("")}
-              </div>
-            `
-              : ""
-          }
-        </div>
-      `;
+      let promoLabel = "";
+      if (item.hasPromotion && item.promotionType) {
+        promoLabel = item.promotionType === "PERCENTAGE"
+          ? `-${item.promotionValue}%`
+          : `-${formatPrice(item.promotionValue || 0)}`;
+      }
+
+      const displayName = sizeName ? `${productName} ${sizeName}` : productName;
+      const line = `${padRight(displayName, 20)} ${padLeft(String(item.quantity), 3)} ${padLeft(promoLabel, 10)} ${padLeft(formatPrice(itemTotal), 10)}`;
+
+      let customizationLines = "";
+      if (item.customizations && item.customizations.length > 0) {
+        customizationLines = item.customizations
+          .map((c) => `  └─ ${padRight(c.name, 18)} ${padLeft(formatPrice(c.priceAdjustment || 0), 10)}`)
+          .join("\n");
+      }
+
+      return [line, customizationLines].filter(Boolean).join("\n");
     })
-    .join("");
+    .join("\n");
 
-  // Generate promotions summary
-  const promotionalItems = order.items.filter(
-    (i) => i.hasPromotion && i.promotionType
-  );
-  const promoSummary =
-    promotionalItems.length > 0
-      ? `
-    <div style="background: #f0fdf4; border-left: 3px solid #22c55e; padding: 8px; margin: 8px 0; font-size: 11px;">
-      <div style="font-weight: bold; color: #16a34a; margin-bottom: 6px;">🎉 PROMOTIONS APPLIED</div>
-      ${promotionalItems
-        .map((item) => {
-          const prodName = item.product?.name || item.productName || "Product";
-          const promoText =
-            item.promotionType === "PERCENTAGE"
-              ? `-${item.promotionValue}%`
-              : `-$${item.promotionValue}`;
-          return `<div style="display: flex; justify-content: space-between; color: #16a34a;"><span>${prodName}</span><span style="font-weight: bold;">${promoText}</span></div>`;
-        })
-        .join("")}
-    </div>
-  `
-      : "";
+  // Header line
+  const headerLine = "════════════════════════════════════════════════════";
+  const dividerLine = "────────────────────────────────────────────────────";
 
-  // Return complete HTML template
+  // Return complete text receipt
   return `
-    <div style="width: 100%; max-width: 900px; background: white; font-family: monospace; font-size: 12px;">
-      <!-- Header -->
-      <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
-        <div style="font-weight: bold; font-size: 16px; letter-spacing: 2px;">RECEIPT</div>
-        <div style="font-size: 10px; color: #666; margin-top: 4px;">Professional Receipt Document</div>
-      </div>
+    <pre style="font-family: monospace; font-size: 12px; line-height: 1.4; padding: 20px; white-space: pre-wrap; word-wrap: break-word; background: white; color: black;">
+${headerLine}
+                    RECEIPT
+${headerLine}
 
-      <!-- Order Info -->
-      <div style="text-align: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #666;">
-        <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">${order.businessName || "Business"}</div>
-        <div style="font-size: 11px;">Order #: <strong>${order.orderNumber}</strong></div>
-        <div style="font-size: 11px;">Date: ${formattedDate} • ${formattedTime}</div>
-        ${order.customerName ? `<div style="font-size: 11px;">Customer: ${order.customerName}</div>` : ""}
-      </div>
+Order #: ${order.orderNumber}
+Date: ${formattedDate} • ${formattedTime}
+Business: ${order.businessName || "Business"}
+${order.customerName ? `Customer: ${order.customerName}` : ""}
 
-      <!-- Items Section -->
-      <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #666;">
-        <div style="text-align: center; font-weight: bold; margin-bottom: 8px;">ITEMS (${order.items.length})</div>
-        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 11px; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 2px solid #000;">
-          <span style="flex: 1;">DESCRIPTION</span>
-          <span style="width: 40px; text-align: center;">QTY</span>
-          <span style="width: 50px; text-align: right;">PRICE</span>
-          <span style="width: 60px; text-align: right;">TOTAL</span>
-        </div>
-        ${itemsHTML}
-      </div>
+${dividerLine}
+ITEMS
+${dividerLine}
+${padRight("NAME", 20)} ${padLeft("QTY", 3)} ${padLeft("DISCOUNT", 10)} ${padLeft("TOTAL", 10)}
+${dividerLine}
+${itemsText}
 
-      <!-- Promotions -->
-      ${promoSummary}
+${headerLine}
+ORDER SUMMARY
+${headerLine}
 
-      <!-- Pricing Summary -->
-      <div style="margin-bottom: 12px; padding: 8px; background: #f9f9f9; border: 1px solid #ddd;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-          <span>Subtotal</span>
-          <span style="font-weight: bold;">$${subtotal.toFixed(2)}</span>
-        </div>
-        ${
-          customizationTotal > 0
-            ? `
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span>Add-ons</span>
-            <span style="font-weight: bold;">+$${customizationTotal.toFixed(2)}</span>
-          </div>
-        `
-            : ""
-        }
-        ${
-          discount > 0
-            ? `
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px; background: #ffe0e0; padding: 4px;">
-            <span style="color: #d32f2f; font-weight: bold;">Discount</span>
-            <span style="color: #d32f2f; font-weight: bold;">-$${discount.toFixed(2)}</span>
-          </div>
-        `
-            : ""
-        }
-        ${
-          tax > 0
-            ? `
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span>Tax</span>
-            <span style="font-weight: bold;">+$${tax.toFixed(2)}</span>
-          </div>
-        `
-            : ""
-        }
-        ${
-          delivery > 0
-            ? `
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span>Delivery Fee</span>
-            <span style="font-weight: bold;">+$${delivery.toFixed(2)}</span>
-          </div>
-        `
-            : ""
-        }
-      </div>
+${padRight("Payment Method", 35)} ${order.payment?.paymentMethod || "N/A"}
 
-      <!-- Total -->
-      <div style="background: #000; color: white; padding: 12px; text-align: center; margin-bottom: 12px; font-weight: bold;">
-        <div style="font-size: 11px; margin-bottom: 4px;">FINAL AMOUNT DUE</div>
-        <div style="font-size: 18px;">TOTAL: $${total.toFixed(2)}</div>
-      </div>
+${padRight("Subtotal w/ Add-ons", 35)} ${padLeft(formatPrice(subtotal + customizationTotal), 10)}
+${discount > 0 ? `${padRight("Discount (Promotions)", 35)} ${padLeft(`-${formatPrice(discount)}`, 10)}\n${padRight("Subtotal After Discount", 35)} ${padLeft(formatPrice(subtotal + customizationTotal - discount), 10)}` : ""}
 
-      <!-- Payment -->
-      <div style="margin-bottom: 12px; padding: 8px; border: 1px solid #666;">
-        <div style="font-weight: bold;">Payment Method: ${order.payment?.paymentMethod || "N/A"}</div>
-        <div style="font-size: 11px;">Status: ${order.payment?.paymentStatus || "N/A"}</div>
-      </div>
+${tax > 0 ? `${padRight(`Tax (${order.pricing?.taxPercentage || 0}%)`, 35)} ${padLeft(`+${formatPrice(tax)}`, 10)}` : ""}
+${delivery > 0 ? `${padRight("Delivery Fee", 35)} ${padLeft(`+${formatPrice(delivery)}`, 10)}` : ""}
 
-      <!-- Footer -->
-      <div style="text-align: center; padding-top: 8px; border-top: 3px solid #000;">
-        <div style="font-weight: bold; margin-bottom: 4px;">✓ Thank You For Your Order!</div>
-        <div style="font-size: 10px; color: #666;">Please keep this receipt for your records</div>
-        <div style="font-size: 9px; color: #999; margin-top: 4px;">Generated: ${formattedDate} at ${formattedTime}</div>
-      </div>
-    </div>
+${headerLine}
+${padRight("TOTAL AMOUNT", 35)} ${padLeft(formatPrice(total), 10)}
+${headerLine}
+
+    Thank you for your order!
+      Please visit again
+
+${headerLine}
+    </pre>
   `;
 }
 
@@ -198,35 +112,10 @@ export function generateReceiptHTML(order: OrderResponse): string {
  * Modify these values to change receipt appearance globally
  */
 export const RECEIPT_STYLES = {
-  // Colors
-  colors: {
-    primary: "#000",
-    promotion: "#27ae60",
-    discount: "#d32f2f",
-    background: "#f9f9f9",
-    border: "#ccc",
-    text: "#333",
-  },
-
-  // Fonts
-  fonts: {
-    family: "monospace",
-    sizeBase: "12px",
-    sizeLarge: "16px",
-    sizeSmall: "10px",
-  },
-
-  // Spacing
-  spacing: {
-    margin: "12px",
-    padding: "8px",
-    borderWidth: "3px",
-  },
-
-  // Borders
-  borders: {
-    header: "3px solid #000",
-    section: "1px solid #666",
-    item: "1px solid #ccc",
-  },
+  // Monospace receipt configuration
+  font: "monospace",
+  fontSize: "12px",
+  lineHeight: "1.4",
+  backgroundColor: "white",
+  textColor: "black",
 };
