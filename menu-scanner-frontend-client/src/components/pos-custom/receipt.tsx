@@ -73,21 +73,40 @@ export function Receipt({
           <div className="border-b border-gray-300 mb-1"></div>
 
           {items.map((item) => {
-            const discount =
+            const customizationCount =
               item.customizations && item.customizations.length > 0
                 ? `${item.customizations.length}`
                 : "—";
+
+            const getPromotionLabel = () => {
+              if (!item.hasPromotion || !item.promotionType) return null;
+
+              if (item.promotionType === "PERCENTAGE") {
+                return `${item.promotionValue}% OFF`;
+              } else if (item.promotionType === "FIXED") {
+                return `${formatCurrency(item.promotionValue)} OFF`;
+              }
+              return null;
+            };
+
+            const promotionLabel = getPromotionLabel();
 
             return (
               <div key={item.id} className="mb-2">
                 <div className="flex justify-between text-xs">
                   <span className="flex-1">{item.productName}</span>
                   <span className="w-6 text-center">{item.quantity}</span>
-                  <span className="w-12 text-right">{discount}</span>
+                  <span className="w-12 text-right">{customizationCount}</span>
                   <span className="w-14 text-right">
                     {formatCurrency(item.finalPrice * item.quantity)}
                   </span>
                 </div>
+
+                {promotionLabel && (
+                  <div className="ml-2 text-xs text-green-600 font-semibold">
+                    🎉 Promotion: {promotionLabel}
+                  </div>
+                )}
 
                 {item.customizations && item.customizations.length > 0 && (
                   <div className="ml-2 text-xs text-gray-600">
@@ -110,6 +129,19 @@ export function Receipt({
       {/* Order Summary */}
       <div className="mb-3 border-b-2 border-gray-800 pb-3">
         <div className="text-center text-xs font-bold mb-2">ORDER SUMMARY</div>
+
+        {items.some((item) => item.hasPromotion) && (
+          <div className="bg-green-50 border border-green-200 rounded px-2 py-1 mb-2 text-xs">
+            <div className="font-bold text-green-700 mb-1">✓ PROMOTIONS APPLIED</div>
+            {items
+              .filter((item) => item.hasPromotion)
+              .map((item, idx) => (
+                <div key={`promo-${idx}`} className="text-green-600 text-xs">
+                  • {item.productName}: {item.promotionType === "PERCENTAGE" ? `${item.promotionValue}% OFF` : `${formatCurrency(item.promotionValue)} OFF`}
+                </div>
+              ))}
+          </div>
+        )}
 
         <div className="space-y-1 text-xs">
           <div className="flex justify-between">
