@@ -2,7 +2,7 @@ import { OrderResponse } from "@/features/main/store/models/response/order-respo
 
 /**
  * Generate responsive receipt for 80mm thermal printer
- * With padding, responsive font, and flexible layout
+ * Uses flexible CSS layout instead of character counting
  */
 export function generateReceiptHTML(order: OrderResponse): string {
   const date = new Date(order.createdAt);
@@ -24,106 +24,133 @@ export function generateReceiptHTML(order: OrderResponse): string {
   const customizationTotal = order.pricing?.customizationTotal || 0;
   const total = order.pricing?.finalTotal || 0;
 
-  const padRight = (str: string, len: number) => str.padEnd(len, " ");
-  const padLeft = (str: string, len: number) => str.padStart(len, " ");
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
-  // Create aligned line - label left, price right-aligned at same column
-  const alignLine = (label: string, value: string) => {
-    const totalWidth = 48;
-    const paddedValue = value.padStart(9); // Right-align value in 9-char space
-    const paddedLabel = label.padEnd(totalWidth - 9); // Fill remaining space
-    return `${paddedLabel}${paddedValue}`;
-  };
-
-  // Divider line with consistent width matching content
-  const dividerLine = "─".repeat(48);
-
-  // Generate items
-  const itemsHTML = order.items
+  // Generate items rows
+  const itemsRows = order.items
     .map((item) => {
       const productName = item.product?.name || item.productName || "Product";
       const sizeName = item.product?.sizeName || item.sizeName;
       const itemTotal = (item.finalPrice || 0) * item.quantity;
 
-      let promoLabel = "";
+      let discount = "";
       if (item.hasPromotion && item.promotionType) {
-        promoLabel = item.promotionType === "PERCENTAGE"
+        discount = item.promotionType === "PERCENTAGE"
           ? `${item.promotionValue}%`
           : `${(item.promotionValue || 0).toFixed(2)}`;
       }
 
       const displayName = sizeName
-        ? `${productName} ${sizeName}`.substring(0, 20)
-        : productName.substring(0, 20);
+        ? `${productName} ${sizeName}`
+        : productName;
 
-      const priceDisplay = (item.finalPrice || 0).toFixed(2);
-      const totalDisplay = itemTotal.toFixed(2);
-      let itemHTML = `${padRight(displayName, 20)} ${padLeft(priceDisplay, 7)} ${padLeft(String(item.quantity), 3)} ${padLeft(promoLabel, 7)} ${padLeft(totalDisplay, 7)}`;
+      const customizationRows = item.customizations?.length > 0
+        ? item.customizations
+          .map((c) => `
+        <tr style="height: 20px;">
+          <td style="padding-left: 12px; font-size: 0.85em;">+${c.name}</td>
+          <td colspan="3"></td>
+          <td style="text-align: right; padding-right: 4px;">${formatPrice(c.priceAdjustment || 0)}</td>
+        </tr>`)
+          .join("")
+        : "";
 
-      if (item.customizations && item.customizations.length > 0) {
-        itemHTML += "\n" + item.customizations
-          .map((c) => {
-            const customName = c.name.substring(0, 22);
-            return `  ${padRight(customName, 22)} ${padLeft(formatPrice(c.priceAdjustment || 0), 9)}`;
-          })
-          .join("\n");
-      }
-
-      return itemHTML;
+      return `
+        <tr>
+          <td style="max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${displayName}</td>
+          <td style="text-align: right; padding: 0 4px; white-space: nowrap;">${(item.finalPrice || 0).toFixed(2)}</td>
+          <td style="text-align: center; padding: 0 4px;">${item.quantity}</td>
+          <td style="text-align: right; padding: 0 4px; white-space: nowrap;">${discount}</td>
+          <td style="text-align: right; padding-right: 4px; white-space: nowrap;">${itemTotal.toFixed(2)}</td>
+        </tr>${customizationRows}`;
     })
-    .join("\n");
+    .join("");
 
-  // Top and bottom decorative lines
-  const decorativeLine = "═".repeat(48);
-
-  // TOTAL AMOUNT line - label left, price right
-  const totalAmountSpacing = Math.max(1, 48 - "TOTAL AMOUNT".length - formatPrice(total).length);
-  const totalAmountLine = `TOTAL AMOUNT${" ".repeat(totalAmountSpacing)}${formatPrice(total)}`;
+  const summaryRows = `
+        <tr style="border-top: 1px solid #000;">
+          <td colspan="4" style="text-align: left;">Subtotal</td>
+          <td style="text-align: right; padding-right: 4px;">${formatPrice(subtotal + customizationTotal)}</td>
+        </tr>
+        ${discount > 0 ? `
+        <tr>
+          <td colspan="4" style="text-align: left;">Discount</td>
+          <td style="text-align: right; padding-right: 4px;">-${formatPrice(discount)}</td>
+        </tr>
+        <tr>
+          <td colspan="4" style="text-align: left;">After Discount</td>
+          <td style="text-align: right; padding-right: 4px;">${formatPrice(subtotal + customizationTotal - discount)}</td>
+        </tr>` : ""}
+        <tr>
+          <td colspan="4" style="text-align: left;">Tax (${order.pricing?.taxPercentage || 0}%)</td>
+          <td style="text-align: right; padding-right: 4px;">+${formatPrice(tax)}</td>
+        </tr>
+        ${delivery > 0 ? `
+        <tr>
+          <td colspan="4" style="text-align: left;">Delivery Fee</td>
+          <td style="text-align: right; padding-right: 4px;">+${formatPrice(delivery)}</td>
+        </tr>` : ""}
+        <tr style="border-top: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; height: 28px;">
+          <td colspan="4" style="text-align: left;">TOTAL AMOUNT</td>
+          <td style="text-align: right; padding-right: 4px;">${formatPrice(total)}</td>
+        </tr>`;
 
   return `
     <div id="receipt-wrapper" style="
       width: 100%;
-      margin: 0;
+      max-width: 305px;
+      margin: 0 auto;
       background: white;
-      padding: 0;
+      padding: 8px;
+      box-sizing: border-box;
+      font-family: 'Courier New', monospace;
+      font-size: clamp(9px, 2vw, 10px);
+      line-height: 1.3;
+      color: black;
     ">
-      <pre style="
-        font-family: 'Courier New', monospace;
-        font-size: clamp(9px, 2vw, 10px);
-        line-height: 1.2;
-        width: 100%;
-        margin: 0;
-        padding: 0 8px;
-        box-sizing: border-box;
-        background: white;
-        color: black;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-      ">${decorativeLine}
-RECEIPT
-${decorativeLine}
-Order #: ${order.orderNumber}
-Date: ${formattedDate} ${formattedTime}
-Biz: ${(order.businessName || "Business").substring(0, 32)}
-${order.customerName ? `Cust: ${order.customerName.substring(0, 32)}` : ""}
-${dividerLine}
-ITEMS
-${dividerLine}
-${padRight("NAME", 20)} ${padLeft("PRICE", 7)} ${padLeft("QTY", 3)} ${padLeft("DISC", 7)} ${padLeft("TOTAL", 7)}
-${dividerLine}
-${itemsHTML}
-${dividerLine}
-Payment: ${order.payment?.paymentMethod || "N/A"}
-${alignLine("Subtotal", formatPrice(subtotal + customizationTotal))}${discount > 0 ? `\n${alignLine("Discount", `-${formatPrice(discount)}`)}\n${alignLine("After Discount", formatPrice(subtotal + customizationTotal - discount))}` : ""}
-${alignLine(`Tax (${order.pricing?.taxPercentage || 0}%)`, `+${formatPrice(tax)}`)}${delivery > 0 ? `\n${alignLine("Delivery Fee", `+${formatPrice(delivery)}`)}` : ""}
-${decorativeLine}
-${totalAmountLine}
-${decorativeLine}
-Thank you for your order!
-Please visit again
-${formattedDate} ${formattedTime}</pre>
+      <div style="border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 8px 0; text-align: center; font-weight: bold; font-size: 1.2em; margin-bottom: 8px;">
+        RECEIPT
+      </div>
+
+      <div style="margin-bottom: 12px; font-size: 0.95em;">
+        <div>Order #: ${order.orderNumber}</div>
+        <div>Date: ${formattedDate} ${formattedTime}</div>
+        <div>Biz: ${(order.businessName || "Business").substring(0, 32)}</div>
+        ${order.customerName ? `<div>Cust: ${order.customerName.substring(0, 32)}</div>` : ""}
+      </div>
+
+      <div style="border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 8px 0; margin: 12px 0;">
+        <div style="font-weight: bold; margin-bottom: 4px;">ITEMS</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+          <thead>
+            <tr style="border-bottom: 1px solid #000; height: 24px;">
+              <th style="text-align: left; padding: 0;">NAME</th>
+              <th style="text-align: right; padding: 0 4px; width: 15%;">PRICE</th>
+              <th style="text-align: center; padding: 0 4px; width: 12%;">QTY</th>
+              <th style="text-align: right; padding: 0 4px; width: 15%;">DISC</th>
+              <th style="text-align: right; padding-right: 4px; width: 18%;">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsRows}
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-bottom: 12px; font-size: 0.95em;">
+        <div>Payment: ${order.payment?.paymentMethod || "N/A"}</div>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.95em;">
+        <tbody>
+          ${summaryRows}
+        </tbody>
+      </table>
+
+      <div style="text-align: center; font-size: 0.9em; line-height: 1.6; border-top: 2px solid #000; padding-top: 8px;">
+        <div>Thank you for your order!</div>
+        <div>Please visit again</div>
+        <div>${formattedDate} ${formattedTime}</div>
+      </div>
     </div>
   `;
 }
