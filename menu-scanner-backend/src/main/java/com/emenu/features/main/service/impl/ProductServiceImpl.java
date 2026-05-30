@@ -34,6 +34,7 @@ import com.emenu.features.main.repository.ProductCustomizationRepository;
 import com.emenu.features.main.service.ProductService;
 import com.emenu.features.main.models.Category;
 import com.emenu.features.main.models.Brand;
+import com.emenu.features.main.specification.ProductSpecification;
 import com.emenu.features.main.utils.ProductFavoriteQueryHelper;
 import com.emenu.features.main.utils.ProductUtils;
 import com.emenu.features.order.utils.CartQueryHelper;
@@ -48,6 +49,7 @@ import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,20 +93,19 @@ public class ProductServiceImpl implements ProductService {
                 filter.getSortBy(),
                 filter.getSortDirection()
         );
-        Page<Product> productPage = productRepository.findAllWithFilters(
+        Specification<Product> spec = ProductSpecification.filterProducts(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
                 filter.getBrandId(),
                 (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
-                Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
-                Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
-                filter.getMinPrice(),
-                filter.getMaxPrice(),
+                filter.getHasPromotion(),
                 filter.getHasSize(),
                 (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
-                filter.getSearch(),
-                pageable
+                filter.getMinPrice(),
+                filter.getMaxPrice(),
+                filter.getSearch()
         );
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
 
         log.info("Products fetched from database - Total: {}, Page: {}, Size: {}",
                 productPage.getTotalElements(), productPage.getNumber(), productPage.getSize());
@@ -165,18 +166,20 @@ public class ProductServiceImpl implements ProductService {
             filter.setBusinessId(currentUser.get().getBusinessId());
         }
 
-        List<Product> products = productRepository.findAllWithFilters(
+        Sort sort = PaginationUtils.createSort(filter.getSortBy(), filter.getSortDirection());
+        Specification<Product> spec = ProductSpecification.filterProducts(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
                 filter.getBrandId(),
                 (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
-                Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
-                Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
+                filter.getHasPromotion(),
+                filter.getHasSize(),
+                (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
-                filter.getSearch(),
-                PaginationUtils.createSort(filter.getSortBy(), filter.getSortDirection())
+                filter.getSearch()
         );
+        List<Product> products = productRepository.findAll(spec, sort);
 
         log.info("Products fetched from database - Total count: {}", products.size());
 
@@ -241,20 +244,20 @@ public class ProductServiceImpl implements ProductService {
                 filter.getSortDirection()
         );
 
-        // Use optimized query - no category/brand/business/images JOINs (20-30x faster)
-        Page<Product> productPage = productRepository.findAllWithFiltersOptimized(
+        // Use specifications for efficient filtering
+        Specification<Product> spec = ProductSpecification.filterProducts(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
                 filter.getBrandId(),
                 (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
-                Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
-                Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
+                filter.getHasPromotion(),
+                filter.getHasSize(),
+                (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
                 filter.getMinPrice(),
                 filter.getMaxPrice(),
-                filter.getHasSize(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
 
         if (productPage.getContent().isEmpty()) {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
@@ -292,20 +295,19 @@ public class ProductServiceImpl implements ProductService {
                 filter.getSortDirection()
         );
 
-        Page<Product> productPage = productRepository.findAllWithFilters(
+        Specification<Product> spec = ProductSpecification.filterProducts(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
                 filter.getBrandId(),
                 (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
-                Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
-                Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
-                filter.getMinPrice(),
-                filter.getMaxPrice(),
+                filter.getHasPromotion(),
                 filter.getHasSize(),
                 (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
-                filter.getSearch(),
-                pageable
+                filter.getMinPrice(),
+                filter.getMaxPrice(),
+                filter.getSearch()
         );
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
 
         if (productPage.getContent().isEmpty()) {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());
@@ -344,20 +346,19 @@ public class ProductServiceImpl implements ProductService {
         );
 
         // Fetch products with filters
-        Page<Product> productPage = productRepository.findAllWithFilters(
+        Specification<Product> spec = ProductSpecification.filterProducts(
                 filter.getBusinessId(),
                 filter.getCategoryId(),
                 filter.getBrandId(),
                 (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) ? filter.getStatuses() : null,
-                Boolean.TRUE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
-                Boolean.FALSE.equals(filter.getHasPromotion()) ? Boolean.TRUE : null,
-                filter.getMinPrice(),
-                filter.getMaxPrice(),
+                filter.getHasPromotion(),
                 filter.getHasSize(),
                 (filter.getStockStatuses() != null && !filter.getStockStatuses().isEmpty()) ? filter.getStockStatuses() : null,
-                filter.getSearch(),
-                pageable
+                filter.getMinPrice(),
+                filter.getMaxPrice(),
+                filter.getSearch()
         );
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
 
         if (productPage.getContent().isEmpty()) {
             return paginationMapper.toPaginationResponse(productPage, Collections.emptyList());

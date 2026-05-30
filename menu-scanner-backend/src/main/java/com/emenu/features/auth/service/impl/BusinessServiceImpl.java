@@ -9,6 +9,7 @@ import com.emenu.features.auth.mapper.BusinessMapper;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.service.BusinessService;
+import com.emenu.features.auth.specification.BusinessSpecification;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,12 +63,13 @@ public class BusinessServiceImpl implements BusinessService {
 
         List<BusinessStatus> businessStatuses = FilterUtils.nullIfEmpty(request.getStatus());
 
-        Page<Business> businessPage = businessRepository.searchBusinesses(
+        Specification<Business> spec = BusinessSpecification.filterBusinesses(
                 businessStatuses,
                 request.getHasActiveSubscription(),
-                request.getSearch(),
-                pageable
+                request.getSearch()
         );
+
+        Page<Business> businessPage = businessRepository.findAll(spec, pageable);
 
         log.info("Businesses fetched successfully: count={}, page={}/{}", businessPage.getNumberOfElements(), businessPage.getNumber() + 1, businessPage.getTotalPages());
 

@@ -3,6 +3,7 @@ package com.emenu.features.auth.specification;
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.UserType;
 import com.emenu.features.auth.models.User;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
@@ -67,11 +68,12 @@ public class UserSpecification {
         return (root, query, cb) -> {
             if (search == null || search.isBlank()) return cb.conjunction();
             String pattern = "%" + search.toLowerCase() + "%";
+            var profileJoin = root.join("profile", JoinType.LEFT);
             return cb.or(
                     cb.like(cb.lower(root.get("userIdentifier")), pattern),
-                    cb.like(cb.lower(root.joinOptional("profile", jakarta.persistence.JoinType.LEFT).get("email")), pattern),
-                    cb.like(cb.lower(root.joinOptional("profile", jakarta.persistence.JoinType.LEFT).get("firstName")), pattern),
-                    cb.like(cb.lower(root.joinOptional("profile", jakarta.persistence.JoinType.LEFT).get("lastName")), pattern)
+                    cb.like(cb.lower(profileJoin.get("email")), pattern),
+                    cb.like(cb.lower(profileJoin.get("firstName")), pattern),
+                    cb.like(cb.lower(profileJoin.get("lastName")), pattern)
             );
         };
     }

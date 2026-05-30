@@ -52,10 +52,11 @@ public class AuditLogServiceImpl implements AuditLogService {
 
         Pageable pageable = PaginationUtils.createPageable(filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
 
+        UserType userType = filter.getUserType() != null ? UserType.valueOf(filter.getUserType()) : null;
         Specification<AuditLog> spec = AuditLogSpecification.filterAuditLogs(
                 filter.getUserId(),
                 filter.getUserIdentifier(),
-                filter.getUserType(),
+                userType,
                 filter.getSearch()
         );
 
