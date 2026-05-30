@@ -13,6 +13,7 @@ import com.emenu.features.order.mapper.DeliveryOptionMapper;
 import com.emenu.features.order.models.DeliveryOption;
 import com.emenu.features.order.repository.DeliveryOptionRepository;
 import com.emenu.features.order.service.DeliveryOptionService;
+import com.emenu.features.order.specification.DeliveryOptionSpecification;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -20,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,36 +71,37 @@ public class DeliveryOptionServiceImpl implements DeliveryOptionService {
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
-        // Convert empty list to null for proper query handling
         List<Status> statuses = filter.getStatuses() != null && !filter.getStatuses().isEmpty()
                 ? filter.getStatuses() : null;
 
-        Page<DeliveryOption> deliveryOptionPage = deliveryOptionRepository.findAllWithFilters(
+        Specification<DeliveryOption> spec = DeliveryOptionSpecification.filterDeliveryOptions(
                 filter.getBusinessId(),
                 statuses,
                 filter.getSearch(),
                 filter.getMinPrice(),
-                filter.getMaxPrice(),
-                pageable
+                filter.getMaxPrice()
         );
+
+        Page<DeliveryOption> deliveryOptionPage = deliveryOptionRepository.findAll(spec, pageable);
         return paginationMapper.toPaginationResponse(deliveryOptionPage, deliveryOptionMapper.toResponseList(deliveryOptionPage.getContent()));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<DeliveryOptionResponse> getAllItemDeliveryOptions(DeliveryOptionAllFilterRequest filter) {
-        // Convert empty list to null for proper query handling
         List<Status> statuses = filter.getStatuses() != null && !filter.getStatuses().isEmpty()
                 ? filter.getStatuses() : null;
 
-        List<DeliveryOption> deliveryOptions = deliveryOptionRepository.findAllWithFilters(
+        Specification<DeliveryOption> spec = DeliveryOptionSpecification.filterDeliveryOptions(
                 filter.getBusinessId(),
                 statuses,
                 filter.getSearch(),
                 filter.getMinPrice(),
-                filter.getMaxPrice(),
-                PaginationUtils.createSort(filter.getSortBy(), filter.getSortDirection())
+                filter.getMaxPrice()
         );
+
+        Sort sort = PaginationUtils.createSort(filter.getSortBy(), filter.getSortDirection());
+        List<DeliveryOption> deliveryOptions = deliveryOptionRepository.findAll(spec, sort);
 
         return deliveryOptionMapper.toResponseList(deliveryOptions);
     }
