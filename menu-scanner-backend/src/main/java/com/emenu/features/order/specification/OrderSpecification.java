@@ -1,4 +1,4 @@
-package com.emenu.features.order.repository;
+package com.emenu.features.order.specification;
 
 import com.emenu.enums.order.OrderStatus;
 import com.emenu.enums.payment.PaymentMethod;

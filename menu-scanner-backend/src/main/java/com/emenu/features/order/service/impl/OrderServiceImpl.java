@@ -36,7 +36,7 @@ import com.emenu.features.order.models.OrderDeliveryOption;
 import com.emenu.features.order.repository.OrderPaymentRepository;
 import com.emenu.features.order.repository.CartRepository;
 import com.emenu.features.order.repository.OrderRepository;
-import com.emenu.features.order.repository.OrderSpecification;
+import com.emenu.features.order.specification.OrderSpecification;
 import com.emenu.features.order.repository.OrderStatusHistoryRepository;
 import com.emenu.features.order.repository.OrderDeliveryAddressRepository;
 import com.emenu.features.order.repository.OrderDeliveryOptionRepository;
