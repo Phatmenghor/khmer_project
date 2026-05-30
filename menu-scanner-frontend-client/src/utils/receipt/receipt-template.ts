@@ -28,6 +28,15 @@ export function generateReceiptHTML(order: OrderResponse): string {
   const padLeft = (str: string, len: number) => str.padStart(len, " ");
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
+  // Create aligned line with label on left and value on right
+  const alignLine = (label: string, value: string) => {
+    const totalWidth = 44;
+    const valueWidth = value.length;
+    const dotCount = totalWidth - label.length - valueWidth;
+    const dots = ".".repeat(Math.max(1, dotCount));
+    return `${label}${dots}${value}`;
+  };
+
   // Generate items
   const itemsHTML = order.items
     .map((item) => {
@@ -97,8 +106,8 @@ ${padRight("NAME", 18)} ${padLeft("QTY", 2)} ${padLeft("DISC", 7)} ${padLeft("TO
 ${itemsHTML}
 ──────────────────────────────────────────
 Payment: ${order.payment?.paymentMethod || "N/A"}
-${padRight("Subtotal", 35)} ${padLeft(formatPrice(subtotal + customizationTotal), 9)}${discount > 0 ? `\n${padRight("Discount", 35)} ${padLeft(`-${formatPrice(discount)}`, 9)}\n${padRight("After Discount", 35)} ${padLeft(formatPrice(subtotal + customizationTotal - discount), 9)}` : ""}
-${padRight(`Tax (${order.pricing?.taxPercentage || 0}%)`, 35)} ${padLeft(`+${formatPrice(tax)}`, 9)}${delivery > 0 ? `\n${padRight("Delivery Fee", 35)} ${padLeft(`+${formatPrice(delivery)}`, 9)}` : ""}
+${alignLine("Subtotal", formatPrice(subtotal + customizationTotal))}${discount > 0 ? `\n${alignLine("Discount", `-${formatPrice(discount)}`)}\n${alignLine("After Discount", formatPrice(subtotal + customizationTotal - discount))}` : ""}
+${alignLine(`Tax (${order.pricing?.taxPercentage || 0}%)`, `+${formatPrice(tax)}`)}${delivery > 0 ? `\n${alignLine("Delivery Fee", `+${formatPrice(delivery)}`)}` : ""}
 ══════════════════════════════════════════
 ${padRight("TOTAL AMOUNT", 35)} ${padLeft(formatPrice(total), 9)}
 ══════════════════════════════════════════
