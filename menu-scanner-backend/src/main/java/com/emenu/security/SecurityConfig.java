@@ -53,6 +53,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/customer-token").permitAll()
                         .requestMatchers("/api/v1/users/admin/reset-password").permitAll()
 
+                        // ===== TELEGRAM WEBHOOK =====
+                        .requestMatchers("/api/v1/telegram/webhook").permitAll()
+
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-resources/**", "/webjars/**").permitAll()
                         .requestMatchers("/swagger-config", "/api-docs/**").permitAll()
