@@ -534,90 +534,61 @@ export function SizePickerModal({
           )}
 
           {}
-          <div className="space-y-3">
-            {/* Price per item section */}
-            <div className="bg-muted/30 rounded-lg p-3.5 border">
-              <div className="space-y-2">
-                {customizationTotal > 0 ? (
-                  <>
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground text-xs">Base price</span>
-                      <span className="font-semibold text-sm">
-                        {formatCurrency(displayPrice)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-500">
-                      <span className="text-muted-foreground text-xs">Add-ons</span>
-                      <span className="font-semibold text-sm">
-                        +{formatCurrency(customizationTotal)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center border-t pt-2">
-                      <span className="text-muted-foreground text-xs font-medium">Per item</span>
-                      <span className="font-bold text-sm text-primary">
-                        {formatCurrency(priceWithCustomizations)}
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground text-xs font-medium">Per item</span>
-                    <span className="font-bold text-sm text-primary">
-                      {formatCurrency(displayPrice)}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Pricing section - Final and Original */}
-            <div className="grid grid-cols-2 gap-2">
-              {/* Final Price */}
-              <div className="bg-primary/10 rounded-lg p-3 border border-primary/20">
-                <div className="text-xs text-muted-foreground mb-1">Final Price</div>
-                <div className="text-lg font-bold text-primary">
-                  {formatCurrency(priceWithCustomizations)}
-                </div>
-              </div>
-
-              {/* Original Price (if discount exists) */}
-              {hasDiscount && originalPrice ? (
-                <div className="bg-destructive/10 rounded-lg p-3 border border-destructive/20">
-                  <div className="text-xs text-muted-foreground mb-1">Before Discount</div>
-                  <div className="text-lg font-bold text-destructive line-through">
-                    {formatCurrency(originalPrice)}
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-muted/30 rounded-lg p-3 border border-border">
-                  <div className="text-xs text-muted-foreground mb-1">Original Price</div>
-                  <div className="text-lg font-bold text-foreground">
-                    {formatCurrency(displayPrice)}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Subtotal section - shown only when quantity > 1 or has customizations */}
-            {(currentQuantity > 1 || customizationTotal > 0) && (
-              <div className="bg-muted/20 rounded-lg p-3 border space-y-1.5 text-xs">
+          <div className="bg-muted/30 rounded-lg p-4 border space-y-2">
+            {customizationTotal > 0 ? (
+              <>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Base subtotal ({currentQuantity}×)</span>
-                  <span className="font-semibold">{formatCurrency(displayPrice * currentQuantity)}</span>
+                  <span className="text-muted-foreground text-sm">Base price</span>
+                  <span className="font-semibold">
+                    {formatCurrency(displayPrice)}
+                  </span>
                 </div>
-                {customizationTotal > 0 && (
-                  <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-500">
-                    <span>Add-ons subtotal ({currentQuantity}×)</span>
-                    <span className="font-semibold">+{formatCurrency(customizationTotal * currentQuantity)}</span>
-                  </div>
-                )}
+                <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-500">
+                  <span className="text-muted-foreground text-sm">Add-ons</span>
+                  <span className="font-semibold">
+                    +{formatCurrency(customizationTotal)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center border-t pt-2">
+                  <span className="text-muted-foreground text-sm">Price per item</span>
+                  <span className="font-semibold">
+                    {formatCurrency(priceWithCustomizations)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground text-sm">Price per item</span>
+                <span className="font-semibold">
+                  {formatCurrency(displayPrice)}
+                </span>
               </div>
             )}
-
-            {/* Total section */}
-            <div className="bg-primary/15 rounded-lg p-3.5 border-2 border-primary/30 flex justify-between items-center">
+            {hasDiscount && originalPrice && (
+              <div className="flex justify-between items-center text-destructive">
+                <span className="text-muted-foreground text-sm">Original price</span>
+                <span className="text-sm line-through">
+                  {formatCurrency(originalPrice)}
+                </span>
+              </div>
+            )}
+            {(currentQuantity > 1 || customizationTotal > 0) && (
+              <>
+                <div className="flex justify-between items-center text-muted-foreground text-xs pt-1">
+                  <span>Base subtotal ({currentQuantity}×)</span>
+                  <span>{formatCurrency(displayPrice * currentQuantity)}</span>
+                </div>
+                {customizationTotal > 0 && (
+                  <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-500 text-xs">
+                    <span>Add-ons subtotal ({currentQuantity}×)</span>
+                    <span>+{formatCurrency(customizationTotal * currentQuantity)}</span>
+                  </div>
+                )}
+              </>
+            )}
+            <div className="flex justify-between items-center border-t pt-2">
               <span className="text-muted-foreground font-semibold text-sm">Total</span>
-              <span className="text-xl font-bold text-primary">
+              <span className="text-lg font-bold text-primary">
                 {formatCurrency(priceWithCustomizations * currentQuantity)}
               </span>
             </div>
