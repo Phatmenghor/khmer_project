@@ -56,12 +56,20 @@ function POSProductCardComponent({
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";
 
+  const handleCardClick = useCallback(() => {
+    const hasCustomizations = product.customizations && product.customizations.length > 0;
+    if (product.hasSizes || hasCustomizations) {
+      // If product has sizes or customizations, open the modal
+      onAddClick(product);
+    } else {
+      // If no sizes/customizations, directly add to cart (like clicking +)
+      onQuantityChange(product.id, 1);
+    }
+  }, [product, onAddClick, onQuantityChange]);
+
   return (
     <div
-      onClick={() => {
-        // Clicking the card opens size picker / modal
-        onAddClick(product);
-      }}
+      onClick={handleCardClick}
       className={cn(
         "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover:scale-[1.02]",
         quantity > 0 && "ring-1 ring-primary/30 border-primary/50",
