@@ -723,7 +723,7 @@ export default function PosPage() {
                 ref={searchInputRef}
                 type="search"
                 placeholder="Search..."
-                className="max-md:pl-8 max-md:h-8 max-md:text-xs pl-10 h-9"
+                className="max-md:pl-8 max-md:h-10 max-md:text-xs pl-10 h-11"
                 value={searchTerm}
                 onChange={(e) => dispatch(setSearchTerm(e.target.value))}
               />
@@ -735,7 +735,7 @@ export default function PosPage() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={brandOpen}
-                  className="max-md:w-[120px] md:w-[200px] justify-between h-9 text-sm"
+                  className="max-md:w-[120px] md:w-[200px] justify-between h-11 text-sm"
                 >
                   {selectedBrand?.name || "All Brands"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -794,7 +794,7 @@ export default function PosPage() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={promotionOpen}
-                  className="max-md:w-[100px] md:w-[130px] justify-between h-9 text-sm max-md:text-xs"
+                  className="max-md:w-[100px] md:w-[130px] justify-between h-11 text-sm max-md:text-xs"
                 >
                   {promotionFilter === undefined ? "All Products" : "Promotion"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
