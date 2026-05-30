@@ -159,7 +159,7 @@ export default function OrdersAdminPage() {
       const element = document.createElement("div");
       element.style.position = "absolute";
       element.style.left = "-9999px";
-      element.style width = "80mm";
+      element.style.width = "80mm";
       document.body.appendChild(element);
 
       const canvas = await html2canvas(element);
