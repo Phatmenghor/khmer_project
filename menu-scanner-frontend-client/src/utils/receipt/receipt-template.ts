@@ -88,10 +88,8 @@ ${padRight("NAME", 18)} ${padLeft("QTY", 2)} ${padLeft("DISC", 7)} ${padLeft("TO
 ${itemsHTML}
 ──────────────────────────────────────────────
 Payment: ${order.payment?.paymentMethod || "N/A"}
-${padRight("Subtotal", 35)} ${padLeft(formatPrice(subtotal + customizationTotal), 9)}
-${discount > 0 ? `${padRight("Discount", 35)} ${padLeft(`-${formatPrice(discount)}`, 9)}\n${padRight("After Discount", 35)} ${padLeft(formatPrice(subtotal + customizationTotal - discount), 9)}` : ""}
-${padRight(`Tax (${order.pricing?.taxPercentage || 0}%)`, 35)} ${padLeft(`+${formatPrice(tax)}`, 9)}
-${delivery > 0 ? `${padRight("Delivery Fee", 35)} ${padLeft(`+${formatPrice(delivery)}`, 9)}` : ""}
+${padRight("Subtotal", 35)} ${padLeft(formatPrice(subtotal + customizationTotal), 9)}${discount > 0 ? `\n${padRight("Discount", 35)} ${padLeft(`-${formatPrice(discount)}`, 9)}\n${padRight("After Discount", 35)} ${padLeft(formatPrice(subtotal + customizationTotal - discount), 9)}` : ""}
+${padRight(`Tax (${order.pricing?.taxPercentage || 0}%)`, 35)} ${padLeft(`+${formatPrice(tax)}`, 9)}${delivery > 0 ? `\n${padRight("Delivery Fee", 35)} ${padLeft(`+${formatPrice(delivery)}`, 9)}` : ""}
 ══════════════════════════════════════════════
 ${padRight("TOTAL AMOUNT", 35)} ${padLeft(formatPrice(total), 9)}
 ══════════════════════════════════════════════
