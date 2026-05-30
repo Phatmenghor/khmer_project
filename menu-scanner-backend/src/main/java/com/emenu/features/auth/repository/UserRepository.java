@@ -32,11 +32,14 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
 
     List<User> findAllByBusinessIdAndIsDeletedFalse(UUID businessId);
 
-    Optional<User> findByTelegramIdAndBusinessIdAndIsDeletedFalse(Long telegramId, UUID businessId);
+    @Query("SELECT u FROM User u JOIN u.telegram t WHERE t.telegramId = :telegramId AND u.businessId = :businessId AND u.isDeleted = false")
+    Optional<User> findByTelegramIdAndBusinessIdAndIsDeletedFalse(@Param("telegramId") Long telegramId, @Param("businessId") UUID businessId);
 
-    Optional<User> findByTelegramIdAndUserTypeAndIsDeletedFalse(Long telegramId, UserType userType);
+    @Query("SELECT u FROM User u JOIN u.telegram t WHERE t.telegramId = :telegramId AND u.userType = :userType AND u.isDeleted = false")
+    Optional<User> findByTelegramIdAndUserTypeAndIsDeletedFalse(@Param("telegramId") Long telegramId, @Param("userType") UserType userType);
 
-    Optional<User> findByTelegramIdAndIsDeletedFalse(Long telegramId);
+    @Query("SELECT u FROM User u JOIN u.telegram t WHERE t.telegramId = :telegramId AND u.isDeleted = false")
+    Optional<User> findByTelegramIdAndIsDeletedFalse(@Param("telegramId") Long telegramId);
 
     @Query("SELECT u FROM User u WHERE u.isDeleted = false ORDER BY u.createdAt DESC")
     List<User> findAllActiveUsers();
