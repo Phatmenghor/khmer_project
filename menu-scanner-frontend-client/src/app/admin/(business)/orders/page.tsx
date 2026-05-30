@@ -181,7 +181,7 @@ export default function OrdersAdminPage() {
           <div style="text-align: center; font-size: 10px; margin-bottom: 6px; border-bottom: 1px solid #666; padding-bottom: 4px;">
             <div>Order #: ${order.orderNumber}</div>
             <div>Date: ${formattedDate} • ${formattedTime}</div>
-            <div style="font-weight: bold;">${order.business?.name || 'Restaurant'}</div>
+            <div style="font-weight: bold;">${order.businessName || 'Restaurant'}</div>
           </div>
 
           <!-- Items Section -->

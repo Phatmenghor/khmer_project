@@ -104,7 +104,7 @@ export function OrderDetailModal({
           <div style="text-align: center; font-size: 10px; margin-bottom: 6px; border-bottom: 1px solid #666; padding-bottom: 4px;">
             <div>Order #: ${orderData.orderNumber}</div>
             <div>Date: ${formattedDate} • ${formattedTime}</div>
-            <div style="font-weight: bold;">${orderData.business?.name || 'Restaurant'}</div>
+            <div style="font-weight: bold;">${orderData.businessName || 'Restaurant'}</div>
           </div>
 
           <!-- Items Section -->
