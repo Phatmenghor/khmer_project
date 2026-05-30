@@ -178,8 +178,12 @@ function POSProductCardComponent({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                // Button directly adds to cart without opening modal
-                onQuantityChange(product.id, 1);
+                const hasCustomizations = product.customizations && product.customizations.length > 0;
+                if (product.hasSizes || hasCustomizations) {
+                  onAddClick(product);
+                } else {
+                  onQuantityChange(product.id, 1);
+                }
               }}
               disabled={isOutOfStock}
               size="sm"
