@@ -1,8 +1,8 @@
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 
 /**
- * Generate compact receipt for 80mm thermal printer
- * Minimal spacing, tight layout
+ * Generate responsive receipt for 80mm thermal printer
+ * With padding, responsive font, and flexible layout
  */
 export function generateReceiptHTML(order: OrderResponse): string {
   const date = new Date(order.createdAt);
@@ -62,40 +62,50 @@ export function generateReceiptHTML(order: OrderResponse): string {
     .join("\n");
 
   return `
-    <pre style="
-      font-family: 'Courier New', monospace;
-      font-size: 11px;
-      line-height: 1.2;
-      width: 305px;
-      margin: 0;
-      padding: 4px 8px;
+    <div id="receipt-wrapper" style="
+      width: 100%;
+      max-width: 305px;
+      margin: 0 auto;
       background: white;
-      color: black;
-      white-space: pre;
-      word-wrap: break-word;
-    ">══════════════════════════════════════════════
+      padding: 0;
+    ">
+      <pre style="
+        font-family: 'Courier New', monospace;
+        font-size: clamp(9px, 2vw, 10px);
+        line-height: 1.2;
+        width: 100%;
+        margin: 0;
+        padding: 8px;
+        box-sizing: border-box;
+        background: white;
+        color: black;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      ">══════════════════════════════════════════
 RECEIPT
-══════════════════════════════════════════════
+══════════════════════════════════════════
 Order #: ${order.orderNumber}
 Date: ${formattedDate} ${formattedTime}
 Biz: ${(order.businessName || "Business").substring(0, 32)}
 ${order.customerName ? `Cust: ${order.customerName.substring(0, 32)}` : ""}
-──────────────────────────────────────────────
+──────────────────────────────────────────
 ITEMS
-──────────────────────────────────────────────
+──────────────────────────────────────────
 ${padRight("NAME", 18)} ${padLeft("QTY", 2)} ${padLeft("DISC", 7)} ${padLeft("TOTAL", 9)}
-──────────────────────────────────────────────
+──────────────────────────────────────────
 ${itemsHTML}
-──────────────────────────────────────────────
+──────────────────────────────────────────
 Payment: ${order.payment?.paymentMethod || "N/A"}
 ${padRight("Subtotal", 35)} ${padLeft(formatPrice(subtotal + customizationTotal), 9)}${discount > 0 ? `\n${padRight("Discount", 35)} ${padLeft(`-${formatPrice(discount)}`, 9)}\n${padRight("After Discount", 35)} ${padLeft(formatPrice(subtotal + customizationTotal - discount), 9)}` : ""}
 ${padRight(`Tax (${order.pricing?.taxPercentage || 0}%)`, 35)} ${padLeft(`+${formatPrice(tax)}`, 9)}${delivery > 0 ? `\n${padRight("Delivery Fee", 35)} ${padLeft(`+${formatPrice(delivery)}`, 9)}` : ""}
-══════════════════════════════════════════════
+══════════════════════════════════════════
 ${padRight("TOTAL AMOUNT", 35)} ${padLeft(formatPrice(total), 9)}
-══════════════════════════════════════════════
+══════════════════════════════════════════
 Thank you for your order!
 Please visit again
 ${formattedDate} ${formattedTime}</pre>
+    </div>
   `;
 }
 
@@ -104,7 +114,9 @@ ${formattedDate} ${formattedTime}</pre>
  */
 export const RECEIPT_STYLES = {
   paperWidth: "80mm",
-  width: 305,
+  width: "100%",
+  maxWidth: 305,
   font: "Courier New, monospace",
-  fontSize: "11px",
+  fontSize: "clamp(9px, 2vw, 10px)",
+  padding: "8px",
 };
