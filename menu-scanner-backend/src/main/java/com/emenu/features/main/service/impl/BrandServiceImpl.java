@@ -13,6 +13,7 @@ import com.emenu.features.main.mapper.BrandMapper;
 import com.emenu.features.main.models.Brand;
 import com.emenu.features.main.repository.BrandRepository;
 import com.emenu.features.main.service.BrandService;
+import com.emenu.features.main.specification.BrandSpecification;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -20,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,12 +68,13 @@ public class BrandServiceImpl implements BrandService {
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
-        Page<Brand> brandPage = brandRepository.findAllWithFilters(
+        Specification<Brand> spec = BrandSpecification.filterBrands(
                 filter.getBusinessId(),
                 filter.getStatus(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+
+        Page<Brand> brandPage = brandRepository.findAll(spec, pageable);
         return brandMapper.toPaginationResponse(brandPage, paginationMapper);
     }
 
@@ -81,12 +85,13 @@ public class BrandServiceImpl implements BrandService {
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
-        Page<Brand> brandPage = brandRepository.findAllWithFilters(
+        Specification<Brand> spec = BrandSpecification.filterBrands(
                 filter.getBusinessId(),
                 filter.getStatus(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+
+        Page<Brand> brandPage = brandRepository.findAll(spec, pageable);
 
         List<UUID> brandIds = brandPage.getContent().stream()
                 .map(Brand::getId)
@@ -143,12 +148,14 @@ public class BrandServiceImpl implements BrandService {
     @Override
     @Transactional(readOnly = true)
     public List<BrandResponse> getAllListBrands(BrandAllFilterRequest filter) {
-        List<Brand> brandList = brandRepository.findAllWithFilters(
+        Specification<Brand> spec = BrandSpecification.filterBrands(
                 filter.getBusinessId(),
                 filter.getStatus(),
-                filter.getSearch(),
-                PaginationUtils.createSort(filter.getSortBy(), filter.getSortDirection())
+                filter.getSearch()
         );
+
+        Sort sort = PaginationUtils.createSort(filter.getSortBy(), filter.getSortDirection());
+        List<Brand> brandList = brandRepository.findAll(spec, sort);
         return brandMapper.toResponseList(brandList);
     }
 

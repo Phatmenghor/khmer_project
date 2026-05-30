@@ -15,6 +15,7 @@ import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.service.RoleService;
+import com.emenu.features.auth.specification.RoleSpecification;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.shared.constants.AuthConstants;
 import com.emenu.shared.dto.PaginationResponse;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,13 +100,14 @@ public class RoleServiceImpl implements RoleService {
         List<UserType> userTypes = FilterUtils.nullIfEmpty(request.getUserTypes());
         Boolean includeAll = request.getIncludeAll() != null && request.getIncludeAll();
 
-        Page<Role> rolesPage = roleRepository.findAllWithFilters(
+        Specification<Role> spec = RoleSpecification.findAllWithFiltersAndPlatform(
                 request.getBusinessId(),
                 userTypes,
                 request.getSearch(),
-                includeAll,
-                pageable
+                includeAll
         );
+
+        Page<Role> rolesPage = roleRepository.findAll(spec, pageable);
 
         log.info("Roles fetched successfully: count={}, page={}/{}", rolesPage.getNumberOfElements(), rolesPage.getNumber() + 1, rolesPage.getTotalPages());
 
@@ -137,12 +140,14 @@ public class RoleServiceImpl implements RoleService {
         List<UserType> userTypes = FilterUtils.nullIfEmpty(request.getUserTypes());
         Boolean includeAll = request.getIncludeAll() != null && request.getIncludeAll();
 
-        List<Role> roles = roleRepository.findAllListWithFilters(
+        Specification<Role> spec = RoleSpecification.findAllWithFiltersAndPlatform(
                 request.getBusinessId(),
                 userTypes,
                 request.getSearch(),
                 includeAll
         );
+
+        List<Role> roles = roleRepository.findAll(spec);
 
         List<RoleResponse> responses = new ArrayList<>(roles.stream()
                 .map(roleMapper::toResponse)

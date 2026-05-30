@@ -41,9 +41,29 @@ public class RoleSpecification {
         };
     }
 
+    public static Specification<Role> businessOrPlatformRoles(UUID businessId, boolean includeAll) {
+        return (root, query, cb) -> {
+            if (!includeAll) return cb.equal(root.get("businessId"), businessId);
+            if (businessId != null) {
+                return cb.or(
+                    cb.equal(root.get("businessId"), businessId),
+                    cb.isNull(root.get("businessId"))
+                );
+            }
+            return cb.conjunction();
+        };
+    }
+
     public static Specification<Role> findAllWithFilters(UUID businessId, List<UserType> userTypes, String search) {
         return active()
                 .and(byBusinessId(businessId))
+                .and(byUserTypes(userTypes))
+                .and(searchByName(search));
+    }
+
+    public static Specification<Role> findAllWithFiltersAndPlatform(UUID businessId, List<UserType> userTypes, String search, boolean includeAll) {
+        return active()
+                .and(businessOrPlatformRoles(businessId, includeAll))
                 .and(byUserTypes(userTypes))
                 .and(searchByName(search));
     }
