@@ -4,6 +4,8 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Maximize2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { TopBar } from "./topbar";
 import { AdminFooter } from "./admin-footer";
@@ -41,13 +43,20 @@ export default function DashboardLayout({
 
   const isPosPage = pathname.includes("/pos");
 
-  if (isFullscreen) {
+  if (isFullscreen && isPosPage) {
     return (
       <div className="fixed inset-0 z-[100] bg-background flex flex-col">
-        <TopBar
-          onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          onFullscreenClick={() => setIsFullscreen(false)}
-        />
+        <div className="hidden md:flex h-16 items-center border-b bg-background/95 backdrop-blur px-5">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsFullscreen(false)}
+            title="Exit Fullscreen (F11)"
+            className="ml-auto h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </Button>
+        </div>
         <main className="dashboard-main flex-1 overflow-hidden">{children}</main>
       </div>
     );
