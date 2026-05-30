@@ -118,12 +118,6 @@ function POSProductCardComponent({
           </div>
         )}
 
-        {}
-        {quantity > 0 && (
-          <div className="absolute -top-4 -right-4 z-20 w-6 h-6 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shadow-md">
-            {quantity}
-          </div>
-        )}
       </div>
 
       {}

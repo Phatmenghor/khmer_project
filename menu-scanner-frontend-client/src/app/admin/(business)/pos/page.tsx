@@ -918,7 +918,7 @@ export default function PosPage() {
               className="w-full max-md:p-2 md:p-4"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
                 gap: "0.75rem",
               }}
             >
