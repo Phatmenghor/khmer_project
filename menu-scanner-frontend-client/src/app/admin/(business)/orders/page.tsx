@@ -40,6 +40,7 @@ import {
 } from "@/constants/status/filter-status";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { generateReceiptHTML } from "@/utils/receipt/receipt-template";
 import { OrderReceipt } from "@/components/shared/receipt/order-receipt";
 
 export default function OrdersAdminPage() {
@@ -127,168 +128,18 @@ export default function OrdersAdminPage() {
   };
 
   const handleDownloadReceipt = async (order: OrderResponse) => {
-    if (!order.id || !order.items) return;
+    if (!order.id) return;
     try {
+      // Create container and generate receipt HTML using template
       const element = document.createElement("div");
       element.style.position = "absolute";
       element.style.left = "-9999px";
       element.style.width = "100%";
       element.style.maxWidth = "900px";
-      element.style.background = "white";
-      element.style.padding = "24px";
-      element.style.fontFamily = "monospace";
-
-      const date = new Date(order.createdAt);
-      const formattedDate = date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-      const formattedTime = date.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-
-      const subtotal = order.pricing?.subtotal || 0;
-      const discount = order.pricing?.discountAmount || 0;
-      const subtotalAfterDiscount = subtotal - discount;
-      const tax = order.pricing?.taxAmount || 0;
-      const delivery = order.pricing?.deliveryFee || 0;
-      const total = order.pricing?.finalTotal || 0;
-      const customizationTotal = order.pricing?.customizationTotal || 0;
-
-      // Build items HTML with proper fallbacks
-      const itemsHTML = order.items.map((item, idx) => {
-        const itemTotal = (item.finalPrice || 0) * item.quantity;
-        const productName = item.product?.name || item.productName || "Product";
-        const sizeName = item.product?.sizeName || item.sizeName || null;
-        const hasPromo = item.hasPromotion && item.promotionType;
-        const promoLabel = hasPromo ? 
-          (item.promotionType === "PERCENTAGE" 
-            ? `${item.promotionValue}% OFF` 
-            : `$${item.promotionValue} OFF`) 
-          : null;
-
-        return `
-          <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #ccc;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span style="flex: 1; font-weight: bold;">${idx + 1}. ${productName}${sizeName ? ' (Size: ' + sizeName + ')' : ''}</span>
-              <span style="width: 40px; text-align: center;">${item.quantity}</span>
-              <span style="width: 50px; text-align: right;">$${item.finalPrice?.toFixed(2) || '0.00'}</span>
-              <span style="width: 60px; text-align: right; font-weight: bold;">$${itemTotal.toFixed(2)}</span>
-            </div>
-            ${promoLabel ? `<div style="color: #27ae60; font-weight: bold; font-size: 10px; margin-left: 8px;">✓ PROMOTION: ${promoLabel}</div>` : ''}
-            ${item.customizations && item.customizations.length > 0 ? `
-              <div style="margin-left: 16px; font-size: 10px; color: #666;">
-                ${item.customizations.map(c => `<div>• ${c.name}: +$${c.priceAdjustment?.toFixed(2) || '0.00'}</div>`).join('')}
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join('');
-
-      // Promotions summary
-      const promotionalItems = order.items.filter(i => i.hasPromotion && i.promotionType);
-      const promoSummary = promotionalItems.length > 0 ? `
-        <div style="background: #f0fdf4; border-left: 3px solid #22c55e; padding: 8px; margin: 8px 0; font-size: 11px;">
-          <div style="font-weight: bold; color: #16a34a; margin-bottom: 6px;">🎉 PROMOTIONS APPLIED</div>
-          ${promotionalItems.map(item => {
-            const prodName = item.product?.name || item.productName || "Product";
-            const promoText = item.promotionType === "PERCENTAGE" 
-              ? `-${item.promotionValue}%` 
-              : `-$${item.promotionValue}`;
-            return `<div style="display: flex; justify-content: space-between; color: #16a34a;"><span>${prodName}</span><span style="font-weight: bold;">${promoText}</span></div>`;
-          }).join('')}
-        </div>
-      ` : '';
-
-      element.innerHTML = `
-        <div style="width: 100%; max-width: 900px; background: white; font-family: monospace; font-size: 12px;">
-          <!-- Header -->
-          <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
-            <div style="font-weight: bold; font-size: 16px; letter-spacing: 2px;">RECEIPT</div>
-            <div style="font-size: 10px; color: #666; margin-top: 4px;">Professional Receipt Document</div>
-          </div>
-
-          <!-- Order Info -->
-          <div style="text-align: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #666;">
-            <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">${order.businessName || 'Business'}</div>
-            <div style="font-size: 11px;">Order #: <strong>${order.orderNumber}</strong></div>
-            <div style="font-size: 11px;">Date: ${formattedDate} • ${formattedTime}</div>
-            ${order.customerName ? `<div style="font-size: 11px;">Customer: ${order.customerName}</div>` : ''}
-          </div>
-
-          <!-- Items Section -->
-          <div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #666;">
-            <div style="text-align: center; font-weight: bold; margin-bottom: 8px;">ITEMS (${order.items.length})</div>
-            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 11px; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 2px solid #000;">
-              <span style="flex: 1;">DESCRIPTION</span>
-              <span style="width: 40px; text-align: center;">QTY</span>
-              <span style="width: 50px; text-align: right;">PRICE</span>
-              <span style="width: 60px; text-align: right;">TOTAL</span>
-            </div>
-            ${itemsHTML}
-          </div>
-
-          <!-- Promotions -->
-          ${promoSummary}
-
-          <!-- Pricing Summary -->
-          <div style="margin-bottom: 12px; padding: 8px; background: #f9f9f9; border: 1px solid #ddd;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span>Subtotal</span>
-              <span style="font-weight: bold;">$${subtotal.toFixed(2)}</span>
-            </div>
-            ${customizationTotal > 0 ? `
-              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                <span>Add-ons</span>
-                <span style="font-weight: bold;">+$${customizationTotal.toFixed(2)}</span>
-              </div>
-            ` : ''}
-            ${discount > 0 ? `
-              <div style="display: flex; justify-content: space-between; margin-bottom: 4px; background: #ffe0e0; padding: 4px;">
-                <span style="color: #d32f2f; font-weight: bold;">Discount</span>
-                <span style="color: #d32f2f; font-weight: bold;">-$${discount.toFixed(2)}</span>
-              </div>
-            ` : ''}
-            ${tax > 0 ? `
-              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                <span>Tax</span>
-                <span style="font-weight: bold;">+$${tax.toFixed(2)}</span>
-              </div>
-            ` : ''}
-            ${delivery > 0 ? `
-              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                <span>Delivery Fee</span>
-                <span style="font-weight: bold;">+$${delivery.toFixed(2)}</span>
-              </div>
-            ` : ''}
-          </div>
-
-          <!-- Total -->
-          <div style="background: #000; color: white; padding: 12px; text-align: center; margin-bottom: 12px; font-weight: bold;">
-            <div style="font-size: 11px; margin-bottom: 4px;">FINAL AMOUNT DUE</div>
-            <div style="font-size: 18px;">TOTAL: $${total.toFixed(2)}</div>
-          </div>
-
-          <!-- Payment -->
-          <div style="margin-bottom: 12px; padding: 8px; border: 1px solid #666;">
-            <div style="font-weight: bold;">Payment Method: ${order.payment?.paymentMethod || 'N/A'}</div>
-            <div style="font-size: 11px;">Status: ${order.payment?.paymentStatus || 'N/A'}</div>
-          </div>
-
-          <!-- Footer -->
-          <div style="text-align: center; padding-top: 8px; border-top: 3px solid #000;">
-            <div style="font-weight: bold; margin-bottom: 4px;">✓ Thank You For Your Order!</div>
-            <div style="font-size: 10px; color: #666;">Please keep this receipt for your records</div>
-            <div style="font-size: 9px; color: #999; margin-top: 4px;">Generated: ${formattedDate} at ${formattedTime}</div>
-          </div>
-        </div>
-      `;
-
+      element.innerHTML = generateReceiptHTML(order);
       document.body.appendChild(element);
 
+      // Convert to canvas and generate PDF
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -307,8 +158,7 @@ export default function OrdersAdminPage() {
       });
 
       const imgData = canvas.toDataURL("image/png");
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, imgHeight);
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
       pdf.save(`receipt-${order.orderNumber}.pdf`);
 
       document.body.removeChild(element);
