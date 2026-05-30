@@ -181,7 +181,11 @@ function POSProductCardComponent({
                 const hasCustomizations = product.customizations && product.customizations.length > 0;
                 if (product.hasSizes || hasCustomizations) {
                   onAddClick(product);
+                } else if (quantity === 0) {
+                  // For new simple products, use onAddClick to add to cart
+                  onAddClick(product);
                 } else {
+                  // For existing items, directly increment quantity
                   onQuantityChange(product.id, 1);
                 }
               }}
