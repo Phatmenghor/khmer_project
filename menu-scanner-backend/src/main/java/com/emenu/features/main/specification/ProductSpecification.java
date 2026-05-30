@@ -3,65 +3,45 @@ package com.emenu.features.main.specification;
 import com.emenu.enums.product.ProductStatus;
 import com.emenu.enums.product.StockStatus;
 import com.emenu.features.main.models.Product;
+import com.emenu.shared.specification.BaseSpecification;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-public class ProductSpecification {
+public class ProductSpecification extends BaseSpecification {
 
     public static Specification<Product> active() {
         return (root, query, cb) -> cb.equal(root.get("isDeleted"), false);
     }
 
     public static Specification<Product> byBusinessId(UUID businessId) {
-        return (root, query, cb) -> {
-            if (businessId == null) return cb.conjunction();
-            return cb.equal(root.get("businessId"), businessId);
-        };
+        return filterByField("businessId", businessId);
     }
 
     public static Specification<Product> byCategoryId(UUID categoryId) {
-        return (root, query, cb) -> {
-            if (categoryId == null) return cb.conjunction();
-            return cb.equal(root.get("categoryId"), categoryId);
-        };
+        return filterByField("categoryId", categoryId);
     }
 
     public static Specification<Product> byBrandId(UUID brandId) {
-        return (root, query, cb) -> {
-            if (brandId == null) return cb.conjunction();
-            return cb.equal(root.get("brandId"), brandId);
-        };
+        return filterByField("brandId", brandId);
     }
 
     public static Specification<Product> byStatuses(List<ProductStatus> statuses) {
-        return (root, query, cb) -> {
-            if (statuses == null || statuses.isEmpty()) return cb.conjunction();
-            return root.get("status").in(statuses);
-        };
+        return filterByFieldIn("status", statuses);
     }
 
     public static Specification<Product> byHasPromotion(Boolean hasPromotion) {
-        return (root, query, cb) -> {
-            if (hasPromotion == null) return cb.conjunction();
-            return cb.equal(root.get("hasActivePromotion"), hasPromotion);
-        };
+        return filterByField("hasActivePromotion", hasPromotion);
     }
 
     public static Specification<Product> byHasSize(Boolean hasSize) {
-        return (root, query, cb) -> {
-            if (hasSize == null) return cb.conjunction();
-            return cb.equal(root.get("hasSizes"), hasSize);
-        };
+        return filterByField("hasSizes", hasSize);
     }
 
     public static Specification<Product> byStockStatus(List<StockStatus> stockStatuses) {
-        return (root, query, cb) -> {
-            if (stockStatuses == null || stockStatuses.isEmpty()) return cb.conjunction();
-            return root.get("stockStatus").in(stockStatuses);
-        };
+        return filterByFieldIn("stockStatus", stockStatuses);
     }
 
     public static Specification<Product> byPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
@@ -78,11 +58,7 @@ public class ProductSpecification {
     }
 
     public static Specification<Product> searchByName(String search) {
-        return (root, query, cb) -> {
-            if (search == null || search.isBlank()) return cb.conjunction();
-            String pattern = "%" + search.toLowerCase() + "%";
-            return cb.like(cb.lower(root.get("name")), pattern);
-        };
+        return searchByField("name", search);
     }
 
     public static Specification<Product> filterProducts(

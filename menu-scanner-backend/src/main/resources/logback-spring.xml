@@ -2,7 +2,9 @@
 <configuration>
     <property name="LOG_PATH" value="logs" />
     <property name="LOG_FILE_NAME" value="e-menu-scanner" />
-    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{requestId}] [%thread] %-5level %logger{36} - %msg%n" />
+    <!-- Enhanced pattern with request ID, execution time, and thread info for better monitoring -->
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{requestId}] [%X{userId}] [%thread] %-5level %logger{36} - %msg%n" />
+    <property name="PERFORMANCE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{requestId}] PERF: %msg%n" />
     <property name="MAX_FILE_SIZE" value="512MB" />
     <timestamp key="byDay" datePattern="yyyy-MM-dd" />
     <timestamp key="byHour" datePattern="yyyy-MM-dd-hh-a" />
@@ -52,14 +54,44 @@
         </rollingPolicy>
     </appender>
 
+    <!-- Performance monitoring appender for slow queries and operations -->
+    <appender name="PERFORMANCE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${byDay}/${LOG_FILE_NAME}-performance-${byHour}.log</file>
+        <encoder>
+            <pattern>${PERFORMANCE_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/${LOG_FILE_NAME}-performance-%d{yyyy-MM-dd-hh-a}-%i.log</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>168</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
     <logger name="com.internal" level="INFO" additivity="false">
         <appender-ref ref="FILE" />
         <appender-ref ref="ERROR_FILE" />
         <appender-ref ref="CONSOLE" />
     </logger>
 
+    <!-- Performance monitoring logger -->
+    <logger name="com.emenu.performance" level="INFO" additivity="false">
+        <appender-ref ref="PERFORMANCE_FILE" />
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <!-- Audit logging for security and compliance -->
+    <logger name="com.emenu.audit" level="INFO" additivity="false">
+        <appender-ref ref="FILE" />
+        <appender-ref ref="ERROR_FILE" />
+    </logger>
+
     <logger name="org.springframework" level="WARN" />
+    <logger name="org.springframework.security" level="INFO" />
+    <logger name="org.springframework.data" level="WARN" />
     <logger name="org.hibernate" level="WARN" />
+    <logger name="org.hibernate.SQL" level="DEBUG" />
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
     <logger name="com.zaxxer.hikari" level="WARN" />
 
     <root level="INFO">
