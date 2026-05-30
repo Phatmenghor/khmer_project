@@ -25,8 +25,6 @@ public class TelegramWebhookController {
     public ResponseEntity<ApiResponse<Map<String, String>>> handleWebhook(
             @RequestBody Map<String, Object> update) {
         try {
-            log.debug("[Telegram Webhook] Received update: {}", update);
-
             if (update.get("message") == null) {
                 return ResponseEntity.ok(ApiResponse.success("Update processed", new HashMap<>()));
             }
@@ -42,7 +40,6 @@ public class TelegramWebhookController {
             }
 
             if (text == null || chatIdNum == null) {
-                log.debug("[Telegram Webhook] Missing text or chat_id");
                 return ResponseEntity.ok(ApiResponse.success("Update processed", new HashMap<>()));
             }
 
