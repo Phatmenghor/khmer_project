@@ -89,26 +89,26 @@ export function generateReceiptHTML(order: OrderResponse): string {
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow-wrap: break-word;
-      ">══════════════════════════════════════════
+      ">═════════════════════════════════════════════════════════════════════════
 RECEIPT
-══════════════════════════════════════════
+═════════════════════════════════════════════════════════════════════════
 Order #: ${order.orderNumber}
 Date: ${formattedDate} ${formattedTime}
 Biz: ${(order.businessName || "Business").substring(0, 32)}
 ${order.customerName ? `Cust: ${order.customerName.substring(0, 32)}` : ""}
-──────────────────────────────────────────
+─────────────────────────────────────────────────────────────────────────
 ITEMS
-──────────────────────────────────────────
+─────────────────────────────────────────────────────────────────────────
 ${padRight("NAME", 18)} ${padLeft("QTY", 2)} ${padLeft("DISC", 7)} ${padLeft("TOTAL", 9)}
-──────────────────────────────────────────
+─────────────────────────────────────────────────────────────────────────
 ${itemsHTML}
-──────────────────────────────────────────
+─────────────────────────────────────────────────────────────────────────
 Payment: ${order.payment?.paymentMethod || "N/A"}
 ${alignLine("Subtotal", formatPrice(subtotal + customizationTotal))}${discount > 0 ? `\n${alignLine("Discount", `-${formatPrice(discount)}`)}\n${alignLine("After Discount", formatPrice(subtotal + customizationTotal - discount))}` : ""}
 ${alignLine(`Tax (${order.pricing?.taxPercentage || 0}%)`, `+${formatPrice(tax)}`)}${delivery > 0 ? `\n${alignLine("Delivery Fee", `+${formatPrice(delivery)}`)}` : ""}
-══════════════════════════════════════════
-${alignLine("TOTAL AMOUNT", formatPrice(total))}
-══════════════════════════════════════════
+═════════════════════════════════════════════════════════════════════════
+TOTAL AMOUNT${" ".repeat(Math.max(1, 73 - "TOTAL AMOUNT".length - formatPrice(total).length))}${formatPrice(total)}
+═════════════════════════════════════════════════════════════════════════
 Thank you for your order!
 Please visit again
 ${formattedDate} ${formattedTime}</pre>
