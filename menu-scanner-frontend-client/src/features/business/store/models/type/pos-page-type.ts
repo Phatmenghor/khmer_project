@@ -40,6 +40,8 @@ export interface PosPageCartItem {
   hasPromotion?: boolean;
   promotionType?: string | null;
   promotionValue?: number | null;
+  promotionFromDate?: string | null;
+  promotionToDate?: string | null;
 }
 
 

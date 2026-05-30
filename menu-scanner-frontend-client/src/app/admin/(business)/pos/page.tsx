@@ -451,6 +451,8 @@ export default function PosPage() {
         hasPromotion: size ? size.hasPromotion : product.hasPromotion,
         promotionType: size ? size.promotionType : product.displayPromotionType,
         promotionValue: size ? size.promotionValue : product.displayPromotionValue,
+        promotionFromDate: size ? size.promotionFromDate : product.displayPromotionFromDate,
+        promotionToDate: size ? size.promotionToDate : product.displayPromotionToDate,
       };
 
       if (editingId) {
@@ -644,6 +646,12 @@ export default function PosPage() {
 
           sku: item.sku || "",
           barcode: item.barcode || "",
+
+          hasPromotion: item.hasPromotion || null,
+          promotionType: item.promotionType || null,
+          promotionValue: item.promotionValue || null,
+          promotionFromDate: item.promotionFromDate || null,
+          promotionToDate: item.promotionToDate || null,
         })),
         totalItems: cartSummary.totalItems,
         totalQuantity: cartSummary.totalQuantity,

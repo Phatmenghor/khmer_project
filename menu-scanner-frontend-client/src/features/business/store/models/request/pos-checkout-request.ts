@@ -26,6 +26,13 @@ export interface POSCheckoutItemRequest {
 
   sku?: string;
   barcode?: string;
+
+  // Promotion fields
+  hasPromotion?: boolean | null;
+  promotionType?: string | null;
+  promotionValue?: number | null;
+  promotionFromDate?: string | null;
+  promotionToDate?: string | null;
 }
 
 export interface DeliveryOptionRequest {
