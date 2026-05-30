@@ -26,6 +26,10 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "order_id", nullable = false)
     private UUID orderId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    private Order order;
+
     @Column(name = "product_id", nullable = false)
     private UUID productId;
 

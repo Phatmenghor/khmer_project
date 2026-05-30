@@ -407,6 +407,7 @@ public class OrderServiceImpl implements OrderService {
                 item.setPromotionValue(itemRequest.getPromotionValue());
                 item.setPromotionFromDate(itemRequest.getPromotionFromDate());
                 item.setPromotionToDate(itemRequest.getPromotionToDate());
+                item.setOrder(order);
 
                 order.getItems().add(item);
             }
@@ -573,6 +574,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
                     finalPrice.multiply(new BigDecimal(item.getQuantity())));
 
+            orderItem.setOrder(order);
             order.getItems().add(orderItem);
         }
 
