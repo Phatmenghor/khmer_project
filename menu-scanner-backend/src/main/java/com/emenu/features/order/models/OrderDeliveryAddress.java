@@ -66,7 +66,7 @@ public class OrderDeliveryAddress extends BaseUUIDEntity {
 
     // Snapshot of location images at time of order - preserves history
     // If location images are updated later, orders still show the original images from checkout
-    @Column(name = "location_images", columnDefinition = "jsonb")
+    @Column(name = "location_images", columnDefinition = "TEXT")
     @JdbcTypeCode(SqlTypes.JSON)
     private List<String> locationImages = new ArrayList<>();
 }

@@ -9,90 +9,125 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public class OrderPaymentSpecification {
+/**
+ * Order Payment Specifications - Type-safe filtering for OrderPayment entity
+ *
+ * Usage in Service:
+ * ```
+ * Specification<OrderPayment> spec = OrderPaymentSpecification.active()
+ *     .and(OrderPaymentSpecification.forBusiness(businessId))
+ *     .and(OrderPaymentSpecification.withStatuses(statuses));
+ * Page<OrderPayment> results = paymentRepository.findAll(spec, pageable);
+ * ```
+ */
+public class OrderPaymentSpecification extends BaseSpecification {
 
-    public static Specification<OrderPayment> isNotDeleted() {
+    // ============ PUBLIC API METHODS ============
+    // Services should ONLY use these methods
+
+    /**
+     * Get all non-deleted payments (base filter)
+     */
+    public static Specification<OrderPayment> active() {
         return (root, query, cb) -> cb.equal(root.get("isDeleted"), false);
     }
 
-    public static Specification<OrderPayment> hasBusinessId(UUID businessId) {
+    /**
+     * Filter by business ID
+     */
+    public static Specification<OrderPayment> forBusiness(UUID businessId) {
         return (root, query, cb) -> {
-            if (businessId == null) {
-                return cb.conjunction();
-            }
+            if (businessId == null) return cb.conjunction();
             return cb.equal(root.get("businessId"), businessId);
         };
     }
 
-    public static Specification<OrderPayment> hasStatus(List<PaymentStatus> statuses) {
+    /**
+     * Filter by one or more payment statuses
+     */
+    public static Specification<OrderPayment> withStatuses(List<PaymentStatus> statuses) {
         return (root, query, cb) -> {
-            if (statuses == null || statuses.isEmpty()) {
-                return cb.conjunction();
-            }
+            if (statuses == null || statuses.isEmpty()) return cb.conjunction();
             return root.get("status").in(statuses);
         };
     }
 
-    public static Specification<OrderPayment> hasPaymentMethod(PaymentMethod paymentMethod) {
+    /**
+     * Filter by payment method
+     */
+    public static Specification<OrderPayment> byPaymentMethod(PaymentMethod method) {
         return (root, query, cb) -> {
-            if (paymentMethod == null) {
-                return cb.conjunction();
-            }
-            return cb.equal(root.get("paymentMethod"), paymentMethod);
+            if (method == null) return cb.conjunction();
+            return cb.equal(root.get("paymentMethod"), method);
         };
     }
 
-    public static Specification<OrderPayment> hasCustomerPaymentMethod(String customerPaymentMethod) {
+    /**
+     * Filter by customer payment method
+     */
+    public static Specification<OrderPayment> byCustomerPaymentMethod(String customerMethod) {
         return (root, query, cb) -> {
-            if (customerPaymentMethod == null || customerPaymentMethod.isBlank()) {
-                return cb.conjunction();
-            }
-            return cb.equal(root.get("customerPaymentMethod"), customerPaymentMethod);
+            if (customerMethod == null || customerMethod.isBlank()) return cb.conjunction();
+            return cb.equal(root.get("customerPaymentMethod"), customerMethod);
         };
     }
 
-    public static Specification<OrderPayment> createdFrom(LocalDateTime createdFrom) {
+    /**
+     * Search by payment reference (case-insensitive LIKE)
+     */
+    public static Specification<OrderPayment> searchByReference(String reference) {
         return (root, query, cb) -> {
-            if (createdFrom == null) {
-                return cb.conjunction();
-            }
-            return cb.greaterThanOrEqualTo(root.get("createdAt"), createdFrom);
+            if (reference == null || reference.isBlank()) return cb.conjunction();
+            return cb.like(cb.lower(root.get("paymentReference")), "%" + reference.toLowerCase() + "%");
         };
     }
 
-    public static Specification<OrderPayment> createdTo(LocalDateTime createdTo) {
+    /**
+     * Filter payments created from this date onwards
+     */
+    public static Specification<OrderPayment> createdFrom(LocalDateTime startDate) {
         return (root, query, cb) -> {
-            if (createdTo == null) {
-                return cb.conjunction();
-            }
-            return cb.lessThanOrEqualTo(root.get("createdAt"), createdTo);
+            if (startDate == null) return cb.conjunction();
+            return cb.greaterThanOrEqualTo(root.get("createdAt"), startDate);
         };
     }
 
-    public static Specification<OrderPayment> searchByPaymentReference(String search) {
+    /**
+     * Filter payments created up to this date
+     */
+    public static Specification<OrderPayment> createdUntil(LocalDateTime endDate) {
         return (root, query, cb) -> {
-            if (search == null || search.isBlank()) {
-                return cb.conjunction();
-            }
-            return cb.like(cb.lower(root.get("paymentReference")), "%" + search.toLowerCase() + "%");
+            if (endDate == null) return cb.conjunction();
+            return cb.lessThanOrEqualTo(root.get("createdAt"), endDate);
         };
     }
 
-    public static Specification<OrderPayment> buildFilterSpecification(
+    /**
+     * Combine multiple filters - helper for common use cases
+     *
+     * Usage:
+     * ```
+     * Specification<OrderPayment> spec = OrderPaymentSpecification.buildFilter(
+     *     businessId, statuses, paymentMethod, customerMethod, startDate, endDate, searchTerm
+     * );
+     * ```
+     */
+    public static Specification<OrderPayment> buildFilter(
             UUID businessId,
             List<PaymentStatus> statuses,
             PaymentMethod paymentMethod,
             String customerPaymentMethod,
-            LocalDateTime createdFrom,
-            LocalDateTime createdTo,
-            String search) {
-        return isNotDeleted()
-                .and(hasBusinessId(businessId))
-                .and(hasStatus(statuses))
-                .and(hasPaymentMethod(paymentMethod))
-                .and(hasCustomerPaymentMethod(customerPaymentMethod))
-                .and(createdFrom(createdFrom))
-                .and(createdTo(createdTo))
-                .and(searchByPaymentReference(search));
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            String searchTerm) {
+
+        return active()
+                .and(forBusiness(businessId))
+                .and(withStatuses(statuses))
+                .and(byPaymentMethod(paymentMethod))
+                .and(byCustomerPaymentMethod(customerPaymentMethod))
+                .and(createdFrom(startDate))
+                .and(createdUntil(endDate))
+                .and(searchByReference(searchTerm));
     }
 }

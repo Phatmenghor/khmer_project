@@ -268,14 +268,13 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        Specification<Order> spec = OrderSpecification.buildFilterSpecification(
+        Specification<Order> spec = OrderSpecification.buildFilter(
                 filter.getBusinessId(),
                 filter.getOrderStatus(),
-                null,
                 filter.getPaymentStatus(),
                 startDate,
-                endDate
-        ).and(OrderSpecification.searchByOrderNumber(filter.getSearch()));
+                endDate,
+                filter.getSearch());
 
         Page<Order> page = orderRepository.findAll(spec, pageable);
         long queryDuration = System.currentTimeMillis() - queryStartTime;

@@ -22,6 +22,6 @@ public class PortfolioCustomStat extends BaseUUIDEntity {
     @Column(name = "label")
     private String label;
 
-    @Column(name = "value")
+    @Column(name = "stat_value")
     private String value;
 }

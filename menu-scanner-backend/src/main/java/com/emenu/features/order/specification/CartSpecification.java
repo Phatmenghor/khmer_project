@@ -5,33 +5,54 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.UUID;
 
-public class CartSpecification {
+/**
+ * Cart Specifications - Type-safe filtering for Cart entity
+ *
+ * Usage in Service:
+ * ```
+ * Specification<Cart> spec = CartSpecification.active()
+ *     .and(CartSpecification.forUser(userId))
+ *     .and(CartSpecification.forBusiness(businessId));
+ * Optional<Cart> cart = cartRepository.findOne(spec);
+ * ```
+ */
+public class CartSpecification extends BaseSpecification {
 
-    public static Specification<Cart> isNotDeleted() {
+    // ============ PUBLIC API METHODS ============
+
+    /**
+     * Get all non-deleted carts (base filter)
+     */
+    public static Specification<Cart> active() {
         return (root, query, cb) -> cb.equal(root.get("isDeleted"), false);
     }
 
-    public static Specification<Cart> hasUserId(UUID userId) {
+    /**
+     * Filter by user ID
+     */
+    public static Specification<Cart> forUser(UUID userId) {
         return (root, query, cb) -> {
-            if (userId == null) {
-                return cb.conjunction();
-            }
+            if (userId == null) return cb.conjunction();
             return cb.equal(root.get("userId"), userId);
         };
     }
 
-    public static Specification<Cart> hasBusinessId(UUID businessId) {
+    /**
+     * Filter by business ID
+     */
+    public static Specification<Cart> forBusiness(UUID businessId) {
         return (root, query, cb) -> {
-            if (businessId == null) {
-                return cb.conjunction();
-            }
+            if (businessId == null) return cb.conjunction();
             return cb.equal(root.get("businessId"), businessId);
         };
     }
 
-    public static Specification<Cart> byUserAndBusiness(UUID userId, UUID businessId) {
-        return isNotDeleted()
-                .and(hasUserId(userId))
-                .and(hasBusinessId(businessId));
+    /**
+     * Combine filters for user and business - most common use case
+     */
+    public static Specification<Cart> forUserAndBusiness(UUID userId, UUID businessId) {
+        return active()
+                .and(forUser(userId))
+                .and(forBusiness(businessId));
     }
 }

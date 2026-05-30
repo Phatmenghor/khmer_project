@@ -5,13 +5,25 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.UUID;
 
-public class OrderStatusHistorySpecification {
+/**
+ * Order Status History Specifications - Type-safe filtering
+ *
+ * Usage:
+ * ```
+ * Specification<OrderStatusHistory> spec = OrderStatusHistorySpecification.forOrder(orderId);
+ * List<OrderStatusHistory> history = historyRepository.findAll(spec);
+ * ```
+ */
+public class OrderStatusHistorySpecification extends BaseSpecification {
 
-    public static Specification<OrderStatusHistory> hasOrderId(UUID orderId) {
+    // ============ PUBLIC API METHODS ============
+
+    /**
+     * Filter by order ID
+     */
+    public static Specification<OrderStatusHistory> forOrder(UUID orderId) {
         return (root, query, cb) -> {
-            if (orderId == null) {
-                return cb.conjunction();
-            }
+            if (orderId == null) return cb.conjunction();
             return cb.equal(root.get("orderId"), orderId);
         };
     }

@@ -5,13 +5,25 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.UUID;
 
-public class OrderDeliveryAddressSpecification {
+/**
+ * Order Delivery Address Specifications - Type-safe filtering
+ *
+ * Usage:
+ * ```
+ * Specification<OrderDeliveryAddress> spec = OrderDeliveryAddressSpecification.forOrder(orderId);
+ * Optional<OrderDeliveryAddress> address = addressRepository.findOne(spec);
+ * ```
+ */
+public class OrderDeliveryAddressSpecification extends BaseSpecification {
 
-    public static Specification<OrderDeliveryAddress> hasOrderId(UUID orderId) {
+    // ============ PUBLIC API METHODS ============
+
+    /**
+     * Filter by order ID
+     */
+    public static Specification<OrderDeliveryAddress> forOrder(UUID orderId) {
         return (root, query, cb) -> {
-            if (orderId == null) {
-                return cb.conjunction();
-            }
+            if (orderId == null) return cb.conjunction();
             return cb.equal(root.get("orderId"), orderId);
         };
     }

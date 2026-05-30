@@ -52,15 +52,14 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
         List<PaymentStatus> statuses = filter.getStatuses() != null && !filter.getStatuses().isEmpty()
                 ? filter.getStatuses() : null;
 
-        Specification<OrderPayment> spec = OrderPaymentSpecification.buildFilterSpecification(
+        Specification<OrderPayment> spec = OrderPaymentSpecification.buildFilter(
                 filter.getBusinessId(),
                 statuses,
                 filter.getPaymentMethod(),
                 filter.getCustomerPaymentMethod(),
                 filter.getCreatedFrom(),
                 filter.getCreatedTo(),
-                filter.getSearch()
-        );
+                filter.getSearch());
 
         Page<OrderPayment> page = paymentRepository.findAll(spec, pageable);
         return paginationMapper.toPaginationResponse(page, paymentMapper.toResponseList(page.getContent()));
