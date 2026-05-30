@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Plus } from "lucide-react";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
@@ -34,6 +34,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { OrderReceipt } from "@/components/shared/receipt/order-receipt";
 
 export default function PendingOrdersAdminPage() {
   useAdminCleanup(resetState);
