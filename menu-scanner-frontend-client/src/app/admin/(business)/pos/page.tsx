@@ -1243,8 +1243,8 @@ export default function PosPage() {
               dispatch(setEditingCartItemId(null));
             }
           }}
-          onSizeSelect={(product, size, qty) => {
-            addToCart(product, size, editingCartItemId, qty || 1);
+          onSizeSelect={(product, size, qty, customizationIds) => {
+            addToCart(product, size, editingCartItemId, qty || 1, customizationIds);
             dispatch(setSizePickerProduct(null));
             dispatch(setEditingCartItemId(null));
           }}
