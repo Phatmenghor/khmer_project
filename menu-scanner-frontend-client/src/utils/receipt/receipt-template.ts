@@ -28,9 +28,9 @@ export function generateReceiptHTML(order: OrderResponse): string {
   const padLeft = (str: string, len: number) => str.padStart(len, " ");
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
-  // Create aligned line - label left, price right
+  // Create aligned line - label left, price right (compact format)
   const alignLine = (label: string, value: string) => {
-    const totalWidth = 44;
+    const totalWidth = 40;
     const spacing = totalWidth - label.length - value.length;
     return `${label}${" ".repeat(Math.max(1, spacing))}${value}`;
   };
