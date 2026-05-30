@@ -61,18 +61,19 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
            "ORDER BY o.createdAt DESC")
     Page<Order> findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(@Param("customerId") UUID customerId, Pageable pageable);
 
-    @Query("SELECT o FROM Order o " +
-           "WHERE o.isDeleted = false " +
-           "AND (:businessId IS NULL OR o.businessId = :businessId) " +
-           "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +
-           "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus) " +
-           "AND (:startDate IS NULL OR o.createdAt >= CAST(:startDate AS java.time.LocalDateTime)) " +
-           "AND (:endDate IS NULL OR o.createdAt <= CAST(:endDate AS java.time.LocalDateTime)) " +
-           "AND (:search IS NULL OR :search = '' OR LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :search, '%')))")
+    @Query(value = "SELECT * FROM orders o " +
+           "WHERE o.is_deleted = false " +
+           "AND (:businessId IS NULL OR o.business_id = CAST(:businessId AS uuid)) " +
+           "AND (:orderStatus IS NULL OR o.order_status = :orderStatus) " +
+           "AND (:paymentStatus IS NULL OR o.payment_status = :paymentStatus) " +
+           "AND (:startDate IS NULL OR o.created_at >= :startDate) " +
+           "AND (:endDate IS NULL OR o.created_at <= :endDate) " +
+           "AND (:search IS NULL OR :search = '' OR LOWER(o.order_number) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "ORDER BY o.created_at DESC", nativeQuery = true)
     Page<Order> findByFiltersAndOrderNumber(
             @Param("businessId") UUID businessId,
-            @Param("orderStatus") OrderStatus orderStatus,
-            @Param("paymentStatus") PaymentStatus paymentStatus,
+            @Param("orderStatus") String orderStatus,
+            @Param("paymentStatus") String paymentStatus,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
             @Param("search") String search,

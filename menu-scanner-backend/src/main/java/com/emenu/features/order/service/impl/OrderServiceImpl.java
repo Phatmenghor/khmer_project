@@ -269,8 +269,8 @@ public class OrderServiceImpl implements OrderService {
 
         Page<Order> page = orderRepository.findByFiltersAndOrderNumber(
                 filter.getBusinessId(),
-                filter.getOrderStatus(),
-                filter.getPaymentStatus(),
+                filter.getOrderStatus() != null ? filter.getOrderStatus().toString() : null,
+                filter.getPaymentStatus() != null ? filter.getPaymentStatus().toString() : null,
                 startDate,
                 endDate,
                 filter.getSearch(),
