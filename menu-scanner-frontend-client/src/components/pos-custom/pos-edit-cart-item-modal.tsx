@@ -269,7 +269,9 @@ export function POSEditCartItemModal({
                 </Label>
                 <Select value={promotionType || "NONE"} onValueChange={(value) => setPromotionType(value === "NONE" ? null : value)}>
                   <SelectTrigger id="promoType" className="text-sm h-10">
-                    <SelectValue placeholder="None" />
+                    <SelectValue placeholder="None">
+                      {promotionType === "PERCENTAGE" ? "Percentage (%)" : promotionType === "FIXED" ? "Fixed Amount" : "None"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="NONE">None</SelectItem>
