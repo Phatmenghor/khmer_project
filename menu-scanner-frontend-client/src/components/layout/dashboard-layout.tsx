@@ -1,8 +1,8 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState, useRef } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,10 +18,37 @@ export default function DashboardLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const isMobile = useIsMobile();
   const pathname = usePathname();
 
   const isPosPage = pathname.includes("/pos");
+
+  // Restore fullscreen state from URL on client mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fullscreenParam = params.get("fullscreen");
+    if (fullscreenParam === "true" || fullscreenParam === "1") {
+      setIsFullscreen(true);
+    }
+    setMounted(true);
+  }, []);
+
+  // Sync fullscreen state to URL (on POS page only, after mount)
+  useEffect(() => {
+    if (!mounted || !isPosPage) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (isFullscreen) {
+      params.set("fullscreen", "true");
+    } else {
+      params.delete("fullscreen");
+    }
+
+    const query = params.toString();
+    const newUrl = query ? `${pathname}?${query}` : pathname;
+    window.history.replaceState(null, "", newUrl);
+  }, [isFullscreen, mounted, isPosPage, pathname]);
 
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
