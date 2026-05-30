@@ -21,6 +21,29 @@ export default function DashboardLayout({
   const isMobile = useIsMobile();
   const pathname = usePathname();
 
+  const isPosPage = pathname.includes("/pos");
+
+  // Restore fullscreen state from localStorage when POS page loads
+  useEffect(() => {
+    if (isPosPage) {
+      const savedFullscreenState = localStorage.getItem("pos:fullscreen");
+      if (savedFullscreenState === "true") {
+        setIsFullscreen(true);
+      }
+    } else {
+      // Clear fullscreen when leaving POS page
+      setIsFullscreen(false);
+      localStorage.removeItem("pos:fullscreen");
+    }
+  }, [isPosPage]);
+
+  // Save fullscreen state to localStorage when it changes
+  useEffect(() => {
+    if (isPosPage) {
+      localStorage.setItem("pos:fullscreen", isFullscreen.toString());
+    }
+  }, [isFullscreen, isPosPage]);
+
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
   }, [pathname, isMobile]);
@@ -39,9 +62,6 @@ export default function DashboardLayout({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFullscreen]);
-
-
-  const isPosPage = pathname.includes("/pos");
 
   if (isFullscreen && isPosPage) {
     return (
