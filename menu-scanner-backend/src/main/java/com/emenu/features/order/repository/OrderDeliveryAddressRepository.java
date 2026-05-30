@@ -2,12 +2,13 @@ package com.emenu.features.order.repository;
 
 import com.emenu.features.order.models.OrderDeliveryAddress;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface OrderDeliveryAddressRepository extends JpaRepository<OrderDeliveryAddress, UUID> {
+public interface OrderDeliveryAddressRepository extends JpaRepository<OrderDeliveryAddress, UUID>, JpaSpecificationExecutor<OrderDeliveryAddress> {
     Optional<OrderDeliveryAddress> findByOrderId(UUID orderId);
 }

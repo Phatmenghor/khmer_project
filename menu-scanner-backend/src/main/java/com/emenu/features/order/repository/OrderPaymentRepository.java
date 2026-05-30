@@ -6,6 +6,7 @@ import com.emenu.features.order.models.OrderPayment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface OrderPaymentRepository extends JpaRepository<OrderPayment, UUID> {
+public interface OrderPaymentRepository extends JpaRepository<OrderPayment, UUID>, JpaSpecificationExecutor<OrderPayment> {
 
     Optional<OrderPayment> findByIdAndIsDeletedFalse(UUID id);
 
@@ -40,26 +41,5 @@ public interface OrderPaymentRepository extends JpaRepository<OrderPayment, UUID
 
     @Query("SELECT SUM(bop.totalAmount) FROM OrderPayment bop WHERE bop.businessId = :businessId AND bop.status = 'COMPLETED' AND bop.createdAt >= :fromDate AND bop.createdAt <= :toDate AND bop.isDeleted = false")
     BigDecimal getRevenueByDateRange(@Param("businessId") UUID businessId, @Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
-
-    @Query("SELECT bop FROM OrderPayment bop " +
-           "WHERE bop.isDeleted = false " +
-           "AND (:businessId IS NULL OR bop.businessId = :businessId) " +
-           "AND (:statuses IS NULL OR bop.status IN :statuses) " +
-           "AND (:paymentMethod IS NULL OR bop.paymentMethod = :paymentMethod) " +
-           "AND (:customerPaymentMethod IS NULL OR bop.customerPaymentMethod = :customerPaymentMethod) " +
-           "AND (:createdFrom IS NULL OR bop.createdAt >= :createdFrom) " +
-           "AND (:createdTo IS NULL OR bop.createdAt <= :createdTo) " +
-           "AND (:search IS NULL OR :search = '' OR " +
-           "     LOWER(bop.paymentReference) LIKE LOWER(CONCAT('%', :search, '%')))")
-    Page<OrderPayment> findAllWithFilters(
-        @Param("businessId") UUID businessId,
-        @Param("statuses") List<PaymentStatus> statuses,
-        @Param("paymentMethod") PaymentMethod paymentMethod,
-        @Param("customerPaymentMethod") String customerPaymentMethod,
-        @Param("createdFrom") LocalDateTime createdFrom,
-        @Param("createdTo") LocalDateTime createdTo,
-        @Param("search") String search,
-        Pageable pageable
-    );
 }
 

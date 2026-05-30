@@ -16,10 +16,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.emenu.enums.payment.PaymentStatus;
+import com.emenu.features.order.specification.OrderPaymentSpecification;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,16 +52,17 @@ public class OrderPaymentServiceImpl implements OrderPaymentService {
         List<PaymentStatus> statuses = filter.getStatuses() != null && !filter.getStatuses().isEmpty()
                 ? filter.getStatuses() : null;
 
-        Page<OrderPayment> page = paymentRepository.findAllWithFilters(
+        Specification<OrderPayment> spec = OrderPaymentSpecification.buildFilterSpecification(
                 filter.getBusinessId(),
                 statuses,
                 filter.getPaymentMethod(),
                 filter.getCustomerPaymentMethod(),
                 filter.getCreatedFrom(),
                 filter.getCreatedTo(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+
+        Page<OrderPayment> page = paymentRepository.findAll(spec, pageable);
         return paginationMapper.toPaginationResponse(page, paymentMapper.toResponseList(page.getContent()));
     }
 
