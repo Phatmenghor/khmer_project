@@ -84,6 +84,13 @@ export interface OrderItemResponse {
   totalPrice: number;
   customizations?: CustomizationDetail[];
   customizationTotal?: number;
+  productName?: string;
+  sizeName?: string;
+  hasPromotion?: boolean;
+  promotionType?: string | null;
+  promotionValue?: number | null;
+  promotionFromDate?: string | null;
+  promotionToDate?: string | null;
 }
 
 export interface OrderResponse {
