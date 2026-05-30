@@ -644,6 +644,17 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
                     item.getFinalPrice().multiply(new BigDecimal(item.getQuantity())));
 
+            // Map promotion details from cart item to order item
+            orderItem.setHasPromotion(item.getHasPromotion());
+            if (Boolean.TRUE.equals(item.getHasPromotion())) {
+                orderItem.setPromotionType(item.getPromotionType());
+                orderItem.setPromotionValue(item.getPromotionValue());
+                orderItem.setPromotionFromDate(item.getPromotionFromDate());
+                orderItem.setPromotionToDate(item.getPromotionToDate());
+                log.debug("Item {} has promotion: type={}, value={}",
+                    item.getProductId(), item.getPromotionType(), item.getPromotionValue());
+            }
+
             // Process customizations
             if (item.getCustomizations() != null && !item.getCustomizations().isEmpty()) {
                 try {
