@@ -19,6 +19,7 @@ public class SubscriptionPlanSpecification {
         };
     }
 
+<<<<<<< HEAD
     public static Specification<SubscriptionPlan> searchByName(String search) {
         return (root, query, cb) -> {
             if (search == null || search.isBlank()) return cb.conjunction();
@@ -31,5 +32,22 @@ public class SubscriptionPlanSpecification {
         return active()
                 .and(byStatuses(statuses))
                 .and(searchByName(search));
+=======
+    public static Specification<SubscriptionPlan> searchByNameOrDescription(String search) {
+        return (root, query, cb) -> {
+            if (search == null || search.isBlank()) return cb.conjunction();
+            String pattern = "%" + search.toLowerCase() + "%";
+            return cb.or(
+                cb.like(cb.lower(root.get("name")), pattern),
+                cb.like(cb.lower(root.get("description")), pattern)
+            );
+        };
+    }
+
+    public static Specification<SubscriptionPlan> findAllWithFilters(List<SubscriptionPlanStatus> statuses, String search) {
+        return active()
+                .and(byStatuses(statuses))
+                .and(searchByNameOrDescription(search));
+>>>>>>> ed51c6b (Convert notification, setting, and subscription services to JPA Specifications)
     }
 }

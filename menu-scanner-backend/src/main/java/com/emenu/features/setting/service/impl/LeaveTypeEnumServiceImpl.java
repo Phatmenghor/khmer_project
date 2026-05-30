@@ -10,6 +10,7 @@ import com.emenu.features.setting.mapper.LeaveTypeEnumMapper;
 import com.emenu.features.setting.models.LeaveTypeEnum;
 import com.emenu.features.setting.repository.LeaveTypeEnumRepository;
 import com.emenu.features.setting.service.LeaveTypeEnumService;
+import com.emenu.features.setting.specification.LeaveTypeEnumSpecification;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -68,11 +69,11 @@ public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
                 filter.getSortDirection()
         );
 
-        Page<LeaveTypeEnum> page = repository.findWithFilters(
+        var spec = LeaveTypeEnumSpecification.findWithFilters(
                 filter.getBusinessId(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+        Page<LeaveTypeEnum> page = repository.findAll(spec, pageable);
 
         return paginationMapper.toPaginationResponse(page,
                 enums -> mapper.toResponseList(enums.stream().toList()));
@@ -88,11 +89,11 @@ public class LeaveTypeEnumServiceImpl implements LeaveTypeEnumService {
                 filter.getSortDirection()
         );
 
-        Page<LeaveTypeEnum> page = repository.findWithFilters(
+        var spec = LeaveTypeEnumSpecification.findWithFilters(
                 filter.getBusinessId(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+        Page<LeaveTypeEnum> page = repository.findAll(spec, pageable);
 
         return mapper.toResponseList(page.getContent());
     }

@@ -10,6 +10,7 @@ import com.emenu.features.setting.mapper.WorkScheduleTypeEnumMapper;
 import com.emenu.features.setting.models.WorkScheduleTypeEnum;
 import com.emenu.features.setting.repository.WorkScheduleTypeEnumRepository;
 import com.emenu.features.setting.service.WorkScheduleTypeEnumService;
+import com.emenu.features.setting.specification.WorkScheduleTypeEnumSpecification;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -68,11 +69,11 @@ public class WorkScheduleTypeEnumServiceImpl implements WorkScheduleTypeEnumServ
                 filter.getSortDirection()
         );
 
-        Page<WorkScheduleTypeEnum> page = repository.findWithFilters(
+        var spec = WorkScheduleTypeEnumSpecification.findWithFilters(
                 filter.getBusinessId(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+        Page<WorkScheduleTypeEnum> page = repository.findAll(spec, pageable);
 
         return paginationMapper.toPaginationResponse(page,
                 enums -> mapper.toResponseList(enums.stream().toList()));
@@ -88,11 +89,11 @@ public class WorkScheduleTypeEnumServiceImpl implements WorkScheduleTypeEnumServ
                 filter.getSortDirection()
         );
 
-        Page<WorkScheduleTypeEnum> page = repository.findWithFilters(
+        var spec = WorkScheduleTypeEnumSpecification.findWithFilters(
                 filter.getBusinessId(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+        Page<WorkScheduleTypeEnum> page = repository.findAll(spec, pageable);
 
         return mapper.toResponseList(page.getContent());
     }

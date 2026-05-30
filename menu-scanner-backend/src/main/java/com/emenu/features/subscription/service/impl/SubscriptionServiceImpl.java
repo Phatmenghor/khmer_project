@@ -17,6 +17,11 @@ import com.emenu.features.subscription.repository.SubscriptionPaymentRepository;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.features.subscription.service.SubscriptionService;
+<<<<<<< HEAD
+=======
+import com.emenu.features.subscription.specification.SubscriptionSpecification;
+import com.emenu.security.SecurityUtils;
+>>>>>>> ed51c6b (Convert notification, setting, and subscription services to JPA Specifications)
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -48,8 +53,52 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional(readOnly = true)
+<<<<<<< HEAD
     public SubscriptionHistoryResponse getSubscriptionById(UUID subscriptionId) {
         log.info("Getting subscription detail: {}", subscriptionId);
+=======
+    public PaginationResponse<SubscriptionResponse> getSubscriptions(SubscriptionFilterRequest filter) {
+        log.info("Getting subscriptions - Status: {}, BusinessId: {}", filter.getStatus(), filter.getBusinessId());
+
+        Pageable pageable = PaginationUtils.createPageable(filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiryThreshold = "EXPIRING_SOON".equals(filter.getStatus())
+                ? now.plusDays(filter.getExpiringSoonDays())
+                : null;
+
+        var spec = SubscriptionSpecification.findWithFilters(
+                filter.getBusinessId(),
+                filter.getPlanId(),
+                filter.getAutoRenew(),
+                filter.getStartDate(),
+                filter.getToDate(),
+                filter.getStatus(),
+                now,
+                expiryThreshold,
+                filter.getSearch()
+        );
+        Page<Subscription> subscriptionPage = subscriptionRepository.findAll(spec, pageable);
+
+        return subscriptionMapper.toPaginationResponse(subscriptionPage, paginationMapper);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PaginationResponse<SubscriptionResponse> getCurrentUserBusinessSubscriptions(SubscriptionFilterRequest filter) {
+        UUID currentUserId = securityUtils.getCurrentUserId();
+        log.debug("Getting subscriptions for current user: {}", currentUserId);
+        Business business = businessRepository.findByOwnerIdAndIsDeletedFalse(currentUserId)
+                .orElseThrow(() -> new RuntimeException("No business found for current user"));
+        filter.setBusinessId(business.getId());
+        return getSubscriptions(filter);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SubscriptionResponse getSubscriptionById(UUID subscriptionId) {
+        log.debug("Getting subscription by ID: {}", subscriptionId);
+>>>>>>> ed51c6b (Convert notification, setting, and subscription services to JPA Specifications)
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
         subscription = subscriptionRepository.findByIdWithRelationships(subscription.getId()).orElse(subscription);
