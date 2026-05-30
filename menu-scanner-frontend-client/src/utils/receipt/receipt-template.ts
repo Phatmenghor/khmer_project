@@ -89,6 +89,10 @@ export function generateReceiptHTML(order: OrderResponse): string {
           <td colspan="4" style="text-align: left;">Delivery Fee</td>
           <td style="text-align: right; padding-right: 4px;">+${formatPrice(delivery)}</td>
         </tr>` : ""}
+        <tr>
+          <td colspan="4" style="text-align: left;">Payment: ${order.payment?.paymentMethod || "N/A"}</td>
+          <td style="text-align: right; padding-right: 4px;"></td>
+        </tr>
         <tr style="border-top: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; height: 28px;">
           <td colspan="4" style="text-align: left;">TOTAL AMOUNT</td>
           <td style="text-align: right; padding-right: 4px;">${formatPrice(total)}</td>
@@ -119,7 +123,6 @@ export function generateReceiptHTML(order: OrderResponse): string {
       </div>
 
       <div style="border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 8px 0; margin: 12px 0;">
-        <div style="font-weight: bold; margin-bottom: 4px;">ITEMS</div>
         <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
           <thead>
             <tr style="border-bottom: 1px solid #000; height: 24px;">
@@ -134,10 +137,6 @@ export function generateReceiptHTML(order: OrderResponse): string {
             ${itemsRows}
           </tbody>
         </table>
-      </div>
-
-      <div style="margin-bottom: 12px; font-size: 0.95em;">
-        <div>Payment: ${order.payment?.paymentMethod || "N/A"}</div>
       </div>
 
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.95em;">
