@@ -58,7 +58,10 @@ function POSProductCardComponent({
 
   return (
     <div
-      onClick={() => onAddClick(product)}
+      onClick={() => {
+        // Clicking the card opens size picker / modal
+        onAddClick(product);
+      }}
       className={cn(
         "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover:scale-[1.02]",
         quantity > 0 && "ring-1 ring-primary/30 border-primary/50",
@@ -167,7 +170,8 @@ function POSProductCardComponent({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                onAddClick(product);
+                // Button directly adds to cart without opening modal
+                onQuantityChange(product.id, 1);
               }}
               disabled={isOutOfStock}
               size="sm"
