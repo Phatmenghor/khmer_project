@@ -267,15 +267,14 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        var spec = OrderSpecification.buildFilterSpecification(
+        Page<Order> page = orderRepository.findByFiltersAndOrderNumber(
                 filter.getBusinessId(),
                 filter.getOrderStatus(),
-                filter.getPaymentMethod(),
                 filter.getPaymentStatus(),
                 startDate,
-                endDate
-        );
-        Page<Order> page = orderRepository.findAll(spec, pageable);
+                endDate,
+                filter.getSearch(),
+                pageable);
         long queryDuration = System.currentTimeMillis() - queryStartTime;
         log.info("[DB QUERY COMPLETE] Retrieved {} orders (query took {} ms) | Total: {} | Pages: {}",
                 page.getNumberOfElements(), queryDuration, page.getTotalElements(), page.getTotalPages());

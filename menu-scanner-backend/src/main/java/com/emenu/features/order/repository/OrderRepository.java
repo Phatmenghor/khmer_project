@@ -61,5 +61,22 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
            "ORDER BY o.createdAt DESC")
     Page<Order> findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(@Param("customerId") UUID customerId, Pageable pageable);
 
+    @Query("SELECT o FROM Order o " +
+           "WHERE o.isDeleted = false " +
+           "AND (:businessId IS NULL OR o.businessId = :businessId) " +
+           "AND (:orderStatus IS NULL OR o.orderStatus = :orderStatus) " +
+           "AND (:paymentStatus IS NULL OR o.paymentStatus = :paymentStatus) " +
+           "AND (:startDate IS NULL OR o.createdAt >= :startDate) " +
+           "AND (:endDate IS NULL OR o.createdAt <= :endDate) " +
+           "AND (:search IS NULL OR :search = '' OR LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<Order> findByFiltersAndOrderNumber(
+            @Param("businessId") UUID businessId,
+            @Param("orderStatus") OrderStatus orderStatus,
+            @Param("paymentStatus") PaymentStatus paymentStatus,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("search") String search,
+            Pageable pageable);
+
 }
 
