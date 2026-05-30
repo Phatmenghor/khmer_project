@@ -488,11 +488,9 @@ export function SizePickerModal({
               {hasDiscount && (
                 <Badge variant="destructive" className="text-xs mt-1">
                   {selectedSize?.hasPromotion
-                    ? `-${Math.round(
-                        ((selectedSize.price - selectedSize.finalPrice) /
-                          selectedSize.price) *
-                        100
-                      )}%`
+                    ? selectedSize.promotionType === "PERCENTAGE"
+                      ? `-${selectedSize.promotionValue}%`
+                      : `-${formatCurrency(selectedSize.promotionValue || 0)}`
                     : product?.displayPromotionType === "PERCENTAGE"
                     ? `-${product?.displayPromotionValue}%`
                     : `-${formatCurrency(
