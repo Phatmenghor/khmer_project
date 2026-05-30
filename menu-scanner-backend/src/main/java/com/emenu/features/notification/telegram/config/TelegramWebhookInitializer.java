@@ -12,11 +12,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Automatically configures Telegram webhook on application startup.
- * If TELEGRAM_WEBHOOK_URL is set, this will register the webhook with Telegram Bot API.
- * This eliminates the need for manual webhook setup after deployment.
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -57,9 +52,6 @@ public class TelegramWebhookInitializer implements ApplicationRunner {
         setupWebhook();
     }
 
-    /**
-     * Setup webhook with Telegram Bot API
-     */
     private void setupWebhook() {
         try {
             log.info("[Telegram] Setting up webhook with URL: {}", webhookUrl);
@@ -74,12 +66,12 @@ public class TelegramWebhookInitializer implements ApplicationRunner {
             log.info("[Telegram] Webhook setup response: {}", response);
 
             if (response != null && response.contains("true")) {
-                log.info("[Telegram] ✅ Webhook successfully configured: {}", webhookUrl);
+                log.info("[Telegram] Webhook successfully configured: {}", webhookUrl);
             } else {
-                log.warn("[Telegram] ⚠️ Webhook setup returned unexpected response: {}", response);
+                log.warn("[Telegram] Webhook setup returned unexpected response: {}", response);
             }
         } catch (Exception e) {
-            log.error("[Telegram] ❌ Failed to setup webhook: {}", e.getMessage(), e);
+            log.error("[Telegram] Failed to setup webhook: {}", e.getMessage(), e);
             log.error("[Telegram] Please manually set webhook or check your configuration");
         }
     }

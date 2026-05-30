@@ -10,13 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-/**
- * Handles incoming Telegram bot webhook callbacks.
- * Bot receives commands like /link <business-id> and sends to this endpoint.
- */
 @RestController
 @RequestMapping("/api/v1/telegram")
 @Slf4j
@@ -24,22 +18,15 @@ public class TelegramWebhookController {
 
     private final TelegramNotificationService telegramNotificationService;
 
-    @Autowired
     public TelegramWebhookController(TelegramNotificationService telegramNotificationService) {
         this.telegramNotificationService = telegramNotificationService;
     }
-
-    /**
-     * Handle webhook callback from Telegram bot.
-     * Telegram will POST updates to this endpoint.
-     */
     @PostMapping("/webhook")
     public ResponseEntity<ApiResponse<Map<String, String>>> handleWebhook(
             @RequestBody Map<String, Object> update) {
         try {
             log.debug("[Telegram Webhook] Received update: {}", update);
 
-            // Extract message from update
             if (update.get("message") == null) {
                 return ResponseEntity.ok(ApiResponse.success("Update processed", new HashMap<>()));
             }
@@ -70,12 +57,6 @@ public class TelegramWebhookController {
             return ResponseEntity.ok(ApiResponse.error("Error processing webhook: " + e.getMessage()));
         }
     }
-
-    /**
-     * Parse and handle bot commands.
-     * Expected format: /link <business-id>
-     * Example: /link 550cad56-cafd-4aba-baef-c4dcd53940d0
-     */
     private String handleCommand(String text, long chatId) {
         if (text == null || !text.startsWith("/")) {
             return "Please use /link <business-id> to link this group to your business.";
@@ -97,25 +78,21 @@ public class TelegramWebhookController {
                 if (businessName != null) {
                     log.info("[Telegram Webhook] Successfully linked group {} to business {}", chatId, businessId);
                     telegramNotificationService.notifyGroupLinked(chatId, businessName);
-                    return "✅ Group successfully linked to " + businessName + "!";
+                    return "Group successfully linked to " + businessName + ".";
                 } else {
-                    return "❌ Business not found. Please check the business ID.";
+                    return "Business not found. Please check the business ID.";
                 }
             } catch (IllegalArgumentException e) {
-                return "❌ Invalid business ID format. Please use a valid UUID.";
+                return "Invalid business ID format. Please use a valid UUID.";
             } catch (Exception e) {
                 log.error("[Telegram Webhook] Error linking group: {}", e.getMessage(), e);
-                return "❌ Error linking group: " + e.getMessage();
+                return "Error linking group: " + e.getMessage();
             }
         }
 
         return "Unknown command. Use /link <business-id> to link this group.";
     }
 
-    /**
-     * Endpoint to send a test message to a business's Telegram group.
-     * Used from admin panel to verify connection.
-     */
     @PostMapping("/test/{businessId}")
     public ResponseEntity<ApiResponse<String>> sendTestMessage(
             @PathVariable UUID businessId) {
@@ -129,9 +106,6 @@ public class TelegramWebhookController {
         }
     }
 
-    /**
-     * Endpoint to get Telegram linking status for a business.
-     */
     @GetMapping("/status/{businessId}")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getTelegramStatus(
             @PathVariable UUID businessId) {
