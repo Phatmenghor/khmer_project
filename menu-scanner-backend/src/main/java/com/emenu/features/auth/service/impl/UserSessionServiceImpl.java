@@ -12,6 +12,7 @@ import com.emenu.features.auth.models.UserSession;
 import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.features.auth.repository.UserSessionRepository;
 import com.emenu.features.auth.service.UserSessionService;
+import com.emenu.features.auth.specification.UserSessionSpecification;
 import com.emenu.shared.constants.SecurityConstants;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -153,9 +155,14 @@ public class UserSessionServiceImpl implements UserSessionService {
         List<String> filterStatuses = FilterUtils.nullIfEmpty(filterCriteria.getStatuses());
         List<String> filterDeviceTypes = FilterUtils.nullIfEmpty(filterCriteria.getDeviceTypes());
 
-        Page<UserSession> sessionPage = sessionRepository.findAllWithFilters(
-                filterCriteria.getUserId(), filterStatuses, filterDeviceTypes, filterCriteria.getSearch(), pageableRequest
+        Specification<UserSession> spec = UserSessionSpecification.filterSessions(
+                filterCriteria.getUserId(),
+                filterStatuses,
+                filterDeviceTypes,
+                filterCriteria.getSearch()
         );
+
+        Page<UserSession> sessionPage = sessionRepository.findAll(spec, pageableRequest);
 
         log.info("Sessions fetched successfully: count={}, page={}/{}", sessionPage.getNumberOfElements(), sessionPage.getNumber() + 1, sessionPage.getTotalPages());
         return sessionMapper.toPaginationResponse(sessionPage);

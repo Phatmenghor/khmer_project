@@ -11,6 +11,7 @@ import com.emenu.features.subscription.models.SubscriptionPlan;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.features.subscription.service.SubscriptionPlanService;
+import com.emenu.features.subscription.specification.SubscriptionPlanSpecification;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,15 +64,15 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
-        // Convert empty lists to null to skip filtering
         List<SubscriptionPlanStatus> statusesTypes = (filter.getStatuses() != null && !filter.getStatuses().isEmpty())
                 ? filter.getStatuses() : null;
 
-        Page<SubscriptionPlan> planPage = planRepository.findAllWithFilters(
+        Specification<SubscriptionPlan> spec = SubscriptionPlanSpecification.filterPlans(
                 statusesTypes,
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+
+        Page<SubscriptionPlan> planPage = planRepository.findAll(spec, pageable);
 
         return paginationMapper.toPaginationResponse(planPage, planMapper.toResponseList(planPage.getContent()));
     }
