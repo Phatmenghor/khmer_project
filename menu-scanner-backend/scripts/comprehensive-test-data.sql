@@ -112,15 +112,15 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- Mega Store Business Hours
-INSERT INTO business_hours (id, business_setting_id, day, opening_time, closing_time, is_closed, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO business_hours (id, business_setting_id, day, opening_time, closing_time, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES
-  ('770e9400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440002', 'Monday', '08:00', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('770e9400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440002', 'Tuesday', '08:00', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('770e9400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440002', 'Wednesday', '08:00', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('770e9400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440002', 'Thursday', '08:00', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('770e9400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440002', 'Friday', '08:00', '23:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('770e9400-e29b-41d4-a716-446655440006', '770e8400-e29b-41d4-a716-446655440002', 'Saturday', '09:00', '23:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('770e9400-e29b-41d4-a716-446655440007', '770e8400-e29b-41d4-a716-446655440002', 'Sunday', '10:00', '21:00', false, 0, false, NOW(), NOW(), 'admin', 'admin')
+  ('770e9400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440002', 'Monday', '08:00', '22:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440002', 'Tuesday', '08:00', '22:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440002', 'Wednesday', '08:00', '22:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440002', 'Thursday', '08:00', '22:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440002', 'Friday', '08:00', '23:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440006', '770e8400-e29b-41d4-a716-446655440002', 'Saturday', '09:00', '23:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('770e9400-e29b-41d4-a716-446655440007', '770e8400-e29b-41d4-a716-446655440002', 'Sunday', '10:00', '21:00', 0, false, NOW(), NOW(), 'admin', 'admin')
 ON CONFLICT DO NOTHING;
 
 -- Fashion Hub Settings
@@ -149,15 +149,15 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- Fashion Hub Business Hours
-INSERT INTO business_hours (id, business_setting_id, day, opening_time, closing_time, is_closed, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO business_hours (id, business_setting_id, day, opening_time, closing_time, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES
-  ('880e9400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440003', 'Monday', '09:30', '21:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('880e9400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440003', 'Tuesday', '09:30', '21:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('880e9400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440003', 'Wednesday', '09:30', '21:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('880e9400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440003', 'Thursday', '09:30', '21:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('880e9400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440003', 'Friday', '09:30', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('880e9400-e29b-41d4-a716-446655440006', '770e8400-e29b-41d4-a716-446655440003', 'Saturday', '10:00', '22:00', false, 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('880e9400-e29b-41d4-a716-446655440007', '770e8400-e29b-41d4-a716-446655440003', 'Sunday', '11:00', '20:00', false, 0, false, NOW(), NOW(), 'admin', 'admin')
+  ('880e9400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440003', 'Monday', '09:30', '21:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440003', 'Tuesday', '09:30', '21:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440003', 'Wednesday', '09:30', '21:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440003', 'Thursday', '09:30', '21:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440003', 'Friday', '09:30', '22:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440006', '770e8400-e29b-41d4-a716-446655440003', 'Saturday', '10:00', '22:00', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('880e9400-e29b-41d4-a716-446655440007', '770e8400-e29b-41d4-a716-446655440003', 'Sunday', '11:00', '20:00', 0, false, NOW(), NOW(), 'admin', 'admin')
 ON CONFLICT DO NOTHING;
 
 
@@ -1951,10 +1951,10 @@ BEGIN
     FOREACH day_name IN ARRAY days LOOP
       INSERT INTO business_hours (
         id, business_setting_id, day, opening_time, closing_time,
-        is_closed, version, is_deleted, created_at, updated_at, created_by, updated_by
+        version, is_deleted, created_at, updated_at, created_by, updated_by
       ) VALUES (
         gen_random_uuid(), biz_set_id, day_name, '08:00', '22:00',
-        false, 0, false, NOW(), NOW(), 'admin', 'admin'
+        0, false, NOW(), NOW(), 'admin', 'admin'
       ) ON CONFLICT DO NOTHING;
     END LOOP;
 
