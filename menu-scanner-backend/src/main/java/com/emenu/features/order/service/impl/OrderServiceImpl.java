@@ -655,30 +655,16 @@ public class OrderServiceImpl implements OrderService {
                     item.getProductId(), item.getPromotionType(), item.getPromotionValue());
             }
 
-            // Process customizations - store in normalized table
+            // Process customizations - store total but don't create objects yet
             if (item.getCustomizations() != null && !item.getCustomizations().isEmpty()) {
                 try {
-                    // Calculate customization total for this item
                     BigDecimal itemCustomizationTotal = item.getCustomizations().stream()
                         .map(CartItemRequest.CustomizationDetail::getPriceAdjustment)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                         .multiply(new BigDecimal(item.getQuantity()));
                     orderItem.setCustomizationTotal(itemCustomizationTotal);
-
-                    // Save customizations to normalized table for history tracking
-                    List<OrderItemCustomization> customizations = item.getCustomizations().stream()
-                        .map(c -> {
-                            OrderItemCustomization customization = new OrderItemCustomization();
-                            customization.setOrderItemId(orderItem.getId());
-                            customization.setProductCustomizationId(c.getProductCustomizationId());
-                            customization.setName(c.getName());
-                            customization.setPriceAdjustment(c.getPriceAdjustment());
-                            return customization;
-                        })
-                        .toList();
-                    orderItem.setItemCustomizations(new java.util.ArrayList<>(customizations));
                 } catch (Exception e) {
-                    log.warn("Failed to process customizations for item {}: {}", item.getProductId(), e.getMessage());
+                    log.warn("Failed to calculate customization total for item {}: {}", item.getProductId(), e.getMessage());
                     orderItem.setCustomizationTotal(BigDecimal.ZERO);
                 }
             } else {
@@ -701,8 +687,37 @@ public class OrderServiceImpl implements OrderService {
         log.info("[SAVING ORDER ITEMS] Order ID: {}, Items: {}, Total: {} (Subtotal: {}, Customization: {}, Delivery: {}, Discount: {})",
             orderId, order.getItems().size(), totalAmount, subtotal, customizationTotal, deliveryFee, discountAmount);
 
+        // Save order and items first
         orderRepository.save(order);
-        log.info("[ORDER ITEMS SAVED] Successfully saved {} items with customizations for order: {}", order.getItems().size(), orderId);
+        log.info("[ORDER ITEMS SAVED] Successfully saved {} items for order: {}", order.getItems().size(), orderId);
+
+        // Now save customizations with the order item IDs
+        for (CartItemRequest item : cartSummary.getItems()) {
+            OrderItem savedItem = order.getItems().stream()
+                .filter(oi -> oi.getProductId().equals(item.getProductId()) &&
+                             (oi.getProductSizeId() == null ? item.getProductSizeId() == null : oi.getProductSizeId().equals(item.getProductSizeId())))
+                .findFirst()
+                .orElse(null);
+
+            if (savedItem != null && item.getCustomizations() != null && !item.getCustomizations().isEmpty()) {
+                try {
+                    List<OrderItemCustomization> customizations = item.getCustomizations().stream()
+                        .map(c -> {
+                            OrderItemCustomization customization = new OrderItemCustomization();
+                            customization.setOrderItemId(savedItem.getId());
+                            customization.setProductCustomizationId(c.getProductCustomizationId());
+                            customization.setName(c.getName());
+                            customization.setPriceAdjustment(c.getPriceAdjustment());
+                            return customization;
+                        })
+                        .toList();
+                    orderItemCustomizationRepository.saveAll(customizations);
+                    log.debug("Saved {} customizations for order item {}", customizations.size(), savedItem.getId());
+                } catch (Exception e) {
+                    log.warn("Failed to save customizations for item {}: {}", item.getProductId(), e.getMessage());
+                }
+            }
+        }
     }
 
     private void applyPricingToOrder(Order order, OrderCreateRequest.PricingInfo pricingInfo) {
