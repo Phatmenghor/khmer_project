@@ -35,9 +35,9 @@ export default function DashboardLayout({
     }
   }, [searchParams, pathname]);
 
-  // Update URL when fullscreen state changes
+  // Update URL when fullscreen state changes (only on POS page)
   useEffect(() => {
-    if (!pathname) return;
+    if (!pathname || !isPosPage) return;
 
     const params = new URLSearchParams(window.location.search);
     if (isFullscreen) {
@@ -48,7 +48,7 @@ export default function DashboardLayout({
 
     const newUrl = `${pathname}?${params.toString()}`.replace(/\?$/, "");
     window.history.replaceState({ path: newUrl }, "", newUrl);
-  }, [isFullscreen, pathname]);
+  }, [isFullscreen, pathname, isPosPage]);
 
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
