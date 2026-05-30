@@ -142,6 +142,7 @@ export default function PendingOrdersAdminPage() {
       handleViewOrder,
       handleEditOrder,
       handleDeleteOrder,
+      handleDownloadReceipt,
     }),
     [],
   );
