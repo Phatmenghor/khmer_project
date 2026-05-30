@@ -70,16 +70,6 @@ public class LeaveServiceImpl implements LeaveService {
                 filter.getSortBy(), filter.getSortDirection()
         );
 
-<<<<<<< HEAD
-        List<LeaveStatusEnum> statuses = (filter.getStatuses() != null && !filter.getStatuses().isEmpty())
-                ? filter.getStatuses() : null;
-
-        Page<Leave> page = repository.findWithFilters(
-                filter.getBusinessId(), filter.getUserId(),
-                filter.getLeaveTypeEnum(), statuses,
-                filter.getStartDate(), filter.getEndDate(),
-                filter.getSearch(), pageable
-=======
         List<LeaveStatusEnum> leaveStatusEnums = (filter.getStatuses() != null && !filter.getStatuses().isEmpty())
                 ? filter.getStatuses() : null;
 
@@ -91,7 +81,6 @@ public class LeaveServiceImpl implements LeaveService {
                 filter.getStartDate(),
                 filter.getEndDate(),
                 filter.getSearch()
->>>>>>> fc973f5 (Convert HR services to JPA Specifications)
         );
         Page<Leave> page = repository.findAll(spec, pageable);
 

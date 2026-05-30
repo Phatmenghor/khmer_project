@@ -224,62 +224,6 @@ public class AttendanceServiceImpl implements AttendanceService {
                 StringFormatUtils.formatPercentage(workPercentage));
     }
 
-<<<<<<< HEAD
-=======
-    @Override
-    @Transactional(readOnly = true)
-    public AttendanceResponse getById(UUID id) {
-        Attendance attendance = attendanceRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attendance not found"));
-        return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public PaginationResponse<AttendanceResponse> getAll(AttendanceFilterRequest filter) {
-        Pageable pageable = PaginationUtils.createPageable(
-                filter.getPageNo(),
-                filter.getPageSize(),
-                filter.getSortBy(),
-                filter.getSortDirection()
-        );
-
-        var spec = AttendanceSpecification.findWithFilters(
-                filter.getBusinessId(),
-                filter.getUserId(),
-                filter.getStartDate(),
-                filter.getEndDate(),
-                filter.getSearch()
-        );
-        Page<Attendance> page = attendanceRepository.findAll(spec, pageable);
-
-        return paginationMapper.toPaginationResponse(page,
-                attendances -> attendances.stream()
-                        .map(att -> enrichWithUserInfo(mapper.toResponse(att), att))
-                        .toList());
-    }
-
-    @Override
-    public AttendanceResponse update(UUID id, AttendanceUpdateRequest request) {
-        Attendance attendance = attendanceRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attendance not found"));
-
-        mapper.updateEntity(request, attendance);
-        attendance = attendanceRepository.save(attendance);
-
-        return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
-    }
-
-    @Override
-    public AttendanceResponse delete(UUID id) {
-        Attendance attendance = attendanceRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Attendance not found"));
-        attendance.softDelete();
-        attendance = attendanceRepository.save(attendance);
-        return enrichWithUserInfo(mapper.toResponse(attendance), attendance);
-    }
-
->>>>>>> fc973f5 (Convert HR services to JPA Specifications)
     private AttendanceResponse enrichWithUserInfo(AttendanceResponse response, Attendance attendance) {
         if (attendance.getUser() != null) {
             response.setUserInfo(userMapper.toUserBasicInfo(attendance.getUser()));

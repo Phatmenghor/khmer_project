@@ -20,6 +20,7 @@
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<springdoc.version>2.7.0</springdoc.version>
 		<jwt.version>0.12.6</jwt.version>
+		<lombok.version>1.18.30</lombok.version>
 	</properties>
 
 	<dependencies>

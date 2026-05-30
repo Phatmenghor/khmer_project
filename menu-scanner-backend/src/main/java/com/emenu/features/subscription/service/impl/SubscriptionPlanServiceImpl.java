@@ -1,7 +1,6 @@
 package com.emenu.features.subscription.service.impl;
 
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
-import com.emenu.enums.user.UserType;
 import com.emenu.features.subscription.dto.filter.SubscriptionPlanFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionPlanCreateRequest;
 import com.emenu.features.subscription.dto.response.SubscriptionPlanResponse;
@@ -12,10 +11,7 @@ import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.features.subscription.service.SubscriptionPlanService;
 import com.emenu.features.subscription.specification.SubscriptionPlanSpecification;
-<<<<<<< HEAD
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
-=======
->>>>>>> ed51c6b (Convert notification, setting, and subscription services to JPA Specifications)
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
 import lombok.RequiredArgsConstructor;
@@ -70,16 +66,10 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         List<SubscriptionPlanStatus> statusesTypes = (filter.getStatuses() != null && !filter.getStatuses().isEmpty())
                 ? filter.getStatuses() : null;
 
-<<<<<<< HEAD
-        Specification<SubscriptionPlan> spec = SubscriptionPlanSpecification.filterPlans(
-=======
-        var spec = SubscriptionPlanSpecification.findAllWithFilters(
->>>>>>> ed51c6b (Convert notification, setting, and subscription services to JPA Specifications)
+        Specification<SubscriptionPlan> spec = SubscriptionPlanSpecification.findAllWithFilters(
                 statusesTypes,
                 filter.getSearch()
         );
-        Page<SubscriptionPlan> planPage = planRepository.findAll(spec, pageable);
-
         Page<SubscriptionPlan> planPage = planRepository.findAll(spec, pageable);
 
         return paginationMapper.toPaginationResponse(planPage, planMapper.toResponseList(planPage.getContent()));

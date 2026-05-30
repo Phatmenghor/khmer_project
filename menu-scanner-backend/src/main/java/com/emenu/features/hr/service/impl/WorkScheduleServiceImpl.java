@@ -61,16 +61,10 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                 filter.getSortBy(), filter.getSortDirection()
         );
 
-<<<<<<< HEAD
-        Page<WorkSchedule> page = repository.findWithFilters(
-                filter.getBusinessId(), filter.getUserId(),
-                filter.getSearch(), pageable
-=======
         var spec = WorkScheduleSpecification.findWithFilters(
                 filter.getBusinessId(),
                 filter.getUserId(),
                 filter.getSearch()
->>>>>>> fc973f5 (Convert HR services to JPA Specifications)
         );
         Page<WorkSchedule> page = repository.findAll(spec, pageable);
 
