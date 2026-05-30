@@ -36,6 +36,9 @@ export function generateReceiptHTML(order: OrderResponse): string {
     return `${paddedLabel}${paddedValue}`;
   };
 
+  // Divider line with consistent width matching content
+  const dividerLine = "─".repeat(40);
+
   // Generate items
   const itemsHTML = order.items
     .map((item) => {
@@ -69,6 +72,13 @@ export function generateReceiptHTML(order: OrderResponse): string {
     })
     .join("\n");
 
+  // Top and bottom decorative lines
+  const decorativeLine = "═".repeat(40);
+
+  // TOTAL AMOUNT line - label left, price right
+  const totalAmountSpacing = Math.max(1, 40 - "TOTAL AMOUNT".length - formatPrice(total).length);
+  const totalAmountLine = `TOTAL AMOUNT${" ".repeat(totalAmountSpacing)}${formatPrice(total)}`;
+
   return `
     <div id="receipt-wrapper" style="
       width: 100%;
@@ -89,26 +99,26 @@ export function generateReceiptHTML(order: OrderResponse): string {
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow-wrap: break-word;
-      ">═════════════════════════════════════════════════════════════════════════
+      ">${decorativeLine}
 RECEIPT
-═════════════════════════════════════════════════════════════════════════
+${decorativeLine}
 Order #: ${order.orderNumber}
 Date: ${formattedDate} ${formattedTime}
 Biz: ${(order.businessName || "Business").substring(0, 32)}
 ${order.customerName ? `Cust: ${order.customerName.substring(0, 32)}` : ""}
-─────────────────────────────────────────────────────────────────────────
+${dividerLine}
 ITEMS
-─────────────────────────────────────────────────────────────────────────
+${dividerLine}
 ${padRight("NAME", 18)} ${padLeft("QTY", 2)} ${padLeft("DISC", 7)} ${padLeft("TOTAL", 9)}
-─────────────────────────────────────────────────────────────────────────
+${dividerLine}
 ${itemsHTML}
-─────────────────────────────────────────────────────────────────────────
+${dividerLine}
 Payment: ${order.payment?.paymentMethod || "N/A"}
 ${alignLine("Subtotal", formatPrice(subtotal + customizationTotal))}${discount > 0 ? `\n${alignLine("Discount", `-${formatPrice(discount)}`)}\n${alignLine("After Discount", formatPrice(subtotal + customizationTotal - discount))}` : ""}
 ${alignLine(`Tax (${order.pricing?.taxPercentage || 0}%)`, `+${formatPrice(tax)}`)}${delivery > 0 ? `\n${alignLine("Delivery Fee", `+${formatPrice(delivery)}`)}` : ""}
-═════════════════════════════════════════════════════════════════════════
-TOTAL AMOUNT${" ".repeat(Math.max(1, 73 - "TOTAL AMOUNT".length - formatPrice(total).length))}${formatPrice(total)}
-═════════════════════════════════════════════════════════════════════════
+${decorativeLine}
+${totalAmountLine}
+${decorativeLine}
 Thank you for your order!
 Please visit again
 ${formattedDate} ${formattedTime}</pre>
