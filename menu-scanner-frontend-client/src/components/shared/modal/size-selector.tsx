@@ -67,14 +67,16 @@ function SizeSelectorComponent({
               )}
 
               <div className="font-semibold text-xs">{size.name}</div>
-              <div className={cn("font-bold text-sm mt-0.5", isActive ? "text-primary" : "text-foreground")}>
-                {formatCurrency(size.finalPrice)}
-              </div>
-              {size.hasPromotion && (
-                <div className="text-[10px] text-muted-foreground/70 line-through mt-0.5">
-                  {formatCurrency(size.price)}
+              <div className="flex items-center gap-2 mt-1">
+                <div className={cn("font-bold text-sm", isActive ? "text-primary" : "text-foreground")}>
+                  {formatCurrency(size.finalPrice)}
                 </div>
-              )}
+                {size.hasPromotion && (
+                  <div className="text-[10px] text-muted-foreground/70 line-through">
+                    {formatCurrency(size.price)}
+                  </div>
+                )}
+              </div>
             </button>
           );
         })}
