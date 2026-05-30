@@ -61,11 +61,14 @@ function POSProductCardComponent({
     if (product.hasSizes || hasCustomizations) {
       // If product has sizes or customizations, open the modal
       onAddClick(product);
+    } else if (quantity === 0) {
+      // For new simple products, use onAddClick to add to cart
+      onAddClick(product);
     } else {
-      // If no sizes/customizations, directly add to cart (like clicking +)
+      // For existing items, directly increment quantity with +
       onQuantityChange(product.id, 1);
     }
-  }, [product, onAddClick, onQuantityChange]);
+  }, [product, onAddClick, onQuantityChange, quantity]);
 
   return (
     <div
