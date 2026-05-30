@@ -143,7 +143,7 @@ export function Receipt({
                     <div key={item.id} className="pb-3 border-b border-gray-300">
                       <div className="grid grid-cols-12 gap-2 text-sm mb-2">
                         <div className="col-span-6">
-                          <p className="font-bold text-gray-900">{index + 1}. {item.productName}</p>
+                          <p className="font-bold text-gray-900">{index + 1}. {item.productName || "Product"}</p>
                           {item.sizeName && (
                             <p className="text-gray-600 text-xs">Size: {item.sizeName}</p>
                           )}
@@ -184,7 +184,7 @@ export function Receipt({
               <div className="space-y-2">
                 {promotionalItems.map((item, idx) => (
                   <div key={`promo-${idx}`} className="flex justify-between text-sm">
-                    <span className="text-green-800">{item.productName}</span>
+                    <span className="text-green-800">{item.productName || "Product"}</span>
                     <span className="font-bold text-green-900">
                       {item.promotionType === "PERCENTAGE"
                         ? `-${item.promotionValue}%`
