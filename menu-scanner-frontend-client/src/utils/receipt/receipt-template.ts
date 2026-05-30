@@ -107,7 +107,7 @@ Payment: ${order.payment?.paymentMethod || "N/A"}
 ${alignLine("Subtotal", formatPrice(subtotal + customizationTotal))}${discount > 0 ? `\n${alignLine("Discount", `-${formatPrice(discount)}`)}\n${alignLine("After Discount", formatPrice(subtotal + customizationTotal - discount))}` : ""}
 ${alignLine(`Tax (${order.pricing?.taxPercentage || 0}%)`, `+${formatPrice(tax)}`)}${delivery > 0 ? `\n${alignLine("Delivery Fee", `+${formatPrice(delivery)}`)}` : ""}
 ══════════════════════════════════════════
-${padRight("TOTAL AMOUNT", 35)} ${padLeft(formatPrice(total), 9)}
+${alignLine("TOTAL AMOUNT", formatPrice(total))}
 ══════════════════════════════════════════
 Thank you for your order!
 Please visit again
