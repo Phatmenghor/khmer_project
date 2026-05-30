@@ -63,7 +63,26 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
         BusinessSetting businessSetting = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new ValidationException("Business setting not found"));
 
+        Business business = businessRepository.findByIdAndIsDeletedFalse(businessId)
+                .orElseThrow(() -> new ValidationException("Business not found"));
+
         businessSettingMapper.updateEntity(request, businessSetting);
+
+        // Update Business entity with contact information if provided
+        if (request.getBusinessName() != null) {
+            business.setName(request.getBusinessName());
+        }
+        if (request.getContactAddress() != null) {
+            business.setDescription(request.getContactAddress());
+        }
+        if (request.getContactPhone() != null) {
+            business.setPhone(request.getContactPhone());
+        }
+        if (request.getContactEmail() != null) {
+            business.setEmail(request.getContactEmail());
+        }
+
+        businessRepository.save(business);
         BusinessSetting updatedSetting = businessSettingRepository.save(businessSetting);
 
         log.info("Business setting updated successfully: business_id={}", businessId);

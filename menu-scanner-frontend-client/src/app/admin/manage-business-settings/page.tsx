@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { showToast } from "@/components/shared/common/show-toast";
 import { Loader2, Save, Plus, Trash2, Eye, EyeOff, Send } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -219,6 +220,7 @@ export default function BusinessSettingsPage() {
         .filter(sm => sm.name && sm.linkUrl);
 
       const payload = {
+        businessName: data.businessName || null,
         taxPercentage: data.taxPercentage
           ? parseFloat(data.taxPercentage)
           : null,
@@ -226,6 +228,9 @@ export default function BusinessSettingsPage() {
         enableStock: data.enableStock,
         socialMedia: filteredSocialMedia,
         primaryColor: data.primaryColor,
+        contactAddress: data.contactAddress || null,
+        contactPhone: data.contactPhone || null,
+        contactEmail: data.contactEmail || null,
         businessHours: filteredBusinessHours,
         useBrands: data.useBrands,
         lowStockThreshold: data.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
@@ -335,12 +340,10 @@ export default function BusinessSettingsPage() {
                 <Input
                   id="businessName"
                   placeholder="Your business name"
-                  disabled={true}
                   {...form.register("businessName")}
-                  className="bg-muted/50 cursor-not-allowed"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Read-only field from Business profile
+                  Business name displayed to customers
                 </p>
               </div>
 
@@ -462,13 +465,9 @@ export default function BusinessSettingsPage() {
                     id="contactAddress"
                     placeholder="123 Street Name, Phnom Penh, Cambodia"
                     rows={3}
-                    disabled={true}
-                    className="w-full px-3 py-2 rounded-md border border-input bg-muted/50 text-foreground placeholder:text-muted-foreground cursor-not-allowed resize-none"
+                    className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground resize-none"
                     {...form.register("contactAddress")}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Read-only field from Business profile
-                  </p>
                 </div>
 
                 {}
@@ -477,13 +476,8 @@ export default function BusinessSettingsPage() {
                   <Input
                     id="contactPhone"
                     placeholder="+855 12 345 678"
-                    disabled={true}
-                    className="bg-muted/50 cursor-not-allowed"
                     {...form.register("contactPhone")}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Read-only field from Business profile
-                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -492,13 +486,8 @@ export default function BusinessSettingsPage() {
                     id="contactEmail"
                     type="email"
                     placeholder="support@example.com"
-                    disabled={true}
-                    className="bg-muted/50 cursor-not-allowed"
                     {...form.register("contactEmail")}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Read-only field from Business profile
-                  </p>
                 </div>
               </div>
             </div>
@@ -548,35 +537,20 @@ export default function BusinessSettingsPage() {
 
               {}
               <div className="space-y-2">
-                <Label>Show Brands</Label>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant={form.watch("useBrands") ? "default" : "outline"}
-                    size="sm"
-                    onClick={() =>
-                      form.setValue("useBrands", !form.watch("useBrands"), {
+                <div className="flex items-center justify-between">
+                  <Label>Show Brands</Label>
+                  <Switch
+                    checked={form.watch("useBrands")}
+                    onCheckedChange={(checked) =>
+                      form.setValue("useBrands", checked, {
                         shouldDirty: true,
                       })
                     }
                     disabled={isSaving}
-                    className="flex-1 h-10"
-                  >
-                    {form.watch("useBrands") ? (
-                      <>
-                        <Eye className="h-4 w-4 mr-2" />
-                        Enabled
-                      </>
-                    ) : (
-                      <>
-                        <EyeOff className="h-4 w-4 mr-2" />
-                        Disabled
-                      </>
-                    )}
-                  </Button>
+                  />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Display product brands in your storefront
+                  {form.watch("useBrands") ? "Display" : "Hide"} product brands in your storefront
                 </p>
               </div>
             </div>
