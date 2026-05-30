@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface SubscriptionRepository extends JpaRepository<Subscription, UUID> {
+public interface SubscriptionRepository extends JpaRepository<Subscription, UUID>, JpaSpecificationExecutor<Subscription> {
 
     @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p LEFT JOIN FETCH s.payment WHERE s.id = :id AND s.isDeleted = false")
     Optional<Subscription> findByIdAndIsDeletedFalse(@Param("id") UUID id);
