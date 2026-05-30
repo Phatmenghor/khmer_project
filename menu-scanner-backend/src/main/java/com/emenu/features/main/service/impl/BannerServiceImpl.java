@@ -12,6 +12,7 @@ import com.emenu.features.main.mapper.BannerMapper;
 import com.emenu.features.main.models.Banner;
 import com.emenu.features.main.repository.BannerRepository;
 import com.emenu.features.main.service.BannerService;
+import com.emenu.features.main.specification.BannerSpecification;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -19,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,24 +61,27 @@ public class BannerServiceImpl implements BannerService {
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
-        Page<Banner> bannerPage = bannerRepository.findAllWithFilters(
+        Specification<Banner> spec = BannerSpecification.filterBanners(
                 filter.getBusinessId(),
                 filter.getStatus(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+
+        Page<Banner> bannerPage = bannerRepository.findAll(spec, pageable);
         return bannerMapper.toPaginationResponse(bannerPage, paginationMapper);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<BannerResponse> getAllItemBanners(BannerAllFilterRequest filter) {
-        List<Banner> banners = bannerRepository.findAllWithFilters(
+        Specification<Banner> spec = BannerSpecification.filterBanners(
                 filter.getBusinessId(),
                 filter.getStatus(),
-                filter.getSearch(),
-                PaginationUtils.createSort(filter.getSortBy(), filter.getSortDirection())
+                filter.getSearch()
         );
+
+        Sort sort = PaginationUtils.createSort(filter.getSortBy(), filter.getSortDirection());
+        List<Banner> banners = bannerRepository.findAll(spec, sort);
         return bannerMapper.toResponseList(banners);
     }
 

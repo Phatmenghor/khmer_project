@@ -10,6 +10,7 @@ import com.emenu.features.audit.mapper.AuditLogMapper;
 import com.emenu.features.audit.models.AuditLog;
 import com.emenu.features.audit.repository.AuditLogRepository;
 import com.emenu.features.audit.service.AuditLogService;
+import com.emenu.features.audit.specification.AuditLogSpecification;
 import com.emenu.security.SecurityUtils;
 import com.emenu.security.jwt.JWTAuthenticationFilter;
 import com.emenu.shared.dto.PaginationResponse;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,13 +52,14 @@ public class AuditLogServiceImpl implements AuditLogService {
 
         Pageable pageable = PaginationUtils.createPageable(filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
 
-        Page<AuditLog> page = auditLogRepository.findAllWithFilters(
+        Specification<AuditLog> spec = AuditLogSpecification.filterAuditLogs(
                 filter.getUserId(),
                 filter.getUserIdentifier(),
                 filter.getUserType(),
-                filter.getSearch(),
-                pageable
+                filter.getSearch()
         );
+
+        Page<AuditLog> page = auditLogRepository.findAll(spec, pageable);
 
         List<AuditLogResponseDTO> content = page.getContent().stream()
                 .map(auditLogMapper::toResponseDTO)
