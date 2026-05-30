@@ -20,36 +20,8 @@ export default function DashboardLayout({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const isMobile = useIsMobile();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const isInitialized = useRef(false);
 
   const isPosPage = pathname.includes("/pos");
-
-  // Restore fullscreen state from URL on initial load only
-  useEffect(() => {
-    if (isInitialized.current) return;
-    isInitialized.current = true;
-
-    const fullscreenParam = searchParams?.get("fullscreen");
-    if (fullscreenParam === "true" || fullscreenParam === "1") {
-      setIsFullscreen(true);
-    }
-  }, []);
-
-  // Update URL when fullscreen state changes (only on POS page)
-  useEffect(() => {
-    if (!pathname || !isPosPage) return;
-
-    const params = new URLSearchParams(window.location.search);
-    if (isFullscreen) {
-      params.set("fullscreen", "true");
-    } else {
-      params.delete("fullscreen");
-    }
-
-    const newUrl = `${pathname}?${params.toString()}`.replace(/\?$/, "");
-    window.history.replaceState({ path: newUrl }, "", newUrl);
-  }, [isFullscreen, pathname, isPosPage]);
 
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
