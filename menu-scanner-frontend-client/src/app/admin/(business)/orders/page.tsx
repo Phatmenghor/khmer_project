@@ -39,6 +39,7 @@ import {
   PAYMENT_STATUS_ADMIN_FILTER,
 } from "@/constants/status/filter-status";
 import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { generateReceiptHTML } from "@/utils/receipt/receipt-template";
 import { OrderReceipt } from "@/components/shared/receipt/order-receipt";
 
@@ -126,7 +127,7 @@ export default function OrdersAdminPage() {
     setDeleteState({ isOpen: true, order });
   };
 
-  const handleDownloadReceipt = async (order: OrderResponse) => {
+  const handleDownloadReceipt = async (order: OrderResponse, format: "pdf" | "png" = "pdf") => {
     if (!order.id) return;
     try {
       // Create container with receipt HTML
@@ -137,7 +138,7 @@ export default function OrdersAdminPage() {
       element.innerHTML = generateReceiptHTML(order);
       document.body.appendChild(element);
 
-      // Convert to high-quality image using html2canvas
+      // Convert to canvas using html2canvas
       const canvas = await html2canvas(element, {
         scale: 3,
         useCORS: true,
@@ -147,25 +148,41 @@ export default function OrdersAdminPage() {
         logging: false,
       });
 
-      // Download as PNG
-      await new Promise<void>((resolve) => {
-        canvas.toBlob((blob) => {
-          if (!blob) {
+      if (format === "pdf") {
+        // Generate PDF
+        const pdfWidth = 80; // mm (80mm thermal printer)
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: [pdfWidth, pdfHeight],
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`receipt-${order.orderNumber}.pdf`);
+        showToast.success("Receipt downloaded as PDF");
+      } else {
+        // Download as PNG
+        await new Promise<void>((resolve) => {
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              resolve();
+              return;
+            }
+            const dlUrl = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = dlUrl;
+            a.download = `receipt-${order.orderNumber}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(dlUrl);
+            showToast.success("Receipt downloaded as PNG");
             resolve();
-            return;
-          }
-          const dlUrl = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = dlUrl;
-          a.download = `receipt-${order.orderNumber}.png`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(dlUrl);
-          showToast.success("Receipt downloaded successfully");
-          resolve();
-        }, "image/png");
-      });
+          }, "image/png");
+        });
+      }
 
       document.body.removeChild(element);
     } catch (error) {

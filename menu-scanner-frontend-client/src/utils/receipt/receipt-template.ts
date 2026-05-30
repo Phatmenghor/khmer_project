@@ -28,13 +28,11 @@ export function generateReceiptHTML(order: OrderResponse): string {
   const padLeft = (str: string, len: number) => str.padStart(len, " ");
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
-  // Create aligned line with label on left and value on right
+  // Create aligned line - label left, price right
   const alignLine = (label: string, value: string) => {
     const totalWidth = 44;
-    const valueWidth = value.length;
-    const dotCount = totalWidth - label.length - valueWidth;
-    const dots = ".".repeat(Math.max(1, dotCount));
-    return `${label}${dots}${value}`;
+    const spacing = totalWidth - label.length - value.length;
+    return `${label}${" ".repeat(Math.max(1, spacing))}${value}`;
   };
 
   // Generate items
