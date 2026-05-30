@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/command";
 import { showToast } from "@/components/shared/common/show-toast";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { applyDiscount } from "@/utils/common/customization-utils";
+import { applyDiscount, buildQuantityMap } from "@/utils/common/customization-utils";
 import { POSCartItem } from "@/components/pos-custom/pos-cart-item";
 import { POSMoreOptionsModal } from "@/components/pos-custom/pos-more-options-modal";
 import { POSOrderSuccessModal } from "@/components/pos-custom/pos-order-success-modal";
@@ -1250,20 +1250,9 @@ export default function PosPage() {
           }}
           isEditing={!!editingCartItemId}
           cartItems={cartItems}
-          initialQuantities={new Map(
-            cartItems.map((item) => {
-              const sizeId = item.productSizeId || "__no_size__";
-              const customKey =
-                item.customizations && item.customizations.length > 0
-                  ? `-${item.customizations
-                      .map((c) => c.productCustomizationId)
-                      .sort()
-                      .join("-")}`
-                  : "";
-              const mapKey = `${sizeId}${customKey}`;
-              return [mapKey, item.quantity];
-            })
-          )}
+          initialQuantities={
+            sizePickerProduct ? buildQuantityMap(cartItems, sizePickerProduct.id) : new Map()
+          }
           initialCustomizations={
             editingCartItemId
               ? cartItems
