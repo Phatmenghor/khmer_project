@@ -13,6 +13,8 @@ import org.hibernate.annotations.JdbcTypeCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -92,6 +94,9 @@ public class OrderItem extends BaseUUIDEntity {
 
     @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice; // finalPrice * quantity
+
+    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<OrderItemCustomization> itemCustomizations = new ArrayList<>();
 
     // Customizations/Add-ons snapshot - stored as JSON for flexibility
     @Column(name = "customizations", columnDefinition = "JSON")

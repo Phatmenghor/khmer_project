@@ -31,11 +31,13 @@ import com.emenu.features.order.models.OrderPayment;
 import com.emenu.features.order.models.Cart;
 import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderItem;
+import com.emenu.features.order.models.OrderItemCustomization;
 import com.emenu.features.order.models.OrderDeliveryAddress;
 import com.emenu.features.order.models.OrderDeliveryOption;
 import com.emenu.features.order.repository.OrderPaymentRepository;
 import com.emenu.features.order.repository.CartRepository;
 import com.emenu.features.order.repository.OrderRepository;
+import com.emenu.features.order.repository.OrderItemCustomizationRepository;
 import com.emenu.features.order.specification.OrderSpecification;
 import com.emenu.features.order.repository.OrderStatusHistoryRepository;
 import com.emenu.features.order.repository.OrderDeliveryAddressRepository;
@@ -82,6 +84,7 @@ public class OrderServiceImpl implements OrderService {
     private final LocationRepository locationRepository;
     private final OrderDeliveryAddressRepository orderDeliveryAddressRepository;
     private final OrderDeliveryOptionRepository orderDeliveryOptionRepository;
+    private final OrderItemCustomizationRepository orderItemCustomizationRepository;
     private final OrderMapper orderMapper;
     private final OrderPaymentMapper paymentMapper;
     private final SecurityUtils securityUtils;
@@ -671,6 +674,19 @@ public class OrderServiceImpl implements OrderService {
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
                         .multiply(new BigDecimal(item.getQuantity()));
                     orderItem.setCustomizationTotal(itemCustomizationTotal);
+
+                    // Save customizations to normalized table for better history tracking
+                    List<OrderItemCustomization> customizations = item.getCustomizations().stream()
+                        .map(c -> {
+                            OrderItemCustomization customization = new OrderItemCustomization();
+                            customization.setOrderItemId(orderItem.getId());
+                            customization.setProductCustomizationId(c.getProductCustomizationId());
+                            customization.setName(c.getName());
+                            customization.setPriceAdjustment(c.getPriceAdjustment());
+                            return customization;
+                        })
+                        .toList();
+                    orderItem.setItemCustomizations(new java.util.ArrayList<>(customizations));
                 } catch (Exception e) {
                     log.warn("Failed to serialize customizations for item {}: {}", item.getProductId(), e.getMessage());
                     orderItem.setCustomizationTotal(BigDecimal.ZERO);

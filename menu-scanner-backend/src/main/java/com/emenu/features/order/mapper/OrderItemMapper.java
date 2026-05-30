@@ -52,13 +52,27 @@ public abstract class OrderItemMapper {
         return info;
     }
 
-    @SuppressWarnings("unchecked")
     protected List<OrderItemResponse.CustomizationDetail> mapCustomizations(OrderItem orderItem) {
+        // Map from normalized table if available
+        if (orderItem.getItemCustomizations() != null && !orderItem.getItemCustomizations().isEmpty()) {
+            return orderItem.getItemCustomizations().stream()
+                    .map(ic -> {
+                        OrderItemResponse.CustomizationDetail detail = new OrderItemResponse.CustomizationDetail();
+                        detail.setProductCustomizationId(ic.getProductCustomizationId());
+                        detail.setName(ic.getName());
+                        detail.setPriceAdjustment(ic.getPriceAdjustment());
+                        return detail;
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        // Fallback to JSON field for backward compatibility
         if (orderItem.getCustomizations() == null || orderItem.getCustomizations().isEmpty()) {
             return List.of();
         }
 
         try {
+            @SuppressWarnings("unchecked")
             java.util.List<?> customizationsList = objectMapper.readValue(orderItem.getCustomizations(), java.util.List.class);
             return customizationsList.stream()
                     .map(c -> {
