@@ -90,7 +90,8 @@ export function generateReceiptHTML(order: OrderResponse): string {
           <td style="text-align: right; padding-right: 4px;">+${formatPrice(delivery)}</td>
         </tr>` : ""}
         <tr>
-          <td colspan="5" style="text-align: right; padding-right: 4px;">Payment: ${order.payment?.paymentMethod || "N/A"}</td>
+          <td style="text-align: left;">Payment</td>
+          <td colspan="4" style="text-align: right; padding-right: 4px;">${order.payment?.paymentMethod || "N/A"}</td>
         </tr>
         <tr style="border-top: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; height: 28px;">
           <td colspan="4" style="text-align: left;">TOTAL AMOUNT</td>
