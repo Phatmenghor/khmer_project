@@ -8,8 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.type.SqlTypes;
-import org.hibernate.annotations.JdbcTypeCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -97,16 +95,6 @@ public class OrderItem extends BaseUUIDEntity {
 
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<OrderItemCustomization> itemCustomizations = new ArrayList<>();
-
-    // Customizations/Add-ons snapshot - stored as JSON for flexibility
-    @Column(name = "customizations", columnDefinition = "JSON")
-    @JdbcTypeCode(SqlTypes.JSON)
-    private String customizations; // JSON array: [{id, productCustomizationId, name, priceAdjustment}]
-
-    // Customization IDs for quick lookup
-    @Column(name = "customization_ids", columnDefinition = "JSON")
-    @JdbcTypeCode(SqlTypes.JSON)
-    private String customizationIds; // JSON array of UUIDs
 
     // Total customization cost for this item
     @Column(name = "customization_total", precision = 10, scale = 2)

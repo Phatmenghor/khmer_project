@@ -2,20 +2,15 @@ package com.emenu.features.order.mapper;
 
 import com.emenu.features.order.dto.response.OrderItemResponse;
 import com.emenu.features.order.models.OrderItem;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class OrderItemMapper {
-
-    @Autowired
-    protected ObjectMapper objectMapper;
 
     @Mapping(target = "product", expression = "java(mapProductInfo(orderItem))")
     @Mapping(target = "customizations", expression = "java(mapCustomizations(orderItem))")
@@ -53,43 +48,19 @@ public abstract class OrderItemMapper {
     }
 
     protected List<OrderItemResponse.CustomizationDetail> mapCustomizations(OrderItem orderItem) {
-        // Map from normalized table if available
-        if (orderItem.getItemCustomizations() != null && !orderItem.getItemCustomizations().isEmpty()) {
-            return orderItem.getItemCustomizations().stream()
-                    .map(ic -> {
-                        OrderItemResponse.CustomizationDetail detail = new OrderItemResponse.CustomizationDetail();
-                        detail.setProductCustomizationId(ic.getProductCustomizationId());
-                        detail.setName(ic.getName());
-                        detail.setPriceAdjustment(ic.getPriceAdjustment());
-                        return detail;
-                    })
-                    .collect(Collectors.toList());
-        }
-
-        // Fallback to JSON field for backward compatibility
-        if (orderItem.getCustomizations() == null || orderItem.getCustomizations().isEmpty()) {
+        // Map from normalized table
+        if (orderItem.getItemCustomizations() == null || orderItem.getItemCustomizations().isEmpty()) {
             return List.of();
         }
 
-        try {
-            @SuppressWarnings("unchecked")
-            java.util.List<?> customizationsList = objectMapper.readValue(orderItem.getCustomizations(), java.util.List.class);
-            return customizationsList.stream()
-                    .map(c -> {
-                        if (c instanceof java.util.Map) {
-                            java.util.Map<String, Object> map = (java.util.Map<String, Object>) c;
-                            OrderItemResponse.CustomizationDetail detail = new OrderItemResponse.CustomizationDetail();
-                            detail.setProductCustomizationId(java.util.UUID.fromString(map.get("productCustomizationId").toString()));
-                            detail.setName(map.get("name").toString());
-                            detail.setPriceAdjustment(new java.math.BigDecimal(map.get("priceAdjustment").toString()));
-                            return detail;
-                        }
-                        return null;
-                    })
-                    .filter(item -> item != null)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            return List.of();
-        }
+        return orderItem.getItemCustomizations().stream()
+                .map(ic -> {
+                    OrderItemResponse.CustomizationDetail detail = new OrderItemResponse.CustomizationDetail();
+                    detail.setProductCustomizationId(ic.getProductCustomizationId());
+                    detail.setName(ic.getName());
+                    detail.setPriceAdjustment(ic.getPriceAdjustment());
+                    return detail;
+                })
+                .collect(Collectors.toList());
     }
 }

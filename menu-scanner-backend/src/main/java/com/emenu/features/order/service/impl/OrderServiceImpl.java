@@ -655,19 +655,9 @@ public class OrderServiceImpl implements OrderService {
                     item.getProductId(), item.getPromotionType(), item.getPromotionValue());
             }
 
-            // Process customizations
+            // Process customizations - store in normalized table
             if (item.getCustomizations() != null && !item.getCustomizations().isEmpty()) {
                 try {
-                    String customizationsJson = objectMapper.writeValueAsString(item.getCustomizations());
-                    orderItem.setCustomizations(customizationsJson);
-
-                    // Extract customization IDs as JSON array
-                    List<String> customizationIds = item.getCustomizations().stream()
-                        .map(c -> c.getProductCustomizationId().toString())
-                        .toList();
-                    String customizationIdsJson = objectMapper.writeValueAsString(customizationIds);
-                    orderItem.setCustomizationIds(customizationIdsJson);
-
                     // Calculate customization total for this item
                     BigDecimal itemCustomizationTotal = item.getCustomizations().stream()
                         .map(CartItemRequest.CustomizationDetail::getPriceAdjustment)
@@ -675,7 +665,7 @@ public class OrderServiceImpl implements OrderService {
                         .multiply(new BigDecimal(item.getQuantity()));
                     orderItem.setCustomizationTotal(itemCustomizationTotal);
 
-                    // Save customizations to normalized table for better history tracking
+                    // Save customizations to normalized table for history tracking
                     List<OrderItemCustomization> customizations = item.getCustomizations().stream()
                         .map(c -> {
                             OrderItemCustomization customization = new OrderItemCustomization();
@@ -688,7 +678,7 @@ public class OrderServiceImpl implements OrderService {
                         .toList();
                     orderItem.setItemCustomizations(new java.util.ArrayList<>(customizations));
                 } catch (Exception e) {
-                    log.warn("Failed to serialize customizations for item {}: {}", item.getProductId(), e.getMessage());
+                    log.warn("Failed to process customizations for item {}: {}", item.getProductId(), e.getMessage());
                     orderItem.setCustomizationTotal(BigDecimal.ZERO);
                 }
             } else {
