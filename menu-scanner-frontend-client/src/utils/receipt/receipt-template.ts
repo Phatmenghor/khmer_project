@@ -28,11 +28,12 @@ export function generateReceiptHTML(order: OrderResponse): string {
   const padLeft = (str: string, len: number) => str.padStart(len, " ");
   const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
-  // Create aligned line - label left, price right (compact format)
+  // Create aligned line - label left, price right-aligned at same column
   const alignLine = (label: string, value: string) => {
     const totalWidth = 40;
-    const spacing = totalWidth - label.length - value.length;
-    return `${label}${" ".repeat(Math.max(1, spacing))}${value}`;
+    const paddedValue = value.padStart(9); // Right-align value in 9-char space
+    const paddedLabel = label.padEnd(totalWidth - 9); // Fill remaining space
+    return `${paddedLabel}${paddedValue}`;
   };
 
   // Generate items
