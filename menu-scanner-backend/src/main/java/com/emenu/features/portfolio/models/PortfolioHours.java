@@ -19,7 +19,7 @@ public class PortfolioHours extends BaseUUIDEntity {
     @JoinColumn(name = "profile_id", nullable = false)
     private PortfolioProfile profile;
 
-    @Column(name = "day")
+    @Column(name = "\"day\"")
     private String day;
 
     @Column(name = "open_time")
