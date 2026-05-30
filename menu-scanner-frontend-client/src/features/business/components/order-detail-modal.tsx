@@ -19,6 +19,9 @@ import { getOrderStatusLabel } from "@/enums/order-status.enum";
 import { Loading } from "@/components/shared/common/loading";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { showToast } from "@/components/shared/common/show-toast";
+import { Download } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 interface OrderDetailModalProps {
   orderId?: string;
@@ -44,6 +47,151 @@ export function OrderDetailModal({
   const handleClose = () => {
     dispatch(clearSelectedOrder());
     onClose();
+  };
+
+  const handleDownloadReceipt = async () => {
+    if (!orderData?.id || !orderData?.items) return;
+    try {
+      const element = document.createElement("div");
+      element.style.position = "absolute";
+      element.style.left = "-9999px";
+      element.style.width = "80mm";
+      element.style.height = "auto";
+      element.style.fontFamily = "monospace";
+      element.style.fontSize = "11px";
+      element.style.backgroundColor = "#fff";
+      element.style.padding = "4mm";
+
+      const date = new Date(orderData.createdAt);
+      const formattedDate = date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      const formattedTime = date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      const subtotal = orderData.pricing?.subtotal || 0;
+      const discount = orderData.pricing?.discountAmount || 0;
+      const subtotalAfterDiscount = subtotal - discount;
+      const tax = orderData.pricing?.taxAmount || 0;
+      const delivery = orderData.pricing?.deliveryFee || 0;
+      const total = orderData.pricing?.finalTotal || 0;
+
+      const itemsHTML = orderData.items.map(item => {
+        const itemTotal = (item.finalPrice || 0) * item.quantity;
+        return `
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px;">
+            <span style="flex: 1;">${item.productName}</span>
+            <span style="width: 16px; text-align: center;">${item.quantity}</span>
+            <span style="width: 30px; text-align: right;">—</span>
+            <span style="width: 50px; text-align: right;">$${itemTotal.toFixed(2)}</span>
+          </div>
+        `;
+      }).join('');
+
+      element.innerHTML = `
+        <div style="width: 80mm; background: white;">
+          <!-- Header -->
+          <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px;">
+            <div style="font-weight: bold; font-size: 13px; letter-spacing: 1px;">RECEIPT</div>
+          </div>
+
+          <!-- Order Info -->
+          <div style="text-align: center; font-size: 10px; margin-bottom: 6px; border-bottom: 1px solid #666; padding-bottom: 4px;">
+            <div>Order #: ${orderData.orderNumber}</div>
+            <div>Date: ${formattedDate} • ${formattedTime}</div>
+            <div style="font-weight: bold;">${orderData.business?.name || 'Restaurant'}</div>
+          </div>
+
+          <!-- Items Section -->
+          <div style="margin-bottom: 6px; border-bottom: 1px solid #666; padding-bottom: 4px;">
+            <div style="text-align: center; font-weight: bold; font-size: 10px; border-bottom: 1px solid #666; padding-bottom: 2px; margin-bottom: 4px;">ITEMS</div>
+            <div style="margin-bottom: 4px;">
+              <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 10px; margin-bottom: 2px;">
+                <span style="flex: 1;">NAME</span>
+                <span style="width: 16px; text-align: center;">QTY</span>
+                <span style="width: 30px; text-align: right;">DSC</span>
+                <span style="width: 50px; text-align: right;">TOTAL</span>
+              </div>
+              <div style="border-bottom: 1px solid #ccc; margin-bottom: 2px;"></div>
+              ${itemsHTML}
+            </div>
+          </div>
+
+          <!-- Order Summary -->
+          <div style="margin-bottom: 6px; border-bottom: 2px solid #000; padding-bottom: 6px;">
+            <div style="text-align: center; font-weight: bold; font-size: 10px; margin-bottom: 4px;">ORDER SUMMARY</div>
+            <div style="font-size: 10px; line-height: 1.6;">
+              <div style="display: flex; justify-content: space-between;">
+                <span>Payment Method</span>
+                <span style="font-weight: bold;">${orderData.payment?.paymentStatus || 'CASH'}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Subtotal w/ Add-ons</span>
+                <span style="font-weight: bold;">$${subtotal.toFixed(2)}</span>
+              </div>
+              ${discount > 0 ? `
+              <div style="display: flex; justify-content: space-between; color: #d32f2f;">
+                <span>Discount (Promotions)</span>
+                <span style="font-weight: bold;">-$${discount.toFixed(2)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Subtotal After Discount</span>
+                <span style="font-weight: bold;">$${subtotalAfterDiscount.toFixed(2)}</span>
+              </div>
+              ` : ''}
+              <div style="display: flex; justify-content: space-between;">
+                <span>Tax</span>
+                <span style="font-weight: bold;">+$${tax.toFixed(2)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Delivery Fee</span>
+                <span style="font-weight: bold;">${delivery > 0 ? `+$${delivery.toFixed(2)}` : 'Free'}</span>
+              </div>
+              <div style="border-top: 1px solid #666; padding-top: 3px; margin-top: 3px; display: flex; justify-content: space-between; font-weight: bold; font-size: 11px;">
+                <span>TOTAL AMOUNT</span>
+                <span>$${total.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="text-align: center; font-size: 10px; padding-top: 4px;">
+            <div>Thank you for your order!</div>
+            <div>Please visit again</div>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(element);
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: [80, 250],
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const imgHeight = (canvas.height * 80) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, 80, imgHeight);
+      pdf.save(`receipt-${orderData.orderNumber}.pdf`);
+
+      document.body.removeChild(element);
+      showToast.success("Receipt downloaded successfully");
+    } catch (error) {
+      showToast.error("Failed to generate receipt");
+    }
   };
 
   if (isFetchingDetail) {
@@ -90,7 +238,7 @@ export function OrderDetailModal({
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-foreground">
               Order Details
@@ -99,6 +247,14 @@ export function OrderDetailModal({
               {orderData.orderNumber}
             </p>
           </div>
+          <button
+            onClick={handleDownloadReceipt}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+            title="Download receipt as PDF"
+          >
+            <Download className="w-4 h-4" />
+            Receipt
+          </button>
         </div>
 
         {}
