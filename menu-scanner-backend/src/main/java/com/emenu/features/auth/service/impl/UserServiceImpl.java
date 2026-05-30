@@ -17,6 +17,7 @@ import com.emenu.features.auth.models.*;
 import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.repository.UserRepository;
+import com.emenu.features.auth.specification.UserSpecification;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.features.auth.service.UserService;
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -200,9 +202,10 @@ public class UserServiceImpl implements UserService {
         List<AccountStatus> filterAccountStatuses = FilterUtils.nullIfEmpty(filterCriteria.getAccountStatuses());
         List<String> filterRoles = FilterUtils.nullIfEmpty(filterCriteria.getRoles());
 
-        Page<User> userPageData = userRepository.searchUsers(
+        Specification<User> spec = UserSpecification.searchUsers(
                 filterCriteria.getBusinessId(), filterUserTypes, filterAccountStatuses,
-                filterRoles, filterCriteria.getSearch(), pageableRequest);
+                filterRoles, filterCriteria.getSearch());
+        Page<User> userPageData = userRepository.findAll(spec, pageableRequest);
 
         log.info("Users fetched successfully: count={}, page={}/{}, business_id={}, requested_by={}",
                 userPageData.getNumberOfElements(), userPageData.getNumber() + 1, userPageData.getTotalPages(),
