@@ -1,6 +1,6 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Edit, Eye, Trash } from "lucide-react";
+import { Edit, Eye, Trash, Download } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
@@ -13,6 +13,7 @@ interface OrderTableHandlers {
   handleViewOrder: (order: OrderResponse) => void;
   handleEditOrder: (order: OrderResponse) => void;
   handleDeleteOrder: (order: OrderResponse) => void;
+  handleDownloadReceipt: (order: OrderResponse) => void;
 }
 
 interface OrderTableOptions {
@@ -55,7 +56,7 @@ export const orderAdminTableColumns = ({
   data,
   handlers,
 }: OrderTableOptions): TableColumn<OrderResponse>[] => {
-  const { handleViewOrder, handleEditOrder, handleDeleteOrder } = handlers;
+  const { handleViewOrder, handleEditOrder, handleDeleteOrder, handleDownloadReceipt } = handlers;
 
   return [
     {
@@ -217,6 +218,11 @@ export const orderAdminTableColumns = ({
             icon={<Eye className="w-4 h-4" />}
             tooltip="View Details"
             onClick={() => handleViewOrder(order)}
+          />
+          <ActionButton
+            icon={<Download className="w-4 h-4" />}
+            tooltip="Download Receipt"
+            onClick={() => handleDownloadReceipt(order)}
           />
           <ActionButton
             icon={<Edit className="w-4 h-4" />}

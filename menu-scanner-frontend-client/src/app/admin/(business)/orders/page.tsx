@@ -38,6 +38,9 @@ import {
   ORDER_STATUS_ADMIN_FILTER,
   PAYMENT_STATUS_ADMIN_FILTER,
 } from "@/constants/status/filter-status";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { Receipt } from "@/components/pos-custom/receipt";
 
 export default function OrdersAdminPage() {
   useAdminCleanup(resetState);
@@ -123,11 +126,66 @@ export default function OrdersAdminPage() {
     setDeleteState({ isOpen: true, order });
   };
 
+  const handleDownloadReceipt = async (order: OrderResponse) => {
+    if (!order.id || !order.items) return;
+    try {
+      const element = document.createElement("div");
+      element.style.position = "absolute";
+      element.style.left = "-9999px";
+      element.style.width = "80mm";
+      document.body.appendChild(element);
+
+      const canvas = await html2canvas(element);
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: [80, 150],
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      pdf.addImage(imgData, "PNG", 0, 0, 80, 150);
+      pdf.save(`receipt-${order.orderNumber}.pdf`);
+
+      document.body.removeChild(element);
+      showToast.success("Receipt downloaded successfully");
+    } catch (error) {
+      showToast.error("Failed to generate receipt");
+    }
+  };
+
+  const handleDownloadReceipt = async (order: OrderResponse) => {
+    if (!order.id || !order.items) return;
+    try {
+      const element = document.createElement("div");
+      element.style.position = "absolute";
+      element.style.left = "-9999px";
+      element.style width = "80mm";
+      document.body.appendChild(element);
+
+      const canvas = await html2canvas(element);
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: [80, 150],
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      pdf.addImage(imgData, "PNG", 0, 0, 80, 150);
+      pdf.save(`receipt-${order.orderNumber}.pdf`);
+
+      document.body.removeChild(element);
+      showToast.success("Receipt downloaded successfully");
+    } catch (error) {
+      showToast.error("Failed to generate receipt");
+    }
+  };
+
   const tableHandlers = useMemo(
     () => ({
       handleViewOrder,
       handleEditOrder,
       handleDeleteOrder,
+      handleDownloadReceipt,
     }),
     []
   );
