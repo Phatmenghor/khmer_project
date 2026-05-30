@@ -68,8 +68,16 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
            "AND (:paymentStatus IS NULL OR o.payment_status = :paymentStatus) " +
            "AND (:startDate IS NULL OR o.created_at >= :startDate) " +
            "AND (:endDate IS NULL OR o.created_at <= :endDate) " +
-           "AND (:search IS NULL OR :search = '' OR LOWER(o.order_number) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-           "ORDER BY o.created_at DESC", nativeQuery = true)
+           "AND (:search IS NULL OR :search = '' OR LOWER(o.order_number) LIKE LOWER(CONCAT('%', :search, '%')))",
+           countQuery = "SELECT COUNT(*) FROM orders o " +
+           "WHERE o.is_deleted = false " +
+           "AND (:businessId IS NULL OR o.business_id = CAST(:businessId AS uuid)) " +
+           "AND (:orderStatus IS NULL OR o.order_status = :orderStatus) " +
+           "AND (:paymentStatus IS NULL OR o.payment_status = :paymentStatus) " +
+           "AND (:startDate IS NULL OR o.created_at >= :startDate) " +
+           "AND (:endDate IS NULL OR o.created_at <= :endDate) " +
+           "AND (:search IS NULL OR :search = '' OR LOWER(o.order_number) LIKE LOWER(CONCAT('%', :search, '%')))",
+           nativeQuery = true)
     Page<Order> findByFiltersAndOrderNumber(
             @Param("businessId") UUID businessId,
             @Param("orderStatus") String orderStatus,

@@ -243,7 +243,7 @@ public class OrderServiceImpl implements OrderService {
             filter.setBusinessId(currentUser.getBusinessId());
         }
 
-        Pageable pageable = PaginationUtils.createPageable(
+        Pageable pageable = PaginationUtils.createPageableForNativeQuery(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
