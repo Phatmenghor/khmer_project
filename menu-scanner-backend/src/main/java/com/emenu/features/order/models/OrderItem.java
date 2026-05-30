@@ -26,10 +26,6 @@ public class OrderItem extends BaseUUIDEntity {
     @Column(name = "order_id", nullable = false)
     private UUID orderId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", insertable = false, updatable = false)
-    private Order order;
-
     @Column(name = "product_id", nullable = false)
     private UUID productId;
 
@@ -106,19 +102,6 @@ public class OrderItem extends BaseUUIDEntity {
     // Total customization cost for this item
     @Column(name = "customization_total", precision = 10, scale = 2)
     private BigDecimal customizationTotal = BigDecimal.ZERO;
-
-    // Customer instructions for this specific item
-    @Column(name = "special_instructions", columnDefinition = "TEXT")
-    private String specialInstructions;
-
-    // ===== AUDIT TRAIL: Item modification tracking =====
-    // Was the item modified from POS?
-    @Column(name = "had_change_from_pos")
-    private Boolean hadChangeFromPOS = false;
-
-    // Reason for the change (if any)
-    @Column(name = "change_reason", columnDefinition = "TEXT")
-    private String changeReason;
 
     // Business Methods
     public void calculateTotalPrice() {
