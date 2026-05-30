@@ -30,14 +30,14 @@ export function generateReceiptHTML(order: OrderResponse): string {
 
   // Create aligned line - label left, price right-aligned at same column
   const alignLine = (label: string, value: string) => {
-    const totalWidth = 65;
+    const totalWidth = 48;
     const paddedValue = value.padStart(9); // Right-align value in 9-char space
     const paddedLabel = label.padEnd(totalWidth - 9); // Fill remaining space
     return `${paddedLabel}${paddedValue}`;
   };
 
   // Divider line with consistent width matching content
-  const dividerLine = "─".repeat(65);
+  const dividerLine = "─".repeat(48);
 
   // Generate items
   const itemsHTML = order.items
@@ -54,16 +54,16 @@ export function generateReceiptHTML(order: OrderResponse): string {
       }
 
       const displayName = sizeName
-        ? `${productName} ${sizeName}`.substring(0, 40)
-        : productName.substring(0, 40);
+        ? `${productName} ${sizeName}`.substring(0, 27)
+        : productName.substring(0, 27);
 
-      let itemHTML = `${padRight(displayName, 40)} ${padLeft(String(item.quantity), 2)} ${padLeft(promoLabel, 7)} ${padLeft(formatPrice(itemTotal), 9)}`;
+      let itemHTML = `${padRight(displayName, 27)} ${padLeft(String(item.quantity), 2)} ${padLeft(promoLabel, 7)} ${padLeft(formatPrice(itemTotal), 9)}`;
 
       if (item.customizations && item.customizations.length > 0) {
         itemHTML += "\n" + item.customizations
           .map((c) => {
-            const customName = c.name.substring(0, 36);
-            return `  ${padRight(customName, 36)} ${padLeft(formatPrice(c.priceAdjustment || 0), 9)}`;
+            const customName = c.name.substring(0, 22);
+            return `  ${padRight(customName, 22)} ${padLeft(formatPrice(c.priceAdjustment || 0), 9)}`;
           })
           .join("\n");
       }
@@ -73,10 +73,10 @@ export function generateReceiptHTML(order: OrderResponse): string {
     .join("\n");
 
   // Top and bottom decorative lines
-  const decorativeLine = "═".repeat(65);
+  const decorativeLine = "═".repeat(48);
 
   // TOTAL AMOUNT line - label left, price right
-  const totalAmountSpacing = Math.max(1, 65 - "TOTAL AMOUNT".length - formatPrice(total).length);
+  const totalAmountSpacing = Math.max(1, 48 - "TOTAL AMOUNT".length - formatPrice(total).length);
   const totalAmountLine = `TOTAL AMOUNT${" ".repeat(totalAmountSpacing)}${formatPrice(total)}`;
 
   return `
@@ -109,7 +109,7 @@ ${order.customerName ? `Cust: ${order.customerName.substring(0, 32)}` : ""}
 ${dividerLine}
 ITEMS
 ${dividerLine}
-${padRight("NAME", 40)} ${padLeft("QTY", 2)} ${padLeft("DISC", 7)} ${padLeft("TOTAL", 9)}
+${padRight("NAME", 27)} ${padLeft("QTY", 2)} ${padLeft("DISC", 7)} ${padLeft("TOTAL", 9)}
 ${dividerLine}
 ${itemsHTML}
 ${dividerLine}
