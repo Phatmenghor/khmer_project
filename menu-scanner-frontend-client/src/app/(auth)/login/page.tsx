@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { loginService } from "@/features/auth/store/thunks/auth-thunks";
 import { telegramAuthenticateService } from "@/features/auth/store/thunks/social-auth-thunks";
@@ -239,6 +240,17 @@ export default function LoginPage() {
               loading={isTelegramLoading}
               className="w-full h-10"
             />
+
+            {/* Sign up link */}
+            <div className="text-center text-sm pt-2">
+              <span className="text-muted-foreground">Don't have an account? </span>
+              <Link
+                href="/(auth)/signup"
+                className="text-primary hover:underline font-semibold"
+              >
+                Sign up
+              </Link>
+            </div>
 
           </CardContent>
         </Card>
