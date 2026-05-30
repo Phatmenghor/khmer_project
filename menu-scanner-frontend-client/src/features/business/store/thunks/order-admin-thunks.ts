@@ -16,8 +16,8 @@ export const fetchAllOrderAdminService = createApiThunk<
     sortBy: params.sortBy || "createdAt",
     sortDirection: params.sortDirection || "DESC",
     ...(params.businessId && { businessId: params.businessId }),
-    ...(params.orderStatus && { orderStatus: params.orderStatus }),
-    ...(params.paymentStatus && { paymentStatus: params.paymentStatus }),
+    ...(params.orderStatus && params.orderStatus !== "ALL" && { orderStatus: params.orderStatus }),
+    ...(params.paymentStatus && params.paymentStatus !== "ALL" && { paymentStatus: params.paymentStatus }),
     ...(params.startDate && { startDate: params.startDate }),
     ...(params.endDate && { endDate: params.endDate }),
   };
