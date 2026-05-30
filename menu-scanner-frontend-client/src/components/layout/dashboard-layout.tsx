@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,30 +20,34 @@ export default function DashboardLayout({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const isMobile = useIsMobile();
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const isPosPage = pathname.includes("/pos");
 
-  // Generate route key for storing fullscreen state per route
-  const getRouteKey = () => {
-    const routeKey = pathname.replace(/\//g, "_").replace(/^_/, "") || "home";
-    return `fullscreen:${routeKey}`;
-  };
-
-  // Restore fullscreen state from localStorage when route changes
+  // Restore fullscreen state from URL query parameter
   useEffect(() => {
-    const routeKey = getRouteKey();
-    const savedFullscreenState = localStorage.getItem(routeKey);
-    if (savedFullscreenState === "true") {
+    const fullscreenParam = searchParams?.get("fullscreen");
+    if (fullscreenParam === "true" || fullscreenParam === "1") {
       setIsFullscreen(true);
     } else {
       setIsFullscreen(false);
     }
-  }, [pathname]);
+  }, [searchParams, pathname]);
 
-  // Save fullscreen state to localStorage when it changes
+  // Update URL when fullscreen state changes
   useEffect(() => {
-    const routeKey = getRouteKey();
-    localStorage.setItem(routeKey, isFullscreen.toString());
+    if (!pathname) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (isFullscreen) {
+      params.set("fullscreen", "true");
+    } else {
+      params.delete("fullscreen");
+    }
+
+    const newUrl = `${pathname}?${params.toString()}`.replace(/\?$/, "");
+    window.history.replaceState({ path: newUrl }, "", newUrl);
   }, [isFullscreen, pathname]);
 
   useEffect(() => {
