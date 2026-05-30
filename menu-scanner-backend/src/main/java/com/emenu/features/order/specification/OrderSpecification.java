@@ -18,7 +18,7 @@ import java.util.UUID;
  * Page<Order> results = orderRepository.findAll(spec, pageable);
  * ```
  */
-public class OrderSpecification extends BaseSpecification {
+public class OrderSpecification {
 
     // ============ PUBLIC API METHODS ============
     // Services should ONLY use these methods

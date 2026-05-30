@@ -17,7 +17,6 @@ import com.emenu.features.subscription.repository.SubscriptionPaymentRepository;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
 import com.emenu.features.subscription.service.SubscriptionService;
-import com.emenu.features.subscription.specification.SubscriptionSpecification;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;

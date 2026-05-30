@@ -20,7 +20,7 @@ import java.util.UUID;
  * Page<OrderPayment> results = paymentRepository.findAll(spec, pageable);
  * ```
  */
-public class OrderPaymentSpecification extends BaseSpecification {
+public class OrderPaymentSpecification {
 
     // ============ PUBLIC API METHODS ============
     // Services should ONLY use these methods
