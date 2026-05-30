@@ -252,9 +252,15 @@ export default function PosPage() {
   const [editingItemForPrice, setEditingItemForPrice] = useState<PosPageCartItem | null>(null);
 
 
-  // Clear browser history when entering POS page
+  // Clear browser history when entering POS page (preserve fullscreen param)
   useEffect(() => {
-    window.history.replaceState({ path: window.location.pathname }, "", window.location.pathname);
+    const params = new URLSearchParams(window.location.search);
+    const fullscreenParam = params.get("fullscreen");
+    let url = window.location.pathname;
+    if (fullscreenParam) {
+      url += `?fullscreen=${fullscreenParam}`;
+    }
+    window.history.replaceState({ path: url }, "", url);
   }, []);
 
   const [orderDiscount, setOrderDiscount] = useState<OrderDiscountType>(null);
