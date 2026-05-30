@@ -122,6 +122,8 @@ export default function PendingOrdersAdminPage() {
       element.style.position = "absolute";
       element.style.left = "-9999px";
       element.style.width = "305px";
+      element.style.margin = "0";
+      element.style.padding = "0";
       element.innerHTML = generateReceiptHTML(order);
       document.body.appendChild(element);
 

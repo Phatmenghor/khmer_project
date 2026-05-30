@@ -71,8 +71,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
   return `
     <div id="receipt-wrapper" style="
       width: 100%;
-      max-width: 305px;
-      margin: 0 auto;
+      margin: 0;
       background: white;
       padding: 0;
     ">
@@ -82,7 +81,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
         line-height: 1.2;
         width: 100%;
         margin: 0;
-        padding: 8px;
+        padding: 0 8px;
         box-sizing: border-box;
         background: white;
         color: black;
