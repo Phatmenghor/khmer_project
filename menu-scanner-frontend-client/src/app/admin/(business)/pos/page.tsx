@@ -1126,8 +1126,8 @@ export default function PosPage() {
                 </div>
                 {cartSummary.customizationTotal > 0 && (
                   <div className="flex justify-between text-xs">
-                    <span className="text-green-600 font-medium">Add-ons</span>
-                    <span className="text-green-600 font-semibold">+{formatCurrency(cartSummary.customizationTotal)}</span>
+                    <span className="text-yellow-600 font-medium">Add-ons</span>
+                    <span className="text-yellow-600 font-semibold">+{formatCurrency(cartSummary.customizationTotal)}</span>
                   </div>
                 )}
                 {cartSummary.discountAmount > 0 && (
@@ -1182,7 +1182,7 @@ export default function PosPage() {
                   size="sm"
                   className={cn(
                     "h-auto px-3 gap-2 text-xs font-semibold border-r border-border hover:bg-muted/50",
-                    orderDiscount && "text-green-600 hover:bg-green-50"
+                    orderDiscount && "text-yellow-600 hover:bg-green-50"
                   )}
                   onClick={() => dispatch(setShowOrderDetailsModal(true))}
                 >

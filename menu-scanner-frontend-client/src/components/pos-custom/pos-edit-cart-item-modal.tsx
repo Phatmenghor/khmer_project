@@ -194,13 +194,13 @@ export function POSEditCartItemModal({
 
           {}
           {item.customizations && item.customizations.length > 0 && (
-            <div className="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
-              <h4 className="font-semibold text-sm text-green-900">Add-ons ({item.customizations.length})</h4>
+            <div className="space-y-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <h4 className="font-semibold text-sm text-yellow-900">Add-ons ({item.customizations.length})</h4>
               <div className="space-y-2">
                 {item.customizations.map((custom, idx) => (
                   <div key={idx} className="flex justify-between items-center text-sm">
-                    <span className="text-green-800 font-medium">{custom.name}</span>
-                    <span className="text-green-700 font-semibold">+{formatCurrency(custom.priceAdjustment)}</span>
+                    <span className="text-yellow-800 font-medium">{custom.name}</span>
+                    <span className="text-yellow-700 font-semibold">+{formatCurrency(custom.priceAdjustment)}</span>
                   </div>
                 ))}
               </div>
