@@ -2,6 +2,7 @@ package com.emenu.features.auth.repository;
 
 import com.emenu.features.auth.models.BlacklistedToken;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,13 +13,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface BlacklistedTokenRepository extends JpaRepository<BlacklistedToken, UUID> {
+public interface BlacklistedTokenRepository extends JpaRepository<BlacklistedToken, UUID>, JpaSpecificationExecutor<BlacklistedToken> {
     Optional<BlacklistedToken> findByToken(String token);
 
     boolean existsByToken(String token);
-
-    @Query("SELECT COUNT(bt) > 0 FROM BlacklistedToken bt WHERE bt.userIdentifier = :userIdentifier")
-    boolean existsByUserIdentifier(@Param("userIdentifier") String userIdentifier);
 
     @Modifying
     @Query("DELETE FROM BlacklistedToken bt WHERE bt.expiryDate < :now")

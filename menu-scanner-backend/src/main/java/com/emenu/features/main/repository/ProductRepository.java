@@ -1,27 +1,20 @@
 package com.emenu.features.main.repository;
 
 import com.emenu.features.main.models.Product;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.springframework.data.domain.Sort;
-
-import com.emenu.enums.product.ProductStatus;
-import com.emenu.enums.product.StockStatus;
-
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, UUID> {
+public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
 
     /**
      * Find product by ID with details - FETCHES ONLY SIZES
@@ -91,145 +84,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
                                               @Param("businessId") UUID businessId,
                                               Pageable pageable);
 
-    /**
-     * Find all products with dynamic filtering - OPTIMIZED FOR LIST VIEW
-     * Uses denormalized categoryName/brandName fields - NO JOINs/FETCH needed
-     * Sizes are loaded separately to avoid Hibernate pagination warning
-     * ~20-30x faster than full detail query
-     */
-    @Query("SELECT DISTINCT p FROM Product p " +
-           "WHERE p.isDeleted = false " +
-           "AND (:businessId IS NULL OR p.businessId = :businessId) " +
-           "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
-           "AND (:brandId IS NULL OR p.brandId = :brandId) " +
-           "AND (:statuses IS NULL OR p.status IN :statuses) " +
-           "AND (:needsPromotion IS NULL OR ((p.hasSizes = false AND p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP)) OR (p.hasSizes = true AND EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
-           "AND (:needsNoPromotion IS NULL OR ((p.hasSizes = false AND (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) OR (p.hasSizes = true AND NOT EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
-           "AND (:minPrice IS NULL OR (CASE " +
-           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
-           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
-           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
-           "  ELSE p.price " +
-           "END) >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR (CASE " +
-           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
-           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
-           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
-           "  ELSE p.price " +
-           "END) <= :maxPrice) " +
-           "AND (:hasSizes IS NULL OR p.hasSizes = :hasSizes) " +
-           "AND (:search IS NULL OR :search = '' OR " +
-           "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(p.categoryName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(p.brandName) LIKE LOWER(CONCAT('%', :search, '%')))")
-    Page<Product> findAllWithFiltersOptimized(
-        @Param("businessId") UUID businessId,
-        @Param("categoryId") UUID categoryId,
-        @Param("brandId") UUID brandId,
-        @Param("statuses") List<ProductStatus> statuses,
-        @Param("needsPromotion") Boolean needsPromotion,
-        @Param("needsNoPromotion") Boolean needsNoPromotion,
-        @Param("minPrice") BigDecimal minPrice,
-        @Param("maxPrice") BigDecimal maxPrice,
-        @Param("hasSizes") Boolean hasSizes,
-        @Param("search") String search,
-        Pageable pageable
-    );
-
-    /**
-     * Find all products with dynamic filtering - paginated - LEGACY (for detail views)
-     * OPTIMIZED: Uses has_active_promotion field instead of expensive EXISTS subqueries
-     * Uses denormalized categoryName/brandName fields - no FETCH joins (prevents Hibernate pagination warning)
-     * Collections are batch-loaded separately in service layer after pagination
-     */
-    @Query("SELECT DISTINCT p FROM Product p " +
-           "WHERE p.isDeleted = false " +
-           "AND (:businessId IS NULL OR p.businessId = :businessId) " +
-           "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
-           "AND (:brandId IS NULL OR p.brandId = :brandId) " +
-           "AND (:statuses IS NULL OR p.status IN :statuses) " +
-           "AND (:needsPromotion IS NULL OR ((p.hasSizes = false AND p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP)) OR (p.hasSizes = true AND EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
-           "AND (:needsNoPromotion IS NULL OR ((p.hasSizes = false AND (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) OR (p.hasSizes = true AND NOT EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
-           "AND (:minPrice IS NULL OR (CASE " +
-           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
-           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
-           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
-           "  ELSE p.price " +
-           "END) >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR (CASE " +
-           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
-           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
-           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
-           "  ELSE p.price " +
-           "END) <= :maxPrice) " +
-           "AND (:hasSizes IS NULL OR p.hasSizes = :hasSizes) " +
-           "AND (:stockStatuses IS NULL OR p.stockStatus IN :stockStatuses) " +
-           "AND (:search IS NULL OR :search = '' OR " +
-           "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(p.categoryName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(p.brandName) LIKE LOWER(CONCAT('%', :search, '%')))")
-    Page<Product> findAllWithFilters(
-        @Param("businessId") UUID businessId,
-        @Param("categoryId") UUID categoryId,
-        @Param("brandId") UUID brandId,
-        @Param("statuses") List<ProductStatus> statuses,
-        @Param("needsPromotion") Boolean needsPromotion,
-        @Param("needsNoPromotion") Boolean needsNoPromotion,
-        @Param("minPrice") BigDecimal minPrice,
-        @Param("maxPrice") BigDecimal maxPrice,
-        @Param("hasSizes") Boolean hasSizes,
-        @Param("stockStatuses") List<StockStatus> stockStatuses,
-        @Param("search") String search,
-        Pageable pageable
-    );
-
-    /**
-     * Find all products with dynamic filtering - non-paginated
-     * OPTIMIZED: Uses has_active_promotion field instead of expensive EXISTS subqueries
-     */
-    @Query("SELECT DISTINCT p FROM Product p " +
-           "LEFT JOIN FETCH p.category c " +
-           "LEFT JOIN FETCH p.brand b " +
-           "LEFT JOIN FETCH p.business bus " +
-           "LEFT JOIN FETCH p.images img " +
-           "WHERE p.isDeleted = false " +
-           "AND (:businessId IS NULL OR p.businessId = :businessId) " +
-           "AND (:categoryId IS NULL OR p.categoryId = :categoryId) " +
-           "AND (:brandId IS NULL OR p.brandId = :brandId) " +
-           "AND (:statuses IS NULL OR p.status IN :statuses) " +
-           "AND (:needsPromotion IS NULL OR ((p.hasSizes = false AND p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP)) OR (p.hasSizes = true AND EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
-           "AND (:needsNoPromotion IS NULL OR ((p.hasSizes = false AND (p.promotionType IS NULL OR p.promotionValue IS NULL OR CURRENT_TIMESTAMP < COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) OR CURRENT_TIMESTAMP > COALESCE(p.promotionToDate, CURRENT_TIMESTAMP))) OR (p.hasSizes = true AND NOT EXISTS (SELECT 1 FROM ProductSize ps WHERE ps.productId = p.id AND ps.isDeleted = false AND ps.promotionType IS NOT NULL AND ps.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(ps.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(ps.promotionToDate, CURRENT_TIMESTAMP))))) " +
-           "AND (:minPrice IS NULL OR (CASE " +
-           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
-           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
-           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
-           "  ELSE p.price " +
-           "END) >= :minPrice) " +
-           "AND (:maxPrice IS NULL OR (CASE " +
-           "  WHEN p.promotionType IS NOT NULL AND p.promotionValue IS NOT NULL AND CURRENT_TIMESTAMP >= COALESCE(p.promotionFromDate, CURRENT_TIMESTAMP) AND CURRENT_TIMESTAMP <= COALESCE(p.promotionToDate, CURRENT_TIMESTAMP) THEN " +
-           "    CASE WHEN p.promotionType = 'PERCENTAGE' THEN ROUND(p.price - (p.price * p.promotionValue / 100), 2) " +
-           "         ELSE GREATEST(0, p.price - p.promotionValue) END " +
-           "  ELSE p.price " +
-           "END) <= :maxPrice) " +
-           "AND (:search IS NULL OR :search = '' OR " +
-           "     LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "     LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%')))")
-    List<Product> findAllWithFilters(
-        @Param("businessId") UUID businessId,
-        @Param("categoryId") UUID categoryId,
-        @Param("brandId") UUID brandId,
-        @Param("statuses") List<ProductStatus> statuses,
-        @Param("needsPromotion") Boolean needsPromotion,
-        @Param("needsNoPromotion") Boolean needsNoPromotion,
-        @Param("minPrice") BigDecimal minPrice,
-        @Param("maxPrice") BigDecimal maxPrice,
-        @Param("search") String search,
-        Sort sort
-    );
 
     /**
      * Clear display promotion fields for products WITHOUT sizes whose promotion has expired
