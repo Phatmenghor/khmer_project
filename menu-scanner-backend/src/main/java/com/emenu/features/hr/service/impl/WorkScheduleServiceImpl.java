@@ -10,6 +10,7 @@ import com.emenu.features.hr.mapper.WorkScheduleMapper;
 import com.emenu.features.hr.models.WorkSchedule;
 import com.emenu.features.hr.repository.WorkScheduleRepository;
 import com.emenu.features.hr.service.WorkScheduleService;
+import com.emenu.features.hr.specification.WorkScheduleSpecification;
 import com.emenu.exception.custom.ResourceNotFoundException;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
@@ -60,10 +61,18 @@ public class WorkScheduleServiceImpl implements WorkScheduleService {
                 filter.getSortBy(), filter.getSortDirection()
         );
 
+<<<<<<< HEAD
         Page<WorkSchedule> page = repository.findWithFilters(
                 filter.getBusinessId(), filter.getUserId(),
                 filter.getSearch(), pageable
+=======
+        var spec = WorkScheduleSpecification.findWithFilters(
+                filter.getBusinessId(),
+                filter.getUserId(),
+                filter.getSearch()
+>>>>>>> fc973f5 (Convert HR services to JPA Specifications)
         );
+        Page<WorkSchedule> page = repository.findAll(spec, pageable);
 
         return paginationMapper.toPaginationResponse(page,
                 schedules -> schedules.stream()

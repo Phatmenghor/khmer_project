@@ -13,6 +13,7 @@ import com.emenu.features.hr.mapper.LeaveMapper;
 import com.emenu.features.hr.models.Leave;
 import com.emenu.features.hr.repository.LeaveRepository;
 import com.emenu.features.hr.service.LeaveService;
+import com.emenu.features.hr.specification.LeaveSpecification;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -69,6 +70,7 @@ public class LeaveServiceImpl implements LeaveService {
                 filter.getSortBy(), filter.getSortDirection()
         );
 
+<<<<<<< HEAD
         List<LeaveStatusEnum> statuses = (filter.getStatuses() != null && !filter.getStatuses().isEmpty())
                 ? filter.getStatuses() : null;
 
@@ -77,7 +79,21 @@ public class LeaveServiceImpl implements LeaveService {
                 filter.getLeaveTypeEnum(), statuses,
                 filter.getStartDate(), filter.getEndDate(),
                 filter.getSearch(), pageable
+=======
+        List<LeaveStatusEnum> leaveStatusEnums = (filter.getStatuses() != null && !filter.getStatuses().isEmpty())
+                ? filter.getStatuses() : null;
+
+        var spec = LeaveSpecification.findWithFilters(
+                filter.getBusinessId(),
+                filter.getUserId(),
+                filter.getLeaveTypeEnum(),
+                leaveStatusEnums,
+                filter.getStartDate(),
+                filter.getEndDate(),
+                filter.getSearch()
+>>>>>>> fc973f5 (Convert HR services to JPA Specifications)
         );
+        Page<Leave> page = repository.findAll(spec, pageable);
 
         return paginationMapper.toPaginationResponse(page,
                 leaves -> leaves.stream()
