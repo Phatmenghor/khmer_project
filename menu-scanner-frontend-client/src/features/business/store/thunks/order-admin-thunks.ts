@@ -9,9 +9,22 @@ export const fetchAllOrderAdminService = createApiThunk<
   any,
   AllOrderAdminRequest
 >("ordersAdmin/fetchAll", async (params) => {
+  const payload = {
+    search: params.search || "",
+    pageNo: params.pageNo || 1,
+    pageSize: params.pageSize || 15,
+    sortBy: params.sortBy || "createdAt",
+    sortDirection: params.sortDirection || "DESC",
+    ...(params.businessId && { businessId: params.businessId }),
+    ...(params.orderStatus && { orderStatus: params.orderStatus }),
+    ...(params.paymentStatus && { paymentStatus: params.paymentStatus }),
+    ...(params.startDate && { startDate: params.startDate }),
+    ...(params.endDate && { endDate: params.endDate }),
+  };
+  
   const response = await axiosClientWithAuth.post(
     "/api/v1/orders/all",
-    params
+    payload
   );
   return response.data.data;
 });
