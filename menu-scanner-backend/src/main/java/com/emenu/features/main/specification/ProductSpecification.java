@@ -33,7 +33,22 @@ public class ProductSpecification extends BaseSpecification {
     }
 
     public static Specification<Product> byHasPromotion(Boolean hasPromotion) {
-        return filterByField("hasActivePromotion", hasPromotion);
+        return (root, query, cb) -> {
+            if (hasPromotion == null) {
+                return cb.conjunction();
+            }
+            if (hasPromotion) {
+                return cb.and(
+                        cb.isNotNull(root.get("promotionType")),
+                        cb.isNotNull(root.get("promotionValue"))
+                );
+            } else {
+                return cb.or(
+                        cb.isNull(root.get("promotionType")),
+                        cb.isNull(root.get("promotionValue"))
+                );
+            }
+        };
     }
 
     public static Specification<Product> byHasSize(Boolean hasSize) {
