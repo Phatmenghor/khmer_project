@@ -32,6 +32,8 @@ import { selectGlobalPageSize } from "@/store/selectors/global-settings-selector
 import { useAppSelector } from "@/store";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 export default function PendingOrdersAdminPage() {
   useAdminCleanup(resetState);
@@ -117,17 +119,84 @@ export default function PendingOrdersAdminPage() {
       element.style.position = "absolute";
       element.style.left = "-9999px";
       element.style.width = "80mm";
+      element.style.height = "auto";
+
+      // Create receipt HTML directly
+      const subtotal = order.pricing?.subtotal || 0;
+      const discount = order.pricing?.discountAmount || 0;
+      const tax = order.pricing?.taxAmount || 0;
+      const delivery = order.pricing?.deliveryFee || 0;
+      const total = order.pricing?.finalTotal || 0;
+
+      const itemsHTML = order.items.map(item => `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px;">
+          <span>${item.productName} x${item.quantity}</span>
+          <span>${(item.finalPrice || 0).toFixed(2)}</span>
+        </div>
+      `).join('');
+
+      element.innerHTML = `
+        <div style="font-family: monospace; font-size: 11px; width: 80mm; padding: 4mm; background: white;">
+          <div style="text-align: center; margin-bottom: 8px; border-bottom: 1px solid #000;">
+            <div style="font-weight: bold; font-size: 13px; margin-bottom: 4px;">RECEIPT</div>
+            <div style="font-size: 10px; margin-bottom: 2px;">Order #${order.orderNumber}</div>
+            <div style="font-size: 9px; margin-bottom: 2px;">${new Date(order.createdAt).toLocaleDateString()}</div>
+            <div style="font-size: 9px;">${new Date(order.createdAt).toLocaleTimeString()}</div>
+          </div>
+
+          <div style="margin: 8px 0;">
+            ${itemsHTML}
+          </div>
+
+          <div style="border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 4px 0; margin: 8px 0;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+              <span>Subtotal:</span>
+              <span>$${subtotal.toFixed(2)}</span>
+            </div>
+            ${discount > 0 ? `<div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+              <span>Discount:</span>
+              <span>-$${discount.toFixed(2)}</span>
+            </div>` : ''}
+            ${delivery > 0 ? `<div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+              <span>Delivery:</span>
+              <span>$${delivery.toFixed(2)}</span>
+            </div>` : ''}
+            ${tax > 0 ? `<div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+              <span>Tax:</span>
+              <span>$${tax.toFixed(2)}</span>
+            </div>` : ''}
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 12px; margin: 8px 0;">
+            <span>TOTAL:</span>
+            <span>$${total.toFixed(2)}</span>
+          </div>
+
+          <div style="text-align: center; margin-top: 8px; font-size: 9px;">
+            <div>Payment: ${order.payment?.paymentStatus || 'PAID'}</div>
+            <div style="margin-top: 4px;">Thank you!</div>
+          </div>
+        </div>
+      `;
+
       document.body.appendChild(element);
 
-      const canvas = await html2canvas(element);
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
-        format: [80, 150],
+        format: [80, 200],
       });
 
       const imgData = canvas.toDataURL("image/png");
-      pdf.addImage(imgData, "PNG", 0, 0, 80, 150);
+      const imgHeight = (canvas.height * 80) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, 80, imgHeight);
       pdf.save(`receipt-${order.orderNumber}.pdf`);
 
       document.body.removeChild(element);
