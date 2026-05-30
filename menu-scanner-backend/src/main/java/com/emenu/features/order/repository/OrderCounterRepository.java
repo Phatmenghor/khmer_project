@@ -2,6 +2,7 @@ package com.emenu.features.order.repository;
 
 import com.emenu.features.order.models.OrderCounter;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -11,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface OrderCounterRepository extends JpaRepository<OrderCounter, UUID> {
+public interface OrderCounterRepository extends JpaRepository<OrderCounter, UUID>, JpaSpecificationExecutor<OrderCounter> {
 
     Optional<OrderCounter> findByCounterDate(LocalDate counterDate);
 

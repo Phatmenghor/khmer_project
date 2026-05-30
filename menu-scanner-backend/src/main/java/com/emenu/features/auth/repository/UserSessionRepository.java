@@ -4,6 +4,7 @@ import com.emenu.features.auth.models.UserSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserSessionRepository extends JpaRepository<UserSession, UUID> {
+public interface UserSessionRepository extends JpaRepository<UserSession, UUID>, JpaSpecificationExecutor<UserSession> {
     Optional<UserSession> findByIdAndUserIdAndIsDeletedFalse(UUID id, UUID userId);
 
     @Query("SELECT s FROM UserSession s LEFT JOIN FETCH s.user WHERE s.id = :id AND s.isDeleted = false")

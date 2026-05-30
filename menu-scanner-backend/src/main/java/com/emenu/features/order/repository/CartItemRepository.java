@@ -5,6 +5,7 @@ import com.emenu.features.order.dto.SizeCartQuantityProjection;
 import com.emenu.features.order.models.CartItem;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
+public interface CartItemRepository extends JpaRepository<CartItem, UUID>, JpaSpecificationExecutor<CartItem> {
 
     Optional<CartItem> findByIdAndIsDeletedFalse(UUID id);
 

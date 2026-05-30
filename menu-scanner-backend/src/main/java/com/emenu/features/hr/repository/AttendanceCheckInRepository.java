@@ -3,6 +3,7 @@ package com.emenu.features.hr.repository;
 import com.emenu.enums.hr.CheckInType;
 import com.emenu.features.hr.models.AttendanceCheckIn;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface AttendanceCheckInRepository extends JpaRepository<AttendanceCheckIn, UUID> {
+public interface AttendanceCheckInRepository extends JpaRepository<AttendanceCheckIn, UUID>, JpaSpecificationExecutor<AttendanceCheckIn> {
 
     List<AttendanceCheckIn> findByAttendanceIdAndIsDeletedFalse(UUID attendanceId);
 
