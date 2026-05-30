@@ -69,6 +69,15 @@ public class OrderSpecification {
         };
     }
 
+    public static Specification<Order> searchByOrderNumber(String search) {
+        return (root, query, cb) -> {
+            if (search == null || search.isBlank()) {
+                return cb.conjunction();
+            }
+            return cb.like(cb.lower(root.get("orderNumber")), "%" + search.toLowerCase() + "%");
+        };
+    }
+
     public static Specification<Order> buildFilterSpecification(
             UUID businessId,
             OrderStatus orderStatus,

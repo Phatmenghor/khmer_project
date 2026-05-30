@@ -58,6 +58,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -243,11 +244,11 @@ public class OrderServiceImpl implements OrderService {
             filter.setBusinessId(currentUser.getBusinessId());
         }
 
-        Pageable pageable = PaginationUtils.createPageableForNativeQuery(
+        Pageable pageable = PaginationUtils.createPageable(
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
-        // Apply filters: businessId, orderStatus, paymentMethod, paymentStatus, date range
+        // Apply filters: businessId, orderStatus, paymentStatus, date range, search by order number
         long queryStartTime = System.currentTimeMillis();
         LocalDateTime startDate = null;
         if (filter.getStartDate() != null && !filter.getStartDate().isBlank()) {
@@ -267,14 +268,16 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        Page<Order> page = orderRepository.findByFiltersAndOrderNumber(
+        Specification<Order> spec = OrderSpecification.buildFilterSpecification(
                 filter.getBusinessId(),
-                filter.getOrderStatus() != null ? filter.getOrderStatus().toString() : null,
-                filter.getPaymentStatus() != null ? filter.getPaymentStatus().toString() : null,
+                filter.getOrderStatus(),
+                null,
+                filter.getPaymentStatus(),
                 startDate,
-                endDate,
-                filter.getSearch(),
-                pageable);
+                endDate
+        ).and(OrderSpecification.searchByOrderNumber(filter.getSearch()));
+
+        Page<Order> page = orderRepository.findAll(spec, pageable);
         long queryDuration = System.currentTimeMillis() - queryStartTime;
         log.info("[DB QUERY COMPLETE] Retrieved {} orders (query took {} ms) | Total: {} | Pages: {}",
                 page.getNumberOfElements(), queryDuration, page.getTotalElements(), page.getTotalPages());
