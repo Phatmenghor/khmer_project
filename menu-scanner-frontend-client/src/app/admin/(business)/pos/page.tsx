@@ -1251,7 +1251,18 @@ export default function PosPage() {
           isEditing={!!editingCartItemId}
           cartItems={cartItems}
           initialQuantities={new Map(
-            cartItems.map((item) => [item.id, item.quantity])
+            cartItems.map((item) => {
+              const sizeId = item.productSizeId || "__no_size__";
+              const customKey =
+                item.customizations && item.customizations.length > 0
+                  ? `-${item.customizations
+                      .map((c) => c.productCustomizationId)
+                      .sort()
+                      .join("-")}`
+                  : "";
+              const mapKey = `${sizeId}${customKey}`;
+              return [mapKey, item.quantity];
+            })
           )}
           initialCustomizations={
             editingCartItemId
