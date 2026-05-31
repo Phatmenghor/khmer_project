@@ -139,7 +139,7 @@ export default function SignupPage() {
           </div>
 
           {/* Card body */}
-          <CardContent className="px-8 py-7 space-y-5">
+          <CardContent className="px-8 py-7 space-y-5 max-h-[calc(100vh-300px)] overflow-y-auto">
 
             {/* Registration form */}
             <form onSubmit={form.handleSubmit(handleSignupSubmit)} className="space-y-4">
