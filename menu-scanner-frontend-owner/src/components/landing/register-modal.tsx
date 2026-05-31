@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -32,6 +33,8 @@ const schema = z
     businessEmail: z.string().email("Invalid business email"),
     businessPhone: z.string().min(6, "Business phone is required"),
     businessAddress: z.string().min(1, "Business address is required"),
+    enableStockManagement: z.boolean().default(false),
+    primaryColor: z.string().regex(/^#[0-9A-F]{6}$/i, "Invalid color format (use #RRGGBB)").optional(),
   })
   .refine((d) => d.ownerPassword === d.confirmPassword, {
     message: "Passwords do not match",
@@ -64,6 +67,8 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    setValue,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -77,6 +82,8 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       businessEmail: "",
       businessPhone: "",
       businessAddress: "",
+      enableStockManagement: false,
+      primaryColor: "#007BFF",
     },
     mode: "onChange",
   });
@@ -94,6 +101,8 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         businessEmail: values.businessEmail,
         businessPhone: values.businessPhone,
         businessAddress: values.businessAddress,
+        enableStockManagement: values.enableStockManagement,
+        primaryColor: values.primaryColor,
       };
 
       // Include planId if user selected a plan from pricing page
@@ -270,6 +279,39 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                     error={errors.businessAddress}
                     disabled={isSubmitting}
                     required
+                  />
+                </div>
+              </div>
+
+              {/* Settings section */}
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">3</span>
+                  Settings
+                </h3>
+                <div className="space-y-5">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Enable Stock Management</label>
+                    <div className="flex items-center gap-3 p-3 border rounded-md bg-muted/30">
+                      <Switch
+                        checked={watch("enableStockManagement")}
+                        onCheckedChange={(checked) => setValue("enableStockManagement", checked)}
+                        disabled={isSubmitting}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {watch("enableStockManagement") ? "Enabled" : "Disabled"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <TextField
+                    name="primaryColor"
+                    label="Primary Color (Optional)"
+                    placeholder="#007BFF"
+                    type="color"
+                    control={control}
+                    error={errors.primaryColor}
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
