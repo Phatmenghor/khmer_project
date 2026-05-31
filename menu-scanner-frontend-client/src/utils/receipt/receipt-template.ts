@@ -67,31 +67,31 @@ export function generateReceiptHTML(order: OrderResponse): string {
     .join("");
 
   const summaryRows = `
-        <tr style="border: none;">
-          <td colspan="4" style="text-align: left; border: none;">Subtotal</td>
-          <td style="text-align: right; padding-right: 4px; border: none;">${formatPrice(subtotal + customizationTotal)}</td>
+        <tr style="border: none; height: 18px;">
+          <td colspan="4" style="text-align: left; border: none; padding: 2px 0;">Subtotal</td>
+          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">${formatPrice(subtotal + customizationTotal)}</td>
         </tr>
         ${discount > 0 ? `
-        <tr style="border: none;">
-          <td colspan="4" style="text-align: left; border: none;">Discount</td>
-          <td style="text-align: right; padding-right: 4px; border: none;">-${formatPrice(discount)}</td>
+        <tr style="border: none; height: 18px;">
+          <td colspan="4" style="text-align: left; border: none; padding: 2px 0;">Discount</td>
+          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">-${formatPrice(discount)}</td>
         </tr>
-        <tr style="border: none;">
-          <td colspan="4" style="text-align: left; border: none;">After Discount</td>
-          <td style="text-align: right; padding-right: 4px; border: none;">${formatPrice(subtotal + customizationTotal - discount)}</td>
+        <tr style="border: none; height: 18px;">
+          <td colspan="4" style="text-align: left; border: none; padding: 2px 0;">After Discount</td>
+          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">${formatPrice(subtotal + customizationTotal - discount)}</td>
         </tr>` : ""}
-        <tr style="border: none;">
-          <td colspan="4" style="text-align: left; border: none;">Tax (${order.pricing?.taxPercentage || 0}%)</td>
-          <td style="text-align: right; padding-right: 4px; border: none;">+${formatPrice(tax)}</td>
+        <tr style="border: none; height: 18px;">
+          <td colspan="4" style="text-align: left; border: none; padding: 2px 0;">Tax (${order.pricing?.taxPercentage || 0}%)</td>
+          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">+${formatPrice(tax)}</td>
         </tr>
         ${delivery > 0 ? `
-        <tr style="border: none;">
-          <td colspan="4" style="text-align: left; border: none;">Delivery Fee</td>
-          <td style="text-align: right; padding-right: 4px; border: none;">+${formatPrice(delivery)}</td>
+        <tr style="border: none; height: 18px;">
+          <td colspan="4" style="text-align: left; border: none; padding: 2px 0;">Delivery Fee</td>
+          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">+${formatPrice(delivery)}</td>
         </tr>` : ""}
-        <tr style="border: none;">
-          <td style="text-align: left; border: none;">Payment</td>
-          <td colspan="4" style="text-align: right; padding-right: 4px; border: none;">${order.payment?.paymentMethod || "N/A"}</td>
+        <tr style="border: none; height: 18px;">
+          <td style="text-align: left; border: none; padding: 2px 0;">Payment</td>
+          <td colspan="4" style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">${order.payment?.paymentMethod || "N/A"}</td>
         </tr>
         <tr style="border-top: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; height: 28px;">
           <td colspan="4" style="text-align: left;">TOTAL AMOUNT</td>
