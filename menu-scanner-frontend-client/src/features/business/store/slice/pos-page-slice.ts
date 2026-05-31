@@ -10,7 +10,7 @@ import {
   createPOSPageOrderService,
 } from "../thunks/pos-page-thunks";
 import { ProductDetailResponseModel } from "../models/response/product-response";
-import { OrderApiResponse } from "../models/response/order-api-response";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { DeliveryOptionsResponseModel } from "@/features/master-data/store/models/response/delivery-options-response";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
@@ -147,7 +147,7 @@ const posPageSlice = createSlice({
     clearProductCustomizations: (state, action: PayloadAction<string>) => {
       delete state.lastSelectedCustomizations[action.payload];
     },
-    setSuccessOrder: (state, action: PayloadAction<OrderApiResponse | null>) => {
+    setSuccessOrder: (state, action: PayloadAction<OrderResponse | null>) => {
       state.successOrder = action.payload;
     },
     setShowOrderDetailsModal: (state, action: PayloadAction<boolean>) => {
@@ -241,11 +241,7 @@ const posPageSlice = createSlice({
       .addCase(createPOSPageOrderService.pending, (state) => {
         state.isSubmitting = true;
       })
-      .addCase(createPOSPageOrderService.fulfilled, (state, action) => {
-        state.successOrder = {
-          orderNumber: action.payload.orderNumber,
-          total: action.payload.total,
-        };
+      .addCase(createPOSPageOrderService.fulfilled, (state) => {
         state.cartItems = [];
         state.cartPricing = null;
         state.customerNote = "";

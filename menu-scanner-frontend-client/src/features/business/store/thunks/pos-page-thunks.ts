@@ -6,7 +6,8 @@ import { axiosClientWithAuth } from "@/utils/axios";
 import { ProductDetailResponseModel } from "../models/response/product-response";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
-import { POSCheckoutRequest, POSCheckoutResponse } from "../models/request/pos-checkout-request";
+import { POSCheckoutRequest } from "../models/request/pos-checkout-request";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
 
 interface FetchProductsParams {
   page: number;
@@ -129,7 +130,7 @@ export const createPOSCheckoutOrderService = createAsyncThunk(
   async (params: POSCheckoutRequest, { rejectWithValue }) => {
     try {
       const response = await axiosClientWithAuth.post<{
-        data: POSCheckoutResponse;
+        data: OrderResponse;
       }>("/api/v1/orders/checkout-from-pos", params);
       return response.data.data;
     } catch (error: unknown) {

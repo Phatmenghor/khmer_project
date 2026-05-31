@@ -5,7 +5,7 @@ import { ProductDetailResponseModel } from "../response/product-response";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { DeliveryOptionsResponseModel } from "@/features/master-data/store/models/response/delivery-options-response";
-import { OrderApiResponse } from "../response/order-api-response";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
 
 
 export interface PosPageCartItemCustomization {
@@ -89,7 +89,7 @@ export interface POSPageState {
   sizePickerProduct: ProductDetailResponseModel | null;
   editingCartItemId: string | null;
   lastSelectedCustomizations: Record<string, string[]>;
-  successOrder: OrderApiResponse | null;
+  successOrder: OrderResponse | null;
   showOrderDetailsModal: boolean;
 
 

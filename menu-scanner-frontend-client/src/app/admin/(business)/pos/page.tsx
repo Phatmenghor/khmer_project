@@ -108,6 +108,7 @@ import { fetchAllDeliveryOptionsService } from "@/features/master-data/store/thu
 import { fetchAllPaymentOptionsService } from "@/features/master-data/store/thunks/payment-options-thunks";
 import { AppDispatch, RootState } from "@/store";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { useSelector } from "react-redux";
@@ -763,7 +764,7 @@ export default function PosPage() {
     try {
       const result = await dispatch(createPOSCheckoutOrderService(payload));
       if (result.payload) {
-        dispatch(setSuccessOrder(result.payload as any));
+        dispatch(setSuccessOrder(result.payload as OrderResponse));
         dispatch(clearCartItems());
         dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));

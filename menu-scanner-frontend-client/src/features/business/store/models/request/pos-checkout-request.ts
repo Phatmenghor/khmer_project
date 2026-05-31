@@ -97,28 +97,3 @@ export interface POSCheckoutRequest {
   customerNote?: string;
   businessNote?: string;
 }
-
-export interface POSCheckoutResponse {
-  id: string;
-  orderNumber: string;
-
-  subtotal: number;
-  customizationTotal?: number;
-  deliveryFee: number;
-
-  taxPercentage: number;
-  taxAmount: number;
-
-  discountAmount: number;
-
-  totalAmount: number;
-
-  orderStatus: string;
-  source: string;
-  paymentMethod: string;
-  paymentStatus: string;
-  createdBy: string;
-  createdAt: string;
-  customerName?: string;
-  customerPhone?: string;
-}
