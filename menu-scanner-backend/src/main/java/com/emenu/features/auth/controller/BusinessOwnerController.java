@@ -99,6 +99,14 @@ public class BusinessOwnerController {
         return ResponseEntity.ok(ApiResponse.success("Business owner deleted successfully", response));
     }
 
+    @PostMapping("/{businessId}/initialize-defaults")
+    public ResponseEntity<ApiResponse<String>> initializeBusinessDefaults(
+            @PathVariable UUID businessId) {
+        log.info("Endpoint: business-owners/{}/initialize-defaults - initialization request received", businessId);
+        businessOwnerService.initializeBusinessDefaultsForExisting(businessId);
+        return ResponseEntity.ok(ApiResponse.success("Business defaults initialized successfully", "Defaults created or already exist"));
+    }
+
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> registerBusinessOwner(
             @Valid @RequestBody BusinessOwnerPublicRegisterRequest registerRequest) {

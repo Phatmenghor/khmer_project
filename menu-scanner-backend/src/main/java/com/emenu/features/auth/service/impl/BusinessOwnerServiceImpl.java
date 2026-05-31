@@ -777,6 +777,38 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 businessId, enableStock, creationRequestData.getPrimaryColor());
     }
 
+    public void initializeBusinessDefaultsForExisting(UUID businessId) {
+        log.info("Initializing defaults for existing business: business_id={}", businessId);
+        Business business = businessRepository.findById(businessId)
+                .orElseThrow(() -> new ValidationException("Business not found"));
+
+        // Create default delivery option: Pickup (if not exists)
+        boolean hasPickupDelivery = deliveryOptionRepository.existsByNameAndBusinessIdAndIsDeletedFalse("Pickup", businessId);
+        if (!hasPickupDelivery) {
+            DeliveryOption deliveryOption = new DeliveryOption();
+            deliveryOption.setBusinessId(businessId);
+            deliveryOption.setName("Pickup");
+            deliveryOption.setStatus(Status.ACTIVE);
+            deliveryOption.setPrice(BigDecimal.ZERO);
+            deliveryOptionRepository.save(deliveryOption);
+            log.info("Pickup delivery option created: business_id={}", businessId);
+        }
+
+        // Create default payment option: Cash (if not exists)
+        boolean hasCashPayment = paymentOptionRepository.existsByBusinessIdAndPaymentOptionTypeAndIsDeletedFalse(businessId, PaymentOptionType.CASH);
+        if (!hasCashPayment) {
+            PaymentOption cashPaymentOption = new PaymentOption();
+            cashPaymentOption.setBusinessId(businessId);
+            cashPaymentOption.setName("Cash");
+            cashPaymentOption.setPaymentOptionType(PaymentOptionType.CASH);
+            cashPaymentOption.setStatus(Status.ACTIVE);
+            paymentOptionRepository.save(cashPaymentOption);
+            log.info("Cash payment option created: business_id={}", businessId);
+        }
+
+        log.info("Business defaults initialization completed: business_id={}", businessId);
+    }
+
     private void initializeBusinessDefaults(UUID businessId) {
         // Create default portfolio profile with business name only
         Business business = businessRepository.findById(businessId).orElseThrow();

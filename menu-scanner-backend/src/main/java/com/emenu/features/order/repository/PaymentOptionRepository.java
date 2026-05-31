@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.emenu.enums.payment.PaymentOptionType;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,5 +79,16 @@ public interface PaymentOptionRepository extends JpaRepository<PaymentOption, UU
         ORDER BY p.name ASC
     """)
     List<PaymentOption> findAllActive();
+
+    @Query("""
+        SELECT COUNT(p) > 0 FROM PaymentOption p
+        WHERE p.businessId = :businessId
+        AND p.paymentOptionType = :paymentOptionType
+        AND p.isDeleted = false
+    """)
+    boolean existsByBusinessIdAndPaymentOptionTypeAndIsDeletedFalse(
+            @Param("businessId") UUID businessId,
+            @Param("paymentOptionType") PaymentOptionType paymentOptionType
+    );
 }
 
