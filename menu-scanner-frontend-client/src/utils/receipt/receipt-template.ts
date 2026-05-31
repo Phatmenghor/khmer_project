@@ -33,7 +33,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
       const sizeName = item.product?.sizeName || item.sizeName;
       const itemTotal = (item.finalPrice || 0) * item.quantity;
 
-      let discount = "";
+      let discount = "0%";
       if (item.hasPromotion && item.promotionType) {
         discount = item.promotionType === "PERCENTAGE"
           ? `${item.promotionValue}%`
