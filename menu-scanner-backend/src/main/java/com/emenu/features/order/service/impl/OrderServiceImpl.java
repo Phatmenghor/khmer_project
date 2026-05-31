@@ -946,6 +946,22 @@ public class OrderServiceImpl implements OrderService {
 
             log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
+            log.info("[POS CHECKOUT RESPONSE] id={}, orderNumber={}, orderStatus={}, source={}, businessName={}, customerName={}, items={}, pricing.subtotal={}, pricing.customizationTotal={}, pricing.deliveryFee={}, pricing.taxAmount={}, pricing.finalTotal={}, payment.method={}, payment.status={}",
+                response.getId(),
+                response.getOrderNumber(),
+                response.getOrderStatus(),
+                response.getSource(),
+                response.getBusinessName(),
+                response.getCustomerName(),
+                response.getItems() != null ? response.getItems().size() : "null",
+                response.getPricing() != null ? response.getPricing().getSubtotal() : "null",
+                response.getPricing() != null ? response.getPricing().getCustomizationTotal() : "null",
+                response.getPricing() != null ? response.getPricing().getDeliveryFee() : "null",
+                response.getPricing() != null ? response.getPricing().getTaxAmount() : "null",
+                response.getPricing() != null ? response.getPricing().getFinalTotal() : "null",
+                response.getPayment() != null ? response.getPayment().getPaymentMethod() : "null",
+                response.getPayment() != null ? response.getPayment().getPaymentStatus() : "null"
+            );
 
             telegramNotificationService.notifyNewPOSOrder(orderWithItems);
             webSocketNotificationService.notifyNewOrder(orderWithItems);
