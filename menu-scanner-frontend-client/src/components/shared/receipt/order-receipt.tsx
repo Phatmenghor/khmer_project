@@ -168,14 +168,13 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
                       )}
 
                       {item.customizations && item.customizations.length > 0 && (
-                        <div className="ml-4 mt-2 text-xs">
-                          <p className="font-semibold text-gray-700 mb-1">Add-ons:</p>
-                          {item.customizations.map((custom, idx) => (
-                            <div key={idx} className="flex justify-between text-gray-600">
-                              <span>  • {custom.name}</span>
-                              <span>+{formatCurrency(custom.priceAdjustment)}</span>
-                            </div>
-                          ))}
+                        <div className="ml-4 mt-0.5 text-xs flex justify-between text-gray-600">
+                          <span className="truncate">
+                            +{item.customizations.map((c) => c.name).join(", ")}
+                          </span>
+                          <span className="ml-2 shrink-0">
+                            +{formatCurrency(item.customizations.reduce((s, c) => s + (c.priceAdjustment || 0), 0))}
+                          </span>
                         </div>
                       )}
                     </div>
