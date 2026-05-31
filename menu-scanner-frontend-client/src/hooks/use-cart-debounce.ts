@@ -3,13 +3,12 @@
 import { Messages } from "@/constants/messages";
 import { useRef, useEffect, useCallback } from "react";
 import { AppDispatch } from "@/store";
-import {
-  updateCartItem,
-} from "@/features/main/store/thunks/cart-thunks";
+import { updateCartItem } from "@/features/main/store/thunks/cart-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
 
-const DEBOUNCE_DELAY = 500;
-
+// How long to wait after the in-flight call finishes before firing the queued update.
+// This batches any extra clicks that arrived while the API was busy.
+const TRAILING_DELAY = 50;
 
 function isAbortError(error: any): boolean {
   return (
@@ -24,9 +23,7 @@ function isAbortError(error: any): boolean {
   );
 }
 
-
 export function useCartDebounce(dispatch: AppDispatch) {
-
   const timersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   const pendingUpdatesRef = useRef<
@@ -43,7 +40,6 @@ export function useCartDebounce(dispatch: AppDispatch) {
   >(new Map());
 
   const isProcessingRef = useRef<Map<string, boolean>>(new Map());
-
   const activePromisesRef = useRef<Map<string, { abort: () => void }>>(new Map());
 
   useEffect(() => {
@@ -69,23 +65,15 @@ export function useCartDebounce(dispatch: AppDispatch) {
 
       const { productId, productSizeId, quantity, customizationIds, optimisticTimestamp } = args;
 
-      const thunkAction = updateCartItem({
-        productId,
-        productSizeId,
-        quantity,
-        customizationIds,
-        optimisticTimestamp,
-      });
-
-      const promise = dispatch(thunkAction);
+      const promise = dispatch(
+        updateCartItem({ productId, productSizeId, quantity, customizationIds, optimisticTimestamp })
+      );
       activePromisesRef.current.set(key, promise);
 
       promise
         .unwrap()
         .then(() => {
-          if (quantity === 0) {
-            showToast.success(Messages.cart.removed);
-          }
+          if (quantity === 0) showToast.success(Messages.cart.removed);
         })
         .catch((error: unknown) => {
           if (isAbortError(error)) return;
@@ -94,12 +82,27 @@ export function useCartDebounce(dispatch: AppDispatch) {
         .finally(() => {
           activePromisesRef.current.delete(key);
           isProcessingRef.current.set(key, false);
-          processQueue(key);
+
+          // If more clicks arrived while this call was in-flight, fire them now
+          if (pendingUpdatesRef.current.has(key)) {
+            const t = timersRef.current.get(key);
+            if (t) clearTimeout(t);
+            timersRef.current.set(key, setTimeout(() => {
+              timersRef.current.delete(key);
+              processQueue(key);
+            }, TRAILING_DELAY));
+          }
         });
     },
     [dispatch]
   );
 
+  /**
+   * Fire immediately if idle for this key (no API in-flight, no pending timer).
+   * If an API call is already in-flight, queue the update — it will be sent as
+   * a single trailing call once the current one finishes.
+   * Result: first click → 0ms latency; rapid clicks → max 2 API calls total.
+   */
   const debouncedUpdate = useCallback(
     (
       key: string,
@@ -119,20 +122,21 @@ export function useCartDebounce(dispatch: AppDispatch) {
         optimisticTimestamp,
       });
 
+      // Cancel any existing trailing timer (we have a fresher value now)
       const existingTimer = timersRef.current.get(key);
       if (existingTimer) clearTimeout(existingTimer);
 
-      timersRef.current.set(
-        key,
-        setTimeout(() => {
-          timersRef.current.delete(key);
-          processQueue(key);
-        }, DEBOUNCE_DELAY)
-      );
+      if (!isProcessingRef.current.get(key)) {
+        // Idle — fire immediately, no wait
+        timersRef.current.delete(key);
+        processQueue(key);
+      }
+      // else: API in-flight — pending map already updated, .finally() will pick it up
     },
     [processQueue]
   );
 
+  /** Skip the debounce entirely — fire right now regardless of in-flight state. */
   const immediateUpdate = useCallback(
     (
       key: string,
@@ -167,15 +171,11 @@ export function useCartDebounce(dispatch: AppDispatch) {
   }, []);
 
   const isUpdating = useCallback((key: string): boolean => {
-    return (
-      timersRef.current.has(key) ||
-      isProcessingRef.current.get(key) === true
-    );
+    return timersRef.current.has(key) || isProcessingRef.current.get(key) === true;
   }, []);
 
   return { debouncedUpdate, immediateUpdate, cancelAll, isUpdating };
 }
-
 
 export function cartItemKey(
   productId: string,
