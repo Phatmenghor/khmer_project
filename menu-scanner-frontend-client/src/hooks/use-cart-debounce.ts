@@ -6,9 +6,7 @@ import { AppDispatch } from "@/store";
 import { updateCartItem } from "@/features/main/store/thunks/cart-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
 
-// How long to wait after the in-flight call finishes before firing the queued update.
-// This batches any extra clicks that arrived while the API was busy.
-const TRAILING_DELAY = 50;
+const DEBOUNCE_DELAY = 400;
 
 function isAbortError(error: any): boolean {
   return (
@@ -82,26 +80,15 @@ export function useCartDebounce(dispatch: AppDispatch) {
         .finally(() => {
           activePromisesRef.current.delete(key);
           isProcessingRef.current.set(key, false);
-
-          // If more clicks arrived while this call was in-flight, fire them now
-          if (pendingUpdatesRef.current.has(key)) {
-            const t = timersRef.current.get(key);
-            if (t) clearTimeout(t);
-            timersRef.current.set(key, setTimeout(() => {
-              timersRef.current.delete(key);
-              processQueue(key);
-            }, TRAILING_DELAY));
-          }
         });
     },
     [dispatch]
   );
 
   /**
-   * Fire immediately if idle for this key (no API in-flight, no pending timer).
-   * If an API call is already in-flight, queue the update — it will be sent as
-   * a single trailing call once the current one finishes.
-   * Result: first click → 0ms latency; rapid clicks → max 2 API calls total.
+   * Trailing debounce: resets the timer on every call.
+   * API fires once, 400ms after the last click — no matter how fast the user clicks.
+   * UI updates instantly via optimistic Redux state on every click.
    */
   const debouncedUpdate = useCallback(
     (
@@ -114,6 +101,7 @@ export function useCartDebounce(dispatch: AppDispatch) {
     ) => {
       if (!productId) return;
 
+      // Always overwrite with the latest value
       pendingUpdatesRef.current.set(key, {
         productId,
         productSizeId,
@@ -122,16 +110,17 @@ export function useCartDebounce(dispatch: AppDispatch) {
         optimisticTimestamp,
       });
 
-      // Cancel any existing trailing timer (we have a fresher value now)
+      // Reset timer — only the last click within the window fires the API
       const existingTimer = timersRef.current.get(key);
       if (existingTimer) clearTimeout(existingTimer);
 
-      if (!isProcessingRef.current.get(key)) {
-        // Idle — fire immediately, no wait
-        timersRef.current.delete(key);
-        processQueue(key);
-      }
-      // else: API in-flight — pending map already updated, .finally() will pick it up
+      timersRef.current.set(
+        key,
+        setTimeout(() => {
+          timersRef.current.delete(key);
+          processQueue(key);
+        }, DEBOUNCE_DELAY)
+      );
     },
     [processQueue]
   );
