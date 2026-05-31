@@ -130,12 +130,12 @@ export function generateReceiptHTML(order: OrderResponse): string {
       <div style="border-bottom: 1px solid #000; padding: 4px 0; margin: 4px 0;">
         <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
           <thead>
-            <tr style="border-bottom: 1px solid #000; height: 24px; background: transparent; background-color: transparent;">
-              <th style="text-align: left; padding: 0; background: transparent; background-color: transparent; font-weight: normal; font-size: 0.9em;">NAME</th>
-              <th style="text-align: right; padding: 0 4px; width: 15%; background: transparent; background-color: transparent; font-weight: normal; font-size: 0.9em;">PRICE</th>
-              <th style="text-align: center; padding: 0 4px; width: 12%; background: transparent; background-color: transparent; font-weight: normal; font-size: 0.9em;">QTY</th>
-              <th style="text-align: right; padding: 0 4px; width: 15%; background: transparent; background-color: transparent; font-weight: normal; font-size: 0.9em;">DISC</th>
-              <th style="text-align: right; padding-right: 4px; width: 18%; background: transparent; background-color: transparent; font-weight: normal; font-size: 0.9em;">TOTAL</th>
+            <tr style="border-bottom: 1px solid #000; height: 24px; background-color: #f0f0f0;">
+              <th style="text-align: left; padding: 0; background-color: #f0f0f0; font-weight: bold; font-size: 0.9em;">NAME</th>
+              <th style="text-align: right; padding: 0 4px; width: 15%; background-color: #f0f0f0; font-weight: bold; font-size: 0.9em;">PRICE</th>
+              <th style="text-align: center; padding: 0 4px; width: 12%; background-color: #f0f0f0; font-weight: bold; font-size: 0.9em;">QTY</th>
+              <th style="text-align: right; padding: 0 4px; width: 15%; background-color: #f0f0f0; font-weight: bold; font-size: 0.9em;">DISC</th>
+              <th style="text-align: right; padding-right: 4px; width: 18%; background-color: #f0f0f0; font-weight: bold; font-size: 0.9em;">TOTAL</th>
             </tr>
           </thead>
           <tbody>
