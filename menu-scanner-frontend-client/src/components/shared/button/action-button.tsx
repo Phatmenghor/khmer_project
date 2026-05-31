@@ -7,12 +7,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 interface ActionButtonProps extends Omit<ButtonProps, "children" | "onClick"> {
   icon: ReactNode;
   tooltip: string;
   onClick: () => void;
   disabled?: boolean;
+  loading?: boolean;
   className?: string;
 }
 
@@ -23,6 +25,7 @@ export const ActionButton = ({
   variant = "outline",
   size = "sm",
   disabled = false,
+  loading = false,
   className = "",
   ...rest
 }: ActionButtonProps) => (
@@ -32,7 +35,7 @@ export const ActionButton = ({
         <Button
           variant={variant}
           size={size}
-          disabled={disabled}
+          disabled={disabled || loading}
           className={cn(
             variant === "outline" &&
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
@@ -46,7 +49,11 @@ export const ActionButton = ({
           }}
           {...rest}
         >
-          {icon}
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            icon
+          )}
         </Button>
       </TooltipTrigger>
       <TooltipContent>
@@ -64,6 +71,7 @@ export const ConditionalActionButton = ({
   variant = "outline",
   size = "sm",
   disabled = false,
+  loading = false,
   className = "",
   ...rest
 }: ActionButtonProps & { tooltip?: string }) => {
@@ -71,7 +79,7 @@ export const ConditionalActionButton = ({
     <Button
       variant={variant}
       size={size}
-      disabled={disabled}
+      disabled={disabled || loading}
       className={cn(
         variant === "outline" &&
           "hover:bg-primary/10 hover:border-primary hover:text-primary",
@@ -85,7 +93,11 @@ export const ConditionalActionButton = ({
       }}
       {...rest}
     >
-      {icon}
+      {loading ? (
+        <Loader2 className="w-4 h-4 animate-spin" />
+      ) : (
+        icon
+      )}
     </Button>
   );
 
