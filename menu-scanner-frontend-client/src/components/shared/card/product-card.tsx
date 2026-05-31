@@ -161,86 +161,41 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     e.preventDefault();
     e.stopPropagation();
 
-    const clickTime = performance.now();
     const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
     const hasCustomizations = product.customizations && product.customizations.length > 0;
 
-
-    if (!isInCart) {
-      return;
-    }
-
+    if (!isInCart) return;
 
     if ((hasSizes || hasCustomizations) && quantity === 0) {
-
       setSizePickerProduct(product);
       return;
     }
 
-
-    const newQty = (displayQuantityValue) + 1;
+    const newQty = displayQuantityValue + 1;
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-
-    const uiUpdateTime = performance.now();
     setLocalQuantity(newQty);
-
-
-    const reduxTime = performance.now();
-    cartDispatch(
-      updateLocalCartItem({
-        productId: product.id,
-        productSizeId: null,
-        quantity: newQty,
-        optimisticTimestamp: ts,
-      })
-    );
-
-
-    const debounceTime = performance.now();
+    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
     debouncedUpdate(key, product.id, null, newQty, ts);
-  }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
+  }, [product, displayQuantityValue, isInCart, quantity, cartDispatch, debouncedUpdate]);
 
 
   const handleDecrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const clickTime = performance.now();
-
-
-    if (!isInCart) {
-      return;
-    }
-
+    if (!isInCart) return;
 
     const newQty = Math.max(0, displayQuantityValue - 1);
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-
-    const uiUpdateTime = performance.now();
     setLocalQuantity(newQty);
+    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
 
+    if (newQty === 0) showToast.success(Messages.cart.removed);
 
-    const reduxTime = performance.now();
-    cartDispatch(
-      updateLocalCartItem({
-        productId: product.id,
-        productSizeId: null,
-        quantity: newQty,
-        optimisticTimestamp: ts,
-      })
-    );
-
-
-    if (newQty === 0) {
-      showToast.success(Messages.cart.removed);
-    }
-
-
-    const debounceTime = performance.now();
     debouncedUpdate(key, product.id, null, newQty, ts);
   }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
 
