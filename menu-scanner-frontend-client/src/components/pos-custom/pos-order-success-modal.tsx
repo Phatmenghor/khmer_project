@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { Download, Printer, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Receipt } from "./receipt";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
@@ -85,77 +86,80 @@ export function POSOrderSuccessModal({
       <VisuallyHidden>
         <DialogTitle>Order Success</DialogTitle>
       </VisuallyHidden>
-      <DialogContent className="w-full sm:max-w-[600px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
-        {/* Header - Success */}
-        <div className="px-6 py-8 text-center border-b">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <Check className="h-8 w-8 text-green-600" strokeWidth={3} />
+      <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <Check className="h-6 w-6 text-green-600" strokeWidth={3} />
             </div>
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-1">Order Confirmed!</h2>
-              <p className="text-sm text-gray-600">Your order has been successfully created</p>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-foreground">Order Confirmed!</h2>
+              <p className="text-sm text-foreground mt-1">Your order has been successfully created</p>
             </div>
           </div>
         </div>
 
-        {/* Body - Order Details */}
+        {/* Body */}
         <div className="flex-1 overflow-y-auto">
-          {/* Order Summary */}
-          <div className="p-6 border-b">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Order Number</span>
-                <span className="text-lg font-semibold text-gray-900">#{orderNumber}</span>
-              </div>
-              {orderId && (
+          <div className="p-6 space-y-4">
+            {/* Order Summary Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Order ID</span>
-                  <span className="text-sm font-mono text-gray-700 truncate max-w-xs">{orderId}</span>
+                  <span className="text-sm text-muted-foreground">Order Number</span>
+                  <span className="text-base font-semibold">#{orderNumber}</span>
                 </div>
-              )}
-              <div className="flex items-center justify-between pt-2 border-t">
-                <span className="text-sm font-medium text-gray-700">Total Amount</span>
-                <span className="text-xl font-bold text-gray-900">${totalAmount.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
+                {orderId && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Order ID</span>
+                    <span className="text-sm font-mono text-foreground truncate max-w-xs">{orderId}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between pt-3 border-t">
+                  <span className="text-sm font-medium text-foreground">Total Amount</span>
+                  <span className="text-lg font-semibold text-foreground">${totalAmount.toFixed(2)}</span>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Receipt Preview */}
-          <div className="p-6">
-            <div className="mb-4">
-              <h3 className="text-sm font-semibold text-gray-700">Receipt</h3>
-            </div>
-            <div
-              ref={receiptRef}
-              className="bg-white rounded-lg shadow-sm border overflow-hidden"
-            >
-              {orderData && (
-                <Receipt
-                  orderNumber={orderNumber}
-                  date={orderData.date}
-                  businessName={orderData.businessName}
-                  items={items}
-                  subtotalWithAddons={orderData.subtotalWithAddons}
-                  discountAmount={orderData.discountAmount}
-                  subtotalAfterDiscount={orderData.subtotalAfterDiscount}
-                  taxAmount={orderData.taxAmount}
-                  deliveryFee={orderData.deliveryFee}
-                  totalAmount={totalAmount}
-                  paymentMethod={orderData.paymentMethod}
-                />
-              )}
+            {/* Receipt Preview Card */}
+            <div>
+              <h3 className="text-sm font-semibold mb-3 text-foreground">Receipt Preview</h3>
+              <div
+                ref={receiptRef}
+                className="bg-white rounded-lg shadow-sm border overflow-hidden"
+              >
+                {orderData && (
+                  <Receipt
+                    orderNumber={orderNumber}
+                    date={orderData.date}
+                    businessName={orderData.businessName}
+                    items={items}
+                    subtotalWithAddons={orderData.subtotalWithAddons}
+                    discountAmount={orderData.discountAmount}
+                    subtotalAfterDiscount={orderData.subtotalAfterDiscount}
+                    taxAmount={orderData.taxAmount}
+                    deliveryFee={orderData.deliveryFee}
+                    totalAmount={totalAmount}
+                    paymentMethod={orderData.paymentMethod}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Footer - Actions */}
-        <div className="bg-white px-6 py-4 border-t space-y-3">
+        {/* Footer */}
+        <div className="bg-muted/30 px-6 py-4 border-t space-y-3 flex-shrink-0">
           <div className="grid grid-cols-2 gap-3">
             <CustomButton
               onClick={handlePrint}
               variant="outline"
-              className="gap-2 h-11"
+              className="gap-2 h-10"
             >
               <Printer className="h-4 w-4" />
               Print
@@ -163,7 +167,7 @@ export function POSOrderSuccessModal({
             <CustomButton
               onClick={handleDownloadPDF}
               variant="outline"
-              className="gap-2 h-11"
+              className="gap-2 h-10"
             >
               <Download className="h-4 w-4" />
               Download PDF
@@ -172,7 +176,7 @@ export function POSOrderSuccessModal({
 
           <CustomButton
             onClick={onClose}
-            className="w-full h-11 bg-gray-900 hover:bg-gray-800 text-white font-medium"
+            className="w-full h-11 bg-foreground hover:bg-foreground/90 text-background font-medium"
           >
             Done & Next Order
           </CustomButton>
