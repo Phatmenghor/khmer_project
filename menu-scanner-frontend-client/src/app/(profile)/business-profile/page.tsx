@@ -244,7 +244,7 @@ export default function BusinessProfilePage() {
 
   useEffect(() => {
     const businessId = typeof window !== "undefined"
-      ? localStorage.getItem("businessId") || AppDefault.BUSINESS_ID
+      ? AppDefault.BUSINESS_ID
       : AppDefault.BUSINESS_ID;
     dispatch(fetchPublicPortfolioThunk(businessId));
   }, [dispatch]);
@@ -264,7 +264,7 @@ export default function BusinessProfilePage() {
   const todayKey = days[new Date().getDay()];
 
   const businessId = typeof window !== "undefined"
-    ? localStorage.getItem("businessId") || AppDefault.BUSINESS_ID
+    ? AppDefault.BUSINESS_ID
     : AppDefault.BUSINESS_ID;
 
   return (

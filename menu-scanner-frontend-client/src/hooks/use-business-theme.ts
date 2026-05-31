@@ -93,9 +93,7 @@ export function useBusinessTheme() {
   // Effect 1: Apply theme colors on every navigation.
   // Uses cache first for instant paint, then overrides with live Redux data.
   useEffect(() => {
-    const businessId =
-      (typeof window !== "undefined" && localStorage.getItem("businessId")) ||
-      AppDefault.BUSINESS_ID;
+    const businessId = AppDefault.BUSINESS_ID;
     const cachedColors = getCachedThemeColors(businessId);
     if (cachedColors?.primaryColor) {
       applyColors(cachedColors.primaryColor);
@@ -105,11 +103,9 @@ export function useBusinessTheme() {
     }
   }, [pathname, businessSettings]);
 
-  // Effect 2: Sync localStorage + color cache when settings first arrive from API.
+  // Effect 2: Update color cache when settings first arrive from API.
   useEffect(() => {
     if (!businessSettings) return;
-
-    localStorage.setItem("businessId", businessSettings.businessId);
 
     const currentData = {
       primaryColor: businessSettings.primaryColor || "",

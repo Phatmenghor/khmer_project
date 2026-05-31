@@ -78,9 +78,6 @@ export default function BusinessSettingsPage() {
 
   const [isLoading, setIsLoading] = useState(!reduxBusinessSettings);
   const [isSaving, setIsSaving] = useState(false);
-  const [businessId, setBusinessId] = useState(
-    localStorage.getItem("businessId") || AppDefault.BUSINESS_ID
-  );
 
   const form = useForm<BusinessSettingsFormData>({
     resolver: zodResolver(businessSettingsSchema),
@@ -124,21 +121,11 @@ export default function BusinessSettingsPage() {
     }
   }, [reduxBusinessSettings, form]);
 
-  // Watch for business ID changes
-  useEffect(() => {
-    const currentBusinessId = localStorage.getItem("businessId") || AppDefault.BUSINESS_ID;
-    if (currentBusinessId !== businessId) {
-      setBusinessId(currentBusinessId);
-      fetchBusinessSettings();
-    }
-  }, [businessId]);
 
   const fetchBusinessSettings = async () => {
     try {
       setIsLoading(true);
-      const currentBusinessId = localStorage.getItem("businessId") || AppDefault.BUSINESS_ID;
-
-      const action = await dispatch(fetchBusinessSettingsThunk(currentBusinessId));
+      const action = await dispatch(fetchBusinessSettingsThunk(AppDefault.BUSINESS_ID));
 
 
       if (action.meta.requestStatus === "fulfilled" && action.payload) {

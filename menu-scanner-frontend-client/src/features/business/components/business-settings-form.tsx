@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import {
   fetchBusinessSettingsThunk,
@@ -34,7 +35,7 @@ export function BusinessSettingsForm({
 
   const [isSaving, setIsSaving] = useState(false);
   const [businessId, setBusinessId] = useState(
-    propBusinessId || localStorage.getItem("businessId") || ""
+    propBusinessId || AppDefault.BUSINESS_ID
   );
 
   const { control, handleSubmit, reset, watch } = useForm({
