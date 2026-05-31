@@ -121,10 +121,9 @@ export function generateReceiptHTML(order: OrderResponse): string {
       </div>
 
       <div style="margin-bottom: 12px; font-size: 0.95em;">
-        <div>Order #: ${order.orderNumber}</div>
+        <div>Order ID: #${order.orderNumber}</div>
         <div>Date: ${formattedDate} ${formattedTime}</div>
-        <div>Biz: ${(order.businessName || "Business").substring(0, 32)}</div>
-        ${order.customerName ? `<div>Cust: ${order.customerName.substring(0, 32)}</div>` : ""}
+        <div>Shop: ${(order.businessName || "Business").substring(0, 32)}</div>
       </div>
 
       <div style="border-bottom: 1px solid #000; padding: 4px 0; margin: 4px 0;">
