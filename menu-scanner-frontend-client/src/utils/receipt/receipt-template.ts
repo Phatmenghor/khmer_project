@@ -67,7 +67,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
     .join("");
 
   const summaryRows = `
-        <tr style="border-top: 1px solid #000;">
+        <tr>
           <td colspan="4" style="text-align: left;">Subtotal</td>
           <td style="text-align: right; padding-right: 4px;">${formatPrice(subtotal + customizationTotal)}</td>
         </tr>
@@ -80,7 +80,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
           <td colspan="4" style="text-align: left;">After Discount</td>
           <td style="text-align: right; padding-right: 4px;">${formatPrice(subtotal + customizationTotal - discount)}</td>
         </tr>` : ""}
-        <tr style="border-bottom: 1px solid #000;">
+        <tr>
           <td colspan="4" style="text-align: left;">Tax (${order.pricing?.taxPercentage || 0}%)</td>
           <td style="text-align: right; padding-right: 4px;">+${formatPrice(tax)}</td>
         </tr>
