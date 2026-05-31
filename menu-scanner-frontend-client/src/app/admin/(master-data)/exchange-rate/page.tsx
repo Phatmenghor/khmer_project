@@ -178,7 +178,6 @@ export default function ExchangeRatePage() {
   };
 
   const handlePageChangeWrapper = (page: number) => {
-    dispatch(setPageNo(page));
     handlePageChange(page);
   };
 
