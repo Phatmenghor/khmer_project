@@ -22,6 +22,7 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { PageContainer } from "@/components/shared/common/page-container";
+import { EmptyState } from "@/components/shared/empty-state/empty-state";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 
 export default function FavoritesPage() {
@@ -193,22 +194,16 @@ export default function FavoritesPage() {
   if (items.length === 0) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-12 sm:py-20">
-        <div className="max-w-md mx-auto text-center">
-          <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-50 mx-auto mb-4">
-            <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-red-500" />
-          </div>
-          <h1 className="text-xl sm:text-2xl font-bold mb-2">No Favorites Yet</h1>
-          <p className="text-sm text-muted-foreground mb-6">
-            Save your favorite items to find them quickly later.
-          </p>
-          <CustomButton
-            onClick={() => router.push("/products")}
-            className="w-full gap-2"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Start Shopping
-          </CustomButton>
-        </div>
+        <EmptyState
+          icon={Heart}
+          title="No Favorites Yet"
+          description="Save your favorite items to find them quickly later."
+          action={{
+            label: "Start Shopping",
+            onClick: () => router.push("/products"),
+          }}
+          size="lg"
+        />
       </PageContainer>
     );
   }

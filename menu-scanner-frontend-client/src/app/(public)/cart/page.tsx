@@ -25,6 +25,7 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
+import { EmptyState } from "@/components/shared/empty-state/empty-state";
 import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 
 function CartItemSkeleton() {
@@ -60,47 +61,6 @@ function CartPageSkeleton() {
         </div>
         <div className="hidden lg:block">
           <Skeleton className="h-64 w-full rounded-2xl" />
-        </div>
-      </div>
-    </PageContainer>
-  );
-}
-
-function CartEmptyState({
-  title,
-  message,
-  onLogin,
-  showLogin,
-}: {
-  title: string;
-  message: string;
-  onLogin?: () => void;
-  showLogin?: boolean;
-}) {
-  const router = useRouter();
-  return (
-    <PageContainer className="py-16 sm:py-24">
-      <div className="max-w-xs mx-auto text-center">
-        <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5 shadow-sm">
-          <ShoppingCart className="h-10 w-10 text-primary" strokeWidth={1.5} />
-        </div>
-        <h1 className="text-xl font-bold mb-2">{title}</h1>
-        <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{message}</p>
-        <div className="flex flex-col gap-2.5">
-          {showLogin && onLogin && (
-            <CustomButton onClick={onLogin} className="w-full gap-2 h-11 rounded-xl">
-              <LogIn className="h-4 w-4" />
-              Sign In
-            </CustomButton>
-          )}
-          <CustomButton
-            variant={showLogin ? "outline" : "default"}
-            onClick={() => router.push("/products")}
-            className="w-full gap-2 h-11 rounded-xl"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            Browse Products
-          </CustomButton>
         </div>
       </div>
     </PageContainer>
@@ -188,10 +148,18 @@ export default function CartPage() {
 
   if (items.length === 0 && loaded) {
     return (
-      <CartEmptyState
-        title="Your Cart is Empty"
-        message="Add some items to get started!"
-      />
+      <PageContainer className="min-h-screen flex flex-col py-12 sm:py-20">
+        <EmptyState
+          icon={ShoppingCart}
+          title="Your Cart is Empty"
+          description="Add some items to get started!"
+          action={{
+            label: "Browse Products",
+            onClick: () => router.push("/products"),
+          }}
+          size="lg"
+        />
+      </PageContainer>
     );
   }
 
