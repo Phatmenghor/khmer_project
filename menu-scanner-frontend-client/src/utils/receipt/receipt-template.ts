@@ -125,12 +125,12 @@ export function generateReceiptHTML(order: OrderResponse): string {
       <div style="border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 8px 0; margin: 12px 0;">
         <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
           <thead>
-            <tr style="border-bottom: 1px solid #000; height: 24px;">
-              <th style="text-align: left; padding: 0;">NAME</th>
-              <th style="text-align: right; padding: 0 4px; width: 15%;">PRICE</th>
-              <th style="text-align: center; padding: 0 4px; width: 12%;">QTY</th>
-              <th style="text-align: right; padding: 0 4px; width: 15%;">DISC</th>
-              <th style="text-align: right; padding-right: 4px; width: 18%;">TOTAL</th>
+            <tr style="border-bottom: 1px solid #000; height: 24px; background: transparent; background-color: transparent;">
+              <th style="text-align: left; padding: 0; background: transparent; background-color: transparent; font-weight: normal; font-size: 0.9em;">NAME</th>
+              <th style="text-align: right; padding: 0 4px; width: 15%; background: transparent; background-color: transparent; font-weight: normal; font-size: 0.9em;">PRICE</th>
+              <th style="text-align: center; padding: 0 4px; width: 12%; background: transparent; background-color: transparent; font-weight: normal; font-size: 0.9em;">QTY</th>
+              <th style="text-align: right; padding: 0 4px; width: 15%; background: transparent; background-color: transparent; font-weight: normal; font-size: 0.9em;">DISC</th>
+              <th style="text-align: right; padding-right: 4px; width: 18%; background: transparent; background-color: transparent; font-weight: normal; font-size: 0.9em;">TOTAL</th>
             </tr>
           </thead>
           <tbody>
