@@ -82,8 +82,8 @@ export function POSOrderSuccessModal({
               variant="outline"
               className="gap-2 h-10"
               isLoading={isPrinting}
+              icon={<Printer className="h-4 w-4" />}
             >
-              <Printer className="h-4 w-4" />
               {isPrinting ? "Printing..." : "Print"}
             </CustomButton>
             <CustomButton
@@ -91,8 +91,8 @@ export function POSOrderSuccessModal({
               variant="outline"
               className="gap-2 h-10"
               isLoading={isDownloading}
+              icon={<Download className="h-4 w-4" />}
             >
-              <Download className="h-4 w-4" />
               {isDownloading ? "Downloading..." : "Download PDF"}
             </CustomButton>
           </div>
