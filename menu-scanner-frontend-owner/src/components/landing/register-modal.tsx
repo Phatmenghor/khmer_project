@@ -34,7 +34,7 @@ const schema = z
     businessPhone: z.string().min(6, "Business phone is required"),
     businessAddress: z.string().min(1, "Business address is required"),
     enableStockManagement: z.boolean().default(false),
-    primaryColor: z.string().regex(/^#[0-9A-F]{6}$/i, "Invalid color format (use #RRGGBB)").optional(),
+    primaryColor: z.string().regex(/^#[0-9A-F]{6}$/i, "Invalid color format"),
   })
   .refine((d) => d.ownerPassword === d.confirmPassword, {
     message: "Passwords do not match",
@@ -160,10 +160,9 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         </DialogHeader>
 
         {/* Content */}
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="px-6 py-8">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-              {/* Account Credentials Section */}
+        <ScrollArea className="flex-1 overflow-hidden">
+          <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-8 space-y-10">
+            {/* Account Credentials Section */}
               <div>
                 <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
                   <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">1</span>
@@ -289,7 +288,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">3</span>
                   Settings
                 </h3>
-                <div className="space-y-5">
+                <div className="grid sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Enable Stock Management</label>
                     <div className="flex items-center gap-3 p-3 border rounded-md bg-muted/30">
@@ -304,54 +303,73 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                     </div>
                   </div>
 
-                  <TextField
-                    name="primaryColor"
-                    label="Primary Color (Optional)"
-                    placeholder="#007BFF"
-                    type="color"
-                    control={control}
-                    error={errors.primaryColor}
-                    disabled={isSubmitting}
-                  />
-                </div>
-              </div>
-
-              {/* Footer with buttons inside form */}
-              <div className="flex justify-between items-center pt-6 -mx-6 -mb-6 px-6 py-4 border-t bg-muted/30">
-                <div className="text-sm text-muted-foreground flex items-center gap-2">
-                  {isSubmitting && (
-                    <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-                  )}
-                  <span>{isSubmitting ? "Creating account..." : "Ready to create account"}</span>
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onClose}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-primary hover:bg-primary/90"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      "Create Account"
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Primary Color</label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={watch("primaryColor")}
+                        onChange={(e) => setValue("primaryColor", e.target.value)}
+                        disabled={isSubmitting}
+                        className="h-10 w-16 rounded-md border border-input cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={watch("primaryColor")}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (/^#[0-9A-Fa-f]{0,6}$/.test(val) || val === "") {
+                            setValue("primaryColor", val.toUpperCase());
+                          }
+                        }}
+                        placeholder="#007BFF"
+                        disabled={isSubmitting}
+                        className="flex-1 h-10 px-3 py-2 border rounded-md border-input bg-background text-sm"
+                      />
+                    </div>
+                    {errors.primaryColor && (
+                      <p className="text-xs text-destructive">{errors.primaryColor.message}</p>
                     )}
-                  </Button>
+                  </div>
                 </div>
               </div>
             </form>
-          </div>
         </ScrollArea>
+
+        {/* Footer with buttons - outside scroll area */}
+        <div className="flex justify-between items-center px-6 py-4 border-t bg-muted/30 flex-shrink-0">
+          <div className="text-sm text-muted-foreground flex items-center gap-2">
+            {isSubmitting && (
+              <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+            )}
+            <span>{isSubmitting ? "Creating account..." : "Ready to create account"}</span>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="bg-primary hover:bg-primary/90"
+              disabled={isSubmitting}
+              onClick={handleSubmit(onSubmit)}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create Account"
+              )}
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
