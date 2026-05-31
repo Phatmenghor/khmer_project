@@ -298,6 +298,15 @@ export default function PosPage() {
         );
         if (pickupOption) {
           dispatch(setSelectedDeliveryOption(pickupOption as any));
+        } else {
+          // Use static fallback if not found in API
+          dispatch(setSelectedDeliveryOption({
+            id: "pickup-default",
+            name: "Pickup",
+            description: "Pickup from store",
+            price: 0,
+            imageUrl: ""
+          } as any));
         }
 
         const paymentResult = await dispatch(
@@ -313,9 +322,28 @@ export default function PosPage() {
         );
         if (cashOption) {
           dispatch(setSelectedPaymentOption(cashOption));
+        } else {
+          // Use static fallback if not found in API
+          dispatch(setSelectedPaymentOption({
+            id: "cash-default",
+            name: "Cash",
+            paymentOptionType: "CASH"
+          }));
         }
       } catch (error) {
-        // Silently fail if defaults can't be set
+        // Set static defaults on API error
+        dispatch(setSelectedDeliveryOption({
+          id: "pickup-default",
+          name: "Pickup",
+          description: "Pickup from store",
+          price: 0,
+          imageUrl: ""
+        } as any));
+        dispatch(setSelectedPaymentOption({
+          id: "cash-default",
+          name: "Cash",
+          paymentOptionType: "CASH"
+        }));
       }
     };
 
