@@ -155,9 +155,10 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // only on mount
 
-  const isInitialFeaturedLoading =
-    (featuredProductsSection.loading || !featuredProductsSection.loaded) &&
-    featuredProducts.length === 0;
+  const isBannerLoading = (bannersSection.loading || !bannersSection.loaded) && banners.length === 0;
+  const isCategoryLoading = (categoriesSection.loading || !categoriesSection.loaded) && categories.length === 0;
+  const isPromotionLoading = (promotionProductsSection.loading || !promotionProductsSection.loaded) && promotionProducts.length === 0;
+  const isInitialFeaturedLoading = (featuredProductsSection.loading || !featuredProductsSection.loaded) && featuredProducts.length === 0;
 
   // ── normal data fetch ────────────────────────────────────────────────────
   useEffect(() => {
@@ -240,7 +241,7 @@ export default function HomePage() {
         <PageContainer className="pt-3 sm:pt-6">
           <BannerSection
             banners={banners}
-            loading={bannersSection.loading}
+            loading={isBannerLoading}
             error={bannersSection.error}
           />
         </PageContainer>
@@ -250,7 +251,7 @@ export default function HomePage() {
         <PageContainer>
           <CategoriesSection
             categories={categories}
-            loading={categoriesSection.loading}
+            loading={isCategoryLoading}
             error={categoriesSection.error}
             title="Shop by Category"
           />
@@ -261,7 +262,7 @@ export default function HomePage() {
         <PageContainer>
           <PromotionsSection
             products={promotionProducts}
-            loading={promotionProductsSection.loading}
+            loading={isPromotionLoading}
             error={promotionProductsSection.error}
             title="Hot Deals & Promotions"
           />
