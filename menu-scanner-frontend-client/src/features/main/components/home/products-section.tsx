@@ -39,12 +39,46 @@ const ProductsSectionComponent = ({
 }: ProductsSectionProps) => {
 
   if (error) {
-    return null;
+    return (
+      <SectionWrapper>
+        <SectionHeader
+          title={title}
+          subtitle={subtitle}
+          icon={showIcon ? Sparkles : undefined}
+        />
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Error Loading Products
+          </h3>
+          <p className="text-muted-foreground text-center">
+            There was an error loading products. Please try again later.
+          </p>
+        </div>
+      </SectionWrapper>
+    );
   }
 
 
   if (products.length === 0 && !loading && !isInitialLoading) {
-    return null;
+    return (
+      <SectionWrapper>
+        <SectionHeader
+          title={title}
+          subtitle={subtitle}
+          icon={showIcon ? Sparkles : undefined}
+        />
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="text-6xl mb-4">📦</div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            No Products Available
+          </h3>
+          <p className="text-muted-foreground text-center">
+            There are no products available at this time. Please check back later.
+          </p>
+        </div>
+      </SectionWrapper>
+    );
   }
 
   return (
