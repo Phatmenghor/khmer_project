@@ -167,7 +167,7 @@ public final class TelegramMessageBuilder {
 
     // ── Shared helpers ────────────────────────────────────────────────────────
 
-    private static void appendItems(StringBuilder sb, List<OrderItem> items) {
+    private static void appendItems(StringBuilder sb, java.util.Collection<OrderItem> items) {
         if (items == null || items.isEmpty()) return;
 
         sb.append("\n<b>Items</b>\n");
