@@ -74,7 +74,7 @@ export default function DeliveryOptionsPage() {
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.ADMIN.EXCHANGE_RATE,
+    baseRoute: ROUTES.ADMIN.DELIVERY_OPTIONS,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
