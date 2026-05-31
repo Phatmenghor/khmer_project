@@ -81,7 +81,6 @@ export function POSOrderSuccessModal({
               onClick={() => handlePrintReceipt(order)}
               variant="outline"
               className="gap-2 h-10"
-              disabled={isPrinting}
               isLoading={isPrinting}
             >
               <Printer className="h-4 w-4" />
@@ -91,7 +90,6 @@ export function POSOrderSuccessModal({
               onClick={() => handleDownloadReceipt(order)}
               variant="outline"
               className="gap-2 h-10"
-              disabled={isDownloading}
               isLoading={isDownloading}
             >
               <Download className="h-4 w-4" />

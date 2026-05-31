@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 export interface CustomButtonProps extends ButtonProps {
   children: React.ReactNode;
@@ -12,7 +13,7 @@ export interface CustomButtonProps extends ButtonProps {
 export const CustomButton = React.forwardRef<
   HTMLButtonElement,
   CustomButtonProps
->(({ onClick, className, children, type = "button", isLoading, ...props }, ref) => {
+>(({ onClick, className, children, type = "button", isLoading, disabled, ...props }, ref) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (onClick) {
       onClick(e);
@@ -25,8 +26,10 @@ export const CustomButton = React.forwardRef<
       type={type}
       onClick={handleClick}
       className={cn(className)}
+      disabled={isLoading || disabled}
       {...props}
     >
+      {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
       {children}
     </Button>
   );
