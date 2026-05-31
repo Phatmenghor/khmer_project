@@ -42,6 +42,8 @@ public class BusinessOwnerCreateRequest {
     
     @NotNull(message = "Plan ID is required")
     private UUID planId;
+    
+    private Boolean enableStockManagement;
     private BigDecimal paymentAmount;
     private String paymentMethod;
     private String paymentReference;
