@@ -29,12 +29,20 @@ import com.emenu.features.auth.service.BusinessOwnerService;
 import com.emenu.features.auth.service.UserValidationService;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
+import com.emenu.features.order.models.BusinessExchangeRate;
+import com.emenu.features.order.models.DeliveryOption;
+import com.emenu.features.order.models.PaymentOption;
+import com.emenu.features.order.repository.BusinessExchangeRateRepository;
+import com.emenu.features.order.repository.DeliveryOptionRepository;
+import com.emenu.features.order.repository.PaymentOptionRepository;
 import com.emenu.features.subscription.models.Subscription;
 import com.emenu.features.subscription.models.SubscriptionPayment;
 import com.emenu.features.subscription.models.SubscriptionPlan;
 import com.emenu.features.subscription.repository.SubscriptionPaymentRepository;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
+import com.emenu.enums.payment.PaymentOptionType;
+import com.emenu.enums.common.Status;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -69,6 +77,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionPlanRepository planRepository;
     private final SubscriptionPaymentRepository subscriptionPaymentRepository;
+    private final BusinessExchangeRateRepository businessExchangeRateRepository;
+    private final DeliveryOptionRepository deliveryOptionRepository;
+    private final PaymentOptionRepository paymentOptionRepository;
     private final PasswordEncoder passwordEncoder;
     private final BusinessOwnerMapper mapper;
     private final UserValidationService userValidationService;
@@ -94,6 +105,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         // Create business setting with stock management and primary color preferences
         createBusinessSetting(businessEntity.getId(), creationRequestData);
+
+        // Initialize default business records
+        initializeBusinessDefaults(businessEntity.getId());
 
         Subscription subscriptionRecord = null;
         SubscriptionPayment paymentRecord = null;
@@ -161,6 +175,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         // Create business setting with stock management and primary color preferences
         createBusinessSetting(businessEntity.getId(), createRequest);
+
+        // Initialize default business records
+        initializeBusinessDefaults(businessEntity.getId());
 
         Subscription subscriptionRecord = null;
         SubscriptionPayment paymentRecord = null;
@@ -750,5 +767,40 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         businessSettingRepository.save(businessSetting);
         log.info("Business setting created successfully: business_id={}, enable_stock={}, primary_color={}",
                 businessId, enableStock, creationRequestData.getPrimaryColor());
+    }
+
+    private void initializeBusinessDefaults(UUID businessId) {
+        // Create default exchange rate: 4000 USD to KHR
+        BusinessExchangeRate exchangeRate = new BusinessExchangeRate();
+        exchangeRate.setBusinessId(businessId);
+        exchangeRate.setUsdToKhrRate(4000.0);
+        exchangeRate.setStatus(BusinessExchangeRate.ExchangeRateStatus.ACTIVE);
+        businessExchangeRateRepository.save(exchangeRate);
+
+        // Create default delivery option: Pickup
+        DeliveryOption deliveryOption = new DeliveryOption();
+        deliveryOption.setBusinessId(businessId);
+        deliveryOption.setName("Pickup");
+        deliveryOption.setStatus(Status.ACTIVE);
+        deliveryOption.setPrice(BigDecimal.ZERO);
+        deliveryOptionRepository.save(deliveryOption);
+
+        // Create default payment options: Bank and Cash
+        PaymentOption bankPaymentOption = new PaymentOption();
+        bankPaymentOption.setBusinessId(businessId);
+        bankPaymentOption.setName("Bank Transfer");
+        bankPaymentOption.setPaymentOptionType(PaymentOptionType.BANK);
+        bankPaymentOption.setStatus(Status.ACTIVE);
+        paymentOptionRepository.save(bankPaymentOption);
+
+        PaymentOption cashPaymentOption = new PaymentOption();
+        cashPaymentOption.setBusinessId(businessId);
+        cashPaymentOption.setName("Cash");
+        cashPaymentOption.setPaymentOptionType(PaymentOptionType.CASH);
+        cashPaymentOption.setStatus(Status.ACTIVE);
+        paymentOptionRepository.save(cashPaymentOption);
+
+        log.info("Default business records created successfully: business_id={}, exchange_rate=4000, delivery_option=Pickup, payment_options=[BANK, CASH]",
+                businessId);
     }
 }
