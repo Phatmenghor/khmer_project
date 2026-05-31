@@ -132,12 +132,8 @@ export default function BusinessSettingsPage() {
         const data = action.payload as BusinessSettingsResponse;
         const businessId = data.businessId;
 
-
-        localStorage.setItem("businessId", businessId);
-
         const formData = convertResponseToFormData(data);
         form.reset(formData);
-
 
         const cachedData = getCachedThemeColors(businessId);
         const apiData = {
@@ -147,21 +143,17 @@ export default function BusinessSettingsPage() {
           taxPercentage: data.taxPercentage ?? undefined,
         };
 
-
         if (hasThemeChanged(cachedData, apiData)) {
           cacheThemeColors(businessId, apiData);
-
-
           applyThemeColors(data.primaryColor);
         } else {
-
           applyThemeColors(data.primaryColor);
         }
       } else {
-        showToast.error(Messages.business.settingsLoadFailed);
+        applyThemeColors(BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR);
       }
     } catch (error) {
-      showToast.error(Messages.business.settingsLoadFailed);
+      applyThemeColors(BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR);
     } finally {
       setIsLoading(false);
     }
