@@ -9,6 +9,7 @@ import { OrderResponse } from "@/features/main/store/models/response/order-respo
 
 export function useDownloadReceipt() {
   const [downloadingOrderId, setDownloadingOrderId] = useState<string | null>(null);
+  const [printingOrderId, setPrintingOrderId] = useState<string | null>(null);
 
   const handleDownloadReceipt = async (
     order: OrderResponse,
@@ -111,5 +112,36 @@ export function useDownloadReceipt() {
     }
   };
 
-  return { handleDownloadReceipt, downloadingOrderId };
+  const handlePrintReceipt = (order: OrderResponse) => {
+    if (!order.id) return;
+    setPrintingOrderId(order.id);
+
+    try {
+      const printWindow = window.open("", "", "width=400,height=600");
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <style>
+                * { font-family: 'Courier New', monospace; box-sizing: border-box; }
+                body { margin: 0; padding: 0; background: white; }
+              </style>
+            </head>
+            <body>${generateReceiptHTML(order)}</body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      }
+    } catch (error) {
+      console.error("Receipt print error:", error);
+      showToast.error("Failed to print receipt");
+    } finally {
+      setPrintingOrderId(null);
+    }
+  };
+
+  return { handleDownloadReceipt, handlePrintReceipt, downloadingOrderId, printingOrderId };
 }

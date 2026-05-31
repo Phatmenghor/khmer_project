@@ -10,7 +10,6 @@ import { useSelector } from "react-redux";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { RootState } from "@/store";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
-import { generateReceiptHTML } from "@/utils/receipt/receipt-template";
 
 interface POSOrderSuccessModalProps {
   open: boolean;
@@ -28,32 +27,12 @@ export function POSOrderSuccessModal({
   );
   const primaryColor = businessSettings?.primaryColor || "#000000";
 
-  const { handleDownloadReceipt, downloadingOrderId } = useDownloadReceipt();
+  const { handleDownloadReceipt, handlePrintReceipt, downloadingOrderId, printingOrderId } = useDownloadReceipt();
 
   if (!order) return null;
 
   const isDownloading = downloadingOrderId === order.id;
-
-  const handlePrint = () => {
-    const printWindow = window.open("", "", "width=400,height=600");
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <style>
-              * { font-family: 'Courier New', monospace; box-sizing: border-box; }
-              body { margin: 0; padding: 0; background: white; }
-            </style>
-          </head>
-          <body>${generateReceiptHTML(order)}</body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    }
-  };
+  const isPrinting = printingOrderId === order.id;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -99,12 +78,14 @@ export function POSOrderSuccessModal({
         <div className="bg-muted/30 px-6 py-4 border-t space-y-3 flex-shrink-0">
           <div className="grid grid-cols-2 gap-3">
             <CustomButton
-              onClick={handlePrint}
+              onClick={() => handlePrintReceipt(order)}
               variant="outline"
               className="gap-2 h-10"
+              disabled={isPrinting}
+              isLoading={isPrinting}
             >
               <Printer className="h-4 w-4" />
-              Print
+              {isPrinting ? "Printing..." : "Print"}
             </CustomButton>
             <CustomButton
               onClick={() => handleDownloadReceipt(order)}
