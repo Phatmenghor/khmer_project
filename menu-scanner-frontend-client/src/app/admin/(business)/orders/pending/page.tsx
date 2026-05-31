@@ -134,6 +134,8 @@ export default function PendingOrdersAdminPage() {
         allowTaint: true,
         backgroundColor: '#ffffff',
         width: 305,
+        windowWidth: 305,
+        windowHeight: element.scrollHeight,
         logging: false,
         onclone: (clonedDoc) => {
           // Ensure proper font and color rendering
