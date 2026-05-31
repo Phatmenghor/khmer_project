@@ -46,8 +46,11 @@ public class BusinessOwnerCreateRequest {
     private Boolean enableStockManagement;
     private String primaryColor;
     
-    private BigDecimal taxPercentage;
-    private Integer lowStockThreshold;
+    @Builder.Default
+    private BigDecimal taxPercentage = BigDecimal.ZERO;
+    
+    @Builder.Default
+    private Integer lowStockThreshold = 5;
     private BigDecimal paymentAmount;
     private String paymentMethod;
     private String paymentReference;
