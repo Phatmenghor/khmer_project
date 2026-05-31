@@ -129,6 +129,16 @@ type CartItemEditData = {
 };
 
 
+type OrderDiscountType = {
+  type: "fixed" | "percentage";
+  value: number;
+  reason: string;
+  beforeTotal: number;
+  afterTotal: number;
+  discountAmount: number;
+  appliedAt: string;
+} | null;
+
 type POSCheckoutPayload = {
   businessId: string;
   customerName: string;
@@ -173,6 +183,9 @@ type POSCheckoutPayload = {
     deliveryFee: number;
     taxPercentage: number;
     taxAmount: number;
+    discountAmount: number;
+    discountType: "FIXED_AMOUNT" | "PERCENTAGE" | null;
+    discountReason: string | null;
     finalTotal: number;
   };
   payment: {
@@ -241,6 +254,7 @@ export default function PosPage() {
   const debouncedSearch = useDebounce(searchTerm, 400);
 
   const [editingItemForPrice, setEditingItemForPrice] = useState<PosPageCartItem | null>(null);
+  const [orderDiscount, setOrderDiscount] = useState<OrderDiscountType>(null);
 
 
 
@@ -601,18 +615,20 @@ export default function PosPage() {
     const deliveryFee = selectedDeliveryOption?.price || 0;
     const taxPercentage = businessSettings?.taxPercentage || 0;
     const taxAmount = (subtotal + customizationTotal) * (taxPercentage / 100);
-    const finalTotal = subtotal + customizationTotal + deliveryFee + taxAmount;
+    const discountAmount = orderDiscount?.discountAmount || 0;
+    const finalTotal = Math.max(0, subtotal + customizationTotal + deliveryFee + taxAmount - discountAmount);
     return {
       totalItems,
       totalQuantity,
       subtotal,
       customizationTotal,
+      discountAmount,
       deliveryFee,
       taxAmount,
       taxPercentage,
       finalTotal,
     };
-  }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage]);
+  }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage, orderDiscount]);
 
 
   const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
@@ -663,8 +679,12 @@ export default function PosPage() {
     setEditingItemForPrice(null);
   }, [dispatch, editingItemForPrice]);
 
+  const handleDiscountApply = (discount: Exclude<OrderDiscountType, null>) => {
+    setOrderDiscount(discount);
+    showToast.success(`Discount applied: saved $${discount.discountAmount.toFixed(2)}`);
+  };
 
-const handleSubmitOrder = async () => {
+  const handleSubmitOrder = async () => {
     if (cartItems.length === 0) {
       showToast.error(Messages.cart.emptyCart);
       return;
@@ -722,19 +742,19 @@ const handleSubmitOrder = async () => {
         totalQuantity: cartSummary.totalQuantity,
         subtotal: cartSummary.subtotal,
         customizationTotal: cartSummary.customizationTotal,
+        totalDiscount: cartSummary.discountAmount,
         finalTotal: cartSummary.finalTotal,
       },
 
-
       pricing: {
-
         subtotal: cartSummary.subtotal,
         customizationTotal: cartSummary.customizationTotal,
         deliveryFee: selectedDeliveryOption?.price || 0,
-
         taxPercentage: cartSummary.taxPercentage,
         taxAmount: cartSummary.taxAmount,
-
+        discountAmount: orderDiscount?.discountAmount || 0,
+        discountType: orderDiscount?.type === "fixed" ? "FIXED_AMOUNT" : orderDiscount?.type === "percentage" ? "PERCENTAGE" : null,
+        discountReason: orderDiscount?.reason || null,
         finalTotal: cartSummary.finalTotal,
       },
 
@@ -758,7 +778,8 @@ const handleSubmitOrder = async () => {
         dispatch(clearCartItems());
         dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));
-showToast.success(Messages.orders.created);
+        setOrderDiscount(null);
+        showToast.success(Messages.orders.created);
       }
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || Messages.orders.createFailed);
@@ -1328,6 +1349,8 @@ showToast.success(Messages.orders.created);
         onOpenChange={(open) => dispatch(setShowOrderDetailsModal(open))}
         customerNote={customerNote}
         onNoteChange={(note) => dispatch(setCustomerNote(note))}
+        currentOrderTotal={cartSummary.finalTotal}
+        onDiscountApply={handleDiscountApply}
       />
     </div>
   );
