@@ -183,7 +183,7 @@ type POSCheckoutPayload = {
     taxPercentage: number;
     taxAmount: number;
     discountAmount: number;
-    discountType: "fixed" | "percentage" | null;
+    discountType: "FIXED_AMOUNT" | "PERCENTAGE" | null;
     discountReason: string | null;
     finalTotal: number;
   };
@@ -604,7 +604,6 @@ export default function PosPage() {
     let totalQuantity = 0;
     let subtotal = 0;
     let customizationTotal = 0;
-    let discountAmount = 0;
     cartItems.forEach((item) => {
       totalQuantity += item.quantity;
       const itemCustomizationTotal = item.customizations?.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0) || 0;
@@ -613,10 +612,11 @@ export default function PosPage() {
       customizationTotal += itemCustomizationTotal * item.quantity;
     });
     const deliveryFee = selectedDeliveryOption?.price || 0;
-
     const taxPercentage = businessSettings?.taxPercentage || 0;
     const taxAmount = (subtotal + customizationTotal) * (taxPercentage / 100);
-    const finalTotal = Math.max(0, subtotal + customizationTotal + deliveryFee + taxAmount);
+    const beforeDiscount = subtotal + customizationTotal + deliveryFee + taxAmount;
+    const discountAmount = orderDiscount?.discountAmount || 0;
+    const finalTotal = Math.max(0, beforeDiscount - discountAmount);
     return {
       totalItems,
       totalQuantity,
@@ -628,7 +628,7 @@ export default function PosPage() {
       taxPercentage,
       finalTotal,
     };
-  }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage]);
+  }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage, orderDiscount]);
 
 
   const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
@@ -739,7 +739,7 @@ export default function PosPage() {
         taxAmount: cartSummary.taxAmount,
 
         discountAmount: orderDiscount?.discountAmount || 0,
-        discountType: orderDiscount?.type || null,
+        discountType: orderDiscount?.type === "fixed" ? "FIXED_AMOUNT" : orderDiscount?.type === "percentage" ? "PERCENTAGE" : null,
         discountReason: orderDiscount?.reason || null,
 
         finalTotal: cartSummary.finalTotal,
@@ -1238,7 +1238,7 @@ export default function PosPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold">Total</span>
                   <span className="text-base font-bold text-primary">
-                    {formatCurrency(applyDiscount(cartSummary.finalTotal, orderDiscount))}
+                    {formatCurrency(cartSummary.finalTotal)}
                   </span>
                 </div>
               </div>
