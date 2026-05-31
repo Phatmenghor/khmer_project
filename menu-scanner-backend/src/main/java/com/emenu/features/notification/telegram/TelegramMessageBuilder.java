@@ -142,8 +142,8 @@ public final class TelegramMessageBuilder {
         if (order.getCreatedAt() != null) {
             sb.append("Date:     ").append(order.getCreatedAt().format(DATE_FMT)).append("\n");
         }
-        if (hasText(order.getBusinessName())) {
-            sb.append("Shop:     ").append(order.getBusinessName()).append("\n");
+        if (order.getBusiness() != null && hasText(order.getBusiness().getName())) {
+            sb.append("Shop:     ").append(order.getBusiness().getName()).append("\n");
         }
         if (hasText(order.getCustomerName())) {
             sb.append("Customer: ").append(order.getCustomerName()).append("\n");
