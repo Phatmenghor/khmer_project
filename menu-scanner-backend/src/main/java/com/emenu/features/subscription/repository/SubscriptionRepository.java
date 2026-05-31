@@ -18,7 +18,7 @@ import java.util.UUID;
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, UUID>, JpaSpecificationExecutor<Subscription> {
 
-    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p LEFT JOIN FETCH s.payment WHERE s.id = :id AND s.isDeleted = false")
+    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p WHERE s.id = :id AND s.isDeleted = false")
     Optional<Subscription> findByIdAndIsDeletedFalse(@Param("id") UUID id);
 
     @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p WHERE s.businessId = :businessId AND s.endDate > :now AND s.isDeleted = false ORDER BY s.endDate DESC LIMIT 1")
@@ -67,7 +67,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
             Pageable pageable
     );
 
-    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p LEFT JOIN FETCH s.payment WHERE s.id = :id")
+    @Query("SELECT s FROM Subscription s LEFT JOIN FETCH s.business b LEFT JOIN FETCH s.plan p WHERE s.id = :id")
     Optional<Subscription> findByIdWithRelationships(@Param("id") UUID id);
 
     @Query("""
