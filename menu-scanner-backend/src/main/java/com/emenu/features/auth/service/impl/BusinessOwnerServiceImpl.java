@@ -529,9 +529,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private User createOwnerUser(BusinessOwnerCreateRequest creationRequestData, UUID businessId) {
-        Role ownerRoleEntity = roleRepository.findByNameAndIsDeletedFalse("BUSINESS_OWNER")
+        Role ownerRoleEntity = roleRepository.findSystemRoleByName("BUSINESS_OWNER")
                 .orElseThrow(() -> {
-                    log.warn("Business owner creation failed - business owner role not found");
+                    log.warn("Business owner creation failed - system business owner role not found");
                     return new NotFoundException("Business owner role not found");
                 });
 
