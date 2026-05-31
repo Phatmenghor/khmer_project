@@ -58,46 +58,36 @@ const API_BASE_URL = "/api/v1/business-settings";
 
 
 export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsResponse> => {
-  try {
-    // Add cache-busting query parameter to force fresh fetch
-    const timestamp = new Date().getTime();
-    const response = await axiosClientWithAuth.get<{ data: BusinessSettingsResponse }>(
-      `/api/v1/business-settings/current?_t=${timestamp}`,
-      {
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        }
+  const timestamp = new Date().getTime();
+  const response = await axiosClientWithAuth.get<{ data: BusinessSettingsResponse }>(
+    `/api/v1/business-settings/current?_t=${timestamp}`,
+    {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
       }
-    );
-    return response.data.data;
-  } catch (error) {
-    throw error;
-  }
+    }
+  );
+  return response.data.data;
 };
 
 
 export const fetchBusinessSettingsByBusinessId = async (
   businessId: string
 ): Promise<BusinessSettingsResponse> => {
-  try {
-    // Add cache-busting query parameter to force fresh fetch
-    const timestamp = new Date().getTime();
-    const response = await axiosClient.get<{ data: BusinessSettingsResponse }>(
-      `/api/v1/public/business-settings/${businessId}?_t=${timestamp}`,
-      {
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        }
+  const timestamp = new Date().getTime();
+  const response = await axiosClient.get<{ data: BusinessSettingsResponse }>(
+    `/api/v1/public/business-settings/${businessId}?_t=${timestamp}`,
+    {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
       }
-    );
-    return response.data.data;
-  } catch (error) {
-    throw error;
-  }
+    }
+  );
+  return response.data.data;
 };
 
 

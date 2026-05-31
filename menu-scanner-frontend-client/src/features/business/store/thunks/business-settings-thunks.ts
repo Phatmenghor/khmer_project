@@ -19,9 +19,8 @@ const businessSettingsCacheManager = {
       localStorage.removeItem(timestampKey);
       sessionStorage.removeItem(cacheKey);
       sessionStorage.removeItem(timestampKey);
-      console.log(`✅ Cache cleared for business: ${businessId}`);
     } catch (error) {
-      console.error('Error clearing cache:', error);
+      // Silent fail
     }
   },
   clearAll: () => {
@@ -36,9 +35,8 @@ const businessSettingsCacheManager = {
           sessionStorage.removeItem(key);
         }
       });
-      console.log('✅ All business settings cache cleared');
     } catch (error) {
-      console.error('Error clearing all cache:', error);
+      // Silent fail
     }
   }
 };
@@ -48,10 +46,7 @@ export const fetchBusinessSettingsThunk = createAsyncThunk(
   async (businessIdParam?: string, { rejectWithValue }) => {
     try {
       const businessId = businessIdParam || localStorage.getItem("businessId") || AppDefault.BUSINESS_ID;
-
-      // Clear cache before fetching to ensure fresh data
       businessSettingsCacheManager.clearForBusinessId(businessId);
-
       const settings = await fetchBusinessSettingsByBusinessId(businessId);
       return settings;
     } catch (error) {
@@ -67,12 +62,9 @@ export const updateBusinessSettingsThunk = createAsyncThunk(
   async (request: UpdateBusinessSettingsRequest, { rejectWithValue }) => {
     try {
       const settings = await updateCurrentBusinessSettings(request);
-
-      // Clear cache after update
       if (settings.businessId) {
         businessSettingsCacheManager.clearForBusinessId(settings.businessId);
       }
-
       return settings;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : Messages.business.settingsUpdateFailed;
@@ -81,30 +73,14 @@ export const updateBusinessSettingsThunk = createAsyncThunk(
   }
 );
 
-/**
- * Thunk for switching business ID
- * Clears cache and Redux state to ensure fresh data fetch
- */
 export const switchBusinessIdThunk = createAsyncThunk(
   "businessSettings/switchBusinessId",
   async (newBusinessId: string, { rejectWithValue, dispatch }) => {
     try {
-      console.log(`🔄 Switching to business: ${newBusinessId}`);
-
-      // Clear Redux state
       dispatch(clearBusinessSettings());
-
-      // Clear cache for all businesses
       businessSettingsCacheManager.clearAll();
-
-      // Clear cache specifically for the new business
       businessSettingsCacheManager.clearForBusinessId(newBusinessId);
-
-      // Update localStorage
       localStorage.setItem("businessId", newBusinessId);
-
-      console.log(`✅ Business switched to: ${newBusinessId}`);
-
       return { businessId: newBusinessId };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to switch business";
