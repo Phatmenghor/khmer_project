@@ -180,9 +180,12 @@ export function ProductListPage({
       return;
     }
 
+    if (loading.list) {
+      return;
+    }
 
-    if (!filtersMatch || (!hasProductsInStore && !loading.list)) {
-      if (!filtersMatch && hasProductsInStore) {
+    if (!filtersMatch) {
+      if (hasProductsInStore) {
         dispatch(clearProducts());
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -190,7 +193,7 @@ export function ProductListPage({
       dispatch(setLoadedFilters(currentFilters));
       loadProducts(1);
     }
-  }, [currentFilters, loadedFilters, products.length, loadProducts, dispatch, loading.list]);
+  }, [currentFilters, loadedFilters, products.length, dispatch, loading.list]);
 
   const isInitialLoad = products.length === 0 && loading.list;
   const noSearch = lockedPromotion ? undefined : search;
