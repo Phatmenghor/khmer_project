@@ -72,23 +72,7 @@ const CategoriesSectionComponent = ({
 
 
   if (error || !displayCategories || displayCategories.length === 0) {
-    return (
-      <SectionWrapper>
-        <SectionHeader
-          title={title}
-          subtitle={DEFAULT_SUBTITLE}
-        />
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="text-6xl mb-4">🏷️</div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            No Categories Available
-          </h3>
-          <p className="text-muted-foreground text-center">
-            There are no categories available at this time. Please check back later.
-          </p>
-        </div>
-      </SectionWrapper>
-    );
+    return null;
   }
 
 

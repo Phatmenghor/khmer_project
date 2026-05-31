@@ -89,22 +89,9 @@ const PromotionsSectionComponent = ({
     );
   }
 
-  // Error or empty state - show empty message
+  // Error or empty state - don't show section
   if (error || !displayProducts || displayProducts.length === 0) {
-    return (
-      <SectionWrapper>
-        <PromotionHeader showDecoration={false} />
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="text-6xl mb-4">🎁</div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            No Promotions Available
-          </h3>
-          <p className="text-muted-foreground text-center">
-            There are no promotions available at this time. Check back soon for amazing deals!
-          </p>
-        </div>
-      </SectionWrapper>
-    );
+    return null;
   }
 
 
