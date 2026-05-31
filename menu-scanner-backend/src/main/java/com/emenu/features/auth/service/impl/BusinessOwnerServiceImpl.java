@@ -133,6 +133,8 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     public BusinessOwnerCreateResponse registerBusinessOwner(BusinessOwnerPublicRegisterRequest registerRequest) {
         log.info("Public business owner registration initiated: business_name={}, owner_email={}, planId={}",
                 registerRequest.getBusinessName(), registerRequest.getOwnerEmail(), registerRequest.getPlanId());
+        log.debug("Registration details - enableStockManagement={}, primaryColor={}",
+                registerRequest.getEnableStockManagement(), registerRequest.getPrimaryColor());
 
         // Convert public registration request to create request
         BusinessOwnerCreateRequest createRequest = BusinessOwnerCreateRequest.builder()
@@ -149,32 +151,46 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 .enableStockManagement(registerRequest.getEnableStockManagement())
                 .primaryColor(registerRequest.getPrimaryColor())
                 .build();
+        log.debug("CreateRequest built successfully");
 
         // Validate using existing validation
         validateBusinessOwnerCreation(createRequest);
+        log.debug("Validation passed");
 
         Business businessEntity = createBusiness(createRequest);
+        log.debug("Business entity created: business_id={}", businessEntity.getId());
+
         User ownerUserEntity = createOwnerUser(createRequest, businessEntity.getId());
+        log.debug("Owner user entity created: user_id={}", ownerUserEntity.getId());
 
         businessEntity.setOwnerId(ownerUserEntity.getId());
         businessRepository.save(businessEntity);
+        log.debug("Business owner association saved");
 
         // Create business setting with stock management and primary color preferences
         createBusinessSetting(businessEntity.getId(), createRequest);
+        log.debug("Business setting created successfully");
 
         Subscription subscriptionRecord = null;
         SubscriptionPayment paymentRecord = null;
 
         // Create subscription if plan was selected during registration
         if (createRequest.getPlanId() != null) {
+            log.debug("Creating subscription for plan: {}", createRequest.getPlanId());
             subscriptionRecord = createSubscription(businessEntity.getId(), createRequest);
+            log.debug("Subscription created: subscription_id={}", subscriptionRecord.getId());
+
             paymentRecord = createSubscriptionPayment(subscriptionRecord, createRequest);
+            log.debug("Payment record created: payment_id={}", paymentRecord.getId());
+
             businessEntity.activateSubscription();
             businessRepository.save(businessEntity);
+            log.debug("Business subscription activated");
         }
 
         BusinessOwnerCreateResponse response = mapper.toCreateResponse(ownerUserEntity, businessEntity, subscriptionRecord, paymentRecord);
         response.setCreatedComponents(buildCreatedComponentsList(paymentRecord != null));
+        log.debug("Response mapped successfully");
 
         log.info("Business owner registered successfully via public registration: owner_id={}, business_id={}, subscription_id={}",
                 ownerUserEntity.getId(), businessEntity.getId(), subscriptionRecord != null ? subscriptionRecord.getId() : null);
