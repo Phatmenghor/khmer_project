@@ -607,19 +607,16 @@ export default function PosPage() {
     let discountAmount = 0;
     cartItems.forEach((item) => {
       totalQuantity += item.quantity;
-      const itemSubtotal = item.finalPrice * item.quantity;
-      subtotal += itemSubtotal;
-
-      if (item.customizations && item.customizations.length > 0) {
-        const itemCustomizationTotal = item.customizations.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0);
-        customizationTotal += itemCustomizationTotal * item.quantity;
-      }
+      const itemCustomizationTotal = item.customizations?.reduce((sum, c) => sum + (c.priceAdjustment || 0), 0) || 0;
+      const itemBasePrice = item.finalPrice - itemCustomizationTotal;
+      subtotal += itemBasePrice * item.quantity;
+      customizationTotal += itemCustomizationTotal * item.quantity;
     });
     const deliveryFee = selectedDeliveryOption?.price || 0;
 
     const taxPercentage = businessSettings?.taxPercentage || 0;
-    const taxAmount = subtotal * (taxPercentage / 100);
-    const finalTotal = Math.max(0, subtotal + deliveryFee + taxAmount);
+    const taxAmount = (subtotal + customizationTotal) * (taxPercentage / 100);
+    const finalTotal = Math.max(0, subtotal + customizationTotal + deliveryFee + taxAmount);
     return {
       totalItems,
       totalQuantity,
@@ -1202,12 +1199,6 @@ export default function PosPage() {
                   </span>
                   <span className="font-medium">{formatCurrency(cartSummary.subtotal)}</span>
                 </div>
-                {cartSummary.customizationTotal > 0 && (
-                  <div className="flex justify-between text-xs">
-                    <span className="text-yellow-600 font-medium">Add-ons</span>
-                    <span className="text-yellow-600 font-semibold">+{formatCurrency(cartSummary.customizationTotal)}</span>
-                  </div>
-                )}
                 {cartSummary.discountAmount > 0 && (
                   <div className="flex justify-between text-xs">
                     <span className="text-red-500 font-medium">Discount</span>
