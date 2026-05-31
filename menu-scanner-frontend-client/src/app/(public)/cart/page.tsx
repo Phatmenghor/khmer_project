@@ -25,6 +25,7 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
+import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 
 function CartItemSkeleton() {
   return (
@@ -172,11 +173,13 @@ export default function CartPage() {
   if (!isAuthenticated) {
     return (
       <>
-        <CartEmptyState
+        <SignInRequired
           title="Your Cart"
-          message="Please sign in to view your cart and start shopping."
-          onLogin={() => setLoginModalOpen(true)}
-          showLogin
+          description="Please sign in to view your cart and start shopping."
+          icon="🛒"
+          onSignIn={() => setLoginModalOpen(true)}
+          browseButtonText="Browse Products"
+          onBrowse={() => router.push("/products")}
         />
         <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
       </>

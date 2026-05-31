@@ -31,6 +31,8 @@ import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-se
 import { ComboboxSelectPaymentPublic } from "@/components/shared/combobox/combobox-select-payment-public";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { SignInRequired } from "@/components/shared/auth/sign-in-required";
+import { LoginModal } from "@/components/shared/modal/login-modal";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -71,6 +73,7 @@ export default function CheckoutPage() {
   const [defaultAddress, setDefaultAddress] = useState<LocationResponse | null>(null);
   const [loadingDefaults, setLoadingDefaults] = useState(false);
   const [initialOrderStatus, setInitialOrderStatus] = useState<string>("Pending");
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const [checkoutState, setCheckoutState] = useState<CheckoutState>({
     selectedAddressId: null,
@@ -323,23 +326,17 @@ export default function CheckoutPage() {
 
   if (!isAuthenticated) {
     return (
-      <PageContainer className="py-12">
-        <div className="max-w-sm mx-auto text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <Lock className="h-8 w-8 text-primary" />
-          </div>
-          <h1 className="text-2xl font-bold mb-2">Sign In Required</h1>
-          <p className="text-muted-foreground mb-6">
-            Please sign in to continue with checkout.
-          </p>
-          <CustomButton
-            onClick={() => router.push("/login")}
-            className="w-full h-11 rounded-xl"
-          >
-            Sign In
-          </CustomButton>
-        </div>
-      </PageContainer>
+      <>
+        <SignInRequired
+          title="Checkout"
+          description="Please sign in to continue with your checkout."
+          icon="🔒"
+          onSignIn={() => setLoginModalOpen(true)}
+          browseButtonText="Continue Shopping"
+          onBrowse={() => router.push("/products")}
+        />
+        <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
+      </>
     );
   }
 

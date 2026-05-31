@@ -39,6 +39,8 @@ import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector, useAppDispatch } from "@/store";
 import { cancelOrderService } from "@/features/main/store/thunks/my-orders-thunks";
+import { SignInRequired } from "@/components/shared/auth/sign-in-required";
+import { LoginModal } from "@/components/shared/modal/login-modal";
 
 type Order = OrderResponse;
 
@@ -81,6 +83,7 @@ export default function OrdersPage() {
     orderNumber: "",
   });
   const [cancelingOrderId, setCancelingOrderId] = useState<string | null>(null);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
 
   useEffect(() => {
@@ -239,23 +242,17 @@ export default function OrdersPage() {
 
   if (!isAuthenticated) {
     return (
-      <PageContainer className="min-h-screen flex flex-col py-12">
-        <div className="max-w-sm mx-auto text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="h-8 w-8 text-primary" />
-          </div>
-          <h1 className="text-2xl font-bold mb-2">Sign In Required</h1>
-          <p className="text-muted-foreground mb-6">
-            Please sign in to view your orders.
-          </p>
-          <CustomButton
-            onClick={() => router.push("/login")}
-            className="w-full h-11 rounded-xl"
-          >
-            Sign In
-          </CustomButton>
-        </div>
-      </PageContainer>
+      <>
+        <SignInRequired
+          title="My Orders"
+          description="Sign in to view your orders and track deliveries."
+          icon="📦"
+          onSignIn={() => setLoginModalOpen(true)}
+          browseButtonText="Browse Products"
+          onBrowse={() => router.push("/products")}
+        />
+        <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
+      </>
     );
   }
 
