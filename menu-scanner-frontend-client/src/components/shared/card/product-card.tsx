@@ -301,16 +301,17 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
 
   return (
     <>
-      <Link href={`/products/${product.id}`}>
-        <div
-          className={cn(
-            "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover-scale-102 hover-lift",
-            isInCart && "ring-1 ring-primary/30 border-primary/50",
-            isOutOfStock && "opacity-70",
-            !isInCart && product?.hasPromotion && "ring-1 ring-amber-500/20",
-            className,
-          )}
-        >
+      <div
+        className={cn(
+          "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col hover-scale-102 hover-lift",
+          isInCart && "ring-1 ring-primary/30 border-primary/50",
+          isOutOfStock && "opacity-70",
+          !isInCart && product?.hasPromotion && "ring-1 ring-amber-500/20",
+          className,
+        )}
+      >
+        {/* Clickable area — image + info only, no action buttons inside */}
+        <Link href={`/products/${product.id}`} className="flex flex-col flex-1 cursor-pointer">
           <ProductImage
             product={product}
             imageUrl={imageUrl}
@@ -324,22 +325,23 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
             onToggleFavorite={handleToggleFavorite}
           />
 
-          <div className="p-3 flex flex-col flex-1">
+          <div className="p-3 pb-2 flex flex-col flex-1">
             <ProductInfo product={product} />
-
-            <div className="mt-auto">
-              <ProductActions
-                displayQuantity={displayQuantity}
-                isInCart={isInCart}
-                isOutOfStock={isOutOfStock}
-                onAddToCart={handleAddToCart}
-                onIncrement={handleIncrement}
-                onDecrement={handleDecrement}
-              />
-            </div>
           </div>
+        </Link>
+
+        {/* Actions live outside the Link — clicks never trigger navigation or the progress bar */}
+        <div className="px-3 pb-3">
+          <ProductActions
+            displayQuantity={displayQuantity}
+            isInCart={isInCart}
+            isOutOfStock={isOutOfStock}
+            onAddToCart={handleAddToCart}
+            onIncrement={handleIncrement}
+            onDecrement={handleDecrement}
+          />
         </div>
-      </Link>
+      </div>
 
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
       <SizePickerModal
