@@ -47,7 +47,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
       const customizationRows = item.customizations?.length > 0
         ? (() => {
             const names = item.customizations.map((c) => c.name).join(", ");
-            const truncated = names.length > 26 ? names.slice(0, 26) + "..." : names;
+            const truncated = names.length > 38 ? names.slice(0, 38) + "..." : names;
             const total = item.customizations.reduce((s, c) => s + (c.priceAdjustment || 0), 0);
             return `
         <tr style="height: 14px; line-height: 1;">
