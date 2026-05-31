@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
@@ -32,10 +32,7 @@ import { selectGlobalPageSize } from "@/store/selectors/global-settings-selector
 import { useAppSelector } from "@/store";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import { generateReceiptHTML } from "@/utils/receipt/receipt-template";
-import { OrderReceipt } from "@/components/shared/receipt/order-receipt";
+import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 
 export default function PendingOrdersAdminPage() {
   useAdminCleanup(resetState);
@@ -66,9 +63,7 @@ export default function PendingOrdersAdminPage() {
     order: null as OrderResponse | null,
   });
 
-  const [downloadingOrderId, setDownloadingOrderId] = useState<string | null>(
-    null
-  );
+  const { handleDownloadReceipt, downloadingOrderId } = useDownloadReceipt();
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
@@ -116,113 +111,6 @@ export default function PendingOrdersAdminPage() {
 
   const handleDeleteOrder = (order: OrderResponse) => {
     setDeleteState({ isOpen: true, order });
-  };
-
-  const handleDownloadReceipt = async (order: OrderResponse, format: "pdf" | "png" = "pdf") => {
-    if (!order.id) return;
-    setDownloadingOrderId(order.id);
-    try {
-      // Create container with receipt HTML
-      const element = document.createElement("div");
-      element.style.position = "absolute";
-      element.style.left = "-9999px";
-      element.style.width = "305px";
-      element.style.margin = "0";
-      element.style.padding = "0";
-      element.innerHTML = generateReceiptHTML(order);
-      document.body.appendChild(element);
-
-      // Convert to canvas using html2canvas
-      const canvas = await html2canvas(element, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        width: 305,
-        windowWidth: 305,
-        windowHeight: element.scrollHeight,
-        logging: false,
-        onclone: (clonedDoc) => {
-          // Ensure proper font and color rendering
-          const style = clonedDoc.createElement('style');
-          style.textContent = `
-            * { 
-              font-family: 'Courier New', monospace !important;
-              box-sizing: border-box;
-            }
-            body { 
-              background: white !important;
-              margin: 0;
-              padding: 0;
-            }
-            #receipt-wrapper { 
-              font-size: 10px !important;
-              line-height: 1.3 !important;
-              color: black !important;
-              background: white !important;
-            }
-            table { 
-              border-collapse: collapse;
-              width: 100%;
-            }
-            th, td { 
-              background: transparent !important;
-              background-color: transparent !important;
-              border-color: #000 !important;
-              color: black !important;
-            }
-            tr { 
-              background: transparent !important;
-              background-color: transparent !important;
-            }
-          `;
-          clonedDoc.head.appendChild(style);
-        },
-      });
-
-      if (format === "pdf") {
-        // Generate PDF
-        const pdfWidth = 80; // mm (80mm thermal printer)
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        const pdf = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: [pdfWidth, pdfHeight],
-        });
-
-        const imgData = canvas.toDataURL("image/png");
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`receipt-${order.orderNumber}.pdf`);
-        showToast.success("Receipt downloaded as PDF");
-      } else {
-        // Download as PNG
-        await new Promise<void>((resolve) => {
-          canvas.toBlob((blob) => {
-            if (!blob) {
-              resolve();
-              return;
-            }
-            const dlUrl = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = dlUrl;
-            a.download = `receipt-${order.orderNumber}.png`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(dlUrl);
-            showToast.success("Receipt downloaded as PNG");
-            resolve();
-          }, "image/png");
-        });
-      }
-
-      document.body.removeChild(element);
-    } catch (error) {
-      console.error("Receipt download error:", error);
-      showToast.error("Failed to generate receipt");
-    } finally {
-      setDownloadingOrderId(null);
-    }
   };
 
   const tableHandlers = useMemo(
