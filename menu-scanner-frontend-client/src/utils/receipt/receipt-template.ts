@@ -47,18 +47,18 @@ export function generateReceiptHTML(order: OrderResponse): string {
       const customizationRows = item.customizations?.length > 0
         ? (() => {
             const names = item.customizations.map((c) => c.name).join(", ");
+            const truncated = names.length > 26 ? names.slice(0, 26) + "..." : names;
             const total = item.customizations.reduce((s, c) => s + (c.priceAdjustment || 0), 0);
             return `
-        <tr style="height: 18px;">
-          <td style="padding-left: 12px; font-size: 0.82em; color: #555; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 0;">${names}</td>
-          <td colspan="3"></td>
-          <td style="text-align: right; padding-right: 4px; font-size: 0.82em; color: #555; white-space: nowrap;">${formatPrice(total)}</td>
+        <tr style="height: 14px; line-height: 1;">
+          <td colspan="4" style="padding-left: 12px; font-size: 0.80em; color: #555; white-space: nowrap;">${truncated}</td>
+          <td style="text-align: right; padding-right: 4px; font-size: 0.80em; color: #555; white-space: nowrap;">${formatPrice(total)}</td>
         </tr>`;
           })()
         : "";
 
       return `
-        <tr>
+        <tr style="height: 20px; line-height: 1;">
           <td style="max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 0;">${displayName}</td>
           <td style="text-align: right; padding: 0 4px; white-space: nowrap;">${(item.finalPrice || 0).toFixed(2)}</td>
           <td style="text-align: center; padding: 0 4px;">${item.quantity}</td>
