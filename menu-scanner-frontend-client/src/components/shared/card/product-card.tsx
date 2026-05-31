@@ -15,7 +15,6 @@ import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 import { LoginModal } from "../modal/login-modal";
 import { useFavoriteState } from "@/features/main/store/state/favorite-state";
-import { addToCart } from "@/features/main/store/thunks/cart-thunks";
 import {
   addLocalCartItem,
   updateLocalCartItem,
@@ -297,13 +296,12 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     (selectedProduct: ProductDetailResponseModel, size: ProductSize | undefined, qty: number | undefined, customizationIds: string[] | undefined) => {
       const timestamp = Date.now();
       const sizeId = size?.id === "__no_size__" ? null : size?.id || null;
-
       const quantity = qty ?? 1;
       const customizations = customizationIds || [];
+      const key = cartItemKey(selectedProduct.id, sizeId, customizations);
 
-
+      // 1. Optimistic local state update immediately
       if (isEditingProduct) {
-
         cartDispatch(
           updateLocalCartItem({
             productId: selectedProduct.id,
@@ -313,7 +311,6 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
           })
         );
       } else if (quantity > 0) {
-
         cartDispatch(
           addLocalCartItem({
             productId: selectedProduct.id,
@@ -332,25 +329,14 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
             optimisticTimestamp: timestamp,
           })
         );
-      } else {
-
       }
-
 
       setSizePickerProduct(null);
 
-
-      cartDispatch(
-        addToCart({
-          productId: selectedProduct.id,
-          productSizeId: sizeId,
-          customizationIds: customizations,
-          quantity: quantity,
-          optimisticTimestamp: timestamp,
-        })
-      );
+      // 2. API call in background via debounce (same system as +/- buttons)
+      debouncedUpdate(key, selectedProduct.id, sizeId, quantity, timestamp, customizations);
     },
-    [cartDispatch, isEditingProduct]
+    [cartDispatch, isEditingProduct, debouncedUpdate]
   );
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";

@@ -29,7 +29,6 @@ export function useCartDebounce(dispatch: AppDispatch) {
 
   const timersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
-
   const pendingUpdatesRef = useRef<
     Map<
       string,
@@ -37,17 +36,15 @@ export function useCartDebounce(dispatch: AppDispatch) {
         productId: string;
         productSizeId: string | null;
         quantity: number;
+        customizationIds?: string[];
         optimisticTimestamp?: number;
       }
     >
   >(new Map());
 
-
   const isProcessingRef = useRef<Map<string, boolean>>(new Map());
 
-
   const activePromisesRef = useRef<Map<string, { abort: () => void }>>(new Map());
-
 
   useEffect(() => {
     const timers = timersRef.current;
@@ -55,42 +52,32 @@ export function useCartDebounce(dispatch: AppDispatch) {
     return () => {
       timers.forEach((timer) => clearTimeout(timer));
       timers.clear();
-
       activePromises.forEach((promise) => promise.abort());
       activePromises.clear();
     };
   }, []);
 
-
   const processQueue = useCallback(
     (key: string) => {
-
       if (isProcessingRef.current.get(key)) return;
-
 
       const args = pendingUpdatesRef.current.get(key);
       if (!args) return;
 
-
       pendingUpdatesRef.current.delete(key);
-
-
       isProcessingRef.current.set(key, true);
 
-      const { productId, productSizeId, quantity, optimisticTimestamp } = args;
-      const apiCallTime = performance.now();
-
+      const { productId, productSizeId, quantity, customizationIds, optimisticTimestamp } = args;
 
       const thunkAction = updateCartItem({
         productId,
         productSizeId,
         quantity,
+        customizationIds,
         optimisticTimestamp,
       });
 
       const promise = dispatch(thunkAction);
-
-
       activePromisesRef.current.set(key, promise);
 
       promise
@@ -101,24 +88,17 @@ export function useCartDebounce(dispatch: AppDispatch) {
           }
         })
         .catch((error: unknown) => {
-
-          if (isAbortError(error)) {
-            return;
-          }
+          if (isAbortError(error)) return;
           showToast.error((error as { message?: string })?.message || Messages.cart.updateFailed);
         })
         .finally(() => {
-
           activePromisesRef.current.delete(key);
           isProcessingRef.current.set(key, false);
-
-
           processQueue(key);
         });
     },
     [dispatch]
   );
-
 
   const debouncedUpdate = useCallback(
     (
@@ -126,25 +106,21 @@ export function useCartDebounce(dispatch: AppDispatch) {
       productId: string,
       productSizeId: string | null,
       quantity: number,
-      optimisticTimestamp?: number
+      optimisticTimestamp?: number,
+      customizationIds?: string[]
     ) => {
-
-      if (!productId) {
-        return;
-      }
-
+      if (!productId) return;
 
       pendingUpdatesRef.current.set(key, {
         productId,
         productSizeId,
         quantity,
+        customizationIds,
         optimisticTimestamp,
       });
 
-
       const existingTimer = timersRef.current.get(key);
       if (existingTimer) clearTimeout(existingTimer);
-
 
       timersRef.current.set(
         key,
@@ -157,44 +133,38 @@ export function useCartDebounce(dispatch: AppDispatch) {
     [processQueue]
   );
 
-
   const immediateUpdate = useCallback(
     (
       key: string,
       productId: string,
       productSizeId: string | null,
       quantity: number,
-      optimisticTimestamp?: number
+      optimisticTimestamp?: number,
+      customizationIds?: string[]
     ) => {
-
       const existingTimer = timersRef.current.get(key);
       if (existingTimer) clearTimeout(existingTimer);
       timersRef.current.delete(key);
-
 
       pendingUpdatesRef.current.set(key, {
         productId,
         productSizeId,
         quantity,
+        customizationIds,
         optimisticTimestamp,
       });
-
 
       processQueue(key);
     },
     [processQueue]
   );
 
-
   const cancelAll = useCallback(() => {
     timersRef.current.forEach((timer) => clearTimeout(timer));
     timersRef.current.clear();
     pendingUpdatesRef.current.clear();
     isProcessingRef.current.clear();
-
-
   }, []);
-
 
   const isUpdating = useCallback((key: string): boolean => {
     return (
@@ -209,7 +179,13 @@ export function useCartDebounce(dispatch: AppDispatch) {
 
 export function cartItemKey(
   productId: string,
-  productSizeId: string | null | undefined
+  productSizeId: string | null | undefined,
+  customizationIds?: string[]
 ): string {
-  return `${productId}_${productSizeId ?? "null"}`;
+  const sizeKey = productSizeId ?? "null";
+  if (!customizationIds || customizationIds.length === 0) {
+    return `${productId}_${sizeKey}`;
+  }
+  const customKey = [...customizationIds].sort().join(",");
+  return `${productId}_${sizeKey}_${customKey}`;
 }
