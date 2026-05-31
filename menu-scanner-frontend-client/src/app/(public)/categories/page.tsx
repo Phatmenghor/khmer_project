@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useCallback, useRef } from "react";
 import { usePublicCategoriesState } from "@/features/main/store/state/public-categories-state";
-import { LayoutGrid, Loader2 } from "lucide-react";
+import { LayoutGrid, Loader2, CheckCircle2 } from "lucide-react";
 import { CategoryCard } from "@/components/shared/card/category-card";
 import { CategoryCardSkeleton } from "@/components/shared/skeletons/category-card-skeleton";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
@@ -113,9 +113,15 @@ export default function CategoriesPage() {
             )}
 
             {!hasMore && !isLoadingMore && categories.length > 0 && (
-              <div className="flex flex-col items-center justify-center mt-8 py-8">
-                <p className="text-center text-sm text-muted-foreground">
-                  Showing all {totalCategories} categories
+              <div className="flex flex-col items-center justify-center mt-10 py-8 px-4">
+                <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
+                  <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">
+                  You've seen all categories!
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md">
+                  You've reached the end of our category list. Check back later for new categories!
                 </p>
               </div>
             )}
