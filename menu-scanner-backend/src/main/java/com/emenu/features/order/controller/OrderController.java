@@ -38,9 +38,9 @@ public class OrderController {
     }
 
     @PostMapping("/checkout-from-pos")
-    public ResponseEntity<ApiResponse<POSCheckoutResponse>> createPOSCheckoutOrder(@Valid @RequestBody POSCheckoutRequest request) {
+    public ResponseEntity<ApiResponse<OrderResponse>> createPOSCheckoutOrder(@Valid @RequestBody POSCheckoutRequest request) {
         log.info("Endpoint: checkout-pos - pos order checkout: business_id={}", request.getBusinessId());
-        POSCheckoutResponse order = orderService.createPOSCheckoutOrder(request);
+        OrderResponse order = orderService.createPOSCheckoutOrder(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("POS order created successfully", order));
     }

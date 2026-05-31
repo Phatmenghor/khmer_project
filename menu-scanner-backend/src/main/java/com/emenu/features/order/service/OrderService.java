@@ -24,5 +24,5 @@ public interface OrderService {
     OrderResponse deleteOrder(UUID orderId);
 
     // POS Operations (Admin)
-    POSCheckoutResponse createPOSCheckoutOrder(POSCheckoutRequest request);
+    OrderResponse createPOSCheckoutOrder(POSCheckoutRequest request);
 }

@@ -848,7 +848,7 @@ public class OrderServiceImpl implements OrderService {
     // Format: ORD-YYYYMMDD-XXXXX (where XXXXX can be 00001-99999, 100000 onwards)
 
     @Override
-    public POSCheckoutResponse createPOSCheckoutOrder(POSCheckoutRequest request) {
+    public OrderResponse createPOSCheckoutOrder(POSCheckoutRequest request) {
         log.info("[POS CHECKOUT START] Creating POS order - Business: {}, Items: {}",
             request.getBusinessId(), request.getCart().getItems().size());
 
@@ -950,26 +950,7 @@ public class OrderServiceImpl implements OrderService {
             telegramNotificationService.notifyNewPOSOrder(orderWithItems);
             webSocketNotificationService.notifyNewOrder(orderWithItems);
 
-            return POSCheckoutResponse.builder()
-                    .id(response.getId())
-                    .orderNumber(response.getOrderNumber())
-                    .subtotal(response.getPricing().getSubtotal())
-                    .customizationTotal(response.getPricing().getCustomizationTotal() != null ?
-                        response.getPricing().getCustomizationTotal() : BigDecimal.ZERO)
-                    .discountAmount(response.getPricing().getDiscountAmount())
-                    .deliveryFee(response.getPricing().getDeliveryFee())
-                    .taxPercentage(response.getPricing().getTaxPercentage())
-                    .taxAmount(response.getPricing().getTaxAmount())
-                    .totalAmount(response.getPricing().getFinalTotal())
-                    .orderStatus("COMPLETED")
-                    .source("POS")
-                    .paymentMethod("CASH")
-                    .paymentStatus("PAID")
-                    .createdBy(currentUser != null ? currentUser.getFullName() : "System")
-                    .createdAt(response.getCreatedAt())
-                    .customerName(request.getCustomerName())
-                    .customerPhone(request.getCustomerPhone())
-                    .build();
+            return response;
 
         } catch (Exception e) {
             log.error("[POS CHECKOUT ERROR] Failed to create POS order: {}", e.getMessage(), e);
