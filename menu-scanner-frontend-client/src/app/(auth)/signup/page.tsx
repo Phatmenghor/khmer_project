@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
+import { SelectField } from "@/components/shared/form-field/select-field";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/components/shared/common/show-toast";
 import { appImages } from "@/constants/app-resource/icons/app-images";
@@ -23,6 +24,7 @@ const formSchema = z.object({
   ownerPassword: z.string().min(6, "Password must be at least 6 characters"),
   businessName: z.string().min(2, "Business name is required"),
   businessEmail: z.string().email("Invalid email format"),
+  planId: z.string().min(1, "Please select a plan"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -41,6 +43,7 @@ export default function SignupPage() {
       ownerPassword: "",
       businessName: "",
       businessEmail: "",
+      planId: "",
     },
   });
 
@@ -57,7 +60,7 @@ export default function SignupPage() {
           ownerPassword: values.ownerPassword,
           businessName: values.businessName,
           businessEmail: values.businessEmail,
-          planId: null,
+          planId: values.planId,
         }),
       });
 
@@ -195,6 +198,20 @@ export default function SignupPage() {
                 error={form.formState.errors.businessEmail}
                 disabled={isLoading}
                 required
+              />
+
+              <SelectField
+                name="planId"
+                label="Select Plan"
+                control={form.control}
+                error={form.formState.errors.planId}
+                disabled={isLoading}
+                options={[
+                  { value: "", label: "Choose a plan..." },
+                  { value: "basic", label: "Basic Plan" },
+                  { value: "pro", label: "Pro Plan" },
+                  { value: "enterprise", label: "Enterprise Plan" },
+                ]}
               />
 
               <Button
