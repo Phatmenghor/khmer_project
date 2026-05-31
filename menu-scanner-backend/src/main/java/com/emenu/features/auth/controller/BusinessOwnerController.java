@@ -102,16 +102,8 @@ public class BusinessOwnerController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> registerBusinessOwner(
             @Valid @RequestBody BusinessOwnerPublicRegisterRequest registerRequest) {
-        log.info("Endpoint: business-owners/register - public registration request received: " +
-                "business_name={}, owner_email={}, owner_identifier={}, planId={}, " +
-                "enableStockManagement={}, primaryColor={}",
-                registerRequest.getBusinessName(),
-                registerRequest.getOwnerEmail(),
-                registerRequest.getOwnerUserIdentifier(),
-                registerRequest.getPlanId(),
-                registerRequest.getEnableStockManagement(),
-                registerRequest.getPrimaryColor());
-        log.debug("Full registration request: {}", registerRequest);
+        log.info("Endpoint: business-owners/register - public registration request received: business_name={}, owner_email={}",
+                registerRequest.getBusinessName(), registerRequest.getOwnerEmail());
         BusinessOwnerCreateResponse response = businessOwnerService.registerBusinessOwner(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Business owner registered successfully", response));

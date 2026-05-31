@@ -21,19 +21,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 
 logging:
   level:
     root: INFO
-    com.emenu: DEBUG
+    com.emenu: INFO
     org.springframework: WARN
-    org.hibernate: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate: WARN
 
 # Telegram (Development Server)
 telegram:
