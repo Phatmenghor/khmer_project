@@ -104,6 +104,8 @@ import {
   fetchPOSPageProductsService,
   createPOSCheckoutOrderService,
 } from "@/features/business/store/thunks/pos-page-thunks";
+import { fetchAllDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
+import { fetchAllPaymentOptionsService } from "@/features/master-data/store/thunks/payment-options-thunks";
 import { AppDispatch, RootState } from "@/store";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
@@ -279,6 +281,46 @@ export default function PosPage() {
     dispatch(fetchBusinessSettingsThunk());
   }, [dispatch]);
 
+  useEffect(() => {
+    const initializeDefaults = async () => {
+      try {
+        const deliveryResult = await dispatch(
+          fetchAllDeliveryOptionsService({
+            pageNo: 1,
+            pageSize: 100,
+            businessId: AppDefault.BUSINESS_ID,
+            statuses: ["ACTIVE"],
+          })
+        ).unwrap();
+
+        const pickupOption = deliveryResult?.content?.find(
+          (option: any) => option.name === "Pickup" && option.price === 0
+        );
+        if (pickupOption) {
+          dispatch(setSelectedDeliveryOption(pickupOption as any));
+        }
+
+        const paymentResult = await dispatch(
+          fetchAllPaymentOptionsService({
+            pageNo: 1,
+            pageSize: 100,
+            statuses: ["ACTIVE"],
+          })
+        ).unwrap();
+
+        const cashOption = paymentResult?.content?.find(
+          (option: any) => option.paymentOptionType === "CASH"
+        );
+        if (cashOption) {
+          dispatch(setSelectedPaymentOption(cashOption));
+        }
+      } catch (error) {
+        // Silently fail if defaults can't be set
+      }
+    };
+
+    initializeDefaults();
+  }, [dispatch]);
 
   const skeletonCount = 4;
 
