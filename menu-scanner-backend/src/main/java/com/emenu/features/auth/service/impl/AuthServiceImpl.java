@@ -265,7 +265,7 @@ public class AuthServiceImpl implements AuthService {
         userEntity.setUserType(UserType.CUSTOMER);
         userEntity.setPassword(passwordEncoder.encode(registrationRequestData.getPassword()));
 
-        Role customerRoleEntity = roleRepository.findByNameAndIsDeletedFalse("CUSTOMER")
+        Role customerRoleEntity = roleRepository.findSystemRoleByName("CUSTOMER")
                 .orElseThrow(() -> {
                     log.warn("Customer registration failed - customer role not found");
                     return new ValidationException("Customer role not found");
