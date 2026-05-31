@@ -1,10 +1,10 @@
 "use client";
 
 import { formatCurrency } from "@/utils/common/currency-format";
-import { OrderApiResponse } from "@/features/business/store/models/response/order-api-response";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
 
 interface OrderReceiptProps {
-  order: OrderApiResponse;
+  order: OrderResponse;
 }
 
 export function OrderReceipt({ order }: OrderReceiptProps) {
@@ -209,34 +209,34 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-700">Subtotal</span>
-                <span className="font-bold text-gray-900">{formatCurrency(order.subtotal)}</span>
+                <span className="font-bold text-gray-900">{formatCurrency(order.pricing?.subtotal)}</span>
               </div>
 
-              {order.customizationTotal > 0 && (
+              {(order.pricing?.customizationTotal ?? 0) > 0 && (
                 <div className="flex justify-between">
                   <span className="text-gray-700">Add-ons</span>
-                  <span className="font-bold text-gray-900">+{formatCurrency(order.customizationTotal)}</span>
+                  <span className="font-bold text-gray-900">+{formatCurrency(order.pricing?.customizationTotal)}</span>
                 </div>
               )}
 
-              {order.discountAmount > 0 && (
+              {(order.pricing?.discountAmount ?? 0) > 0 && (
                 <div className="flex justify-between bg-red-50 px-2 py-1">
                   <span className="text-red-700 font-semibold">Discount</span>
-                  <span className="font-bold text-red-700">-{formatCurrency(order.discountAmount)}</span>
+                  <span className="font-bold text-red-700">-{formatCurrency(order.pricing?.discountAmount)}</span>
                 </div>
               )}
 
-              {order.taxAmount > 0 && (
+              {(order.pricing?.taxAmount ?? 0) > 0 && (
                 <div className="flex justify-between">
                   <span className="text-gray-700">Tax</span>
-                  <span className="font-bold text-gray-900">+{formatCurrency(order.taxAmount)}</span>
+                  <span className="font-bold text-gray-900">+{formatCurrency(order.pricing?.taxAmount)}</span>
                 </div>
               )}
 
-              {order.deliveryFee > 0 && (
+              {(order.pricing?.deliveryFee ?? 0) > 0 && (
                 <div className="flex justify-between">
                   <span className="text-gray-700">Delivery Fee</span>
-                  <span className="font-bold text-gray-900">+{formatCurrency(order.deliveryFee)}</span>
+                  <span className="font-bold text-gray-900">+{formatCurrency(order.pricing?.deliveryFee)}</span>
                 </div>
               )}
             </div>
@@ -247,7 +247,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
             <p className="text-xs font-semibold mb-1">FINAL AMOUNT DUE</p>
             <div className="flex justify-between items-baseline">
               <span className="text-sm font-bold">TOTAL:</span>
-              <span className="text-3xl font-bold">{formatCurrency(order.totalAmount)}</span>
+              <span className="text-3xl font-bold">{formatCurrency(order.pricing?.finalTotal)}</span>
             </div>
           </div>
 

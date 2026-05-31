@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { OrderReceipt } from "@/components/shared/receipt/order-receipt";
-import { OrderApiResponse } from "@/features/business/store/models/response/order-api-response";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useSelector } from "react-redux";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
@@ -16,7 +16,7 @@ import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 interface POSOrderSuccessModalProps {
   open: boolean;
   onClose: () => void;
-  order: OrderApiResponse | null;
+  order: OrderResponse | null;
 }
 
 export function POSOrderSuccessModal({
@@ -30,9 +30,11 @@ export function POSOrderSuccessModal({
   );
   const primaryColor = businessSettings?.primaryColor || "#000000";
 
-  const { handleDownloadReceiptFromRef, isDownloading } = useDownloadReceipt();
+  const { handleDownloadReceipt, downloadingOrderId } = useDownloadReceipt();
 
   if (!order) return null;
+
+  const isDownloading = downloadingOrderId === order.id;
 
   const handlePrint = () => {
     if (receiptRef.current) {
@@ -43,10 +45,6 @@ export function POSOrderSuccessModal({
         printWindow.print();
       }
     }
-  };
-
-  const handleDownloadPDF = () => {
-    handleDownloadReceiptFromRef(receiptRef, order.orderNumber, "pdf");
   };
 
   return (
@@ -71,7 +69,6 @@ export function POSOrderSuccessModal({
         {/* Body */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-4">
-            {/* Order Summary Card */}
             <Card>
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
@@ -87,14 +84,14 @@ export function POSOrderSuccessModal({
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t">
                   <span className="text-sm font-medium text-foreground">Total Amount</span>
-                  <span className="text-lg font-semibold text-foreground">${order.totalAmount.toFixed(2)}</span>
+                  <span className="text-lg font-semibold text-foreground">${order.pricing?.finalTotal?.toFixed(2) ?? "0.00"}</span>
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Hidden receipt for printing/downloading */}
+        {/* Hidden receipt for printing */}
         <div ref={receiptRef} className="hidden">
           <OrderReceipt order={order} />
         </div>
@@ -111,7 +108,7 @@ export function POSOrderSuccessModal({
               Print
             </CustomButton>
             <CustomButton
-              onClick={handleDownloadPDF}
+              onClick={() => handleDownloadReceipt(order)}
               variant="outline"
               className="gap-2 h-10"
               disabled={isDownloading}
@@ -124,10 +121,7 @@ export function POSOrderSuccessModal({
 
           <CustomButton
             onClick={onClose}
-            style={{
-              backgroundColor: primaryColor,
-              color: "white"
-            }}
+            style={{ backgroundColor: primaryColor, color: "white" }}
             className="w-full h-11 font-medium hover:opacity-90"
           >
             Done & Next Order
