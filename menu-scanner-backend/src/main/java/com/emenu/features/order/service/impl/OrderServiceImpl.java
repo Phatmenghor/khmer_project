@@ -946,11 +946,10 @@ public class OrderServiceImpl implements OrderService {
 
             log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
-            log.info("[POS CHECKOUT RESPONSE] id={}, orderNumber={}, orderStatus={}, source={}, businessName={}, customerName={}, itemCount={}, pricing.subtotal={}, pricing.customizationTotal={}, pricing.deliveryFee={}, pricing.taxAmount={}, pricing.finalTotal={}, payment.method={}, payment.status={}",
+            log.info("[POS CHECKOUT RESPONSE] id={}, orderNumber={}, orderStatus={}, businessName={}, customerName={}, itemCount={}, pricing.subtotal={}, pricing.customizationTotal={}, pricing.deliveryFee={}, pricing.taxAmount={}, pricing.finalTotal={}, payment.method={}, payment.status={}",
                 response.getId(),
                 response.getOrderNumber(),
                 response.getOrderStatus(),
-                response.getSource(),
                 response.getBusinessName(),
                 response.getCustomerName(),
                 response.getItems() != null ? response.getItems().size() : "null",
