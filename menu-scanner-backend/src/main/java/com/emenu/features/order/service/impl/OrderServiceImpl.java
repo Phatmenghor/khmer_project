@@ -58,6 +58,7 @@ import com.emenu.shared.generate.PaymentReferenceGenerator;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -96,6 +97,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaginationMapper paginationMapper;
     private final StockServiceImpl stockService;
     private final ObjectMapper objectMapper;
+    private final EntityManager entityManager;
     private final BusinessSettingRepository businessSettingRepository;
     private final BusinessRepository businessRepository;
     private final TelegramNotificationService telegramNotificationService;
@@ -963,6 +965,8 @@ public class OrderServiceImpl implements OrderService {
             deductStockForOrder(orderWithItems);
 
             log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
+            // Clear L1 cache so findByIdWithDetails reloads itemCustomizations from DB
+            entityManager.clear();
             OrderResponse response = getOrderById(savedOrder.getId());
             if (response.getBusinessName() == null) {
                 businessRepository.findById(request.getBusinessId())
