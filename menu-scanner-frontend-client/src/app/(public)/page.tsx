@@ -156,9 +156,8 @@ export default function HomePage() {
   }, []); // only on mount
 
   const isInitialFeaturedLoading =
-    featuredProductsSection.loading &&
-    featuredProducts.length === 0 &&
-    !featuredProductsSection.loaded;
+    (featuredProductsSection.loading || !featuredProductsSection.loaded) &&
+    featuredProducts.length === 0;
 
   // ── normal data fetch ────────────────────────────────────────────────────
   useEffect(() => {
