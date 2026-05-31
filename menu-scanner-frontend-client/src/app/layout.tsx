@@ -63,7 +63,9 @@ export default async function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
         {/* Synchronously apply cached theme before React mounts — eliminates flash */}
-        <script
+        <Script
+          id="theme-initializer"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){try{
 var bid=localStorage.getItem('businessId')||'550cad56-cafd-4aba-baef-c4dcd53940d0';
