@@ -522,22 +522,33 @@ export default function BusinessSettingsPage() {
               </div>
 
               {}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Show Brands</Label>
-                  <Switch
-                    checked={form.watch("useBrands")}
-                    onCheckedChange={(checked) =>
-                      form.setValue("useBrands", checked, {
-                        shouldDirty: true,
-                      })
-                    }
-                    disabled={isSaving}
-                  />
+              <div className="space-y-3 p-4 border rounded-lg bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-base font-semibold">Show Brands</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {form.watch("useBrands")
+                        ? "✓ Product brands are displayed in your storefront"
+                        : "Product brands are hidden from your storefront"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {form.watch("useBrands") && (
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0">
+                        Enabled
+                      </Badge>
+                    )}
+                    <Switch
+                      checked={form.watch("useBrands")}
+                      onCheckedChange={(checked) =>
+                        form.setValue("useBrands", checked, {
+                          shouldDirty: true,
+                        })
+                      }
+                      disabled={isSaving}
+                    />
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {form.watch("useBrands") ? "Display" : "Hide"} product brands in your storefront
-                </p>
               </div>
             </div>
           </CardContent>
