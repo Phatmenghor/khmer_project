@@ -1,6 +1,7 @@
 package com.emenu.features.auth.repository;
 
 import com.emenu.enums.sub_scription.SubscriptionStatus;
+import com.emenu.enums.user.UserType;
 import com.emenu.features.auth.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -81,4 +82,12 @@ public interface BusinessOwnerRepository extends JpaRepository<User, UUID>, JpaS
         AND u.isDeleted = false
     """)
     boolean existsByUserIdentifierAndIsDeletedFalse(@Param("userIdentifier") String userIdentifier);
+
+    @Query("""
+        SELECT COUNT(u) FROM User u
+        WHERE u.businessId = :businessId
+        AND u.userType = :userType
+        AND u.isDeleted = false
+    """)
+    long countByBusinessIdAndUserType(@Param("businessId") UUID businessId, @Param("userType") UserType userType);
 }

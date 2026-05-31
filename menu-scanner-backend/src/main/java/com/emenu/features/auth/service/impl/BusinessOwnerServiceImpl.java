@@ -533,17 +533,21 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private User createOwnerUser(BusinessOwnerCreateRequest creationRequestData, UUID businessId) {
-        List<Role> ownerRoles = roleRepository.findSystemRolesByName("BUSINESS_OWNER");
-        if (ownerRoles.isEmpty()) {
+        validateNoExistingBusinessOwner(businessId);
+
+        List<Role> systemRoles = roleRepository.findSystemRolesByName("BUSINESS_OWNER");
+        if (systemRoles.isEmpty()) {
             log.warn("Business owner creation failed - system business owner role not found");
             throw new NotFoundException("System configuration issue. Please contact support.");
         }
-        Role ownerRoleEntity = ownerRoles.get(0);
+        Role systemRoleEntity = systemRoles.get(0);
 
-        if (!ownerRoleEntity.isCompatibleWithUserType(UserType.BUSINESS_USER)) {
+        if (!systemRoleEntity.isCompatibleWithUserType(UserType.BUSINESS_USER)) {
             log.warn("Business owner creation failed - business owner role not compatible with user type");
             throw new ValidationException("System configuration issue. Please contact support.");
         }
+
+        Role businessOwnerRole = createBusinessOwnerRole(businessId);
 
         User ownerUserEntity = new User();
         ownerUserEntity.setUserIdentifier(creationRequestData.getOwnerUserIdentifier());
@@ -551,7 +555,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         ownerUserEntity.setUserType(UserType.BUSINESS_USER);
         ownerUserEntity.setAccountStatus(AccountStatus.ACTIVE);
         ownerUserEntity.setBusinessId(businessId);
-        ownerUserEntity.setRoles(List.of(ownerRoleEntity));
+        ownerUserEntity.setRoles(List.of(businessOwnerRole));
 
         ownerUserEntity = businessOwnerRepository.save(ownerUserEntity);
 
@@ -813,5 +817,24 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         log.info("Default business records created successfully: business_id={}, exchange_rate=4000, delivery_option=Pickup, payment_options=[BANK, CASH]",
                 businessId);
+    }
+
+    private Role createBusinessOwnerRole(UUID businessId) {
+        Role businessOwnerRole = new Role();
+        businessOwnerRole.setName("BUSINESS_OWNER");
+        businessOwnerRole.setDescription("Business Owner - Full access to business operations");
+        businessOwnerRole.setBusinessId(businessId);
+        businessOwnerRole.setUserType(UserType.BUSINESS_USER);
+        Role savedRole = roleRepository.save(businessOwnerRole);
+        log.info("Business-specific BUSINESS_OWNER role created: role_id={}, business_id={}", savedRole.getId(), businessId);
+        return savedRole;
+    }
+
+    private void validateNoExistingBusinessOwner(UUID businessId) {
+        long ownerCount = businessOwnerRepository.countByBusinessIdAndUserType(businessId, UserType.BUSINESS_USER);
+        if (ownerCount > 0) {
+            log.warn("Business owner creation failed - business already has an owner: business_id={}", businessId);
+            throw new ValidationException("This business already has an owner. Only one owner is allowed per business.");
+        }
     }
 }
