@@ -2,6 +2,7 @@ package com.emenu.features.auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,6 +40,7 @@ public class BusinessOwnerCreateRequest {
     private String businessPhone;
     private String businessAddress;
     
+    @NotNull(message = "Plan ID is required")
     private UUID planId;
     private BigDecimal paymentAmount;
     private String paymentMethod;
