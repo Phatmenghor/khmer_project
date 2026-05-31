@@ -10,6 +10,7 @@ import {
   LogIn,
   ShoppingCart,
   ArrowRight,
+  PackageX,
 } from "lucide-react";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
@@ -121,6 +122,7 @@ export default function CartPage() {
   const handleClearCart = async () => {
     await dispatch(clearCart()).unwrap();
     showToast.success(Messages.cart.cleared);
+    setClearCartModalOpen(false);
   };
 
   const handleCheckout = () => {
@@ -317,7 +319,9 @@ export default function CartPage() {
         onClose={() => setClearCartModalOpen(false)}
         onDelete={handleClearCart}
         title="Clear Cart"
-        description="Are you sure you want to remove all items from your cart?"
+        description={`Remove all ${totalItems} ${totalItems === 1 ? "item" : "items"} from your cart? This cannot be undone.`}
+        icon={<PackageX className="h-5 w-5 text-destructive" />}
+        confirmButtonText="Clear Cart"
         variant="critical"
       />
     </>
