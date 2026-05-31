@@ -29,19 +29,16 @@ public abstract class OrderItemMapper {
     public abstract List<OrderItemResponse> toResponseList(List<OrderItem> orderItems);
 
     protected OrderItemResponse.OrderItemProductInfo mapProductInfo(OrderItem orderItem) {
-        if (orderItem.getProduct() == null) {
-            return null;
-        }
-
         OrderItemResponse.OrderItemProductInfo info = new OrderItemResponse.OrderItemProductInfo();
-        info.setId(orderItem.getProduct().getId());
+        // Use denormalized snapshot fields — product join may be null if product was deleted
+        info.setId(orderItem.getProductId());
         info.setName(orderItem.getProductName());
         info.setImageUrl(orderItem.getProductImageUrl());
         info.setSku(orderItem.getSku());
         info.setBarcode(orderItem.getBarcode());
         info.setSizeId(orderItem.getProductSizeId());
         info.setSizeName(orderItem.getSizeName());
-        if (orderItem.getProduct().getStatus() != null) {
+        if (orderItem.getProduct() != null && orderItem.getProduct().getStatus() != null) {
             info.setStatus(orderItem.getProduct().getStatus().toString());
         }
         return info;

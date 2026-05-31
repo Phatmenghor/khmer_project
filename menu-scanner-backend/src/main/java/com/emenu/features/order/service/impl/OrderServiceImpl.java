@@ -5,8 +5,10 @@ import com.emenu.enums.payment.PaymentStatus;
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.enums.common.StockStatus;
+import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.models.BusinessSetting;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.order.dto.filter.OrderFilterRequest;
 import com.emenu.features.order.dto.helper.OrderPaymentCreateHelper;
@@ -95,6 +97,7 @@ public class OrderServiceImpl implements OrderService {
     private final StockServiceImpl stockService;
     private final ObjectMapper objectMapper;
     private final BusinessSettingRepository businessSettingRepository;
+    private final BusinessRepository businessRepository;
     private final TelegramNotificationService telegramNotificationService;
     private final WebSocketNotificationService webSocketNotificationService;
 
@@ -639,6 +642,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setBarcode(item.getBarcode() != null ? item.getBarcode() : product.getBarcode());
 
             orderItem.setQuantity(item.getQuantity());
+            orderItem.setCurrentPrice(item.getFinalPrice());
             orderItem.setUnitPrice(item.getFinalPrice());
             orderItem.setFinalPrice(item.getFinalPrice());
             orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
@@ -946,6 +950,10 @@ public class OrderServiceImpl implements OrderService {
 
             log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
+            if (response.getBusinessName() == null) {
+                businessRepository.findById(request.getBusinessId())
+                    .ifPresent(b -> response.setBusinessName(b.getName()));
+            }
             log.info("[POS CHECKOUT RESPONSE] id={}, orderNumber={}, orderStatus={}, businessName={}, customerName={}, itemCount={}, pricing.subtotal={}, pricing.customizationTotal={}, pricing.deliveryFee={}, pricing.taxAmount={}, pricing.finalTotal={}, payment.method={}, payment.status={}",
                 response.getId(),
                 response.getOrderNumber(),
