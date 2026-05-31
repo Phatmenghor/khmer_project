@@ -7,6 +7,8 @@ import {
   ExchangeRateResponseModel,
 } from "../store/models/response/exchange-rate-response";
 import { ActionButton } from "@/components/shared/button/action-button";
+import { Switch } from "@/components/ui/switch";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { formatKhrRate } from "@/utils/format/exchange-rate-formatter";
 
 interface HandlersTableHandlers {
@@ -53,6 +55,25 @@ export const exchangeRateTableColumns = ({
         <span className="text-sm font-medium">
           {formatKhrRate(parameter?.usdToKhrRate)}
         </span>
+      ),
+    },
+
+    {
+      key: "status",
+      label: "Status",
+      minWidth: "120px",
+      maxWidth: "150px",
+      truncate: true,
+      render: (parameter) => (
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={parameter?.status === "ACTIVE"}
+            onCheckedChange={() => handleToggleExchangeRateStatus(parameter)}
+          />
+          <span className="text-sm text-muted-foreground">
+            {parameter?.status ? formatEnumValue(parameter.status) : "---"}
+          </span>
+        </div>
       ),
     },
 
