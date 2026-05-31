@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
@@ -25,6 +26,7 @@ const formSchema = z.object({
   businessName: z.string().min(2, "Business name is required"),
   businessEmail: z.string().email("Invalid email format"),
   planId: z.string().min(1, "Please select a plan"),
+  enableStockManagement: z.boolean().default(false),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -44,6 +46,7 @@ export default function SignupPage() {
       businessName: "",
       businessEmail: "",
       planId: "",
+      enableStockManagement: false,
     },
   });
 
@@ -61,6 +64,7 @@ export default function SignupPage() {
           businessName: values.businessName,
           businessEmail: values.businessEmail,
           planId: values.planId,
+          enableStockManagement: values.enableStockManagement,
         }),
       });
 
@@ -199,6 +203,21 @@ export default function SignupPage() {
                 disabled={isLoading}
                 required
               />
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Enable Stock Management</label>
+                <div className="flex items-center gap-3 p-3 border rounded-md bg-muted/30">
+                  <Switch
+                    name="enableStockManagement"
+                    checked={form.watch("enableStockManagement")}
+                    onCheckedChange={(checked) => form.setValue("enableStockManagement", checked)}
+                    disabled={isLoading}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {form.watch("enableStockManagement") ? "Enabled" : "Disabled"}
+                  </span>
+                </div>
+              </div>
 
               <SelectField
                 name="planId"
