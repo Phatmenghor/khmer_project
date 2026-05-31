@@ -35,6 +35,8 @@ import com.emenu.features.order.models.PaymentOption;
 import com.emenu.features.order.repository.BusinessExchangeRateRepository;
 import com.emenu.features.order.repository.DeliveryOptionRepository;
 import com.emenu.features.order.repository.PaymentOptionRepository;
+import com.emenu.features.portfolio.models.PortfolioProfile;
+import com.emenu.features.portfolio.repository.PortfolioProfileRepository;
 import com.emenu.features.subscription.models.Subscription;
 import com.emenu.features.subscription.models.SubscriptionPayment;
 import com.emenu.features.subscription.models.SubscriptionPlan;
@@ -80,6 +82,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private final BusinessExchangeRateRepository businessExchangeRateRepository;
     private final DeliveryOptionRepository deliveryOptionRepository;
     private final PaymentOptionRepository paymentOptionRepository;
+    private final PortfolioProfileRepository portfolioProfileRepository;
     private final PasswordEncoder passwordEncoder;
     private final BusinessOwnerMapper mapper;
     private final UserValidationService userValidationService;
@@ -770,6 +773,13 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     }
 
     private void initializeBusinessDefaults(UUID businessId) {
+        // Create default portfolio profile with business name only
+        Business business = businessRepository.findById(businessId).orElseThrow();
+        PortfolioProfile portfolioProfile = new PortfolioProfile();
+        portfolioProfile.setBusinessId(businessId);
+        portfolioProfile.setBusinessName(business.getName());
+        portfolioProfileRepository.save(portfolioProfile);
+
         // Create default exchange rate: 4000 USD to KHR
         BusinessExchangeRate exchangeRate = new BusinessExchangeRate();
         exchangeRate.setBusinessId(businessId);
