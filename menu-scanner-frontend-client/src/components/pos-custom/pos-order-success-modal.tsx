@@ -1,17 +1,16 @@
 "use client";
 
-import { useRef } from "react";
 import { Download, Printer, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { OrderReceipt } from "@/components/shared/receipt/order-receipt";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useSelector } from "react-redux";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { RootState } from "@/store";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
+import { generateReceiptHTML } from "@/utils/receipt/receipt-template";
 
 interface POSOrderSuccessModalProps {
   open: boolean;
@@ -24,7 +23,6 @@ export function POSOrderSuccessModal({
   onClose,
   order,
 }: POSOrderSuccessModalProps) {
-  const receiptRef = useRef<HTMLDivElement>(null);
   const businessSettings = useSelector((state: RootState) =>
     selectBusinessSettings(state)
   );
@@ -37,13 +35,23 @@ export function POSOrderSuccessModal({
   const isDownloading = downloadingOrderId === order.id;
 
   const handlePrint = () => {
-    if (receiptRef.current) {
-      const printWindow = window.open("", "", "width=400,height=600");
-      if (printWindow) {
-        printWindow.document.write(receiptRef.current.innerHTML);
-        printWindow.document.close();
-        printWindow.print();
-      }
+    const printWindow = window.open("", "", "width=400,height=600");
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <style>
+              * { font-family: 'Courier New', monospace; box-sizing: border-box; }
+              body { margin: 0; padding: 0; background: white; }
+            </style>
+          </head>
+          <body>${generateReceiptHTML(order)}</body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
     }
   };
 
@@ -85,11 +93,6 @@ export function POSOrderSuccessModal({
               </CardContent>
             </Card>
           </div>
-        </div>
-
-        {/* Hidden receipt for printing */}
-        <div ref={receiptRef} className="hidden">
-          <OrderReceipt order={order} />
         </div>
 
         {/* Footer */}
