@@ -20,7 +20,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
     hour12: true,
   });
 
-  const promotionalItems = order.items.filter((item) => item.hasPromotion);
+  const promotionalItems = (order.items || []).filter((item) => item.hasPromotion);
 
   return (
     <div className="w-full max-w-2xl mx-auto bg-white">
@@ -113,7 +113,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
           {/* Items Section */}
           <div className="mb-4 border border-gray-400">
             <div className="bg-gray-900 text-white px-4 py-2 font-bold text-sm">
-              ITEMS ({order.items.length})
+              ITEMS ({(order.items || []).length})
             </div>
 
             <div className="px-4 py-3">
@@ -127,7 +127,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
 
               {/* Items */}
               <div className="space-y-3">
-                {order.items.map((item, index) => {
+                {(order.items || []).map((item, index) => {
                   const itemTotal = item.finalPrice * item.quantity;
                   const getPromotionLabel = () => {
                     if (!item.hasPromotion || !item.promotionType) return null;
@@ -203,34 +203,34 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-700">Subtotal</span>
-                <span className="font-bold text-gray-900">{formatCurrency(order.pricing.subtotal)}</span>
+                <span className="font-bold text-gray-900">{formatCurrency(order.subtotal)}</span>
               </div>
 
-              {order.pricing.customizationTotal > 0 && (
+              {order.customizationTotal > 0 && (
                 <div className="flex justify-between">
                   <span className="text-gray-700">Add-ons</span>
-                  <span className="font-bold text-gray-900">+{formatCurrency(order.pricing.customizationTotal)}</span>
+                  <span className="font-bold text-gray-900">+{formatCurrency(order.customizationTotal)}</span>
                 </div>
               )}
 
-              {order.pricing.discountAmount > 0 && (
+              {order.discountAmount > 0 && (
                 <div className="flex justify-between bg-red-50 px-2 py-1">
                   <span className="text-red-700 font-semibold">Discount</span>
-                  <span className="font-bold text-red-700">-{formatCurrency(order.pricing.discountAmount)}</span>
+                  <span className="font-bold text-red-700">-{formatCurrency(order.discountAmount)}</span>
                 </div>
               )}
 
-              {order.pricing.taxAmount > 0 && (
+              {order.taxAmount > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-700">Tax ({order.pricing.taxPercentage}%)</span>
-                  <span className="font-bold text-gray-900">+{formatCurrency(order.pricing.taxAmount)}</span>
+                  <span className="text-gray-700">Tax</span>
+                  <span className="font-bold text-gray-900">+{formatCurrency(order.taxAmount)}</span>
                 </div>
               )}
 
-              {order.pricing.deliveryFee > 0 && (
+              {order.deliveryFee > 0 && (
                 <div className="flex justify-between">
                   <span className="text-gray-700">Delivery Fee</span>
-                  <span className="font-bold text-gray-900">+{formatCurrency(order.pricing.deliveryFee)}</span>
+                  <span className="font-bold text-gray-900">+{formatCurrency(order.deliveryFee)}</span>
                 </div>
               )}
             </div>
@@ -241,7 +241,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
             <p className="text-xs font-semibold mb-1">FINAL AMOUNT DUE</p>
             <div className="flex justify-between items-baseline">
               <span className="text-sm font-bold">TOTAL:</span>
-              <span className="text-3xl font-bold">{formatCurrency(order.pricing.finalTotal)}</span>
+              <span className="text-3xl font-bold">{formatCurrency(order.totalAmount)}</span>
             </div>
           </div>
 
