@@ -45,16 +45,14 @@ export function generateReceiptHTML(order: OrderResponse): string {
         : productName;
 
       const customizationRows = item.customizations?.length > 0
-        ? (() => {
-            const names = item.customizations.map((c) => c.name).join(", ");
-            const truncated = names.length > 38 ? names.slice(0, 38) + "..." : names;
-            const total = item.customizations.reduce((s, c) => s + (c.priceAdjustment || 0), 0);
+        ? item.customizations.map((c) => {
+            const truncated = c.name.length > 38 ? c.name.slice(0, 38) + "..." : c.name;
             return `
         <tr style="height: 14px; line-height: 1;">
           <td colspan="4" style="padding-left: 12px; font-size: 0.80em; color: #555; white-space: nowrap;">${truncated}</td>
-          <td style="text-align: right; padding-right: 4px; font-size: 0.80em; color: #555; white-space: nowrap;">${formatPrice(total)}</td>
+          <td style="text-align: right; padding-right: 4px; font-size: 0.80em; color: #555; white-space: nowrap;">${formatPrice(c.priceAdjustment || 0)}</td>
         </tr>`;
-          })()
+          }).join("")
         : "";
 
       return `
