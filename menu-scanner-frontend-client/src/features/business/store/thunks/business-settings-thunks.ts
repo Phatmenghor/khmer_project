@@ -13,7 +13,7 @@ export const fetchBusinessSettingsThunk = createAsyncThunk(
   "businessSettings/fetch",
   async (businessIdParam?: string, { rejectWithValue }) => {
     try {
-      const businessId = businessIdParam || localStorage.getItem("businessId") || AppDefault.BUSINESS_ID;
+      const businessId = businessIdParam || AppDefault.BUSINESS_ID;
       const settings = await fetchBusinessSettingsByBusinessId(businessId);
       return settings;
     } catch (error) {
