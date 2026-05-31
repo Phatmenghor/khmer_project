@@ -18,7 +18,7 @@ import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/features/main/store/state/favorite-state";
 import { clearProducts } from "@/features/main/store/slice/public-product-slice";
-import { selectBusinessName, selectBusinessLogo } from "@/features/business/store/selectors/business-settings-selector";
+import { selectBusinessName, selectBusinessLogo, selectBusinessSettingsLoading } from "@/features/business/store/selectors/business-settings-selector";
 import { useLogout } from "@/hooks/use-logout";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { LoginModal } from "../shared/modal/login-modal";
@@ -60,6 +60,7 @@ export function Navbar() {
 
   const reduxBusinessName = useSelector(selectBusinessName);
   const reduxBusinessLogoUrl = useSelector(selectBusinessLogo);
+  const isBusinessLoading = useSelector(selectBusinessSettingsLoading);
 
   const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
   const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
@@ -80,8 +81,8 @@ export function Navbar() {
     return () => window.removeEventListener("pageshow", handlePageShow);
   }, [pathname]);
 
-  const businessName = reduxBusinessName || cachedBusinessName || "";
-  const businessLogoUrl = reduxBusinessLogoUrl || cachedLogoUrl || "";
+  const businessName = isBusinessLoading ? "" : (reduxBusinessName || cachedBusinessName || "");
+  const businessLogoUrl = isBusinessLoading ? "" : (reduxBusinessLogoUrl || cachedLogoUrl || "");
 
   const [favoriteAnimating, setFavoriteAnimating] = useState(false);
   const prevFavoriteCount = useRef(favoriteItemCount);
