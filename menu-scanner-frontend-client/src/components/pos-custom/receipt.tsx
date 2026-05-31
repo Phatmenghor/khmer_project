@@ -160,11 +160,11 @@ export function Receipt({
                       )}
 
                       {item.customizations && item.customizations.length > 0 && (
-                        <div className="ml-4 mt-0.5 space-y-0">
+                        <div className="ml-4 mt-0">
                           {item.customizations.map((c) => (
-                            <div key={c.productCustomizationId} className="flex justify-between text-xs text-gray-500 min-w-0">
+                            <div key={c.productCustomizationId} className="flex justify-between leading-tight text-gray-500 min-w-0" style={{fontSize: "0.7rem"}}>
                               <span className="truncate min-w-0">{c.name}</span>
-                              <span className="ml-2 shrink-0">{formatCurrency(c.priceAdjustment || 0)}</span>
+                              <span className="ml-2 shrink-0">{(c.priceAdjustment || 0).toFixed(2)}</span>
                             </div>
                           ))}
                         </div>
