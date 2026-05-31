@@ -157,7 +157,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         </DialogHeader>
 
         {/* Content */}
-        <ScrollArea className="flex-1 overflow-hidden">
+        <ScrollArea className="flex-1 min-h-0 w-full">
           <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-8 space-y-10">
             {/* Account Credentials Section */}
               <div>
