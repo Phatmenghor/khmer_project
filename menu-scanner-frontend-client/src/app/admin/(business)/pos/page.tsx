@@ -128,15 +128,6 @@ type CartItemEditData = {
   reason: string;
 };
 
-type OrderDiscountType = {
-  type: "fixed" | "percentage";
-  value: number;
-  reason: string;
-  beforeTotal: number;
-  afterTotal: number;
-  discountAmount: number;
-  appliedAt: string;
-} | null;
 
 type POSCheckoutPayload = {
   businessId: string;
@@ -182,9 +173,6 @@ type POSCheckoutPayload = {
     deliveryFee: number;
     taxPercentage: number;
     taxAmount: number;
-    discountAmount: number;
-    discountType: "FIXED_AMOUNT" | "PERCENTAGE" | null;
-    discountReason: string | null;
     finalTotal: number;
   };
   payment: {
@@ -256,7 +244,6 @@ export default function PosPage() {
 
 
 
-  const [orderDiscount, setOrderDiscount] = useState<OrderDiscountType>(null);
 
 
   useEffect(() => {
@@ -614,21 +601,18 @@ export default function PosPage() {
     const deliveryFee = selectedDeliveryOption?.price || 0;
     const taxPercentage = businessSettings?.taxPercentage || 0;
     const taxAmount = (subtotal + customizationTotal) * (taxPercentage / 100);
-    const beforeDiscount = subtotal + customizationTotal + deliveryFee + taxAmount;
-    const discountAmount = orderDiscount?.discountAmount || 0;
-    const finalTotal = Math.max(0, beforeDiscount - discountAmount);
+    const finalTotal = subtotal + customizationTotal + deliveryFee + taxAmount;
     return {
       totalItems,
       totalQuantity,
       subtotal,
       customizationTotal,
-      discountAmount,
       deliveryFee,
       taxAmount,
       taxPercentage,
       finalTotal,
     };
-  }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage, orderDiscount]);
+  }, [cartItems, selectedDeliveryOption, businessSettings?.taxPercentage]);
 
 
   const handleProductClick = useCallback((product: ProductDetailResponseModel) => {
@@ -680,13 +664,7 @@ export default function PosPage() {
   }, [dispatch, editingItemForPrice]);
 
 
-  const handleDiscountApply = (discount: Exclude<OrderDiscountType, null>) => {
-    setOrderDiscount(discount);
-    showToast.success(`Discount applied: saved $${discount.discountAmount.toFixed(2)}`);
-  };
-
-
-  const handleSubmitOrder = async () => {
+const handleSubmitOrder = async () => {
     if (cartItems.length === 0) {
       showToast.error(Messages.cart.emptyCart);
       return;
@@ -698,7 +676,6 @@ export default function PosPage() {
     }
 
 
-    console.log("[POS SUBMIT] orderDiscount state:", JSON.stringify(orderDiscount));
     console.log("[POS SUBMIT] cartSummary:", JSON.stringify(cartSummary));
 
     const payload: POSCheckoutPayload = {
@@ -745,7 +722,6 @@ export default function PosPage() {
         totalQuantity: cartSummary.totalQuantity,
         subtotal: cartSummary.subtotal,
         customizationTotal: cartSummary.customizationTotal,
-        totalDiscount: cartSummary.discountAmount,
         finalTotal: cartSummary.finalTotal,
       },
 
@@ -758,10 +734,6 @@ export default function PosPage() {
 
         taxPercentage: cartSummary.taxPercentage,
         taxAmount: cartSummary.taxAmount,
-
-        discountAmount: orderDiscount?.discountAmount || 0,
-        discountType: orderDiscount?.type === "fixed" ? "FIXED_AMOUNT" : orderDiscount?.type === "percentage" ? "PERCENTAGE" : null,
-        discountReason: orderDiscount?.reason || null,
 
         finalTotal: cartSummary.finalTotal,
       },
@@ -786,8 +758,7 @@ export default function PosPage() {
         dispatch(clearCartItems());
         dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));
-        setOrderDiscount(null);
-        showToast.success(Messages.orders.created);
+showToast.success(Messages.orders.created);
       }
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || Messages.orders.createFailed);
@@ -1251,7 +1222,6 @@ export default function PosPage() {
                   onClick={() => dispatch(setShowOrderDetailsModal(true))}
                 >
                   <Tag className="w-3.5 h-3.5" />
-                  More
                 </Button>
                 <div className="flex-1 px-3 py-2.5 bg-muted/30 min-w-0 flex items-center justify-between">
                   <div>
