@@ -32,30 +32,7 @@ const businessSettingsSlice = createSlice({
       .addCase(fetchBusinessSettingsThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-        if (!state.data) {
-          state.data = {
-            id: "",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            createdBy: "SYSTEM",
-            updatedBy: "SYSTEM",
-            businessId: "",
-            businessName: BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
-            taxPercentage: BUSINESS_SETTINGS_DEFAULTS.TAX_PERCENTAGE,
-            logoBusinessUrl: "",
-            enableStock: "DISABLED",
-            socialMedia: [],
-            primaryColor: BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
-            businessHours: [],
-            useBrands: false,
-            lowStockThreshold: BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
-            telegramGroupChatId: null,
-            contactAddress: null,
-            contactPhone: null,
-            contactEmail: null,
-            useSubcategories: false,
-          } as any;
-        }
+        state.data = null;
       });
 
 
@@ -72,30 +49,6 @@ const businessSettingsSlice = createSlice({
       .addCase(updateBusinessSettingsThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-        if (!state.data) {
-          state.data = {
-            id: "",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            createdBy: "SYSTEM",
-            updatedBy: "SYSTEM",
-            businessId: "",
-            businessName: BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
-            taxPercentage: BUSINESS_SETTINGS_DEFAULTS.TAX_PERCENTAGE,
-            logoBusinessUrl: "",
-            enableStock: "DISABLED",
-            socialMedia: [],
-            primaryColor: BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
-            businessHours: [],
-            useBrands: false,
-            lowStockThreshold: BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
-            telegramGroupChatId: null,
-            contactAddress: null,
-            contactPhone: null,
-            contactEmail: null,
-            useSubcategories: false,
-          } as any;
-        }
       });
   },
 });

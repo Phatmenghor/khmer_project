@@ -149,11 +149,8 @@ export default function BusinessSettingsPage() {
         } else {
           applyThemeColors(data.primaryColor);
         }
-      } else {
-        applyThemeColors(BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR);
       }
     } catch (error) {
-      applyThemeColors(BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR);
     } finally {
       setIsLoading(false);
     }

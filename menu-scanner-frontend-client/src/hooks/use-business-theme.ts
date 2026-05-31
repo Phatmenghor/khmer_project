@@ -92,7 +92,6 @@ export function useBusinessTheme() {
 
   // Effect 1: Apply theme colors on every navigation.
   // Uses cache first for instant paint, then overrides with live Redux data.
-  // Falls back to default colors if fetch fails or no data available.
   useEffect(() => {
     const businessId = AppDefault.BUSINESS_ID;
     const cachedColors = getCachedThemeColors(businessId);
@@ -102,10 +101,7 @@ export function useBusinessTheme() {
     if (businessSettings?.primaryColor) {
       applyColors(businessSettings.primaryColor);
     }
-    if (error && !businessSettings) {
-      applyColors(DEFAULT_COLORS.primary);
-    }
-  }, [pathname, businessSettings, error]);
+  }, [pathname, businessSettings]);
 
   // Effect 2: Update color cache when settings first arrive from API.
   useEffect(() => {
