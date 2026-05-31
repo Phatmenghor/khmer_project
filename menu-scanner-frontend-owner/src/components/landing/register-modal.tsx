@@ -170,7 +170,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   <TextField
                     name="userIdentifier"
                     label="Username *"
-                    placeholder="sokha.nhem"
+                    placeholder="Enter username"
                     control={control}
                     error={errors.userIdentifier}
                     disabled={isSubmitting}
@@ -179,7 +179,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   <PasswordField
                     name="ownerPassword"
                     label="Password *"
-                    placeholder="Min. 6 characters"
+                    placeholder="Enter password"
                     control={control}
                     error={errors.ownerPassword}
                     disabled={isSubmitting}
@@ -190,7 +190,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   <PasswordField
                     name="confirmPassword"
                     label="Confirm Password"
-                    placeholder="Re-enter password"
+                    placeholder="Confirm password"
                     control={control}
                     error={errors.confirmPassword}
                     disabled={isSubmitting}
@@ -202,7 +202,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   <TextField
                     name="ownerFullName"
                     label="Full Name"
-                    placeholder="Sokha Nhem"
+                    placeholder="Enter full name"
                     control={control}
                     error={errors.ownerFullName}
                     disabled={isSubmitting}
@@ -212,7 +212,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                     name="ownerEmail"
                     label="Email Address"
                     type="email"
-                    placeholder="owner@example.com"
+                    placeholder="Enter email address"
                     control={control}
                     error={errors.ownerEmail}
                     disabled={isSubmitting}
@@ -222,7 +222,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                     name="ownerPhone"
                     label="Phone Number"
                     type="tel"
-                    placeholder="+855 12 345 678"
+                    placeholder="Enter phone number"
                     control={control}
                     error={errors.ownerPhone}
                     disabled={isSubmitting}
@@ -241,7 +241,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   <TextField
                     name="businessName"
                     label="Business Name"
-                    placeholder="The Green Table"
+                    placeholder="Enter business name"
                     control={control}
                     error={errors.businessName}
                     disabled={isSubmitting}
@@ -251,7 +251,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                     name="businessEmail"
                     label="Business Email"
                     type="email"
-                    placeholder="info@greentable.com"
+                    placeholder="Enter business email"
                     control={control}
                     error={errors.businessEmail}
                     disabled={isSubmitting}
@@ -261,7 +261,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                     name="businessPhone"
                     label="Business Phone"
                     type="tel"
-                    placeholder="+855 23 456 789"
+                    placeholder="Enter business phone"
                     control={control}
                     error={errors.businessPhone}
                     disabled={isSubmitting}
@@ -270,7 +270,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   <TextField
                     name="businessAddress"
                     label="Business Address"
-                    placeholder="Street 278, Phnom Penh"
+                    placeholder="Enter business address"
                     control={control}
                     error={errors.businessAddress}
                     disabled={isSubmitting}
@@ -311,7 +311,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                         className="w-20 h-10 cursor-pointer rounded border border-input"
                       />
                       <input
-                        placeholder="#A32D62"
+                        placeholder="#RRGGBB"
                         value={watch("primaryColor")}
                         onChange={(e) => setValue("primaryColor", e.target.value)}
                         disabled={isSubmitting}
