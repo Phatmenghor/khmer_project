@@ -27,6 +27,7 @@ import {
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import {
@@ -78,7 +79,7 @@ export default function BusinessSettingsPage() {
   const [isLoading, setIsLoading] = useState(!reduxBusinessSettings);
   const [isSaving, setIsSaving] = useState(false);
   const [businessId, setBusinessId] = useState(
-    localStorage.getItem("businessId") || ""
+    localStorage.getItem("businessId") || AppDefault.BUSINESS_ID
   );
 
   const form = useForm<BusinessSettingsFormData>({
@@ -125,8 +126,8 @@ export default function BusinessSettingsPage() {
 
   // Watch for business ID changes
   useEffect(() => {
-    const currentBusinessId = localStorage.getItem("businessId") || "";
-    if (currentBusinessId && currentBusinessId !== businessId) {
+    const currentBusinessId = localStorage.getItem("businessId") || AppDefault.BUSINESS_ID;
+    if (currentBusinessId !== businessId) {
       setBusinessId(currentBusinessId);
       fetchBusinessSettings();
     }
@@ -135,7 +136,7 @@ export default function BusinessSettingsPage() {
   const fetchBusinessSettings = async () => {
     try {
       setIsLoading(true);
-      const currentBusinessId = localStorage.getItem("businessId") || "";
+      const currentBusinessId = localStorage.getItem("businessId") || AppDefault.BUSINESS_ID;
 
       const action = await dispatch(fetchBusinessSettingsThunk(currentBusinessId));
 
