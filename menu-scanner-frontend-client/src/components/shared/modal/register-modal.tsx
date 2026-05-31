@@ -67,11 +67,12 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isTelegramLoading, setIsTelegramLoading] = useState(false);
+  const [isRegistrationLoading, setIsRegistrationLoading] = useState(false);
 
   const { isLoading, dispatch } = useAuthState();
   const isSocialLoading = useAppSelector((state) => state.auth.isSocialLoading);
   const businessName = useAppSelector(selectBusinessName);
-  const isAnyLoading = isLoading || isSocialLoading || isTelegramLoading;
+  const isAnyLoading = isLoading || isSocialLoading || isTelegramLoading || isRegistrationLoading;
 
   const registerForm = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -79,6 +80,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
   });
 
   async function onRegisterSubmit(values: RegisterFormData) {
+    setIsRegistrationLoading(true);
     try {
       const result = await dispatch(
         registerCustomerService({
@@ -144,6 +146,8 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
       }
 
       showToast.error(errorMessage);
+    } finally {
+      setIsRegistrationLoading(false);
     }
   }
 
@@ -270,8 +274,11 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
               className="w-full h-11 font-semibold"
               disabled={isAnyLoading}
             >
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isLoading ? "Creating account..." : "Create Account"}
+              {isRegistrationLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isRegistrationLoading
+                ? (isLoading ? "Logging in..." : "Creating account...")
+                : "Create Account"
+              }
             </Button>
           </DialogFooter>
 
