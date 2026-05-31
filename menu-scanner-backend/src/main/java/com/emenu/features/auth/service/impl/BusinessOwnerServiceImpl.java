@@ -509,12 +509,12 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         // Only userIdentifier must be unique - allow duplicate emails and business details
         if (businessOwnerRepository.existsByUserIdentifierAndIsDeletedFalse(creationRequestData.getOwnerUserIdentifier())) {
             log.warn("Business owner creation failed - duplicate username: userIdentifier={}", creationRequestData.getOwnerUserIdentifier());
-            throw new ValidationException("Username already taken: " + creationRequestData.getOwnerUserIdentifier());
+            throw new ValidationException("This username is already taken. Please choose a different username or sign in if you already have an account.");
         }
 
         if (creationRequestData.getPlanId() != null && !planRepository.existsById(creationRequestData.getPlanId())) {
             log.warn("Business owner creation failed - plan not found: plan_id={}", creationRequestData.getPlanId());
-            throw new NotFoundException("Plan not found: " + creationRequestData.getPlanId());
+            throw new NotFoundException("The selected plan is no longer available. Please choose another plan.");
         }
     }
 
@@ -532,12 +532,12 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         Role ownerRoleEntity = roleRepository.findSystemRoleByName("BUSINESS_OWNER")
                 .orElseThrow(() -> {
                     log.warn("Business owner creation failed - system business owner role not found");
-                    return new NotFoundException("Business owner role not found");
+                    return new NotFoundException("System configuration issue. Please contact support.");
                 });
 
         if (!ownerRoleEntity.isCompatibleWithUserType(UserType.BUSINESS_USER)) {
             log.warn("Business owner creation failed - business owner role not compatible with user type");
-            throw new ValidationException("BUSINESS_OWNER role is not properly configured for BUSINESS_USER type");
+            throw new ValidationException("System configuration issue. Please contact support.");
         }
 
         User ownerUserEntity = new User();
