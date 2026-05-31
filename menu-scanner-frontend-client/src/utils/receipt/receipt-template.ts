@@ -49,9 +49,9 @@ export function generateReceiptHTML(order: OrderResponse): string {
             const truncated = c.name.length > 38 ? c.name.slice(0, 38) + "..." : c.name;
             const price = (c.priceAdjustment || 0).toFixed(2);
             return `
-        <tr style="height: 10px; line-height: 1;">
-          <td colspan="4" style="padding: 0 0 0 12px; font-size: 0.78em; color: #666; white-space: nowrap;">${truncated}</td>
-          <td style="text-align: right; padding-right: 4px; font-size: 0.78em; color: #666; white-space: nowrap;">${price}</td>
+        <tr class="custom-row">
+          <td colspan="4" style="padding: 1px 0 1px 12px; font-size: 0.78em; color: #666; white-space: nowrap; line-height: 1.1;">${truncated}</td>
+          <td style="text-align: right; padding: 1px 4px 1px 0; font-size: 0.78em; color: #666; white-space: nowrap; line-height: 1.1;">${price}</td>
         </tr>`;
           }).join("")
         : "";
@@ -116,6 +116,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
         #receipt-wrapper table tr { border: none !important; border-top: none !important; border-bottom: none !important; }
         #receipt-wrapper table td { border: none !important; }
         #receipt-wrapper table th { border: none !important; }
+        #receipt-wrapper .custom-row td { padding-top: 1px !important; padding-bottom: 1px !important; line-height: 1.1 !important; }
       </style>
       <div style="border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 8px 0; text-align: center; font-weight: bold; font-size: 1.2em; margin-bottom: 8px;">
         RECEIPT
