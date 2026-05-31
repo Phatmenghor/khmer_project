@@ -63,7 +63,8 @@ export function generateReceiptHTML(order: OrderResponse): string {
           <td style="text-align: center; padding: 0 4px;">${item.quantity}</td>
           <td style="text-align: right; padding: 0 4px; white-space: nowrap;">${discount}</td>
           <td style="text-align: right; padding-right: 4px; white-space: nowrap;">${itemTotal.toFixed(2)}</td>
-        </tr>${customizationRows}`;
+        </tr>${customizationRows}
+        <tr style="height: 6px;"><td colspan="5"></td></tr>`;
     })
     .join("");
 
