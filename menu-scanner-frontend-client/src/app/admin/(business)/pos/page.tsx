@@ -681,6 +681,9 @@ export default function PosPage() {
     }
 
 
+    console.log("[POS SUBMIT] orderDiscount state:", JSON.stringify(orderDiscount));
+    console.log("[POS SUBMIT] cartSummary:", JSON.stringify(cartSummary));
+
     const payload: POSCheckoutPayload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,
       customerName: "Walk-in Customer",
@@ -725,6 +728,7 @@ export default function PosPage() {
         totalQuantity: cartSummary.totalQuantity,
         subtotal: cartSummary.subtotal,
         customizationTotal: cartSummary.customizationTotal,
+        totalDiscount: cartSummary.discountAmount,
         finalTotal: cartSummary.finalTotal,
       },
 

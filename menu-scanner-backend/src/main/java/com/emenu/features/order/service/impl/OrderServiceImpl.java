@@ -853,8 +853,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createPOSCheckoutOrder(POSCheckoutRequest request) {
-        log.info("[POS CHECKOUT START] Creating POS order - Business: {}, Items: {}",
-            request.getBusinessId(), request.getCart().getItems().size());
+        log.info("[POS CHECKOUT START] Creating POS order - Business: {}, Items: {}, cart.totalDiscount={}, pricing.discountAmount={}, pricing.discountType={}, pricing.discountReason={}",
+            request.getBusinessId(), request.getCart().getItems().size(),
+            request.getCart().getTotalDiscount(),
+            request.getPricing() != null ? request.getPricing().getDiscountAmount() : "null",
+            request.getPricing() != null ? request.getPricing().getDiscountType() : "null",
+            request.getPricing() != null ? request.getPricing().getDiscountReason() : "null");
 
         User currentUser = securityUtils.getCurrentUser();
 
@@ -954,7 +958,7 @@ public class OrderServiceImpl implements OrderService {
                 businessRepository.findById(request.getBusinessId())
                     .ifPresent(b -> response.setBusinessName(b.getName()));
             }
-            log.info("[POS CHECKOUT RESPONSE] id={}, orderNumber={}, orderStatus={}, businessName={}, customerName={}, itemCount={}, pricing.subtotal={}, pricing.customizationTotal={}, pricing.deliveryFee={}, pricing.taxAmount={}, pricing.finalTotal={}, payment.method={}, payment.status={}",
+            log.info("[POS CHECKOUT RESPONSE] id={}, orderNumber={}, orderStatus={}, businessName={}, customerName={}, itemCount={}, pricing.subtotal={}, pricing.customizationTotal={}, pricing.discountAmount={}, pricing.discountType={}, pricing.discountReason={}, pricing.deliveryFee={}, pricing.taxAmount={}, pricing.finalTotal={}, payment.method={}, payment.status={}",
                 response.getId(),
                 response.getOrderNumber(),
                 response.getOrderStatus(),
@@ -963,6 +967,9 @@ public class OrderServiceImpl implements OrderService {
                 response.getItems() != null ? response.getItems().size() : "null",
                 response.getPricing() != null ? response.getPricing().getSubtotal() : "null",
                 response.getPricing() != null ? response.getPricing().getCustomizationTotal() : "null",
+                response.getPricing() != null ? response.getPricing().getDiscountAmount() : "null",
+                response.getPricing() != null ? response.getPricing().getDiscountType() : "null",
+                response.getPricing() != null ? response.getPricing().getDiscountReason() : "null",
                 response.getPricing() != null ? response.getPricing().getDeliveryFee() : "null",
                 response.getPricing() != null ? response.getPricing().getTaxAmount() : "null",
                 response.getPricing() != null ? response.getPricing().getFinalTotal() : "null",
