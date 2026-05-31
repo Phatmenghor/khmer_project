@@ -763,8 +763,7 @@ export default function PosPage() {
     try {
       const result = await dispatch(createPOSCheckoutOrderService(payload));
       if (result.payload) {
-        const order = result.payload as { orderNumber: string; totalAmount?: number; total?: number };
-        dispatch(setSuccessOrder({ orderNumber: order.orderNumber, total: order.total ?? order.totalAmount ?? 0 }));
+        dispatch(setSuccessOrder(result.payload as any));
         dispatch(clearCartItems());
         dispatch(setCartPricing(null));
         dispatch(setCustomerNote(""));
@@ -1344,8 +1343,7 @@ export default function PosPage() {
       <POSOrderSuccessModal
         open={!!successOrder}
         onClose={() => dispatch(setSuccessOrder(null))}
-        orderNumber={successOrder?.orderNumber || ""}
-        totalAmount={successOrder?.total || 0}
+        order={successOrder}
       />
 
 

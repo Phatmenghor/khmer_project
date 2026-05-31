@@ -5,8 +5,8 @@ import { Download, Printer, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { Receipt } from "./receipt";
-import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
+import { OrderReceipt } from "@/components/shared/receipt/order-receipt";
+import { OrderApiResponse } from "@/features/business/store/models/response/order-api-response";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useSelector } from "react-redux";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
@@ -15,38 +15,21 @@ import { RootState } from "@/store";
 interface POSOrderSuccessModalProps {
   open: boolean;
   onClose: () => void;
-  orderId?: string;
-  orderNumber: string;
-  totalAmount: number;
-  items?: PosPageCartItem[];
-  itemCount?: number;
-  orderData?: {
-    date: Date;
-    businessName: string;
-    subtotalWithAddons: number;
-    discountAmount: number;
-    subtotalAfterDiscount: number;
-    taxAmount: number;
-    deliveryFee: number;
-    paymentMethod: string;
-  };
+  order: OrderApiResponse | null;
 }
 
 export function POSOrderSuccessModal({
   open,
   onClose,
-  orderId,
-  orderNumber,
-  totalAmount,
-  items = [],
-  itemCount = 0,
-  orderData,
+  order,
 }: POSOrderSuccessModalProps) {
   const receiptRef = useRef<HTMLDivElement>(null);
   const businessSettings = useSelector((state: RootState) =>
     selectBusinessSettings(state)
   );
   const primaryColor = businessSettings?.primaryColor || "#000000";
+
+  if (!order) return null;
 
   const handlePrint = () => {
     if (receiptRef.current) {
@@ -81,7 +64,7 @@ export function POSOrderSuccessModal({
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
         pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-        pdf.save(`receipt-${orderNumber}.pdf`);
+        pdf.save(`receipt-${order.orderNumber}.pdf`);
       } catch (error) {
         console.error("Failed to generate PDF:", error);
       }
@@ -118,17 +101,15 @@ export function POSOrderSuccessModal({
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Order Number</span>
-                  <span className="text-base font-semibold">#{orderNumber}</span>
+                  <span className="text-base font-semibold">#{order.orderNumber}</span>
                 </div>
-                {orderId && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Order ID</span>
-                    <span className="text-sm font-mono text-foreground truncate max-w-xs">{orderId}</span>
-                  </div>
-                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Order ID</span>
+                  <span className="text-sm font-mono text-foreground truncate max-w-xs">{order.id}</span>
+                </div>
                 <div className="flex items-center justify-between pt-3 border-t">
                   <span className="text-sm font-medium text-foreground">Total Amount</span>
-                  <span className="text-lg font-semibold text-foreground">${totalAmount.toFixed(2)}</span>
+                  <span className="text-lg font-semibold text-foreground">${order.totalAmount.toFixed(2)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -140,21 +121,7 @@ export function POSOrderSuccessModal({
                 ref={receiptRef}
                 className="bg-white rounded-lg shadow-sm border overflow-hidden"
               >
-                {orderData && (
-                  <Receipt
-                    orderNumber={orderNumber}
-                    date={orderData.date}
-                    businessName={orderData.businessName}
-                    items={items}
-                    subtotalWithAddons={orderData.subtotalWithAddons}
-                    discountAmount={orderData.discountAmount}
-                    subtotalAfterDiscount={orderData.subtotalAfterDiscount}
-                    taxAmount={orderData.taxAmount}
-                    deliveryFee={orderData.deliveryFee}
-                    totalAmount={totalAmount}
-                    paymentMethod={orderData.paymentMethod}
-                  />
-                )}
+                <OrderReceipt order={order} />
               </div>
             </div>
           </div>

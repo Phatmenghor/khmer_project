@@ -10,6 +10,7 @@ import {
   createPOSPageOrderService,
 } from "../thunks/pos-page-thunks";
 import { ProductDetailResponseModel } from "../models/response/product-response";
+import { OrderApiResponse } from "../models/response/order-api-response";
 import { DeliveryOptionsResponseModel } from "@/features/master-data/store/models/response/delivery-options-response";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
@@ -146,7 +147,7 @@ const posPageSlice = createSlice({
     clearProductCustomizations: (state, action: PayloadAction<string>) => {
       delete state.lastSelectedCustomizations[action.payload];
     },
-    setSuccessOrder: (state, action: PayloadAction<{ orderNumber: string; total: number } | null>) => {
+    setSuccessOrder: (state, action: PayloadAction<OrderApiResponse | null>) => {
       state.successOrder = action.payload;
     },
     setShowOrderDetailsModal: (state, action: PayloadAction<boolean>) => {
