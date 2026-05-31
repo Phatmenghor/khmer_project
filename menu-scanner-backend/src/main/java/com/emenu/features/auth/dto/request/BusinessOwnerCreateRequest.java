@@ -44,6 +44,7 @@ public class BusinessOwnerCreateRequest {
     private UUID planId;
     
     private Boolean enableStockManagement;
+    private String primaryColor;
     private BigDecimal paymentAmount;
     private String paymentMethod;
     private String paymentReference;
