@@ -72,6 +72,10 @@ export default function OrdersAdminPage() {
     order: null as OrderResponse | null,
   });
 
+  const [downloadingOrderId, setDownloadingOrderId] = useState<string | null>(
+    null
+  );
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
@@ -129,6 +133,7 @@ export default function OrdersAdminPage() {
 
   const handleDownloadReceipt = async (order: OrderResponse, format: "pdf" | "png" = "pdf") => {
     if (!order.id) return;
+    setDownloadingOrderId(order.id);
     try {
       // Create container with receipt HTML
       const element = document.createElement("div");
@@ -228,6 +233,8 @@ export default function OrdersAdminPage() {
     } catch (error) {
       console.error("Receipt download error:", error);
       showToast.error("Failed to generate receipt");
+    } finally {
+      setDownloadingOrderId(null);
     }
   };
 
@@ -247,8 +254,9 @@ export default function OrdersAdminPage() {
       orderAdminTableColumns({
         data: orderData,
         handlers: tableHandlers,
+        downloadingOrderId,
       }),
-    [orderState, tableHandlers]
+    [orderState, tableHandlers, downloadingOrderId]
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -19,6 +19,7 @@ interface OrderTableHandlers {
 interface OrderTableOptions {
   data: AllOrderResponseModel | null;
   handlers: OrderTableHandlers;
+  downloadingOrderId?: string | null;
 }
 
 const getStatusVariant = (status: string) => {
@@ -55,6 +56,7 @@ const getPaymentVariant = (status: string) => {
 export const orderAdminTableColumns = ({
   data,
   handlers,
+  downloadingOrderId,
 }: OrderTableOptions): TableColumn<OrderResponse>[] => {
   const { handleViewOrder, handleEditOrder, handleDeleteOrder, handleDownloadReceipt } = handlers;
 
@@ -223,6 +225,8 @@ export const orderAdminTableColumns = ({
             icon={<Download className="w-4 h-4" />}
             tooltip="Download Receipt"
             onClick={() => handleDownloadReceipt(order)}
+            disabled={downloadingOrderId === order.id}
+            loading={downloadingOrderId === order.id}
           />
           <ActionButton
             icon={<Edit className="w-4 h-4" />}
