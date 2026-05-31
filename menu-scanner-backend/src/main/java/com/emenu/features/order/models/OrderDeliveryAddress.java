@@ -17,7 +17,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "order_delivery_addresses")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"order", "location"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDeliveryAddress extends BaseUUIDEntity {

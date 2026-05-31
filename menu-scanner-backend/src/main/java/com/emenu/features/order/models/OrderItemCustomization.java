@@ -13,7 +13,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "order_item_customizations")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = "orderItem")
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItemCustomization extends BaseUUIDEntity {

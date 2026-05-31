@@ -23,7 +23,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "orders")
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"customer", "business", "deliveryAddress", "deliveryOption", "items", "statusHistory"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order extends BaseUUIDEntity {
