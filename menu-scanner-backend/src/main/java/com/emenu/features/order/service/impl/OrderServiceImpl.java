@@ -697,16 +697,24 @@ public class OrderServiceImpl implements OrderService {
 
         // Now save customizations with the order item IDs
         for (CartItemRequest item : cartSummary.getItems()) {
+            log.info("[CUSTOMIZATION SAVE] item productId={}, sizeId={}, customizations count={}",
+                item.getProductId(), item.getProductSizeId(),
+                item.getCustomizations() != null ? item.getCustomizations().size() : 0);
+
             OrderItem savedItem = order.getItems().stream()
                 .filter(oi -> oi.getProductId().equals(item.getProductId()) &&
                              (oi.getProductSizeId() == null ? item.getProductSizeId() == null : oi.getProductSizeId().equals(item.getProductSizeId())))
                 .findFirst()
                 .orElse(null);
 
+            log.info("[CUSTOMIZATION SAVE] matched orderItem={}", savedItem != null ? savedItem.getId() : "null");
+
             if (savedItem != null && item.getCustomizations() != null && !item.getCustomizations().isEmpty()) {
                 try {
                     List<OrderItemCustomization> customizations = item.getCustomizations().stream()
                         .map(c -> {
+                            log.info("[CUSTOMIZATION SAVE] saving customizationId={}, name={}, price={}",
+                                c.getProductCustomizationId(), c.getName(), c.getPriceAdjustment());
                             OrderItemCustomization customization = new OrderItemCustomization();
                             customization.setOrderItemId(savedItem.getId());
                             customization.setProductCustomizationId(c.getProductCustomizationId());
@@ -716,10 +724,12 @@ public class OrderServiceImpl implements OrderService {
                         })
                         .toList();
                     orderItemCustomizationRepository.saveAll(customizations);
-                    log.debug("Saved {} customizations for order item {}", customizations.size(), savedItem.getId());
+                    log.info("[CUSTOMIZATION SAVE] saved {} customizations for order item {}", customizations.size(), savedItem.getId());
                 } catch (Exception e) {
-                    log.warn("Failed to save customizations for item {}: {}", item.getProductId(), e.getMessage());
+                    log.warn("[CUSTOMIZATION SAVE] Failed to save customizations for item {}: {}", item.getProductId(), e.getMessage());
                 }
+            } else if (savedItem == null) {
+                log.warn("[CUSTOMIZATION SAVE] No matching orderItem found for productId={}, sizeId={}", item.getProductId(), item.getProductSizeId());
             }
         }
     }
