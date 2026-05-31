@@ -8,6 +8,9 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { Receipt } from "./receipt";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useSelector } from "react-redux";
+import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
+import { RootState } from "@/store";
 
 interface POSOrderSuccessModalProps {
   open: boolean;
@@ -40,6 +43,10 @@ export function POSOrderSuccessModal({
   orderData,
 }: POSOrderSuccessModalProps) {
   const receiptRef = useRef<HTMLDivElement>(null);
+  const businessSettings = useSelector((state: RootState) =>
+    selectBusinessSettings(state)
+  );
+  const primaryColor = businessSettings?.primaryColor || "#000000";
 
   const handlePrint = () => {
     if (receiptRef.current) {
@@ -176,7 +183,11 @@ export function POSOrderSuccessModal({
 
           <CustomButton
             onClick={onClose}
-            className="w-full h-11 bg-foreground hover:bg-foreground/90 text-background font-medium"
+            style={{
+              backgroundColor: primaryColor,
+              color: "white"
+            }}
+            className="w-full h-11 font-medium hover:opacity-90"
           >
             Done & Next Order
           </CustomButton>
