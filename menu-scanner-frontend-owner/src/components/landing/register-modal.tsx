@@ -148,7 +148,8 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
             {plan && (
               <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-foreground">{plan.name} Plan  {plan.price}  {plan.period}</h4>
+                  <h4 className="font-semibold text-foreground">{plan.name} Plan</h4>
+                  <span className="text-sm text-muted-foreground">{plan.price} {plan.period}</span>
                 </div>
               </div>
             )}
