@@ -191,15 +191,20 @@ export function SizePickerModal({
       editingItem = cartItems?.find((item) => item.id === editingId);
     }
 
-    if (hasSizes) {
+    // Find the first cart item for this product to auto-select size/customizations
+    const firstCartItem = !editingItem
+      ? cartItems?.find((item) => item.productId === product.id)
+      : null;
 
+    if (hasSizes) {
+      // Priority: editing item > first cart item > first size
       let selectedSizeForInit = product.sizes![0];
-      if (editingItem && editingItem.productSizeId) {
-        const editingSizeId = editingItem.productSizeId;
-        const editingSize = product.sizes!.find((s) => s.id === editingSizeId);
-        if (editingSize) {
-          selectedSizeForInit = editingSize;
-        }
+      if (editingItem?.productSizeId) {
+        const s = product.sizes!.find((s) => s.id === editingItem.productSizeId);
+        if (s) selectedSizeForInit = s;
+      } else if (firstCartItem?.productSizeId) {
+        const s = product.sizes!.find((s) => s.id === firstCartItem.productSizeId);
+        if (s) selectedSizeForInit = s;
       }
 
       setSelectedSize(selectedSizeForInit);
@@ -207,10 +212,14 @@ export function SizePickerModal({
       setModifiedSizes(new Set());
 
       const customsBySize = new Map<string, Set<string>>();
-      if (initialCustomizations && initialCustomizations.length > 0) {
+      const sourceItem = editingItem || firstCartItem;
+      const sourceCustomizations = initialCustomizations && initialCustomizations.length > 0
+        ? initialCustomizations
+        : sourceItem?.customizations?.map((c) => c.productCustomizationId);
 
-        const targetSizeId = editingItem?.productSizeId || selectedSizeForInit.id;
-        customsBySize.set(targetSizeId, new Set(initialCustomizations));
+      if (sourceCustomizations && sourceCustomizations.length > 0) {
+        const targetSizeId = sourceItem?.productSizeId || selectedSizeForInit.id;
+        customsBySize.set(targetSizeId, new Set(sourceCustomizations));
       }
       setCustomizationsBySize(customsBySize);
 
@@ -218,14 +227,13 @@ export function SizePickerModal({
       setOriginalQuantities(origQties);
 
       const selectedSizeId = selectedSizeForInit.id;
-      const initCustomSet = initialCustomizations && initialCustomizations.length > 0
-        ? new Set(initialCustomizations)
+      const initCustomSet = sourceCustomizations && sourceCustomizations.length > 0
+        ? new Set(sourceCustomizations)
         : undefined;
       const initMapKey = buildCustomizationMapKey(selectedSizeId, initCustomSet);
       const sizeQty = initialQuantities?.get(initMapKey) ?? 0;
       setQuantity(sizeQty);
     } else if (hasCustomizations) {
-
       const noSizeId = "__no_size__";
       const newSize = { id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as unknown as ProductSize;
       setSelectedSize(newSize);
@@ -233,16 +241,21 @@ export function SizePickerModal({
       setModifiedSizes(new Set([noSizeId]));
 
       const customsBySize = new Map<string, Set<string>>();
-      if (initialCustomizations && initialCustomizations.length > 0) {
-        customsBySize.set(noSizeId, new Set(initialCustomizations));
+      const sourceItem = editingItem || firstCartItem;
+      const sourceCustomizations = initialCustomizations && initialCustomizations.length > 0
+        ? initialCustomizations
+        : sourceItem?.customizations?.map((c) => c.productCustomizationId);
+
+      if (sourceCustomizations && sourceCustomizations.length > 0) {
+        customsBySize.set(noSizeId, new Set(sourceCustomizations));
       }
       setCustomizationsBySize(customsBySize);
 
       const origQties = new Map(initialQuantities || new Map());
       setOriginalQuantities(origQties);
 
-      const noSizeCustomSet = initialCustomizations && initialCustomizations.length > 0
-        ? new Set(initialCustomizations)
+      const noSizeCustomSet = sourceCustomizations && sourceCustomizations.length > 0
+        ? new Set(sourceCustomizations)
         : undefined;
       const noSizeMapKey = buildCustomizationMapKey(noSizeId, noSizeCustomSet);
       const initialQty = initialQuantities?.get(noSizeMapKey) ?? 0;

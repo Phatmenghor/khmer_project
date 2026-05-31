@@ -29,7 +29,7 @@ function SizeCustomizationComponent({
         {selectedSizeCustoms.size > 0 && (
           <Badge
             variant="secondary"
-            className="text-xs bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-800"
+            className="text-xs bg-primary/10 text-primary border-primary/30"
           >
             {selectedSizeCustoms.size} selected
           </Badge>
@@ -46,8 +46,8 @@ function SizeCustomizationComponent({
               className={cn(
                 "w-full flex items-center justify-between rounded-lg px-3 py-2.5 transition-all duration-200 cursor-pointer text-left border",
                 isSelected
-                  ? "bg-yellow-50 border-yellow-400 dark:bg-yellow-950/30 dark:border-yellow-700"
-                  : "border-border hover:border-yellow-300 hover:bg-yellow-50/50 dark:hover:border-yellow-700 dark:hover:bg-yellow-950/20",
+                  ? "bg-primary/5 border-primary"
+                  : "border-border hover:border-primary/40 hover:bg-primary/5",
               )}
             >
               <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -55,7 +55,7 @@ function SizeCustomizationComponent({
                   className={cn(
                     "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200",
                     isSelected
-                      ? "border-yellow-500 bg-yellow-500"
+                      ? "border-primary bg-primary"
                       : "border-border bg-background",
                   )}
                 >
@@ -69,7 +69,7 @@ function SizeCustomizationComponent({
                 className={cn(
                   "text-xs font-semibold shrink-0 ml-2 px-1.5 py-0.5 rounded-full",
                   isSelected
-                    ? "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-950/40"
+                    ? "text-primary bg-primary/10"
                     : "text-muted-foreground bg-muted/60",
                 )}
               >
