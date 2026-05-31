@@ -217,15 +217,12 @@ export function SizePickerModal({
       const origQties = new Map(initialQuantities || new Map());
       setOriginalQuantities(origQties);
 
-      let sizeQty = 0;
       const selectedSizeId = selectedSizeForInit.id;
-      if (initialCustomizations && initialCustomizations.length > 0) {
-        const customKey = `-${[...initialCustomizations].sort().join("-")}`;
-        const mapKey = `${selectedSizeId}${customKey}`;
-        sizeQty = initialQuantities?.get(mapKey) ?? 0;
-      } else {
-        sizeQty = initialQuantities?.get(selectedSizeId) ?? 0;
-      }
+      const initCustomSet = initialCustomizations && initialCustomizations.length > 0
+        ? new Set(initialCustomizations)
+        : undefined;
+      const initMapKey = buildCustomizationMapKey(selectedSizeId, initCustomSet);
+      const sizeQty = initialQuantities?.get(initMapKey) ?? 0;
       setQuantity(sizeQty);
     } else if (hasCustomizations) {
 
@@ -244,15 +241,24 @@ export function SizePickerModal({
       const origQties = new Map(initialQuantities || new Map());
       setOriginalQuantities(origQties);
 
-      let initialQty = 0;
-      if (initialCustomizations && initialCustomizations.length > 0) {
-        const customKey = `-${[...initialCustomizations].sort().join("-")}`;
-        const mapKey = `${noSizeId}${customKey}`;
-        initialQty = initialQuantities?.get(mapKey) ?? 0;
-      } else {
-        initialQty = initialQuantities?.get(noSizeId) ?? 0;
-      }
-      setQuantity(Math.max(1, initialQty));
+      const noSizeCustomSet = initialCustomizations && initialCustomizations.length > 0
+        ? new Set(initialCustomizations)
+        : undefined;
+      const noSizeMapKey = buildCustomizationMapKey(noSizeId, noSizeCustomSet);
+      const initialQty = initialQuantities?.get(noSizeMapKey) ?? 0;
+      setQuantity(initialQty);
+    } else {
+      // Plain product — no sizes, no customizations
+      const noSizeId = "__no_size__";
+      const plainSize = { id: noSizeId, name: "Default", price: product.price, finalPrice: product.displayPrice } as unknown as ProductSize;
+      setSelectedSize(plainSize);
+      setPendingQuantities(new Map());
+      setModifiedSizes(new Set([noSizeId]));
+      setCustomizationsBySize(new Map());
+      const origQties = new Map(initialQuantities || new Map());
+      setOriginalQuantities(origQties);
+      const plainQty = initialQuantities?.get(noSizeId) ?? 0;
+      setQuantity(plainQty);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, product?.id]);
@@ -262,7 +268,7 @@ export function SizePickerModal({
   useEffect(() => {
     if (!open) {
       setSelectedSize(null);
-      setQuantity(1);
+      setQuantity(0);
       setPendingQuantities(new Map());
       setModifiedSizes(new Set());
       setOriginalQuantities(new Map());
