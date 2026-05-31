@@ -11,6 +11,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useSelector } from "react-redux";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { RootState } from "@/store";
+import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 
 interface POSOrderSuccessModalProps {
   open: boolean;
@@ -29,6 +30,8 @@ export function POSOrderSuccessModal({
   );
   const primaryColor = businessSettings?.primaryColor || "#000000";
 
+  const { handleDownloadReceiptFromRef, isDownloading } = useDownloadReceipt();
+
   if (!order) return null;
 
   const handlePrint = () => {
@@ -42,33 +45,8 @@ export function POSOrderSuccessModal({
     }
   };
 
-  const handleDownloadPDF = async () => {
-    if (receiptRef.current) {
-      try {
-        const html2canvas = (await import("html2canvas")).default;
-        const jsPDF = (await import("jspdf")).jsPDF;
-
-        const canvas = await html2canvas(receiptRef.current, {
-          backgroundColor: "#ffffff",
-          scale: 2,
-        });
-
-        const pdf = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: [80, 210] as [number, number],
-        });
-
-        const imgData = canvas.toDataURL("image/png");
-        const imgWidth = 80;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-        pdf.save(`receipt-${order.orderNumber}.pdf`);
-      } catch (error) {
-        console.error("Failed to generate PDF:", error);
-      }
-    }
+  const handleDownloadPDF = () => {
+    handleDownloadReceiptFromRef(receiptRef, order.orderNumber, "pdf");
   };
 
   return (
@@ -117,10 +95,7 @@ export function POSOrderSuccessModal({
         </div>
 
         {/* Hidden receipt for printing/downloading */}
-        <div
-          ref={receiptRef}
-          className="hidden"
-        >
+        <div ref={receiptRef} className="hidden">
           <OrderReceipt order={order} />
         </div>
 
@@ -139,9 +114,11 @@ export function POSOrderSuccessModal({
               onClick={handleDownloadPDF}
               variant="outline"
               className="gap-2 h-10"
+              disabled={isDownloading}
+              isLoading={isDownloading}
             >
               <Download className="h-4 w-4" />
-              Download PDF
+              {isDownloading ? "Downloading..." : "Download PDF"}
             </CustomButton>
           </div>
 
