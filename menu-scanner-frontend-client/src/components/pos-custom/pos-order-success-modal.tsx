@@ -113,18 +113,15 @@ export function POSOrderSuccessModal({
                 </div>
               </CardContent>
             </Card>
-
-            {/* Receipt Preview Card */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3 text-foreground">Receipt Preview</h3>
-              <div
-                ref={receiptRef}
-                className="bg-white rounded-lg shadow-sm border overflow-hidden"
-              >
-                <OrderReceipt order={order} />
-              </div>
-            </div>
           </div>
+        </div>
+
+        {/* Hidden receipt for printing/downloading */}
+        <div
+          ref={receiptRef}
+          className="hidden"
+        >
+          <OrderReceipt order={order} />
         </div>
 
         {/* Footer */}
