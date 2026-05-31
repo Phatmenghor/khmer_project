@@ -105,7 +105,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
               </div>
               <div>
                 <p className="text-gray-700 font-semibold">PAYMENT STATUS</p>
-                <p className="text-gray-900 font-bold text-base">{order.payment.paymentStatus}</p>
+                <p className="text-gray-900 font-bold text-base">{order.payment?.paymentStatus || "Pending"}</p>
               </div>
             </div>
           </div>
@@ -248,7 +248,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
           {/* Payment Method */}
           <div className="mb-4 border border-gray-400 px-4 py-3 bg-gray-50">
             <p className="text-gray-700 font-semibold text-sm">PAYMENT METHOD</p>
-            <p className="text-gray-900 font-bold text-base">{order.payment.paymentMethod}</p>
+            <p className="text-gray-900 font-bold text-base">{order.payment?.paymentMethod || "Not Specified"}</p>
           </div>
 
           {/* Footer */}
