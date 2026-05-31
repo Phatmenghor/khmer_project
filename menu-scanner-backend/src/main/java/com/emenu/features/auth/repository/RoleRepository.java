@@ -25,6 +25,6 @@ public interface RoleRepository extends JpaRepository<Role, UUID>, JpaSpecificat
 
     boolean existsByNameAndBusinessIdIsNullAndIsDeletedFalse(String name);
 
-    @Query("SELECT r FROM Role r WHERE r.name = :name AND r.businessId IS NULL AND r.isDeleted = false")
-    Optional<Role> findSystemRoleByName(@Param("name") String name);
+    @Query("SELECT r FROM Role r WHERE r.name = :name AND r.businessId IS NULL AND r.isDeleted = false ORDER BY r.createdAt ASC")
+    List<Role> findSystemRolesByName(@Param("name") String name);
 }
