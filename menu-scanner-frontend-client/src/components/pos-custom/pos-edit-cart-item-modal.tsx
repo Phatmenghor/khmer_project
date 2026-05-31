@@ -144,7 +144,15 @@ export function POSEditCartItemModal({
 
   const priceWithAddons = calculatedFinalPrice + addonsTotal;
 
-  const calculatedTotal = priceWithAddons * calculatedQuantity;
+  const parsedPromoValue = promotionValue ? parseFloat(promotionValue) : 0;
+  const promoDeduction = promotionType && parsedPromoValue > 0
+    ? promotionType === "PERCENTAGE"
+      ? calculatedFinalPrice * (parsedPromoValue / 100)
+      : parsedPromoValue
+    : 0;
+
+  const priceAfterPromo = Math.max(0, priceWithAddons - promoDeduction);
+  const calculatedTotal = priceAfterPromo * calculatedQuantity;
 
   const isDirty = !item ? false : (
     reason.trim() !== "" ||
@@ -370,13 +378,12 @@ export function POSEditCartItemModal({
                 <span className="text-muted-foreground">Quantity:</span>
                 <span className="font-semibold">{calculatedQuantity}</span>
               </div>
-              {promotionType && promotionValue && (
+              {promotionType && promoDeduction > 0 && (
                 <div className="flex justify-between text-destructive">
                   <span className="text-muted-foreground">Promotion:</span>
                   <span className="font-semibold">
-                    {promotionType === "PERCENTAGE"
-                      ? `-${promotionValue}%`
-                      : `-${formatCurrency(parseFloat(promotionValue))}`}
+                    -{formatCurrency(promoDeduction)}
+                    {promotionType === "PERCENTAGE" && ` (${promotionValue}%)`}
                   </span>
                 </div>
               )}
