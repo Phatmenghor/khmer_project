@@ -1212,6 +1212,12 @@ export default function PosPage() {
                   </span>
                   <span className="font-medium">{formatCurrency(cartSummary.subtotal)}</span>
                 </div>
+                {cartSummary.discountAmount > 0 && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-red-500 font-medium">Discount</span>
+                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Delivery Fee</span>
                   <span className="font-medium text-primary">
