@@ -305,31 +305,28 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Primary Color</label>
-                    <div className="flex items-center gap-3">
+                    <div className="flex gap-3">
                       <input
                         type="color"
                         value={watch("primaryColor")}
                         onChange={(e) => setValue("primaryColor", e.target.value)}
                         disabled={isSubmitting}
-                        className="h-10 w-16 rounded-md border border-input cursor-pointer"
+                        className="w-20 h-10 cursor-pointer rounded border border-input"
                       />
                       <input
-                        type="text"
-                        value={watch("primaryColor")}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (/^#[0-9A-Fa-f]{0,6}$/.test(val) || val === "") {
-                            setValue("primaryColor", val.toUpperCase());
-                          }
-                        }}
                         placeholder="#007BFF"
+                        value={watch("primaryColor")}
+                        onChange={(e) => setValue("primaryColor", e.target.value)}
                         disabled={isSubmitting}
-                        className="flex-1 h-10 px-3 py-2 border rounded-md border-input bg-background text-sm"
+                        className={`flex-1 px-3 py-2 border rounded-md ${errors.primaryColor ? "border-red-500" : "border-input"}`}
                       />
                     </div>
                     {errors.primaryColor && (
-                      <p className="text-xs text-destructive">{errors.primaryColor.message}</p>
+                      <p className="text-xs text-red-500">{errors.primaryColor.message}</p>
                     )}
+                    <p className="text-xs text-muted-foreground">
+                      Main brand color applied site-wide
+                    </p>
                   </div>
                 </div>
               </div>
