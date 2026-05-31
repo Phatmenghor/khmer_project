@@ -47,7 +47,7 @@ function ProductActionsComponent({
         </div>
       ) : (
         <CustomButton
-          className="w-full gap-1.5 h-8 text-xs font-semibold"
+          className="w-full gap-1.5 h-8 text-xs font-semibold bg-red-500 hover:bg-red-600 text-white"
           onClick={onAddToCart}
           disabled={isOutOfStock}
           size="sm"

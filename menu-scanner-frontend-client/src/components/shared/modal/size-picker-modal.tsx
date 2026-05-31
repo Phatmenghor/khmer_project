@@ -7,6 +7,7 @@ import { buildCustomizationMapKey, getQuantityForCombo } from "@/utils/common/cu
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { FormHeader } from "@/components/shared/form-field/form-header";
@@ -461,8 +462,10 @@ export function SizePickerModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full sm:max-w-[600px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
-        {}
+      <DialogContent className="w-full sm:max-w-[600px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden" aria-describedby="size-picker-description">
+        <DialogDescription id="size-picker-description" className="sr-only">
+          {product?.name}
+        </DialogDescription>
         <FormHeader
           title={
             isEditing

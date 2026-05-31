@@ -364,8 +364,9 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
         <div
           className={cn(
             "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover-scale-102 hover-lift",
+            isInCart && "ring-1 ring-primary/30 border-primary/50",
             isOutOfStock && "opacity-70",
-            product?.hasPromotion && "ring-1 ring-amber-500/20",
+            !isInCart && product?.hasPromotion && "ring-1 ring-amber-500/20",
             className,
           )}
         >
