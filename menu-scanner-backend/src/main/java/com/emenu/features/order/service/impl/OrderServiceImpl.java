@@ -946,7 +946,7 @@ public class OrderServiceImpl implements OrderService {
 
             log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
             OrderResponse response = getOrderById(savedOrder.getId());
-            log.info("[POS CHECKOUT RESPONSE] id={}, orderNumber={}, orderStatus={}, source={}, businessName={}, customerName={}, items={}, pricing.subtotal={}, pricing.customizationTotal={}, pricing.deliveryFee={}, pricing.taxAmount={}, pricing.finalTotal={}, payment.method={}, payment.status={}",
+            log.info("[POS CHECKOUT RESPONSE] id={}, orderNumber={}, orderStatus={}, source={}, businessName={}, customerName={}, itemCount={}, pricing.subtotal={}, pricing.customizationTotal={}, pricing.deliveryFee={}, pricing.taxAmount={}, pricing.finalTotal={}, payment.method={}, payment.status={}",
                 response.getId(),
                 response.getOrderNumber(),
                 response.getOrderStatus(),
@@ -962,6 +962,26 @@ public class OrderServiceImpl implements OrderService {
                 response.getPayment() != null ? response.getPayment().getPaymentMethod() : "null",
                 response.getPayment() != null ? response.getPayment().getPaymentStatus() : "null"
             );
+            if (response.getItems() != null) {
+                response.getItems().forEach(item -> log.info(
+                    "[POS CHECKOUT ITEM] id={}, product.id={}, product.name={}, product.sizeId={}, product.sizeName={}, product.status={}, qty={}, currentPrice={}, finalPrice={}, totalPrice={}, hasPromotion={}, promotionType={}, promotionValue={}, customizationTotal={}, customizations={}",
+                    item.getId(),
+                    item.getProduct() != null ? item.getProduct().getId() : "null",
+                    item.getProduct() != null ? item.getProduct().getName() : "null",
+                    item.getProduct() != null ? item.getProduct().getSizeId() : "null",
+                    item.getProduct() != null ? item.getProduct().getSizeName() : "null",
+                    item.getProduct() != null ? item.getProduct().getStatus() : "null",
+                    item.getQuantity(),
+                    item.getCurrentPrice(),
+                    item.getFinalPrice(),
+                    item.getTotalPrice(),
+                    item.getHasPromotion(),
+                    item.getPromotionType(),
+                    item.getPromotionValue(),
+                    item.getCustomizationTotal(),
+                    item.getCustomizations()
+                ));
+            }
 
             telegramNotificationService.notifyNewPOSOrder(orderWithItems);
             webSocketNotificationService.notifyNewOrder(orderWithItems);
