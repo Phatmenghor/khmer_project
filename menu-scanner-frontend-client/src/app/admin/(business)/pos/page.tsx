@@ -649,12 +649,29 @@ export default function PosPage() {
   const handleSaveItemChanges = useCallback((editData: CartItemEditData) => {
     if (!editingItemForPrice) return;
 
+    const { newPrice, newQuantity, newPromotion } = editData;
+
+    const promoDeduction = newPromotion.type && newPromotion.value && newPromotion.value > 0
+      ? newPromotion.type === "PERCENTAGE"
+        ? newPrice * (newPromotion.value / 100)
+        : newPromotion.value
+      : 0;
+
+    const addonsTotal = editingItemForPrice.customizations?.reduce(
+      (sum, c) => sum + (c.priceAdjustment || 0), 0
+    ) ?? 0;
+
+    const finalPrice = Math.max(0, newPrice - promoDeduction + addonsTotal);
+
     const updatedItem: PosPageCartItem = {
       ...editingItemForPrice,
-      quantity: editData.newQuantity,
-      currentPrice: editData.newPrice,
-      finalPrice: editData.newPrice,
-      totalPrice: editData.newPrice * editData.newQuantity,
+      quantity: newQuantity,
+      currentPrice: newPrice,
+      finalPrice,
+      totalPrice: finalPrice * newQuantity,
+      hasPromotion: promoDeduction > 0,
+      promotionType: newPromotion.type,
+      promotionValue: newPromotion.value,
     };
 
     dispatch(updateCartItem(updatedItem));
