@@ -45,6 +45,9 @@ public class BusinessOwnerCreateRequest {
     
     private Boolean enableStockManagement;
     private String primaryColor;
+    
+    private BigDecimal taxPercentage;
+    private Integer lowStockThreshold;
     private BigDecimal paymentAmount;
     private String paymentMethod;
     private String paymentReference;
