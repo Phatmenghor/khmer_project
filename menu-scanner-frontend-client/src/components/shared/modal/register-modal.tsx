@@ -20,6 +20,7 @@ import { PasswordField } from "@/components/shared/form-field/password-field";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import {
   registerCustomerService,
+  loginService,
 } from "@/features/auth/store/thunks/auth-thunks";
 import { telegramAuthenticateService } from "@/features/auth/store/thunks/social-auth-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -93,11 +94,38 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
 
       if (result) {
         showToast.success(Messages.auth.accountCreated);
-        onOpenChange(false);
         registerForm.reset();
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
+
+        // Auto-login after successful registration
+        try {
+          await dispatch(
+            loginService({
+              userIdentifier: values.userIdentifier,
+              password: values.password,
+              businessId: null,
+              userType: "CUSTOMER",
+            }),
+          ).unwrap();
+
+          showToast.success("Logged in successfully!");
+          onOpenChange(false);
+        } catch (loginErr: any) {
+          let loginErrorMessage: string = "Registration successful, but login failed. Please log in manually.";
+
+          if (typeof loginErr === 'string') {
+            loginErrorMessage = loginErr;
+          } else if (loginErr?.message) {
+            loginErrorMessage = loginErr.message;
+          } else if (loginErr?.payload) {
+            if (typeof loginErr.payload === 'string') {
+              loginErrorMessage = loginErr.payload;
+            } else if (loginErr.payload?.message) {
+              loginErrorMessage = loginErr.payload.message;
+            }
+          }
+
+          showToast.error(loginErrorMessage);
+        }
       }
     } catch (err: any) {
       let errorMessage: string = "Registration failed. Please try again.";
