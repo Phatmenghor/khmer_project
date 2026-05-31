@@ -78,10 +78,6 @@ export function POSOrderSuccessModal({
                   <span className="text-sm text-muted-foreground">Order Number</span>
                   <span className="text-base font-semibold">#{order.orderNumber}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Order ID</span>
-                  <span className="text-sm font-mono text-foreground truncate max-w-xs">{order.id}</span>
-                </div>
                 <div className="flex items-center justify-between pt-3 border-t">
                   <span className="text-sm font-medium text-foreground">Total Amount</span>
                   <span className="text-lg font-semibold text-foreground">${order.pricing?.finalTotal?.toFixed(2) ?? "0.00"}</span>
