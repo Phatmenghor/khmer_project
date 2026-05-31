@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Trash2,
@@ -68,7 +68,7 @@ function CartPageSkeleton() {
   );
 }
 
-export default function CartPage() {
+function CartPage() {
   const router = useRouter();
   const { isAuthenticated, authReady } = useAuthState();
   const {
@@ -379,5 +379,13 @@ export default function CartPage() {
         variant="critical"
       />
     </>
+  );
+}
+
+export default function CartPageWrapper() {
+  return (
+    <Suspense fallback={<CartPageSkeleton />}>
+      <CartPage />
+    </Suspense>
   );
 }
