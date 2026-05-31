@@ -138,18 +138,18 @@ public final class TelegramMessageBuilder {
         line(sb);
 
         // Header info
-        sb.append("🧾 <b>").append(order.getOrderNumber()).append("</b>\n");
+        sb.append("Order:    <b>").append(order.getOrderNumber()).append("</b>\n");
         if (order.getCreatedAt() != null) {
-            sb.append("📅 ").append(order.getCreatedAt().format(DATE_FMT)).append("\n");
+            sb.append("Date:     ").append(order.getCreatedAt().format(DATE_FMT)).append("\n");
         }
         if (hasText(order.getBusinessName())) {
-            sb.append("🏪 ").append(order.getBusinessName()).append("\n");
+            sb.append("Shop:     ").append(order.getBusinessName()).append("\n");
         }
         if (hasText(order.getCustomerName())) {
-            sb.append("👤 ").append(order.getCustomerName()).append("\n");
+            sb.append("Customer: ").append(order.getCustomerName()).append("\n");
         }
         if (hasText(order.getCustomerPhone())) {
-            sb.append("📞 ").append(order.getCustomerPhone()).append("\n");
+            sb.append("Phone:    ").append(order.getCustomerPhone()).append("\n");
         }
 
         // Items
