@@ -965,7 +965,9 @@ public class OrderServiceImpl implements OrderService {
             deductStockForOrder(orderWithItems);
 
             log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
-            // Clear L1 cache so findByIdWithDetails reloads itemCustomizations from DB
+            // Flush pending INSERTs to DB, then clear L1 cache so findByIdWithDetails
+            // reloads itemCustomizations from DB instead of returning cached empty collection
+            entityManager.flush();
             entityManager.clear();
             OrderResponse response = getOrderById(savedOrder.getId());
             if (response.getBusinessName() == null) {
