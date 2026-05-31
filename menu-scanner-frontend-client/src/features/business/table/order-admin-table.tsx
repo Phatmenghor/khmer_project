@@ -226,7 +226,7 @@ export const orderAdminTableColumns = ({
             tooltip="Download Receipt"
             onClick={() => handleDownloadReceipt(order)}
             disabled={downloadingOrderId === order.id}
-            loading={downloadingOrderId === order.id}
+            {...(downloadingOrderId === order.id && { loading: true })}
           />
           <ActionButton
             icon={<Edit className="w-4 h-4" />}
