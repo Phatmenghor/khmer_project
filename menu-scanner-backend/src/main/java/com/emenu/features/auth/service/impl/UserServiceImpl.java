@@ -142,6 +142,7 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("One or more roles not found");
         }
         validateRoleUserTypeCompatibility(roles, req.getUserType());
+        validateBusinessOwnerRoleAssignment(req.getRoles(), req.getBusinessId());
     }
 
     private User buildUserEntity(UserCreateRequest req) {
@@ -285,6 +286,7 @@ public class UserServiceImpl implements UserService {
             }
 
             validateRoleUserTypeCompatibility(assignedRoles, userEntity.getUserType());
+            validateBusinessOwnerRoleAssignment(updateRequestData.getRoles(), userEntity.getBusinessId());
             userEntity.getRoles().clear();
             userEntity.getRoles().addAll(assignedRoles);
         }
@@ -486,6 +488,13 @@ public class UserServiceImpl implements UserService {
                         "Role '%s' is not compatible with user type '%s'.", roleAssignment.getName(), userType));
             }
         });
+    }
+
+    private void validateBusinessOwnerRoleAssignment(List<String> roleNames, UUID businessId) {
+        if (roleNames.contains("BUSINESS_OWNER")) {
+            log.warn("Role assignment failed - cannot assign BUSINESS_OWNER role: business_id={}", businessId);
+            throw new ValidationException("BUSINESS_OWNER role cannot be assigned to other users. Only the original business owner can have this role.");
+        }
     }
 
     private boolean hasEmploymentData(UserCreateRequest creationRequest) {

@@ -178,6 +178,11 @@ public class SocialAuthServiceImpl implements SocialAuthService {
     }
 
     private User createNewUser(SocialUserInfo socialUserInfo, UserType userTypeEnum, UUID businessIdValue) {
+        if (userTypeEnum == UserType.BUSINESS_USER) {
+            log.warn("Social auth user creation failed - BUSINESS_USER cannot be created via social auth");
+            throw new ValidationException("Business users must be created through the proper business owner registration process");
+        }
+
         String generatedUserIdentifier = generateUserIdentifier(socialUserInfo, userTypeEnum, businessIdValue);
 
         String defaultRoleName = switch (userTypeEnum) {
