@@ -136,21 +136,27 @@ export default function PendingOrdersAdminPage() {
         width: 305,
         logging: false,
         onclone: (clonedDoc) => {
-          // Force exact styling for download to match HTML preview
+          // Ensure proper font and color rendering
           const style = clonedDoc.createElement('style');
           style.textContent = `
             * { 
               font-family: 'Courier New', monospace !important;
               box-sizing: border-box;
-              margin: 0 !important;
-              padding: 0 !important;
             }
-            body { background: white !important; }
+            body { 
+              background: white !important;
+              margin: 0;
+              padding: 0;
+            }
             #receipt-wrapper { 
               font-size: 10px !important;
               line-height: 1.3 !important;
               color: black !important;
               background: white !important;
+            }
+            table { 
+              border-collapse: collapse;
+              width: 100%;
             }
             th, td { 
               background: transparent !important;
