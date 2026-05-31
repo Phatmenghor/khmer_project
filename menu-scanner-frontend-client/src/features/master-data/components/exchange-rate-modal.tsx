@@ -72,8 +72,6 @@ export default function ExchangeRateModal({
     ),
     defaultValues: {
       usdToKhrRate: undefined,
-      usdToCnyRate: undefined,
-      usdToVndRate: undefined,
       status: "ACTIVE",
       notes: "",
     },
@@ -87,16 +85,12 @@ export default function ExchangeRateModal({
     if (isCreate) {
       reset({
         usdToKhrRate: undefined,
-        usdToCnyRate: undefined,
-        usdToVndRate: undefined,
         status: "ACTIVE",
         notes: "",
       });
     } else if (exchangeRate) {
       reset({
         usdToKhrRate: exchangeRate.usdToKhrRate || undefined,
-        usdToCnyRate: exchangeRate.usdToCnyRate || undefined,
-        usdToVndRate: exchangeRate.usdToVndRate || undefined,
         status: exchangeRate.status || "ACTIVE",
         notes: exchangeRate.notes || "",
       });
@@ -114,8 +108,6 @@ export default function ExchangeRateModal({
     try {
       const payload: CreateExchangeRateData = {
         usdToKhrRate: data.usdToKhrRate,
-        usdToCnyRate: data.usdToCnyRate,
-        usdToVndRate: data.usdToVndRate,
         notes: data.notes,
         status: !isCreate && data.status ? data.status : undefined,
       };
@@ -139,18 +131,8 @@ export default function ExchangeRateModal({
           const updatedRate: ExchangeRateResponseModel = {
             ...exchangeRate,
             usdToKhrRate: data.usdToKhrRate || exchangeRate.usdToKhrRate,
-            usdToCnyRate: data.usdToCnyRate || exchangeRate.usdToCnyRate,
-            usdToVndRate: data.usdToVndRate || exchangeRate.usdToVndRate,
             status: (data.status || exchangeRate.status) as "ACTIVE" | "INACTIVE",
             notes: data.notes || exchangeRate.notes,
-
-            id: exchangeRate.id,
-            businessId: exchangeRate.businessId,
-            businessName: exchangeRate.businessName,
-            createdAt: exchangeRate.createdAt,
-            updatedAt: exchangeRate.updatedAt,
-            createdBy: exchangeRate.createdBy,
-            updatedBy: exchangeRate.updatedBy,
           };
 
           dispatch(updateExchangeRateInList(updatedRate));
@@ -229,28 +211,6 @@ export default function ExchangeRateModal({
                 disabled={isSubmitting}
                 required
                 error={errors.usdToKhrRate}
-              />
-
-              <TextField
-                control={control as any}
-                name="usdToCnyRate"
-                label="USD To CNY Rate"
-                placeholder="Enter USD to CNY rate (optional)"
-                type="number"
-                valueAsNumber
-                disabled={isSubmitting}
-                error={errors.usdToCnyRate}
-              />
-
-              <TextField
-                control={control as any}
-                name="usdToVndRate"
-                label="USD To VND Rate"
-                placeholder="Enter USD to VND rate (optional)"
-                type="number"
-                valueAsNumber
-                disabled={isSubmitting}
-                error={errors.usdToVndRate}
               />
 
               {!isCreate && (

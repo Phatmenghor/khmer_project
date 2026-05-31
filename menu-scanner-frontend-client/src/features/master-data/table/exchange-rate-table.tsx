@@ -1,4 +1,5 @@
 import { indexDisplay } from "@/utils/common/common";
+import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import {
@@ -51,6 +52,18 @@ export const exchangeRateTableColumns = ({
       render: (parameter) => (
         <span className="text-sm font-medium">
           {formatKhrRate(parameter?.usdToKhrRate)}
+        </span>
+      ),
+    },
+
+    {
+      key: "createdAt",
+      label: "Created At",
+      minWidth: "150px",
+      maxWidth: "250px",
+      render: (parameter) => (
+        <span className="text-sm text-muted-foreground">
+          {dateTimeFormat(parameter?.createdAt)}
         </span>
       ),
     },

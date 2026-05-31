@@ -6,8 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import {
   formatKhrRate,
-  formatCnyRate,
-  formatVndRate,
   formatExchangeRateStatus,
 } from "@/utils/format/exchange-rate-formatter";
 import { ExchangeRateResponseModel } from "../store/models/response/exchange-rate-response";
@@ -74,14 +72,6 @@ export function ExchangeRateDetailModal({
                   <DisplayField
                     label="USD To KHR Rate"
                     value={formatKhrRate(exchangeRate.usdToKhrRate) || "---"}
-                  />
-                  <DisplayField
-                    label="USD To CNY Rate"
-                    value={formatCnyRate(exchangeRate.usdToCnyRate) || "---"}
-                  />
-                  <DisplayField
-                    label="USD To VND Rate"
-                    value={formatVndRate(exchangeRate.usdToVndRate) || "---"}
                   />
                   <DisplayField
                     label="Status"
