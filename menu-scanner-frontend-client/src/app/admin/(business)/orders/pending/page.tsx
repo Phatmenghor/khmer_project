@@ -135,6 +135,21 @@ export default function PendingOrdersAdminPage() {
         backgroundColor: '#ffffff',
         width: 305,
         logging: false,
+        onclone: (clonedDoc) => {
+          // Ensure proper rendering in cloned document
+          const style = clonedDoc.createElement('style');
+          style.textContent = `
+            * { 
+              font-family: 'Courier New', monospace !important;
+              box-sizing: border-box;
+            }
+            #receipt-wrapper { 
+              font-size: 10px !important;
+              line-height: 1.3 !important;
+            }
+          `;
+          clonedDoc.head.appendChild(style);
+        },
       });
 
       if (format === "pdf") {
