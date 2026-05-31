@@ -186,11 +186,12 @@ public class SocialAuthServiceImpl implements SocialAuthService {
             case CUSTOMER -> "CUSTOMER";
         };
 
-        Role defaultRoleEntity = roleRepository.findByNameAndIsDeletedFalse(defaultRoleName)
-                .orElseThrow(() -> {
-                    log.warn("User creation failed - default role not found: role_name={}, user_type={}", defaultRoleName, userTypeEnum);
-                    return new ValidationException("Default role not found: " + defaultRoleName);
-                });
+        List<Role> defaultRoles = roleRepository.findSystemRolesByName(defaultRoleName);
+        if (defaultRoles.isEmpty()) {
+            log.warn("User creation failed - default role not found: role_name={}, user_type={}", defaultRoleName, userTypeEnum);
+            throw new ValidationException("Default role not found: " + defaultRoleName);
+        }
+        Role defaultRoleEntity = defaultRoles.get(0);
 
         if (!defaultRoleEntity.isCompatibleWithUserType(userTypeEnum)) {
             log.warn("User creation failed - role incompatible with user type: role={}, user_type={}", defaultRoleName, userTypeEnum);
