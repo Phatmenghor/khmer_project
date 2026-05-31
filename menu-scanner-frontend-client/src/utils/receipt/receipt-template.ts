@@ -67,33 +67,33 @@ export function generateReceiptHTML(order: OrderResponse): string {
     .join("");
 
   const summaryRows = `
-        <tr style="border: none; height: 18px;">
-          <td colspan="4" style="text-align: left; border: none; padding: 2px 0;">Subtotal</td>
-          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">${formatPrice(subtotal + customizationTotal)}</td>
+        <tr style="border: none; height: 14px;">
+          <td colspan="4" style="text-align: left; border: none; padding: 1px 0;">Subtotal</td>
+          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${formatPrice(subtotal + customizationTotal)}</td>
         </tr>
         ${discount > 0 ? `
-        <tr style="border: none; height: 18px;">
-          <td colspan="4" style="text-align: left; border: none; padding: 2px 0;">Discount</td>
-          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">-${formatPrice(discount)}</td>
+        <tr style="border: none; height: 14px;">
+          <td colspan="4" style="text-align: left; border: none; padding: 1px 0;">Discount</td>
+          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${formatPrice(discount)}</td>
         </tr>
-        <tr style="border: none; height: 18px;">
-          <td colspan="4" style="text-align: left; border: none; padding: 2px 0;">After Discount</td>
-          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">${formatPrice(subtotal + customizationTotal - discount)}</td>
+        <tr style="border: none; height: 14px;">
+          <td colspan="4" style="text-align: left; border: none; padding: 1px 0;">After Discount</td>
+          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${formatPrice(subtotal + customizationTotal - discount)}</td>
         </tr>` : ""}
-        <tr style="border: none; height: 18px;">
-          <td colspan="4" style="text-align: left; border: none; padding: 2px 0;">Tax (${order.pricing?.taxPercentage || 0}%)</td>
-          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">+${formatPrice(tax)}</td>
+        <tr style="border: none; height: 14px;">
+          <td colspan="4" style="text-align: left; border: none; padding: 1px 0;">Tax (${order.pricing?.taxPercentage || 0}%)</td>
+          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${formatPrice(tax)}</td>
         </tr>
         ${delivery > 0 ? `
-        <tr style="border: none; height: 18px;">
-          <td colspan="4" style="text-align: left; border: none; padding: 2px 0;">Delivery Fee</td>
-          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">+${formatPrice(delivery)}</td>
+        <tr style="border: none; height: 14px;">
+          <td colspan="4" style="text-align: left; border: none; padding: 1px 0;">Delivery Fee</td>
+          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${formatPrice(delivery)}</td>
         </tr>` : ""}
-        <tr style="border: none; height: 18px;">
-          <td style="text-align: left; border: none; padding: 2px 0;">Payment</td>
-          <td colspan="4" style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">${order.payment?.paymentMethod || "N/A"}</td>
+        <tr style="border: none; height: 14px;">
+          <td style="text-align: left; border: none; padding: 1px 0;">Payment</td>
+          <td colspan="4" style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${order.payment?.paymentMethod || "N/A"}</td>
         </tr>
-        <tr style="border-top: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; height: 28px;">
+        <tr style="border-top: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; height: 24px;">
           <td colspan="4" style="text-align: left; padding-left: 0;">TOTAL AMOUNT</td>
           <td style="text-align: right; padding-right: 4px;">${formatPrice(total)}</td>
         </tr>`;
@@ -143,7 +143,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
         </table>
       </div>
 
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.95em; border: none;">
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 0.85em; border: none;">
         <tbody>
           ${summaryRows}
         </tbody>
