@@ -27,6 +27,7 @@ const formSchema = z.object({
   businessEmail: z.string().email("Invalid email format"),
   planId: z.string().min(1, "Please select a plan"),
   enableStockManagement: z.boolean().default(false),
+  primaryColor: z.string().regex(/^#[0-9A-F]{6}$/i, "Invalid color format (use #RRGGBB)").optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -47,6 +48,7 @@ export default function SignupPage() {
       businessEmail: "",
       planId: "",
       enableStockManagement: false,
+      primaryColor: "#007BFF",
     },
   });
 
@@ -65,6 +67,7 @@ export default function SignupPage() {
           businessEmail: values.businessEmail,
           planId: values.planId,
           enableStockManagement: values.enableStockManagement,
+          primaryColor: values.primaryColor,
         }),
       });
 
@@ -218,6 +221,16 @@ export default function SignupPage() {
                   </span>
                 </div>
               </div>
+
+              <TextField
+                name="primaryColor"
+                label="Primary Color (Optional)"
+                placeholder="#007BFF"
+                type="color"
+                control={form.control}
+                error={form.formState.errors.primaryColor}
+                disabled={isLoading}
+              />
 
               <SelectField
                 name="planId"
