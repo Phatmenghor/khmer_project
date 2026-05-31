@@ -196,7 +196,9 @@ export function Navbar() {
         ? "Search categories..."
         : pathname === "/brands"
           ? "Search brands..."
-          : "Search...";
+          : pathname === "/cart"
+            ? "Search cart..."
+            : "Search...";
 
   return (
     <>

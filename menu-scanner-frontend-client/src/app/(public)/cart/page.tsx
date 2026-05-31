@@ -1,8 +1,8 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Trash2,
   ShoppingBag,
@@ -87,6 +87,16 @@ export default function CartPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [clearCartModalOpen, setClearCartModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("q")?.trim().toLowerCase() ?? "";
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery) return items;
+    return items.filter((item) =>
+      item.productName?.toLowerCase().includes(searchQuery)
+    );
+  }, [items, searchQuery]);
 
   useEffect(() => setMounted(true), []);
 
@@ -190,40 +200,52 @@ export default function CartPage() {
 
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
 
-          {}
           <div className="lg:col-span-2 space-y-3">
-            {items.length > 0 && (
+            {searchQuery && (
               <div className="text-xs text-muted-foreground">
-                Showing {items.length} items with total quantity {totalQuantity}
+                {filteredItems.length === 0
+                  ? `No results for "${searchQuery}"`
+                  : `${filteredItems.length} of ${items.length} items match "${searchQuery}"`}
               </div>
             )}
-            {items.map((item, index) => {
-              const uniqueKey = `cart-${item.id}-${index}`;
-              return (
-              <CartItemCard
-                key={uniqueKey}
-                id={item.id}
-                productId={item.productId}
-                productName={item.productName}
-                productImageUrl={item.productImageUrl}
-                productSizeId={item.productSizeId}
-                sizeName={item.sizeName}
-                currentPrice={item.currentPrice}
-                finalPrice={item.finalPrice}
-                quantity={item.quantity}
-                totalPrice={item.totalPrice}
-                hasPromotion={item.hasPromotion}
-                promotionType={item.promotionType}
-                promotionValue={item.promotionValue}
-                onQuantityChange={(newQuantity) =>
-                  handleUpdateQuantity(item.productId, item.productSizeId, newQuantity)
-                }
-                onRemove={() => handleRemoveItem(item.productId, item.productSizeId)}
-                showLink={true}
-                showControls={true}
-              />
-            );
-            })}
+
+            {filteredItems.length === 0 && searchQuery ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <ShoppingCart className="h-12 w-12 text-muted-foreground/30 mb-4" />
+                <p className="text-sm font-medium text-foreground mb-1">No items found</p>
+                <p className="text-xs text-muted-foreground">
+                  No cart items match &ldquo;{searchQuery}&rdquo;
+                </p>
+              </div>
+            ) : (
+              filteredItems.map((item, index) => {
+                const uniqueKey = `cart-${item.id}-${index}`;
+                return (
+                  <CartItemCard
+                    key={uniqueKey}
+                    id={item.id}
+                    productId={item.productId}
+                    productName={item.productName}
+                    productImageUrl={item.productImageUrl}
+                    productSizeId={item.productSizeId}
+                    sizeName={item.sizeName}
+                    currentPrice={item.currentPrice}
+                    finalPrice={item.finalPrice}
+                    quantity={item.quantity}
+                    totalPrice={item.totalPrice}
+                    hasPromotion={item.hasPromotion}
+                    promotionType={item.promotionType}
+                    promotionValue={item.promotionValue}
+                    onQuantityChange={(newQuantity) =>
+                      handleUpdateQuantity(item.productId, item.productSizeId, newQuantity)
+                    }
+                    onRemove={() => handleRemoveItem(item.productId, item.productSizeId)}
+                    showLink={true}
+                    showControls={true}
+                  />
+                );
+              })
+            )}
 
           </div>
 
