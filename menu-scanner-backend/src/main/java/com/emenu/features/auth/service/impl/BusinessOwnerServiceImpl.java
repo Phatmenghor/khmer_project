@@ -92,6 +92,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         businessEntity.setOwnerId(ownerUserEntity.getId());
         businessRepository.save(businessEntity);
 
+        // Create business setting with stock management and primary color preferences
+        createBusinessSetting(businessEntity.getId(), creationRequestData);
+
         Subscription subscriptionRecord = null;
         SubscriptionPayment paymentRecord = null;
 
