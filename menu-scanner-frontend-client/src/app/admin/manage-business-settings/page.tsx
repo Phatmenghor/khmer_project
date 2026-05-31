@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PageContainer } from "@/components/shared/common/page-container";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import {
@@ -288,8 +287,7 @@ export default function BusinessSettingsPage() {
   const hasErrors = Object.keys(formErrors).length > 0;
 
   return (
-    <PageContainer className="py-6 !max-w-full">
-      <div className="flex flex-1 flex-col gap-6">
+    <div className="flex flex-1 flex-col gap-6 px-4 py-6">
         <h1 className="text-3xl font-bold">Business Settings</h1>
 
       {hasErrors && (
@@ -946,7 +944,6 @@ export default function BusinessSettingsPage() {
           />
         </div>
       </form>
-      </div>
-    </PageContainer>
+    </div>
   );
 }
