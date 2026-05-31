@@ -695,7 +695,6 @@ export default function PosPage() {
     }
 
 
-    console.log("[POS SUBMIT] cartSummary:", JSON.stringify(cartSummary));
 
     const payload: POSCheckoutPayload = {
       businessId: products[0]?.businessId || AppDefault.BUSINESS_ID,

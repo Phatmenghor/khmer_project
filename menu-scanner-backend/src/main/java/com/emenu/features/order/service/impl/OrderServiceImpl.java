@@ -690,33 +690,21 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal totalAmount = subtotal.add(customizationTotal).add(deliveryFee).add(taxAmount).subtract(discountAmount);
         order.setTotalAmount(totalAmount);
 
-        log.info("[SAVING ORDER ITEMS] Order ID: {}, Items: {}, Total: {} (Subtotal: {}, Customization: {}, Delivery: {}, Discount: {})",
-            orderId, order.getItems().size(), totalAmount, subtotal, customizationTotal, deliveryFee, discountAmount);
-
         // Save order and items first
         orderRepository.save(order);
-        log.info("[ORDER ITEMS SAVED] Successfully saved {} items for order: {}", order.getItems().size(), orderId);
 
         // Now save customizations with the order item IDs
         for (CartItemRequest item : cartSummary.getItems()) {
-            log.info("[CUSTOMIZATION SAVE] item productId={}, sizeId={}, customizations count={}",
-                item.getProductId(), item.getProductSizeId(),
-                item.getCustomizations() != null ? item.getCustomizations().size() : 0);
-
             OrderItem savedItem = order.getItems().stream()
                 .filter(oi -> oi.getProductId().equals(item.getProductId()) &&
                              (oi.getProductSizeId() == null ? item.getProductSizeId() == null : oi.getProductSizeId().equals(item.getProductSizeId())))
                 .findFirst()
                 .orElse(null);
 
-            log.info("[CUSTOMIZATION SAVE] matched orderItem={}", savedItem != null ? savedItem.getId() : "null");
-
             if (savedItem != null && item.getCustomizations() != null && !item.getCustomizations().isEmpty()) {
                 try {
                     List<OrderItemCustomization> customizations = item.getCustomizations().stream()
                         .map(c -> {
-                            log.info("[CUSTOMIZATION SAVE] saving customizationId={}, name={}, price={}",
-                                c.getProductCustomizationId(), c.getName(), c.getPriceAdjustment());
                             OrderItemCustomization customization = new OrderItemCustomization();
                             customization.setOrderItemId(savedItem.getId());
                             customization.setProductCustomizationId(c.getProductCustomizationId());
@@ -726,12 +714,11 @@ public class OrderServiceImpl implements OrderService {
                         })
                         .toList();
                     orderItemCustomizationRepository.saveAll(customizations);
-                    log.info("[CUSTOMIZATION SAVE] saved {} customizations for order item {}", customizations.size(), savedItem.getId());
                 } catch (Exception e) {
-                    log.warn("[CUSTOMIZATION SAVE] Failed to save customizations for item {}: {}", item.getProductId(), e.getMessage());
+                    log.warn("Failed to save customizations for item {}: {}", item.getProductId(), e.getMessage());
                 }
             } else if (savedItem == null) {
-                log.warn("[CUSTOMIZATION SAVE] No matching orderItem found for productId={}, sizeId={}", item.getProductId(), item.getProductSizeId());
+                log.warn("No matching orderItem found for productId={}, sizeId={}", item.getProductId(), item.getProductSizeId());
             }
         }
     }
@@ -865,12 +852,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse createPOSCheckoutOrder(POSCheckoutRequest request) {
-        log.info("[POS CHECKOUT START] Creating POS order - Business: {}, Items: {}, cart.totalDiscount={}, pricing.discountAmount={}, pricing.discountType={}, pricing.discountReason={}",
-            request.getBusinessId(), request.getCart().getItems().size(),
-            request.getCart().getTotalDiscount(),
-            request.getPricing() != null ? request.getPricing().getDiscountAmount() : "null",
-            request.getPricing() != null ? request.getPricing().getDiscountType() : "null",
-            request.getPricing() != null ? request.getPricing().getDiscountReason() : "null");
 
         User currentUser = securityUtils.getCurrentUser();
 
@@ -930,7 +911,6 @@ public class OrderServiceImpl implements OrderService {
             }
 
             Order savedOrder = orderRepository.save(order);
-            log.info("[ORDER CREATED] Order #{} saved with ID: {}", savedOrder.getOrderNumber(), savedOrder.getId());
 
             // Create delivery option snapshot
             if (request.getDeliveryOption() != null) {
@@ -950,7 +930,6 @@ public class OrderServiceImpl implements OrderService {
 
             // Create order items with customizations
             if (request.getCart() != null && request.getCart().getItems() != null && !request.getCart().getItems().isEmpty()) {
-                log.info("[STEP 4/6] Processing {} items with customizations", request.getCart().getItems().size());
                 createOrderItemsFromCartSummaryWithCustomizations(savedOrder.getId(), request.getCart());
             } else {
                 throw new ValidationException("Order must contain at least one item");
@@ -964,9 +943,6 @@ public class OrderServiceImpl implements OrderService {
 
             deductStockForOrder(orderWithItems);
 
-            log.info("[POS CHECKOUT SUCCESS] Order #{} created successfully", savedOrder.getOrderNumber());
-            // Flush pending INSERTs to DB, then clear L1 cache so findByIdWithDetails
-            // reloads itemCustomizations from DB instead of returning cached empty collection
             entityManager.flush();
             entityManager.clear();
             OrderResponse response = getOrderById(savedOrder.getId());
@@ -974,44 +950,10 @@ public class OrderServiceImpl implements OrderService {
                 businessRepository.findById(request.getBusinessId())
                     .ifPresent(b -> response.setBusinessName(b.getName()));
             }
-            log.info("[POS CHECKOUT RESPONSE] id={}, orderNumber={}, orderStatus={}, businessName={}, customerName={}, itemCount={}, pricing.subtotal={}, pricing.customizationTotal={}, pricing.discountAmount={}, pricing.discountType={}, pricing.discountReason={}, pricing.deliveryFee={}, pricing.taxAmount={}, pricing.finalTotal={}, payment.method={}, payment.status={}",
-                response.getId(),
-                response.getOrderNumber(),
-                response.getOrderStatus(),
-                response.getBusinessName(),
-                response.getCustomerName(),
-                response.getItems() != null ? response.getItems().size() : "null",
-                response.getPricing() != null ? response.getPricing().getSubtotal() : "null",
-                response.getPricing() != null ? response.getPricing().getCustomizationTotal() : "null",
-                response.getPricing() != null ? response.getPricing().getDiscountAmount() : "null",
-                response.getPricing() != null ? response.getPricing().getDiscountType() : "null",
-                response.getPricing() != null ? response.getPricing().getDiscountReason() : "null",
-                response.getPricing() != null ? response.getPricing().getDeliveryFee() : "null",
-                response.getPricing() != null ? response.getPricing().getTaxAmount() : "null",
-                response.getPricing() != null ? response.getPricing().getFinalTotal() : "null",
-                response.getPayment() != null ? response.getPayment().getPaymentMethod() : "null",
-                response.getPayment() != null ? response.getPayment().getPaymentStatus() : "null"
-            );
-            if (response.getItems() != null) {
-                response.getItems().forEach(item -> log.info(
-                    "[POS CHECKOUT ITEM] id={}, product.id={}, product.name={}, product.sizeId={}, product.sizeName={}, product.status={}, qty={}, currentPrice={}, finalPrice={}, totalPrice={}, hasPromotion={}, promotionType={}, promotionValue={}, customizationTotal={}, customizations={}",
-                    item.getId(),
-                    item.getProduct() != null ? item.getProduct().getId() : "null",
-                    item.getProduct() != null ? item.getProduct().getName() : "null",
-                    item.getProduct() != null ? item.getProduct().getSizeId() : "null",
-                    item.getProduct() != null ? item.getProduct().getSizeName() : "null",
-                    item.getProduct() != null ? item.getProduct().getStatus() : "null",
-                    item.getQuantity(),
-                    item.getCurrentPrice(),
-                    item.getFinalPrice(),
-                    item.getTotalPrice(),
-                    item.getHasPromotion(),
-                    item.getPromotionType(),
-                    item.getPromotionValue(),
-                    item.getCustomizationTotal(),
-                    item.getCustomizations()
-                ));
-            }
+            log.info("[POS CHECKOUT] Order #{} created - Items: {}, Total: ${}",
+                savedOrder.getOrderNumber(),
+                response.getItems() != null ? response.getItems().size() : 0,
+                response.getPricing() != null ? response.getPricing().getFinalTotal() : 0);
 
             telegramNotificationService.notifyNewPOSOrder(orderWithItems);
             webSocketNotificationService.notifyNewOrder(orderWithItems);
@@ -1038,18 +980,12 @@ public class OrderServiceImpl implements OrderService {
             .orElse(null);
 
         if (businessSetting == null || businessSetting.getEnableStock() != StockStatus.ENABLED) {
-            log.info("[STOCK DEDUCTION SKIPPED] Order: {}, Business stock tracking is not enabled", order.getOrderNumber());
             return;
         }
-
-        log.info("[STOCK DEDUCTION START] Order: {}, Business ID: {}, Processing {} items",
-            order.getOrderNumber(), order.getBusinessId(), order.getItems().size());
 
         for (OrderItem item : order.getItems()) {
             Product product = productRepository.findById(item.getProductId()).orElse(null);
             if (product == null || product.getStockStatus() != com.emenu.enums.product.StockStatus.ENABLED) {
-                log.info("[STOCK DEDUCTION SKIPPED] Order: {}, Product ID: {}, product stock tracking is not enabled",
-                    order.getOrderNumber(), item.getProductId());
                 continue;
             }
 
@@ -1062,15 +998,10 @@ public class OrderServiceImpl implements OrderService {
                     order.getId(),
                     "Order confirmed: " + order.getOrderNumber()
                 );
-                log.info("[STOCK DEDUCTION SUCCESS] Order: {}, Product ID: {}, Successfully deducted {} units",
-                    order.getOrderNumber(), item.getProductId(), item.getQuantity());
             } catch (Exception e) {
-                log.warn("[STOCK DEDUCTION ERROR] Order: {}, Product ID: {}, Failed to deduct {} units: {}",
-                    order.getOrderNumber(), item.getProductId(), item.getQuantity(), e.getMessage(), e);
+                log.warn("Stock deduction failed for order {}, product {}: {}", order.getOrderNumber(), item.getProductId(), e.getMessage());
             }
         }
-
-        log.info("[STOCK DEDUCTION COMPLETE] Order: {}, All items processed", order.getOrderNumber());
     }
 
     /**

@@ -132,8 +132,6 @@ export const createPOSCheckoutOrderService = createAsyncThunk(
       const response = await axiosClientWithAuth.post<{
         data: OrderResponse;
       }>("/api/v1/orders/checkout-from-pos", params);
-      console.log("[POS Checkout] raw response:", JSON.stringify(response.data, null, 2));
-      console.log("[POS Checkout] order data:", JSON.stringify(response.data.data, null, 2));
       return response.data.data;
     } catch (error: unknown) {
       return rejectWithValue(

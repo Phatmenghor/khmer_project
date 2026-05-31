@@ -1,82 +1,55 @@
 package com.emenu.features.notification.telegram;
 
 import com.emenu.enums.order.OrderStatus;
-import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.features.order.models.Order;
 import com.emenu.features.order.models.OrderItem;
+import com.emenu.features.order.models.OrderItemCustomization;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 
 public final class TelegramMessageBuilder {
+
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a");
 
     private TelegramMessageBuilder() {}
 
     // ── New customer order (checkout) ────────────────────────────────────────
 
     public static String newCustomerOrder(Order order) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<b>NEW ORDER</b>\n\n");
-        sb.append("Order:    <b>").append(esc(order.getOrderNumber())).append("</b>\n");
-        sb.append("Status:   ").append(statusLabel(order.getOrderStatus())).append("\n");
-
-        if (hasText(order.getCustomerName())) {
-            sb.append("Customer: ").append(esc(order.getCustomerName())).append("\n");
-        }
-        if (hasText(order.getCustomerPhone())) {
-            sb.append("Phone:    ").append(esc(order.getCustomerPhone())).append("\n");
-        }
-
-        appendItems(sb, order.getItems());
-        appendTotal(sb, order.getTotalAmount());
-
-        return sb.toString().trim();
+        return buildReceipt("🛒 NEW ORDER", order);
     }
 
     // ── POS sale ─────────────────────────────────────────────────────────────
 
     public static String newPOSOrder(Order order) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<b>POS SALE</b>\n\n");
-        sb.append("Order:    <b>").append(esc(order.getOrderNumber())).append("</b>\n");
-        sb.append("Status:   ").append(statusLabel(order.getOrderStatus())).append("\n");
-
-        if (hasText(order.getCustomerName())) {
-            sb.append("Customer: ").append(esc(order.getCustomerName())).append("\n");
-        }
-        if (hasText(order.getCustomerPhone())) {
-            sb.append("Phone:    ").append(esc(order.getCustomerPhone())).append("\n");
-        }
-
-        appendItems(sb, order.getItems());
-        appendTotal(sb, order.getTotalAmount());
-
-        return sb.toString().trim();
+        return buildReceipt("🏪 POS SALE", order);
     }
 
     // ── Order status update ───────────────────────────────────────────────────
 
     public static String orderStatusChanged(Order order) {
         String header = switch (order.getOrderStatus()) {
-            case CONFIRMED -> "ORDER CONFIRMED";
-            case COMPLETED -> "ORDER COMPLETED";
-            case CANCELLED -> "ORDER CANCELLED";
-            default        -> "ORDER UPDATED";
+            case CONFIRMED -> "✅ ORDER CONFIRMED";
+            case COMPLETED -> "✅ ORDER COMPLETED";
+            case CANCELLED -> "❌ ORDER CANCELLED";
+            default        -> "📋 ORDER UPDATED";
         };
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<b>").append(header).append("</b>\n\n");
-        sb.append("Order:    <b>").append(esc(order.getOrderNumber())).append("</b>\n");
-
+        sb.append("<b>").append(header).append("</b>\n");
+        line(sb);
+        sb.append("Order:   <b>").append(order.getOrderNumber()).append("</b>\n");
+        sb.append("Status:  ").append(statusLabel(order.getOrderStatus())).append("\n");
         if (hasText(order.getCustomerName())) {
-            sb.append("Customer: ").append(esc(order.getCustomerName())).append("\n");
+            sb.append("Customer: ").append(order.getCustomerName()).append("\n");
         }
-        appendTotal(sb, order.getTotalAmount());
-
-        if (order.getOrderStatus() == OrderStatus.CONFIRMED) {
-            sb.append("\nItems are being prepared.");
+        if (order.getTotalAmount() != null) {
+            line(sb);
+            sb.append("Total:   <b>$").append(fmt(order.getTotalAmount())).append("</b>\n");
         }
-
         return sb.toString().trim();
     }
 
@@ -85,24 +58,15 @@ public final class TelegramMessageBuilder {
     public static String newStaff(String name, String position, String phone,
                                    String email, List<String> roles) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<b>NEW STAFF ADDED</b>\n\n");
-
-        if (hasText(name)) {
-            sb.append("Name:     ").append(esc(name)).append("\n");
-        }
-        if (hasText(position)) {
-            sb.append("Position: ").append(esc(position)).append("\n");
-        }
-        if (hasText(phone)) {
-            sb.append("Phone:    ").append(esc(phone)).append("\n");
-        }
-        if (hasText(email)) {
-            sb.append("Email:    ").append(esc(email)).append("\n");
-        }
+        sb.append("<b>👤 NEW STAFF ADDED</b>\n");
+        line(sb);
+        if (hasText(name))     sb.append("Name:     ").append(name).append("\n");
+        if (hasText(position)) sb.append("Position: ").append(position).append("\n");
+        if (hasText(phone))    sb.append("Phone:    ").append(phone).append("\n");
+        if (hasText(email))    sb.append("Email:    ").append(email).append("\n");
         if (roles != null && !roles.isEmpty()) {
-            sb.append("Role:     ").append(esc(String.join(", ", roles))).append("\n");
+            sb.append("Role:     ").append(String.join(", ", roles)).append("\n");
         }
-
         return sb.toString().trim();
     }
 
@@ -110,45 +74,45 @@ public final class TelegramMessageBuilder {
 
     public static String businessOwnerRegistered(String ownerName, String businessName,
                                                   String planName, String expiryDate) {
-        return "*NEW BUSINESS OWNER REGISTERED*\n\n" +
-            "Owner: " + esc(ownerName) + "\n" +
-            "Business: " + esc(businessName) + "\n" +
-            "Plan: " + esc(planName) + "\n" +
-            "Expiry Date: " + esc(expiryDate);
+        return "<b>🎉 NEW BUSINESS OWNER REGISTERED</b>\n" +
+            "Owner: " + ownerName + "\n" +
+            "Business: " + businessName + "\n" +
+            "Plan: " + planName + "\n" +
+            "Expiry: " + expiryDate;
     }
 
     public static String subscriptionExpiringSoon(String businessName, long daysRemaining, String expiryDate) {
-        return "*ALERT: SUBSCRIPTION EXPIRING SOON*\n\n" +
-            "Business: " + esc(businessName) + "\n" +
+        return "<b>⚠️ SUBSCRIPTION EXPIRING SOON</b>\n" +
+            "Business: " + businessName + "\n" +
             "Days Remaining: " + daysRemaining + "\n" +
-            "Expiry Date: " + esc(expiryDate);
+            "Expiry: " + expiryDate;
     }
 
     public static String subscriptionRenewed(String businessName, String planName, String newExpiryDate) {
-        return "*SUBSCRIPTION RENEWED*\n\n" +
-            "Business: " + esc(businessName) + "\n" +
-            "Plan: " + esc(planName) + "\n" +
-            "New Expiry Date: " + esc(newExpiryDate);
+        return "<b>✅ SUBSCRIPTION RENEWED</b>\n" +
+            "Business: " + businessName + "\n" +
+            "Plan: " + planName + "\n" +
+            "New Expiry: " + newExpiryDate;
     }
 
     public static String subscriptionCancelled(String businessName) {
-        return "*SUBSCRIPTION CANCELLED*\n\n" +
-            "Business: " + esc(businessName);
+        return "<b>❌ SUBSCRIPTION CANCELLED</b>\n" +
+            "Business: " + businessName;
     }
 
     public static String subscriptionPlanChanged(String businessName, String oldPlanName,
                                                   String newPlanName, String newExpiryDate) {
-        return "*SUBSCRIPTION PLAN CHANGED*\n\n" +
-            "Business: " + esc(businessName) + "\n" +
-            "Old Plan: " + esc(oldPlanName) + "\n" +
-            "New Plan: " + esc(newPlanName) + "\n" +
-            "New Expiry Date: " + esc(newExpiryDate);
+        return "<b>🔄 SUBSCRIPTION PLAN CHANGED</b>\n" +
+            "Business: " + businessName + "\n" +
+            "Old Plan: " + oldPlanName + "\n" +
+            "New Plan: " + newPlanName + "\n" +
+            "New Expiry: " + newExpiryDate;
     }
 
     // ── Test message ─────────────────────────────────────────────────────────
 
     public static String testMessage() {
-        return "<b>TEST MESSAGE</b>\n\n" +
+        return "<b>✅ TEST MESSAGE</b>\n\n" +
             "Your Telegram monitoring is working correctly.\n" +
             "You will receive order and staff alerts in this group.";
     }
@@ -156,39 +120,107 @@ public final class TelegramMessageBuilder {
     // ── Group linked welcome ──────────────────────────────────────────────────
 
     public static String groupLinked(String businessName) {
-        return "<b>GROUP LINKED</b>\n\n" +
-            "This group is now the monitoring channel for <b>" + esc(businessName) + "</b>.\n\n" +
+        return "<b>🔗 GROUP LINKED</b>\n\n" +
+            "This group is now the monitoring channel for <b>" + businessName + "</b>.\n\n" +
             "You will receive alerts for:\n" +
-            "  - New customer orders\n" +
-            "  - POS sales\n" +
-            "  - Order status updates (confirmed, completed, cancelled)\n" +
-            "  - New staff added";
+            "  • New customer orders\n" +
+            "  • POS sales\n" +
+            "  • Order status updates\n" +
+            "  • New staff added";
     }
 
-    // ── Shared helpers ────────────────────────────────────────────────────────
+    // ── Full receipt builder ──────────────────────────────────────────────────
 
-    private static void appendItems(StringBuilder sb, java.util.Collection<OrderItem> items) {
-        if (items == null || items.isEmpty()) return;
+    private static String buildReceipt(String title, Order order) {
+        StringBuilder sb = new StringBuilder();
 
-        sb.append("\n<b>Items</b>\n");
-        for (OrderItem item : items) {
-            sb.append("  ").append(esc(item.getProductName()));
-            if (hasText(item.getSizeName()) && !"Standard".equalsIgnoreCase(item.getSizeName())) {
-                sb.append(" (").append(esc(item.getSizeName())).append(")");
-            }
-            sb.append("  x").append(item.getQuantity());
-            if (item.getTotalPrice() != null) {
-                sb.append("  <code>$").append(fmt(item.getTotalPrice())).append("</code>");
-            }
-            sb.append("\n");
+        sb.append("<b>").append(title).append("</b>\n");
+        line(sb);
+
+        // Header info
+        sb.append("🧾 <b>").append(order.getOrderNumber()).append("</b>\n");
+        if (order.getCreatedAt() != null) {
+            sb.append("📅 ").append(order.getCreatedAt().format(DATE_FMT)).append("\n");
         }
+        if (hasText(order.getBusinessName())) {
+            sb.append("🏪 ").append(order.getBusinessName()).append("\n");
+        }
+        if (hasText(order.getCustomerName())) {
+            sb.append("👤 ").append(order.getCustomerName()).append("\n");
+        }
+        if (hasText(order.getCustomerPhone())) {
+            sb.append("📞 ").append(order.getCustomerPhone()).append("\n");
+        }
+
+        // Items
+        if (order.getItems() != null && !order.getItems().isEmpty()) {
+            line(sb);
+            sb.append("<b>Items</b>\n");
+            for (OrderItem item : order.getItems()) {
+                String name = item.getProductName() != null ? item.getProductName() : "Product";
+                if (hasText(item.getSizeName()) && !"Standard".equalsIgnoreCase(item.getSizeName())) {
+                    name += " (" + item.getSizeName() + ")";
+                }
+                sb.append("• <b>").append(name).append("</b>");
+                sb.append("  x").append(item.getQuantity());
+                if (item.getFinalPrice() != null) {
+                    sb.append("  $").append(fmt(item.getFinalPrice()));
+                }
+                // Promotion
+                if (Boolean.TRUE.equals(item.getHasPromotion()) && item.getPromotionType() != null) {
+                    if ("PERCENTAGE".equals(item.getPromotionType())) {
+                        sb.append(" <i>(-").append(fmt(item.getPromotionValue())).append("%)</i>");
+                    } else {
+                        sb.append(" <i>(-$").append(fmt(item.getPromotionValue())).append(")</i>");
+                    }
+                }
+                sb.append("\n");
+                // Customizations
+                Set<OrderItemCustomization> customs = item.getItemCustomizations();
+                if (customs != null && !customs.isEmpty()) {
+                    for (OrderItemCustomization c : customs) {
+                        sb.append("    ➕ ").append(c.getName());
+                        if (c.getPriceAdjustment() != null && c.getPriceAdjustment().compareTo(BigDecimal.ZERO) > 0) {
+                            sb.append("  +$").append(fmt(c.getPriceAdjustment()));
+                        }
+                        sb.append("\n");
+                    }
+                }
+            }
+        }
+
+        // Pricing summary
+        line(sb);
+        if (order.getSubtotal() != null) {
+            sb.append("Subtotal:       $").append(fmt(order.getSubtotal())).append("\n");
+        }
+        if (order.getCustomizationTotal() != null && order.getCustomizationTotal().compareTo(BigDecimal.ZERO) > 0) {
+            sb.append("Add-ons:        $").append(fmt(order.getCustomizationTotal())).append("\n");
+        }
+        if (order.getDiscountAmount() != null && order.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
+            sb.append("Discount:      -$").append(fmt(order.getDiscountAmount())).append("\n");
+        }
+        if (order.getDeliveryFee() != null && order.getDeliveryFee().compareTo(BigDecimal.ZERO) > 0) {
+            sb.append("Delivery:       $").append(fmt(order.getDeliveryFee())).append("\n");
+        }
+        if (order.getTaxAmount() != null && order.getTaxAmount().compareTo(BigDecimal.ZERO) > 0) {
+            sb.append("Tax:            $").append(fmt(order.getTaxAmount())).append("\n");
+        }
+        if (order.getPaymentMethod() != null) {
+            sb.append("Payment:        ").append(order.getPaymentMethod().name()).append("\n");
+        }
+        line(sb);
+        if (order.getTotalAmount() != null) {
+            sb.append("💰 <b>TOTAL: $").append(fmt(order.getTotalAmount())).append("</b>\n");
+        }
+
+        return sb.toString().trim();
     }
 
-    private static void appendTotal(StringBuilder sb, BigDecimal total) {
-        sb.append("\n");
-        if (total != null) {
-            sb.append("Total:    <b>$").append(fmt(total)).append("</b>\n");
-        }
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private static void line(StringBuilder sb) {
+        sb.append("─────────────────────\n");
     }
 
     private static String statusLabel(OrderStatus status) {
@@ -202,30 +234,11 @@ public final class TelegramMessageBuilder {
     }
 
     private static String fmt(BigDecimal amount) {
+        if (amount == null) return "0.00";
         return String.format("%.2f", amount);
     }
 
     private static boolean hasText(String s) {
         return s != null && !s.isBlank();
-    }
-
-    private static String esc(String s) {
-        if (s == null) return "";
-        // Escape MarkdownV2 special characters
-        return s.replace("\\", "\\\\")
-                .replace("_", "\\_")
-                .replace("*", "\\*")
-                .replace("[", "\\[")
-                .replace("]", "\\]")
-                .replace("(", "\\(")
-                .replace(")", "\\)")
-                .replace("~", "\\~")
-                .replace("`", "\\`")
-                .replace(">", "\\>")
-                .replace("#", "\\#")
-                .replace("+", "\\+")
-                .replace("-", "\\-")
-                .replace(".", "\\.")
-                .replace("!", "\\!");
     }
 }
