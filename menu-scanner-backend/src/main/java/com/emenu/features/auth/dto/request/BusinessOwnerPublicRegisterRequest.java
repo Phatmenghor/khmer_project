@@ -42,4 +42,8 @@ public class BusinessOwnerPublicRegisterRequest {
     private String businessAddress;
 
     private UUID planId;
+
+    private Boolean enableStockManagement;
+
+    private String primaryColor;
 }

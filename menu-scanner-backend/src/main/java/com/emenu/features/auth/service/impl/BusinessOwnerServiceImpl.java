@@ -1,5 +1,6 @@
 package com.emenu.features.auth.service.impl;
 
+import com.emenu.enums.common.StockStatus;
 import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.sub_scription.SubscriptionPaymentStatus;
 import com.emenu.enums.sub_scription.SubscriptionPaymentType;
@@ -142,6 +143,8 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 .businessPhone(registerRequest.getBusinessPhone())
                 .businessAddress(registerRequest.getBusinessAddress())
                 .planId(registerRequest.getPlanId())
+                .enableStockManagement(registerRequest.getEnableStockManagement())
+                .primaryColor(registerRequest.getPrimaryColor())
                 .build();
 
         // Validate using existing validation
@@ -152,6 +155,9 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
 
         businessEntity.setOwnerId(ownerUserEntity.getId());
         businessRepository.save(businessEntity);
+
+        // Create business setting with stock management and primary color preferences
+        createBusinessSetting(businessEntity.getId(), createRequest);
 
         Subscription subscriptionRecord = null;
         SubscriptionPayment paymentRecord = null;
@@ -723,5 +729,23 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                     log.warn("Subscription plan not found: plan_id={}", planId);
                     return new NotFoundException("Plan not found: " + planId);
                 });
+    }
+
+    private void createBusinessSetting(UUID businessId, BusinessOwnerCreateRequest creationRequestData) {
+        BusinessSetting businessSetting = new BusinessSetting();
+        businessSetting.setBusinessId(businessId);
+        businessSetting.setTaxPercentage(creationRequestData.getTaxPercentage() != null
+                ? creationRequestData.getTaxPercentage().doubleValue() : 0.0);
+        businessSetting.setLowStockThreshold(creationRequestData.getLowStockThreshold() != null
+                ? creationRequestData.getLowStockThreshold() : 5);
+        businessSetting.setPrimaryColor(creationRequestData.getPrimaryColor());
+
+        boolean enableStock = creationRequestData.getEnableStockManagement() != null
+                && creationRequestData.getEnableStockManagement();
+        businessSetting.setEnableStock(enableStock ? StockStatus.ENABLED : StockStatus.DISABLED);
+
+        businessSettingRepository.save(businessSetting);
+        log.info("Business setting created successfully: business_id={}, enable_stock={}, primary_color={}",
+                businessId, enableStock, creationRequestData.getPrimaryColor());
     }
 }
