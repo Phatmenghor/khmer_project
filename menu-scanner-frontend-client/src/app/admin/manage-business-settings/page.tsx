@@ -288,7 +288,7 @@ export default function BusinessSettingsPage() {
   const hasErrors = Object.keys(formErrors).length > 0;
 
   return (
-    <PageContainer className="py-6">
+    <PageContainer className="py-6 !max-w-full">
       <div className="flex flex-1 flex-col gap-6">
         <h1 className="text-3xl font-bold">Business Settings</h1>
 
