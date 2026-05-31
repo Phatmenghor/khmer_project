@@ -1220,12 +1220,6 @@ export default function PosPage() {
                   </span>
                   <span className="font-medium">{formatCurrency(cartSummary.subtotal)}</span>
                 </div>
-                {cartSummary.discountAmount > 0 && (
-                  <div className="flex justify-between text-xs">
-                    <span className="text-red-500 font-medium">Discount</span>
-                    <span className="text-red-500 font-semibold">-{formatCurrency(cartSummary.discountAmount)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Delivery Fee</span>
                   <span className="font-medium text-primary">
@@ -1238,23 +1232,6 @@ export default function PosPage() {
                   </span>
                   <span className="font-medium">{formatCurrency(cartSummary.taxAmount)}</span>
                 </div>
-                {orderDiscount && (
-                  <>
-                    <Separator />
-                    <div className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-                      Order-Level Discount
-                    </div>
-                    <div className="flex justify-between text-xs bg-orange-50 -mx-3 -mb-1.5 px-3 py-2 rounded-b-lg">
-                      <span className="text-orange-700 font-medium">
-                        {orderDiscount.type === "fixed" ? `$${orderDiscount.value.toFixed(2)}` : `${orderDiscount.value}%`} off
-                      </span>
-                      <span className="text-orange-700 font-semibold">
-                        Save: {formatCurrency(orderDiscount.discountAmount)}
-                      </span>
-                    </div>
-                  </>
-                )}
                 <Separator />
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold">Total</span>
@@ -1270,21 +1247,11 @@ export default function PosPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={cn(
-                    "h-auto px-3 gap-2 text-xs font-semibold border-r border-border hover:bg-muted/50",
-                    orderDiscount && "text-yellow-600 hover:bg-green-50"
-                  )}
+                  className="h-auto px-3 gap-2 text-xs font-semibold border-r border-border hover:bg-muted/50"
                   onClick={() => dispatch(setShowOrderDetailsModal(true))}
                 >
                   <Tag className="w-3.5 h-3.5" />
                   More
-                  {orderDiscount && (
-                    <span className="ml-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                      {orderDiscount.type === "fixed"
-                        ? `-$${orderDiscount.value.toFixed(2)}`
-                        : `-${orderDiscount.value}%`}
-                    </span>
-                  )}
                 </Button>
                 <div className="flex-1 px-3 py-2.5 bg-muted/30 min-w-0 flex items-center justify-between">
                   <div>
@@ -1391,8 +1358,6 @@ export default function PosPage() {
         onOpenChange={(open) => dispatch(setShowOrderDetailsModal(open))}
         customerNote={customerNote}
         onNoteChange={(note) => dispatch(setCustomerNote(note))}
-        currentOrderTotal={cartSummary.finalTotal}
-        onDiscountApply={handleDiscountApply}
       />
     </div>
   );
