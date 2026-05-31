@@ -78,6 +78,19 @@ export const exchangeRateTableColumns = ({
     },
 
     {
+      key: "notes",
+      label: "Remark",
+      minWidth: "200px",
+      maxWidth: "400px",
+      truncate: true,
+      render: (parameter) => (
+        <span className="text-sm text-muted-foreground">
+          {parameter?.notes || "---"}
+        </span>
+      ),
+    },
+
+    {
       key: "createdAt",
       label: "Created At",
       minWidth: "150px",
