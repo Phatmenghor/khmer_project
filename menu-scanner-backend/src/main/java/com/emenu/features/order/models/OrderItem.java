@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -94,7 +96,7 @@ public class OrderItem extends BaseUUIDEntity {
     private BigDecimal totalPrice; // finalPrice * quantity
 
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<OrderItemCustomization> itemCustomizations = new ArrayList<>();
+    private Set<OrderItemCustomization> itemCustomizations = new HashSet<>();
 
     // Total customization cost for this item
     @Column(name = "customization_total", precision = 10, scale = 2)
