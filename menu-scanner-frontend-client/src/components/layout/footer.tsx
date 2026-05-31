@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Phone, Clock } from "lucide-react";
+import { MapPin, Phone, Clock, Mail } from "lucide-react";
 import { PageContainer } from "../shared/common/page-container";
 import { useAppSelector } from "@/store";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
@@ -90,29 +90,35 @@ export function Footer() {
               <h3 className="font-semibold text-white text-base">Contact Info</h3>
               <div className="space-y-3 text-sm">
                 {contactAddress && (
-                  <div className="flex gap-3">
-                    <MapPin className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                    <p className="text-white">
+                  <div className="flex gap-3 items-start">
+                    <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-white pt-0.5">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <p className="text-white leading-relaxed">
                       {contactAddress}
                     </p>
                   </div>
                 )}
                 {contactPhone && (
-                  <div className="flex gap-3">
-                    <Phone className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
-                    <p className="text-white">
+                  <div className="flex gap-3 items-center">
+                    <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-white">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <a href={`tel:${contactPhone}`} className="text-white hover:text-white/80 transition-colors">
                       {contactPhone}
-                    </p>
+                    </a>
                   </div>
                 )}
                 {contactEmail && (
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 items-center">
+                    <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-white">
+                      <Mail className="w-5 h-5" />
+                    </div>
                     <a
                       href={`mailto:${contactEmail}`}
-                      className="text-white hover:text-white/80 transition-colors flex gap-3"
+                      className="text-white hover:text-white/80 transition-colors"
                     >
-                      <span className="text-white/80 text-xs">✉</span>
-                      <span>{contactEmail}</span>
+                      {contactEmail}
                     </a>
                   </div>
                 )}
