@@ -18,7 +18,7 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { showToast } from "@/components/shared/common/show-toast";
-import { clearCart, fetchCart } from "@/features/main/store/thunks/cart-thunks";
+import { clearCart, fetchCart, searchCartItems } from "@/features/main/store/thunks/cart-thunks";
 import { updateLocalCartItem } from "@/features/main/store/slice/cart-slice";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { LoginModal } from "@/components/shared/modal/login-modal";
@@ -95,7 +95,7 @@ export default function CartPage() {
   const [searchLoading, setSearchLoading] = useState(false);
   const searchAbortRef = useRef<AbortController | null>(null);
 
-  // Fetch from API with search param whenever query changes
+  // Direct API call for search — does NOT update Redux so full cart stays intact
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -110,12 +110,9 @@ export default function CartPage() {
     const controller = new AbortController();
     searchAbortRef.current = controller;
 
-    dispatch(fetchCart({ search: searchQuery }))
-      .unwrap()
-      .then((data) => {
-        if (!controller.signal.aborted) {
-          setSearchResults(data.items ?? []);
-        }
+    searchCartItems(searchQuery, controller.signal)
+      .then((items) => {
+        if (!controller.signal.aborted) setSearchResults(items);
       })
       .catch(() => {})
       .finally(() => {
@@ -123,7 +120,7 @@ export default function CartPage() {
       });
 
     return () => controller.abort();
-  }, [searchQuery, isAuthenticated, dispatch]);
+  }, [searchQuery, isAuthenticated]);
 
   const displayItems = searchQuery ? (searchResults ?? []) : items;
   const isSearching = searchQuery ? searchLoading : false;

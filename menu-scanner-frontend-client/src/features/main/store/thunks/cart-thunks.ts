@@ -66,21 +66,16 @@ export const updateCartItem = createApiThunk<
   return responseData;
 });
 
-export const fetchCart = createApiThunk<CartResponseModel, { search?: string } | void>(
+export const fetchCart = createApiThunk<CartResponseModel, void>(
   "cart/fetch",
-  async (arg, signal) => {
+  async (_, signal) => {
     const businessId = AppDefault.BUSINESS_ID;
-    const search = arg && typeof arg === "object" ? arg.search : undefined;
     const response = await axiosClientWithAuth.post(
       "/api/v1/cart/all",
-      {
-        businessId,
-        ...(search ? { search } : {}),
-      },
+      { businessId },
       { signal }
     );
     let responseData = response.data.data;
-
 
     if (responseData?.items) {
       responseData.items = responseData.items.map((item: Record<string, unknown>) => ({
@@ -92,6 +87,24 @@ export const fetchCart = createApiThunk<CartResponseModel, { search?: string } |
     return responseData;
   }
 );
+
+/**
+ * Direct API call for cart search — bypasses Redux so the full cart state is
+ * never replaced with filtered results. Returns items or throws on error.
+ */
+export async function searchCartItems(search: string, signal?: AbortSignal): Promise<CartResponseModel["items"]> {
+  const businessId = AppDefault.BUSINESS_ID;
+  const response = await axiosClientWithAuth.post(
+    "/api/v1/cart/all",
+    { businessId, search },
+    { signal }
+  );
+  const data = response.data.data as CartResponseModel;
+  return (data?.items ?? []).map((item) => ({
+    ...item,
+    isAvailable: (item as any).status === "ACTIVE" || (item as any).status === "AVAILABLE",
+  }));
+}
 
 export const clearCart = createApiThunk<void, void>(
   "cart/clearCart",
