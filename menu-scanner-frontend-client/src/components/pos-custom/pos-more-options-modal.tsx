@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 import { Loader2, ChevronRight, Percent, DollarSign, Settings2 } from "lucide-react";
+import { showToast } from "@/components/shared/common/show-toast";
 interface POSMoreOptionsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -61,16 +62,17 @@ export function POSMoreOptionsModal({
         const beforeTotal = currentOrderTotal;
         const afterTotal = Math.max(0, currentOrderTotal - discountAmountValue);
 
-        onDiscountApply({
+        const discountPayload = {
           type: discountType,
           value: parseFloat(discountValue),
           reason: discountReason || "Manual discount applied at POS",
-
           beforeTotal,
           afterTotal,
           discountAmount: discountAmountValue,
           appliedAt: new Date().toISOString(),
-        });
+        };
+        onDiscountApply(discountPayload);
+        showToast.success(`Discount applied: saved $${discountAmountValue.toFixed(2)}`);
       }
     }
 

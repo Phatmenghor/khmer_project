@@ -681,7 +681,6 @@ export default function PosPage() {
 
   const handleDiscountApply = (discount: Exclude<OrderDiscountType, null>) => {
     setOrderDiscount(discount);
-    showToast.success(`Discount applied: saved $${discount.discountAmount.toFixed(2)}`);
   };
 
   const handleSubmitOrder = async () => {
