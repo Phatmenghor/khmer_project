@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { showToast } from "@/components/shared/common/show-toast";
-import { Loader2, Save, Plus, Trash2, Eye, EyeOff, Send, RefreshCw } from "lucide-react";
+import { Loader2, Save, Plus, Trash2, Eye, EyeOff, Send } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -301,18 +301,7 @@ export default function BusinessSettingsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 py-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Business Settings</h1>
-        <Button
-          variant="outline"
-          onClick={fetchBusinessSettings}
-          disabled={isLoading}
-          className="gap-2"
-        >
-          <RefreshCw className="w-4 h-4" />
-          {isLoading ? "Refreshing..." : "Refresh"}
-        </Button>
-      </div>
+      <h1 className="text-3xl font-bold">Business Settings</h1>
 
       {hasErrors && (
         <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
