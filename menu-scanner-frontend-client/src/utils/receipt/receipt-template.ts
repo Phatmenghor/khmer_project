@@ -57,7 +57,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
 
       return `
         <tr>
-          <td style="max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${displayName}</td>
+          <td style="max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 0;">${displayName}</td>
           <td style="text-align: right; padding: 0 4px; white-space: nowrap;">${(item.finalPrice || 0).toFixed(2)}</td>
           <td style="text-align: center; padding: 0 4px;">${item.quantity}</td>
           <td style="text-align: right; padding: 0 4px; white-space: nowrap;">${discount}</td>
@@ -94,7 +94,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
           <td colspan="4" style="text-align: right; padding-right: 4px; border: none; padding-top: 2px; padding-bottom: 2px;">${order.payment?.paymentMethod || "N/A"}</td>
         </tr>
         <tr style="border-top: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; height: 28px;">
-          <td colspan="4" style="text-align: left;">TOTAL AMOUNT</td>
+          <td colspan="4" style="text-align: left; padding-left: 0;">TOTAL AMOUNT</td>
           <td style="text-align: right; padding-right: 4px;">${formatPrice(total)}</td>
         </tr>`;
 
