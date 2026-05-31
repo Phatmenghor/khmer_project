@@ -153,7 +153,11 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
                 WHERE s.businessId = :businessId
                 AND s.isDeleted = false
                 ORDER BY s.createdAt DESC
-                LIMIT 1
             """)
-    Optional<Subscription> findLatestByBusinessId(@Param("businessId") UUID businessId);
+    List<Subscription> findLatestByBusinessIdList(@Param("businessId") UUID businessId);
+
+    default Optional<Subscription> findLatestByBusinessId(UUID businessId) {
+        List<Subscription> results = findLatestByBusinessIdList(businessId);
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    }
 }
