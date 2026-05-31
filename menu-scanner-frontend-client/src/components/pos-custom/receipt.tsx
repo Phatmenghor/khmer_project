@@ -160,8 +160,8 @@ export function Receipt({
                       )}
 
                       {item.customizations && item.customizations.length > 0 && (
-                        <div className="ml-4 mt-0.5 text-xs flex justify-between text-gray-600">
-                          <span className="truncate">
+                        <div className="ml-4 mt-0.5 text-xs flex justify-between text-gray-600 min-w-0">
+                          <span className="truncate min-w-0">
                             +{item.customizations.map((c) => c.name).join(", ")}
                           </span>
                           <span className="ml-2 shrink-0">
