@@ -41,11 +41,6 @@ const ProductsSectionComponent = ({
   if (error) {
     return (
       <SectionWrapper>
-        <SectionHeader
-          title={title}
-          subtitle={subtitle}
-          icon={showIcon ? Sparkles : undefined}
-        />
         <div className="flex flex-col items-center justify-center py-12">
           <div className="text-6xl mb-4">⚠️</div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -63,11 +58,6 @@ const ProductsSectionComponent = ({
   if (products.length === 0 && !loading && !isInitialLoading) {
     return (
       <SectionWrapper>
-        <SectionHeader
-          title={title}
-          subtitle={subtitle}
-          icon={showIcon ? Sparkles : undefined}
-        />
         <div className="flex flex-col items-center justify-center py-12">
           <div className="text-6xl mb-4">📦</div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
