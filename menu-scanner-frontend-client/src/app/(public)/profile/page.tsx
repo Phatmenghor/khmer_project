@@ -97,6 +97,8 @@ export default function PublicProfilePage() {
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
     if (!userProfile && !isProfileLoading) {
       dispatch(getCustomerProfileService());
     }
