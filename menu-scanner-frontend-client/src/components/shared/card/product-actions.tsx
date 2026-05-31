@@ -28,7 +28,7 @@ function ProductActionsComponent({
           <CustomButton
             size="icon"
             variant="outline"
-            className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+            className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground transition-colors"
             onClick={onDecrement}
           >
             <Minus className="h-3 w-3" />
@@ -39,7 +39,7 @@ function ProductActionsComponent({
           <CustomButton
             size="icon"
             variant="outline"
-            className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+            className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors"
             onClick={onIncrement}
           >
             <Plus className="h-3 w-3" />
