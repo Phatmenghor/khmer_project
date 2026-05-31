@@ -66,14 +66,16 @@ export const updateCartItem = createApiThunk<
   return responseData;
 });
 
-export const fetchCart = createApiThunk<CartResponseModel, void>(
+export const fetchCart = createApiThunk<CartResponseModel, { search?: string } | void>(
   "cart/fetch",
-  async (_, signal) => {
+  async (arg, signal) => {
     const businessId = AppDefault.BUSINESS_ID;
+    const search = arg && typeof arg === "object" ? arg.search : undefined;
     const response = await axiosClientWithAuth.post(
       "/api/v1/cart/all",
       {
-        businessId: businessId,
+        businessId,
+        ...(search ? { search } : {}),
       },
       { signal }
     );

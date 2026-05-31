@@ -13,6 +13,8 @@ public interface CartService {
 
     CartSummaryResponse getCartPaginated(UUID businessId, int pageNo, int pageSize);
 
+    CartSummaryResponse getCartPaginated(UUID businessId, int pageNo, int pageSize, String search);
+
     CartSummaryResponse clearCart(UUID businessId);
 }
 

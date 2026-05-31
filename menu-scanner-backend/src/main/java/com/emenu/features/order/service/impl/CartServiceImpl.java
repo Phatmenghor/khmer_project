@@ -120,6 +120,12 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional(readOnly = true)
     public CartSummaryResponse getCartPaginated(UUID businessId, int pageNo, int pageSize) {
+        return getCartPaginated(businessId, pageNo, pageSize, null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CartSummaryResponse getCartPaginated(UUID businessId, int pageNo, int pageSize, String search) {
         UUID userId = securityUtils.getCurrentUserId();
 
         Optional<Cart> cartOpt = cartRepository.findByUserIdAndBusinessIdWithItems(userId, businessId);
@@ -140,6 +146,21 @@ public class CartServiceImpl implements CartService {
 
             CartSummaryResponse response = cartMapper.toSummaryResponse(cart);
             response.setTotalItems(totalItemCount);
+
+            // Apply search filter on mapped items (productName is resolved by the mapper)
+            if (search != null && !search.isBlank()) {
+                String keyword = search.trim().toLowerCase();
+                if (response.getItems() != null) {
+                    response.setItems(
+                        response.getItems().stream()
+                            .filter(item -> item.getProductName() != null &&
+                                           item.getProductName().toLowerCase().contains(keyword))
+                            .toList()
+                    );
+                    response.setTotalItems(response.getItems().size());
+                }
+            }
+
             return response;
         }
         return emptyCartSummary();

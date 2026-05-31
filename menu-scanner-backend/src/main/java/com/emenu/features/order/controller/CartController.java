@@ -31,8 +31,7 @@ public class CartController {
     @PostMapping("/all")
     public ResponseEntity<ApiResponse<CartSummaryResponse>> getCart(
             @Valid @RequestBody GetCartRequest request) {
-        log.info("Endpoint: get-cart - full cart retrieval: business_id={}", request.getBusinessId());
-        CartSummaryResponse cart = cartService.getCartPaginated(request.getBusinessId(), 1, 1000);
+        CartSummaryResponse cart = cartService.getCartPaginated(request.getBusinessId(), 1, 1000, request.getSearch());
         return ResponseEntity.ok(ApiResponse.success("Cart retrieved successfully", cart));
     }
 
@@ -40,6 +39,7 @@ public class CartController {
     public static class GetCartRequest {
         @jakarta.validation.constraints.NotNull(message = "Business ID is required")
         private UUID businessId;
+        private String search;
     }
 
     @DeleteMapping("/{businessId}/clear")

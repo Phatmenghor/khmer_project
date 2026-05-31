@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Trash2,
@@ -89,14 +89,44 @@ export default function CartPage() {
   const [mounted, setMounted] = useState(false);
 
   const searchParams = useSearchParams();
-  const searchQuery = searchParams.get("q")?.trim().toLowerCase() ?? "";
+  const searchQuery = searchParams.get("q")?.trim() ?? "";
 
-  const filteredItems = useMemo(() => {
-    if (!searchQuery) return items;
-    return items.filter((item) =>
-      item.productName?.toLowerCase().includes(searchQuery)
-    );
-  }, [items, searchQuery]);
+  const [searchResults, setSearchResults] = useState<typeof items | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchAbortRef = useRef<AbortController | null>(null);
+
+  // Fetch from API with search param whenever query changes
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    if (searchAbortRef.current) searchAbortRef.current.abort();
+
+    if (!searchQuery) {
+      setSearchResults(null);
+      return;
+    }
+
+    setSearchLoading(true);
+    const controller = new AbortController();
+    searchAbortRef.current = controller;
+
+    dispatch(fetchCart({ search: searchQuery }))
+      .unwrap()
+      .then((data) => {
+        if (!controller.signal.aborted) {
+          setSearchResults(data.items ?? []);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!controller.signal.aborted) setSearchLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [searchQuery, isAuthenticated, dispatch]);
+
+  const displayItems = searchQuery ? (searchResults ?? []) : items;
+  const isSearching = searchQuery ? searchLoading : false;
 
   useEffect(() => setMounted(true), []);
 
@@ -201,15 +231,20 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
 
           <div className="lg:col-span-2 space-y-3">
-            {searchQuery && (
+            {searchQuery && !isSearching && (
               <div className="text-xs text-muted-foreground">
-                {filteredItems.length === 0
+                {displayItems.length === 0
                   ? `No results for "${searchQuery}"`
-                  : `${filteredItems.length} of ${items.length} items match "${searchQuery}"`}
+                  : `${displayItems.length} of ${items.length} ${items.length === 1 ? "item" : "items"} match "${searchQuery}"`}
+              </div>
+            )}
+            {isSearching && (
+              <div className="space-y-3">
+                {[1, 2].map((i) => <CartItemSkeleton key={i} />)}
               </div>
             )}
 
-            {filteredItems.length === 0 && searchQuery ? (
+            {!isSearching && displayItems.length === 0 && searchQuery ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <ShoppingCart className="h-12 w-12 text-muted-foreground/30 mb-4" />
                 <p className="text-sm font-medium text-foreground mb-1">No items found</p>
@@ -217,8 +252,8 @@ export default function CartPage() {
                   No cart items match &ldquo;{searchQuery}&rdquo;
                 </p>
               </div>
-            ) : (
-              filteredItems.map((item, index) => {
+            ) : !isSearching ? (
+              displayItems.map((item, index) => {
                 const uniqueKey = `cart-${item.id}-${index}`;
                 return (
                   <CartItemCard
@@ -245,7 +280,7 @@ export default function CartPage() {
                   />
                 );
               })
-            )}
+            ) : null}
 
           </div>
 
