@@ -8,17 +8,23 @@ interface OrderReceiptProps {
 }
 
 export function OrderReceipt({ order }: OrderReceiptProps) {
-  const formattedDate = new Date(order.createdAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  if (!order) return null;
 
-  const formattedTime = new Date(order.createdAt).toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+  const formattedDate = order.createdAt
+    ? new Date(order.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+    : "N/A";
+
+  const formattedTime = order.createdAt
+    ? new Date(order.createdAt).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+    : "N/A";
 
   const promotionalItems = (order.items || []).filter((item) => item.hasPromotion);
 
@@ -264,7 +270,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
             </p>
             <div className="text-xs text-gray-500 mt-3 pt-3 border-t border-gray-400">
               <p>Generated: {formattedDate} at {formattedTime}</p>
-              <p className="mt-1">Receipt ID: {order.id.substring(0, 8).toUpperCase()}</p>
+              <p className="mt-1">Receipt ID: {(order.id || "").substring(0, 8).toUpperCase()}</p>
             </div>
           </div>
         </div>
