@@ -111,6 +111,11 @@ export function generateReceiptHTML(order: OrderResponse): string {
       line-height: 1.3;
       color: black;
     ">
+      <style>
+        #receipt-wrapper table tr { border: none !important; border-top: none !important; border-bottom: none !important; }
+        #receipt-wrapper table td { border: none !important; }
+        #receipt-wrapper table th { border: none !important; }
+      </style>
       <div style="border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 8px 0; text-align: center; font-weight: bold; font-size: 1.2em; margin-bottom: 8px;">
         RECEIPT
       </div>
@@ -139,7 +144,7 @@ export function generateReceiptHTML(order: OrderResponse): string {
         </table>
       </div>
 
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.95em;">
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.95em; border: none;">
         <tbody>
           ${summaryRows}
         </tbody>
