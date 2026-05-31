@@ -83,7 +83,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       businessPhone: "",
       businessAddress: "",
       enableStockManagement: false,
-      primaryColor: "#2563EB", // Tailwind blue-600 - vibrant primary color
+      primaryColor: "#57823D", // Brand primary color from business settings
     },
     mode: "onChange",
   });
@@ -314,7 +314,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                         className="w-20 h-10 cursor-pointer rounded border border-input"
                       />
                       <input
-                        placeholder="#2563EB"
+                        placeholder="#57823D"
                         value={watch("primaryColor")}
                         onChange={(e) => setValue("primaryColor", e.target.value)}
                         disabled={isSubmitting}
