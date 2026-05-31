@@ -100,7 +100,15 @@ export function ComboboxSelectDelivery({
       if (!result) return;
 
       if (newPage === 1) {
-        const newData = result.content;
+        const newData = result.content && result.content.length > 0
+          ? result.content
+          : [{
+              id: "pickup-default",
+              name: "Pickup",
+              description: "Pickup from store",
+              price: 0,
+              imageUrl: ""
+            }];
         setData(removeDuplicates(newData));
       } else {
         setData((prev) => removeDuplicates([...prev, ...result.content]));
@@ -109,6 +117,15 @@ export function ComboboxSelectDelivery({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (error) {
+      if (newPage === 1) {
+        setData([{
+          id: "pickup-default",
+          name: "Pickup",
+          description: "Pickup from store",
+          price: 0,
+          imageUrl: ""
+        }]);
+      }
     } finally {
       setLoading(false);
     }

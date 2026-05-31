@@ -95,7 +95,13 @@ export function ComboboxSelectPayment({
       if (!result) return;
 
       if (newPage === 1) {
-        const newData = result.content;
+        const newData = result.content && result.content.length > 0
+          ? result.content
+          : [{
+              id: "cash-default",
+              name: "Cash",
+              paymentOptionType: "CASH"
+            }];
         setData(removeDuplicates(newData));
       } else {
         setData((prev) => removeDuplicates([...prev, ...result.content]));
@@ -104,6 +110,13 @@ export function ComboboxSelectPayment({
       setPage(result.pageNo);
       setLastPage(result.last);
     } catch (error) {
+      if (newPage === 1) {
+        setData([{
+          id: "cash-default",
+          name: "Cash",
+          paymentOptionType: "CASH"
+        }]);
+      }
     } finally {
       setLoading(false);
     }
