@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useCallback, useMemo, useRef } from "react";
+import React, { useEffect, useCallback, useMemo, useRef, useState } from "react";
 
 import {
   fetchHomeBanners,
@@ -25,6 +25,9 @@ import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { saveHomeSnapshot, loadHomeSnapshot } from "@/utils/common/home-cache";
 
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   const {
     dispatch,
     banners,
@@ -155,10 +158,10 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // only on mount
 
-  const isBannerLoading = (bannersSection.loading || !bannersSection.loaded) && banners.length === 0;
-  const isCategoryLoading = (categoriesSection.loading || !categoriesSection.loaded) && categories.length === 0;
-  const isPromotionLoading = (promotionProductsSection.loading || !promotionProductsSection.loaded) && promotionProducts.length === 0;
-  const isInitialFeaturedLoading = (featuredProductsSection.loading || !featuredProductsSection.loaded) && featuredProducts.length === 0;
+  const isBannerLoading = !mounted || ((bannersSection.loading || !bannersSection.loaded) && banners.length === 0);
+  const isCategoryLoading = !mounted || ((categoriesSection.loading || !categoriesSection.loaded) && categories.length === 0);
+  const isPromotionLoading = !mounted || ((promotionProductsSection.loading || !promotionProductsSection.loaded) && promotionProducts.length === 0);
+  const isInitialFeaturedLoading = !mounted || ((featuredProductsSection.loading || !featuredProductsSection.loaded) && featuredProducts.length === 0);
 
   // ── normal data fetch ────────────────────────────────────────────────────
   useEffect(() => {
