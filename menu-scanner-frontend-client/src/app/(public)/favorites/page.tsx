@@ -3,8 +3,9 @@
 import { Messages } from "@/constants/messages";
 import { useEffect, useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, ShoppingCart, Trash2, LogIn, CheckCircle2, Loader2 } from "lucide-react";
+import { Heart, ShoppingCart, Trash2, CheckCircle2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/common/page-header";
+import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 import { useFavoriteState } from "@/features/main/store/state/favorite-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
@@ -175,34 +176,14 @@ export default function FavoritesPage() {
   if (!isAuthenticated) {
     return (
       <>
-        <PageContainer className="min-h-screen flex flex-col py-12 sm:py-20">
-          <div className="max-w-sm mx-auto text-center">
-            <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-50 mx-auto mb-4">
-              <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-red-500" />
-            </div>
-            <h1 className="text-xl sm:text-2xl font-bold mb-2">My Favorites</h1>
-            <p className="text-sm text-muted-foreground mb-6">
-              Sign in to save and view your favorite items.
-            </p>
-            <div className="flex flex-col gap-3">
-              <CustomButton
-                onClick={() => setLoginModalOpen(true)}
-                className="w-full gap-2"
-              >
-                <LogIn className="h-4 w-4" />
-                Sign In
-              </CustomButton>
-              <CustomButton
-                variant="outline"
-                onClick={() => router.push("/products")}
-                className="w-full gap-2"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Browse Products
-              </CustomButton>
-            </div>
-          </div>
-        </PageContainer>
+        <SignInRequired
+          title="My Favorites"
+          description="Sign in to save and view your favorite items."
+          icon="❤️"
+          onSignIn={() => setLoginModalOpen(true)}
+          browseButtonText="Browse Products"
+          onBrowse={() => router.push("/products")}
+        />
         <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
       </>
     );
@@ -212,7 +193,7 @@ export default function FavoritesPage() {
   if (items.length === 0) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-12 sm:py-20">
-        <div className="max-w-sm mx-auto text-center">
+        <div className="max-w-md mx-auto text-center">
           <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-50 mx-auto mb-4">
             <Heart className="h-8 w-8 sm:h-10 sm:w-10 text-red-500" />
           </div>
