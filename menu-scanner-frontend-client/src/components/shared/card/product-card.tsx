@@ -208,7 +208,6 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
       const current = prev !== null ? prev : quantity;
       const newQty = Math.max(0, current - 1);
       cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-      if (newQty === 0) showToast.success(Messages.cart.removed);
       debouncedUpdate(key, product.id, null, newQty, ts);
       return newQty;
     });
