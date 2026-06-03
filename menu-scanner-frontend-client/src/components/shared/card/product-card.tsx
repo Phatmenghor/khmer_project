@@ -296,8 +296,11 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";
 
+  const hasSizesOrCustomizations =
+    (product.hasSizes && product.sizes && product.sizes.length > 0) ||
+    !!(product.customizations && product.customizations.length > 0);
 
-  const displayQuantity = displayQuantityValue;
+  const displayQuantity = hasSizesOrCustomizations ? totalQuantity : displayQuantityValue;
 
   return (
     <>

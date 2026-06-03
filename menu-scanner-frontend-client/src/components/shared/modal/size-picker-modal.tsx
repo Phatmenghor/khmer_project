@@ -52,6 +52,7 @@ export function SizePickerModal({
 }: SizePickerModalProps) {
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [customizationsBySize, setCustomizationsBySize] = useState<Map<string, Set<string>>>(new Map());
 
@@ -287,6 +288,7 @@ export function SizePickerModal({
       setModifiedSizes(new Set());
       setOriginalQuantities(new Map());
       setCustomizationsBySize(new Map());
+      setIsSubmitting(false);
     }
   }, [open]);
 
@@ -359,6 +361,7 @@ export function SizePickerModal({
     if (!product || !hasUnsavedChanges) {
       return;
     }
+    setIsSubmitting(true);
 
     const sizesToUpdate = new Set(modifiedSizes);
     customizationsBySize.forEach((_, sizeId) => {
@@ -611,18 +614,18 @@ export function SizePickerModal({
 
         {}
         <FormFooter
-          isSubmitting={false}
+          isSubmitting={isSubmitting}
           isDirty={hasUnsavedChanges}
           isCreate={!isEditing}
           createMessage="Adding..."
           updateMessage="Saving..."
           noChangesMessage="No changes made"
         >
-          <CancelButton onClick={handleClose} />
+          <CancelButton onClick={handleClose} disabled={isSubmitting} />
           <SubmitButton
             onClick={handleSelectSize}
-            isSubmitting={false}
-            disabled={!hasUnsavedChanges}
+            isSubmitting={isSubmitting}
+            disabled={!hasUnsavedChanges || isSubmitting}
             isCreate={!isEditing}
             createText="Add to Cart"
             updateText="Save Changes"
