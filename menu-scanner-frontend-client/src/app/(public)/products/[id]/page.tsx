@@ -345,7 +345,7 @@ export default function ProductDetailPage() {
               optimisticTimestamp: ts,
             }),
           ).unwrap();
-          showToast.success(newQty === 0 ? Messages.cart.removed : Messages.cart.updated);
+          if (newQty > 0) showToast.success(Messages.cart.updated);
         }
       } catch (err: unknown) {
         showToast.error((err as { message?: string })?.message || Messages.cart.updateFailed);
