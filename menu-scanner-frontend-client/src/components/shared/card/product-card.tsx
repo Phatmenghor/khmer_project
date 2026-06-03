@@ -103,7 +103,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
   };
 
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -115,24 +115,28 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
     const hasCustomizations = product.customizations && product.customizations.length > 0;
 
-
     if (hasSizes || hasCustomizations) {
       setSizePickerProduct(product);
       return;
     }
 
+    const key = cartItemKey(product.id, null);
+    const ts = Date.now();
 
     if (isInCart) {
-      handleIncrement(e as any);
+      // Simple product already in cart — increment locally immediately
+      setLocalQuantity((prev) => {
+        const current = prev !== null ? prev : quantity;
+        const newQty = current + 1;
+        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+        debouncedUpdate(key, product.id, null, newQty, ts);
+        return newQty;
+      });
       return;
     }
 
-
-    const timestamp = Date.now();
-    const newQty = 1;
-    const key = cartItemKey(product.id, null);
-
-
+    // First add — set local quantity immediately, then Redux + API in background
+    setLocalQuantity(1);
     cartDispatch(
       addLocalCartItem({
         productId: product.id,
@@ -148,13 +152,11 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
         promotionValue: product.displayPromotionValue || null,
         promotionFromDate: product.displayPromotionFromDate || null,
         promotionToDate: product.displayPromotionToDate || null,
-        optimisticTimestamp: timestamp,
+        optimisticTimestamp: ts,
       })
     );
-
-
-    debouncedUpdate(key, product.id, null, newQty, timestamp);
-  };
+    debouncedUpdate(key, product.id, null, 1, ts);
+  }, [isAuthenticated, product, isInCart, quantity, cartDispatch, debouncedUpdate]);
 
 
   const handleIncrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -171,14 +173,18 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
       return;
     }
 
-    const newQty = displayQuantityValue + 1;
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    setLocalQuantity(newQty);
-    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-    debouncedUpdate(key, product.id, null, newQty, ts);
-  }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
+    // Functional update — always reads the latest local quantity, never stale
+    setLocalQuantity((prev) => {
+      const current = prev !== null ? prev : quantity;
+      const newQty = current + 1;
+      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+      debouncedUpdate(key, product.id, null, newQty, ts);
+      return newQty;
+    });
+  }, [product, quantity, isInCart, cartDispatch, debouncedUpdate]);
 
 
   const handleDecrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -195,17 +201,18 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
       return;
     }
 
-    const newQty = Math.max(0, displayQuantityValue - 1);
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
 
-    setLocalQuantity(newQty);
-    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-
-    if (newQty === 0) showToast.success(Messages.cart.removed);
-
-    debouncedUpdate(key, product.id, null, newQty, ts);
-  }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
+    setLocalQuantity((prev) => {
+      const current = prev !== null ? prev : quantity;
+      const newQty = Math.max(0, current - 1);
+      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+      if (newQty === 0) showToast.success(Messages.cart.removed);
+      debouncedUpdate(key, product.id, null, newQty, ts);
+      return newQty;
+    });
+  }, [product, quantity, isInCart, cartDispatch, debouncedUpdate]);
 
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
