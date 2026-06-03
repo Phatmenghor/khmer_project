@@ -17,8 +17,8 @@ import {
   addLocalCartItem,
   updateLocalCartItem,
 } from "@/features/main/store/slice/cart-slice";
-import { addToCart, updateCartItem } from "@/features/main/store/thunks/cart-thunks";
 import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
+import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
@@ -263,6 +263,11 @@ export default function ProductDetailPage() {
     return map;
   }, [product?.id, cartItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const hasSizes = !!(product?.hasSizes && product?.sizes && product.sizes.length > 0);
+  const hasCustomizations = !!(product?.customizations && product.customizations.length > 0);
+
+  const { debouncedUpdate } = useCartDebounce(cartDispatch);
+
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
   const toggleCustomization = useCallback((id: string) => {
@@ -274,132 +279,122 @@ export default function ProductDetailPage() {
     });
   }, []);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(() => {
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }
     setSizePickerOpen(true);
-  };
+  }, [isAuthenticated]);
 
   const handleSizeSelect = useCallback(
-    async (
-      _prod: ProductDetailResponseModel,
+    (
+      selectedProduct: ProductDetailResponseModel,
       size?: ProductSize,
-      quantity?: number,
-      _customizationIds?: string[],
+      qty?: number,
+      customizationIds?: string[],
     ) => {
-      if (!product) return;
-      const sizeId = size?.id ?? null;
-      const newQty = quantity ?? 0;
-      const currentQty = getQuantityForSize(sizeId);
-      if (newQty === currentQty) return;
-      const ts = Date.now();
-      try {
-        if (currentQty === 0 && newQty > 0) {
-          const finalPrice = size?.finalPrice ?? product.displayPrice ?? 0;
-          cartDispatch(
-            addLocalCartItem({
-              productId: product.id,
-              productSizeId: sizeId,
-              quantity: newQty,
-              productName: product.name,
-              productImageUrl: product.mainImageUrl,
-              sizeName: size?.name ?? null,
-              finalPrice,
-              currentPrice: size?.hasPromotion
-                ? size.price
-                : (product.displayOriginPrice ?? finalPrice),
-              hasPromotion: size ? size.hasPromotion : (product.hasPromotion ?? false),
-              promotionType: size?.promotionType ?? product.displayPromotionType ?? null,
-              promotionValue: size?.promotionValue ?? product.displayPromotionValue ?? null,
-              promotionFromDate:
-                size?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
-              promotionToDate: size?.promotionToDate ?? product.displayPromotionToDate ?? null,
-              optimisticTimestamp: ts,
-            }),
-          );
-          await cartDispatch(
-            addToCart({
-              productId: product.id,
-              productSizeId: sizeId,
-              quantity: newQty,
-              optimisticTimestamp: ts,
-            }),
-          ).unwrap();
-          showToast.success(Messages.cart.updated);
-        } else {
-          cartDispatch(
-            updateLocalCartItem({
-              productId: product.id,
-              productSizeId: sizeId,
-              quantity: newQty,
-              optimisticTimestamp: ts,
-            }),
-          );
-          await cartDispatch(
-            updateCartItem({
-              productId: product.id,
-              productSizeId: sizeId,
-              quantity: newQty,
-              optimisticTimestamp: ts,
-            }),
-          ).unwrap();
-          if (newQty > 0) showToast.success(Messages.cart.updated);
-        }
-      } catch (err: unknown) {
-        showToast.error((err as { message?: string })?.message || Messages.cart.updateFailed);
+      const timestamp = Date.now();
+      const sizeId = size?.id === "__no_size__" ? null : size?.id ?? null;
+      const quantity = qty ?? 1;
+      const customizations = customizationIds || [];
+      const key = cartItemKey(selectedProduct.id, sizeId, customizations);
+
+      const isEditing = totalCartQty > 0;
+
+      if (isEditing) {
+        cartDispatch(
+          updateLocalCartItem({
+            productId: selectedProduct.id,
+            productSizeId: sizeId,
+            quantity,
+            optimisticTimestamp: timestamp,
+          }),
+        );
+      } else if (quantity > 0) {
+        cartDispatch(
+          addLocalCartItem({
+            productId: selectedProduct.id,
+            productSizeId: sizeId,
+            quantity,
+            productName: selectedProduct.name,
+            productImageUrl: selectedProduct.mainImageUrl,
+            sizeName: size?.name ?? null,
+            finalPrice: size?.finalPrice ?? selectedProduct.displayPrice,
+            currentPrice: size?.price ?? selectedProduct.displayOriginPrice ?? selectedProduct.displayPrice,
+            hasPromotion: size?.hasPromotion ?? selectedProduct.hasPromotion,
+            promotionType: size?.promotionType ?? selectedProduct.displayPromotionType ?? null,
+            promotionValue: size?.promotionValue ?? selectedProduct.displayPromotionValue ?? null,
+            promotionFromDate: size?.promotionFromDate ?? selectedProduct.displayPromotionFromDate ?? null,
+            promotionToDate: size?.promotionToDate ?? selectedProduct.displayPromotionToDate ?? null,
+            optimisticTimestamp: timestamp,
+          }),
+        );
       }
+
+      setSizePickerOpen(false);
+      debouncedUpdate(key, selectedProduct.id, sizeId, quantity, timestamp, customizations);
     },
-    [product, cartDispatch, getQuantityForSize],
+    [cartDispatch, totalCartQty, debouncedUpdate],
   );
 
-  const handleInlineQuantityChange = useCallback((newQty: number) => {
+  const handleInlineDecrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!product) return;
+    if (hasSizes || hasCustomizations) { setSizePickerOpen(true); return; }
 
-    const sizeId = selectedSize?.id ?? null;
-    const currentQty = getQuantityForSize(sizeId);
-    if (newQty === currentQty) return;
-
+    const key = cartItemKey(product.id, null);
     const ts = Date.now();
+    setPageQuantity((prev) => {
+      const newQty = Math.max(0, prev - 1);
+      if (prev === 0) return 0;
+      if (prev === 1) {
+        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: 0, optimisticTimestamp: ts }));
+        debouncedUpdate(key, product.id, null, 0, ts);
+      } else {
+        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+        debouncedUpdate(key, product.id, null, newQty, ts);
+      }
+      return newQty;
+    });
+  }, [isAuthenticated, product, hasSizes, hasCustomizations, cartDispatch, debouncedUpdate]);
 
-    if (currentQty === 0 && newQty > 0) {
-      const finalPrice = selectedSize?.finalPrice ?? product.displayPrice ?? 0;
-      cartDispatch(
-        addLocalCartItem({
-          productId: product.id,
-          productSizeId: sizeId,
-          quantity: newQty,
-          productName: product.name,
-          productImageUrl: product.mainImageUrl,
-          sizeName: selectedSize?.name ?? null,
-          finalPrice,
-          currentPrice: selectedSize?.hasPromotion
-            ? selectedSize.price
-            : (product.displayOriginPrice ?? finalPrice),
-          hasPromotion: selectedSize ? selectedSize.hasPromotion : (product.hasPromotion ?? false),
-          promotionType: selectedSize?.promotionType ?? product.displayPromotionType ?? null,
-          promotionValue: selectedSize?.promotionValue ?? product.displayPromotionValue ?? null,
-          promotionFromDate: selectedSize?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
-          promotionToDate: selectedSize?.promotionToDate ?? product.displayPromotionToDate ?? null,
-          optimisticTimestamp: ts,
-        }),
-      );
-      cartDispatch(addToCart({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts }))
-        .unwrap()
-        .catch((err: unknown) =>
-          showToast.error((err as { message?: string })?.message || Messages.cart.updateFailed),
+  const handleInlineIncrement = useCallback(() => {
+    if (!isAuthenticated) { setShowLoginModal(true); return; }
+    if (!product) return;
+    if (hasSizes || hasCustomizations) { setSizePickerOpen(true); return; }
+
+    const key = cartItemKey(product.id, null);
+    const ts = Date.now();
+    setPageQuantity((prev) => {
+      const newQty = prev + 1;
+      if (prev === 0) {
+        cartDispatch(
+          addLocalCartItem({
+            productId: product.id,
+            productSizeId: null,
+            quantity: 1,
+            productName: product.name,
+            productImageUrl: product.mainImageUrl,
+            sizeName: null,
+            finalPrice: product.displayPrice,
+            currentPrice: product.displayOriginPrice ?? product.displayPrice,
+            hasPromotion: product.hasPromotion,
+            promotionType: product.displayPromotionType ?? null,
+            promotionValue: product.displayPromotionValue ?? null,
+            promotionFromDate: product.displayPromotionFromDate ?? null,
+            promotionToDate: product.displayPromotionToDate ?? null,
+            optimisticTimestamp: ts,
+          }),
         );
-    } else {
-      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts }));
-      cartDispatch(updateCartItem({ productId: product.id, productSizeId: sizeId, quantity: newQty, optimisticTimestamp: ts }))
-        .unwrap()
-        .catch((err: unknown) =>
-          showToast.error((err as { message?: string })?.message || Messages.cart.updateFailed),
-        );
-    }
-  }, [isAuthenticated, product, selectedSize, cartDispatch, getQuantityForSize]);
+        debouncedUpdate(key, product.id, null, 1, ts);
+      } else {
+        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+        debouncedUpdate(key, product.id, null, newQty, ts);
+      }
+      return newQty;
+    });
+  }, [isAuthenticated, product, hasSizes, hasCustomizations, cartDispatch, debouncedUpdate]);
 
   const handleToggleFavorite = () => {
     if (!product) return;
@@ -450,8 +445,6 @@ export default function ProductDetailPage() {
   );
   const isOutOfStock =
     product.stockStatus === "OUT_OF_STOCK" || product.stockStatus === "DISABLED";
-  const hasSizes = !!(product.hasSizes && product.sizes && product.sizes.length > 0);
-  const hasCustomizations = !!(product.customizations && product.customizations.length > 0);
 
   const addToCartLabel = hasSizes ? "Choose Size" : hasCustomizations ? "Choose Add-ons" : "Add to Cart";
 
@@ -754,26 +747,26 @@ export default function ProductDetailPage() {
                         ? "hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
                         : "opacity-40 cursor-not-allowed",
                     )}
-                    onClick={() => pageQuantity > 0 && handleInlineQuantityChange(pageQuantity - 1)}
+                    onClick={handleInlineDecrement}
                     disabled={pageQuantity <= 0}
                   >
                     <Minus className="h-4 w-4" />
                   </CustomButton>
 
                   <div className="w-16 h-10 bg-primary/10 text-primary font-bold text-base rounded-lg border border-primary/20 flex items-center justify-center select-none">
-                    {pageQuantity}
+                    {hasSizes || hasCustomizations ? totalCartQty : pageQuantity}
                   </div>
 
                   <CustomButton
                     size="icon"
                     variant="outline"
                     className="h-10 w-10 shrink-0 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-150"
-                    onClick={() => handleInlineQuantityChange(pageQuantity + 1)}
+                    onClick={handleInlineIncrement}
                   >
                     <Plus className="h-4 w-4" />
                   </CustomButton>
 
-                  {pageQuantity > 0 && displayPrice > 0 && (
+                  {pageQuantity > 0 && displayPrice > 0 && !(hasSizes || hasCustomizations) && (
                     <span className="text-sm text-muted-foreground ml-1">
                       = <span className="font-semibold text-foreground">{formatCurrency(displayPrice * pageQuantity)}</span>
                     </span>
@@ -858,7 +851,7 @@ export default function ProductDetailPage() {
             <CustomButton
               size="lg"
               className={cn(
-                "h-12 rounded-xl gap-2.5 font-semibold text-base transition-all duration-200",
+                "h-12 rounded-xl gap-2.5 font-semibold text-base bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200",
                 totalCartQty > 0 && "shadow-md",
               )}
               onClick={handleAddToCart}
@@ -871,9 +864,13 @@ export default function ProductDetailPage() {
                   ? totalCartQty > 0
                     ? "Manage Sizes"
                     : addToCartLabel
-                  : totalCartQty > 0
-                    ? "Update Cart"
-                    : addToCartLabel}
+                  : hasCustomizations
+                    ? totalCartQty > 0
+                      ? "Manage Add-ons"
+                      : addToCartLabel
+                    : totalCartQty > 0
+                      ? "Update Cart"
+                      : addToCartLabel}
             </CustomButton>
 
             {/* Secondary actions */}
