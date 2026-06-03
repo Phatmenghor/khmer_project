@@ -177,7 +177,7 @@ function POSProductCardComponent({
             </div>
           ) : (
             <CustomButton
-              className="w-full gap-1.5 h-8 text-xs font-semibold bg-red-500 hover:bg-red-600 text-white"
+              className="w-full gap-1.5 h-8 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
