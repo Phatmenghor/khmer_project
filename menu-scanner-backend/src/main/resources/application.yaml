@@ -30,6 +30,7 @@ spring:
 # Server
 server:
   port: 7070
+  max-http-request-header-size: 65536
 
 # JWT
 jwt:
