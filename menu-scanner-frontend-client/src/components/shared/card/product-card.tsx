@@ -166,7 +166,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
 
     if (!isInCart) return;
 
-    if ((hasSizes || hasCustomizations) && quantity === 0) {
+    if (hasSizes || hasCustomizations) {
       setSizePickerProduct(product);
       return;
     }
@@ -178,7 +178,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     setLocalQuantity(newQty);
     cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
     debouncedUpdate(key, product.id, null, newQty, ts);
-  }, [product, displayQuantityValue, isInCart, quantity, cartDispatch, debouncedUpdate]);
+  }, [product, displayQuantityValue, isInCart, cartDispatch, debouncedUpdate]);
 
 
   const handleDecrement = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
@@ -186,6 +186,14 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     e.stopPropagation();
 
     if (!isInCart) return;
+
+    const hasSizes = product.hasSizes && product.sizes && product.sizes.length > 0;
+    const hasCustomizations = product.customizations && product.customizations.length > 0;
+
+    if (hasSizes || hasCustomizations) {
+      setSizePickerProduct(product);
+      return;
+    }
 
     const newQty = Math.max(0, displayQuantityValue - 1);
     const key = cartItemKey(product.id, null);

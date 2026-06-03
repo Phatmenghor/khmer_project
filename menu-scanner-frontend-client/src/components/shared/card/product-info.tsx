@@ -25,7 +25,7 @@ function ProductInfoComponent({ product }: ProductInfoProps) {
         >
           {formatCurrency(product.displayOriginPrice)}
         </span>
-        <span className="text-base font-bold text-primary">
+        <span className={cn("text-base font-bold", product.hasPromotion ? "text-red-500" : "text-primary")}>
           {formatCurrency(product.displayPrice)}
         </span>
       </div>
