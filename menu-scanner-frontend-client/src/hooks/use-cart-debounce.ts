@@ -71,7 +71,6 @@ export function useCartDebounce(dispatch: AppDispatch) {
       promise
         .unwrap()
         .then(() => {
-          if (quantity === 0) showToast.success(Messages.cart.removed);
         })
         .catch((error: unknown) => {
           if (isAbortError(error)) return;
