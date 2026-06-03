@@ -2,6 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import { useState, useCallback, useEffect, useRef } from "react";
+import { flushSync } from "react-dom";
 import Image from "next/image";
 import { buildCustomizationMapKey, getQuantityForCombo } from "@/utils/common/customization-utils";
 import {
@@ -367,7 +368,10 @@ export function SizePickerModal({
       sizesToUpdate.add(sizeId);
     });
 
-    // Validate first (synchronous) — show error before loading state
+    // Paint loading state immediately before running any logic
+    flushSync(() => setIsSubmitting(true));
+
+    // Validate — if fails, reset loading and keep modal open
     for (const sizeId of sizesToUpdate) {
       const customs = customizationsBySize.get(sizeId) ?? new Set();
       const isModified = modifiedSizes.has(sizeId);
@@ -375,45 +379,43 @@ export function SizePickerModal({
         const qtyForCombo = getQuantityForSize(sizeId, customs);
         if (qtyForCombo === 0) {
           showToast.error(Messages.cart.setQuantity);
+          setIsSubmitting(false);
           return;
         }
       }
     }
 
-    // Show loading state, then dispatch + close after one frame so the
-    // spinner actually renders before React batches the modal close.
-    setIsSubmitting(true);
-    setTimeout(() => {
-      for (const sizeId of sizesToUpdate) {
-        const qty = getDisplayQuantity(sizeId);
+    for (const sizeId of sizesToUpdate) {
+      const qty = getDisplayQuantity(sizeId);
 
-        if (qty > 0 || modifiedSizes.has(sizeId)) {
-          let sizeCustomizations: string[];
-          if (qty === 0 && isEditing) {
-            if (initialCustomizations && initialCustomizations.length > 0) {
-              sizeCustomizations = initialCustomizations;
-            } else if (editingId && cartItems) {
-              const originalItem = cartItems.find((item) => item.id === editingId);
-              sizeCustomizations = originalItem?.customizations?.map((c) => c.productCustomizationId) ?? [];
-            } else {
-              sizeCustomizations = [];
-            }
+      if (qty > 0 || modifiedSizes.has(sizeId)) {
+        let sizeCustomizations: string[];
+        if (qty === 0 && isEditing) {
+          if (initialCustomizations && initialCustomizations.length > 0) {
+            sizeCustomizations = initialCustomizations;
+          } else if (editingId && cartItems) {
+            const originalItem = cartItems.find((item) => item.id === editingId);
+            sizeCustomizations = originalItem?.customizations?.map((c) => c.productCustomizationId) ?? [];
           } else {
-            sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
+            sizeCustomizations = [];
           }
+        } else {
+          sizeCustomizations = Array.from(customizationsBySize.get(sizeId) ?? new Set());
+        }
 
-          if (sizeId === "__no_size__") {
-            onSizeSelect(product, undefined, qty, sizeCustomizations);
-          } else {
-            const size = product.sizes?.find((s) => s.id === sizeId);
-            if (size) {
-              onSizeSelect(product, size, qty, sizeCustomizations);
-            }
+        if (sizeId === "__no_size__") {
+          onSizeSelect(product, undefined, qty, sizeCustomizations);
+        } else {
+          const size = product.sizes?.find((s) => s.id === sizeId);
+          if (size) {
+            onSizeSelect(product, size, qty, sizeCustomizations);
           }
         }
       }
-      onOpenChange(false);
-    }, 250);
+    }
+
+    onOpenChange(false);
+    // isSubmitting resets to false via the useEffect that watches open
   }, [product, hasUnsavedChanges, modifiedSizes, customizationsBySize, getQuantityForSize, getDisplayQuantity, onSizeSelect, onOpenChange, isEditing, editingId, cartItems, initialCustomizations]);
 
   const handleClose = useCallback(() => {
