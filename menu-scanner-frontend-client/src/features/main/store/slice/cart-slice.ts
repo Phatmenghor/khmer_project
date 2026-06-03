@@ -25,6 +25,7 @@ interface CartState {
   };
   error: string | null;
   loaded: boolean;
+  needsRefetch: boolean;
 }
 
 const initialState: CartState = {
@@ -42,6 +43,7 @@ const initialState: CartState = {
   },
   error: null,
   loaded: false,
+  needsRefetch: false,
 };
 
 
@@ -50,10 +52,7 @@ const updateCartFromResponse = (
   response: CartResponseModel,
   optimisticTimestamp?: number
 ) => {
-
-
   const checkTimestamp = optimisticTimestamp || 0;
-
 
   const currentItemsByKey = new Map(
     state.items.map((i) => [`${i.productId}_${i.productSizeId}`, i])
@@ -63,15 +62,12 @@ const updateCartFromResponse = (
   const processedItems: CartItemModel[] = [];
   const processedKeys = new Set<string>();
 
-
   for (const newItem of newItems) {
     const key = `${newItem.productId}_${newItem.productSizeId}`;
     processedKeys.add(key);
     const localItem = currentItemsByKey.get(key);
 
-
     if (localItem && (localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
-
       processedItems.push({
         ...newItem,
         quantity: localItem.quantity,
@@ -79,26 +75,52 @@ const updateCartFromResponse = (
         lastOptimisticTimestamp: localItem.lastOptimisticTimestamp,
       });
     } else {
-
       processedItems.push(newItem);
     }
   }
 
-
   state.items.forEach((localItem) => {
     const key = `${localItem.productId}_${localItem.productSizeId}`;
     if (!processedKeys.has(key)) {
-
-
       if ((localItem.lastOptimisticTimestamp || 0) > checkTimestamp) {
         processedItems.push(localItem);
       }
-
     }
   });
 
   state.items = processedItems;
+  recalculateTotals(state);
+};
 
+// Used for add/update mutations: keeps local quantities (never overwrites with API qty),
+// only syncs the server-assigned id and server-calculated prices.
+const syncMetaFromResponse = (
+  state: CartState,
+  response: CartResponseModel,
+) => {
+  const apiItemsByKey = new Map(
+    (response.items || []).map((i) => [`${i.productId}_${i.productSizeId}`, i])
+  );
+
+  state.items = state.items.map((localItem) => {
+    const key = `${localItem.productId}_${localItem.productSizeId}`;
+    const apiItem = apiItemsByKey.get(key);
+    if (!apiItem) return localItem;
+
+    return {
+      ...localItem,
+      // Replace temp_xxx id with real server id
+      id: localItem.id.startsWith('temp_') ? apiItem.id : localItem.id,
+      // Sync server-calculated price fields (promotions, discounts)
+      finalPrice: apiItem.finalPrice,
+      currentPrice: apiItem.currentPrice,
+      hasPromotion: apiItem.hasPromotion,
+      promotionType: apiItem.promotionType,
+      promotionValue: apiItem.promotionValue,
+      // Recalculate totalPrice using LOCAL quantity × server finalPrice
+      totalPrice: apiItem.finalPrice * localItem.quantity,
+    };
+  });
 
   recalculateTotals(state);
 };
@@ -268,16 +290,17 @@ const cartSlice = createSlice({
         addToCart.fulfilled,
         (state, action) => {
           state.loading.add = false;
-          updateCartFromResponse(state, action.payload, action.meta.arg.optimisticTimestamp);
+          // Keep local quantities — only sync server id + prices
+          syncMetaFromResponse(state, action.payload);
           state.loaded = true;
           state.error = null;
         }
       )
       .addCase(addToCart.rejected, (state, action) => {
         state.loading.add = false;
-
         const payload = action.payload as any;
         if (payload?.aborted || payload === "canceled" || action.error.message === "canceled") return;
+        state.needsRefetch = true;
         state.error = action.error.message || "Failed to add item to cart";
       })
 
@@ -290,15 +313,16 @@ const cartSlice = createSlice({
         updateCartItem.fulfilled,
         (state, action) => {
           state.loading.update = false;
-          updateCartFromResponse(state, action.payload, action.meta.arg.optimisticTimestamp);
+          // Keep local quantities — only sync server id + prices
+          syncMetaFromResponse(state, action.payload);
           state.error = null;
         }
       )
       .addCase(updateCartItem.rejected, (state, action) => {
         state.loading.update = false;
-
         const payload = action.payload as any;
         if (payload?.aborted || payload === "canceled" || action.error.message === "canceled") return;
+        state.needsRefetch = true;
         state.error = action.error.message || "Failed to update cart item";
       })
 
@@ -313,9 +337,9 @@ const cartSlice = createSlice({
           state.loading.fetch = false;
 
           state.items = action.payload.items || [];
-
           recalculateTotals(state);
           state.loaded = true;
+          state.needsRefetch = false;
           state.error = null;
         }
       )
