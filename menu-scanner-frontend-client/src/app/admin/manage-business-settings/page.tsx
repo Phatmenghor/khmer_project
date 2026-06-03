@@ -21,9 +21,7 @@ import {
 } from "@/components/ui/select";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
-import {
-  type SocialMedia,
-} from "@/features/business/store/services/business-settings-service";
+import { type SocialMedia } from "@/features/business/store/services/business-settings-service";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
@@ -47,27 +45,30 @@ import {
   hasThemeChanged,
 } from "@/utils/common/theme-cache";
 
-
 function convertResponseToFormData(
-  response: BusinessSettingsResponse
+  response: BusinessSettingsResponse,
 ): BusinessSettingsFormData {
   return {
-    businessName: response.businessName || BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
+    businessName:
+      response.businessName || BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
     taxPercentage: response.taxPercentage?.toString() || "",
     logoBusinessUrl: response.logoBusinessUrl || "",
     enableStock: response.enableStock || "DISABLED",
     socialMedia: response.socialMedia || [],
-    primaryColor: response.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+    primaryColor:
+      response.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
     contactAddress: response.contactAddress || "",
     contactPhone: response.contactPhone || "",
     contactEmail: response.contactEmail || "",
-    businessHours: (response.businessHours || []).map(hour => ({
+    businessHours: (response.businessHours || []).map((hour) => ({
       day: hour.day || "",
       openingTime: hour.openTime || "",
       closingTime: hour.closeTime || "",
     })),
     useBrands: response.useBrands ?? false,
-    lowStockThreshold: response.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
+    lowStockThreshold:
+      response.lowStockThreshold ??
+      BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
     telegramGroupChatId: response.telegramGroupChatId ?? "",
   };
 }
@@ -114,19 +115,21 @@ export default function BusinessSettingsPage() {
     setIsLoading(false);
 
     if (reduxBusinessSettings?.businessId) {
-      const cachedColors = getCachedThemeColors(reduxBusinessSettings.businessId);
+      const cachedColors = getCachedThemeColors(
+        reduxBusinessSettings.businessId,
+      );
       if (cachedColors) {
         applyThemeColors(cachedColors.primaryColor);
       }
     }
   }, [reduxBusinessSettings, form]);
 
-
   const fetchBusinessSettings = async () => {
     try {
       setIsLoading(true);
-      const action = await dispatch(fetchBusinessSettingsThunk(AppDefault.BUSINESS_ID));
-
+      const action = await dispatch(
+        fetchBusinessSettingsThunk(AppDefault.BUSINESS_ID),
+      );
 
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const data = action.payload as BusinessSettingsResponse;
@@ -156,19 +159,19 @@ export default function BusinessSettingsPage() {
     }
   };
 
-
-  const handleLogoSelect = useCallback((imageData: string) => {
-    form.setValue("logoBusinessUrl", imageData, {
-      shouldDirty: true,
-    });
-    showToast.success(Messages.business.logoSelected);
-  }, [form]);
-
+  const handleLogoSelect = useCallback(
+    (imageData: string) => {
+      form.setValue("logoBusinessUrl", imageData, {
+        shouldDirty: true,
+      });
+      showToast.success(Messages.business.logoSelected);
+    },
+    [form],
+  );
 
   const onSubmit = async (data: BusinessSettingsFormData) => {
     try {
       setIsSaving(true);
-
 
       let logoBusinessUrl = data.logoBusinessUrl;
       if (isBase64Image(logoBusinessUrl)) {
@@ -180,10 +183,11 @@ export default function BusinessSettingsPage() {
         }
       }
 
-
       const uploadedSocialMedia = await Promise.all(
         (data.socialMedia || []).map(async (social) => {
-          let imageUrl = (social as { name: string; linkUrl: string; imageUrl?: string }).imageUrl;
+          let imageUrl = (
+            social as { name: string; linkUrl: string; imageUrl?: string }
+          ).imageUrl;
           if (imageUrl && isBase64Image(imageUrl)) {
             try {
               imageUrl = await uploadImage(imageUrl);
@@ -196,17 +200,18 @@ export default function BusinessSettingsPage() {
             ...social,
             imageUrl,
           };
-        })
+        }),
       );
 
-
       // Filter out empty business hours entries
-      const filteredBusinessHours = (data.businessHours || [])
-        .filter(bh => bh.day && bh.openingTime && bh.closingTime);
+      const filteredBusinessHours = (data.businessHours || []).filter(
+        (bh) => bh.day && bh.openingTime && bh.closingTime,
+      );
 
       // Filter out empty social media entries
-      const filteredSocialMedia = uploadedSocialMedia
-        .filter(sm => sm.name && sm.linkUrl);
+      const filteredSocialMedia = uploadedSocialMedia.filter(
+        (sm) => sm.name && sm.linkUrl,
+      );
 
       const payload = {
         businessName: data.businessName || null,
@@ -222,19 +227,18 @@ export default function BusinessSettingsPage() {
         contactEmail: data.contactEmail || null,
         businessHours: filteredBusinessHours,
         useBrands: data.useBrands,
-        lowStockThreshold: data.lowStockThreshold ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
+        lowStockThreshold:
+          data.lowStockThreshold ??
+          BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
         telegramGroupChatId: data.telegramGroupChatId || null,
       };
 
       const action = await dispatch(updateBusinessSettingsThunk(payload));
 
-
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const result = action.payload as BusinessSettingsResponse;
 
-
         localStorage.setItem("businessId", result.businessId);
-
 
         const businessData = {
           primaryColor: result.primaryColor || "",
@@ -244,11 +248,9 @@ export default function BusinessSettingsPage() {
         };
         cacheThemeColors(result.businessId, businessData);
 
-
         if (result.primaryColor) {
           applyThemeColors(result.primaryColor);
         }
-
 
         form.reset(convertResponseToFormData(result));
 
@@ -288,7 +290,9 @@ export default function BusinessSettingsPage() {
             </p>
             <ul className="text-sm text-red-800 dark:text-red-200 space-y-1">
               {Object.entries(formErrors).map(([field, error]: any) => (
-                <li key={field}>• {field}: {error?.message || 'Invalid value'}</li>
+                <li key={field}>
+                  • {field}: {error?.message || "Invalid value"}
+                </li>
               ))}
             </ul>
           </CardContent>
@@ -305,11 +309,12 @@ export default function BusinessSettingsPage() {
             if (errorCount > 0) {
               const firstErrorField = Object.keys(errors)[0];
               const firstError = errors[firstErrorField as keyof typeof errors];
-              const errorMessage = (firstError as any)?.message ||
-                                   `Please fix ${errorCount} validation error${errorCount > 1 ? 's' : ''}`;
+              const errorMessage =
+                (firstError as any)?.message ||
+                `Please fix ${errorCount} validation error${errorCount > 1 ? "s" : ""}`;
               showToast.error(errorMessage);
             }
-          }
+          },
         )}
         className="space-y-6"
       >
@@ -365,7 +370,7 @@ export default function BusinessSettingsPage() {
                     form.setValue(
                       "enableStock",
                       value as "ENABLED" | "DISABLED",
-                      { shouldDirty: true }
+                      { shouldDirty: true },
                     )
                   }
                 >
@@ -401,19 +406,35 @@ export default function BusinessSettingsPage() {
                   min="1"
                   step="1"
                   className="h-10"
-                  placeholder={String(BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD)}
-                  disabled={isSaving || form.watch("enableStock") === "DISABLED"}
-                  value={form.watch("lowStockThreshold") ?? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD}
+                  placeholder={String(
+                    BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
+                  )}
+                  disabled={
+                    isSaving || form.watch("enableStock") === "DISABLED"
+                  }
+                  value={
+                    form.watch("lowStockThreshold") ??
+                    BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD
+                  }
                   onChange={(e) => {
                     const val = parseInt(e.target.value);
-                    form.setValue("lowStockThreshold", isNaN(val) || val < 1 ? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD : val, { shouldDirty: true });
+                    form.setValue(
+                      "lowStockThreshold",
+                      isNaN(val) || val < 1
+                        ? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD
+                        : val,
+                      { shouldDirty: true },
+                    );
                   }}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Items with stock below this number are flagged as low stock (default: {BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD})
+                  Items with stock below this number are flagged as low stock
+                  (default: {BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD})
                 </p>
                 {form.formState.errors.lowStockThreshold && (
-                  <p className="text-xs text-red-500">{form.formState.errors.lowStockThreshold.message}</p>
+                  <p className="text-xs text-red-500">
+                    {form.formState.errors.lowStockThreshold.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -442,7 +463,9 @@ export default function BusinessSettingsPage() {
 
             {}
             <div className="border-t pt-6">
-              <h4 className="text-sm font-semibold mb-4">Contact Information</h4>
+              <h4 className="text-sm font-semibold mb-4">
+                Contact Information
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {}
                 <div className="space-y-2 md:col-span-2">
@@ -493,28 +516,41 @@ export default function BusinessSettingsPage() {
               {}
               <div className="space-y-2">
                 <Label>Primary Color</Label>
-                <input
-                  type="hidden"
-                  {...form.register("primaryColor")}
-                />
+                <input type="hidden" {...form.register("primaryColor")} />
                 <div className="flex gap-3">
                   <input
                     type="color"
-                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
+                    value={
+                      form.watch("primaryColor") ||
+                      BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR
+                    }
+                    onChange={(e) =>
+                      form.setValue("primaryColor", e.target.value, {
+                        shouldDirty: true,
+                      })
+                    }
                     disabled={isSaving}
                     className="w-20 h-10 cursor-pointer rounded border border-input"
                   />
                   <input
                     placeholder={BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                    value={form.watch("primaryColor") || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
-                    onChange={(e) => form.setValue("primaryColor", e.target.value, { shouldDirty: true })}
+                    value={
+                      form.watch("primaryColor") ||
+                      BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR
+                    }
+                    onChange={(e) =>
+                      form.setValue("primaryColor", e.target.value, {
+                        shouldDirty: true,
+                      })
+                    }
                     disabled={isSaving}
                     className={`flex-1 px-3 py-2 border rounded-md ${form.formState.errors.primaryColor ? "border-red-500" : "border-input"}`}
                   />
                 </div>
                 {form.formState.errors.primaryColor && (
-                  <p className="text-xs text-red-500">{form.formState.errors.primaryColor.message}</p>
+                  <p className="text-xs text-red-500">
+                    {form.formState.errors.primaryColor.message}
+                  </p>
                 )}
                 <p className="text-xs text-muted-foreground">
                   Main brand color applied site-wide
@@ -522,10 +558,12 @@ export default function BusinessSettingsPage() {
               </div>
 
               {}
-              <div className="space-y-3 p-4 border rounded-lg bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
+              {/* <div className="space-y-3 p-4 border rounded-lg bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
-                    <Label className="text-base font-semibold">Show Brands</Label>
+                    <Label className="text-base font-semibold">
+                      Show Brands
+                    </Label>
                     <p className="text-sm text-muted-foreground">
                       {form.watch("useBrands")
                         ? "✓ Product brands are displayed in your storefront"
@@ -549,7 +587,7 @@ export default function BusinessSettingsPage() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </CardContent>
         </Card>
@@ -573,10 +611,14 @@ export default function BusinessSettingsPage() {
               size="sm"
               onClick={() => {
                 const currentHours = form.getValues("businessHours") || [];
-                form.setValue("businessHours", [
-                  ...currentHours,
-                  { day: "", openingTime: "", closingTime: "" },
-                ], { shouldDirty: true });
+                form.setValue(
+                  "businessHours",
+                  [
+                    ...currentHours,
+                    { day: "", openingTime: "", closingTime: "" },
+                  ],
+                  { shouldDirty: true },
+                );
               }}
               disabled={isSaving}
             >
@@ -596,14 +638,18 @@ export default function BusinessSettingsPage() {
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {form.watch("businessHours")?.map((hours, index) => {
-                    const hourErrors = (form.formState.errors.businessHours as any)?.[index];
+                    const hourErrors = (
+                      form.formState.errors.businessHours as any
+                    )?.[index];
                     const hasError = !!hourErrors;
 
                     return (
                       <div
                         key={index}
                         className={`border rounded-lg p-3 sm:p-4 relative ${
-                          hasError ? "border-red-500 bg-red-50 dark:bg-red-950/20" : ""
+                          hasError
+                            ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                            : ""
                         }`}
                       >
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -619,13 +665,19 @@ export default function BusinessSettingsPage() {
                                   ...(form.getValues("businessHours") || []),
                                 ];
                                 updated[index].day = e.target.value;
-                                form.setValue("businessHours", updated, { shouldDirty: true });
+                                form.setValue("businessHours", updated, {
+                                  shouldDirty: true,
+                                });
                               }}
                               disabled={isSaving}
-                              className={hourErrors?.day ? "border-red-500" : ""}
+                              className={
+                                hourErrors?.day ? "border-red-500" : ""
+                              }
                             />
                             {hourErrors?.day && (
-                              <p className="text-xs text-red-500">{hourErrors.day.message}</p>
+                              <p className="text-xs text-red-500">
+                                {hourErrors.day.message}
+                              </p>
                             )}
                           </div>
                           <div className="space-y-2 min-w-0">
@@ -639,13 +691,17 @@ export default function BusinessSettingsPage() {
                                   ...(form.getValues("businessHours") || []),
                                 ];
                                 updated[index].openingTime = time;
-                                form.setValue("businessHours", updated, { shouldDirty: true });
+                                form.setValue("businessHours", updated, {
+                                  shouldDirty: true,
+                                });
                               }}
                               disabled={isSaving}
                               placeholder="Select opening time"
                             />
                             {hourErrors?.openingTime && (
-                              <p className="text-xs text-red-500">{hourErrors.openingTime.message}</p>
+                              <p className="text-xs text-red-500">
+                                {hourErrors.openingTime.message}
+                              </p>
                             )}
                           </div>
                           <div className="space-y-2 min-w-0">
@@ -659,13 +715,17 @@ export default function BusinessSettingsPage() {
                                   ...(form.getValues("businessHours") || []),
                                 ];
                                 updated[index].closingTime = time;
-                                form.setValue("businessHours", updated, { shouldDirty: true });
+                                form.setValue("businessHours", updated, {
+                                  shouldDirty: true,
+                                });
                               }}
                               disabled={isSaving}
                               placeholder="Select closing time"
                             />
                             {hourErrors?.closingTime && (
-                              <p className="text-xs text-red-500">{hourErrors.closingTime.message}</p>
+                              <p className="text-xs text-red-500">
+                                {hourErrors.closingTime.message}
+                              </p>
                             )}
                           </div>
                         </div>
@@ -687,7 +747,7 @@ export default function BusinessSettingsPage() {
                                 form.setValue(
                                   "businessHours",
                                   currentHours.filter((_, i) => i !== index),
-                                  { shouldDirty: true }
+                                  { shouldDirty: true },
                                 );
                               }}
                               title="Delete this business hour entry"
@@ -724,10 +784,14 @@ export default function BusinessSettingsPage() {
               size="sm"
               onClick={() => {
                 const currentSocialMedia = form.getValues("socialMedia") || [];
-                form.setValue("socialMedia", [
-                  ...currentSocialMedia,
-                  { name: "", imageUrl: "", linkUrl: "" },
-                ], { shouldDirty: true });
+                form.setValue(
+                  "socialMedia",
+                  [
+                    ...currentSocialMedia,
+                    { name: "", imageUrl: "", linkUrl: "" },
+                  ],
+                  { shouldDirty: true },
+                );
               }}
               disabled={isSaving}
             >
@@ -747,106 +811,118 @@ export default function BusinessSettingsPage() {
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {form.watch("socialMedia")?.map((social, index) => {
-                    const socialErrors = (form.formState.errors.socialMedia as any)?.[index];
+                    const socialErrors = (
+                      form.formState.errors.socialMedia as any
+                    )?.[index];
                     const hasError = !!socialErrors;
                     return (
-                    <div
-                      key={index}
-                      className={`border rounded-lg p-4 relative lg:col-span-2 ${
-                        hasError ? "border-red-500 bg-red-50 dark:bg-red-950/20" : ""
-                      }`}
-                    >
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                          {}
-                          <div className="space-y-4 flex flex-col justify-between">
+                      <div
+                        key={index}
+                        className={`border rounded-lg p-4 relative lg:col-span-2 ${
+                          hasError
+                            ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                            : ""
+                        }`}
+                      >
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             {}
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium">
-                                Platform Name
-                              </Label>
-                              <Input
-                                placeholder="e.g., Facebook, Instagram, TikTok"
-                                value={social.name}
-                                onChange={(e) => {
-                                  const updated = [
-                                    ...(form.getValues("socialMedia") || []),
-                                  ];
-                                  updated[index].name = e.target.value;
-                                  form.setValue("socialMedia", updated, { shouldDirty: true });
-                                }}
-                                disabled={isSaving}
-                              />
+                            <div className="space-y-4 flex flex-col justify-between">
+                              {}
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium">
+                                  Platform Name
+                                </Label>
+                                <Input
+                                  placeholder="e.g., Facebook, Instagram, TikTok"
+                                  value={social.name}
+                                  onChange={(e) => {
+                                    const updated = [
+                                      ...(form.getValues("socialMedia") || []),
+                                    ];
+                                    updated[index].name = e.target.value;
+                                    form.setValue("socialMedia", updated, {
+                                      shouldDirty: true,
+                                    });
+                                  }}
+                                  disabled={isSaving}
+                                />
+                              </div>
+
+                              {}
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium">
+                                  Profile Link
+                                </Label>
+                                <Input
+                                  placeholder="https://facebook.com/yourprofile"
+                                  value={social.linkUrl}
+                                  onChange={(e) => {
+                                    const updated = [
+                                      ...(form.getValues("socialMedia") || []),
+                                    ];
+                                    updated[index].linkUrl = e.target.value;
+                                    form.setValue("socialMedia", updated, {
+                                      shouldDirty: true,
+                                    });
+                                  }}
+                                  disabled={isSaving}
+                                />
+                              </div>
                             </div>
 
                             {}
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium">
-                                Profile Link
-                              </Label>
-                              <Input
-                                placeholder="https://facebook.com/yourprofile"
-                                value={social.linkUrl}
-                                onChange={(e) => {
+                            <div>
+                              <ClickableImageUpload
+                                label="Platform Icon"
+                                value={social.imageUrl || ""}
+                                onChange={(imageData) => {
                                   const updated = [
                                     ...(form.getValues("socialMedia") || []),
                                   ];
-                                  updated[index].linkUrl = e.target.value;
-                                  form.setValue("socialMedia", updated, { shouldDirty: true });
+                                  updated[index].imageUrl = imageData;
+                                  form.setValue("socialMedia", updated, {
+                                    shouldDirty: true,
+                                  });
                                 }}
                                 disabled={isSaving}
+                                aspectRatio="square"
+                                height="h-32"
+                                placeholder="Click to upload icon"
+                                maxSize={5}
+                                helperText="Upload platform icon/logo (PNG, JPG)"
                               />
                             </div>
-                          </div>
-
-                          {}
-                          <div>
-                            <ClickableImageUpload
-                              label="Platform Icon"
-                              value={social.imageUrl || ""}
-                              onChange={(imageData) => {
-                                const updated = [
-                                  ...(form.getValues("socialMedia") || []),
-                                ];
-                                updated[index].imageUrl = imageData;
-                                form.setValue("socialMedia", updated, { shouldDirty: true });
-                              }}
-                              disabled={isSaving}
-                              aspectRatio="square"
-                              height="h-32"
-                              placeholder="Click to upload icon"
-                              maxSize={5}
-                              helperText="Upload platform icon/logo (PNG, JPG)"
-                            />
                           </div>
                         </div>
+                        {hasError && (
+                          <div className="mt-3 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-xs text-red-700 dark:text-red-200">
+                            {socialErrors.message}
+                          </div>
+                        )}
+                        {!isSaving && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                            onClick={() => {
+                              const currentSocialMedia =
+                                form.getValues("socialMedia") || [];
+                              form.setValue(
+                                "socialMedia",
+                                currentSocialMedia.filter(
+                                  (_, i) => i !== index,
+                                ),
+                                { shouldDirty: true },
+                              );
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
-                      {hasError && (
-                        <div className="mt-3 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-xs text-red-700 dark:text-red-200">
-                          {socialErrors.message}
-                        </div>
-                      )}
-                      {!isSaving && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
-                          onClick={() => {
-                            const currentSocialMedia =
-                              form.getValues("socialMedia") || [];
-                            form.setValue(
-                              "socialMedia",
-                              currentSocialMedia.filter((_, i) => i !== index),
-                              { shouldDirty: true }
-                            );
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  );
+                    );
                   })}
                 </div>
               </CardContent>
@@ -862,11 +938,11 @@ export default function BusinessSettingsPage() {
               <CardTitle>Telegram Monitoring</CardTitle>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              Receive order alerts and staff notifications in your Telegram group
+              Receive order alerts and staff notifications in your Telegram
+              group
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-
             {/* Setup guide */}
             <div className="rounded-lg border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-4 space-y-3">
               <p className="text-sm font-semibold text-sky-800 dark:text-sky-300">
@@ -877,28 +953,35 @@ export default function BusinessSettingsPage() {
                   <span className="font-bold shrink-0 w-4">1.</span>
                   <span>
                     Add{" "}
-                    <span className="font-semibold text-foreground">@CambodiaEMenuBot</span>{" "}
+                    <span className="font-semibold text-foreground">
+                      @CambodiaEMenuBot
+                    </span>{" "}
                     to your Telegram group.
                   </span>
                 </li>
                 <li className="flex gap-3">
                   <span className="font-bold shrink-0 w-4">2.</span>
                   <span>
-                    <span className="font-semibold text-foreground">Promote the bot to Admin</span>
-                    {" "}— required so it can send messages to the group.
+                    <span className="font-semibold text-foreground">
+                      Promote the bot to Admin
+                    </span>{" "}
+                    — required so it can send messages to the group.
                     <br />
                     <span className="text-xs text-sky-600 dark:text-sky-500">
-                      Group Info → Administrators → Add Admin → search @CambodiaEMenuBot → Save.
+                      Group Info → Administrators → Add Admin → search
+                      @CambodiaEMenuBot → Save.
                     </span>
                   </span>
                 </li>
                 <li className="flex gap-3">
                   <span className="font-bold shrink-0 w-4">3.</span>
                   <span>
-                    Type this command in the group — the bot will link automatically:
+                    Type this command in the group — the bot will link
+                    automatically:
                     <br />
                     <code className="mt-1 inline-block bg-white dark:bg-sky-900 px-2 py-1 rounded text-xs font-mono border border-sky-200 dark:border-sky-700 select-all">
-                      /link {reduxBusinessSettings?.businessId ?? "YOUR_BUSINESS_ID"}
+                      /link{" "}
+                      {reduxBusinessSettings?.businessId ?? "YOUR_BUSINESS_ID"}
                     </code>
                   </span>
                 </li>
@@ -919,7 +1002,8 @@ export default function BusinessSettingsPage() {
               <div className="flex items-center gap-2 p-3 bg-muted/40 rounded-lg border border-border">
                 <span className="w-2 h-2 rounded-full bg-muted-foreground/40 shrink-0" />
                 <p className="text-xs text-muted-foreground">
-                  No group linked yet. Follow the steps above to connect a Telegram group.
+                  No group linked yet. Follow the steps above to connect a
+                  Telegram group.
                 </p>
               </div>
             )}
