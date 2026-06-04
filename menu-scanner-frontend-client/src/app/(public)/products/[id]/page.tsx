@@ -342,22 +342,15 @@ export default function ProductDetailPage() {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!product) return;
     if (hasSizes || hasCustomizations) { setSizePickerOpen(true); return; }
+    if (pageQuantity <= 0) return;
 
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
-    setPageQuantity((prev) => {
-      const newQty = Math.max(0, prev - 1);
-      if (prev === 0) return 0;
-      if (prev === 1) {
-        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: 0, optimisticTimestamp: ts }));
-        debouncedUpdate(key, product.id, null, 0, ts);
-      } else {
-        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-        debouncedUpdate(key, product.id, null, newQty, ts);
-      }
-      return newQty;
-    });
-  }, [isAuthenticated, product, hasSizes, hasCustomizations, cartDispatch, debouncedUpdate]);
+    const newQty = pageQuantity - 1;
+    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+    debouncedUpdate(key, product.id, null, newQty, ts);
+    setPageQuantity(newQty);
+  }, [isAuthenticated, product, hasSizes, hasCustomizations, pageQuantity, cartDispatch, debouncedUpdate]);
 
   const handleInlineIncrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
@@ -366,35 +359,34 @@ export default function ProductDetailPage() {
 
     const key = cartItemKey(product.id, null);
     const ts = Date.now();
-    setPageQuantity((prev) => {
-      const newQty = prev + 1;
-      if (prev === 0) {
-        cartDispatch(
-          addLocalCartItem({
-            productId: product.id,
-            productSizeId: null,
-            quantity: 1,
-            productName: product.name,
-            productImageUrl: product.mainImageUrl,
-            sizeName: null,
-            finalPrice: product.displayPrice,
-            currentPrice: product.displayOriginPrice ?? product.displayPrice,
-            hasPromotion: product.hasPromotion,
-            promotionType: product.displayPromotionType ?? null,
-            promotionValue: product.displayPromotionValue ?? null,
-            promotionFromDate: product.displayPromotionFromDate ?? null,
-            promotionToDate: product.displayPromotionToDate ?? null,
-            optimisticTimestamp: ts,
-          }),
-        );
-        debouncedUpdate(key, product.id, null, 1, ts);
-      } else {
-        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-        debouncedUpdate(key, product.id, null, newQty, ts);
-      }
-      return newQty;
-    });
-  }, [isAuthenticated, product, hasSizes, hasCustomizations, cartDispatch, debouncedUpdate]);
+    const newQty = pageQuantity + 1;
+
+    if (pageQuantity === 0) {
+      cartDispatch(
+        addLocalCartItem({
+          productId: product.id,
+          productSizeId: null,
+          quantity: 1,
+          productName: product.name,
+          productImageUrl: product.mainImageUrl,
+          sizeName: null,
+          finalPrice: product.displayPrice,
+          currentPrice: product.displayOriginPrice ?? product.displayPrice,
+          hasPromotion: product.hasPromotion,
+          promotionType: product.displayPromotionType ?? null,
+          promotionValue: product.displayPromotionValue ?? null,
+          promotionFromDate: product.displayPromotionFromDate ?? null,
+          promotionToDate: product.displayPromotionToDate ?? null,
+          optimisticTimestamp: ts,
+        }),
+      );
+      debouncedUpdate(key, product.id, null, 1, ts);
+    } else {
+      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+      debouncedUpdate(key, product.id, null, newQty, ts);
+    }
+    setPageQuantity(newQty);
+  }, [isAuthenticated, product, hasSizes, hasCustomizations, pageQuantity, cartDispatch, debouncedUpdate]);
 
   const handleToggleFavorite = () => {
     if (!product) return;
