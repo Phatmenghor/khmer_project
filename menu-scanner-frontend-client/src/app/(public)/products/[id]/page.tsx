@@ -649,6 +649,12 @@ export default function ProductDetailPage() {
                   {hasSizes && selectedSize ? `Quantity — ${selectedSize.name}` : "Quantity"}
                 </p>
                 <div className="flex items-center gap-2">
+                  {pageQuantity > 0 && displayPrice > 0 && (
+                    <span className="text-sm font-semibold text-foreground shrink-0">
+                      {formatCurrency(displayPrice * pageQuantity)}
+                    </span>
+                  )}
+
                   <CustomButton
                     size="icon"
                     variant="outline"
