@@ -78,7 +78,7 @@ export function TelegramSyncCard() {
   if (isLoadingSocialSync) {
     return (
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border">
           <div className="flex items-center gap-2">
             <Skeleton className="w-6 h-6 rounded" />
             <Skeleton className="h-3 w-14" />
@@ -88,7 +88,7 @@ export function TelegramSyncCard() {
             <Skeleton className="h-5 w-16 rounded" />
           </div>
         </div>
-        <CardContent className="p-4 space-y-2">
+        <CardContent className="p-3 space-y-2">
           <div className="flex items-center gap-3">
             <Skeleton className="w-10 h-10 rounded flex-shrink-0" />
             <div className="space-y-1">
@@ -106,7 +106,7 @@ export function TelegramSyncCard() {
     <>
       <Card className="overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-[#0088cc] flex items-center justify-center shadow-sm">
               <TelegramIcon className="h-3 w-3 text-white" />
@@ -157,7 +157,7 @@ export function TelegramSyncCard() {
           </div>
         </div>
 
-        <CardContent className="p-4">
+        <CardContent className="p-3">
           {isTelegramConnected ? (
             <div className="space-y-3">
               {/* Avatar + name + synced */}

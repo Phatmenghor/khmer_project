@@ -33,7 +33,7 @@ function BrandCardComponent({ brand, className, loading = "lazy" }: BrandCardPro
       >
         <CardContent className="p-3 sm:p-3 flex flex-col items-center justify-center gap-2">
           {}
-          <div className="relative w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
+          <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
             {!imageError && brand.imageUrl ? (
               <>
                 {!imageLoaded && (
@@ -53,7 +53,7 @@ function BrandCardComponent({ brand, className, loading = "lazy" }: BrandCardPro
                 />
               </>
             ) : (
-              <span className="text-xs sm:text-base font-bold text-primary/80 group-hover:text-primary transition-colors">
+              <span className="text-xs font-bold text-primary/80 group-hover:text-primary transition-colors">
                 {brand.name.charAt(0).toUpperCase()}
               </span>
             )}

@@ -36,7 +36,7 @@ export function PageHeader({
       <div className="min-w-0">
         <div className="flex items-center gap-1">
           {Icon && <Icon className="h-3 w-3 text-primary shrink-0" />}
-          <h1 className="text-xs sm:text-base font-bold truncate">{title}</h1>
+          <h1 className="text-xs sm:text-sm font-bold truncate">{title}</h1>
           {count !== undefined && count > 0 && (
             <span className="shrink-0 text-xs font-semibold bg-muted text-muted-foreground px-1 py-0.5 rounded-full">
               {count.toLocaleString()}

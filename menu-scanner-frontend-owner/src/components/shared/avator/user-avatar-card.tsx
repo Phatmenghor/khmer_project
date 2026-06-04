@@ -44,7 +44,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
     const sizeClasses = {
       sm: { avatar: "h-5 w-5", indicator: "w-1 h-1" },
       md: { avatar: "h-7 w-7", indicator: "w-2 h-2" },
-      lg: { avatar: "h-8 w-8", indicator: "w-2.5 h-2.5" },
+      lg: { avatar: "h-6 w-6", indicator: "w-2.5 h-2.5" },
       xl: { avatar: "h-11 w-11", indicator: "w-3 h-3" },
     };
 
@@ -135,13 +135,13 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
             onMouseEnter={handlePreviewMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <div className="relative bg-white dark:bg-gray-900 p-4 rounded shadow-2xl border border-border">
+            <div className="relative bg-white dark:bg-gray-900 p-3 rounded shadow-2xl border border-border">
               <div className="flex flex-col items-center gap-3">
                 {/* Loading spinner */}
                 {imageLoading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 rounded z-10">
                     <div className="flex flex-col items-center gap-2">
-                      <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                      <div className="w-6 h-6 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
                       <p className="text-xs text-muted-foreground">
                         Loading image...
                       </p>

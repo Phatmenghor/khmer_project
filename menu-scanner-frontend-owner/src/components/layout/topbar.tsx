@@ -34,7 +34,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b bg-background px-3 sm:px-4">
+      <header className="sticky top-0 z-20 flex h-10 items-center gap-3 border-b bg-background px-3 sm:px-4">
         {isMobile && (
           <Button variant="ghost" size="icon" onClick={onMenuClick}>
             <Menu className="h-3 w-3" />
@@ -63,7 +63,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           />
 
           <FormBody className="flex-1">
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded">
                 <p className="text-xs text-red-900 dark:text-red-100 font-medium leading-relaxed">
                   Are you sure you want to sign out of your account? You'll need to sign in again to access your dashboard and saved data.
@@ -78,7 +78,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             </div>
           </FormBody>
 
-          <div className="flex justify-between items-center p-4 border-t bg-muted/30 flex-shrink-0">
+          <div className="flex justify-between items-center p-3 border-t bg-muted/30 flex-shrink-0">
             <div></div>
             <div className="flex gap-2">
               <Button

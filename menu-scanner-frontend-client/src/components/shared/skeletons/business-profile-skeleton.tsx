@@ -9,7 +9,7 @@ export function BusinessProfileSkeleton() {
         <Skeleton className="h-40 sm:h-52 lg:h-56 w-full rounded-none" />
         <div className="container mx-auto px-3 max-w-6xl">
           <div className="relative -mt-8 sm:-mt-11 flex items-end justify-between pb-2">
-            <Skeleton className="w-16 h-16 sm:w-24 sm:h-24 rounded" />
+            <Skeleton className="w-11 h-11 sm:w-16 sm:h-16 rounded" />
             <div className="flex gap-1">
               <Skeleton className="h-6 w-14 rounded" />
               <Skeleton className="h-6 w-16 rounded" />
@@ -27,7 +27,7 @@ export function BusinessProfileSkeleton() {
         <div className="container mx-auto px-3 max-w-6xl">
           <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="py-3 px-4 text-center space-y-1">
+              <div key={i} className="py-2 px-3 text-center space-y-1">
                 <Skeleton className="h-5 w-11 mx-auto rounded" />
                 <Skeleton className="h-2 w-8 mx-auto rounded" />
               </div>

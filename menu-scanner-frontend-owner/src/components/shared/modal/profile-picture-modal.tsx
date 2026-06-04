@@ -103,11 +103,11 @@ export function ProfilePictureModal({
         <DialogTitle className="sr-only">Update Profile Picture</DialogTitle>
         <DialogDescription className="sr-only">Upload, download, or remove your profile picture</DialogDescription>
 
-        <div className="px-4 py-3 border-b">
+        <div className="px-3 py-2 border-b">
           <h2 className="text-xs font-semibold">Update Profile Picture</h2>
         </div>
 
-        <div className="p-4 flex flex-col items-center gap-3">
+        <div className="p-3 flex flex-col items-center gap-2">
           <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-200 flex items-center justify-center bg-gray-100">
             {selectedImage || currentImageUrl ? (
               <img
@@ -125,7 +125,7 @@ export function ProfilePictureModal({
           )}
         </div>
 
-        <div className="border-t px-4 py-3 space-y-2">
+        <div className="border-t px-3 py-2 space-y-2">
           <Button
             onClick={() => fileInputRef.current?.click()}
             className="w-full gap-1 bg-primary hover:bg-primary/90"

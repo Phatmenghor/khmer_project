@@ -100,12 +100,12 @@ export default function ResetPasswordModal({
         />
 
         <FormBody>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* User Info Card */}
             <Card>
               <CardContent className="pt-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {profileImageUrl ? (
                       <img
                         src={profileImageUrl}
@@ -144,7 +144,7 @@ export default function ResetPasswordModal({
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pr-14 font-mono text-xs h-8 py-2"
+                  className="pr-14 font-mono text-xs h-6 py-1"
                   placeholder="Enter new password"
                 />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">

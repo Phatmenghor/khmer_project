@@ -37,7 +37,7 @@ export interface EmptyStateProps {
 const sizeStyles = {
   sm: {
     container: "py-5",
-    icon: "h-8 w-8",
+    icon: "h-6 w-6",
     title: "text-xs",
     description: "text-xs",
   },
@@ -49,8 +49,8 @@ const sizeStyles = {
   },
   lg: {
     container: "py-11",
-    icon: "h-14 w-14",
-    title: "text-base",
+    icon: "h-10 w-10",
+    title: "text-xs",
     description: "text-xs",
   },
 };

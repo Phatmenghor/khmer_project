@@ -71,7 +71,7 @@ export function DeleteConfirmationModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-xl p-0 flex flex-col">
         <DialogTitle className="sr-only">{title}</DialogTitle>
-        <div className="p-4 border-b border-border bg-destructive/5">
+        <div className="p-3 border-b border-border bg-destructive/5">
           <h2 className="text-xs font-semibold text-foreground">{title}</h2>
           <p className="text-xs text-muted-foreground mt-1">{description}</p>
         </div>

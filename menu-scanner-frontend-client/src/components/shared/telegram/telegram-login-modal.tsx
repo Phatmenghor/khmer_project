@@ -94,7 +94,7 @@ export function TelegramLoginModal({
                   botId={SocialAuthConfig.TELEGRAM_BOT_ID}
                   onAuth={handleAuth}
                   disabled={isAuthLoading}
-                  className="w-full h-8"
+                  className="w-full h-6"
                 >
                   Open Telegram to Authorize
                 </TelegramLoginButton>

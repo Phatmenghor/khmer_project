@@ -46,7 +46,7 @@ const AlertDialogContent = React.forwardRef<
         "sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95",
         "sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=open]:slide-in-from-left-1/2",
         "sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-top-[48%]",
-        "gap-3 p-4",
+        "gap-2 p-3",
         className
       )}
       {...props}

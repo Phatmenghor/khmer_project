@@ -38,7 +38,7 @@ export function FormFooter({
   return (
     <div
       className={cn(
-        "flex justify-between items-center p-4 border-t bg-muted/30 flex-shrink-0",
+        "flex justify-between items-center p-3 border-t bg-muted/30 flex-shrink-0",
         className
       )}
     >

@@ -27,7 +27,7 @@ const CommandDialog = ({ children, ...props }: DialogProps) => {
   return (
     <Dialog {...props}>
       <DialogContent className="overflow-hidden p-0">
-        <Command className="[&_[cmdk-group-heading]]:px-1 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-1 [&_[cmdk-input-wrapper]_svg]:h-3 [&_[cmdk-input-wrapper]_svg]:w-3 [&_[cmdk-input]]:h-8 [&_[cmdk-item]]:px-1 [&_[cmdk-item]]:py-2 [&_[cmdk-item]_svg]:h-3 [&_[cmdk-item]_svg]:w-3">
+        <Command className="[&_[cmdk-group-heading]]:px-1 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-1 [&_[cmdk-input-wrapper]_svg]:h-3 [&_[cmdk-input-wrapper]_svg]:w-3 [&_[cmdk-input]]:h-6 [&_[cmdk-item]]:px-1 [&_[cmdk-item]]:py-1 [&_[cmdk-item]_svg]:h-3 [&_[cmdk-item]_svg]:w-3">
           {children}
         </Command>
       </DialogContent>
@@ -73,7 +73,7 @@ const CommandEmpty = React.forwardRef<
 >((props, ref) => (
   <CommandPrimitive.Empty
     ref={ref}
-    className="py-4 text-center text-xs"
+    className="py-2 text-center text-xs"
     {...props}
   />
 ))

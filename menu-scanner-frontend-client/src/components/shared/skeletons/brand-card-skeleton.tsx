@@ -7,7 +7,7 @@ export const BrandCardSkeleton = () => {
     <Card className="overflow-hidden border">
       <CardContent className="p-3 sm:p-3 flex flex-col items-center justify-center space-y-2">
         {}
-        <div className="relative w-11 h-11 sm:w-14 sm:h-14 bg-muted/50 rounded overflow-hidden">
+        <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-muted/50 rounded overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
         </div>
 

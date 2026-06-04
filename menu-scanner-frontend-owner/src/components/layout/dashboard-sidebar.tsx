@@ -182,7 +182,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
           isMobile && !isOpen && "hidden",
         )}
       >
-        <div className="relative flex h-14 items-center justify-between border-b border-border/50 px-3 bg-gradient-to-br from-primary/5 via-background/50 to-accent/5">
+        <div className="relative flex h-11 items-center justify-between border-b border-border/50 px-3 bg-gradient-to-br from-primary/5 via-background/50 to-accent/5">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-50 blur-3xl"></div>
 
           {!collapsed && (
@@ -236,7 +236,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
           </Button>
         </div>
 
-        <ScrollArea className="flex-1 py-4">
+        <ScrollArea className="flex-1 py-3">
           <nav className="px-3 space-y-1">{renderNavItems(collapsed)}</nav>
         </ScrollArea>
 
