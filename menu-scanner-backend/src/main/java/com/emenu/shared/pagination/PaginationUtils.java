@@ -7,7 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 @Slf4j
-public class PaginationUtils {
+public final class PaginationUtils {
+
+    private PaginationUtils() {}
 
     private static final int MAX_PAGE_SIZE = 101;
     private static final int DEFAULT_PAGE_SIZE = 15;

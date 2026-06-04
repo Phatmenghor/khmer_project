@@ -10,7 +10,6 @@ import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.shared.constants.AuthStatusMessages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -91,11 +90,13 @@ public class SecurityUtils {
         }
 
         if (user.getAccountStatus() == AccountStatus.LOCKED) {
-            throw new ValidationException(AuthStatusMessages.ACCOUNT_LOCKED);
+            log.warn("Account locked: identifier={}", user.getUserIdentifier());
+            throw new AccountLockedException(AuthStatusMessages.ACCOUNT_LOCKED);
         }
 
         if (user.getAccountStatus() == AccountStatus.END_WORK) {
-            throw new ValidationException(AuthStatusMessages.ACCOUNT_ENDED);
+            log.warn("Account end-work: identifier={}", user.getUserIdentifier());
+            throw new AccountEndWorkException(AuthStatusMessages.ACCOUNT_ENDED);
         }
     }
 

@@ -9,6 +9,7 @@ import com.emenu.features.stock.service.StockService;
 import com.emenu.exception.custom.ResourceNotFoundException;
 import com.emenu.exception.custom.InvalidOperationException;
 import com.emenu.exception.custom.ValidationException;
+import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -32,6 +33,7 @@ public class StockServiceImpl implements StockService {
 
     private final ProductStockRepository productStockRepository;
     private final StockMovementRepository stockMovementRepository;
+    private final SecurityUtils securityUtils;
     private final PaginationMapper paginationMapper;
     private final WebSocketNotificationService webSocketNotificationService;
 
@@ -251,8 +253,12 @@ public class StockServiceImpl implements StockService {
     }
 
     private UUID getCurrentUserId() {
-        // TODO: Get from SecurityContext
-        return UUID.randomUUID();
+        try {
+            return securityUtils.getCurrentUserId();
+        } catch (Exception e) {
+            log.warn("Could not resolve current user ID from security context: {}", e.getMessage());
+            return null;
+        }
     }
 
     private StockMovementDto mapToDto(StockMovement movement) {
