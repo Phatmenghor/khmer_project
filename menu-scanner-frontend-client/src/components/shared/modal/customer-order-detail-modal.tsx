@@ -121,86 +121,74 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-/* ── item card (product-card style) ────────────────────────────────────── */
+/* ── item card (cart-item style, horizontal) ───────────────────────────── */
 
 function OrderItemCard({ item }: { item: OrderItemResponse }) {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="group bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-md overflow-hidden transition-all duration-200 flex flex-col">
-      {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-muted/30 flex-shrink-0">
-        {item.product?.imageUrl && !imgError ? (
-          <img
-            src={item.product.imageUrl}
-            alt={item.product.name}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-muted/40">
-            <Package className="h-8 w-8 text-muted-foreground/50" />
-          </div>
-        )}
-
-        {/* Promotion badge */}
-        {item.hasPromotion && (
-          <div className="absolute top-2 left-2 z-10">
-            <Badge variant="destructive" className="text-xs font-bold px-2 py-0.5 shadow-md">
-              Sale
-            </Badge>
-          </div>
-        )}
-
-        {/* Qty badge */}
-        <div className="absolute top-2 right-2 z-10">
-          <span className="inline-flex items-center justify-center h-6 min-w-[24px] px-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-md">
-            ×{item.quantity}
-          </span>
+    <div className="bg-card border border-border/60 rounded-xl p-4 hover:shadow-md transition-all duration-200">
+      <div className="flex gap-4">
+        {/* Image */}
+        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted border border-border/50 flex-shrink-0">
+          {item.product?.imageUrl && !imgError ? (
+            <img
+              src={item.product.imageUrl}
+              alt={item.product.name}
+              className="w-full h-full object-cover"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-muted/60">
+              <Package className="h-7 w-7 text-muted-foreground/50" />
+            </div>
+          )}
+          {item.hasPromotion && (
+            <div className="absolute top-1 left-1 z-10">
+              <Badge variant="destructive" className="text-[9px] font-bold px-1.5 py-0.5 shadow-md">
+                {item.promotionType === "PERCENTAGE"
+                  ? `-${item.promotionValue}%`
+                  : `-${formatCurrency(item.promotionValue ?? 0)}`}
+              </Badge>
+            </div>
+          )}
         </div>
 
-        {/* Add-ons badge */}
-        {item.customizations && item.customizations.length > 0 && (
-          <div className="absolute bottom-2 left-2 z-10">
-            <Badge variant="secondary" className="text-xs font-medium px-1.5 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm">
-              Add-ons
-            </Badge>
+        {/* Details */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between">
+          <h4 className="font-semibold text-sm leading-tight text-foreground line-clamp-1 mb-2">
+            {item.product?.name || "Unknown Product"}
+          </h4>
+
+          {/* Size + customization pills */}
+          {(item.product?.sizeName || (item.customizations && item.customizations.length > 0)) && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {item.product?.sizeName && (
+                <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
+                  {item.product.sizeName}
+                </span>
+              )}
+              {item.customizations?.map((c, ci) => (
+                <span key={ci} className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full border border-border whitespace-nowrap">
+                  {c.name}{c.priceAdjustment > 0 ? ` +${formatCurrency(c.priceAdjustment)}` : ""}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Price + qty/total */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-baseline gap-2">
+              <span className={cn("font-bold text-base", item.hasPromotion ? "text-red-500" : "text-foreground")}>
+                {formatCurrency(item.finalPrice)}
+              </span>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground">×{item.quantity}</p>
+              <p className="text-sm font-bold text-foreground">{formatCurrency(item.totalPrice)}</p>
+            </div>
           </div>
-        )}
-      </div>
-
-      {/* Info */}
-      <div className="p-3 flex flex-col flex-1 gap-1.5">
-        <h4 className="font-medium text-sm leading-snug line-clamp-2 min-h-[40px]">
-          {item.product?.name || "Unknown Product"}
-        </h4>
-
-        {item.product?.sizeName && (
-          <p className="text-xs text-muted-foreground">Size: {item.product.sizeName}</p>
-        )}
-
-        <div className="mt-auto">
-          <span className={cn("text-sm font-bold", item.hasPromotion ? "text-red-500" : "text-primary")}>
-            {formatCurrency(item.finalPrice)}
-          </span>
         </div>
-
-        <div className="pt-1.5 border-t border-border/50 flex justify-between items-center">
-          <span className="text-xs text-muted-foreground">{item.quantity} × {formatCurrency(item.finalPrice)}</span>
-          <span className="text-sm font-bold text-foreground">{formatCurrency(item.totalPrice)}</span>
-        </div>
-
-        {/* Customizations */}
-        {item.customizations && item.customizations.length > 0 && (
-          <div className="space-y-0.5 pt-1.5 border-t border-border/50">
-            {item.customizations.map((c, ci) => (
-              <div key={ci} className="flex justify-between text-xs text-muted-foreground">
-                <span className="truncate">+ {c.name}</span>
-                <span className="ml-2 flex-shrink-0">+{formatCurrency(c.priceAdjustment)}</span>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -263,7 +251,7 @@ function OrderBody({ order }: { order: OrderResponse }) {
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
             Items · {order.items.length}
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {order.items.map((item) => (
               <OrderItemCard key={item.id} item={item} />
             ))}
