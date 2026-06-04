@@ -442,36 +442,36 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageContainer className="min-h-screen flex flex-col py-4 sm:py-6">
+      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5 lg:py-6">
 
         {/* Back */}
         <CustomButton
           variant="ghost"
           size="sm"
           onClick={() => router.back()}
-          className="mb-5 -ml-1 w-fit gap-1.5 text-muted-foreground hover:text-foreground"
+          className="mb-4 -ml-1 w-fit gap-1.5 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
         </CustomButton>
 
         {/* ── Main grid ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-[9fr_11fr] gap-8 lg:gap-10 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[9fr_11fr] gap-5 sm:gap-7 lg:gap-10 mb-10 sm:mb-12">
 
           {/* Left: image gallery */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
 
             {/* Desktop: thumb strip left + main image */}
-            <div className="flex gap-2.5">
+            <div className="flex gap-2">
 
               {/* Vertical thumb strip — desktop only */}
               {allImages.length > 1 && (
-                <div className="hidden lg:flex flex-col items-center gap-1.5 w-[76px] shrink-0">
+                <div className="hidden lg:flex flex-col items-center gap-1.5 w-[64px] shrink-0">
                   <button
                     onClick={scrollThumbsUp}
                     disabled={!canScrollUp}
                     className={cn(
-                      "w-full h-7 rounded-lg flex items-center justify-center transition-colors",
+                      "w-full h-6 rounded-lg flex items-center justify-center transition-colors",
                       canScrollUp
                         ? "hover:bg-muted text-foreground cursor-pointer"
                         : "text-muted-foreground/20 cursor-default",
@@ -488,9 +488,9 @@ export default function ProductDetailPage() {
                         key={idx}
                         onClick={() => selectImage(img.imageUrl, idx)}
                         className={cn(
-                          "relative w-[76px] h-[76px] rounded-xl overflow-hidden shrink-0 transition-all duration-200",
+                          "relative w-[64px] h-[64px] rounded-lg overflow-hidden shrink-0 transition-all duration-200",
                           isActive
-                            ? "ring-[3px] ring-primary ring-offset-1 shadow-md scale-[1.03]"
+                            ? "ring-2 ring-primary ring-offset-1 shadow-md scale-[1.03]"
                             : "ring-1 ring-border/60 opacity-55 hover:opacity-90 hover:ring-primary/40",
                         )}
                       >
@@ -498,14 +498,14 @@ export default function ProductDetailPage() {
                           src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)}
                           alt={`View ${idx + 1}`}
                           fill
-                          sizes="76px"
+                          sizes="64px"
                           className="object-cover"
                         />
                         {!isActive && (
                           <div className="absolute inset-0 bg-black/15 transition-opacity duration-200" />
                         )}
                         {isActive && (
-                          <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-primary rounded-r-xl" />
+                          <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-primary rounded-r-lg" />
                         )}
                       </button>
                     );
@@ -515,7 +515,7 @@ export default function ProductDetailPage() {
                     onClick={scrollThumbsDown}
                     disabled={!canScrollDown}
                     className={cn(
-                      "w-full h-7 rounded-lg flex items-center justify-center transition-colors",
+                      "w-full h-6 rounded-lg flex items-center justify-center transition-colors",
                       canScrollDown
                         ? "hover:bg-muted text-foreground cursor-pointer"
                         : "text-muted-foreground/20 cursor-default",
@@ -529,17 +529,17 @@ export default function ProductDetailPage() {
               {/* Main image */}
               <div
                 className={cn(
-                  "relative rounded-2xl overflow-hidden bg-muted group shadow-sm flex-1",
-                  "aspect-[4/3] lg:aspect-auto lg:h-[420px]",
+                  "relative rounded-xl overflow-hidden bg-muted group shadow-sm flex-1",
+                  "aspect-square sm:aspect-[4/3] lg:aspect-auto lg:h-[380px]",
                 )}
               >
-                {!imageLoaded && <Skeleton className="absolute inset-0 rounded-2xl" />}
+                {!imageLoaded && <Skeleton className="absolute inset-0 rounded-xl" />}
                 <Image
                   key={`main-${currentImageIndex}`}
                   src={selectedImage || appImages.NoImage}
                   alt={product.name}
                   fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 55vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 50vw"
                   className={cn(
                     "object-cover transition-opacity duration-300",
                     imageLoaded ? "opacity-100" : "opacity-0",
@@ -551,7 +551,7 @@ export default function ProductDetailPage() {
                 {hasDiscount && discountPercent > 0 && (
                   <Badge
                     variant="destructive"
-                    className="absolute top-3 left-3 text-sm font-bold px-3 py-1.5 shadow"
+                    className="absolute top-2.5 left-2.5 text-xs font-bold px-2 py-1 shadow"
                   >
                     -{discountPercent}%
                   </Badge>
@@ -559,39 +559,39 @@ export default function ProductDetailPage() {
 
                 <button
                   onClick={() => openLightbox(currentImageIndex)}
-                  className="absolute bottom-3 right-3 bg-background/75 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow cursor-zoom-in hover:bg-background"
+                  className="absolute bottom-2.5 right-2.5 bg-background/75 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow cursor-zoom-in hover:bg-background"
                 >
-                  <ZoomIn className="h-4 w-4 text-foreground/70" />
+                  <ZoomIn className="h-3.5 w-3.5 text-foreground/70" />
                 </button>
 
                 {allImages.length > 1 && (
                   <>
                     <button
                       onClick={(e) => { e.stopPropagation(); prevImage(); }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-2 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-1.5 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
                     >
-                      <ChevronLeft className="h-5 w-5" />
+                      <ChevronLeft className="h-4 w-4" />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); nextImage(); }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-2 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-1.5 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
                     >
-                      <ChevronRight className="h-5 w-5" />
+                      <ChevronRight className="h-4 w-4" />
                     </button>
                   </>
                 )}
 
                 {allImages.length > 1 && (
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium shadow">
+                  <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-2.5 py-0.5 rounded-full text-xs font-medium shadow">
                     {currentImageIndex + 1} / {allImages.length}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Mobile: horizontal thumb strip */}
+            {/* Mobile/tablet: horizontal thumb strip */}
             {allImages.length > 1 && (
-              <div className="flex lg:hidden gap-2 overflow-x-auto pb-2 pt-1">
+              <div className="flex lg:hidden gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-hide">
                 {allImages.map((img, i) => {
                   const isActive = i === currentImageIndex;
                   return (
@@ -599,9 +599,9 @@ export default function ProductDetailPage() {
                       key={`mob-${i}`}
                       onClick={() => selectImage(img.imageUrl, i)}
                       className={cn(
-                        "relative flex-shrink-0 w-[72px] h-[72px] rounded-xl overflow-hidden transition-all duration-200",
+                        "relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden transition-all duration-200",
                         isActive
-                          ? "ring-[3px] ring-primary ring-offset-1 shadow-md scale-[1.05]"
+                          ? "ring-2 ring-primary ring-offset-1 shadow-md scale-[1.05]"
                           : "ring-1 ring-border/60 opacity-55 hover:opacity-90 hover:ring-primary/40",
                       )}
                     >
@@ -609,14 +609,14 @@ export default function ProductDetailPage() {
                         src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)}
                         alt={`View ${i + 1}`}
                         fill
-                        sizes="72px"
+                        sizes="64px"
                         className="object-cover"
                       />
                       {!isActive && (
                         <div className="absolute inset-0 bg-black/15 transition-opacity duration-200" />
                       )}
                       {isActive && (
-                        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary" />
+                        <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-primary" />
                       )}
                     </button>
                   );
@@ -626,10 +626,10 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Right: product info */}
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4 sm:gap-5">
 
             {/* Badges */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               {product.categoryName && (
                 <Badge variant="secondary" className="gap-1 text-xs">
                   <Tag className="h-3 w-3" />
@@ -648,21 +648,21 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Name */}
-            <h1 className="text-2xl sm:text-3xl font-bold leading-snug tracking-tight -mt-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-snug tracking-tight -mt-1">
               {product.name}
             </h1>
 
             {/* Price */}
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="text-3xl sm:text-4xl font-bold text-primary leading-none">
+            <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+              <span className="text-2xl sm:text-3xl font-bold text-primary leading-none">
                 {formatCurrency(displayPrice)}
               </span>
               {originalPrice && (
                 <>
-                  <span className="text-lg text-muted-foreground line-through leading-none">
+                  <span className="text-base text-muted-foreground line-through leading-none">
                     {formatCurrency(originalPrice)}
                   </span>
-                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full">
+                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
                     Save {formatCurrency(originalPrice - displayPrice)}
                   </span>
                 </>
@@ -841,15 +841,14 @@ export default function ProductDetailPage() {
 
             {/* Add to Cart CTA */}
             <CustomButton
-              size="lg"
               className={cn(
-                "h-12 rounded-xl gap-2.5 font-semibold text-base bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200",
+                "w-full h-11 sm:h-12 rounded-xl gap-2 font-semibold text-sm sm:text-base bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200",
                 totalCartQty > 0 && "shadow-md",
               )}
               onClick={handleAddToCart}
               disabled={isOutOfStock}
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
               {isOutOfStock
                 ? "Out of Stock"
                 : hasSizes
@@ -866,12 +865,11 @@ export default function ProductDetailPage() {
             </CustomButton>
 
             {/* Secondary actions */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5">
               <CustomButton
-                size="lg"
                 variant="outline"
                 className={cn(
-                  "h-11 rounded-xl gap-2 font-medium transition-all duration-200",
+                  "h-10 sm:h-11 rounded-xl gap-2 font-medium text-sm transition-all duration-200",
                   isFavorited
                     ? "bg-rose-50 border-rose-300 text-rose-600 hover:bg-rose-100 hover:border-rose-400 dark:bg-rose-950/30 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-950/50"
                     : "hover:bg-rose-50/80 hover:border-rose-200 hover:text-rose-500 dark:hover:bg-rose-950/20 dark:hover:text-rose-400",
@@ -880,11 +878,11 @@ export default function ProductDetailPage() {
                 disabled={isTogglingFavorite}
               >
                 {isTogglingFavorite ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Heart
                     className={cn(
-                      "h-5 w-5 transition-all duration-200",
+                      "h-4 w-4 transition-all duration-200",
                       isFavorited && "fill-current scale-110",
                     )}
                   />
@@ -892,18 +890,17 @@ export default function ProductDetailPage() {
                 {isFavorited ? "Saved" : "Wishlist"}
               </CustomButton>
               <CustomButton
-                size="lg"
                 variant="outline"
-                className="h-11 rounded-xl gap-2 font-medium hover:bg-sky-50 hover:border-sky-200 hover:text-sky-600 dark:hover:bg-sky-950/30 dark:hover:border-sky-800 dark:hover:text-sky-400 transition-all duration-200"
+                className="h-10 sm:h-11 rounded-xl gap-2 font-medium text-sm hover:bg-sky-50 hover:border-sky-200 hover:text-sky-600 dark:hover:bg-sky-950/30 dark:hover:border-sky-800 dark:hover:text-sky-400 transition-all duration-200"
                 onClick={handleShare}
               >
-                <Share2 className="h-5 w-5" />
+                <Share2 className="h-4 w-4" />
                 Share
               </CustomButton>
             </div>
 
             {/* Stats */}
-            <div className="flex items-center gap-6 pt-4 border-t text-muted-foreground">
+            <div className="flex items-center gap-4 sm:gap-6 pt-3 sm:pt-4 border-t text-muted-foreground">
               <div className="flex items-center gap-1.5 text-sm">
                 <Eye className="h-4 w-4" />
                 <span>{product.viewCount.toLocaleString()}</span>
@@ -932,7 +929,7 @@ export default function ProductDetailPage() {
                 {similarProducts.length}
               </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
               {similarProducts.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}
