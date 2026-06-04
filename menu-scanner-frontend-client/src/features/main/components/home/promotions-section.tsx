@@ -58,21 +58,21 @@ const PromotionsSectionComponent = ({
 
 
   const PromotionHeader = ({ showDecoration = false }) => (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 dark:from-red-950/20 dark:via-orange-950/20 dark:to-yellow-950/20 p-4 sm:p-6 md:p-8 mb-6 shadow-sm">
+    <div className="relative overflow-hidden rounded bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 dark:from-red-950/20 dark:via-orange-950/20 dark:to-yellow-950/20 p-3 sm:p-4 md:p-5 mb-4 shadow-sm">
       {}
       {showDecoration && (
-        <div className="absolute top-0 right-0 w-32 h-32 sm:w-64 sm:h-64 bg-gradient-to-br from-red-200/20 to-orange-200/20 dark:from-red-800/10 dark:to-orange-800/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-24 h-24 sm:w-44 sm:h-44 bg-gradient-to-br from-red-200/20 to-orange-200/20 dark:from-red-800/10 dark:to-orange-800/10 rounded-full blur-3xl" />
       )}
 
       <div className="relative">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2 mb-2">
+        <h2 className="text-xs sm:text-base md:text-xs font-bold tracking-tight flex items-center gap-1.5 mb-1.5">
           <Flame
-            className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-red-500 flex-shrink-0"
+            className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-red-500 flex-shrink-0"
             aria-label="Hot deals icon"
           />
           {title}
         </h2>
-        <p className="text-muted-foreground text-xs sm:text-sm">
+        <p className="text-muted-foreground text-xs sm:text-xs">
           Limited time offers - Don't miss out! 🎁
         </p>
       </div>
@@ -100,7 +100,7 @@ const PromotionsSectionComponent = ({
       <PromotionHeader showDecoration={true} />
 
       {}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
         {displayProducts.map((product, index) => (
           <ProductCard
             key={`promotion-product-${product.id}`}

@@ -83,7 +83,7 @@ export function ComboboxSelectFactory({
           <span className={cn("truncate", !value && "text-muted-foreground")}>
             {isLoading ? "Loading..." : selectedLabel}
           </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
@@ -103,7 +103,7 @@ export function ComboboxSelectFactory({
                 >
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "mr-1.5 h-3 w-3",
                       value === option.value ? "opacity-100" : "opacity-0"
                     )}
                   />

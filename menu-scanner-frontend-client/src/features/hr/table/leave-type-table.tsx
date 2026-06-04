@@ -68,7 +68,7 @@ export const leaveTypeTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (leaveType) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(leaveType?.createdAt)}
         </span>
       ),
@@ -79,19 +79,19 @@ export const leaveTypeTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (leaveType) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewDetailItem(leaveType)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Leave Type"
             onClick={() => handleEditItem(leaveType)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Leave Type"
             onClick={() => handleDeleteItem(leaveType)}
             variant="destructive"

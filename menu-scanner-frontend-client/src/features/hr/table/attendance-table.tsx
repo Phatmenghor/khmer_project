@@ -109,7 +109,7 @@ export const attendanceTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (attendance) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(attendance?.createdAt)}
         </span>
       ),
@@ -121,19 +121,19 @@ export const attendanceTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (attendance) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewDetailItem(attendance)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Attendance"
             onClick={() => handleEditItem(attendance)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Attendance"
             onClick={() => handleDeleteItem(attendance)}
             variant="destructive"

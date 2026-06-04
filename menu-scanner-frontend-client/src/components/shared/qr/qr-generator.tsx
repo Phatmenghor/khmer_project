@@ -330,7 +330,7 @@ export function QRGenerator({
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
+    <div className="flex flex-col items-center gap-3 w-full">
       <QRDisplay
         containerRef={containerRef}
         cardRef={cardRef}

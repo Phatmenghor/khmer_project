@@ -188,8 +188,8 @@ export default function CategoriesModal({
           <FormBody>
             {}
             {reduxError && (
-              <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                <p className="text-sm text-destructive font-medium">
+              <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                <p className="text-xs text-destructive font-medium">
                   {reduxError}
                 </p>
               </div>

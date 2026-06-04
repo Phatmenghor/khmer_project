@@ -192,7 +192,7 @@ export default function DeliveryOptionsModal({
 
         {}
         {!isCreate && !imageUrl ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -203,16 +203,16 @@ export default function DeliveryOptionsModal({
             <FormBody>
               {}
               {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
-                  <p className="text-sm text-destructive font-medium">
+                <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+                  <p className="text-xs text-destructive font-medium">
                     {reduxError}
                   </p>
                 </div>
               )}
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <ClickableImageUpload
                     label="Delivery Options Image"
                     value={imageUrl}
@@ -226,13 +226,13 @@ export default function DeliveryOptionsModal({
                 </div>
 
                 {}
-                <div className="border-t pt-6">
-                  <h3 className="text-sm font-semibold text-foreground mb-4">
+                <div className="border-t pt-4">
+                  <h3 className="text-xs font-semibold text-foreground mb-3">
                     Delivery Options Details
                   </h3>
 
                   {}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <TextField
                       control={control}
                       name="name"

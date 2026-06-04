@@ -50,7 +50,7 @@ export const ActionButton = ({
           {...rest}
         >
           {loading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="w-3 h-3 animate-spin" />
           ) : (
             icon
           )}
@@ -94,7 +94,7 @@ export const ConditionalActionButton = ({
       {...rest}
     >
       {loading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
+        <Loader2 className="w-3 h-3 animate-spin" />
       ) : (
         icon
       )}

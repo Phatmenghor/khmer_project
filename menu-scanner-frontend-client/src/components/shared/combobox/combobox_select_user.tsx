@@ -66,9 +66,9 @@ export function ComboboxSelectUser({
   }, [loading, lastPage]);
 
   const sizeClasses = {
-    sm: "h-8 text-xs",
-    md: "h-9 text-sm",
-    lg: "h-10 text-base",
+    sm: "h-5 text-xs",
+    md: "h-6 text-xs",
+    lg: "h-7 text-xs",
   };
 
 
@@ -147,9 +147,9 @@ export function ComboboxSelectUser({
   };
 
   return (
-    <div className="space-y-2 w-full">
+    <div className="space-y-1.5 w-full">
       {label && (
-        <Label className="text-sm font-medium">
+        <Label className="text-xs font-medium">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
@@ -177,7 +177,7 @@ export function ComboboxSelectUser({
             disabled={disabled}
           >
             {dataSelect ? dataSelect.fullName : placeholder}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
@@ -194,7 +194,7 @@ export function ComboboxSelectUser({
               value={searchTerm}
               onValueChange={handleSearchChange}
             />
-            <CommandList className="max-h-60 overflow-y-auto">
+            <CommandList className="max-h-44 overflow-y-auto">
               <CommandEmpty>No user found.</CommandEmpty>
               <CommandGroup>
                 {data.map((item, index) => (
@@ -207,7 +207,7 @@ export function ComboboxSelectUser({
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "mr-1.5 h-3 w-3",
                         dataSelect?.id === item.id ? "opacity-100" : "opacity-0"
                       )}
                     />
@@ -224,13 +224,13 @@ export function ComboboxSelectUser({
               </CommandGroup>
 
               {loading && (
-                <div className="text-center py-2">
-                  <Loader2 className="animate-spin text-gray-500 h-5 w-5 mx-auto" />
+                <div className="text-center py-1.5">
+                  <Loader2 className="animate-spin text-gray-500 h-3.5 w-3.5 mx-auto" />
                 </div>
               )}
 
               {!loading && lastPage && data.length > 0 && (
-                <div className="text-center py-2 text-sm text-gray-400">
+                <div className="text-center py-1.5 text-xs text-gray-400">
                   No more users
                 </div>
               )}

@@ -269,7 +269,7 @@ export default function BusinessSettingsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-5 w-5 animate-spin text-primary" />
       </div>
     );
   }
@@ -279,16 +279,16 @@ export default function BusinessSettingsPage() {
   const hasErrors = Object.keys(formErrors).length > 0;
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-4 py-6">
-      <h1 className="text-3xl font-bold">Business Settings</h1>
+    <div className="flex flex-1 flex-col gap-4 px-3 py-4">
+      <h1 className="text-xs font-bold">Business Settings</h1>
 
       {hasErrors && (
         <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
-          <CardContent className="pt-6">
-            <p className="text-sm font-semibold text-red-900 dark:text-red-100 mb-2">
+          <CardContent className="pt-4">
+            <p className="text-xs font-semibold text-red-900 dark:text-red-100 mb-1.5">
               Please fix the following errors:
             </p>
-            <ul className="text-sm text-red-800 dark:text-red-200 space-y-1">
+            <ul className="text-xs text-red-800 dark:text-red-200 space-y-1">
               {Object.entries(formErrors).map(([field, error]: any) => (
                 <li key={field}>
                   • {field}: {error?.message || "Invalid value"}
@@ -316,17 +316,17 @@ export default function BusinessSettingsPage() {
             }
           },
         )}
-        className="space-y-6"
+        className="space-y-4"
       >
         {}
         <Card>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {}
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="businessName">Business Name</Label>
                 <Input
                   id="businessName"
@@ -339,7 +339,7 @@ export default function BusinessSettingsPage() {
               </div>
 
               {}
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="taxPercentage">Tax Percentage</Label>
                 <div className="relative">
                   <Input
@@ -349,10 +349,10 @@ export default function BusinessSettingsPage() {
                     max="100"
                     step="0.01"
                     placeholder="0.00"
-                    className="pr-8"
+                    className="pr-5"
                     {...form.register("taxPercentage")}
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
                     %
                   </span>
                 </div>
@@ -362,7 +362,7 @@ export default function BusinessSettingsPage() {
               </div>
 
               {}
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="enableStock">Stock Management</Label>
                 <Select
                   value={form.watch("enableStock")}
@@ -374,19 +374,19 @@ export default function BusinessSettingsPage() {
                     )
                   }
                 >
-                  <SelectTrigger id="enableStock" className="h-10">
+                  <SelectTrigger id="enableStock" className="h-7">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ENABLED">
-                      <span className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-green-500" />
+                      <span className="flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
                         Enabled
                       </span>
                     </SelectItem>
                     <SelectItem value="DISABLED">
-                      <span className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-red-500" />
+                      <span className="flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
                         Disabled
                       </span>
                     </SelectItem>
@@ -398,14 +398,14 @@ export default function BusinessSettingsPage() {
               </div>
 
               {}
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="lowStockThreshold">Low Stock Threshold</Label>
                 <Input
                   id="lowStockThreshold"
                   type="number"
                   min="1"
                   step="1"
-                  className="h-10"
+                  className="h-7"
                   placeholder={String(
                     BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
                   )}
@@ -440,7 +440,7 @@ export default function BusinessSettingsPage() {
             </div>
 
             {}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <ClickableImageUpload
                   label="Business Logo"
@@ -448,12 +448,12 @@ export default function BusinessSettingsPage() {
                   onChange={handleLogoSelect}
                   disabled={isSaving}
                   aspectRatio="square"
-                  height="h-48"
+                  height="h-32"
                   placeholder="Click to upload logo"
                   helperText="Upload a square image (PNG, JPG, etc.)"
                   maxSize={5}
                 />
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground mt-1.5">
                   Logo will be uploaded when you click Save Changes
                 </p>
               </div>
@@ -462,25 +462,25 @@ export default function BusinessSettingsPage() {
             </div>
 
             {}
-            <div className="border-t pt-6">
-              <h4 className="text-sm font-semibold mb-4">
+            <div className="border-t pt-4">
+              <h4 className="text-xs font-semibold mb-3">
                 Contact Information
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {}
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-1.5 md:col-span-2">
                   <Label htmlFor="contactAddress">Contact Address</Label>
                   <textarea
                     id="contactAddress"
                     placeholder="123 Street Name, Phnom Penh, Cambodia"
                     rows={3}
-                    className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground resize-none"
+                    className="w-full px-2 py-1.5 rounded border border-input bg-background text-foreground placeholder:text-muted-foreground resize-none"
                     {...form.register("contactAddress")}
                   />
                 </div>
 
                 {}
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label htmlFor="contactPhone">Contact Phone</Label>
                   <Input
                     id="contactPhone"
@@ -489,7 +489,7 @@ export default function BusinessSettingsPage() {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label htmlFor="contactEmail">Contact Email</Label>
                   <Input
                     id="contactEmail"
@@ -507,17 +507,17 @@ export default function BusinessSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Brand & Features</CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-xs text-muted-foreground mt-1.5">
               Customize your brand and configure storefront features
             </p>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {}
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label>Primary Color</Label>
                 <input type="hidden" {...form.register("primaryColor")} />
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <input
                     type="color"
                     value={
@@ -530,7 +530,7 @@ export default function BusinessSettingsPage() {
                       })
                     }
                     disabled={isSaving}
-                    className="w-20 h-10 cursor-pointer rounded border border-input"
+                    className="w-14 h-7 cursor-pointer rounded border border-input"
                   />
                   <input
                     placeholder={BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
@@ -544,7 +544,7 @@ export default function BusinessSettingsPage() {
                       })
                     }
                     disabled={isSaving}
-                    className={`flex-1 px-3 py-2 border rounded-md ${form.formState.errors.primaryColor ? "border-red-500" : "border-input"}`}
+                    className={`flex-1 px-2 py-1.5 border rounded ${form.formState.errors.primaryColor ? "border-red-500" : "border-input"}`}
                   />
                 </div>
                 {form.formState.errors.primaryColor && (
@@ -558,19 +558,19 @@ export default function BusinessSettingsPage() {
               </div>
 
               {}
-              {/* <div className="space-y-3 p-4 border rounded-lg bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
-                <div className="flex items-start justify-between gap-4">
+              {/* <div className="space-y-2 p-3 border rounded bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
+                <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
-                    <Label className="text-base font-semibold">
+                    <Label className="text-xs font-semibold">
                       Show Brands
                     </Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {form.watch("useBrands")
                         ? "✓ Product brands are displayed in your storefront"
                         : "Product brands are hidden from your storefront"}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     {form.watch("useBrands") && (
                       <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0">
                         Enabled
@@ -593,11 +593,11 @@ export default function BusinessSettingsPage() {
         </Card>
 
         {}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold">Business Hours</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-xs font-semibold">Business Hours</h3>
+              <p className="text-xs text-muted-foreground">
                 {form.watch("businessHours")?.length
                   ? `${form.watch("businessHours")?.length ?? 0} day${
                       (form.watch("businessHours")?.length ?? 0) > 1 ? "s" : ""
@@ -622,21 +622,21 @@ export default function BusinessSettingsPage() {
               }}
               disabled={isSaving}
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-3 w-3 mr-1.5" />
               Add Day
             </Button>
           </div>
 
           {form.watch("businessHours")?.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed rounded-lg">
-              <p className="text-sm text-muted-foreground">
+            <div className="text-center py-5 border-2 border-dashed rounded">
+              <p className="text-xs text-muted-foreground">
                 No business hours configured
               </p>
             </div>
           ) : (
             <Card>
-              <CardContent className="pt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {form.watch("businessHours")?.map((hours, index) => {
                     const hourErrors = (
                       form.formState.errors.businessHours as any
@@ -646,15 +646,15 @@ export default function BusinessSettingsPage() {
                     return (
                       <div
                         key={index}
-                        className={`border rounded-lg p-3 sm:p-4 relative ${
+                        className={`border rounded p-2 sm:p-3 relative ${
                           hasError
                             ? "border-red-500 bg-red-50 dark:bg-red-950/20"
                             : ""
                         }`}
                       >
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                          <div className="space-y-2 min-w-0">
-                            <Label className="text-sm font-medium truncate line-clamp-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+                          <div className="space-y-1.5 min-w-0">
+                            <Label className="text-xs font-medium truncate line-clamp-1">
                               Day
                             </Label>
                             <Input
@@ -680,8 +680,8 @@ export default function BusinessSettingsPage() {
                               </p>
                             )}
                           </div>
-                          <div className="space-y-2 min-w-0">
-                            <Label className="text-sm font-medium truncate line-clamp-1">
+                          <div className="space-y-1.5 min-w-0">
+                            <Label className="text-xs font-medium truncate line-clamp-1">
                               Opening Time
                             </Label>
                             <CustomTimePicker
@@ -704,8 +704,8 @@ export default function BusinessSettingsPage() {
                               </p>
                             )}
                           </div>
-                          <div className="space-y-2 min-w-0">
-                            <Label className="text-sm font-medium truncate line-clamp-1">
+                          <div className="space-y-1.5 min-w-0">
+                            <Label className="text-xs font-medium truncate line-clamp-1">
                               Closing Time
                             </Label>
                             <CustomTimePicker
@@ -730,17 +730,17 @@ export default function BusinessSettingsPage() {
                           </div>
                         </div>
                         {hasError && !hourErrors?.day && (
-                          <div className="mt-3 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-xs text-red-700 dark:text-red-200">
+                          <div className="mt-2 p-2 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-xs text-red-700 dark:text-red-200">
                             {hourErrors.message}
                           </div>
                         )}
                         {!isSaving && (
-                          <div className="absolute top-2 right-2 sm:top-3 sm:right-3">
+                          <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2">
                             <Button
                               type="button"
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                              className="h-5 w-5 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
                               onClick={() => {
                                 const currentHours =
                                   form.getValues("businessHours") || [];
@@ -752,7 +752,7 @@ export default function BusinessSettingsPage() {
                               }}
                               title="Delete this business hour entry"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
                         )}
@@ -766,11 +766,11 @@ export default function BusinessSettingsPage() {
         </div>
 
         {}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold">Social Media Accounts</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-xs font-semibold">Social Media Accounts</h3>
+              <p className="text-xs text-muted-foreground">
                 {form.watch("socialMedia")?.length > 0
                   ? `${form.watch("socialMedia").length} account${
                       form.watch("socialMedia").length > 1 ? "s" : ""
@@ -795,21 +795,21 @@ export default function BusinessSettingsPage() {
               }}
               disabled={isSaving}
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-3 w-3 mr-1.5" />
               Add Account
             </Button>
           </div>
 
           {form.watch("socialMedia")?.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed rounded-lg">
-              <p className="text-sm text-muted-foreground">
+            <div className="text-center py-5 border-2 border-dashed rounded">
+              <p className="text-xs text-muted-foreground">
                 No social media accounts added
               </p>
             </div>
           ) : (
             <Card>
-              <CardContent className="pt-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {form.watch("socialMedia")?.map((social, index) => {
                     const socialErrors = (
                       form.formState.errors.socialMedia as any
@@ -818,19 +818,19 @@ export default function BusinessSettingsPage() {
                     return (
                       <div
                         key={index}
-                        className={`border rounded-lg p-4 relative lg:col-span-2 ${
+                        className={`border rounded p-3 relative lg:col-span-2 ${
                           hasError
                             ? "border-red-500 bg-red-50 dark:bg-red-950/20"
                             : ""
                         }`}
                       >
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                             {}
-                            <div className="space-y-4 flex flex-col justify-between">
+                            <div className="space-y-3 flex flex-col justify-between">
                               {}
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium">
+                              <div className="space-y-1.5">
+                                <Label className="text-xs font-medium">
                                   Platform Name
                                 </Label>
                                 <Input
@@ -850,8 +850,8 @@ export default function BusinessSettingsPage() {
                               </div>
 
                               {}
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium">
+                              <div className="space-y-1.5">
+                                <Label className="text-xs font-medium">
                                   Profile Link
                                 </Label>
                                 <Input
@@ -887,7 +887,7 @@ export default function BusinessSettingsPage() {
                                 }}
                                 disabled={isSaving}
                                 aspectRatio="square"
-                                height="h-32"
+                                height="h-24"
                                 placeholder="Click to upload icon"
                                 maxSize={5}
                                 helperText="Upload platform icon/logo (PNG, JPG)"
@@ -896,7 +896,7 @@ export default function BusinessSettingsPage() {
                           </div>
                         </div>
                         {hasError && (
-                          <div className="mt-3 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-xs text-red-700 dark:text-red-200">
+                          <div className="mt-2 p-2 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-xs text-red-700 dark:text-red-200">
                             {socialErrors.message}
                           </div>
                         )}
@@ -905,7 +905,7 @@ export default function BusinessSettingsPage() {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                            className="absolute top-1.5 right-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
                             onClick={() => {
                               const currentSocialMedia =
                                 form.getValues("socialMedia") || [];
@@ -918,7 +918,7 @@ export default function BusinessSettingsPage() {
                               );
                             }}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3 w-3" />
                           </Button>
                         )}
                       </div>
@@ -933,24 +933,24 @@ export default function BusinessSettingsPage() {
         {/* Telegram Monitoring */}
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <Send className="h-4 w-4 text-sky-500" />
+            <div className="flex items-center gap-1.5">
+              <Send className="h-3 w-3 text-sky-500" />
               <CardTitle>Telegram Monitoring</CardTitle>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Receive order alerts and staff notifications in your Telegram
               group
             </p>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {/* Setup guide */}
-            <div className="rounded-lg border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-4 space-y-3">
-              <p className="text-sm font-semibold text-sky-800 dark:text-sky-300">
+            <div className="rounded border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 space-y-2">
+              <p className="text-xs font-semibold text-sky-800 dark:text-sky-300">
                 How to set up (3 steps)
               </p>
-              <ol className="space-y-3 text-sm text-sky-700 dark:text-sky-400">
-                <li className="flex gap-3">
-                  <span className="font-bold shrink-0 w-4">1.</span>
+              <ol className="space-y-2 text-xs text-sky-700 dark:text-sky-400">
+                <li className="flex gap-2">
+                  <span className="font-bold shrink-0 w-3">1.</span>
                   <span>
                     Add{" "}
                     <span className="font-semibold text-foreground">
@@ -959,8 +959,8 @@ export default function BusinessSettingsPage() {
                     to your Telegram group.
                   </span>
                 </li>
-                <li className="flex gap-3">
-                  <span className="font-bold shrink-0 w-4">2.</span>
+                <li className="flex gap-2">
+                  <span className="font-bold shrink-0 w-3">2.</span>
                   <span>
                     <span className="font-semibold text-foreground">
                       Promote the bot to Admin
@@ -973,13 +973,13 @@ export default function BusinessSettingsPage() {
                     </span>
                   </span>
                 </li>
-                <li className="flex gap-3">
-                  <span className="font-bold shrink-0 w-4">3.</span>
+                <li className="flex gap-2">
+                  <span className="font-bold shrink-0 w-3">3.</span>
                   <span>
                     Type this command in the group — the bot will link
                     automatically:
                     <br />
-                    <code className="mt-1 inline-block bg-white dark:bg-sky-900 px-2 py-1 rounded text-xs font-mono border border-sky-200 dark:border-sky-700 select-all">
+                    <code className="mt-1 inline-block bg-white dark:bg-sky-900 px-1.5 py-1 rounded text-xs font-mono border border-sky-200 dark:border-sky-700 select-all">
                       /link{" "}
                       {reduxBusinessSettings?.businessId ?? "YOUR_BUSINESS_ID"}
                     </code>
@@ -989,8 +989,8 @@ export default function BusinessSettingsPage() {
             </div>
 
             {form.watch("telegramGroupChatId") ? (
-              <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <div className="flex items-center gap-1.5 p-2 bg-emerald-50 dark:bg-emerald-950/20 rounded border border-emerald-200 dark:border-emerald-800">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                 <p className="text-xs text-emerald-700 dark:text-emerald-400">
                   Monitoring group linked — chat ID{" "}
                   <span className="font-mono font-medium">
@@ -999,8 +999,8 @@ export default function BusinessSettingsPage() {
                 </p>
               </div>
             ) : (
-              <div className="flex items-center gap-2 p-3 bg-muted/40 rounded-lg border border-border">
-                <span className="w-2 h-2 rounded-full bg-muted-foreground/40 shrink-0" />
+              <div className="flex items-center gap-1.5 p-2 bg-muted/40 rounded border border-border">
+                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 shrink-0" />
                 <p className="text-xs text-muted-foreground">
                   No group linked yet. Follow the steps above to connect a
                   Telegram group.
@@ -1010,7 +1010,7 @@ export default function BusinessSettingsPage() {
           </CardContent>
         </Card>
 
-        <div className="flex gap-3 justify-end pt-4 border-t">
+        <div className="flex gap-2 justify-end pt-3 border-t">
           <CancelButton
             onClick={fetchBusinessSettings}
             disabled={isSaving}
@@ -1022,7 +1022,7 @@ export default function BusinessSettingsPage() {
             isCreate={false}
             updateText="Save Changes"
             submittingUpdateText="Saving..."
-            icon={<Save className="h-4 w-4" />}
+            icon={<Save className="h-3 w-3" />}
             className="min-w-[140px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
           />
         </div>

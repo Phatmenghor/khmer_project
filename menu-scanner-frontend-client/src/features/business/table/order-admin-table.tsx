@@ -218,26 +218,26 @@ export const orderAdminTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (order) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewOrder(order)}
           />
           <ActionButton
-            icon={<Download className="w-4 h-4" />}
+            icon={<Download className="w-3 h-3" />}
             tooltip="Download Receipt"
             onClick={() => handleDownloadReceipt(order)}
             disabled={downloadingOrderId === order.id}
             {...(downloadingOrderId === order.id && { loading: true })}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Order"
             onClick={() => handleEditOrder(order)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Order"
             onClick={() => handleDeleteOrder(order)}
             variant="destructive"

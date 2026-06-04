@@ -160,9 +160,9 @@ export function ComboboxSelectLocation({
         <Button
           onClick={() => router.push("/account/addresses")}
           variant="outline"
-          className="w-full h-10 text-xs gap-2"
+          className="w-full h-7 text-xs gap-1.5"
         >
-          <Plus className="h-3.5 w-3.5" />
+          <Plus className="h-2.5 w-2.5" />
           Add Address
         </Button>
         {error && <p className="text-xs text-red-500">{error}</p>}
@@ -185,7 +185,7 @@ export function ComboboxSelectLocation({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between px-4 py-2 h-11 text-sm transition-all duration-200 border-input",
+              "w-full justify-between px-3 py-1.5 h-8 text-xs transition-all duration-200 border-input",
               !dataSelect && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
@@ -198,7 +198,7 @@ export function ComboboxSelectLocation({
             <span className="truncate line-clamp-1">
               {dataSelect ? dataSelect.fullAddress : placeholder}
             </span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent
@@ -213,11 +213,11 @@ export function ComboboxSelectLocation({
               placeholder="Search address..."
               value={searchTerm}
               onValueChange={handleSearchChange}
-              className="text-sm h-11 px-3 border-b"
+              className="text-xs h-8 px-2 border-b"
             />
-            <CommandList className="max-h-48 overflow-y-auto">
-              <CommandEmpty className="text-xs py-2">
-                <div className="flex flex-col items-center gap-2">
+            <CommandList className="max-h-32 overflow-y-auto">
+              <CommandEmpty className="text-xs py-1.5">
+                <div className="flex flex-col items-center gap-1.5">
                   <span>No address found</span>
                   <Button
                     onClick={() => {
@@ -226,9 +226,9 @@ export function ComboboxSelectLocation({
                     }}
                     variant="outline"
                     size="sm"
-                    className="h-7 text-xs gap-1"
+                    className="h-5 text-xs gap-1"
                   >
-                    <Plus className="h-3 w-3" />
+                    <Plus className="h-2 w-2" />
                     Add Address
                   </Button>
                 </div>
@@ -240,17 +240,17 @@ export function ComboboxSelectLocation({
                     value={item.fullAddress}
                     onSelect={() => handleSelect(item)}
                     ref={index === data.length - 1 ? ref : null}
-                    className="text-sm py-2"
+                    className="text-xs py-1.5"
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4 flex-shrink-0",
+                        "mr-1.5 h-3 w-3 flex-shrink-0",
                         dataSelect?.id === item.id ? "opacity-100" : "opacity-0"
                       )}
                     />
                     <span className="truncate line-clamp-1 flex-1">{item.fullAddress}</span>
                     {item.note && (
-                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-1.5">
                         ({item.note})
                       </span>
                     )}
@@ -258,8 +258,8 @@ export function ComboboxSelectLocation({
                 ))}
               </CommandGroup>
               {loading && (
-                <div className="text-center py-2">
-                  <Loader2 className="animate-spin text-gray-500 h-4 w-4 mx-auto" />
+                <div className="text-center py-1.5">
+                  <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
                 </div>
               )}
               {!loading && lastPage && data.length > 0 && (

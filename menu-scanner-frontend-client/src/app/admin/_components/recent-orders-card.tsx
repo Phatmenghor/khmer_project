@@ -36,10 +36,10 @@ interface RecentOrdersCardProps {
 export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">Recent Orders</CardTitle>
+            <CardTitle className="text-xs">Recent Orders</CardTitle>
             <CardDescription>
               {orders?.totalElements
                 ? `${orders.totalElements} total orders this period`
@@ -49,7 +49,7 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
           <Link href={ROUTES.ADMIN.ORDERS}>
             <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground">
               View all
-              <ArrowUpRight className="h-3.5 w-3.5" />
+              <ArrowUpRight className="h-2.5 w-2.5" />
             </Button>
           </Link>
         </div>
@@ -58,22 +58,22 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
         {loading ? (
           <div className="divide-y">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center gap-4 px-6 py-3">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-4 w-28 flex-1" />
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-5 w-20 rounded-full" />
+              <div key={i} className="flex items-center gap-3 px-4 py-2">
+                <Skeleton className="h-3 w-14" />
+                <Skeleton className="h-3 w-20 flex-1" />
+                <Skeleton className="h-3 w-11" />
+                <Skeleton className="h-3.5 w-14 rounded-full" />
               </div>
             ))}
           </div>
         ) : !orders?.data?.length ? (
-          <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
-            <ShoppingCart className="h-8 w-8 opacity-30" />
-            <p className="text-sm">No orders for this period</p>
+          <div className="flex flex-col items-center justify-center py-7 text-muted-foreground gap-1.5">
+            <ShoppingCart className="h-5 w-5 opacity-30" />
+            <p className="text-xs">No orders for this period</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-[140px_1fr_100px_120px] gap-4 px-6 py-2.5 bg-muted/30 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="grid grid-cols-[140px_1fr_100px_120px] gap-3 px-4 py-1.5.5 bg-muted/30 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               <span>Order</span>
               <span>Customer</span>
               <span className="text-right">Amount</span>
@@ -81,16 +81,16 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
             </div>
             <div className="divide-y">
               {orders.data.map((order) => (
-                <div key={order.id} className="grid grid-cols-[140px_1fr_100px_120px] gap-4 px-6 py-3 items-center hover:bg-muted/20 transition-colors">
-                  <span className="text-sm font-mono font-medium text-primary truncate">{order.orderCode}</span>
+                <div key={order.id} className="grid grid-cols-[140px_1fr_100px_120px] gap-3 px-4 py-2 items-center hover:bg-muted/20 transition-colors">
+                  <span className="text-xs font-mono font-medium text-primary truncate">{order.orderCode}</span>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{order.customerName}</p>
+                    <p className="text-xs font-medium text-foreground truncate">{order.customerName}</p>
                     <p className="text-xs text-muted-foreground">{order.itemCount} item{order.itemCount !== 1 ? "s" : ""} · {order.paymentMethod}</p>
                   </div>
-                  <span className="text-sm font-semibold text-foreground tabular-nums text-right">{formatCurrency(order.totalAmount)}</span>
+                  <span className="text-xs font-semibold text-foreground tabular-nums text-right">{formatCurrency(order.totalAmount)}</span>
                   <div className="flex justify-center">
                     <span className={cn(
-                      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                      "inline-flex items-center px-1.5.5 py-0.5 rounded-full text-xs font-medium",
                       ORDER_STATUS_STYLE[order.status] ?? "bg-muted text-muted-foreground"
                     )}>
                       {order.status}

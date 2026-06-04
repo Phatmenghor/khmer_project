@@ -23,9 +23,9 @@ function SizeCustomizationComponent({
   }
 
   return (
-    <div className="mb-4">
-      <div className="flex items-center gap-2 mb-3">
-        <h4 className="font-semibold text-sm text-foreground">Add-ons</h4>
+    <div className="mb-3">
+      <div className="flex items-center gap-1.5 mb-2">
+        <h4 className="font-semibold text-xs text-foreground">Add-ons</h4>
         {selectedSizeCustoms.size > 0 && (
           <Badge
             variant="secondary"
@@ -35,7 +35,7 @@ function SizeCustomizationComponent({
           </Badge>
         )}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {product.customizations.map((customization) => {
           const isSelected = selectedSizeCustoms.has(customization.id);
           const priceAdjustment = customization.priceAdjustment || 0;
@@ -44,22 +44,22 @@ function SizeCustomizationComponent({
               key={customization.id}
               onClick={() => onToggleCustomization(customization.id)}
               className={cn(
-                "w-full flex items-center justify-between rounded-lg px-3 py-2.5 transition-all duration-200 cursor-pointer text-left border",
+                "w-full flex items-center justify-between rounded px-2 py-1.5.5 transition-all duration-200 cursor-pointer text-left border",
                 isSelected
                   ? "bg-primary/5 border-primary"
                   : "border-border hover:border-primary/40 hover:bg-primary/5",
               )}
             >
-              <div className="flex items-center gap-2.5 flex-1 min-w-0">
+              <div className="flex items-center gap-1.5.5 flex-1 min-w-0">
                 <div
                   className={cn(
-                    "w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200",
+                    "w-3 h-3 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200",
                     isSelected
                       ? "border-primary bg-primary"
                       : "border-border bg-background",
                   )}
                 >
-                  {isSelected && <Check className="h-2.5 w-2.5 text-white" />}
+                  {isSelected && <Check className="h-1.5.5 w-1.5.5 text-white" />}
                 </div>
                 <span className="font-medium text-xs text-foreground truncate">
                   {customization.name}
@@ -67,7 +67,7 @@ function SizeCustomizationComponent({
               </div>
               <span
                 className={cn(
-                  "text-xs font-semibold shrink-0 ml-2 px-1.5 py-0.5 rounded-full",
+                  "text-xs font-semibold shrink-0 ml-1.5 px-1.5 py-0.5 rounded-full",
                   isSelected
                     ? "text-primary bg-primary/10"
                     : "text-muted-foreground bg-muted/60",

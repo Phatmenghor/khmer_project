@@ -56,7 +56,7 @@ export function SessionsDetailModal({
       description={sessionData?.deviceName || "Loading session information..."}
     >
       {sessionData ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {}
           <DetailSection title="Personal Information">
             <DetailRow
@@ -138,7 +138,7 @@ export function SessionsDetailModal({
             <DetailRow
               label="Session ID"
               value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
                   {sessionData?.id}
                 </span>
               }
@@ -164,7 +164,7 @@ export function SessionsDetailModal({
           </DetailSection>
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-muted-foreground">No session data available</p>
         </div>
       )}

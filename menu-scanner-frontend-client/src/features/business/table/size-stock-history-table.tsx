@@ -69,14 +69,14 @@ export function createSizeStockHistoryColumns(
       key: "productSizeName",
       label: "Size Name",
       render: (stock: ProductStockDto) => (
-        <span className="text-sm">{stock.sizeName}</span>
+        <span className="text-xs">{stock.sizeName}</span>
       ),
     },
     {
       key: "quantityOnHand",
       label: "Quantity",
       render: (stock: ProductStockDto) => (
-        <span className="text-sm bg-primary/10 border border-primary text-primary px-2 py-1 rounded inline-block font-medium">
+        <span className="text-xs bg-primary/10 border border-primary text-primary px-1.5 py-1 rounded inline-block font-medium">
           {stock.quantityOnHand} Items
         </span>
       ),
@@ -85,7 +85,7 @@ export function createSizeStockHistoryColumns(
       key: "quantityAvailable",
       label: "Available",
       render: (stock: ProductStockDto) => (
-        <span className="text-sm font-medium text-green-600">
+        <span className="text-xs font-medium text-green-600">
           {stock.quantityAvailable || 0} Items
         </span>
       ),
@@ -94,14 +94,14 @@ export function createSizeStockHistoryColumns(
       key: "priceIn",
       label: "Unit Price",
       render: (stock: ProductStockDto) => (
-        <span className="text-sm">${stock.priceIn.toFixed(2)}</span>
+        <span className="text-xs">${stock.priceIn.toFixed(2)}</span>
       ),
     },
     {
       key: "inventoryValue",
       label: "Inventory Value",
       render: (stock: ProductStockDto) => (
-        <span className="text-sm font-semibold text-blue-600">
+        <span className="text-xs font-semibold text-blue-600">
           ${stock.inventoryValue || 0}
         </span>
       ),
@@ -127,7 +127,7 @@ export function createSizeStockHistoryColumns(
       key: "location",
       label: "Location",
       render: (stock: ProductStockDto) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {stock.location || "---"}
         </span>
       ),
@@ -147,12 +147,12 @@ export function createSizeStockHistoryColumns(
       render: (stock: ProductStockDto) => (
         <div className="flex gap-1">
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Update Stock"
             onClick={() => handleEditStock(stock)}
           />
           <ActionButton
-            icon={<Trash2 className="w-4 h-4" />}
+            icon={<Trash2 className="w-3 h-3" />}
             tooltip="Delete Stock"
             onClick={() => handleDeleteStock(stock)}
             disabled={isDeleting}

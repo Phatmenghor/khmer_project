@@ -268,9 +268,9 @@ export function SizeStockManagementModal({
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-start gap-6">
-            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 flex-shrink-0 rounded overflow-hidden border bg-muted">
               {product.mainImageUrl ? (
                 <img
                   src={product.mainImageUrl}
@@ -279,18 +279,18 @@ export function SizeStockManagementModal({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <Package className="w-6 h-6 text-muted-foreground" />
+                  <Package className="w-4 h-4 text-muted-foreground" />
                 </div>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="text-xs font-semibold text-foreground">
                 Size Stock Management
               </h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 {product.name}
               </p>
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                 <Badge variant="outline" className="text-xs">
                   SKU: {product.sku || "---"}
                 </Badge>
@@ -304,22 +304,22 @@ export function SizeStockManagementModal({
 
         {}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-6">
+          <div className="p-4 space-y-4">
 
             {}
             {selectedSize && (
               <Card ref={formSectionRef}>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="w-5 h-5" />
+                  <CardTitle className="flex items-center gap-1.5">
+                    <Package className="w-3.5 h-3.5" />
                     {editingStock ? "Update Stock" : "Add New Stock"} - {selectedSize.name}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-6">
+                  <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-4">
                     {}
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium">
                         Select Size <span className="text-red-500">*</span>
                       </Label>
                       <Select
@@ -329,13 +329,13 @@ export function SizeStockManagementModal({
                           if (size) setSelectedSize(size);
                         }}
                       >
-                        <SelectTrigger className="h-10">
+                        <SelectTrigger className="h-7">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           {product.sizes?.map((size) => (
                             <SelectItem key={size.id} value={size.id}>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1.5">
                                 <span>{size.name}</span>
                                 <span className="text-xs text-muted-foreground">
                                   ${size.finalPrice}
@@ -347,10 +347,10 @@ export function SizeStockManagementModal({
                       </Select>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {}
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium">
                           Quantity On Hand <span className="text-red-500">*</span>
                         </Label>
                         <Input
@@ -358,7 +358,7 @@ export function SizeStockManagementModal({
                           min="0"
                           step="1"
                           placeholder="Enter quantity"
-                          className="h-10"
+                          className="h-7"
                           {...form.register("quantityOnHand", {
                             required: "Quantity is required",
                             validate: (value) => {
@@ -379,16 +379,16 @@ export function SizeStockManagementModal({
                       </div>
 
                       {}
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium">
                           Unit Price (Cost) <span className="text-red-500">*</span>
                         </Label>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-muted-foreground">$</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-medium text-muted-foreground">$</span>
                           <Input
                             type="text"
                             placeholder="0.00"
-                            className="h-10 flex-1"
+                            className="h-7 flex-1"
                             inputMode="decimal"
                             {...form.register("priceIn", {
                               required: "Price is required",
@@ -415,7 +415,7 @@ export function SizeStockManagementModal({
                       {}
                       <DateTimePickerField
                         control={form.control}
-                        className="h-10"
+                        className="h-7"
                         name="expiryDate"
                         label="Expiry Date"
                         mode="date"
@@ -423,13 +423,13 @@ export function SizeStockManagementModal({
                       />
 
                       {}
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium">
                           Storage Location
                         </Label>
                         <Input
                           placeholder="e.g., Warehouse A, Shelf 3"
-                          className="h-10"
+                          className="h-7"
                           {...form.register("location")}
                         />
                         <p className="text-xs text-muted-foreground">
@@ -440,15 +440,15 @@ export function SizeStockManagementModal({
 
                     {}
                     {selectedSize && (
-                      <div className="border-t pt-6">
-                        <h3 className="text-sm font-semibold mb-4">Sales Preview</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border-t pt-4">
+                        <h3 className="text-xs font-semibold mb-3">Sales Preview</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {}
-                          <div className="bg-muted/50 p-4 rounded-lg">
-                              <div className="flex justify-between items-start mb-2">
+                          <div className="bg-muted/50 p-3 rounded">
+                              <div className="flex justify-between items-start mb-1.5">
                                 <div>
                                   <p className="text-xs text-muted-foreground">Size Selling Price</p>
-                                  <p className="text-lg font-semibold text-foreground">
+                                  <p className="text-xs font-semibold text-foreground">
                                     ${selectedSize.price.toFixed(2)}
                                   </p>
                                 </div>
@@ -460,7 +460,7 @@ export function SizeStockManagementModal({
                               </div>
 
                               {selectedSize.hasPromotion && (
-                                <div className="mt-3 pt-3 border-t border-muted space-y-2 text-xs">
+                                <div className="mt-2 pt-2 border-t border-muted space-y-1.5 text-xs">
                                   <div>
                                     <p className="text-muted-foreground">Promotion Type:</p>
                                     <p className="font-medium">
@@ -475,9 +475,9 @@ export function SizeStockManagementModal({
                                         : `$${(selectedSize.promotionValue || 0).toFixed(2)}`}
                                     </p>
                                   </div>
-                                  <div className="pt-2 border-t">
+                                  <div className="pt-1.5 border-t">
                                     <p className="text-muted-foreground">Final Price:</p>
-                                    <p className="text-base font-semibold text-green-600">
+                                    <p className="text-xs font-semibold text-green-600">
                                       ${selectedSize.finalPrice.toFixed(2)}
                                     </p>
                                   </div>
@@ -486,24 +486,24 @@ export function SizeStockManagementModal({
                             </div>
 
                             {}
-                            <div className="bg-muted/50 p-4 rounded-lg">
-                              <p className="text-xs text-muted-foreground mb-3">Total Revenue (if sold all)</p>
-                              <div className="space-y-3">
-                                <div className="flex justify-between text-sm">
+                            <div className="bg-muted/50 p-3 rounded">
+                              <p className="text-xs text-muted-foreground mb-2">Total Revenue (if sold all)</p>
+                              <div className="space-y-2">
+                                <div className="flex justify-between text-xs">
                                   <span className="text-muted-foreground">Quantity:</span>
                                   <span className="font-medium">
                                     {form.watch("quantityOnHand") || 0} units
                                   </span>
                                 </div>
-                                <div className="flex justify-between text-sm">
+                                <div className="flex justify-between text-xs">
                                   <span className="text-muted-foreground">Selling Price (each):</span>
                                   <span className="font-medium">
                                     ${(selectedSize.hasPromotion ? selectedSize.finalPrice : selectedSize.price).toFixed(2)}
                                   </span>
                                 </div>
-                                <div className="pt-3 border-t border-muted flex justify-between">
+                                <div className="pt-2 border-t border-muted flex justify-between">
                                   <span className="font-semibold">Total Revenue:</span>
-                                  <span className="text-lg font-bold text-green-600">
+                                  <span className="text-xs font-bold text-green-600">
                                     ${(
                                       (form.watch("quantityOnHand") || 0) *
                                       (selectedSize.hasPromotion
@@ -512,7 +512,7 @@ export function SizeStockManagementModal({
                                     ).toFixed(2)}
                                   </span>
                                 </div>
-                                <div className="pt-2 flex justify-between text-xs text-muted-foreground">
+                                <div className="pt-1.5 flex justify-between text-xs text-muted-foreground">
                                   <span>Cost Total:</span>
                                   <span>
                                     ${(
@@ -562,15 +562,15 @@ export function SizeStockManagementModal({
         </div>
 
         {}
-        <div className="px-6 py-4 border-t bg-gradient-to-r from-muted/50 to-muted/30 flex-shrink-0">
-          <div className="flex items-center justify-between gap-4">
+        <div className="px-4 py-3 border-t bg-gradient-to-r from-muted/50 to-muted/30 flex-shrink-0">
+          <div className="flex items-center justify-between gap-3">
             {!editingStock && (
-              <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
                 {(isCreating || isUpdating) && (
-                  <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
                 )}
                 {form.formState.isDirty && !isCreating && !isUpdating && (
-                  <div className="h-2 w-2 rounded-full bg-orange-500" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
                 )}
                 <span>
                   {isCreating || isUpdating
@@ -600,21 +600,21 @@ export function SizeStockManagementModal({
                   }, 0);
                 }}
                 disabled={isCreating || isUpdating}
-                className="gap-2 border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300 transition-all"
+                className="gap-1.5 border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300 transition-all"
               >
-                <Edit className="w-4 h-4" />
+                <Edit className="w-3 h-3" />
                 Switch to Add
               </Button>
             )}
             <div className="flex-1" />
 
             {editingStock && (
-              <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
                 {isUpdating && (
-                  <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
                 )}
                 {form.formState.isDirty && !isUpdating && (
-                  <div className="h-2 w-2 rounded-full bg-orange-500" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
                 )}
                 <span>
                   {isUpdating
@@ -626,7 +626,7 @@ export function SizeStockManagementModal({
               </div>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
                 <CancelButton
                   onClick={() => {
                     setEditingStock(null);

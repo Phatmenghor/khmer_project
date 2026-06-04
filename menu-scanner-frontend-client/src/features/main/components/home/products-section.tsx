@@ -41,9 +41,9 @@ const ProductsSectionComponent = ({
   if (error) {
     return (
       <SectionWrapper>
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="text-6xl mb-4">⚠️</div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">
+        <div className="flex flex-col items-center justify-center py-8">
+          <div className="text-base mb-3">⚠️</div>
+          <h3 className="text-xs font-semibold text-foreground mb-1.5">
             Error Loading Products
           </h3>
           <p className="text-muted-foreground text-center">
@@ -58,9 +58,9 @@ const ProductsSectionComponent = ({
   if (products.length === 0 && !loading && !isInitialLoading) {
     return (
       <SectionWrapper>
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="text-6xl mb-4">📦</div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">
+        <div className="flex flex-col items-center justify-center py-8">
+          <div className="text-base mb-3">📦</div>
+          <h3 className="text-xs font-semibold text-foreground mb-1.5">
             No Products Available
           </h3>
           <p className="text-muted-foreground text-center">
@@ -92,14 +92,14 @@ const ProductsSectionComponent = ({
 
       {}
       {!hasMore && products.length > 0 && !loading && (
-        <div className="flex flex-col items-center justify-center mt-10 py-8 px-4">
-          <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
-            <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+        <div className="flex flex-col items-center justify-center mt-7 py-5 px-3">
+          <div className="flex items-center justify-center w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-primary/10 mb-3">
+            <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           </div>
-          <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">
+          <h3 className="text-xs sm:text-xs font-semibold mb-1.5 text-center">
             You've seen it all!
           </h3>
-          <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md">
+          <p className="text-xs sm:text-xs text-muted-foreground text-center max-w-md">
             You've reached the end of our featured products. Check back later
             for new arrivals!
           </p>

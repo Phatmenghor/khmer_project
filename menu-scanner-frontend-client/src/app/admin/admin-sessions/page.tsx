@@ -73,13 +73,13 @@ export default function AdminSessionsPage() {
   const getDeviceIcon = (deviceType: string) => {
     switch (deviceType) {
       case "MOBILE":
-        return <Smartphone className="h-4 w-4" />;
+        return <Smartphone className="h-3 w-3" />;
       case "TABLET":
-        return <Tablet className="h-4 w-4" />;
+        return <Tablet className="h-3 w-3" />;
       case "DESKTOP":
-        return <Monitor className="h-4 w-4" />;
+        return <Monitor className="h-3 w-3" />;
       default:
-        return <Globe className="h-4 w-4" />;
+        return <Globe className="h-3 w-3" />;
     }
   };
 
@@ -88,21 +88,21 @@ export default function AdminSessionsPage() {
       case "ACTIVE":
         return (
           <Badge variant="secondary" className="bg-green-100 text-green-700">
-            <CheckCircle2 className="h-3 w-3 mr-1" />
+            <CheckCircle2 className="h-2 w-2 mr-1" />
             Active
           </Badge>
         );
       case "LOGGED_OUT":
         return (
           <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-            <XCircle className="h-3 w-3 mr-1" />
+            <XCircle className="h-2 w-2 mr-1" />
             Logged Out
           </Badge>
         );
       case "EXPIRED":
         return (
           <Badge variant="secondary" className="bg-red-100 text-red-700">
-            <XCircle className="h-3 w-3 mr-1" />
+            <XCircle className="h-2 w-2 mr-1" />
             Expired
           </Badge>
         );
@@ -154,14 +154,14 @@ export default function AdminSessionsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-6">
+      <div className="container mx-auto px-2 sm:px-3 py-2 sm:py-4">
         {}
-        <div className="flex flex-wrap gap-3 items-start justify-between mb-4 sm:mb-6">
+        <div className="flex flex-wrap gap-2 items-start justify-between mb-3 sm:mb-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+            <h1 className="text-xs sm:text-base font-bold text-foreground">
               Session Management
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               View and manage all user sessions
             </p>
           </div>
@@ -172,25 +172,25 @@ export default function AdminSessionsPage() {
             disabled={isAdminLoading}
           >
             <RefreshCw
-              className={`h-4 w-4 mr-2 ${isAdminLoading ? "animate-spin" : ""}`}
+              className={`h-3 w-3 mr-1.5 ${isAdminLoading ? "animate-spin" : ""}`}
             />
             Refresh
           </Button>
         </div>
 
         {}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex flex-wrap gap-4 items-center">
+        <Card className="mb-4">
+          <CardContent className="p-3">
+            <div className="flex flex-wrap gap-3 items-center">
               {}
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
                   <Input
                     placeholder="Search by username, device, or IP..."
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
-                    className="pl-9"
+                    className="pl-6"
                   />
                 </div>
               </div>
@@ -246,9 +246,9 @@ export default function AdminSessionsPage() {
 
         {}
         {error && (
-          <Card className="mb-4 border-destructive">
-            <CardContent className="p-4">
-              <p className="text-sm text-destructive">{error}</p>
+          <Card className="mb-3 border-destructive">
+            <CardContent className="p-3">
+              <p className="text-xs text-destructive">{error}</p>
             </CardContent>
           </Card>
         )}
@@ -276,12 +276,12 @@ export default function AdminSessionsPage() {
                     onClick={() => handleViewSession(session)}
                   >
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <User className="h-4 w-4 text-primary" />
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                          <User className="h-3 w-3 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium text-sm">
+                          <p className="font-medium text-xs">
                             {session.userFullName}
                           </p>
                           <p className="text-xs text-muted-foreground">
@@ -291,10 +291,10 @@ export default function AdminSessionsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         {getDeviceIcon(session.deviceType)}
                         <div>
-                          <p className="text-sm">{session.deviceDisplayName}</p>
+                          <p className="text-xs">{session.deviceDisplayName}</p>
                           <p className="text-xs text-muted-foreground">
                             {session.browser}
                           </p>
@@ -303,7 +303,7 @@ export default function AdminSessionsPage() {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <p className="text-sm">
+                        <p className="text-xs">
                           {session.location}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -314,7 +314,7 @@ export default function AdminSessionsPage() {
                     <TableCell>{getStatusBadge(session.status)}</TableCell>
                     <TableCell>
                       <div>
-                        <p className="text-sm">
+                        <p className="text-xs">
                           {format(new Date(session.loginAt), "MMM d, yyyy")}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -323,7 +323,7 @@ export default function AdminSessionsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <p className="text-sm">
+                      <p className="text-xs">
                         {formatDistanceToNow(new Date(session.lastActiveAt), {
                           addSuffix: true,
                         })}
@@ -338,7 +338,7 @@ export default function AdminSessionsPage() {
                           handleViewSession(session);
                         }}
                       >
-                        <Eye className="h-4 w-4" />
+                        <Eye className="h-3 w-3" />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -346,8 +346,8 @@ export default function AdminSessionsPage() {
 
                 {adminSessions?.content.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
-                      <Monitor className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <TableCell colSpan={7} className="text-center py-5">
+                      <Monitor className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
                       <p className="text-muted-foreground">No sessions found</p>
                     </TableCell>
                   </TableRow>
@@ -359,22 +359,22 @@ export default function AdminSessionsPage() {
 
         {}
         {adminSessions && adminSessions.totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4 gap-2 flex-wrap">
-            <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
+          <div className="flex items-center justify-between mt-3 gap-1.5 flex-wrap">
+            <p className="text-xs sm:text-xs text-muted-foreground hidden sm:block">
               Showing {(currentPage - 1) * (filters.pageSize ?? 15) + 1} to{" "}
               {Math.min(currentPage * (filters.pageSize ?? 15), totalElements)} of{" "}
               {totalElements} sessions
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage <= 1 || isAdminLoading}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-3 w-3" />
               </Button>
-              <span className="text-sm">
+              <span className="text-xs">
                 Page {currentPage} of {totalPages}
               </span>
               <Button
@@ -383,7 +383,7 @@ export default function AdminSessionsPage() {
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage >= totalPages || isAdminLoading}
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3 w-3" />
               </Button>
             </div>
           </div>

@@ -97,9 +97,9 @@ export function ComboboxSelectLeaveType({
     : value || placeholder;
 
   return (
-    <div className="space-y-2 w-full">
+    <div className="space-y-1.5 w-full">
       {label && (
-        <Label className="text-sm font-medium">
+        <Label className="text-xs font-medium">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
@@ -111,7 +111,7 @@ export function ComboboxSelectLeaveType({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between h-10 text-sm transition-all duration-200 border-input",
+              "w-full justify-between h-7 text-xs transition-all duration-200 border-input",
               !value && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
@@ -122,7 +122,7 @@ export function ComboboxSelectLeaveType({
             disabled={disabled}
           >
             {displayValue}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
@@ -139,11 +139,11 @@ export function ComboboxSelectLeaveType({
               value={searchTerm}
               onValueChange={setSearchTerm}
             />
-            <CommandList className="max-h-60 overflow-y-auto">
+            <CommandList className="max-h-44 overflow-y-auto">
               {loading ? (
-                <div className="text-center py-6">
-                  <Loader2 className="animate-spin text-gray-500 h-5 w-5 mx-auto" />
-                  <p className="text-sm text-muted-foreground mt-2">
+                <div className="text-center py-4">
+                  <Loader2 className="animate-spin text-gray-500 h-3.5 w-3.5 mx-auto" />
+                  <p className="text-xs text-muted-foreground mt-1.5">
                     Loading leave types...
                   </p>
                 </div>
@@ -156,11 +156,11 @@ export function ComboboxSelectLeaveType({
                         key={type.id}
                         value={type.enumName}
                         onSelect={() => handleSelect(type.enumName)}
-                        className="h-10 text-sm"
+                        className="h-7 text-xs"
                       >
                         <Check
                           className={cn(
-                            "mr-2 h-4 w-4",
+                            "mr-1.5 h-3 w-3",
                             value === type.enumName
                               ? "opacity-100"
                               : "opacity-0",

@@ -12,7 +12,7 @@ interface ProductInfoProps {
 function ProductInfoComponent({ product }: ProductInfoProps) {
   return (
     <div>
-      <h3 className="font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
+      <h3 className="font-medium text-xs line-clamp-2 mb-1.5 leading-snug min-h-[40px]">
         {product.name}
       </h3>
 
@@ -25,7 +25,7 @@ function ProductInfoComponent({ product }: ProductInfoProps) {
         >
           {formatCurrency(product.displayOriginPrice)}
         </span>
-        <span className={cn("text-base font-bold", product.hasPromotion ? "text-red-500" : "text-primary")}>
+        <span className={cn("text-xs font-bold", product.hasPromotion ? "text-red-500" : "text-primary")}>
           {formatCurrency(product.displayPrice)}
         </span>
       </div>

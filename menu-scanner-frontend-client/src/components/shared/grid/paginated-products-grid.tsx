@@ -25,7 +25,7 @@ const PaginatedProductsGridComponent = ({
   hasMore,
   onLoadMore,
   isInitialLoading = false,
-  className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4",
+  className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3",
   sectionKey = "product",
   imageLoading = "lazy",
 }: PaginatedProductsGridProps) => {
@@ -157,9 +157,9 @@ const PaginatedProductsGridComponent = ({
 
         {}
         {hasMore && (
-          <div className="col-span-full flex flex-col items-center justify-center py-8 animate-fade-in-up">
-            <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
-            <p className="text-xs sm:text-sm text-muted-foreground">
+          <div className="col-span-full flex flex-col items-center justify-center py-5 animate-fade-in-up">
+            <Loader2 className="h-4 w-4 animate-spin text-primary mb-1.5" />
+            <p className="text-xs sm:text-xs text-muted-foreground">
               Loading more products...
             </p>
           </div>
@@ -169,7 +169,7 @@ const PaginatedProductsGridComponent = ({
         {hasMore && !loading && (
           <div
             ref={sentinelRef}
-            className="h-10"
+            className="h-7"
             aria-label="Load more products trigger"
           />
         )}

@@ -48,28 +48,28 @@ export function Footer() {
     <footer className="bg-primary/90 text-white">
       <PageContainer>
         {}
-        <div className="py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="py-8 grid grid-cols-1 md:grid-cols-4 gap-5">
           {}
           {businessName && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 group">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 group">
                 <div className="relative">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden flex-shrink-0">
+                  <div className="w-8 h-8 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden flex-shrink-0">
                     {businessLogoUrl && (
                       <img
                         src={businessLogoUrl}
                         alt={businessName}
-                        className="w-full h-full object-cover rounded-xl"
+                        className="w-full h-full object-cover rounded"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
                         }}
                       />
                     )}
                   </div>
-                  <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute -inset-1 rounded bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-white font-bold text-base leading-tight tracking-tight">
+                  <span className="text-white font-bold text-xs leading-tight tracking-tight">
                     {businessName}
                   </span>
                   <span className="text-white/70 text-xs font-medium tracking-wide">
@@ -77,7 +77,7 @@ export function Footer() {
                   </span>
                 </div>
               </div>
-              <p className="text-white/90 text-sm leading-relaxed">
+              <p className="text-white/90 text-xs leading-relaxed">
                 {businessName} - Your trusted destination for premium dining experiences.
                 Explore menus, discover favorites, and enjoy seamless ordering.
               </p>
@@ -86,13 +86,13 @@ export function Footer() {
 
           {}
           {(contactAddress || contactPhone || contactEmail) && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-white text-base">Contact Info</h3>
-              <div className="space-y-3 text-sm">
+            <div className="space-y-3">
+              <h3 className="font-semibold text-white text-xs">Contact Info</h3>
+              <div className="space-y-2 text-xs">
                 {contactAddress && (
-                  <div className="flex gap-3 items-start">
-                    <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-white pt-0.5">
-                      <MapPin className="w-5 h-5" />
+                  <div className="flex gap-2 items-start">
+                    <div className="w-3.5 h-3.5 flex items-center justify-center flex-shrink-0 text-white pt-0.5">
+                      <MapPin className="w-3.5 h-3.5" />
                     </div>
                     <p className="text-white leading-relaxed">
                       {contactAddress}
@@ -100,9 +100,9 @@ export function Footer() {
                   </div>
                 )}
                 {contactPhone && (
-                  <div className="flex gap-3 items-center">
-                    <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-white">
-                      <Phone className="w-5 h-5" />
+                  <div className="flex gap-2 items-center">
+                    <div className="w-3.5 h-3.5 flex items-center justify-center flex-shrink-0 text-white">
+                      <Phone className="w-3.5 h-3.5" />
                     </div>
                     <a href={`tel:${contactPhone}`} className="text-white hover:text-white/80 transition-colors">
                       {contactPhone}
@@ -110,9 +110,9 @@ export function Footer() {
                   </div>
                 )}
                 {contactEmail && (
-                  <div className="flex gap-3 items-center">
-                    <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 text-white">
-                      <Mail className="w-5 h-5" />
+                  <div className="flex gap-2 items-center">
+                    <div className="w-3.5 h-3.5 flex items-center justify-center flex-shrink-0 text-white">
+                      <Mail className="w-3.5 h-3.5" />
                     </div>
                     <a
                       href={`mailto:${contactEmail}`}
@@ -128,11 +128,11 @@ export function Footer() {
 
           {}
           {businessHours.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-white text-base">Business Hours</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex gap-3">
-                  <Clock className="w-5 h-5 text-white flex-shrink-0 mt-0.5" />
+            <div className="space-y-3">
+              <h3 className="font-semibold text-white text-xs">Business Hours</h3>
+              <div className="space-y-1.5 text-xs">
+                <div className="flex gap-2">
+                  <Clock className="w-3.5 h-3.5 text-white flex-shrink-0 mt-0.5" />
                   <div className="text-white">
                     {businessHours.map((hours, index) => (
                       <p key={index} className="font-medium">
@@ -147,16 +147,16 @@ export function Footer() {
 
           {}
           {socialMedia && socialMedia.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-white text-base">Follow Us</h3>
-              <div className="space-y-2 text-sm">
+            <div className="space-y-3">
+              <h3 className="font-semibold text-white text-xs">Follow Us</h3>
+              <div className="space-y-1.5 text-xs">
                 {socialMedia.map((social: { name: string; linkUrl: string; imageUrl?: string }) => (
                   <a
                     key={social.name}
                     href={social.linkUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-white hover:text-white/80 transition-colors"
+                    className="flex items-center gap-1.5 text-white hover:text-white/80 transition-colors"
                   >
                     {social.imageUrl && (
                       <Image
@@ -176,23 +176,23 @@ export function Footer() {
         </div>
 
         {}
-        <div className="border-t border-white/20 my-8"></div>
+        <div className="border-t border-white/20 my-5"></div>
 
         {}
-        <div className="py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="py-4 flex flex-col md:flex-row justify-between items-center gap-3">
           {businessName && (
-            <p className="text-white text-sm">
+            <p className="text-white text-xs">
               © 2026 {businessName}. All rights reserved.
             </p>
           )}
-          <div className="flex gap-6">
-            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
+          <div className="flex gap-4">
+            <a href="#" className="text-white hover:text-white/80 text-xs transition-colors">
               Privacy
             </a>
-            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
+            <a href="#" className="text-white hover:text-white/80 text-xs transition-colors">
               Terms
             </a>
-            <a href="#" className="text-white hover:text-white/80 text-sm transition-colors">
+            <a href="#" className="text-white hover:text-white/80 text-xs transition-colors">
               Support
             </a>
           </div>

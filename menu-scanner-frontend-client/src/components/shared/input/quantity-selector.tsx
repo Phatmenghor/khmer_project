@@ -111,13 +111,13 @@ export function QuantitySelector({
         disabled={!canDecrement}
         className={cn(
           "flex items-center justify-center rounded-l-xl border border-r-0 transition-all duration-150",
-          isSmall ? "h-9 w-9" : "h-10 w-10",
+          isSmall ? "h-6 w-6" : "h-7 w-7",
           canDecrement
             ? "bg-primary text-primary-foreground border-primary hover:bg-primary/80 active:scale-95"
             : "bg-muted text-muted-foreground/40 border-border cursor-not-allowed",
         )}
       >
-        <Minus className={cn(isSmall ? "h-3 w-3" : "h-4 w-4")} />
+        <Minus className={cn(isSmall ? "h-2 w-2" : "h-3 w-3")} />
       </button>
 
       {/* Input */}
@@ -134,7 +134,7 @@ export function QuantitySelector({
           pending
             ? "bg-amber-50 text-amber-600 border-amber-300 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800"
             : "bg-background text-primary border-primary/30",
-          isSmall ? "w-12 h-9 text-sm" : "w-14 h-10 text-base",
+          isSmall ? "w-8 h-6 text-xs" : "w-10 h-7 text-xs",
         )}
       />
 
@@ -145,13 +145,13 @@ export function QuantitySelector({
         disabled={displayValue >= max}
         className={cn(
           "flex items-center justify-center rounded-r-xl border border-l-0 transition-all duration-150",
-          isSmall ? "h-9 w-9" : "h-10 w-10",
+          isSmall ? "h-6 w-6" : "h-7 w-7",
           displayValue < max
             ? "bg-primary text-primary-foreground border-primary hover:bg-primary/80 active:scale-95"
             : "bg-muted text-muted-foreground/40 border-border cursor-not-allowed",
         )}
       >
-        <Plus className={cn(isSmall ? "h-3 w-3" : "h-4 w-4")} />
+        <Plus className={cn(isSmall ? "h-2 w-2" : "h-3 w-3")} />
       </button>
     </div>
   );

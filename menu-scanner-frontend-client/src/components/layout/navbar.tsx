@@ -202,7 +202,7 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm flex items-center">
+      <nav className="sticky top-0 z-50 w-full h-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm flex items-center">
         <PageContainer className="max-w-8xl w-full">
           {/* Mobile: Search or Navigation */}
           {mobileSearchOpen ? (
@@ -216,8 +216,8 @@ export function Navbar() {
               mobileSearchRef={mobileSearchRef}
             />
           ) : (
-            <div className="lg:hidden flex items-center justify-between w-full h-14 gap-3">
-              <div className="flex items-center gap-3 min-w-0">
+            <div className="lg:hidden flex items-center justify-between w-full h-10 gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <NavbarMenu
                   open={menuOpen}
                   onOpenChange={setMenuOpen}
@@ -239,7 +239,7 @@ export function Navbar() {
 
                 {businessName && (
                   <button onClick={handleNavigateToHome} className="flex flex-col gap-0.5 group min-w-0">
-                    <span className="text-foreground font-bold text-sm leading-tight line-clamp-1">
+                    <span className="text-foreground font-bold text-xs leading-tight line-clamp-1">
                       {businessName}
                     </span>
                     <span className="text-muted-foreground text-xs font-medium">
@@ -252,9 +252,9 @@ export function Navbar() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setMobileSearchOpen(true)}
-                  className="lg:hidden h-9 w-9 hover:text-primary"
+                  className="lg:hidden h-6 w-6 hover:text-primary"
                 >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </button>
@@ -283,12 +283,12 @@ export function Navbar() {
           )}
 
           {/* Desktop View */}
-          <div className="hidden lg:flex h-full w-full items-center justify-between gap-4">
-            <div className="flex items-center gap-8">
+          <div className="hidden lg:flex h-full w-full items-center justify-between gap-3">
+            <div className="flex items-center gap-5">
               {businessName && (
-                <button onClick={handleNavigateToHome} className="flex items-center gap-2 group">
+                <button onClick={handleNavigateToHome} className="flex items-center gap-1.5 group">
                   <div className="relative">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
+                    <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                       {businessLogoUrl && (
                         <img
                           key={businessLogoUrl}
@@ -301,10 +301,10 @@ export function Navbar() {
                         />
                       )}
                     </div>
-                    <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute -inset-1 rounded bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
                   <div className="hidden md:flex flex-col">
-                    <span className="text-foreground font-bold text-sm leading-tight">
+                    <span className="text-foreground font-bold text-xs leading-tight">
                       {businessName}
                     </span>
                     <span className="text-muted-foreground text-xs font-medium">
@@ -332,7 +332,7 @@ export function Navbar() {
               mobileSearchRef={mobileSearchRef}
             />
 
-            <div className="hidden lg:flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-1.5">
               <NavbarCart
                 cartItemCount={cartItemCount}
                 favoriteItemCount={favoriteItemCount}

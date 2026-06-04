@@ -30,15 +30,15 @@ function NavbarSearchComponent({
       {mobileSearchOpen ? (
         <form
           onSubmit={onSearchSubmit}
-          className="lg:hidden flex items-center gap-2 w-full h-14"
+          className="lg:hidden flex items-center gap-1.5 w-full h-10"
         >
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
             <Input
               ref={mobileSearchRef}
               type="search"
               placeholder={searchPlaceholder}
-              className="pl-10 w-full h-10 bg-muted/50"
+              className="pl-7 w-full h-7 bg-muted/50"
               value={searchQuery}
               onChange={(e) => onSearchQueryChange(e.target.value)}
             />
@@ -50,7 +50,7 @@ function NavbarSearchComponent({
             className="shrink-0"
             onClick={() => onMobileSearchOpen(false)}
           >
-            <X className="h-5 w-5" />
+            <X className="h-3.5 w-3.5" />
           </Button>
         </form>
       ) : null}
@@ -61,11 +61,11 @@ function NavbarSearchComponent({
         className="hidden lg:flex flex-1 max-w-xl"
       >
         <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
           <Input
             type="search"
             placeholder={searchPlaceholder}
-            className="pl-10 w-full bg-muted/50"
+            className="pl-7 w-full bg-muted/50"
             value={searchQuery}
             onChange={(e) => onSearchQueryChange(e.target.value)}
           />

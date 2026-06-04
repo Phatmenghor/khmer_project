@@ -329,7 +329,7 @@ export function QRCardWithDownload({
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
+    <div className="flex flex-col items-center gap-3 w-full">
       {/* Card Template */}
       <div className="w-full flex justify-center">
         <QRCardTemplate
@@ -349,14 +349,14 @@ export function QRCardWithDownload({
 
       {/* Actions */}
       {showActions && (
-        <div className="flex gap-2 w-full flex-wrap justify-center">
+        <div className="flex gap-1.5 w-full flex-wrap justify-center">
           <Button
             size="sm"
             className="gap-1.5"
             onClick={handleDownload}
             disabled={downloading || !link}
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-2.5 h-2.5" />
             {downloading ? "Saving…" : "Download"}
           </Button>
           <Button
@@ -367,9 +367,9 @@ export function QRCardWithDownload({
             disabled={!link}
           >
             {copied ? (
-              <Check className="w-3.5 h-3.5 text-green-500" />
+              <Check className="w-2.5 h-2.5 text-green-500" />
             ) : (
-              <Copy className="w-3.5 h-3.5" />
+              <Copy className="w-2.5 h-2.5" />
             )}
             {copied ? "Copied!" : "Copy URL"}
           </Button>
@@ -381,7 +381,7 @@ export function QRCardWithDownload({
               onClick={handleShare}
               disabled={!link}
             >
-              <Share2 className="w-3.5 h-3.5" />
+              <Share2 className="w-2.5 h-2.5" />
               Share
             </Button>
           )}

@@ -5,20 +5,20 @@ import { cn } from "@/lib/utils";
 export const BrandCardSkeleton = () => {
   return (
     <Card className="overflow-hidden border">
-      <CardContent className="p-4 sm:p-5 flex flex-col items-center justify-center space-y-3">
+      <CardContent className="p-3 sm:p-3.5 flex flex-col items-center justify-center space-y-2">
         {}
-        <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-muted/50 rounded-xl overflow-hidden">
+        <div className="relative w-11 h-11 sm:w-14 sm:h-14 bg-muted/50 rounded overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
         </div>
 
         {}
         <div className="w-full space-y-1.5 flex flex-col items-center">
-          <div className="h-3 w-24 bg-muted/50 rounded animate-pulse" />
-          <div className="h-3 w-16 bg-muted/50 rounded animate-pulse" />
+          <div className="h-2 w-16 bg-muted/50 rounded animate-pulse" />
+          <div className="h-2 w-11 bg-muted/50 rounded animate-pulse" />
         </div>
 
         {}
-        <div className="h-2.5 w-20 bg-muted/50 rounded animate-pulse" />
+        <div className="h-1.5.5 w-14 bg-muted/50 rounded animate-pulse" />
       </CardContent>
     </Card>
   );
@@ -34,7 +34,7 @@ export const BrandGridSkeleton = ({
   className,
 }: BrandGridSkeletonProps) => {
   return (
-    <div className={cn("grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4", className)}>
+    <div className={cn("grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3", className)}>
       {Array.from({ length: count }).map((_, index) => (
         <BrandCardSkeleton key={index} />
       ))}

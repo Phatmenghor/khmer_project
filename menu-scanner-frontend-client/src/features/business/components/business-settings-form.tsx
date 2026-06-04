@@ -106,10 +106,10 @@ export function BusinessSettingsForm({
   if (error && !settings) {
     return (
       <Card className="border-destructive">
-        <CardContent className="p-6">
-          <p className="text-destructive mb-4">{error}</p>
+        <CardContent className="p-4">
+          <p className="text-destructive mb-3">{error}</p>
           <Button onClick={handleRefresh}>
-            <RefreshCw className="w-4 h-4 mr-2" />
+            <RefreshCw className="w-3 h-3 mr-1.5" />
             Retry
           </Button>
         </CardContent>
@@ -118,12 +118,12 @@ export function BusinessSettingsForm({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header with refresh button */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Business Settings</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-base font-bold">Business Settings</h1>
+          <p className="text-xs text-muted-foreground mt-1">
             Manage your business information and preferences
           </p>
         </div>
@@ -131,9 +131,9 @@ export function BusinessSettingsForm({
           variant="outline"
           onClick={handleRefresh}
           disabled={isLoading}
-          className="gap-2"
+          className="gap-1.5"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="w-3 h-3" />
           {isLoading ? "Refreshing..." : "Refresh"}
         </Button>
       </div>
@@ -141,14 +141,14 @@ export function BusinessSettingsForm({
       {/* Business Info */}
       {settings && (
         <Card className="bg-muted/50">
-          <CardContent className="p-4">
-            <p className="text-sm">
+          <CardContent className="p-3">
+            <p className="text-xs">
               <strong>Business ID:</strong> {settings.businessId}
             </p>
-            <p className="text-sm">
+            <p className="text-xs">
               <strong>Last Updated:</strong> {new Date(settings.updatedAt).toLocaleString()}
             </p>
-            <p className="text-sm">
+            <p className="text-xs">
               <strong>Updated By:</strong> {settings.updatedBy || "System"}
             </p>
           </CardContent>
@@ -161,7 +161,7 @@ export function BusinessSettingsForm({
           <CardTitle>Basic Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <TextField
               control={control}
               name="businessName"
@@ -215,13 +215,13 @@ export function BusinessSettingsForm({
             />
 
             {/* Action buttons */}
-            <div className="flex gap-2 pt-4">
+            <div className="flex gap-1.5 pt-3">
               <Button
                 type="submit"
                 disabled={isSaving || isLoading}
-                className="gap-2"
+                className="gap-1.5"
               >
-                <Save className="w-4 h-4" />
+                <Save className="w-3 h-3" />
                 {isSaving ? "Saving..." : "Save Changes"}
               </Button>
               <Button
@@ -239,8 +239,8 @@ export function BusinessSettingsForm({
 
       {/* Help text */}
       <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="p-4">
-          <p className="text-sm text-blue-900">
+        <CardContent className="p-3">
+          <p className="text-xs text-blue-900">
             <strong>💡 Tip:</strong> If you don't see updates made by other admins, click the "Refresh" button at the top to get the latest data.
           </p>
         </CardContent>

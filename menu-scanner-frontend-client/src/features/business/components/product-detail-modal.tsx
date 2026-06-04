@@ -82,9 +82,9 @@ export function ProductDetailModal({
       </DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-start gap-6">
-            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border bg-muted">
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 flex-shrink-0 rounded overflow-hidden border bg-muted">
               {productData.mainImageUrl ? (
                 <img
                   src={productData.mainImageUrl}
@@ -100,10 +100,10 @@ export function ProductDetailModal({
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="text-xs font-semibold text-foreground">
                 Product Details
               </h2>
-              <p className="text-sm text-foreground mt-1">
+              <p className="text-xs text-foreground mt-1">
                 View detailed information about the product
               </p>
             </div>
@@ -112,14 +112,14 @@ export function ProductDetailModal({
 
         {}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-6">
+          <div className="p-4 space-y-4">
             {}
             <Card>
               <CardHeader>
                 <CardTitle>Product Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <DisplayField label="Product Name" value={productData.name} />
                   <DisplayField
                     label="Description"
@@ -167,8 +167,8 @@ export function ProductDetailModal({
               <CardHeader>
                 <CardTitle>Pricing Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <DisplayField
                     label="Base Price"
                     value={
@@ -226,11 +226,11 @@ export function ProductDetailModal({
                   <CardTitle>Product Images</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
+                  <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1.5">
                     {productData.images.map((image, index) => (
                       <div
                         key={image.id}
-                        className="relative aspect-square rounded-md overflow-hidden border hover:shadow-md transition-shadow"
+                        className="relative aspect-square rounded overflow-hidden border hover:shadow-md transition-shadow"
                       >
                         <img
                           src={image.imageUrl}
@@ -253,11 +253,11 @@ export function ProductDetailModal({
                     <CardTitle>Available Sizes</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {productData.sizes.map((size) => (
                         <div
                           key={size.id}
-                          className="border rounded-lg p-4 space-y-4"
+                          className="border rounded p-3 space-y-3"
                         >
                           <div className="flex justify-between items-center">
                             <h4 className="font-semibold text-foreground">
@@ -271,7 +271,7 @@ export function ProductDetailModal({
                               {size.hasPromotion ? "Promotion" : "Regular"}
                             </Badge>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                             <DisplayField
                               label="Price"
                               value={formatCurrency(size.price)}
@@ -329,8 +329,8 @@ export function ProductDetailModal({
               <CardHeader>
                 <CardTitle>Stock Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <DisplayField
                     label="Stock Status"
                     value={
@@ -373,16 +373,16 @@ export function ProductDetailModal({
                     <CardTitle>Product Customizations</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {productData.customizations.map((customization) => (
                         <div
                           key={customization.id}
-                          className="border rounded-lg p-4 space-y-3"
+                          className="border rounded p-3 space-y-2"
                         >
                           <h4 className="font-semibold text-foreground">
                             {customization.name}
                           </h4>
-                          <div className="space-y-3 text-sm">
+                          <div className="space-y-2 text-xs">
                             <DisplayField
                               label="Price Adjustment"
                               value={formatCurrency(
@@ -408,8 +408,8 @@ export function ProductDetailModal({
               <CardHeader>
                 <CardTitle>Engagement Statistics</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <DisplayField
                     label="View Count"
                     value={
@@ -435,8 +435,8 @@ export function ProductDetailModal({
               <CardHeader>
                 <CardTitle>System Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <DisplayField label="Product ID" value={productData.id} />
                   <DisplayField
                     label="Created At"

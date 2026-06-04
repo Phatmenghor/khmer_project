@@ -74,7 +74,7 @@ function POSProductCardComponent({
     <div
       onClick={handleCardClick}
       className={cn(
-        "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover:scale-[1.02]",
+        "group relative bg-card rounded border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col cursor-pointer hover:scale-[1.02]",
         quantity > 0 && "ring-1 ring-primary/30 border-primary/50",
         product.hasPromotion && "ring-1 ring-amber-500/20",
         isOutOfStock && "opacity-60"
@@ -91,21 +91,21 @@ function POSProductCardComponent({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <Package className="w-8 h-8 opacity-30" />
+            <Package className="w-5 h-5 opacity-30" />
           </div>
         )}
 
         {}
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center pointer-events-none">
-            <Badge variant="secondary" className="text-xs font-semibold px-3 py-1">Out of Stock</Badge>
+            <Badge variant="secondary" className="text-xs font-semibold px-2 py-1">Out of Stock</Badge>
           </div>
         )}
 
         {}
         {product.hasPromotion && (
-          <div className="absolute top-2 left-2 z-10 pointer-events-none">
-            <Badge variant="destructive" className="text-xs font-bold px-2 py-0.5 shadow-md">
+          <div className="absolute top-1.5 left-1.5 z-10 pointer-events-none">
+            <Badge variant="destructive" className="text-xs font-bold px-1.5 py-0.5 shadow-md">
               {product.displayPromotionType === "PERCENTAGE"
                 ? `-${product.displayPromotionValue}%`
                 : `-${formatCurrency(product.displayPromotionValue)}`}
@@ -115,16 +115,16 @@ function POSProductCardComponent({
 
         {}
         {(product.hasSizes || (product.customizations && product.customizations.length > 0)) && (
-          <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
+          <div className="absolute bottom-1.5 left-1.5 z-10 pointer-events-none">
             <Badge variant="secondary" className="text-xs font-medium px-1.5 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
               {product.hasSizes ? (
                 <>
-                  <Ruler className="h-3 w-3" />
+                  <Ruler className="h-2 w-2" />
                   Sizes
                 </>
               ) : (
                 <>
-                  <Package className="h-3 w-3" />
+                  <Package className="h-2 w-2" />
                   Add-ons
                 </>
               )}
@@ -135,19 +135,19 @@ function POSProductCardComponent({
       </div>
 
       {}
-      <div className="p-3 flex flex-col flex-1">
+      <div className="p-2 flex flex-col flex-1">
         {}
-        <h3 className="font-medium text-sm line-clamp-2 mb-2 leading-snug min-h-[40px]">
+        <h3 className="font-medium text-xs line-clamp-2 mb-1.5 leading-snug min-h-[40px]">
           {product.name}
         </h3>
 
         <div className="mt-auto">
           {}
-          <div className="flex flex-col mb-2.5">
+          <div className="flex flex-col mb-1.5.5">
             <span className={cn("text-xs text-muted-foreground line-through", !product.hasPromotion && "invisible")}>
               {formatCurrency(product.displayOriginPrice)}
             </span>
-            <span className={cn("text-base font-bold", product.hasPromotion ? "text-red-500" : "text-primary")}>
+            <span className={cn("text-xs font-bold", product.hasPromotion ? "text-red-500" : "text-primary")}>
               {formatCurrency(product.displayPrice || parseFloat(String(product.price || 0)))}
             </span>
           </div>
@@ -158,26 +158,26 @@ function POSProductCardComponent({
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                className="h-5 w-5 shrink-0 hover:bg-destructive hover:text-destructive-foreground transition-colors"
                 onClick={handleDecrement}
               >
-                <Minus className="h-3 w-3" />
+                <Minus className="h-2 w-2" />
               </CustomButton>
-              <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
+              <div className="flex-1 text-center h-5 bg-primary/10 text-primary font-semibold text-xs rounded border border-primary/20 flex items-center justify-center">
                 {quantity}
               </div>
               <CustomButton
                 size="icon"
                 variant="outline"
-                className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="h-5 w-5 shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors"
                 onClick={handleIncrement}
               >
-                <Plus className="h-3 w-3" />
+                <Plus className="h-2 w-2" />
               </CustomButton>
             </div>
           ) : (
             <CustomButton
-              className="w-full gap-1.5 h-8 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full gap-1.5 h-5 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -195,7 +195,7 @@ function POSProductCardComponent({
               disabled={isOutOfStock}
               size="sm"
             >
-              <ShoppingCart className="h-3.5 w-3.5" />
+              <ShoppingCart className="h-2.5 w-2.5" />
               Add to Cart
             </CustomButton>
           )}

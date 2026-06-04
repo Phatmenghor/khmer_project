@@ -165,7 +165,7 @@ export const stockItemsTableColumns = ({
       minWidth: "80px",
       maxWidth: "120px",
       render: (item) => (
-        <span className={`text-xs font-medium px-2 py-1 rounded ${
+        <span className={`text-xs font-medium px-1.5 py-1 rounded ${
           item?.type === "PRODUCT"
             ? "bg-blue-100 text-blue-700"
             : "bg-purple-100 text-purple-700"
@@ -181,14 +181,14 @@ export const stockItemsTableColumns = ({
       minWidth: "100px",
       maxWidth: "150px",
       render: (item) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewItem(item)}
           />
           <ActionButton
-            icon={<Plus className="w-4 h-4" />}
+            icon={<Plus className="w-3 h-3" />}
             tooltip="Edit Stock"
             onClick={() => handleEditStock?.(item)}
             variant="secondary"

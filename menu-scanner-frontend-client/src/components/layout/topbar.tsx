@@ -56,26 +56,26 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-5 shadow-md">
+      <header className="sticky top-0 z-20 flex h-11 items-center gap-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3.5 shadow-md">
         {}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           {}
           <Button
             variant="ghost"
             size="icon"
             onClick={onMenuClick}
-            className="shrink-0 h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors md:hidden"
+            className="shrink-0 h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors md:hidden"
             aria-label="Toggle menu"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-3.5 w-3.5" />
           </Button>
 
           {}
-          <nav className="hidden md:flex items-center gap-2 text-sm min-w-0">
+          <nav className="hidden md:flex items-center gap-1.5 text-xs min-w-0">
             {breadcrumbs.map((crumb, i) => (
               <div key={crumb.href} className="flex items-center gap-1 min-w-0">
                 {i > 0 && (
-                  <ChevronRight className="h-3 w-3 text-muted-foreground/50 shrink-0" />
+                  <ChevronRight className="h-2 w-2 text-muted-foreground/50 shrink-0" />
                 )}
                 <span
                   className={
@@ -94,13 +94,13 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
           </nav>
 
           {}
-          <span className="md:hidden font-semibold text-sm text-foreground truncate">
+          <span className="md:hidden font-semibold text-xs text-foreground truncate">
             {breadcrumbs[breadcrumbs.length - 1]?.label ?? "Dashboard"}
           </span>
         </div>
 
         {}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {}
           {onFullscreenClick && pathname.includes("/admin/pos") && (
             <Button
@@ -108,9 +108,9 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
               size="icon"
               onClick={onFullscreenClick}
               title="Fullscreen (F11)"
-              className="h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+              className="h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors"
             >
-              <Maximize2 className="h-4 w-4" />
+              <Maximize2 className="h-3 w-3" />
             </Button>
           )}
 
@@ -118,7 +118,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
           {profile && (
             <CustomDropdownMenu
               trigger={
-                <div className="h-9 w-9 flex items-center justify-center rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
+                <div className="h-6 w-6 flex items-center justify-center rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
                   <CustomAvatar
                     imageUrl={profileImage || profile?.profileImageUrl}
                     name={fullName || profile?.fullName || "Admin"}
@@ -127,14 +127,14 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
                 </div>
               }
               header={
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <CustomAvatar
                     imageUrl={profileImage || profile?.profileImageUrl}
                     name={fullName || profile?.fullName || "Admin"}
                     size="lg"
                   />
                   <div className="flex flex-col space-y-0.5 flex-1 min-w-0">
-                    <p className="text-sm font-semibold line-clamp-1">
+                    <p className="text-xs font-semibold line-clamp-1">
                       {fullName || profile?.fullName || "Admin"}
                     </p>
                     <p className="text-xs text-muted-foreground line-clamp-1">
@@ -148,12 +148,12 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
                   items: [
                     {
                       label: "My Profile",
-                      icon: <UserCircle className="h-4 w-4" />,
+                      icon: <UserCircle className="h-3 w-3" />,
                       onClick: () => router.push(ROUTES.ADMIN.PROFILE),
                     },
                     {
                       label: "My Plan",
-                      icon: <CreditCard className="h-4 w-4" />,
+                      icon: <CreditCard className="h-3 w-3" />,
                       onClick: () => router.push("/admin/plan"),
                     },
                   ],
@@ -162,7 +162,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
                   items: [
                     {
                       label: "Logout",
-                      icon: <LogOut className="h-4 w-4" />,
+                      icon: <LogOut className="h-3 w-3" />,
                       onClick: () => setShowLogoutAlert(true),
                       variant: "destructive" as const,
                     },
@@ -186,36 +186,36 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
           />
 
           <FormBody className="flex-1">
-            <div className="space-y-6">
-              <div className="p-5 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg">
-                <p className="text-base text-red-900 dark:text-red-100 font-medium leading-relaxed">
+            <div className="space-y-4">
+              <div className="p-3.5 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded">
+                <p className="text-xs text-red-900 dark:text-red-100 font-medium leading-relaxed">
                   Are you sure you want to sign out of your account? You'll need to sign in again to access your dashboard and saved data.
                 </p>
               </div>
 
-              <div className="p-5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg">
-                <p className="text-sm text-amber-900 dark:text-amber-100 leading-relaxed">
+              <div className="p-3.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded">
+                <p className="text-xs text-amber-900 dark:text-amber-100 leading-relaxed">
                   <span className="font-semibold">⚠️ Important:</span> This action will end your current session and you'll be redirected to the login page. Make sure you've saved any ongoing work before proceeding.
                 </p>
               </div>
             </div>
           </FormBody>
 
-          <div className="flex justify-between items-center p-6 border-t bg-muted/30 flex-shrink-0">
+          <div className="flex justify-between items-center p-4 border-t bg-muted/30 flex-shrink-0">
             <div></div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={() => setShowLogoutAlert(false)}
-                className="rounded-lg"
+                className="rounded"
               >
                 Stay Signed In
               </Button>
               <Button
                 onClick={confirmLogout}
-                className="rounded-lg bg-red-600 hover:bg-red-700 focus:ring-red-600 gap-2"
+                className="rounded bg-red-600 hover:bg-red-700 focus:ring-red-600 gap-1.5"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-3 w-3" />
                 Sign Out
               </Button>
             </div>

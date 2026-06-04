@@ -146,14 +146,14 @@ export function AttendanceDetailModal({
     return (
       <div
         key={checkIn.id}
-        className="border rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors overflow-hidden"
+        className="border rounded bg-muted/30 hover:bg-muted/50 transition-colors overflow-hidden"
       >
         {}
         <button
           onClick={() => setExpandedCheckIn(isExpanded ? null : checkIn.id)}
-          className="w-full p-4 text-left hover:bg-muted/70 transition-colors flex items-center justify-between"
+          className="w-full p-3 text-left hover:bg-muted/70 transition-colors flex items-center justify-between"
         >
-          <div className="flex items-center gap-3 flex-1">
+          <div className="flex items-center gap-2 flex-1">
             <div className="flex-shrink-0">
               <MapPin
                 size={20}
@@ -165,7 +165,7 @@ export function AttendanceDetailModal({
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-sm">
+              <h4 className="font-semibold text-xs">
                 {checkIn.checkInType} Check-in
               </h4>
               <p className="text-xs text-muted-foreground truncate">
@@ -174,9 +174,9 @@ export function AttendanceDetailModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <span
-              className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+              className={`text-xs px-1.5.5 py-1 rounded-full font-medium ${
                 checkIn.checkInType === "START"
                   ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100"
                   : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100"
@@ -198,9 +198,9 @@ export function AttendanceDetailModal({
 
         {}
         {isExpanded && (
-          <div className="border-t px-4 py-4 space-y-4 bg-background/50">
+          <div className="border-t px-3 py-3 space-y-3 bg-background/50">
             {}
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">
                   Check-in Time
@@ -226,7 +226,7 @@ export function AttendanceDetailModal({
                 <p className="text-xs text-muted-foreground mb-1">
                   Full Address
                 </p>
-                <p className="text-sm break-words">{address}</p>
+                <p className="text-xs break-words">{address}</p>
               </div>
             )}
 
@@ -236,20 +236,20 @@ export function AttendanceDetailModal({
                 <img
                   src={staticMapUrl}
                   alt="Location map"
-                  className="w-full h-48 object-cover"
+                  className="w-full h-32 object-cover"
                   onError={() => undefined}
                 />
               </div>
             )}
 
             {}
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-1.5 flex-wrap">
               {}
               <a
                 href={getGoogleMapsUrl(checkIn.latitude, checkIn.longitude)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
               >
                 <MapPin size={14} />
                 View on Maps
@@ -262,7 +262,7 @@ export function AttendanceDetailModal({
                   href={directionUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium transition-colors"
                 >
                   <Navigation size={14} />
                   Get Directions
@@ -278,7 +278,7 @@ export function AttendanceDetailModal({
                   );
                   alert("Coordinates copied!");
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-xs font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-xs font-medium transition-colors"
               >
                 📋 Copy Coords
               </button>
@@ -288,7 +288,7 @@ export function AttendanceDetailModal({
             {checkIn.remarks && (
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Remarks</p>
-                <p className="text-sm italic text-muted-foreground">
+                <p className="text-xs italic text-muted-foreground">
                   {checkIn.remarks}
                 </p>
               </div>
@@ -299,18 +299,18 @@ export function AttendanceDetailModal({
               checkIn.checkInType === "END" &&
               attendanceData?.checkIns?.length &&
               attendanceData?.checkIns?.length > 1 && (
-                <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded border border-blue-200 dark:border-blue-800">
+                <div className="bg-blue-50 dark:bg-blue-950 p-2 rounded border border-blue-200 dark:border-blue-800">
                   <p className="text-xs text-muted-foreground mb-1">
                     Distance Traveled
                   </p>
-                  <p className="font-semibold text-sm">
+                  <p className="font-semibold text-xs">
                     {distance.toFixed(2)} km
                   </p>
                 </div>
               )}
 
             {}
-            <div className="text-xs text-muted-foreground pt-2 border-t">
+            <div className="text-xs text-muted-foreground pt-1.5 border-t">
               <p>ID: {checkIn.id}</p>
             </div>
           </div>
@@ -328,7 +328,7 @@ export function AttendanceDetailModal({
       description={"Detailed information about the selected attendance."}
     >
       {attendanceData ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {}
           <DetailSection title="Schedule Information">
             <DetailRow
@@ -364,18 +364,18 @@ export function AttendanceDetailModal({
 
           {}
           {attendanceData?.checkIns && attendanceData.checkIns.length > 0 && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-green-50 dark:bg-green-950 p-3 rounded border border-green-200 dark:border-green-800">
                 <p className="text-xs text-muted-foreground">Check-ins</p>
-                <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+                <p className="text-base font-bold text-green-700 dark:text-green-300">
                   {attendanceData.checkIns.length}
                 </p>
               </div>
 
               {distance !== null && (
-                <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded border border-blue-200 dark:border-blue-800">
                   <p className="text-xs text-muted-foreground">Distance</p>
-                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                  <p className="text-base font-bold text-blue-700 dark:text-blue-300">
                     {distance.toFixed(2)} km
                   </p>
                 </div>
@@ -386,9 +386,9 @@ export function AttendanceDetailModal({
           {}
           {attendanceData?.checkIns && attendanceData.checkIns.length > 0 && (
             <DetailSection title="Check-in Details">
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {loadingAddresses && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Loader2 size={16} className="animate-spin" />
                     Loading address information...
                   </div>
@@ -406,7 +406,7 @@ export function AttendanceDetailModal({
             <DetailRow
               label="Attendance ID"
               value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
                   {attendanceData?.id}
                 </span>
               }
@@ -431,7 +431,7 @@ export function AttendanceDetailModal({
           </DetailSection>
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-muted-foreground">No attendance data available</p>
         </div>
       )}

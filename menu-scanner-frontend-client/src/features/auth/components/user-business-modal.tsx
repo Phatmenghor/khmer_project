@@ -494,7 +494,7 @@ export default function UserBusinessModal({
         />
 
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -504,21 +504,21 @@ export default function UserBusinessModal({
           >
             <FormBody>
               {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
-                  <p className="text-sm text-destructive font-medium">
+                <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+                  <p className="text-xs text-destructive font-medium">
                     {reduxError}
                   </p>
                 </div>
               )}
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {}
                 {isCreate && (
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-semibold">
                       Account Credentials <span className="text-red-500">*</span>
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <TextField
                         control={control}
                         name="userIdentifier"
@@ -584,14 +584,14 @@ export default function UserBusinessModal({
 
 
                 {}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold">
                     Personal Information <span className="text-red-500">*</span>
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {}
                     {!isCreate && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <SelectField
                           control={control}
                           name="roles"
@@ -623,7 +623,7 @@ export default function UserBusinessModal({
                     )}
 
                     {}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <TextField
                         control={control}
                         name="firstName"
@@ -682,7 +682,7 @@ export default function UserBusinessModal({
                     </div>
 
                     {}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <ClickableImageUpload
                         label="Profile Image"
                         value={watch("profileImageUrl") || ""}
@@ -698,11 +698,11 @@ export default function UserBusinessModal({
                 </div>
 
                 {}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold">
                     Employment Information
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <TextField
                       control={control}
                       name="employeeId"
@@ -772,11 +772,11 @@ export default function UserBusinessModal({
                 </div>
 
                 {}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-lg font-semibold">Addresses</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="text-xs font-semibold">Addresses</h3>
+                      <p className="text-xs text-muted-foreground">
                         {addressFields.length > 0
                           ? `${addressFields.length} address${
                               addressFields.length > 1 ? "es" : ""
@@ -804,37 +804,37 @@ export default function UserBusinessModal({
                       disabled={isSubmitting}
                       className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="h-3 w-3 mr-1.5" />
                       Add Address
                     </Button>
                   </div>
 
                   {addressFields.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-muted-foreground">
+                    <div className="text-center py-5 border-2 border-dashed rounded">
+                      <p className="text-xs text-muted-foreground">
                         No addresses added
                       </p>
                     </div>
                   ) : (
                     <Card>
-                      <CardContent className="pt-6">
-                        <div className="space-y-4">
+                      <CardContent className="pt-4">
+                        <div className="space-y-3">
                           {addressFields.map((field, index) => (
-                            <div key={field.id} className="pb-4 border-b last:border-0 last:pb-0">
-                              <div className="flex items-center justify-between mb-3">
-                                <p className="text-sm font-medium">Address {index + 1}</p>
+                            <div key={field.id} className="pb-3 border-b last:border-0 last:pb-0">
+                              <div className="flex items-center justify-between mb-2">
+                                <p className="text-xs font-medium">Address {index + 1}</p>
                                 <Button
                                   type="button"
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => removeAddress(index)}
                                   disabled={isSubmitting}
-                                  className="h-6 w-6 p-0 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
+                                  className="h-4 w-4 p-0 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                                 >
-                                  <Trash2 className="h-3 w-3 text-primary" />
+                                  <Trash2 className="h-2 w-2 text-primary" />
                                 </Button>
                               </div>
-                              <div className="grid grid-cols-2 gap-3">
+                              <div className="grid grid-cols-2 gap-2">
                                 <SelectField
                                   control={control}
                                   name={`addresses.${index}.addressType`}
@@ -926,11 +926,11 @@ export default function UserBusinessModal({
                 </div>
 
                 {}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-lg font-semibold">Emergency Contacts</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="text-xs font-semibold">Emergency Contacts</h3>
+                      <p className="text-xs text-muted-foreground">
                         {contactFields.length > 0
                           ? `${contactFields.length} contact${
                               contactFields.length > 1 ? "s" : ""
@@ -953,27 +953,27 @@ export default function UserBusinessModal({
                       disabled={isSubmitting}
                       className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
+                      <Plus className="h-3 w-3 mr-1.5" />
                       Add Contact
                     </Button>
                   </div>
 
                   {contactFields.length === 0 ? (
-                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                      <p className="text-sm text-muted-foreground">
+                    <div className="text-center py-5 border-2 border-dashed rounded">
+                      <p className="text-xs text-muted-foreground">
                         No emergency contacts added
                       </p>
                     </div>
                   ) : (
                     <Card>
-                      <CardContent className="pt-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <CardContent className="pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {contactFields.map((field, index) => (
                             <div
                               key={field.id}
-                              className="border rounded-lg p-4 relative lg:col-span-2"
+                              className="border rounded p-3 relative lg:col-span-2"
                             >
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <TextField
                                   control={control}
                                   name={`emergencyContacts.${index}.name`}
@@ -1011,10 +1011,10 @@ export default function UserBusinessModal({
                                   type="button"
                                   variant="ghost"
                                   size="sm"
-                                  className="absolute top-2 right-2 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
+                                  className="absolute top-1.5 right-1.5 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                                   onClick={() => removeContact(index)}
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Trash2 className="h-3 w-3" />
                                 </Button>
                               )}
                             </div>
@@ -1045,7 +1045,7 @@ export default function UserBusinessModal({
                         disabled={isSubmitting}
                         className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                       >
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="h-3 w-3 mr-1.5" />
                         Add Document
                       </Button>
                     </div>
@@ -1053,25 +1053,25 @@ export default function UserBusinessModal({
                   <CardContent>
 
                   {documentFields.length === 0 ? (
-                    <div className="text-center py-8 text-sm text-muted-foreground">
+                    <div className="text-center py-5 text-xs text-muted-foreground">
                       No documents added
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {documentFields.map((field, index) => (
-                            <div key={field.id} className="border rounded-lg p-4 relative">
+                            <div key={field.id} className="border rounded p-3 relative">
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removeDocument(index)}
                                 disabled={isSubmitting}
-                                className="h-6 w-6 p-0 absolute top-2 right-2 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
+                                className="h-4 w-4 p-0 absolute top-1.5 right-1.5 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                               >
-                                <Trash2 className="h-3 w-3" />
+                                <Trash2 className="h-2 w-2" />
                               </Button>
-                              <div className="space-y-4 pt-2">
-                                <div className="grid grid-cols-2 gap-2">
+                              <div className="space-y-3 pt-1.5">
+                                <div className="grid grid-cols-2 gap-1.5">
                                   <SelectField
                                     control={control}
                                     name={`documents.${index}.type`}
@@ -1108,7 +1108,7 @@ export default function UserBusinessModal({
                                       )
                                     }
                                     aspectRatio="auto"
-                                    height="h-40"
+                                    height="h-28"
                                     maxSize={5}
                                     disabled={isSubmitting}
                                     error={
@@ -1149,32 +1149,32 @@ export default function UserBusinessModal({
                         disabled={isSubmitting}
                         className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                       >
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="h-3 w-3 mr-1.5" />
                         Add Education
                       </Button>
                     </div>
                   </CardHeader>
                   <CardContent>
                   {educationFields.length === 0 ? (
-                    <div className="text-center py-8 text-sm text-muted-foreground">
+                    <div className="text-center py-5 text-xs text-muted-foreground">
                       No education added
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {educationFields.map((field, index) => (
-                            <div key={field.id} className="border rounded-lg p-4 relative">
+                            <div key={field.id} className="border rounded p-3 relative">
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removeEducation(index)}
                                 disabled={isSubmitting}
-                                className="h-6 w-6 p-0 absolute top-2 right-2 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
+                                className="h-4 w-4 p-0 absolute top-1.5 right-1.5 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                               >
-                                <Trash2 className="h-3 w-3" />
+                                <Trash2 className="h-2 w-2" />
                               </Button>
-                              <div className="space-y-4 pt-2">
-                                <div className="grid grid-cols-2 gap-2">
+                              <div className="space-y-3 pt-1.5">
+                                <div className="grid grid-cols-2 gap-1.5">
                                   <SelectField
                                     control={control}
                                     name={`educations.${index}.level`}
@@ -1261,7 +1261,7 @@ export default function UserBusinessModal({
                                       )
                                     }
                                     aspectRatio="auto"
-                                    height="h-40"
+                                    height="h-28"
                                     maxSize={5}
                                     disabled={isSubmitting}
                                     error={
@@ -1280,7 +1280,7 @@ export default function UserBusinessModal({
                 </Card>
 
                 {}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <TextareaField
                     control={control}
                     name="remark"

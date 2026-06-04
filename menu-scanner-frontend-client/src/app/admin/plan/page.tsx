@@ -48,21 +48,21 @@ export default function PlanPage() {
   if (loading) {
     return (
       <div className="min-h-screen">
-        <div className="border-b px-6 py-6 space-y-1">
-          <h1 className="text-2xl font-semibold text-foreground">My Plan</h1>
-          <p className="text-sm text-muted-foreground">
+        <div className="border-b px-4 py-4 space-y-1">
+          <h1 className="text-base font-semibold text-foreground">My Plan</h1>
+          <p className="text-xs text-muted-foreground">
             View and manage your subscription plan
           </p>
         </div>
-        <div className="p-6 space-y-6">
+        <div className="p-4 space-y-4">
           <Card>
             <CardHeader>
-              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-28" />
             </CardHeader>
-            <CardContent className="space-y-4">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
+            <CardContent className="space-y-3">
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-3/4" />
             </CardContent>
           </Card>
         </div>
@@ -73,17 +73,17 @@ export default function PlanPage() {
   if (error || !currentSubscription) {
     return (
       <div className="min-h-screen">
-        <div className="border-b px-6 py-6 space-y-1">
-          <h1 className="text-2xl font-semibold text-foreground">My Plan</h1>
-          <p className="text-sm text-muted-foreground">
+        <div className="border-b px-4 py-4 space-y-1">
+          <h1 className="text-base font-semibold text-foreground">My Plan</h1>
+          <p className="text-xs text-muted-foreground">
             View and manage your subscription plan
           </p>
         </div>
-        <div className="p-6">
+        <div className="p-4">
           <Card>
-            <CardContent className="pt-6">
-              <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                <p className="text-sm text-destructive font-medium">
+            <CardContent className="pt-4">
+              <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                <p className="text-xs text-destructive font-medium">
                   {error || "No active subscription found"}
                 </p>
               </div>
@@ -135,30 +135,30 @@ export default function PlanPage() {
   const statusBadge = getStatusBadge(currentSubscription.status);
 
   return (
-    <div className="min-h-screen pb-6">
-      <div className="border-b px-6 py-6 space-y-1">
-        <h1 className="text-2xl font-semibold text-foreground">My Plan</h1>
-        <p className="text-sm text-muted-foreground">
+    <div className="min-h-screen pb-4">
+      <div className="border-b px-4 py-4 space-y-1">
+        <h1 className="text-base font-semibold text-foreground">My Plan</h1>
+        <p className="text-xs text-muted-foreground">
           View and manage your subscription plan
         </p>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-4">
         {/* Current Plan Card */}
         <Card className="border-primary/20">
-          <CardHeader className="pb-4">
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-foreground">
+                <h3 className="text-xs font-semibold text-foreground">
                   {currentSubscription.planName}
                 </h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Current active subscription
                 </p>
               </div>
               <div
                 className={cn(
-                  "px-3 py-1 rounded-full text-sm font-medium",
+                  "px-2 py-1 rounded-full text-xs font-medium",
                   statusBadge.bg,
                   statusBadge.text
                 )}
@@ -167,35 +167,35 @@ export default function PlanPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             {/* Plan Details Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Start Date */}
-              <div className="p-4 bg-muted/50 rounded-lg">
+              <div className="p-3 bg-muted/50 rounded">
                 <p className="text-xs font-semibold text-muted-foreground uppercase">
                   Start Date
                 </p>
-                <p className="text-lg font-semibold text-foreground mt-2">
+                <p className="text-xs font-semibold text-foreground mt-1.5">
                   {formatDate(currentSubscription.startDate)}
                 </p>
               </div>
 
               {/* End Date */}
-              <div className="p-4 bg-muted/50 rounded-lg">
+              <div className="p-3 bg-muted/50 rounded">
                 <p className="text-xs font-semibold text-muted-foreground uppercase">
                   End Date
                 </p>
-                <p className="text-lg font-semibold text-foreground mt-2">
+                <p className="text-xs font-semibold text-foreground mt-1.5">
                   {formatDate(currentSubscription.endDate)}
                 </p>
               </div>
 
               {/* Duration Type */}
-              <div className="p-4 bg-muted/50 rounded-lg">
+              <div className="p-3 bg-muted/50 rounded">
                 <p className="text-xs font-semibold text-muted-foreground uppercase">
                   Duration
                 </p>
-                <p className="text-lg font-semibold text-foreground mt-2">
+                <p className="text-xs font-semibold text-foreground mt-1.5">
                   {currentSubscription.planDurationType === "MONTHLY"
                     ? "Monthly"
                     : currentSubscription.planDurationType === "YEARLY"
@@ -205,13 +205,13 @@ export default function PlanPage() {
               </div>
 
               {/* Days Remaining */}
-              <div className="p-4 bg-muted/50 rounded-lg">
+              <div className="p-3 bg-muted/50 rounded">
                 <p className="text-xs font-semibold text-muted-foreground uppercase">
                   Days Remaining
                 </p>
                 <p
                   className={cn(
-                    "text-lg font-semibold mt-2",
+                    "text-xs font-semibold mt-1.5",
                     getDaysRemainingColor(currentSubscription.daysRemaining)
                   )}
                 >
@@ -221,17 +221,17 @@ export default function PlanPage() {
             </div>
 
             {/* Pricing Section */}
-            <div className="border-t pt-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="border-t pt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <p className="text-sm text-muted-foreground">Plan Price</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">
+                  <p className="text-xs text-muted-foreground">Plan Price</p>
+                  <p className="text-base font-bold text-foreground mt-1">
                     ${currentSubscription.planPrice.toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Payment Status</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">
+                  <p className="text-xs text-muted-foreground">Payment Status</p>
+                  <p className="text-base font-bold text-foreground mt-1">
                     {currentSubscription.paymentStatus}
                   </p>
                 </div>
@@ -239,10 +239,10 @@ export default function PlanPage() {
             </div>
 
             {/* Auto Renewal */}
-            <div className="border-t pt-6">
+            <div className="border-t pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-xs font-medium text-foreground">
                     Auto Renewal
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -251,7 +251,7 @@ export default function PlanPage() {
                 </div>
                 <div
                   className={cn(
-                    "px-3 py-1 rounded-full text-sm font-medium",
+                    "px-2 py-1 rounded-full text-xs font-medium",
                     currentSubscription.autoRenew
                       ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400"
                       : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400"
@@ -266,7 +266,7 @@ export default function PlanPage() {
 
         {/* Subscription History Section */}
         <div>
-          <h3 className="text-lg font-semibold text-foreground mb-4">
+          <h3 className="text-xs font-semibold text-foreground mb-3">
             Subscription History
           </h3>
           <Card>
@@ -296,13 +296,13 @@ export default function PlanPage() {
                 </TableHeader>
                 <TableBody>
                   <TableRow className="border-b hover:bg-muted/50 transition-colors">
-                    <TableCell className="py-4">
-                      <span className="text-sm font-medium text-foreground">
+                    <TableCell className="py-3">
+                      <span className="text-xs font-medium text-foreground">
                         {currentSubscription.planName}
                       </span>
                     </TableCell>
-                    <TableCell className="py-4">
-                      <span className="text-sm text-muted-foreground">
+                    <TableCell className="py-3">
+                      <span className="text-xs text-muted-foreground">
                         {currentSubscription.planDurationType === "MONTHLY"
                           ? "Monthly"
                           : currentSubscription.planDurationType === "YEARLY"
@@ -310,25 +310,25 @@ export default function PlanPage() {
                             : "One Time"}
                       </span>
                     </TableCell>
-                    <TableCell className="py-4">
-                      <span className="text-sm text-muted-foreground">
+                    <TableCell className="py-3">
+                      <span className="text-xs text-muted-foreground">
                         {formatDate(currentSubscription.startDate)}
                       </span>
                     </TableCell>
-                    <TableCell className="py-4">
-                      <span className="text-sm text-muted-foreground">
+                    <TableCell className="py-3">
+                      <span className="text-xs text-muted-foreground">
                         {formatDate(currentSubscription.endDate)}
                       </span>
                     </TableCell>
-                    <TableCell className="py-4">
-                      <span className="text-sm font-medium text-foreground">
+                    <TableCell className="py-3">
+                      <span className="text-xs font-medium text-foreground">
                         ${currentSubscription.planPrice.toFixed(2)}
                       </span>
                     </TableCell>
-                    <TableCell className="py-4">
+                    <TableCell className="py-3">
                       <div
                         className={cn(
-                          "w-fit px-2 py-1 rounded text-xs font-medium",
+                          "w-fit px-1.5 py-1 rounded text-xs font-medium",
                           statusBadge.bg,
                           statusBadge.text
                         )}

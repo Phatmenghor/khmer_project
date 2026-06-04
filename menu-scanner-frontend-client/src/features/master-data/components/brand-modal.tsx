@@ -177,22 +177,22 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
             <FormBody>
               {}
               {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
-                  <p className="text-sm text-destructive font-medium">
+                <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+                  <p className="text-xs text-destructive font-medium">
                     {reduxError}
                   </p>
                 </div>
               )}
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <ClickableImageUpload
                     label="Brand Logo"
                     value={imageUrl}
                     onChange={(base64) => setValue("imageUrl", base64)}
                     aspectRatio="square"
-                    height="h-40"
+                    height="h-28"
                     maxSize={5}
                     required
                     error={errors.imageUrl}
@@ -202,13 +202,13 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
                 </div>
 
                 {}
-                <div className="border-t pt-6">
-                  <h3 className="text-sm font-semibold text-foreground mb-4">
+                <div className="border-t pt-4">
+                  <h3 className="text-xs font-semibold text-foreground mb-3">
                     Banner Details
                   </h3>
 
                   {}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <TextField
                       control={control}
                       name="name"

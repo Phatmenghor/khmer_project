@@ -52,12 +52,12 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 function Divider() {
   return (
-    <div className="relative my-3">
+    <div className="relative my-2">
       <div className="absolute inset-0 flex items-center">
         <span className="w-full border-t border-border/40" />
       </div>
       <div className="relative flex justify-center">
-        <span className="bg-background px-2 text-xs text-muted-foreground">or</span>
+        <span className="bg-background px-1.5 text-xs text-muted-foreground">or</span>
       </div>
     </div>
   );
@@ -190,8 +190,8 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
         {}
         <DialogHeader className="text-left">
           <div>
-            <DialogTitle className="text-2xl">{businessName}</DialogTitle>
-            <p className="text-sm text-muted-foreground mt-1">
+            <DialogTitle className="text-base">{businessName}</DialogTitle>
+            <p className="text-xs text-muted-foreground mt-1">
               Create a new account
             </p>
           </div>
@@ -200,9 +200,9 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
         <Separator />
 
         {}
-        <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+        <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-3">
           {}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <TextField
               name="firstName"
               label="First Name"
@@ -268,13 +268,13 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
           />
 
           {}
-          <DialogFooter className="pt-2">
+          <DialogFooter className="pt-1.5">
             <Button
               type="submit"
-              className="w-full h-11 font-semibold"
+              className="w-full h-8 font-semibold"
               disabled={isAnyLoading}
             >
-              {isRegistrationLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isRegistrationLoading && <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />}
               {isRegistrationLoading
                 ? (isLoading ? "Logging in..." : "Creating account...")
                 : "Create Account"
@@ -293,7 +293,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             className="w-full"
           />
 
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-xs text-muted-foreground">
             Already have an account?{" "}
             <button
               type="button"

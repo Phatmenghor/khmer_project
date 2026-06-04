@@ -88,7 +88,7 @@ export function LeaveDetailModal({
       description={"Detailed information about the selected leave."}
     >
       {leaveData ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {}
           <DetailSection title="Leave Information">
             <DetailRow
@@ -163,7 +163,7 @@ export function LeaveDetailModal({
             <DetailRow
               label="Leave Type ID"
               value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
                   {leaveData?.id}
                 </span>
               }
@@ -188,23 +188,23 @@ export function LeaveDetailModal({
           </DetailSection>
 
           {}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t">
             {onEdit && (
               <Button
                 variant="outline"
                 onClick={handleEdit}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1.5"
               >
-                <Edit className="w-4 h-4" />
+                <Edit className="w-3 h-3" />
                 Edit
               </Button>
             )}
             {isPending && onApprove && (
               <Button
                 onClick={handleApprove}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700"
               >
-                <Check className="w-4 h-4" />
+                <Check className="w-3 h-3" />
                 Approve
               </Button>
             )}
@@ -212,16 +212,16 @@ export function LeaveDetailModal({
               <Button
                 onClick={handleReject}
                 variant="destructive"
-                className="flex items-center gap-2"
+                className="flex items-center gap-1.5"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3" />
                 Reject
               </Button>
             )}
           </div>
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-muted-foreground">No leave data available</p>
         </div>
       )}

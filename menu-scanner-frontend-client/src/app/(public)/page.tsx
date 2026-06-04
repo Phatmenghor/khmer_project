@@ -241,7 +241,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="relative">
-        <PageContainer className="pt-3 sm:pt-6">
+        <PageContainer className="pt-2 sm:pt-4">
           <BannerSection
             banners={banners}
             loading={isBannerLoading}
@@ -250,7 +250,7 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      <div className="relative py-6 sm:py-10 bg-muted/5">
+      <div className="relative py-4 sm:py-7 bg-muted/5">
         <PageContainer>
           <CategoriesSection
             categories={categories}
@@ -261,7 +261,7 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      <div className="relative py-6 sm:py-10 bg-amber-50/30 dark:bg-amber-950/10">
+      <div className="relative py-4 sm:py-7 bg-amber-50/30 dark:bg-amber-950/10">
         <PageContainer>
           <PromotionsSection
             products={promotionProducts}
@@ -272,7 +272,7 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      <div className="relative py-6 sm:py-10">
+      <div className="relative py-4 sm:py-7">
         <PageContainer>
           <ProductsSection
             products={featuredProducts}

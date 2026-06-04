@@ -50,7 +50,7 @@ export const bannerTableColumns = ({
       maxWidth: "280px",
       render: (banner) => {
         return (
-          <div className="flex-shrink-0 w-64 h-32 rounded-lg overflow-hidden bg-muted border border-border shadow-sm">
+          <div className="flex-shrink-0 w-44 h-24 rounded overflow-hidden bg-muted border border-border shadow-sm">
             <img
               src={banner.imageUrl}
               alt="Banner"
@@ -69,7 +69,7 @@ export const bannerTableColumns = ({
       minWidth: "300px",
       maxWidth: "500px",
       render: (banner) => (
-        <h3 className="font-semibold text-sm text-foreground line-clamp-3">
+        <h3 className="font-semibold text-xs text-foreground line-clamp-3">
           {banner.description || "---"}
         </h3>
       ),
@@ -80,7 +80,7 @@ export const bannerTableColumns = ({
       minWidth: "120px",
       maxWidth: "180px",
       render: (banner) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Switch
             checked={banner?.status === "ACTIVE"}
             onCheckedChange={() => handleToggleBannerStatus(banner)}
@@ -98,7 +98,7 @@ export const bannerTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (banner) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(banner?.createdAt)}
         </span>
       ),
@@ -110,19 +110,19 @@ export const bannerTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (banner) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleBannerViewDetail(banner)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Banner"
             onClick={() => handleEditBanner(banner)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Banner"
             onClick={() => handleDeleteBanner(banner)}
             variant="destructive"

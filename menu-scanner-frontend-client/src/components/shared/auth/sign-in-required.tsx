@@ -23,44 +23,44 @@ export function SignInRequired({
   onBrowse,
 }: SignInRequiredProps) {
   return (
-    <PageContainer className="min-h-screen flex flex-col py-12 sm:py-20">
+    <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
       <div className="max-w-md mx-auto text-center">
         {/* Icon Container */}
-        <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 mx-auto mb-6">
-          <div className="text-6xl sm:text-7xl">
+        <div className="flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 mx-auto mb-4">
+          <div className="text-base sm:text-base">
             {icon}
           </div>
         </div>
 
         {/* Content */}
-        <h1 className="text-2xl sm:text-3xl font-bold mb-3">{title}</h1>
-        <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
+        <h1 className="text-base sm:text-xs font-bold mb-2">{title}</h1>
+        <p className="text-xs text-muted-foreground mb-5 leading-relaxed">
           {description}
         </p>
 
         {/* Action Buttons */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           <CustomButton
             onClick={onSignIn}
-            className="w-full gap-2 h-11"
+            className="w-full gap-1.5 h-8"
             size="lg"
           >
-            <LogIn className="h-4 w-4" />
+            <LogIn className="h-3 w-3" />
             Sign In
           </CustomButton>
           <CustomButton
             variant="outline"
             onClick={onBrowse}
-            className="w-full gap-2 h-11"
+            className="w-full gap-1.5 h-8"
             size="lg"
           >
-            <ShoppingCart className="h-4 w-4" />
+            <ShoppingCart className="h-3 w-3" />
             {browseButtonText}
           </CustomButton>
         </div>
 
         {/* Optional divider */}
-        <div className="mt-8 pt-6 border-t border-muted">
+        <div className="mt-5 pt-4 border-t border-muted">
           <p className="text-xs text-muted-foreground">
             Don't have an account? Sign up during checkout.
           </p>

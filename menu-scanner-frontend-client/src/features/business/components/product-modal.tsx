@@ -504,7 +504,7 @@ export default function ProductModal({
         />
 
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -513,10 +513,10 @@ export default function ProductModal({
             className="flex flex-col flex-1 overflow-hidden"
           >
             <FormBody>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {reduxError && (
-                  <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                    <p className="text-sm text-destructive font-medium">
+                  <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                    <p className="text-xs text-destructive font-medium">
                       {reduxError}
                     </p>
                   </div>
@@ -527,8 +527,8 @@ export default function ProductModal({
                   <CardHeader>
                     <CardTitle>Basic Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-max">
                       <div>
                         <TextField
                           control={control}
@@ -640,7 +640,7 @@ export default function ProductModal({
                         setValue("mainImageUrl", base64, { shouldDirty: true })
                       }
                       aspectRatio="square"
-                      height="h-48"
+                      height="h-32"
                       maxSize={5}
                       required
                       error={errors.mainImageUrl}
@@ -682,8 +682,8 @@ export default function ProductModal({
                         )}
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                    <CardContent className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-max">
                         <div>
                           <TextField
                             control={control}
@@ -767,7 +767,7 @@ export default function ProductModal({
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Product Sizes</CardTitle>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         {hasSizes && sizeFields.some((_, idx) => {
                           const sizePromotionType = watch(`sizes.${idx}.promotionType`);
                           return sizePromotionType && sizePromotionType !== "NONE";
@@ -815,7 +815,7 @@ export default function ProductModal({
                           }
                           disabled={isProcessing}
                         >
-                          <Plus className="h-4 w-4 mr-2" />
+                          <Plus className="h-3 w-3 mr-1.5" />
                           Add Size
                         </Button>
                       </div>
@@ -823,15 +823,15 @@ export default function ProductModal({
                   </CardHeader>
                   <CardContent>
                     {sizeFields.length === 0 ? (
-                      <div className="text-center py-8">
-                        <p className="text-sm text-muted-foreground">
+                      <div className="text-center py-5">
+                        <p className="text-xs text-muted-foreground">
                           {hasSizes
                             ? "No sizes defined."
                             : "No sizes defined. Product will use main pricing."}
                         </p>
                       </div>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         {sizeFields.map((field, index) => {
                           const sizePromotionType = watch(
                             `sizes.${index}.promotionType`,
@@ -843,13 +843,13 @@ export default function ProductModal({
                           return (
                             <div
                               key={field.id}
-                              className="border rounded-lg p-4 space-y-4"
+                              className="border rounded p-3 space-y-3"
                             >
-                              <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center justify-between gap-1.5">
                                 <h4 className="font-semibold text-foreground">
                                   Size {index + 1}
                                 </h4>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5">
                                   {showSizePromotionFields && (
                                     <Button
                                       type="button"
@@ -889,13 +889,13 @@ export default function ProductModal({
                                     onClick={() => removeSize(index)}
                                     disabled={isProcessing}
                                   >
-                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    <Trash2 className="h-3 w-3 mr-1.5" />
                                     Remove
                                   </Button>
                                 </div>
                               </div>
 
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-max">
                                 <div>
                                   <TextField
                                     control={control}
@@ -980,7 +980,7 @@ export default function ProductModal({
                                       />
                                     </div>
 
-                                    <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                                    <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-max">
                                       <div>
                                         <DateTimePickerField
                                           control={control}
@@ -1039,26 +1039,26 @@ export default function ProductModal({
                         }
                         disabled={isProcessing}
                       >
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="h-3 w-3 mr-1.5" />
                         Add Customization
                       </Button>
                     </div>
                   </CardHeader>
                   <CardContent>
                     {customizationFields.length === 0 ? (
-                      <div className="text-center py-8">
-                        <p className="text-sm text-muted-foreground">
+                      <div className="text-center py-5">
+                        <p className="text-xs text-muted-foreground">
                           No customizations defined
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {customizationFields.map((field, index) => (
                           <div
                             key={field.id}
-                            className="border rounded-lg p-4 space-y-4"
+                            className="border rounded p-3 space-y-3"
                           >
-                            <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center justify-between gap-1.5">
                               <h4 className="font-semibold text-foreground">
                                 Customization {index + 1}
                               </h4>
@@ -1069,12 +1069,12 @@ export default function ProductModal({
                                 onClick={() => removeCustomization(index)}
                                 disabled={isProcessing}
                               >
-                                <Trash2 className="h-4 w-4 mr-2" />
+                                <Trash2 className="h-3 w-3 mr-1.5" />
                                 Remove
                               </Button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-max">
                               <div>
                                 <TextField
                                   control={control}
@@ -1149,7 +1149,7 @@ export default function ProductModal({
                             }
                             disabled={isProcessing}
                           >
-                            <Plus className="h-4 w-4 mr-2" />
+                            <Plus className="h-3 w-3 mr-1.5" />
                             {isProcessingImages ? "Processing..." : "Upload"}
                           </Button>
                         </div>
@@ -1158,17 +1158,17 @@ export default function ProductModal({
                   </CardHeader>
                   <CardContent>
                     {imageFields.length === 0 ? (
-                      <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                        <p className="text-sm text-muted-foreground">
+                      <div className="text-center py-5 border-2 border-dashed rounded">
+                        <p className="text-xs text-muted-foreground">
                           No images uploaded yet
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-2">
+                      <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-1.5">
                         {imageFields.map((field, index) => (
                           <div
                             key={field.id}
-                            className="relative aspect-square rounded-md overflow-hidden border bg-muted"
+                            className="relative aspect-square rounded overflow-hidden border bg-muted"
                           >
                             <div className="w-full h-full">
                               <ClickableImageUpload

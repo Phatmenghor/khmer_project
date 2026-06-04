@@ -74,9 +74,9 @@ export function ComboboxSelectBrand({
   }, [loading, lastPage]);
 
   const sizeClasses = {
-    sm: "h-8 text-xs",
-    md: "h-9 text-sm",
-    lg: "h-10 text-base",
+    sm: "h-5 text-xs",
+    md: "h-6 text-xs",
+    lg: "h-7 text-xs",
   };
 
 
@@ -177,7 +177,7 @@ export function ComboboxSelectBrand({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between min-w-[150px] px-3 py-2 transition-all duration-200 border-input",
+              "w-full justify-between min-w-[150px] px-2 py-1.5 transition-all duration-200 border-input",
               sizeClasses[size],
               !dataSelect && !showAllOption && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
@@ -189,7 +189,7 @@ export function ComboboxSelectBrand({
             disabled={disabled}
           >
             {dataSelect ? dataSelect.name : placeholder}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
@@ -206,7 +206,7 @@ export function ComboboxSelectBrand({
               value={searchTerm}
               onValueChange={handleSearchChange}
             />
-            <CommandList className="max-h-60 overflow-y-auto">
+            <CommandList className="max-h-44 overflow-y-auto">
               <CommandEmpty>No brand found.</CommandEmpty>
               <CommandGroup>
                 {data.map((item, index) => (
@@ -219,7 +219,7 @@ export function ComboboxSelectBrand({
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "mr-1.5 h-3 w-3",
                         (item.id === "all" && !dataSelect) ||
                           dataSelect?.id === item.id
                           ? "opacity-100"
@@ -232,13 +232,13 @@ export function ComboboxSelectBrand({
               </CommandGroup>
 
               {loading && (
-                <div className="text-center py-2">
-                  <Loader2 className="animate-spin text-gray-500 h-5 w-5 mx-auto" />
+                <div className="text-center py-1.5">
+                  <Loader2 className="animate-spin text-gray-500 h-3.5 w-3.5 mx-auto" />
                 </div>
               )}
 
               {!loading && lastPage && data.length > 0 && (
-                <div className="text-center py-2 text-sm text-gray-400">
+                <div className="text-center py-1.5 text-xs text-gray-400">
                   No more brands
                 </div>
               )}

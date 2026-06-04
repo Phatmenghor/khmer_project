@@ -16,8 +16,8 @@ export function TimePickerField<T extends FieldValues = any>({
   className = "",
 }: TimePickerFormFieldProps<T>) {
   return (
-    <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={name} className="text-sm font-medium">
+    <div className={`space-y-1.5 ${className}`}>
+      <Label htmlFor={name} className="text-xs font-medium">
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
       <Controller
@@ -33,7 +33,7 @@ export function TimePickerField<T extends FieldValues = any>({
           />
         )}
       />
-      {error && <p className="text-sm text-red-600">{error.message}</p>}
+      {error && <p className="text-xs text-red-600">{error.message}</p>}
     </div>
   );
 }

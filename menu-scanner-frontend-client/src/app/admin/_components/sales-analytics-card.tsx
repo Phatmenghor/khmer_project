@@ -24,8 +24,8 @@ import { DashboardSalesResponse } from "@/features/dashboard/store/models/respon
 function SalesTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-popover border rounded-xl shadow-lg px-4 py-3 text-sm space-y-1">
-      <p className="font-semibold text-foreground mb-2">{label}</p>
+    <div className="bg-popover border rounded shadow-lg px-3 py-2 text-xs space-y-1">
+      <p className="font-semibold text-foreground mb-1.5">{label}</p>
       <p className="text-primary">
         Revenue: <span className="font-bold">{formatCurrency(payload[0]?.value ?? 0)}</span>
       </p>
@@ -44,15 +44,15 @@ interface SalesAnalyticsCardProps {
 export function SalesAnalyticsCard({ sales, loading }: SalesAnalyticsCardProps) {
   return (
     <Card className="lg:col-span-2">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-1.5">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">Sales Analytics</CardTitle>
+            <CardTitle className="text-xs">Sales Analytics</CardTitle>
             <CardDescription>Revenue &amp; orders over time — last 7 days</CardDescription>
           </div>
           {sales && (
             <div className="text-right">
-              <p className="text-lg font-bold text-primary">{formatCurrency(sales.totalRevenue)}</p>
+              <p className="text-xs font-bold text-primary">{formatCurrency(sales.totalRevenue)}</p>
               <p className="text-xs text-muted-foreground">{sales.totalOrders} orders</p>
             </div>
           )}
@@ -62,7 +62,7 @@ export function SalesAnalyticsCard({ sales, loading }: SalesAnalyticsCardProps) 
         {loading ? (
           <ChartSkeleton />
         ) : !sales?.data?.length ? (
-          <div className="h-[280px] flex items-center justify-center text-muted-foreground text-sm">
+          <div className="h-[280px] flex items-center justify-center text-muted-foreground text-xs">
             No sales data for this period
           </div>
         ) : (

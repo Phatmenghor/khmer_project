@@ -22,7 +22,7 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`w-3 h-3 ${i <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`}
+          className={`w-2 h-2 ${i <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`}
         />
       ))}
     </div>
@@ -54,7 +54,7 @@ export const portfolioReviewTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (r) => (
-        <span className="text-sm font-medium text-foreground">
+        <span className="text-xs font-medium text-foreground">
           {r.customerName || "—"}
         </span>
       ),
@@ -106,14 +106,14 @@ export const portfolioReviewTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (r) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewDetail(r)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Review"
             onClick={() => handleDeleteReview(r)}
             variant="destructive"

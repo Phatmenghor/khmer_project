@@ -40,7 +40,7 @@ export function BottomNav() {
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-background/95 backdrop-blur-lg border-t border-border/60 shadow-[0_-1px_12px_0_rgba(0,0,0,0.08)]">
-        <div className="flex items-stretch h-16">
+        <div className="flex items-stretch h-11">
           {tabs.map((tab) => {
             const active = isActive(tab.href);
             const Icon = tab.icon;
@@ -57,14 +57,14 @@ export function BottomNav() {
                     : router.push(tab.href)
                 }
                 className={cn(
-                  "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-colors duration-150 active:opacity-70",
+                  "flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-colors duration-150 active:opacity-70",
                   active ? "text-primary" : "text-muted-foreground"
                 )}
               >
                 <div className="relative">
                   <Icon
                     className={cn(
-                      "h-5 w-5 transition-transform duration-150",
+                      "h-3.5 w-3.5 transition-transform duration-150",
                       active && "scale-110"
                     )}
                     strokeWidth={active ? 2.5 : 1.8}
@@ -72,7 +72,7 @@ export function BottomNav() {
                   {isCart && cartCount > 0 && (
                     <Badge
                       variant="destructive"
-                      className="absolute -top-2 -right-2 h-4 min-w-[16px] px-0.5 flex items-center justify-center text-[10px] leading-none"
+                      className="absolute -top-1.5 -right-1.5 h-3 min-w-[16px] px-0.5 flex items-center justify-center text-[10px] leading-none"
                     >
                       {cartCount > 99 ? "99+" : cartCount}
                     </Badge>
@@ -87,7 +87,7 @@ export function BottomNav() {
                   {tab.name}
                 </span>
                 {active && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" />
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-primary rounded-full" />
                 )}
               </button>
             );

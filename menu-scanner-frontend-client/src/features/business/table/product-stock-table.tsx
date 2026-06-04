@@ -35,11 +35,11 @@ function ProductImagePreview({
   const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
-    <div className="relative w-14 h-14 flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
+    <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
       {!imageError && product?.mainImageUrl ? (
         <>
           {!imageLoaded && (
-            <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
+            <Skeleton className="absolute inset-0 w-full h-full rounded" />
           )}
           <Image
             src={product.mainImageUrl}
@@ -55,7 +55,7 @@ function ProductImagePreview({
           />
         </>
       ) : (
-        <span className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
+        <span className="text-xs font-bold text-primary/80 hover:text-primary transition-colors">
           {product?.name?.charAt(0).toUpperCase() || "P"}
         </span>
       )}
@@ -199,7 +199,7 @@ export const stockTableColumns = ({
       minWidth: "10px",
       maxWidth: "150px",
       render: (product) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {handleToggleStockStatus && (
             <Switch
               checked={product?.stockStatus === "ENABLED"}
@@ -232,14 +232,14 @@ export const stockTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (product) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewProduct(product)}
           />
           <ActionButton
-            icon={<Plus className="w-4 h-4" />}
+            icon={<Plus className="w-3 h-3" />}
             tooltip="Create Stock"
             onClick={() => handleCreateStock?.(product)}
             variant="secondary"

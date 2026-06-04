@@ -28,7 +28,7 @@ function QRDownloadButtonComponent({
   onShare,
 }: QRDownloadButtonProps) {
   return (
-    <div className="flex gap-2 w-full flex-wrap justify-center">
+    <div className="flex gap-1.5 w-full flex-wrap justify-center">
       {showDownload && (
         <Button
           size="sm"
@@ -36,7 +36,7 @@ function QRDownloadButtonComponent({
           onClick={onDownload}
           disabled={downloading || !link}
         >
-          <Download className="w-3.5 h-3.5" />
+          <Download className="w-2.5 h-2.5" />
           {downloading ? "Saving…" : "Download"}
         </Button>
       )}
@@ -49,9 +49,9 @@ function QRDownloadButtonComponent({
           disabled={!link}
         >
           {copied ? (
-            <Check className="w-3.5 h-3.5 text-green-500" />
+            <Check className="w-2.5 h-2.5 text-green-500" />
           ) : (
-            <Copy className="w-3.5 h-3.5" />
+            <Copy className="w-2.5 h-2.5" />
           )}
           {copied ? "Copied!" : "Copy URL"}
         </Button>
@@ -64,7 +64,7 @@ function QRDownloadButtonComponent({
           onClick={onShare}
           disabled={!link}
         >
-          <Share2 className="w-3.5 h-3.5" />
+          <Share2 className="w-2.5 h-2.5" />
           Share
         </Button>
       )}

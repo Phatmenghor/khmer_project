@@ -117,40 +117,40 @@ function WriteReviewModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={handleClose}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-3" onClick={handleClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       <div
-        className="relative z-10 w-full sm:max-w-lg bg-background rounded-t-2xl sm:rounded-2xl shadow-2xl border border-border overflow-hidden"
+        className="relative z-10 w-full sm:max-w-lg bg-background rounded-t-2xl sm:rounded shadow-2xl border border-border overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <PenLine className="w-4 h-4 text-primary" />
-            <span className="font-semibold text-sm text-foreground">Write a Review</span>
+        <div className="flex items-center justify-between px-3.5 py-3 border-b border-border">
+          <div className="flex items-center gap-1.5">
+            <PenLine className="w-3 h-3 text-primary" />
+            <span className="font-semibold text-xs text-foreground">Write a Review</span>
           </div>
-          <button onClick={handleClose} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-            <X className="w-4 h-4" />
+          <button onClick={handleClose} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+            <X className="w-3 h-3" />
           </button>
         </div>
 
         {submitted ? (
-          <div className="flex flex-col items-center gap-4 px-6 py-10 text-center">
-            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-              <CheckCircle2 className="w-7 h-7 text-primary" />
+          <div className="flex flex-col items-center gap-3 px-4 py-7 text-center">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="font-semibold text-foreground text-base">Thank you for your review!</p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="font-semibold text-foreground text-xs">Thank you for your review!</p>
+              <p className="text-xs text-muted-foreground mt-1">
                 Your review has been submitted and is pending approval by <span className="font-medium">{businessName}</span>.
               </p>
             </div>
-            <button onClick={handleClose} className="mt-2 px-6 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+            <button onClick={handleClose} className="mt-1.5 px-4 py-1.5 rounded bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition-opacity">
               Close
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="px-5 py-5 space-y-4">
+          <form onSubmit={handleSubmit} className="px-3.5 py-3.5 space-y-3">
             {/* Star rating */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-foreground">Your Rating <span className="text-destructive">*</span></label>
@@ -163,7 +163,7 @@ function WriteReviewModal({
                     onClick={() => setForm((f) => ({ ...f, rating: s }))}
                   >
                     <Star
-                      className="w-8 h-8 transition-colors"
+                      className="w-5 h-5 transition-colors"
                       style={{ color: s <= (hover || form.rating) ? "#facc15" : "#e5e7eb",
                                fill:  s <= (hover || form.rating) ? "#facc15" : "#e5e7eb" }}
                     />
@@ -186,7 +186,7 @@ function WriteReviewModal({
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. Sopheap Chan"
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                className="w-full rounded border border-input bg-background px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
               />
             </div>
 
@@ -200,7 +200,7 @@ function WriteReviewModal({
                 value={form.comment}
                 onChange={(e) => setForm((f) => ({ ...f, comment: e.target.value }))}
                 placeholder="Share your experience with others..."
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none"
+                className="w-full rounded border border-input bg-background px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none"
               />
             </div>
 
@@ -210,18 +210,18 @@ function WriteReviewModal({
               Your review will be visible after approval by the business.
             </p>
 
-            <div className="flex gap-2 pt-1">
+            <div className="flex gap-1.5 pt-1">
               <button type="button" onClick={handleClose}
-                className="flex-1 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                className="flex-1 py-1.5 rounded border border-border text-xs font-medium text-foreground hover:bg-muted transition-colors">
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting || !form.rating}
-                className="flex-1 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 py-1.5 rounded bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
               >
                 {isSubmitting ? (
-                  <><span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />Submitting…</>
+                  <><span className="w-3 h-3 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />Submitting…</>
                 ) : "Submit Review"}
               </button>
             </div>
@@ -273,7 +273,7 @@ export default function BusinessProfilePage() {
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative">
         {/* Cover */}
-        <div className="relative h-56 sm:h-72 lg:h-80">
+        <div className="relative h-40 sm:h-52 lg:h-56">
           <div className="absolute inset-0 overflow-hidden">
             {profile.coverImageUrl ? (
               <Image src={profile.coverImageUrl} alt={profile.businessName} fill className="object-cover" priority />
@@ -285,43 +285,43 @@ export default function BusinessProfilePage() {
         </div>
 
         {/* Profile row */}
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="relative -mt-12 sm:-mt-16 flex items-end justify-between pb-3">
+        <div className="container mx-auto px-3 max-w-6xl">
+          <div className="relative -mt-8 sm:-mt-11 flex items-end justify-between pb-2">
             {/* Logo */}
-            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-background shadow-2xl flex-shrink-0 overflow-hidden bg-card">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded border-4 border-background shadow-2xl flex-shrink-0 overflow-hidden bg-card">
               {profile.logoUrl
                 ? <Image src={profile.logoUrl} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
-                : <div className="w-full h-full flex items-center justify-center bg-primary/10"><Building2 className="w-10 h-10 text-primary" /></div>
+                : <div className="w-full h-full flex items-center justify-center bg-primary/10"><Building2 className="w-7 h-7 text-primary" /></div>
               }
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-2 flex-shrink-0 pb-1">
-              <Button size="sm" variant="outline" className="gap-2"
+            <div className="flex gap-1.5 flex-shrink-0 pb-1">
+              <Button size="sm" variant="outline" className="gap-1.5"
                 onClick={() => { if (typeof navigator !== "undefined" && navigator.share) navigator.share({ title: profile.businessName, url: profileUrl }).catch(() => {}); }}>
-                <Share2 className="w-4 h-4" />
+                <Share2 className="w-3 h-3" />
                 Share
               </Button>
-              <Button size="sm" className="gap-2" onClick={() => setShowQRModal(true)}>
-                <QrCode className="w-4 h-4" />
+              <Button size="sm" className="gap-1.5" onClick={() => setShowQRModal(true)}>
+                <QrCode className="w-3 h-3" />
                 View QR
               </Button>
             </div>
           </div>
 
           {/* Business name + meta */}
-          <div className="pb-5 space-y-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-snug">
+          <div className="pb-3.5 space-y-1.5">
+            <h1 className="text-xs sm:text-base font-bold text-foreground tracking-tight leading-snug">
               {profile.businessName}
             </h1>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <StarRow rating={avg} size={3} />
                 <span className="font-semibold text-foreground text-xs">{avg.toFixed(2)}</span>
                 <span className="text-xs">({total})</span>
               </div>
               <div className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                <MapPin className="w-2.5 h-2.5 text-primary flex-shrink-0" />
                 <span className="text-xs truncate">
                   {profile.contact.address}
                 </span>
@@ -334,16 +334,16 @@ export default function BusinessProfilePage() {
       {/* ── Stats bar ────────────────────────────────────────────────── */}
       {profile.stats && Array.isArray(profile.stats) && profile.stats.length > 0 && (
         <div className="bg-card border-b border-border">
-          <div className="container mx-auto max-w-6xl py-6 px-4 sm:px-6">
+          <div className="container mx-auto max-w-6xl py-4 px-3 sm:px-4">
             <div className="flex flex-wrap divide-x divide-border gap-0">
               {profile.stats!.map((stat, index) => {
                 const itemCount = profile.stats!.length;
                 const widthClass = itemCount === 1 ? 'w-full' : itemCount === 2 ? 'flex-1 min-w-[50%]' : `flex-1 min-w-[calc(${100/itemCount}%)]`;
 
                 return (
-                  <div key={stat.id} className={`${widthClass} p-4 sm:p-5 text-center`}>
-                    <p className="text-2xl sm:text-3xl font-bold text-muted-foreground break-words">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{stat.label}</p>
+                  <div key={stat.id} className={`${widthClass} p-3 sm:p-3.5 text-center`}>
+                    <p className="text-base sm:text-xs font-bold text-muted-foreground break-words">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{stat.label}</p>
                   </div>
                 );
               })}
@@ -353,28 +353,28 @@ export default function BusinessProfilePage() {
       )}
 
       {/* ── Main grid ────────────────────────────────────────────────── */}
-      <div className="container mx-auto px-4 max-w-6xl py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="container mx-auto px-3 max-w-6xl py-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
           {/* ── LEFT ──────────────────────────────────────────────── */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4">
 
             {/* About */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">About Us</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs">About Us</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
                   {profile.description}
                 </p>
                 {profile.features?.length ? (
-                  <div className="mt-5">
-                    <p className="text-sm font-semibold text-foreground mb-3">Features &amp; Amenities</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <div className="mt-3.5">
+                    <p className="text-xs font-semibold text-foreground mb-2">Features &amp; Amenities</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                       {profile.features.map((f) => (
-                        <div key={f.id} className="flex items-center gap-2">
-                          <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                        <div key={f.id} className="flex items-center gap-1.5">
+                          <Check className="w-2.5 h-2.5 text-primary flex-shrink-0" />
                           <span className="text-xs text-muted-foreground">{f.name}</span>
                         </div>
                       ))}
@@ -387,15 +387,15 @@ export default function BusinessProfilePage() {
             {/* Services */}
             {profile.services?.length ? (
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Our Services</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs">Our Services</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {profile.services.map((svc) => (
                       <div key={svc.id}
-                        className="p-3.5 rounded-xl border border-border bg-muted/30 hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-default">
-                        <p className="text-sm font-semibold text-foreground">{svc.name}</p>
+                        className="p-2.5 rounded border border-border bg-muted/30 hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-default">
+                        <p className="text-xs font-semibold text-foreground">{svc.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">{svc.description}</p>
                       </div>
                     ))}
@@ -407,19 +407,19 @@ export default function BusinessProfilePage() {
             {/* Gallery */}
             {profile.gallery?.length ? (
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Gallery</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs">Gallery</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {profile.gallery.map((item) => (
                       <div key={item.id}
-                        className="relative aspect-square rounded-xl overflow-hidden group cursor-pointer bg-muted">
+                        className="relative aspect-square rounded overflow-hidden group cursor-pointer bg-muted">
                         {item.url
                           ? <Image src={item.url} alt={item.title || "Gallery"} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
-                          : <div className="w-full h-full flex items-center justify-center bg-primary/10"><span className="text-4xl">🍜</span></div>
+                          : <div className="w-full h-full flex items-center justify-center bg-primary/10"><span className="text-base">🍜</span></div>
                         }
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-end p-3">
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-end p-2">
                           <p className="text-white text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">{item.title}</p>
                         </div>
                       </div>
@@ -432,9 +432,9 @@ export default function BusinessProfilePage() {
             {/* Opening Hours */}
             {profile.businessHours?.length ? (
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-primary" />
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs flex items-center gap-1.5">
+                    <Clock className="w-3 h-3 text-primary" />
                     Opening Hours
                   </CardTitle>
                 </CardHeader>
@@ -444,22 +444,22 @@ export default function BusinessProfilePage() {
                       const isToday = h.day === todayKey;
                       return (
                         <div key={h.day}
-                          className={`flex justify-between items-center py-2.5 px-3 rounded-lg -mx-3 ${isToday ? "bg-primary/5" : ""}`}>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-sm font-medium ${isToday ? "text-primary" : "text-foreground"}`}>
+                          className={`flex justify-between items-center py-1.5.5 px-2 rounded -mx-2 ${isToday ? "bg-primary/5" : ""}`}>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-xs font-medium ${isToday ? "text-primary" : "text-foreground"}`}>
                               {getDayLabel(h.day)}
                             </span>
                             {isToday && (
-                              <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20 px-1.5 py-0 h-4">
+                              <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20 px-1.5 py-0 h-3">
                                 Today
                               </Badge>
                             )}
                           </div>
                           {(h.openTime && h.closeTime)
-                            ? <span className={`text-sm ${isToday ? "text-primary font-semibold" : "text-muted-foreground"}`}>
+                            ? <span className={`text-xs ${isToday ? "text-primary font-semibold" : "text-muted-foreground"}`}>
                                 {`${formatTime(h.openTime)} – ${formatTime(h.closeTime)}`}
                               </span>
-                            : <span className="text-sm text-destructive font-medium">Closed</span>
+                            : <span className="text-xs text-destructive font-medium">Closed</span>
                           }
                         </div>
                       );
@@ -471,29 +471,29 @@ export default function BusinessProfilePage() {
 
             {/* Reviews */}
             <Card>
-              <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                <CardTitle className="text-lg">Customer Reviews</CardTitle>
+              <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                <CardTitle className="text-xs">Customer Reviews</CardTitle>
                 <Button size="sm" variant="outline" className="gap-1.5 shrink-0" onClick={() => setShowReviewModal(true)}>
-                  <PenLine className="w-3.5 h-3.5" />
+                  <PenLine className="w-2.5 h-2.5" />
                   Write a Review
                 </Button>
               </CardHeader>
-              <CardContent className="space-y-5">
-                <div className="flex gap-6 p-4 rounded-xl bg-primary/5 border border-primary/10">
+              <CardContent className="space-y-3.5">
+                <div className="flex gap-4 p-3 rounded bg-primary/5 border border-primary/10">
                   <div className="text-center flex-shrink-0">
-                    <p className="text-4xl font-bold text-primary">{avg.toFixed(2)}</p>
+                    <p className="text-base font-bold text-primary">{avg.toFixed(2)}</p>
                     <StarRow rating={avg} size={4} />
                     <p className="text-xs text-muted-foreground mt-1">{total} reviews</p>
                   </div>
                   <div className="flex-1 space-y-1.5 min-w-0">
                     {[5,4,3,2,1].map((r) => (
-                      <div key={r} className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground w-8 text-right">{r} ★</span>
-                        <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                      <div key={r} className="flex items-center gap-1.5">
+                        <span className="text-xs text-muted-foreground w-5 text-right">{r} ★</span>
+                        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                           <div className="h-full rounded-full bg-yellow-400 transition-all"
                             style={{ width: `${total ? ((dist[r] || 0) / total) * 100 : 0}%` }} />
                         </div>
-                        <span className="text-xs text-muted-foreground w-4">{dist[r] || 0}</span>
+                        <span className="text-xs text-muted-foreground w-3">{dist[r] || 0}</span>
                       </div>
                     ))}
                   </div>
@@ -504,27 +504,27 @@ export default function BusinessProfilePage() {
             {/* Team */}
             {profile.team?.length ? (
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Users className="w-4 h-4 text-primary" />
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs flex items-center gap-1.5">
+                    <Users className="w-3 h-3 text-primary" />
                     Meet Our Team
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {profile.team.map((m) => (
-                      <div key={m.id} className="text-center p-4 rounded-xl bg-muted/30 border border-border hover:border-primary/20 transition-colors">
-                        <div className="w-16 h-16 mx-auto rounded-full overflow-hidden border-2 border-border mb-3 bg-muted">
+                      <div key={m.id} className="text-center p-3 rounded bg-muted/30 border border-border hover:border-primary/20 transition-colors">
+                        <div className="w-11 h-11 mx-auto rounded-full overflow-hidden border-2 border-border mb-2 bg-muted">
                           {m.photoUrl
                             ? <Image src={m.photoUrl} alt={m.name} width={64} height={64} className="object-cover w-full h-full" />
                             : <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                                <span className="text-xl font-bold text-primary">{m.name.charAt(0)}</span>
+                                <span className="text-xs font-bold text-primary">{m.name.charAt(0)}</span>
                               </div>
                           }
                         </div>
-                        <p className="text-sm font-semibold text-foreground">{m.name}</p>
+                        <p className="text-xs font-semibold text-foreground">{m.name}</p>
                         <p className="text-xs text-primary font-medium mt-0.5">{m.position}</p>
-                        {m.bio && <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{m.bio}</p>}
+                        {m.bio && <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{m.bio}</p>}
                       </div>
                     ))}
                   </div>
@@ -534,23 +534,23 @@ export default function BusinessProfilePage() {
           </div>
 
           {/* ── RIGHT sidebar ─────────────────────────────────────── */}
-          <div className="space-y-5">
+          <div className="space-y-3.5">
 
             {/* Business Information */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Business Information</CardTitle>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs">Business Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2">
                 {profile.contact.address && (
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                    <div className="text-sm text-muted-foreground">
+                  <div className="flex items-start gap-2">
+                    <MapPin className="w-3 h-3 text-primary mt-0.5 flex-shrink-0" />
+                    <div className="text-xs text-muted-foreground">
                       <p className="whitespace-pre-wrap">{profile.contact.address}</p>
                       {profile.contact.mapLink && (
                         <a href={profile.contact.mapLink} target="_blank" rel="noopener noreferrer"
                           className="text-primary hover:underline inline-flex items-center gap-1 mt-1 text-xs">
-                          View on Map <ExternalLink className="w-3 h-3" />
+                          View on Map <ExternalLink className="w-2 h-2" />
                         </a>
                       )}
                     </div>
@@ -558,34 +558,34 @@ export default function BusinessProfilePage() {
                 )}
                 {profile.contact.phones && profile.contact.phones.length > 0 ? (
                   profile.contact.phones.map((phone, i) => (
-                    <div key={phone.id || i} className="flex items-center gap-3">
-                      <Phone className="w-4 h-4 text-primary flex-shrink-0" />
-                      <a href={`tel:${phone.number}`} className="text-sm text-muted-foreground hover:text-primary">
+                    <div key={phone.id || i} className="flex items-center gap-2">
+                      <Phone className="w-3 h-3 text-primary flex-shrink-0" />
+                      <a href={`tel:${phone.number}`} className="text-xs text-muted-foreground hover:text-primary">
                         {phone.number}
                       </a>
                     </div>
                   ))
                 ) : profile.contact.phone ? (
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-4 h-4 text-primary flex-shrink-0" />
-                    <a href={`tel:${profile.contact.phone}`} className="text-sm text-muted-foreground hover:text-primary">
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-3 h-3 text-primary flex-shrink-0" />
+                    <a href={`tel:${profile.contact.phone}`} className="text-xs text-muted-foreground hover:text-primary">
                       {profile.contact.phone}
                     </a>
                   </div>
                 ) : null}
                 {profile.contact.email && (
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-primary flex-shrink-0" />
-                    <a href={`mailto:${profile.contact.email}`} className="text-sm text-muted-foreground hover:text-primary truncate">
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-3 h-3 text-primary flex-shrink-0" />
+                    <a href={`mailto:${profile.contact.email}`} className="text-xs text-muted-foreground hover:text-primary truncate">
                       {profile.contact.email}
                     </a>
                   </div>
                 )}
                 {profile.contact.whatsapp && (
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-3 h-3 text-green-600 flex-shrink-0" />
                     <a href={`https://wa.me/${profile.contact.whatsapp.replace(/[^0-9]/g, "")}`}
-                      target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary">
+                      target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary">
                       WhatsApp
                     </a>
                   </div>
@@ -593,8 +593,8 @@ export default function BusinessProfilePage() {
                 {profile.contact.telegram && (
                   <a href={profile.contact.telegram}
                     target="_blank" rel="noopener noreferrer" className="block">
-                    <Button variant="outline" size="sm" className="w-full gap-2 border-sky-200 text-sky-600 hover:bg-sky-50">
-                      <Send className="w-3.5 h-3.5" />
+                    <Button variant="outline" size="sm" className="w-full gap-1.5 border-sky-200 text-sky-600 hover:bg-sky-50">
+                      <Send className="w-2.5 h-2.5" />
                       Chat on Telegram
                     </Button>
                   </a>
@@ -605,15 +605,15 @@ export default function BusinessProfilePage() {
             {/* QR Code */}
             <Card className="overflow-hidden">
               <div className="h-1.5 bg-primary" />
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <QrCode className="w-4 h-4 text-primary" />
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs flex items-center gap-1.5">
+                  <QrCode className="w-3 h-3 text-primary" />
                   Scan &amp; Order
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button className="w-full gap-2" onClick={() => setShowQRModal(true)}>
-                  <QrCode className="w-4 h-4" />
+                <Button className="w-full gap-1.5" onClick={() => setShowQRModal(true)}>
+                  <QrCode className="w-3 h-3" />
                   View QR Code
                 </Button>
               </CardContent>
@@ -622,15 +622,15 @@ export default function BusinessProfilePage() {
             {/* Social Media */}
             {profile.socialMedia && Array.isArray(profile.socialMedia) && profile.socialMedia.length > 0 && (
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Follow Us</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs">Follow Us</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-1.5">
                     {profile.socialMedia.map((social) => (
                       <a key={social.id} href={social.url} target="_blank" rel="noopener noreferrer"
-                        className="p-3 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-colors">
-                        <span className="text-sm font-medium text-muted-foreground hover:text-primary">{social.name}</span>
+                        className="p-2 rounded border border-border hover:border-primary hover:bg-primary/5 transition-colors">
+                        <span className="text-xs font-medium text-muted-foreground hover:text-primary">{social.name}</span>
                       </a>
                     ))}
                   </div>

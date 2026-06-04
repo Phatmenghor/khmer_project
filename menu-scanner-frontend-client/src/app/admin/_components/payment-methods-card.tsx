@@ -27,7 +27,7 @@ const PAYMENT_COLORS: Record<string, string> = {
 function PieTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-popover border rounded-xl shadow-lg px-4 py-3 text-sm">
+    <div className="bg-popover border rounded shadow-lg px-3 py-2 text-xs">
       <p className="font-semibold">{payload[0].name}</p>
       <p className="text-primary">{formatCurrency(payload[0].value)}</p>
       <p className="text-muted-foreground">{payload[0].payload.percentage?.toFixed(1)}%</p>
@@ -43,15 +43,15 @@ interface PaymentMethodsCardProps {
 export function PaymentMethodsCard({ payments, loading }: PaymentMethodsCardProps) {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base">Payment Methods</CardTitle>
+      <CardHeader className="pb-1.5">
+        <CardTitle className="text-xs">Payment Methods</CardTitle>
         <CardDescription>Revenue by payment type</CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (
           <ChartSkeleton height={240} />
         ) : !payments?.data?.length ? (
-          <div className="h-[240px] flex items-center justify-center text-muted-foreground text-sm">
+          <div className="h-[240px] flex items-center justify-center text-muted-foreground text-xs">
             No payment data
           </div>
         ) : (
@@ -70,19 +70,19 @@ export function PaymentMethodsCard({ payments, loading }: PaymentMethodsCardProp
                 <Legend iconSize={8} iconType="circle" formatter={(v) => <span className="text-xs text-muted-foreground">{v}</span>} />
               </PieChart>
             </ResponsiveContainer>
-            <div className="mt-2 space-y-1.5">
+            <div className="mt-1.5 space-y-1.5">
               {payments.data.map((item) => (
-                <div key={item.method} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
+                <div key={item.method} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5">
                     <div
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      className="w-1.5.5 h-1.5.5 rounded-full shrink-0"
                       style={{ backgroundColor: PAYMENT_COLORS[item.method] ?? "hsl(var(--chart-3))" }}
                     />
                     <span className="text-muted-foreground">{item.method}</span>
                   </div>
                   <div className="text-right">
                     <span className="font-medium text-foreground tabular-nums">{item.percentage?.toFixed(0)}%</span>
-                    <span className="ml-2 text-xs text-muted-foreground tabular-nums">{formatCurrency(item.amount)}</span>
+                    <span className="ml-1.5 text-xs text-muted-foreground tabular-nums">{formatCurrency(item.amount)}</span>
                   </div>
                 </div>
               ))}

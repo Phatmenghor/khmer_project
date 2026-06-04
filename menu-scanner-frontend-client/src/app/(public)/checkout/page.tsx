@@ -343,18 +343,18 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <PageContainer className="py-12">
+      <PageContainer className="py-8">
         <div className="max-w-sm mx-auto text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="h-8 w-8 text-primary" />
+          <div className="w-11 h-11 rounded bg-primary/10 flex items-center justify-center mx-auto mb-3">
+            <AlertCircle className="h-5 w-5 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold mb-2">Cart is Empty</h1>
-          <p className="text-muted-foreground mb-6">
+          <h1 className="text-base font-bold mb-1.5">Cart is Empty</h1>
+          <p className="text-muted-foreground mb-4">
             Add items to your cart before checking out.
           </p>
           <CustomButton
             onClick={() => router.push("/products")}
-            className="w-full h-11 rounded-xl"
+            className="w-full h-8 rounded"
           >
             Browse Products
           </CustomButton>
@@ -364,7 +364,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <PageContainer className="py-0 pb-40 sm:pb-20 lg:pb-8">
+    <PageContainer className="py-0 pb-28 sm:pb-14 lg:pb-5">
       {}
       <PageHeader
         title="Checkout"
@@ -374,15 +374,15 @@ export default function CheckoutPage() {
         countLabel="items"
       />
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-4">
         {}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4">
           {}
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 space-y-6">
+          <div className="bg-card border border-border rounded p-4 sm:p-5 space-y-4">
             {}
-            <div className="space-y-3">
-              <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" />
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                <MapPin className="h-3 w-3 text-primary" />
                 Delivery Address
                 <span className="text-red-500">*</span>
               </label>
@@ -407,11 +407,11 @@ export default function CheckoutPage() {
             <div className="border-t border-border/50" />
 
             {}
-            <div className="space-y-4">
-              <h4 className="text-sm font-semibold text-foreground">Contact Information</h4>
-              <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <h4 className="text-xs font-semibold text-foreground">Contact Information</h4>
+              <div className="grid sm:grid-cols-2 gap-3">
                 {}
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">
                     Full Name <span className="text-red-500">*</span>
                   </label>
@@ -425,12 +425,12 @@ export default function CheckoutPage() {
                       }))
                     }
                     placeholder="Your full name"
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    className="w-full px-2 py-1.5 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
                   />
                 </div>
 
                 {}
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">
                     Phone Number <span className="text-red-500">*</span>
                   </label>
@@ -444,16 +444,16 @@ export default function CheckoutPage() {
                       }))
                     }
                     placeholder="Your phone number"
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                    className="w-full px-2 py-1.5 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
                   />
                 </div>
               </div>
             </div>
 
             {}
-            <div className="space-y-3 pt-4 border-t border-border/50">
-              <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-primary" />
+            <div className="space-y-2 pt-3 border-t border-border/50">
+              <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                <MessageSquare className="h-3 w-3 text-primary" />
                 Special Instructions
               </label>
               <textarea
@@ -465,7 +465,7 @@ export default function CheckoutPage() {
                   }))
                 }
                 placeholder="Add any special requests or notes for your order..."
-                className="w-full h-28 p-4 rounded-lg border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-sm"
+                className="w-full h-20 p-3 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none text-xs"
                 maxLength={500}
               />
               <div className="flex justify-between items-center px-1">
@@ -482,14 +482,14 @@ export default function CheckoutPage() {
           </div>
 
           {}
-          <div className="bg-card border border-border rounded-2xl p-6 sm:p-7">
-            <div className="mb-6">
+          <div className="bg-card border border-border rounded p-4 sm:p-5">
+            <div className="mb-4">
               <h3 className="font-semibold text-foreground mb-1.5">Order Items</h3>
               <p className="text-xs text-muted-foreground">
                 {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} total quantity
               </p>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {items.map((item) => (
                 <CartItemCard
                   key={item.id}
@@ -523,12 +523,12 @@ export default function CheckoutPage() {
         {}
         <div className="lg:col-span-1">
           {}
-          <div className="lg:hidden bg-gradient-to-b from-card to-card/95 border border-border rounded-t-3xl p-6 sm:p-8 space-y-6 mt-8">
+          <div className="lg:hidden bg-gradient-to-b from-card to-card/95 border border-border rounded-t-3xl p-4 sm:p-5 space-y-4 mt-5">
             <div>
-              <h2 className="text-lg font-bold text-foreground mb-6">Order Summary</h2>
+              <h2 className="text-xs font-bold text-foreground mb-4">Order Summary</h2>
 
-              <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                <div className="space-y-2">
+              <div className="grid sm:grid-cols-2 gap-3 mb-4">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">
                     Delivery Option <span className="text-red-500">*</span>
                   </label>
@@ -549,7 +549,7 @@ export default function CheckoutPage() {
                     statuses={["ACTIVE"]}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">
                     Payment Method <span className="text-red-500">*</span>
                   </label>
@@ -571,25 +571,25 @@ export default function CheckoutPage() {
                   />
                 </div>
               </div>
-              <div className="border-t border-border/50 mb-4" />
+              <div className="border-t border-border/50 mb-3" />
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {}
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground font-medium">Subtotal</span>
                   <span className="font-semibold text-foreground">{formatCurrency(subtotal)}</span>
                 </div>
 
                 {}
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-sm bg-red-50/50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200/50 dark:border-red-800/30">
+                  <div className="flex justify-between text-xs bg-red-50/50 dark:bg-red-950/30 p-2 rounded border border-red-200/50 dark:border-red-800/30">
                     <span className="text-red-600 dark:text-red-400 font-semibold">Discount</span>
                     <span className="font-bold text-red-600 dark:text-red-500">-{formatCurrency(discountAmount)}</span>
                   </div>
                 )}
 
                 {}
-                <div className="flex justify-between text-sm pt-2.5 border-t border-border/50">
+                <div className="flex justify-between text-xs pt-1.5.5 border-t border-border/50">
                   <span className="text-muted-foreground font-medium">Delivery Fee</span>
                   <span className="font-semibold text-primary">
                     {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
@@ -597,7 +597,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {}
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground font-medium flex items-center gap-1">
                     Tax
                     <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-medium">0%</span>
@@ -606,15 +606,15 @@ export default function CheckoutPage() {
                 </div>
 
                 {}
-                <div className="flex justify-between items-center pt-4 border-t-2 border-border">
-                  <span className="font-bold text-lg text-foreground">Total Amount</span>
+                <div className="flex justify-between items-center pt-3 border-t-2 border-border">
+                  <span className="font-bold text-xs text-foreground">Total Amount</span>
                   <div className="text-right">
-                    <span className="text-3xl font-bold text-primary">{formatCurrency(orderTotal)}</span>
+                    <span className="text-xs font-bold text-primary">{formatCurrency(orderTotal)}</span>
                   </div>
                 </div>
 
                 {discountAmount > 0 && (
-                  <p className="text-xs text-red-600 dark:text-red-400 text-center font-semibold bg-red-50/50 dark:bg-red-950/30 p-2 rounded-lg">
+                  <p className="text-xs text-red-600 dark:text-red-400 text-center font-semibold bg-red-50/50 dark:bg-red-950/30 p-1.5 rounded">
                     You save {formatCurrency(discountAmount)}
                   </p>
                 )}
@@ -625,8 +625,8 @@ export default function CheckoutPage() {
             {(!checkoutState.selectedAddressId ||
               !checkoutState.selectedDeliveryOptionId ||
               !checkoutState.selectedPaymentOptionId) && (
-              <div className="flex gap-3 p-3.5 bg-amber-50/60 dark:bg-amber-950/30 rounded-xl border border-amber-200/60 dark:border-amber-800/40">
-                <AlertCircle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="flex gap-2 p-2.5 bg-amber-50/60 dark:bg-amber-950/30 rounded border border-amber-200/60 dark:border-amber-800/40">
+                <AlertCircle className="h-3 w-3 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
                   Complete all required fields to continue
                 </p>
@@ -638,18 +638,18 @@ export default function CheckoutPage() {
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
               className={cn(
-                "w-full gap-2 h-12 rounded-xl font-bold text-base shadow-lg hover:shadow-xl transition-all duration-200 mx-0",
+                "w-full gap-1.5 h-8 rounded font-bold text-xs shadow-lg hover:shadow-xl transition-all duration-200 mx-0",
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >
               {checkoutState.isProcessing ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Processing Order
                 </>
               ) : (
                 <>
-                  <Check className="h-5 w-5" />
+                  <Check className="h-3.5 w-3.5" />
                   Place Order
                 </>
               )}
@@ -661,12 +661,12 @@ export default function CheckoutPage() {
           </div>
 
           {}
-          <div className="hidden lg:block bg-card border border-border rounded-2xl p-6 sm:p-7 sticky top-24 space-y-6">
+          <div className="hidden lg:block bg-card border border-border rounded p-4 sm:p-5 sticky top-16 space-y-4">
             <div>
-              <h2 className="text-base font-semibold text-foreground mb-5">Order Summary</h2>
+              <h2 className="text-xs font-semibold text-foreground mb-3.5">Order Summary</h2>
 
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2 mb-3.5">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">
                     Delivery Option <span className="text-red-500">*</span>
                   </label>
@@ -687,7 +687,7 @@ export default function CheckoutPage() {
                     statuses={["ACTIVE"]}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">
                     Payment Method <span className="text-red-500">*</span>
                   </label>
@@ -709,25 +709,25 @@ export default function CheckoutPage() {
                   />
                 </div>
               </div>
-              <div className="border-t border-border/50 mb-4" />
+              <div className="border-t border-border/50 mb-3" />
 
-              <div className="space-y-3.5">
+              <div className="space-y-2.5">
                 {}
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Subtotal ({items.length} {items.length === 1 ? "item" : "items"})</span>
                   <span className="font-medium text-foreground">{formatCurrency(subtotal)}</span>
                 </div>
 
                 {}
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs">
                     <span className="text-red-600 dark:text-red-400 font-medium">Discount</span>
                     <span className="font-semibold text-red-600 dark:text-red-500">-{formatCurrency(discountAmount)}</span>
                   </div>
                 )}
 
                 {}
-                <div className="flex justify-between text-sm pt-2.5 border-t border-border/50">
+                <div className="flex justify-between text-xs pt-1.5.5 border-t border-border/50">
                   <span className="text-muted-foreground">Delivery Fee</span>
                   <span className="font-medium text-primary">
                     {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
@@ -735,7 +735,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {}
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground flex items-center gap-1">
                     Tax
                     <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-medium">0%</span>
@@ -744,10 +744,10 @@ export default function CheckoutPage() {
                 </div>
 
                 {}
-                <div className="flex justify-between items-center pt-3.5 border-t border-border">
+                <div className="flex justify-between items-center pt-2.5 border-t border-border">
                   <span className="font-semibold text-foreground">Total</span>
                   <div className="text-right">
-                    <span className="text-2xl font-bold text-primary">{formatCurrency(orderTotal)}</span>
+                    <span className="text-base font-bold text-primary">{formatCurrency(orderTotal)}</span>
                   </div>
                 </div>
 
@@ -763,8 +763,8 @@ export default function CheckoutPage() {
             {(!checkoutState.selectedAddressId ||
               !checkoutState.selectedDeliveryOptionId ||
               !checkoutState.selectedPaymentOptionId) && (
-              <div className="flex gap-3 p-3.5 bg-amber-50/60 dark:bg-amber-950/30 rounded-lg border border-amber-200/60 dark:border-amber-800/40">
-                <AlertCircle className="h-4 w-4 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="flex gap-2 p-2.5 bg-amber-50/60 dark:bg-amber-950/30 rounded border border-amber-200/60 dark:border-amber-800/40">
+                <AlertCircle className="h-3 w-3 text-amber-700 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700 dark:text-amber-400">
                   Complete all required fields to continue
                 </p>
@@ -776,18 +776,18 @@ export default function CheckoutPage() {
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
               className={cn(
-                "w-full gap-2 h-11 rounded-xl font-semibold text-sm",
+                "w-full gap-1.5 h-8 rounded font-semibold text-xs",
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >
               {checkoutState.isProcessing ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-3 w-3 animate-spin" />
                   Processing Order
                 </>
               ) : (
                 <>
-                  <Check className="h-4 w-4" />
+                  <Check className="h-3 w-3" />
                   Place Order
                 </>
               )}
@@ -805,15 +805,15 @@ export default function CheckoutPage() {
 
 function CheckoutPageSkeleton() {
   return (
-    <PageContainer className="py-0 pb-20">
-      <div className="h-16 border-b mb-6 animate-pulse" />
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+    <PageContainer className="py-0 pb-14">
+      <div className="h-11 border-b mb-4 animate-pulse" />
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-4">
           {[1, 2].map((i) => (
-            <div key={i} className="bg-card border rounded-2xl h-48 animate-pulse" />
+            <div key={i} className="bg-card border rounded h-32 animate-pulse" />
           ))}
         </div>
-        <div className="bg-card border rounded-2xl h-80 animate-pulse" />
+        <div className="bg-card border rounded h-56 animate-pulse" />
       </div>
     </PageContainer>
   );

@@ -57,7 +57,7 @@ export function WorkScheduleDetailModal({
       description={"Detailed information about the selected work schedule."}
     >
       {workScheduleData ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {}
           <DetailSection title="Schedule Information">
             <DetailRow
@@ -80,7 +80,7 @@ export function WorkScheduleDetailModal({
                       <Badge
                         key={day}
                         variant="secondary"
-                        className="text-xs px-2 py-0.5"
+                        className="text-xs px-1.5 py-0.5"
                       >
                         {day}
                       </Badge>
@@ -144,7 +144,7 @@ export function WorkScheduleDetailModal({
             <DetailRow
               label="Work Schedule ID"
               value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
                   {workScheduleData?.id}
                 </span>
               }
@@ -169,7 +169,7 @@ export function WorkScheduleDetailModal({
           </DetailSection>
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-muted-foreground">
             No work schedule data available
           </p>

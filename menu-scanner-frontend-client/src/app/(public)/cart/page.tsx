@@ -32,15 +32,15 @@ import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 
 function CartItemSkeleton() {
   return (
-    <div className="bg-card border rounded-2xl p-3 sm:p-4">
-      <div className="flex gap-3">
-        <Skeleton className="w-[72px] h-[72px] rounded-xl flex-shrink-0" />
-        <div className="flex-1 space-y-3">
-          <Skeleton className="h-5 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
-          <div className="flex gap-2">
-            <Skeleton className="h-8 w-24" />
-            <Skeleton className="h-8 w-20" />
+    <div className="bg-card border rounded p-2 sm:p-3">
+      <div className="flex gap-2">
+        <Skeleton className="w-[72px] h-[72px] rounded flex-shrink-0" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-3.5 w-3/4" />
+          <Skeleton className="h-3 w-1/2" />
+          <div className="flex gap-1.5">
+            <Skeleton className="h-5 w-16" />
+            <Skeleton className="h-5 w-14" />
           </div>
         </div>
       </div>
@@ -50,19 +50,19 @@ function CartItemSkeleton() {
 
 function CartPageSkeleton() {
   return (
-    <PageContainer className="py-4 sm:py-8 pb-40 sm:pb-8">
-      <div className="mb-6 space-y-2">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-5 w-64" />
+    <PageContainer className="py-3 sm:py-5 pb-28 sm:pb-5">
+      <div className="mb-4 space-y-1.5">
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-3.5 w-44" />
       </div>
-      <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
-        <div className="lg:col-span-2 space-y-3">
+      <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="lg:col-span-2 space-y-2">
           {[1, 2, 3, 4, 5].map((i) => (
             <CartItemSkeleton key={i} />
           ))}
         </div>
         <div className="hidden lg:block">
-          <Skeleton className="h-64 w-full rounded-2xl" />
+          <Skeleton className="h-44 w-full rounded" />
         </div>
       </div>
     </PageContainer>
@@ -190,7 +190,7 @@ function CartPage() {
 
   if (items.length === 0 && loaded) {
     return (
-      <PageContainer className="min-h-screen flex flex-col py-12 sm:py-20">
+      <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
         <EmptyState
           icon={ShoppingCart}
           title="Your Cart is Empty"
@@ -207,7 +207,7 @@ function CartPage() {
 
   return (
     <>
-      <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8 pb-40 sm:pb-16 lg:pb-8">
+      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5 pb-28 sm:pb-11 lg:pb-5">
 
         <PageHeader
           title="Shopping Cart"
@@ -220,17 +220,17 @@ function CartPage() {
               size="sm"
               onClick={() => setClearCartModalOpen(true)}
               disabled={loading.clear}
-              className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 text-xs rounded-xl"
+              className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 text-xs rounded"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 className="h-2.5 w-2.5" />
               Clear All
             </CustomButton>
           }
         />
 
-        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
 
-          <div className="lg:col-span-2 space-y-3">
+          <div className="lg:col-span-2 space-y-2">
             {searchQuery && !isSearching && (
               <div className="text-xs text-muted-foreground">
                 {displayItems.length === 0
@@ -239,15 +239,15 @@ function CartPage() {
               </div>
             )}
             {isSearching && (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {[1, 2].map((i) => <CartItemSkeleton key={i} />)}
               </div>
             )}
 
             {!isSearching && displayItems.length === 0 && searchQuery ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <ShoppingCart className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                <p className="text-sm font-medium text-foreground mb-1">No items found</p>
+              <div className="flex flex-col items-center justify-center py-11 text-center">
+                <ShoppingCart className="h-8 w-8 text-muted-foreground/30 mb-3" />
+                <p className="text-xs font-medium text-foreground mb-1">No items found</p>
                 <p className="text-xs text-muted-foreground">
                   No cart items match &ldquo;{searchQuery}&rdquo;
                 </p>
@@ -287,47 +287,47 @@ function CartPage() {
 
           {}
           <div className="hidden lg:block lg:col-span-1">
-            <div className="bg-card border rounded-2xl p-5 sticky top-24">
-              <h2 className="text-lg font-bold mb-4 flex items-center justify-between">
+            <div className="bg-card border rounded p-3.5 sticky top-16">
+              <h2 className="text-xs font-bold mb-3 flex items-center justify-between">
                 <span>Order Summary</span>
-                <span className="text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded-lg">
+                <span className="text-xs font-normal text-muted-foreground bg-muted px-1.5 py-1 rounded">
                   {totalItems} {totalItems === 1 ? 'item' : 'items'}
                 </span>
               </h2>
 
-              <div className="space-y-3 mb-5">
+              <div className="space-y-2 mb-3.5">
                 {}
-                <div className="bg-muted/50 rounded-lg p-3 mb-4">
-                  <div className="text-xs text-muted-foreground mb-2">Items Breakdown</div>
+                <div className="bg-muted/50 rounded p-2 mb-3">
+                  <div className="text-xs text-muted-foreground mb-1.5">Items Breakdown</div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">{totalItems} unique {totalItems === 1 ? 'product' : 'products'}</span>
-                    <span className="text-lg font-bold text-foreground">{totalQuantity} qty</span>
+                    <span className="text-xs font-medium">{totalItems} unique {totalItems === 1 ? 'product' : 'products'}</span>
+                    <span className="text-xs font-bold text-foreground">{totalQuantity} qty</span>
                   </div>
                 </div>
 
                 {}
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="font-medium">{formatCurrency(subtotal)}</span>
                 </div>
 
                 {}
-                <div className="flex justify-between text-sm pt-2 border-t">
+                <div className="flex justify-between text-xs pt-1.5 border-t">
                   <span className="text-muted-foreground">Shipping & Fees</span>
                   <span className="text-muted-foreground text-xs">Calculated at checkout</span>
                 </div>
 
                 {}
-                <div className="bg-primary/10 rounded-lg p-3 border border-primary/20">
-                  <div className="flex justify-between items-center mb-2">
+                <div className="bg-primary/10 rounded p-2 border border-primary/20">
+                  <div className="flex justify-between items-center mb-1.5">
                     <span className="font-bold text-foreground">Total Amount</span>
-                    <span className="text-2xl font-bold text-primary">{formatCurrency(finalTotal)}</span>
+                    <span className="text-base font-bold text-primary">{formatCurrency(finalTotal)}</span>
                   </div>
                 </div>
               </div>
 
-              <CustomButton className="w-full mb-2.5 gap-2 h-11 rounded-xl" onClick={handleCheckout} disabled={checkoutLoading}>
-                {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+              <CustomButton className="w-full mb-1.5.5 gap-1.5 h-8 rounded" onClick={handleCheckout} disabled={checkoutLoading}>
+                {checkoutLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <CreditCard className="h-3 w-3" />}
                 {checkoutLoading ? "Loading..." : "Proceed to Checkout"}
               </CustomButton>
             </div>
@@ -336,20 +336,20 @@ function CartPage() {
       </PageContainer>
 
       {}
-      <div className="fixed bottom-16 left-0 right-0 z-40 lg:hidden bg-background/95 backdrop-blur-sm border-t px-4 py-3">
-        <div className="flex items-center justify-between mb-2.5">
+      <div className="fixed bottom-11 left-0 right-0 z-40 lg:hidden bg-background/95 backdrop-blur-sm border-t px-3 py-2">
+        <div className="flex items-center justify-between mb-1.5.5">
           <div className="text-xs">
             <div className="text-muted-foreground font-medium">{totalItems} items • {totalQuantity} qty</div>
           </div>
           <div className="text-right">
             <div className="text-xs text-muted-foreground">Total</div>
-            <div className="text-xl font-bold text-primary">{formatCurrency(finalTotal)}</div>
+            <div className="text-xs font-bold text-primary">{formatCurrency(finalTotal)}</div>
           </div>
         </div>
-        <CustomButton className="w-full gap-2 h-11 rounded-xl" onClick={handleCheckout} disabled={checkoutLoading}>
-          {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+        <CustomButton className="w-full gap-1.5 h-8 rounded" onClick={handleCheckout} disabled={checkoutLoading}>
+          {checkoutLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <CreditCard className="h-3 w-3" />}
           {checkoutLoading ? "Loading..." : "Proceed to Checkout"}
-          {!checkoutLoading && <ArrowRight className="h-4 w-4 ml-auto" />}
+          {!checkoutLoading && <ArrowRight className="h-3 w-3 ml-auto" />}
         </CustomButton>
       </div>
 
@@ -359,7 +359,7 @@ function CartPage() {
         onDelete={handleClearCart}
         title="Clear Cart"
         description={`Remove all ${totalItems} ${totalItems === 1 ? "item" : "items"} from your cart? This cannot be undone.`}
-        icon={<PackageX className="h-5 w-5 text-destructive" />}
+        icon={<PackageX className="h-3.5 w-3.5 text-destructive" />}
         confirmButtonText="Clear Cart"
         variant="critical"
       />

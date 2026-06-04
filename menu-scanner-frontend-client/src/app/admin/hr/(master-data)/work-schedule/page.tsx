@@ -208,14 +208,14 @@ export default function WorkSchedulePage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-3 px-1.5">
+      <div className="space-y-3">
         <CardHeaderSection
           title="Work Schedule Management"
           searchValue={filters.search}
           searchPlaceholder="Search work schedules..."
           buttonTooltip="Create a new work schedule"
-          buttonIcon={<Plus className="w-3 h-3" />}
+          buttonIcon={<Plus className="w-2 h-2" />}
           buttonText="New"
           onSearchChange={handleSearchChange}
           openModal={handleCreate}

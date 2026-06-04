@@ -38,11 +38,11 @@ function ProductImagePreview({
   const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
-    <div className="relative w-14 h-14 flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
+    <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
       {!imageError && product?.mainImageUrl ? (
         <>
           {!imageLoaded && (
-            <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
+            <Skeleton className="absolute inset-0 w-full h-full rounded" />
           )}
           <Image
             src={product.mainImageUrl}
@@ -58,7 +58,7 @@ function ProductImagePreview({
           />
         </>
       ) : (
-        <span className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
+        <span className="text-xs font-bold text-primary/80 hover:text-primary transition-colors">
           {product?.name?.charAt(0).toUpperCase() || "P"}
         </span>
       )}
@@ -74,11 +74,11 @@ function SizesDisplay({ sizes }: { sizes: { id: string; name: string; finalPrice
   }
 
   return (
-    <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1">
+    <div className="flex flex-nowrap gap-1.5 overflow-x-auto pb-1">
       {sizes.map((size) => (
         <div
           key={size.id}
-          className="px-2 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
+          className="px-1.5 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
           style={{
             border: `0.5px solid ${secondary}`,
           }}
@@ -176,7 +176,7 @@ export const productTableColumns = ({
       maxWidth: "250px",
       render: (product) => (
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
               <span className="text-xs text-muted-foreground line-through">
                 ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
@@ -211,7 +211,7 @@ export const productTableColumns = ({
       minWidth: "150px",
       maxWidth: "350px",
       render: (product) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Switch
             checked={product?.status === "ACTIVE"}
             onCheckedChange={() => {
@@ -232,7 +232,7 @@ export const productTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (banner) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(banner?.createdAt)}
         </span>
       ),
@@ -244,19 +244,19 @@ export const productTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (brand) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleProductViewDetail(brand)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Product"
             onClick={() => handleEditProduct(brand)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Product"
             onClick={() => handleDeleteProduct(brand)}
             variant="destructive"

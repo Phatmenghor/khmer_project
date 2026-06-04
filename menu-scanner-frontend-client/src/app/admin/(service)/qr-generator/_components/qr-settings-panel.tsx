@@ -31,16 +31,16 @@ function ColorRow({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3">
+    <div className="flex items-center justify-between gap-2">
       <Label htmlFor={id} className="text-xs font-medium text-foreground flex-1">
         {label}
       </Label>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <span className="text-xs text-muted-foreground font-mono uppercase tabular-nums">
           {value}
         </span>
         <div
-          className="relative w-8 h-8 rounded border border-border shadow-sm overflow-hidden cursor-pointer"
+          className="relative w-5 h-5 rounded border border-border shadow-sm overflow-hidden cursor-pointer"
           style={{ backgroundColor: value }}
         >
           <input
@@ -95,17 +95,17 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
 
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold">QR Settings</CardTitle>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-xs font-semibold">QR Settings</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-5">
+      <CardContent className="space-y-3.5">
 
         {/* ── Card Template ────────────────────────────────────── */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <p className="text-xs font-semibold text-foreground">Card Template</p>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-1.5">
             {/* 4 preset templates */}
             {CARD_TEMPLATES.map((tpl) => {
               const isSelected = style.template === tpl.id;
@@ -114,7 +114,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                   key={tpl.id}
                   type="button"
                   onClick={() => handleSelectTemplate(tpl.id)}
-                  className={`relative rounded-xl overflow-hidden border-2 transition-all duration-150 cursor-pointer ${
+                  className={`relative rounded overflow-hidden border-2 transition-all duration-150 cursor-pointer ${
                     isSelected
                       ? "border-primary shadow-md scale-[1.03]"
                       : "border-border hover:border-primary/40"
@@ -122,7 +122,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                   title={tpl.name}
                 >
                   <div
-                    className="h-10 w-full"
+                    className="h-7 w-full"
                     style={{ background: `linear-gradient(135deg, ${tpl.gradientFrom}, ${tpl.gradientTo})` }}
                   />
                   <div className="bg-muted/80 px-1 py-0.5 text-center">
@@ -131,8 +131,8 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                     </span>
                   </div>
                   {isSelected && (
-                    <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                      <Check className="w-2.5 h-2.5 text-white" />
+                    <div className="absolute top-1 right-1 w-3 h-3 bg-primary rounded-full flex items-center justify-center">
+                      <Check className="w-1.5.5 h-1.5.5 text-white" />
                     </div>
                   )}
                 </button>
@@ -144,7 +144,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
               <button
                 type="button"
                 onClick={() => customColorInputRef.current?.click()}
-                className={`relative w-full rounded-xl overflow-hidden border-2 transition-all duration-150 cursor-pointer ${
+                className={`relative w-full rounded overflow-hidden border-2 transition-all duration-150 cursor-pointer ${
                   isCustom
                     ? "border-primary shadow-md scale-[1.03]"
                     : "border-border hover:border-primary/40"
@@ -152,14 +152,14 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                 title="Pick any color"
               >
                 <div
-                  className="h-10 w-full flex items-center justify-center"
+                  className="h-7 w-full flex items-center justify-center"
                   style={
                     isCustom
                       ? { background: `linear-gradient(135deg, ${style.cardGradientFrom}, ${style.cardGradientTo})` }
                       : { background: "conic-gradient(from 0deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6, #ec4899, #ef4444)" }
                   }
                 >
-                  {!isCustom && <Palette className="w-4 h-4 text-white drop-shadow" />}
+                  {!isCustom && <Palette className="w-3 h-3 text-white drop-shadow" />}
                 </div>
                 <div className="bg-muted/80 px-1 py-0.5 text-center">
                   <span className="text-[10px] text-foreground leading-tight block truncate">
@@ -167,8 +167,8 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                   </span>
                 </div>
                 {isCustom && (
-                  <div className="absolute top-1 right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                    <Check className="w-2.5 h-2.5 text-white" />
+                  <div className="absolute top-1 right-1 w-3 h-3 bg-primary rounded-full flex items-center justify-center">
+                    <Check className="w-1.5.5 h-1.5.5 text-white" />
                   </div>
                 )}
               </button>
@@ -185,7 +185,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
           </div>
 
           {/* Fine-tune colors for any template */}
-          <div className="space-y-2 pt-1">
+          <div className="space-y-1.5 pt-1">
             <p className="text-[11px] text-muted-foreground font-medium">Customize colors</p>
             <ColorRow
               id="cardGradientFrom"
@@ -217,15 +217,15 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
         <Separator />
 
         {/* ── Logo ─────────────────────────────────────────────── */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <p className="text-xs font-semibold text-foreground">
             Logo <span className="text-destructive">*</span>
           </p>
 
           {style.logoDataUrl ? (
             <>
-              <div className="flex items-center gap-3 p-2 rounded-md border border-border bg-muted/40">
-                <div className="w-10 h-10 rounded-full overflow-hidden border border-border flex-shrink-0 bg-white">
+              <div className="flex items-center gap-2 p-1.5 rounded border border-border bg-muted/40">
+                <div className="w-7 h-7 rounded-full overflow-hidden border border-border flex-shrink-0 bg-white">
                   <img
                     src={style.logoDataUrl}
                     alt="Logo preview"
@@ -239,10 +239,10 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 flex-shrink-0 hover:text-destructive"
+                  className="h-5 w-5 flex-shrink-0 hover:text-destructive"
                   onClick={() => onUpdate({ logoDataUrl: null })}
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-2.5 h-2.5" />
                 </Button>
               </div>
 
@@ -272,9 +272,9 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-destructive/40 py-5 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors duration-200 cursor-pointer"
+              className="w-full flex flex-col items-center justify-center gap-1.5 rounded border-2 border-dashed border-destructive/40 py-3.5 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors duration-200 cursor-pointer"
             >
-              <ImagePlus className="w-6 h-6" />
+              <ImagePlus className="w-4 h-4" />
               <span className="text-xs font-medium">Upload logo <span className="text-destructive">*</span></span>
               <span className="text-[11px] opacity-60">PNG, JPG up to 2MB</span>
             </button>

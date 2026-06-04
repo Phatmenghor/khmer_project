@@ -58,7 +58,7 @@ function GenericCardComponent({
   return (
     <Link
       href={href}
-      className="group block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl"
+      className="group block focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
       aria-label={ariaLabel}
     >
       <Card
@@ -67,13 +67,13 @@ function GenericCardComponent({
           className
         )}
       >
-        <CardContent className="p-4 sm:p-5 flex flex-col items-center justify-center gap-3">
+        <CardContent className="p-3 sm:p-3.5 flex flex-col items-center justify-center gap-2">
           {/* Image Container */}
-          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
+          <div className="relative w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
             {!imageError && imageUrl ? (
               <>
                 {!imageLoaded && (
-                  <Skeleton className="absolute inset-0 w-full h-full rounded-xl" />
+                  <Skeleton className="absolute inset-0 w-full h-full rounded" />
                 )}
                 <Image
                   src={imageUrl}
@@ -89,7 +89,7 @@ function GenericCardComponent({
                 />
               </>
             ) : (
-              <span className="text-3xl sm:text-4xl font-bold text-primary/80 group-hover:text-primary transition-colors">
+              <span className="text-xs sm:text-base font-bold text-primary/80 group-hover:text-primary transition-colors">
                 {name.charAt(0).toUpperCase()}
               </span>
             )}
@@ -97,7 +97,7 @@ function GenericCardComponent({
 
           {/* Name */}
           <div className="text-center w-full">
-            <h3 className="font-semibold text-sm sm:text-base line-clamp-2 text-foreground group-hover:text-primary transition-colors leading-snug">
+            <h3 className="font-semibold text-xs sm:text-xs line-clamp-2 text-foreground group-hover:text-primary transition-colors leading-snug">
               {name}
             </h3>
           </div>
@@ -105,9 +105,9 @@ function GenericCardComponent({
           {/* Count Badge */}
           {showCount && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground group-hover:text-primary/80 transition-colors">
-              <ShoppingBag className="h-3 w-3" />
+              <ShoppingBag className="h-2 w-2" />
               <span className="font-medium">{displayCount}</span>
-              <ArrowRight className="h-3 w-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+              <ArrowRight className="h-2 w-2 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
             </div>
           )}
         </CardContent>

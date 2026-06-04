@@ -19,35 +19,35 @@ interface CustomerStatsCardProps {
 export function CustomerStatsCard({ customerStats, loading }: CustomerStatsCardProps) {
   return (
     <Card className="flex-1">
-      <CardHeader className="pb-2">
-        <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-muted-foreground" />
-          <CardTitle className="text-base">Customers</CardTitle>
+      <CardHeader className="pb-1.5">
+        <div className="flex items-center gap-1.5">
+          <Users className="h-3 w-3 text-muted-foreground" />
+          <CardTitle className="text-xs">Customers</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex justify-between">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-3 w-8" />
               </div>
             ))}
           </div>
         ) : customerStats ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {[
               { label: "Total Customers", value: customerStats.totalCustomers, color: "text-foreground" },
               { label: "New", value: customerStats.newCustomers, color: "text-sky-600 dark:text-sky-400" },
               { label: "Returning", value: customerStats.returningCustomers, color: "text-emerald-600 dark:text-emerald-400" },
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{row.label}</span>
-                <span className={cn("text-sm font-semibold tabular-nums", row.color)}>{row.value}</span>
+                <span className="text-xs text-muted-foreground">{row.label}</span>
+                <span className={cn("text-xs font-semibold tabular-nums", row.color)}>{row.value}</span>
               </div>
             ))}
-            <div className="pt-2 border-t">
+            <div className="pt-1.5 border-t">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Return rate</span>
                 <span className="font-semibold text-emerald-600 dark:text-emerald-400">
@@ -63,7 +63,7 @@ export function CustomerStatsCard({ customerStats, loading }: CustomerStatsCardP
             </div>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground text-center py-4">No data</p>
+          <p className="text-xs text-muted-foreground text-center py-3">No data</p>
         )}
       </CardContent>
     </Card>

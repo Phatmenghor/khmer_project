@@ -48,12 +48,12 @@ export function ExchangeRateDetailModal({
       </VisuallyHidden>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="text-xs font-semibold text-foreground">
               Exchange Rate Details
             </h2>
-            <p className="text-sm text-foreground mt-1">
+            <p className="text-xs text-foreground mt-1">
               {formatKhrRate(exchangeRate.usdToKhrRate)}
             </p>
           </div>
@@ -61,14 +61,14 @@ export function ExchangeRateDetailModal({
 
         {}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-6">
+          <div className="p-4 space-y-4">
             {}
             <Card>
               <CardHeader>
                 <CardTitle>Exchange Rate Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <DisplayField
                     label="USD To KHR Rate"
                     value={formatKhrRate(exchangeRate.usdToKhrRate) || "---"}
@@ -87,8 +87,8 @@ export function ExchangeRateDetailModal({
               <CardHeader>
                 <CardTitle>System Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <DisplayField label="Exchange Rate ID" value={exchangeRate.id} />
                   <DisplayField label="Business Name" value={exchangeRate.businessName || "---"} />
                   <DisplayField

@@ -47,27 +47,27 @@ export function QRTemplateModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       <div
-        className="relative z-10 w-full max-w-lg bg-background rounded-2xl shadow-2xl border border-border overflow-hidden"
+        className="relative z-10 w-full max-w-lg bg-background rounded shadow-2xl border border-border overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <QrCode className="w-4 h-4 text-primary" />
-            <span className="font-semibold text-sm text-foreground">QR Code</span>
+        <div className="flex items-center justify-between px-3.5 py-3 border-b border-border">
+          <div className="flex items-center gap-1.5">
+            <QrCode className="w-3 h-3 text-primary" />
+            <span className="font-semibold text-xs text-foreground">QR Code</span>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+            className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3 h-3" />
           </button>
         </div>
 
-        <div className="p-5">
+        <div className="p-3.5">
           <QRGenerator
             link={url}
             businessName={businessName}

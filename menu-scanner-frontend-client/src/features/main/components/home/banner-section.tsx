@@ -69,8 +69,8 @@ const BannerSectionComponent = ({
 
   if (loading) {
     return (
-      <div className="w-full mb-4 sm:mb-8">
-        <Skeleton className="w-full h-[180px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded-2xl" />
+      <div className="w-full mb-3 sm:mb-5">
+        <Skeleton className="w-full h-[180px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded" />
       </div>
     );
   }
@@ -80,7 +80,7 @@ const BannerSectionComponent = ({
   }
 
   return (
-    <div className="w-full mb-4 sm:mb-8">
+    <div className="w-full mb-3 sm:mb-5">
       <div className="relative">
         <Carousel
           setApi={setCarouselApi}
@@ -96,7 +96,7 @@ const BannerSectionComponent = ({
           <CarouselContent>
             {banners.map((banner, index) => (
               <CarouselItem key={banner.id + "-" + index}>
-                <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded-2xl overflow-hidden group">
+                <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded overflow-hidden group">
                   {!loadedImages.has(index) && (
                     <div className="absolute inset-0 bg-gradient-to-r from-muted via-muted/50 to-muted">
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
@@ -121,14 +121,14 @@ const BannerSectionComponent = ({
 
           {banners.length > 1 && (
             <>
-              <CarouselPrevious className="left-2 sm:left-4 bg-white/90 hover:bg-white border-none shadow-lg" />
-              <CarouselNext className="right-2 sm:right-4 bg-white/90 hover:bg-white border-none shadow-lg" />
+              <CarouselPrevious className="left-1.5 sm:left-3 bg-white/90 hover:bg-white border-none shadow-lg" />
+              <CarouselNext className="right-1.5 sm:right-3 bg-white/90 hover:bg-white border-none shadow-lg" />
             </>
           )}
         </Carousel>
 
         {banners.length > 1 && (
-          <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center gap-2 pointer-events-none">
+          <div className="absolute bottom-3 left-0 right-0 z-20 flex justify-center gap-1.5 pointer-events-none">
             {(() => {
               const maxDots = 12;
               const totalBanners = banners.length;
@@ -144,10 +144,10 @@ const BannerSectionComponent = ({
                       carouselApi?.scrollTo(idx);
                     }}
                     className={cn(
-                      "h-2 rounded-full transition-all duration-200 pointer-events-auto",
+                      "h-1.5 rounded-full transition-all duration-200 pointer-events-auto",
                       current === idx
-                        ? "w-8 bg-primary"
-                        : "w-2 bg-white/50 hover:bg-white/80",
+                        ? "w-5 bg-primary"
+                        : "w-1.5 bg-white/50 hover:bg-white/80",
                     )}
                     aria-label={`Go to slide ${idx + 1}`}
                   />
@@ -175,10 +175,10 @@ const BannerSectionComponent = ({
                       carouselApi?.scrollTo(idx);
                     }}
                     className={cn(
-                      "h-2 rounded-full transition-all duration-200 pointer-events-auto",
+                      "h-1.5 rounded-full transition-all duration-200 pointer-events-auto",
                       current === idx
-                        ? "w-8 bg-primary"
-                        : "w-2 bg-white/50 hover:bg-white/80",
+                        ? "w-5 bg-primary"
+                        : "w-1.5 bg-white/50 hover:bg-white/80",
                     )}
                     aria-label={`Go to slide ${idx + 1}`}
                   />

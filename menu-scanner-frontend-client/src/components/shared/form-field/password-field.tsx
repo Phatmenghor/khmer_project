@@ -19,8 +19,8 @@ export function PasswordField<T extends FieldValues = any>({
   className = "",
 }: PasswordFormFieldProps<T>) {
   return (
-    <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={name} className="text-sm font-medium">
+    <div className={`space-y-1.5 ${className}`}>
+      <Label htmlFor={name} className="text-xs font-medium">
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
       <div className="relative">
@@ -36,7 +36,7 @@ export function PasswordField<T extends FieldValues = any>({
               placeholder={placeholder}
               disabled={disabled}
               autoComplete="new-password"
-              className={`h-10 pr-12 transition-all duration-200 ${
+              className={`h-7 pr-8 transition-all duration-200 ${
                 error
                   ? "border-red-500 focus:border-red-500"
                   : "focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/30"
@@ -48,18 +48,18 @@ export function PasswordField<T extends FieldValues = any>({
           <button
             type="button"
             onClick={onTogglePassword}
-            className="absolute inset-y-0 right-0 flex items-center pr-3"
+            className="absolute inset-y-0 right-0 flex items-center pr-2"
             tabIndex={-1}
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4 text-gray-500" />
+              <EyeOff className="h-3 w-3 text-gray-500" />
             ) : (
-              <Eye className="h-4 w-4 text-gray-500" />
+              <Eye className="h-3 w-3 text-gray-500" />
             )}
           </button>
         )}
       </div>
-      {error && <p className="text-sm text-red-600">{error.message}</p>}
+      {error && <p className="text-xs text-red-600">{error.message}</p>}
     </div>
   );
 }

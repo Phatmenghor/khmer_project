@@ -176,10 +176,10 @@ export function POSEditCartItemModal({
         />
 
         {}
-        <FormBody contentClassName="space-y-6">
+        <FormBody contentClassName="space-y-4">
           {}
-          <div className="flex gap-4 p-4 bg-muted/30 rounded-lg border">
-            <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-white border flex-shrink-0">
+          <div className="flex gap-3 p-3 bg-muted/30 rounded border">
+            <div className="relative w-14 h-14 rounded overflow-hidden bg-white border flex-shrink-0">
               <Image
                 src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
                 alt={item.productName}
@@ -188,9 +188,9 @@ export function POSEditCartItemModal({
               />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-sm mb-1">{item.productName}</h4>
+              <h4 className="font-semibold text-xs mb-1">{item.productName}</h4>
               {item.sizeName && (
-                <p className="text-xs text-muted-foreground mb-2">
+                <p className="text-xs text-muted-foreground mb-1.5">
                   Size: <span className="font-medium">{item.sizeName}</span>
                 </p>
               )}
@@ -202,11 +202,11 @@ export function POSEditCartItemModal({
 
           {}
           {item.customizations && item.customizations.length > 0 && (
-            <div className="space-y-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-              <h4 className="font-semibold text-sm text-yellow-900">Add-ons ({item.customizations.length})</h4>
-              <div className="space-y-2">
+            <div className="space-y-2 p-3 bg-yellow-50 rounded border border-yellow-200">
+              <h4 className="font-semibold text-xs text-yellow-900">Add-ons ({item.customizations.length})</h4>
+              <div className="space-y-1.5">
                 {item.customizations.map((custom, idx) => (
-                  <div key={idx} className="flex justify-between items-center text-sm">
+                  <div key={idx} className="flex justify-between items-center text-xs">
                     <span className="text-yellow-800 font-medium">{custom.name}</span>
                     <span className="text-yellow-700 font-semibold">+{formatCurrency(custom.priceAdjustment)}</span>
                   </div>
@@ -216,26 +216,26 @@ export function POSEditCartItemModal({
           )}
 
           {}
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-muted-foreground mb-2 block">
+                <Label className="text-xs text-muted-foreground mb-1.5 block">
                   Original Qty
                 </Label>
-                <div className="h-10 p-2.5 bg-muted/50 rounded-lg border text-sm font-semibold flex items-center">
+                <div className="h-7 p-1.5.5 bg-muted/50 rounded border text-xs font-semibold flex items-center">
                   {item.quantity}
                 </div>
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground mb-2 block">
+                <Label className="text-xs text-muted-foreground mb-1.5 block">
                   New Qty *
                 </Label>
-                <div className="flex items-center gap-2 h-10">
+                <div className="flex items-center gap-1.5 h-7">
                   {}
                   <CustomButton
                     size="icon"
                     variant="outline"
-                    className="h-10 w-10 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                    className="h-7 w-7 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
                     onClick={() => {
                       const current = parseInt(newQuantity) || 1;
                       if (current > 1) {
@@ -243,11 +243,11 @@ export function POSEditCartItemModal({
                       }
                     }}
                   >
-                    <Minus className="h-3 w-3" />
+                    <Minus className="h-2 w-2" />
                   </CustomButton>
 
                   {}
-                  <div className="flex-1 text-center h-10 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center">
+                  <div className="flex-1 text-center h-7 bg-primary/10 text-primary font-semibold text-xs rounded border border-primary/20 flex items-center justify-center">
                     {newQuantity || item.quantity}
                   </div>
 
@@ -255,13 +255,13 @@ export function POSEditCartItemModal({
                   <CustomButton
                     size="icon"
                     variant="outline"
-                    className="h-10 w-10 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                    className="h-7 w-7 shrink-0 hover:bg-primary hover:text-primary-foreground"
                     onClick={() => {
                       const current = parseInt(newQuantity) || item.quantity;
                       setNewQuantity((current + 1).toString());
                     }}
                   >
-                    <Plus className="h-3 w-3" />
+                    <Plus className="h-2 w-2" />
                   </CustomButton>
                 </div>
               </div>
@@ -269,14 +269,14 @@ export function POSEditCartItemModal({
           </div>
 
           {}
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="promoType" className="text-xs text-muted-foreground mb-2 block">
+                <Label htmlFor="promoType" className="text-xs text-muted-foreground mb-1.5 block">
                   Promo Type
                 </Label>
                 <Select value={promotionType || "NONE"} onValueChange={(value) => setPromotionType(value === "NONE" ? null : value)}>
-                  <SelectTrigger id="promoType" className="text-sm h-10">
+                  <SelectTrigger id="promoType" className="text-xs h-7">
                     <SelectValue placeholder="None">
                       {promotionType === "PERCENTAGE" ? "Percentage (%)" : promotionType === "FIXED_AMOUNT" ? "Fixed Amount" : "None"}
                     </SelectValue>
@@ -290,7 +290,7 @@ export function POSEditCartItemModal({
               </div>
               {promotionType && (
                 <div>
-                  <Label htmlFor="promoValue" className="text-xs text-muted-foreground mb-2 block">
+                  <Label htmlFor="promoValue" className="text-xs text-muted-foreground mb-1.5 block">
                     Promo Value
                   </Label>
                   <Input
@@ -301,7 +301,7 @@ export function POSEditCartItemModal({
                     onChange={(e) => setPromotionValue(e.target.value)}
                     step="0.01"
                     min="0"
-                    className="text-sm h-10"
+                    className="text-xs h-7"
                   />
                 </div>
               )}
@@ -309,18 +309,18 @@ export function POSEditCartItemModal({
           </div>
 
           {}
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-muted-foreground mb-2 block">
+                <Label className="text-xs text-muted-foreground mb-1.5 block">
                   Original Price
                 </Label>
-                <div className="h-10 p-2.5 bg-muted/50 rounded-lg border text-sm font-semibold flex items-center">
+                <div className="h-7 p-1.5.5 bg-muted/50 rounded border text-xs font-semibold flex items-center">
                   {formatCurrency(item.currentPrice)}
                 </div>
               </div>
               <div>
-                <Label htmlFor="newPrice" className="text-xs text-muted-foreground mb-2 block">
+                <Label htmlFor="newPrice" className="text-xs text-muted-foreground mb-1.5 block">
                   New Price *
                 </Label>
                 <Input
@@ -331,27 +331,27 @@ export function POSEditCartItemModal({
                   onChange={(e) => setNewPrice(e.target.value)}
                   step="0.01"
                   min="0"
-                  className="text-sm h-10"
+                  className="text-xs h-7"
                 />
               </div>
             </div>
           </div>
 
           {}
-          <div className="space-y-3">
-            <Label className="text-sm font-semibold">Reason for Change (Optional)</Label>
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold">Reason for Change (Optional)</Label>
             <Textarea
               placeholder="e.g., Customer complaint, price adjustment, promotion applied, etc."
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="text-sm resize-none h-24"
+              className="text-xs resize-none h-16"
             />
           </div>
 
           {}
-          <div className="space-y-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
-            <h4 className="font-semibold text-sm">Summary</h4>
-            <div className="space-y-2 text-sm">
+          <div className="space-y-2 p-3 bg-primary/5 rounded border border-primary/20">
+            <h4 className="font-semibold text-xs">Summary</h4>
+            <div className="space-y-1.5 text-xs">
               {item.sizeName && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Size:</span>
@@ -369,7 +369,7 @@ export function POSEditCartItemModal({
                 </div>
               )}
               {addonsTotal > 0 && (
-                <div className="flex justify-between font-semibold border-t pt-2">
+                <div className="flex justify-between font-semibold border-t pt-1.5">
                   <span className="text-muted-foreground">Price with Add-ons:</span>
                   <span className="text-primary">{formatCurrency(priceWithAddons)}</span>
                 </div>
@@ -387,9 +387,9 @@ export function POSEditCartItemModal({
                   </span>
                 </div>
               )}
-              <div className="flex justify-between border-t pt-2">
+              <div className="flex justify-between border-t pt-1.5">
                 <span className="text-muted-foreground font-semibold">Total:</span>
-                <span className="text-lg font-bold text-primary">
+                <span className="text-xs font-bold text-primary">
                   {formatCurrency(calculatedTotal)}
                 </span>
               </div>

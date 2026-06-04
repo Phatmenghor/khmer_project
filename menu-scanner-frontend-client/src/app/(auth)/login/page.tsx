@@ -143,44 +143,44 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
 
         {/* bottom branding */}
-        <div className="absolute bottom-10 left-10 right-10 text-white">
-          <p className="text-xs font-semibold uppercase tracking-widest text-white/50 mb-3">
+        <div className="absolute bottom-7 left-7 right-7 text-white">
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/50 mb-2">
             Management System
           </p>
-          <h2 className="text-3xl font-bold leading-snug">Admin Control Panel</h2>
-          <p className="text-sm text-white/50 mt-2 max-w-xs leading-relaxed">
+          <h2 className="text-xs font-bold leading-snug">Admin Control Panel</h2>
+          <p className="text-xs text-white/50 mt-1.5 max-w-xs leading-relaxed">
             Secure access to manage your business operations and team.
           </p>
         </div>
       </div>
 
       {/* ── Right — form panel ── */}
-      <div className="flex flex-1 items-center justify-center bg-muted/40 p-6">
-        <Card className="w-full max-w-lg shadow-2xl border border-border/60 rounded-2xl overflow-hidden">
+      <div className="flex flex-1 items-center justify-center bg-muted/40 p-4">
+        <Card className="w-full max-w-lg shadow-2xl border border-border/60 rounded overflow-hidden">
 
           {/* Card header */}
-          <div className="bg-primary/5 border-b border-border/50 px-8 pt-8 pb-6">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-                <ShieldCheck className="h-5 w-5 text-primary-foreground" />
+          <div className="bg-primary/5 border-b border-border/50 px-5 pt-5 pb-4">
+            <div className="flex items-center gap-2 mb-3.5">
+              <div className="w-7 h-7 rounded bg-primary flex items-center justify-center shadow-sm">
+                <ShieldCheck className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-widest text-primary">
                 Admin Panel
               </span>
             </div>
-            <h1 className="text-2xl font-bold text-foreground leading-tight">
+            <h1 className="text-base font-bold text-foreground leading-tight">
               Welcome back
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Sign in to your account to continue
             </p>
           </div>
 
           {/* Card body */}
-          <CardContent className="px-8 py-7 space-y-5">
+          <CardContent className="px-5 py-5 space-y-3.5">
 
             {/* Credentials form */}
-            <form onSubmit={form.handleSubmit(handleLoginSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(handleLoginSubmit)} className="space-y-3">
               <TextField
                 name="userIdentifier"
                 label="Email or Username"
@@ -205,12 +205,12 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full h-10 font-semibold"
+                className="w-full h-7 font-semibold"
                 disabled={isAnyLoading}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
                     Signing in...
                   </>
                 ) : (
@@ -225,7 +225,7 @@ export default function LoginPage() {
                 <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-background px-3 text-xs text-muted-foreground">
+                <span className="bg-background px-2 text-xs text-muted-foreground">
                   or continue with
                 </span>
               </div>
@@ -238,11 +238,11 @@ export default function LoginPage() {
               onAuth={handleTelegramAuth}
               disabled={isAnyLoading}
               loading={isTelegramLoading}
-              className="w-full h-10"
+              className="w-full h-7"
             />
 
             {/* Sign up link */}
-            <div className="text-center text-sm pt-2">
+            <div className="text-center text-xs pt-1.5">
               <span className="text-muted-foreground">Don't have an account? </span>
               <Link
                 href="/(auth)/signup"

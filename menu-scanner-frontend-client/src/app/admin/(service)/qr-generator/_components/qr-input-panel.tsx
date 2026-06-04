@@ -48,11 +48,11 @@ export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
 
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold">QR Configuration</CardTitle>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-xs font-semibold">QR Configuration</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-5">
+      <CardContent className="space-y-3.5">
         {/* ── QR Type ── */}
         <FieldRow label="QR Type" required>
           <Select
@@ -60,13 +60,13 @@ export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
             onValueChange={(val) => onUpdate({ type: val as QRType })}
           >
             <SelectTrigger className="w-full">
-              <span className="text-sm truncate">{selectedLabel}</span>
+              <span className="text-xs truncate">{selectedLabel}</span>
             </SelectTrigger>
             <SelectContent>
               {QR_TYPE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-medium text-sm whitespace-nowrap">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="font-medium text-xs whitespace-nowrap">
                       {option.label}
                     </span>
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
@@ -82,7 +82,7 @@ export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
         <Separator />
 
         {/* ── URL Fields ── */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <FieldRow id="shopId" label="Shop ID" required>
             <Input
               id="shopId"
@@ -122,7 +122,7 @@ export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
         <Separator />
 
         {/* ── Card Display ── */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <p className="text-xs font-semibold text-foreground">Card Display</p>
 
           <FieldRow

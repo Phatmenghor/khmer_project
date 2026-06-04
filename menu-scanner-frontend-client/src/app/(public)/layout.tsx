@@ -52,7 +52,7 @@ export default function PublicLayout({
       <Navbar />
 
       {}
-      <main className="flex-1 pb-16 sm:pb-0">
+      <main className="flex-1 pb-11 sm:pb-0">
         <Suspense>{children}</Suspense>
       </main>
 

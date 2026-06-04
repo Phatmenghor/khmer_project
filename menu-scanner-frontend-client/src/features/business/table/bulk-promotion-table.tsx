@@ -35,11 +35,11 @@ function ProductImagePreview({
   const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
-    <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
+    <div className="relative w-8 h-8 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
       {!imageError && product?.mainImageUrl ? (
         <>
           {!imageLoaded && (
-            <Skeleton className="absolute inset-0 w-full h-full rounded-lg" />
+            <Skeleton className="absolute inset-0 w-full h-full rounded" />
           )}
           <Image
             src={product.mainImageUrl}
@@ -55,7 +55,7 @@ function ProductImagePreview({
           />
         </>
       ) : (
-        <span className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
+        <span className="text-xs font-bold text-primary/80 hover:text-primary transition-colors">
           {product?.name?.charAt(0).toUpperCase() || "P"}
         </span>
       )}
@@ -85,7 +85,7 @@ export const bulkPromotionTableColumns = ({
       width: "50px",
       minWidth: "10px",
       maxWidth: "120px",
-      className: "pr-2",
+      className: "pr-1.5",
       render: (_, index) => (
         <span className="font-medium text-xs pointer-events-none">
           {indexDisplay(pageNo || 1, pageSize || 10, index + 1)}
@@ -97,9 +97,9 @@ export const bulkPromotionTableColumns = ({
       label: "Actions",
       minWidth: "10px",
       maxWidth: "120px",
-      className: "px-2",
+      className: "px-1.5",
       render: (product) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <CustomCheckbox
             checked={selectedProductIds.has(product.id)}
             onCheckedChange={() => onSelectProduct(product.id)}
@@ -110,13 +110,13 @@ export const bulkPromotionTableColumns = ({
           />
 
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => onViewDetails?.(product)}
           />
           {product?.hasPromotion && (
             <ActionButton
-              icon={<RotateCcw className="w-4 h-4" />}
+              icon={<RotateCcw className="w-3 h-3" />}
               tooltip="Reset Promotion"
               onClick={() => onResetPromotion?.(product)}
             />
@@ -131,7 +131,7 @@ export const bulkPromotionTableColumns = ({
       width: "60px",
       minWidth: "10px",
       maxWidth: "120px",
-      className: "px-2",
+      className: "px-1.5",
       render: (product) => <ProductImagePreview product={product} />,
     },
     {
@@ -140,7 +140,7 @@ export const bulkPromotionTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      className: "px-4",
+      className: "px-3",
       render: (product) => (
         <span className="text-xs text-muted-foreground">
           {product?.name || "---"}
@@ -153,7 +153,7 @@ export const bulkPromotionTableColumns = ({
       label: "Price",
       minWidth: "100px",
       maxWidth: "200px",
-      className: "px-4",
+      className: "px-3",
       render: (product) => {
         return (
           <div className="space-y-1">
@@ -176,14 +176,14 @@ export const bulkPromotionTableColumns = ({
       label: "Sizes",
       minWidth: "10px",
       maxWidth: "400px",
-      className: "px-4",
+      className: "px-3",
       render: (product) => {
         if (!product.hasSizes || !product.sizes || product.sizes.length === 0) {
           return <span className="text-xs text-muted-foreground">- - -</span>;
         }
 
         return (
-          <div className="flex flex-row gap-1.5 items-center flex-nowrap overflow-x-auto pb-2">
+          <div className="flex flex-row gap-1.5 items-center flex-nowrap overflow-x-auto pb-1.5">
             {product.sizes.map((size) => {
               const isSelected =
                 selectedSizes.get(product.id)?.has(size.id) || false;
@@ -193,7 +193,7 @@ export const bulkPromotionTableColumns = ({
                 <label
                   key={size.id}
                   className={cn(
-                    "flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs transition-all duration-150 cursor-pointer group whitespace-nowrap flex-shrink-0",
+                    "flex items-center gap-1.5 px-1.5 py-1 rounded border text-xs transition-all duration-150 cursor-pointer group whitespace-nowrap flex-shrink-0",
                     isSelected
                       ? "bg-primary/15 border-primary/50 hover:bg-primary/20 hover:border-primary/70 shadow-sm"
                       : "bg-white border-border/50 hover:bg-gray-50 hover:border-border/70",
@@ -235,7 +235,7 @@ export const bulkPromotionTableColumns = ({
       minWidth: "10px",
       maxWidth: "120px",
       truncate: true,
-      className: "px-4",
+      className: "px-3",
       render: (product) => (
         <span className="text-xs text-muted-foreground font-mono">
           {product?.sku || "---"}
@@ -249,7 +249,7 @@ export const bulkPromotionTableColumns = ({
       minWidth: "10px",
       maxWidth: "120px",
       truncate: true,
-      className: "px-4",
+      className: "px-3",
       render: (product) => (
         <span className="text-xs text-muted-foreground font-mono">
           {product?.barcode || "---"}

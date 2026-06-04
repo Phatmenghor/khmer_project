@@ -133,7 +133,7 @@ export default function AttendanceModal({
         />
 
         {isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -143,8 +143,8 @@ export default function AttendanceModal({
           >
             <FormBody>
               {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
+                <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                  <p className="text-xs text-destructive font-medium">
                     {reduxError}
                   </p>
                 </div>
@@ -167,7 +167,7 @@ export default function AttendanceModal({
               isCreate={false}
               updateMessage="Updating remarks..."
             >
-              <div className="flex items-center justify-end w-full gap-2">
+              <div className="flex items-center justify-end w-full gap-1.5">
                 <CancelButton onClick={handleClose} disabled={isUpdating} />
                 <SubmitButton
                   isSubmitting={isUpdating}

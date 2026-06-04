@@ -59,21 +59,21 @@ export function CartItemCard({
   showControls = true,
 }: CartItemCardProps) {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 relative group">
+    <div className="bg-white border border-slate-200 rounded p-3 hover:shadow-md transition-all duration-200 relative group">
       {}
       <CustomButton
         size="icon"
         variant="outline"
-        className="absolute top-3 right-3 h-8 w-8 shrink-0 text-red-600 hover:bg-red-100"
+        className="absolute top-2 right-2 h-5 w-5 shrink-0 text-red-600 hover:bg-red-100"
         onClick={onRemove}
         title="Remove item"
       >
-        <X className="h-4 w-4" />
+        <X className="h-3 w-3" />
       </CustomButton>
 
-      <div className="flex gap-4">
+      <div className="flex gap-3">
         {}
-        <div className="relative w-[80px] h-[80px] rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
+        <div className="relative w-[80px] h-[80px] rounded overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
           {showLink ? (
             <Link href={`/products/${productId}`}>
               <Image
@@ -105,22 +105,22 @@ export function CartItemCard({
         </div>
 
         {}
-        <div className="flex-1 min-w-0 flex flex-col justify-between pr-2">
+        <div className="flex-1 min-w-0 flex flex-col justify-between pr-1.5">
           {}
-          <h3 className="font-semibold text-sm leading-tight text-slate-900 line-clamp-1 mb-2">
+          <h3 className="font-semibold text-xs leading-tight text-slate-900 line-clamp-1 mb-1.5">
             {productName}
           </h3>
 
           {/* Size + customizations */}
           {(sizeName || (customizations && customizations.length > 0)) && (
-            <div className="flex flex-wrap gap-1.5 mb-2">
+            <div className="flex flex-wrap gap-1.5 mb-1.5">
               {sizeName && (
-                <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
+                <span className="text-xs font-medium text-primary bg-primary/5 px-1.5.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
                   {sizeName}
                 </span>
               )}
               {customizations?.map((c) => (
-                <span key={c.productCustomizationId} className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full border border-border whitespace-nowrap">
+                <span key={c.productCustomizationId} className="text-xs font-medium text-muted-foreground bg-muted px-1.5.5 py-1 rounded-full border border-border whitespace-nowrap">
                   {c.name}{c.priceAdjustment > 0 ? ` +${formatCurrency(c.priceAdjustment)}` : ""}
                 </span>
               ))}
@@ -129,10 +129,10 @@ export function CartItemCard({
 
           {}
           {showControls && (
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-2">
               {}
-              <div className="flex items-baseline gap-2">
-                <span className="font-bold text-base text-slate-900">
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-bold text-xs text-slate-900">
                   {formatCurrency(finalPrice)}
                 </span>
                 {hasPromotion && currentPrice > finalPrice && (
@@ -148,7 +148,7 @@ export function CartItemCard({
                 <CustomButton
                   size="icon"
                   variant="outline"
-                  className="h-8 w-8 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                  className="h-5 w-5 shrink-0 hover:bg-destructive hover:text-destructive-foreground"
                   onClick={() => {
                     const newQuantity = quantity - 1;
                     if (newQuantity === 0) {
@@ -158,11 +158,11 @@ export function CartItemCard({
                     }
                   }}
                 >
-                  <Minus className="h-3 w-3" />
+                  <Minus className="h-2 w-2" />
                 </CustomButton>
 
                 {}
-                <div className="flex-1 text-center h-8 bg-primary/10 text-primary font-semibold text-sm rounded-lg border border-primary/20 flex items-center justify-center w-10">
+                <div className="flex-1 text-center h-5 bg-primary/10 text-primary font-semibold text-xs rounded border border-primary/20 flex items-center justify-center w-7">
                   {quantity}
                 </div>
 
@@ -170,10 +170,10 @@ export function CartItemCard({
                 <CustomButton
                   size="icon"
                   variant="outline"
-                  className="h-8 w-8 shrink-0 hover:bg-primary hover:text-primary-foreground"
+                  className="h-5 w-5 shrink-0 hover:bg-primary hover:text-primary-foreground"
                   onClick={() => onQuantityChange(quantity + 1)}
                 >
-                  <Plus className="h-3 w-3" />
+                  <Plus className="h-2 w-2" />
                 </CustomButton>
               </div>
             </div>

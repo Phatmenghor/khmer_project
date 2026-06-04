@@ -39,10 +39,10 @@ function NavbarAuthComponent({
       <Button
         variant="ghost"
         size="icon"
-        className="h-9 w-9 lg:hover:bg-primary/10 lg:hover:text-primary transition-colors"
+        className="h-6 w-6 lg:hover:bg-primary/10 lg:hover:text-primary transition-colors"
         onClick={onLoginClick}
       >
-        <User className="h-5 w-5" />
+        <User className="h-3.5 w-3.5" />
       </Button>
     );
   }
@@ -52,12 +52,12 @@ function NavbarAuthComponent({
       items: [
         {
           label: "My Profile",
-          icon: <User className="h-4 w-4" />,
+          icon: <User className="h-3 w-3" />,
           onClick: () => router.push("/profile"),
         },
         {
           label: "Location",
-          icon: <MapPin className="h-4 w-4" />,
+          icon: <MapPin className="h-3 w-3" />,
           onClick: () => router.push("/location"),
         },
       ],
@@ -66,7 +66,7 @@ function NavbarAuthComponent({
       items: [
         {
           label: "Logout",
-          icon: <LogOut className="h-4 w-4" />,
+          icon: <LogOut className="h-3 w-3" />,
           onClick: onLogout,
           variant: "destructive" as const,
         },
@@ -75,14 +75,14 @@ function NavbarAuthComponent({
   ];
 
   const dropdownHeader = (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       <CustomAvatar
         imageUrl={profileImage || profile?.profileImageUrl}
         name={fullName || profile?.fullName || "User"}
         size="lg"
       />
       <div className="flex flex-col space-y-0.5 flex-1 min-w-0">
-        <p className="text-sm font-semibold line-clamp-1">
+        <p className="text-xs font-semibold line-clamp-1">
           {fullName || profile?.fullName || "User"}
         </p>
         <p className="text-xs text-muted-foreground line-clamp-1">
@@ -95,7 +95,7 @@ function NavbarAuthComponent({
   return (
     <CustomDropdownMenu
       trigger={
-        <div className="relative h-10 w-10 rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
+        <div className="relative h-7 w-7 rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
           <CustomAvatar
             imageUrl={profileImage || profile?.profileImageUrl}
             name={fullName || profile?.fullName || "User"}

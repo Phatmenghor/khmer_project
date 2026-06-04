@@ -66,33 +66,33 @@ export function ReviewSubmissionModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3">
+      <div className="bg-white rounded max-w-lg w-full max-h-[90vh] overflow-y-auto">
         {}
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Write a Review</h2>
+        <div className="sticky top-0 bg-white border-b px-4 py-3 flex items-center justify-between">
+          <h2 className="text-base font-bold">Write a Review</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {}
-        <form onSubmit={handleSubmit(onFormSubmit)} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="p-4 space-y-4">
           {}
-          <div className="text-center pb-4 border-b">
+          <div className="text-center pb-3 border-b">
             <p className="text-gray-600">You're reviewing</p>
-            <h3 className="text-xl font-semibold text-orange-600">
+            <h3 className="text-xs font-semibold text-orange-600">
               {businessName}
             </h3>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-3">
+            <label className="block text-xs font-medium mb-2">
               Your Rating *
             </label>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -103,7 +103,7 @@ export function ReviewSubmissionModal({
                   className="focus:outline-none transition-transform hover:scale-110"
                 >
                   <Star
-                    className={`w-12 h-12 ${
+                    className={`w-8 h-8 ${
                       star <= (hoverRating || rating)
                         ? "fill-yellow-400 text-yellow-400"
                         : "text-gray-300"
@@ -113,7 +113,7 @@ export function ReviewSubmissionModal({
               ))}
             </div>
             {rating > 0 && (
-              <p className="text-center mt-3 text-lg font-semibold text-gray-700">
+              <p className="text-center mt-2 text-xs font-semibold text-gray-700">
                 {rating === 1 && "Poor"}
                 {rating === 2 && "Fair"}
                 {rating === 3 && "Good"}
@@ -123,7 +123,7 @@ export function ReviewSubmissionModal({
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-xs font-medium mb-1.5">
               Your Name *
             </label>
             <Controller
@@ -135,13 +135,13 @@ export function ReviewSubmissionModal({
               )}
             />
             {errors.customerName && (
-              <p className="text-red-600 text-sm mt-1">
+              <p className="text-red-600 text-xs mt-1">
                 {errors.customerName.message}
               </p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-xs font-medium mb-1.5">
               Tell us about your experience *
             </label>
             <Controller
@@ -163,19 +163,19 @@ export function ReviewSubmissionModal({
               )}
             />
             {errors.comment && (
-              <p className="text-red-600 text-sm mt-1">
+              <p className="text-red-600 text-xs mt-1">
                 {errors.comment.message}
               </p>
             )}
             <p className="text-gray-500 text-xs mt-1">Minimum 10 characters</p>
           </div>
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-3 rounded">
             <p className="text-xs text-gray-600">
               Your review will be reviewed by the business owner before being
               published. Thank you for your feedback!
             </p>
           </div>
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 pt-3">
             <Button
               type="button"
               variant="outline"

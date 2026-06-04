@@ -55,7 +55,7 @@ export const userBusinessTableColumns = ({
       maxWidth: "400px",
       render: (user) => {
         return (
-          <div className="h-12 w-12 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+          <div className="h-8 w-8 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
             {user.profileImageUrl ? (
               <img
                 src={user.profileImageUrl}
@@ -142,7 +142,7 @@ export const userBusinessTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (user) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Switch
             checked={user?.accountStatus === "ACTIVE"}
             onCheckedChange={() => handleToggleStatus(user)}
@@ -159,7 +159,7 @@ export const userBusinessTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (user) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(user?.createdAt)}
         </span>
       ),
@@ -170,24 +170,24 @@ export const userBusinessTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (user) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewUserDetail(user)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit User"
             onClick={() => handleEditUser(user)}
           />
           <ActionButton
-            icon={<RotateCw className="w-4 h-4" />}
+            icon={<RotateCw className="w-3 h-3" />}
             tooltip="Reset Password"
             onClick={() => handleResetPassword(user)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete User"
             onClick={() => handleDeleteUser(user)}
             variant="destructive"

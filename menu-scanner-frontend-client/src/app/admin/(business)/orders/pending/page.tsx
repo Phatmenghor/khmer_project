@@ -186,15 +186,15 @@ export default function PendingOrdersAdminPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-3 px-1.5">
+      <div className="space-y-3">
         <CardHeaderSection
           title="Pending Orders"
           searchValue={filters.search}
           searchPlaceholder="Search order..."
           onSearchChange={handleSearchChange}
           buttonText="New Order"
-          buttonIcon={<Plus className="h-4 w-4" />}
+          buttonIcon={<Plus className="h-3 w-3" />}
           buttonHref={ROUTES.ADMIN.POS}
           buttonTooltip="Create a new POS order"
         >

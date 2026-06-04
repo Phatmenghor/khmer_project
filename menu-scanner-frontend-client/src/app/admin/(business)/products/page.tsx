@@ -405,15 +405,15 @@ export default function ProductPage() {
   }), [filters, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection]);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-3 px-1.5">
+      <div className="space-y-3">
         <CollapsibleFilterPanel
           config={filterConfig}
           essentialFilterIds={["size", "status"]}
         />
 
         {}
-        <div className="overflow-x-auto max-w-full rounded-lg border">
+        <div className="overflow-x-auto max-w-full rounded border">
           <DataTableWithPagination
           data={productContent}
           columns={columns}

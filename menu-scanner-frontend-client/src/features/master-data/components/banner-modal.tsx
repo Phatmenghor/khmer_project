@@ -178,16 +178,16 @@ export default function BannerModal({
             <FormBody>
               {}
               {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
-                  <p className="text-sm text-destructive font-medium">
+                <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+                  <p className="text-xs text-destructive font-medium">
                     {reduxError}
                   </p>
                 </div>
               )}
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <ClickableImageUpload
                     label="Banner Image"
                     value={imageUrl}
@@ -200,13 +200,13 @@ export default function BannerModal({
                 </div>
 
                 {}
-                <div className="border-t pt-6">
-                  <h3 className="text-sm font-semibold text-foreground mb-4">
+                <div className="border-t pt-4">
+                  <h3 className="text-xs font-semibold text-foreground mb-3">
                     Banner Details
                   </h3>
 
                   {}
-                  <div className="grid grid-cols-1 gap-4 mb-4">
+                  <div className="grid grid-cols-1 gap-3 mb-3">
                     <TextAreaField
                       control={control}
                       name="description"
@@ -219,7 +219,7 @@ export default function BannerModal({
                   </div>
 
                   {}
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 gap-3">
                     <SelectField
                       control={control}
                       name="status"

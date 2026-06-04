@@ -192,15 +192,15 @@ export default function ExchangeRateModal({
           <FormBody>
             {}
             {reduxError && (
-              <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
-                <p className="text-sm text-destructive font-medium">
+              <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+                <p className="text-xs text-destructive font-medium">
                   {reduxError}
                 </p>
               </div>
             )}
 
             {}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <TextField
                 control={control as any}
                 name="usdToKhrRate"

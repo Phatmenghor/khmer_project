@@ -240,19 +240,19 @@ export default function PaymentOptionsPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-3 px-1.5">
+      <div className="space-y-3">
         <CardHeaderSection
           title="Payment Options Information"
           buttonTooltip="Create a new payment option"
           searchValue={filters.search}
           searchPlaceholder="Search payment options..."
-          buttonIcon={<Plus className="w-3 h-3" />}
+          buttonIcon={<Plus className="w-2 h-2" />}
           buttonText="New"
           onSearchChange={handleSearchChange}
           openModal={handleCreatePaymentOption}
         >
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
             <CustomSelect
               options={STATUS_FILTER}
               value={filters.status}

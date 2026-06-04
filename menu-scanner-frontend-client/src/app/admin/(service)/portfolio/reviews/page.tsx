@@ -91,8 +91,8 @@ export default function PortfolioReviewsPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-3 px-1.5">
+      <div className="space-y-3">
         <CardHeaderSection
           title="Customer Reviews"
           searchValue={filters.search}

@@ -62,12 +62,12 @@ export function SubmitButton({
     >
       {isSubmitting ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
           {getButtonText()}
         </>
       ) : (
         <>
-          {icon && <span className="mr-2">{icon}</span>}
+          {icon && <span className="mr-1.5">{icon}</span>}
           {getButtonText()}
         </>
       )}

@@ -677,36 +677,36 @@ export default function BulkPromotionPage() {
   return (
     <div className="flex flex-1 flex-col h-full bg-background scroll-smooth">
       {}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-4 bg-background border-b border-border shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-3 bg-background border-b border-border shrink-0">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
-            className="h-9 w-9 hover:bg-muted"
+            className="h-6 w-6 hover:bg-muted"
             title="Go back"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-3.5 w-3.5" />
           </Button>
           <div className="flex flex-col">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+            <h1 className="text-xs sm:text-base font-bold text-foreground">
               Create Bulk Promotion
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            <p className="text-xs sm:text-xs text-muted-foreground mt-0.5">
               Select products and apply discount settings
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <Button
             variant="outline"
             size="sm"
             onClick={handleClearSelectedPromotionsClick}
             disabled={selectedIds.length === 0 || isSubmitting}
-            className="gap-2"
+            className="gap-1.5"
             title="Clear promotion for selected products and sizes"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3 w-3" />
             <span className="hidden sm:inline">Clear Promotion Selected</span>
           </Button>
 
@@ -714,10 +714,10 @@ export default function BulkPromotionPage() {
             variant="destructive"
             size="sm"
             onClick={() => setShowResetModal(true)}
-            className="gap-2"
+            className="gap-1.5"
             title="Reset all promotions"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3 w-3" />
             <span className="hidden sm:inline">Reset All</span>
           </Button>
         </div>
@@ -729,14 +729,14 @@ export default function BulkPromotionPage() {
         className="flex flex-1 flex-col lg:flex-row overflow-hidden min-h-0"
       >
         {}
-        <div className="flex-1 flex flex-col gap-4 px-2 sm:px-4 py-4 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
+        <div className="flex-1 flex flex-col gap-3 px-1.5 sm:px-3 py-3 overflow-y-auto min-h-0 lg:border-r lg:border-border scroll-smooth">
           {}
-          <div className="rounded-lg border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
+          <div className="rounded border border-border/60 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/50 hover:to-muted/30 transition-all duration-200 overflow-hidden">
             {}
-            <div className="px-4 py-3 border-b border-border/40">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="px-3 py-2 border-b border-border/40">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                 {}
-                <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
                   <CustomCheckbox
                     checked={allSelected}
                     onCheckedChange={handleSelectAll}
@@ -749,7 +749,7 @@ export default function BulkPromotionPage() {
 
                   {}
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-sm font-semibold text-foreground">
+                    <span className="text-xs font-semibold text-foreground">
                       {allSelected
                         ? "All products selected"
                         : someSelected
@@ -767,25 +767,25 @@ export default function BulkPromotionPage() {
                 </div>
 
                 {}
-                <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                <div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto">
                   {}
                   <div className="relative flex-1 sm:flex-none sm:w-auto sm:min-w-[300px] sm:max-w-[370px]">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
                     <input
                       type="text"
                       placeholder="Search product..."
                       value={searchQuery}
                       onChange={(e) => handleSearchChange(e.target.value)}
-                      className="w-full pl-9 pr-9 py-2 rounded-md border border-border bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                      className="w-full pl-6 pr-6 py-1.5 rounded border border-border bg-background text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                     />
                     {searchQuery && (
                       <button
                         type="button"
                         onClick={handleClearSearch}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
                         title="Clear search"
                       >
-                        <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                        <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
                       </button>
                     )}
                   </div>
@@ -795,10 +795,10 @@ export default function BulkPromotionPage() {
                     <button
                       type="button"
                       onClick={handleClearAllSelections}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150 flex-shrink-0"
+                      className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150 flex-shrink-0"
                       title="Clear all selections (stored in browser)"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-2.5 w-2.5" />
                       <span className="hidden sm:inline">Clear</span>
                     </button>
                   )}
@@ -807,7 +807,7 @@ export default function BulkPromotionPage() {
             </div>
 
             {}
-            <div className="px-4 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            <div className="px-3 py-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5.5">
               {}
               <div className="min-w-0">
                 <ComboboxSelectCategories
@@ -864,50 +864,50 @@ export default function BulkPromotionPage() {
         </div>
 
         {}
-        <div className="w-full lg:w-96 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth bg-background">
+        <div className="w-full lg:w-64 flex flex-col border-t lg:border-t-0 lg:border-l border-border min-h-0 overflow-hidden scroll-smooth bg-background">
           <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-4 sm:px-5 md:px-4 lg:px-5 py-6 sm:py-8 md:py-6 lg:py-8 space-y-5 sm:space-y-6 md:space-y-5 lg:space-y-6">
+            <div className="px-3 sm:px-3.5 md:px-3 lg:px-3.5 py-4 sm:py-5 md:py-4 lg:py-5 space-y-3.5 sm:space-y-4 md:space-y-3.5 lg:space-y-4">
               {}
-              <div className="space-y-2 border-b border-border pb-4">
-                <h2 className="text-lg sm:text-xl font-bold text-foreground">
+              <div className="space-y-1.5 border-b border-border pb-3">
+                <h2 className="text-xs sm:text-xs font-bold text-foreground">
                   Promotion Setup
                 </h2>
-                <p className="text-xs sm:text-sm text-muted-foreground">
+                <p className="text-xs sm:text-xs text-muted-foreground">
                   Configure discount details for selected products
                 </p>
               </div>
 
               {}
-              <div className="rounded-lg p-5 bg-gradient-to-r from-primary/15 to-green-500/15 border border-primary/25 shadow-sm">
-                <div className="space-y-3">
+              <div className="rounded p-3.5 bg-gradient-to-r from-primary/15 to-green-500/15 border border-primary/25 shadow-sm">
+                <div className="space-y-2">
                   <p className="text-xs font-bold uppercase tracking-wider text-primary/70">
                     Selection Status
                   </p>
 
                   {}
-                  <div className="flex items-center gap-6 sm:gap-8">
+                  <div className="flex items-center gap-4 sm:gap-5">
                     {}
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-5xl sm:text-6xl font-black text-primary">
+                    <div className="flex items-baseline gap-1.5">
+                      <p className="text-xs sm:text-base font-black text-primary">
                         {selectedIds.length}
                       </p>
-                      <p className="text-xs sm:text-sm font-semibold text-foreground/60">
+                      <p className="text-xs sm:text-xs font-semibold text-foreground/60">
                         {selectedIds.length === 1 ? "Product" : "Products"}
                       </p>
                     </div>
 
                     {}
-                    <div className="h-12 w-px bg-primary/20" />
+                    <div className="h-8 w-px bg-primary/20" />
 
                     {}
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-3xl sm:text-4xl font-black text-green-600">
+                    <div className="flex items-baseline gap-1.5">
+                      <p className="text-xs sm:text-base font-black text-green-600">
                         {Object.values(selectedSizesFromRedux).reduce(
                           (sum, sizeArray) => sum + sizeArray.length,
                           0,
                         )}
                       </p>
-                      <p className="text-xs sm:text-sm font-semibold text-foreground/60">
+                      <p className="text-xs sm:text-xs font-semibold text-foreground/60">
                         {Object.values(selectedSizesFromRedux).reduce(
                           (sum, sizeArray) => sum + sizeArray.length,
                           0,
@@ -921,14 +921,14 @@ export default function BulkPromotionPage() {
               </div>
 
               {}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {}
-                <div className="rounded-lg border border-border/60 p-4 space-y-3 bg-muted/30 hover:bg-muted/50 transition-colors">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <div className="rounded border border-border/60 p-3 space-y-2 bg-muted/30 hover:bg-muted/50 transition-colors">
+                  <h3 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                     Discount Settings
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <CustomSelect
                       placeholder="Choose discount type..."
                       label="Discount Type"
@@ -966,15 +966,15 @@ export default function BulkPromotionPage() {
                 </div>
 
                 {}
-                <div className="rounded-lg border border-border/60 p-4 space-y-3 bg-muted/30 hover:bg-muted/50 transition-colors">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <div className="rounded border border-border/60 p-3 space-y-2 bg-muted/30 hover:bg-muted/50 transition-colors">
+                  <h3 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-600" />
                     Duration
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <DateTimePickerField
                       control={form.control}
-                      className="h-10"
+                      className="h-7"
                       name="promotionFromDate"
                       label="Start Date"
                       required
@@ -984,7 +984,7 @@ export default function BulkPromotionPage() {
 
                     <DateTimePickerField
                       control={form.control}
-                      className="h-10"
+                      className="h-7"
                       name="promotionToDate"
                       label="End Date"
                       required
@@ -996,13 +996,13 @@ export default function BulkPromotionPage() {
               </div>
 
               {}
-              <div className="border-t border-border pt-5">
-                <div className="flex gap-3 sm:gap-4 md:gap-3 lg:gap-4">
+              <div className="border-t border-border pt-3.5">
+                <div className="flex gap-2 sm:gap-3 md:gap-2 lg:gap-3">
                   <CancelButton
                     onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
                     disabled={isSubmitting}
                     variant="outline"
-                    className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                    className="flex-1 h-7 sm:h-8 md:h-7 lg:h-8 text-xs sm:text-xs md:text-xs lg:text-xs font-semibold rounded border border-border hover:bg-muted/50 transition-colors"
                     text="Cancel"
                   />
                   <SubmitButton
@@ -1014,7 +1014,7 @@ export default function BulkPromotionPage() {
                     disabled={!isFormValid}
                     onClick={handleApplyClick}
                     variant="default"
-                    className="flex-1 h-10 sm:h-11 md:h-10 lg:h-11 text-xs sm:text-sm md:text-xs lg:text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                    className="flex-1 h-7 sm:h-8 md:h-7 lg:h-8 text-xs sm:text-xs md:text-xs lg:text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded shadow-md hover:shadow-lg transition-all disabled:opacity-50"
                   />
                 </div>
               </div>

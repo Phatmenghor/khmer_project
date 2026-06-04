@@ -53,12 +53,12 @@ export function TelegramLoginModal({
         variant="outline"
         onClick={() => setIsOpen(true)}
         disabled={disabled || loading}
-        className={`inline-flex items-center justify-center gap-2 ${className}`}
+        className={`inline-flex items-center justify-center gap-1.5 ${className}`}
       >
         {loading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-3 w-3 animate-spin" />
         ) : (
-          <TelegramIcon className="h-4 w-4 text-[#0088cc]" />
+          <TelegramIcon className="h-3 w-3 text-[#0088cc]" />
         )}
         {loading ? "Connecting..." : buttonLabel}
       </Button>
@@ -67,9 +67,9 @@ export function TelegramLoginModal({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#0088cc] flex items-center justify-center">
-                <TelegramIcon className="h-4 w-4 text-white" />
+            <DialogTitle className="flex items-center gap-1.5">
+              <div className="w-5 h-5 rounded-full bg-[#0088cc] flex items-center justify-center">
+                <TelegramIcon className="h-3 w-3 text-white" />
               </div>
               Sign in with Telegram
             </DialogTitle>
@@ -79,11 +79,11 @@ export function TelegramLoginModal({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col items-center gap-4 py-2">
+          <div className="flex flex-col items-center gap-3 py-1.5">
             {isAuthLoading ? (
-              <div className="flex flex-col items-center gap-2 py-4">
-                <Loader2 className="h-8 w-8 animate-spin text-[#0088cc]" />
-                <p className="text-sm text-muted-foreground">
+              <div className="flex flex-col items-center gap-1.5 py-3">
+                <Loader2 className="h-5 w-5 animate-spin text-[#0088cc]" />
+                <p className="text-xs text-muted-foreground">
                   Authenticating with Telegram...
                 </p>
               </div>
@@ -94,12 +94,12 @@ export function TelegramLoginModal({
                   botId={SocialAuthConfig.TELEGRAM_BOT_ID}
                   onAuth={handleAuth}
                   disabled={isAuthLoading}
-                  className="w-full h-11"
+                  className="w-full h-8"
                 >
                   Open Telegram to Authorize
                 </TelegramLoginButton>
 
-                <p className="text-xs text-center text-muted-foreground px-4">
+                <p className="text-xs text-center text-muted-foreground px-3">
                   A Telegram popup will open. Approve the login request — your
                   account will be created or signed in automatically.
                 </p>

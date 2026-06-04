@@ -111,15 +111,15 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
           <FormBody>
             {}
             {reduxError && (
-              <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                <p className="text-sm text-destructive font-medium">
+              <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                <p className="text-xs text-destructive font-medium">
                   {reduxError}
                 </p>
               </div>
             )}
 
             {}
-            <div className="space-y-4">
+            <div className="space-y-3">
               <PasswordField
                 control={control}
                 name="currentPassword"

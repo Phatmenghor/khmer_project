@@ -39,7 +39,7 @@ export interface FormDialogBaseProps {
  *   onSubmit={handleSubmit}
  *   isLoading={isSaving}
  * >
- *   <form className="space-y-4">
+ *   <form className="space-y-3">
  *     {/* form fields */}
  *   </form>
  * </FormDialogBase>
@@ -79,11 +79,11 @@ export function FormDialogBase({
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="max-h-[60vh] overflow-y-auto">{children}</div>
 
           {showActions && (
-            <div className="flex gap-3 justify-end border-t pt-4">
+            <div className="flex gap-2 justify-end border-t pt-3">
               <Button
                 type="button"
                 variant="outline"
@@ -99,7 +99,7 @@ export function FormDialogBase({
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
                     {submitText}ing...
                   </>
                 ) : (
@@ -146,7 +146,7 @@ export function FormDialogBaseWithCustomActions({
 
         <div className="max-h-[60vh] overflow-y-auto">{children}</div>
 
-        {actions && <div className="flex gap-3 justify-end border-t pt-4">{actions}</div>}
+        {actions && <div className="flex gap-2 justify-end border-t pt-3">{actions}</div>}
       </DialogContent>
     </Dialog>
   );

@@ -24,8 +24,8 @@ export function TextField<T extends FieldValues = any>({
   onCustomChange,
 }: TextFormFieldProps<T>) {
   return (
-    <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={name} className="text-sm font-medium text-foreground">
+    <div className={`space-y-1.5 ${className}`}>
+      <Label htmlFor={name} className="text-xs font-medium text-foreground">
         {label} {required && <span className="text-red-500 ml-1">*</span>}
       </Label>
       <Controller
@@ -83,7 +83,7 @@ export function TextField<T extends FieldValues = any>({
               }
             }}
             pattern={pattern}
-            className={`h-10 transition-all duration-200 border ${disabled ? "bg-muted/50" : ""} ${
+            className={`h-7 transition-all duration-200 border ${disabled ? "bg-muted/50" : ""} ${
               error
                 ? "border-red-500 focus:border-red-500"
                 : "border-input focus:border-primary focus:ring-2 focus:ring-primary/30"

@@ -207,14 +207,14 @@ export default function LeaveTypePage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-3 px-1.5">
+      <div className="space-y-3">
         <CardHeaderSection
           title="Leave Type Information"
           searchValue={filters.search}
           searchPlaceholder="Search leave types..."
           buttonTooltip="Create a new leave type"
-          buttonIcon={<Plus className="w-3 h-3" />}
+          buttonIcon={<Plus className="w-2 h-2" />}
           buttonText="New"
           onSearchChange={handleSearchChange}
           openModal={handleCreate}

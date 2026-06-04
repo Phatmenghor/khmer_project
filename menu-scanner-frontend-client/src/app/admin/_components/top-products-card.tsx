@@ -23,7 +23,7 @@ import { DashboardTopProductsResponse } from "@/features/dashboard/store/models/
 function ProductTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-popover border rounded-xl shadow-lg px-4 py-3 text-sm">
+    <div className="bg-popover border rounded shadow-lg px-3 py-2 text-xs">
       <p className="font-semibold text-foreground mb-1 truncate max-w-[160px]">{label}</p>
       <p className="text-primary">
         Revenue: <span className="font-bold">{formatCurrency(payload[0]?.value ?? 0)}</span>
@@ -43,9 +43,9 @@ interface TopProductsCardProps {
 export function TopProductsCard({ topProducts, loading }: TopProductsCardProps) {
   return (
     <Card className="lg:col-span-2">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-1.5">
         <div>
-          <CardTitle className="text-base">Top Selling Products</CardTitle>
+          <CardTitle className="text-xs">Top Selling Products</CardTitle>
           <CardDescription>Best performers this period</CardDescription>
         </div>
       </CardHeader>
@@ -53,7 +53,7 @@ export function TopProductsCard({ topProducts, loading }: TopProductsCardProps) 
         {loading ? (
           <ChartSkeleton height={260} />
         ) : !topProducts?.data?.length ? (
-          <div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+          <div className="h-[260px] flex items-center justify-center text-muted-foreground text-xs">
             No product data for this period
           </div>
         ) : (

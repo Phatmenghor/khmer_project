@@ -72,15 +72,15 @@ export default function DashboardLayout({
   if (isFullscreen && isPosPage) {
     return (
       <div className="fixed inset-0 z-40 bg-background flex flex-col">
-        <div className="hidden md:flex h-16 items-center border-b bg-background/95 backdrop-blur px-5">
+        <div className="hidden md:flex h-11 items-center border-b bg-background/95 backdrop-blur px-3.5">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsFullscreen(false)}
             title="Exit Fullscreen (F11)"
-            className="ml-auto h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+            className="ml-auto h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors"
           >
-            <Maximize2 className="h-4 w-4" />
+            <Maximize2 className="h-3 w-3" />
           </Button>
         </div>
         <main className="dashboard-main flex-1 overflow-hidden">{children}</main>
@@ -98,7 +98,7 @@ export default function DashboardLayout({
         className={cn(
           "dashboard-content flex flex-col flex-1 transition-all duration-300",
           isPosPage ? "overflow-hidden" : "overflow-y-auto",
-          isMobile ? "w-full" : isSidebarOpen ? "ml-56" : "ml-[60px]",
+          isMobile ? "w-full" : isSidebarOpen ? "ml-40" : "ml-[60px]",
         )}
       >
         <TopBar
@@ -107,7 +107,7 @@ export default function DashboardLayout({
         />
         <main className={cn(
           "dashboard-main flex-1",
-          isPosPage ? "overflow-hidden" : "p-2 md:p-4"
+          isPosPage ? "overflow-hidden" : "p-1.5 md:p-3"
         )}>
           {children}
         </main>

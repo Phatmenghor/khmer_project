@@ -36,22 +36,22 @@ export interface EmptyStateProps {
 
 const sizeStyles = {
   sm: {
-    container: "py-8",
-    icon: "h-12 w-12",
-    title: "text-lg",
-    description: "text-sm",
+    container: "py-5",
+    icon: "h-8 w-8",
+    title: "text-xs",
+    description: "text-xs",
   },
   md: {
-    container: "py-12",
-    icon: "h-16 w-16",
-    title: "text-xl",
-    description: "text-base",
+    container: "py-8",
+    icon: "h-11 w-11",
+    title: "text-xs",
+    description: "text-xs",
   },
   lg: {
-    container: "py-16",
-    icon: "h-20 w-20",
-    title: "text-2xl",
-    description: "text-lg",
+    container: "py-11",
+    icon: "h-14 w-14",
+    title: "text-base",
+    description: "text-xs",
   },
 };
 
@@ -78,26 +78,26 @@ export function EmptyState({
     >
       {}
       {customIcon || (Icon && (
-        <div className="mb-4 text-muted-foreground/50 animate-scale-in">
+        <div className="mb-3 text-muted-foreground/50 animate-scale-in">
           <Icon className={styles.icon} strokeWidth={1.5} />
         </div>
       ))}
 
       {}
-      <h3 className={cn("font-semibold text-foreground mb-2", styles.title)}>
+      <h3 className={cn("font-semibold text-foreground mb-1.5", styles.title)}>
         {title}
       </h3>
 
       {}
       {description && (
-        <p className={cn("text-muted-foreground max-w-md mb-6", styles.description)}>
+        <p className={cn("text-muted-foreground max-w-md mb-4", styles.description)}>
           {description}
         </p>
       )}
 
       {}
       {(action || secondaryAction) && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {action && (
             <Button
               onClick={action.onClick}

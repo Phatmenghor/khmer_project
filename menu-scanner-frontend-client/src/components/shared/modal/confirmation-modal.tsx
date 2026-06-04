@@ -69,17 +69,17 @@ export function ConfirmationModal({
         <VisuallyHidden asChild>
           <DialogTitle>{title}</DialogTitle>
         </VisuallyHidden>
-        <div className={`p-6 border-b border-border ${headerBgColor}`}>
-          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-          <p className="text-sm text-muted-foreground mt-2">{description}</p>
+        <div className={`p-4 border-b border-border ${headerBgColor}`}>
+          <h2 className="text-xs font-semibold text-foreground">{title}</h2>
+          <p className="text-xs text-muted-foreground mt-1.5">{description}</p>
         </div>
 
         <FormBody>
           {itemName && (
-            <div className="p-3 bg-muted rounded-lg border border-muted-foreground/20">
-              <p className="text-sm">
+            <div className="p-2 bg-muted rounded border border-muted-foreground/20">
+              <p className="text-xs">
                 <span className="text-muted-foreground">Item:</span>
-                <span className="font-semibold text-foreground ml-2">
+                <span className="font-semibold text-foreground ml-1.5">
                   "{itemName}"
                 </span>
               </p>
@@ -88,7 +88,7 @@ export function ConfirmationModal({
 
           {isDangerous && (
             <Alert className="border-red-200 bg-red-50">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <AlertTriangle className="h-3 w-3 text-red-600" />
               <AlertDescription className="text-red-700">
                 This action cannot be undone.
               </AlertDescription>
@@ -98,7 +98,7 @@ export function ConfirmationModal({
           {}
           {error && (
             <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="h-3 w-3" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -117,16 +117,16 @@ export function ConfirmationModal({
             variant={actionVariant}
             onClick={handleConfirm}
             disabled={isDisabled}
-            className={`flex-1 sm:flex-initial gap-2 ${buttonColor}`}
+            className={`flex-1 sm:flex-initial gap-1.5 ${buttonColor}`}
           >
             {isProcessing || isSubmitting ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3 h-3 animate-spin" />
                 <span>Processing...</span>
               </>
             ) : (
               <>
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-3 h-3" />
                 <span>{actionLabel}</span>
               </>
             )}

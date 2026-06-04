@@ -56,7 +56,7 @@ export function LeaveTypeDetailModal({
       description={"Detailed information about the selected leave type."}
     >
       {leaveTypeData ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {}
           <DetailSection title="Leave Type Information">
             <DetailRow
@@ -76,7 +76,7 @@ export function LeaveTypeDetailModal({
             <DetailRow
               label="Leave Type ID"
               value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
                   {leaveTypeData?.id}
                 </span>
               }
@@ -101,7 +101,7 @@ export function LeaveTypeDetailModal({
           </DetailSection>
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-muted-foreground">
             No work schedule data available
           </p>

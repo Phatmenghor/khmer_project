@@ -107,22 +107,22 @@ export default function ResetPasswordModal({
         />
 
         <FormBody>
-          <div className="space-y-6">
+          <div className="space-y-4">
             {}
             <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {profileImageUrl ? (
                       <img src={profileImageUrl} alt={userName} className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-sm font-semibold text-primary">
+                      <span className="text-xs font-semibold text-primary">
                         {userName?.charAt(0)?.toUpperCase() || "U"}
                       </span>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
+                    <p className="text-xs font-medium text-foreground truncate">
                       {userName || "Unknown User"}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -136,10 +136,10 @@ export default function ResetPasswordModal({
             </Card>
 
             {}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Key className="h-4 w-4 text-muted-foreground" />
-                <Label className="text-sm font-semibold">New Password</Label>
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5">
+                <Key className="h-3 w-3 text-muted-foreground" />
+                <Label className="text-xs font-semibold">New Password</Label>
               </div>
 
               <div className="relative">
@@ -148,7 +148,7 @@ export default function ResetPasswordModal({
                   value={customPassword}
                   onChange={(e) => setCustomPassword(e.target.value)}
                   placeholder="Enter new password"
-                  className="pr-20 font-mono text-sm h-12 py-3"
+                  className="pr-14 font-mono text-xs h-8 py-2"
                   disabled={isResettingPassword}
                 />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
@@ -157,13 +157,13 @@ export default function ResetPasswordModal({
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="h-8 w-8 p-0"
+                    className="h-5 w-5 p-0"
                     title={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-3 w-3" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-3 w-3" />
                     )}
                   </Button>
                   <Button
@@ -171,10 +171,10 @@ export default function ResetPasswordModal({
                     variant="ghost"
                     size="sm"
                     onClick={copyPassword}
-                    className="h-8 w-8 p-0"
+                    className="h-5 w-5 p-0"
                     title="Copy password"
                   >
-                    <Copy className="h-4 w-4" />
+                    <Copy className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
@@ -185,14 +185,14 @@ export default function ResetPasswordModal({
 
             {}
             <Card className="border-orange-200 bg-orange-50/50">
-              <CardContent className="pt-6">
-                <div className="flex gap-3">
-                  <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <CardContent className="pt-4">
+                <div className="flex gap-2">
+                  <AlertTriangle className="h-3.5 w-3.5 text-orange-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-orange-900">
+                    <p className="text-xs font-semibold text-orange-900">
                       Important Notice
                     </p>
-                    <p className="text-sm text-orange-800 mt-1">
+                    <p className="text-xs text-orange-800 mt-1">
                       This action will log out the user from all devices. They must use the new password to sign in.
                     </p>
                   </div>
@@ -202,7 +202,7 @@ export default function ResetPasswordModal({
           </div>
         </FormBody>
 
-        <div className="flex gap-3 px-4 py-4 border-t bg-muted/30 flex-shrink-0 sm:px-6 justify-end">
+        <div className="flex gap-2 px-3 py-3 border-t bg-muted/30 flex-shrink-0 sm:px-4 justify-end">
           <Button
             type="button"
             variant="outline"
@@ -219,7 +219,7 @@ export default function ResetPasswordModal({
           >
             {isResettingPassword ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
                 Resetting...
               </>
             ) : (

@@ -30,7 +30,7 @@ export default function QRGeneratorPage() {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2 pb-8">
+    <div className="flex flex-1 flex-col gap-3 px-1.5 pb-5">
       <CardHeaderSection title="QR Generator" />
 
       {/*
@@ -39,7 +39,7 @@ export default function QRGeneratorPage() {
         • Tablet  (md):    2 cols: [config top-left / settings bottom-left] | [preview right, spans both rows]
         • Desktop (lg):    3 cols: config | preview | settings
       */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[300px_1fr_280px] gap-4 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[300px_1fr_280px] gap-3 items-start">
 
         {/* Config — col 1 row 1 on tablet, col 1 on desktop */}
         <div className="md:col-start-1 md:row-start-1">

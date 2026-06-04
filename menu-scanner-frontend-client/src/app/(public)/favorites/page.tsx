@@ -162,9 +162,9 @@ export default function FavoritesPage() {
 
   if (!mounted || !authReady || (loading.fetch && !loaded)) {
     return (
-      <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
-        <div className="h-7 w-40 bg-muted rounded mb-4 animate-pulse" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
+        <div className="h-5 w-28 bg-muted rounded mb-3 animate-pulse" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <ProductCardSkeleton key={i} />
           ))}
@@ -193,7 +193,7 @@ export default function FavoritesPage() {
 
   if (items.length === 0) {
     return (
-      <PageContainer className="min-h-screen flex flex-col py-12 sm:py-20">
+      <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
         <EmptyState
           icon={Heart}
           title="No Favorites Yet"
@@ -210,7 +210,7 @@ export default function FavoritesPage() {
 
 
   return (
-    <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
+    <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
       <PageHeader
         title="My Favorites"
         icon={Heart}
@@ -225,14 +225,14 @@ export default function FavoritesPage() {
             disabled={loading.fetch}
             className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-2.5 w-2.5" />
             Clear All
           </CustomButton>
         }
       />
 
       {}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
         {items.map((product, index) => {
           const uniqueKey = `favorites-${product.id}-${index}`;
           return <ProductCard key={uniqueKey} product={product} />;
@@ -242,16 +242,16 @@ export default function FavoritesPage() {
       {}
       {pagination.hasMore && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mt-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 mt-4">
             {Array.from({ length: skeletonCount }).map((_, i) => (
               <ProductCardSkeleton key={`skeleton-${i}`} />
             ))}
           </div>
 
           {}
-          <div className="flex flex-col items-center justify-center mt-6 py-6">
-            <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
-            <p className="text-xs sm:text-sm text-muted-foreground">
+          <div className="flex flex-col items-center justify-center mt-4 py-4">
+            <Loader2 className="h-4 w-4 animate-spin text-primary mb-1.5" />
+            <p className="text-xs sm:text-xs text-muted-foreground">
               Loading more favorites...
             </p>
           </div>
@@ -260,19 +260,19 @@ export default function FavoritesPage() {
 
       {}
       {pagination.hasMore && !loading.fetch && (
-        <div ref={sentinelRef} className="h-10 w-full mt-6" />
+        <div ref={sentinelRef} className="h-7 w-full mt-4" />
       )}
 
       {}
       {!pagination.hasMore && items.length > 0 && (
-        <div className="flex flex-col items-center justify-center mt-10 py-8 px-4">
-          <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
-            <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+        <div className="flex flex-col items-center justify-center mt-7 py-5 px-3">
+          <div className="flex items-center justify-center w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-primary/10 mb-3">
+            <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           </div>
-          <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">
+          <h3 className="text-xs sm:text-xs font-semibold mb-1.5 text-center">
             You've seen all your favorites!
           </h3>
-          <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md">
+          <p className="text-xs sm:text-xs text-muted-foreground text-center max-w-md">
             You've reached the end of your saved items. Keep shopping to add more favorites!
           </p>
         </div>

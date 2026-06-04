@@ -186,11 +186,11 @@ export default function LocationPage() {
 
   if (isInitialLoading) {
     return (
-      <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
-        <div className="h-8 w-48 bg-muted rounded mb-6 animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
+        <div className="h-5 w-32 bg-muted rounded mb-4 animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-48 rounded-2xl" />
+            <Skeleton key={i} className="h-32 rounded" />
           ))}
         </div>
       </PageContainer>
@@ -214,7 +214,7 @@ export default function LocationPage() {
   }
 
   return (
-    <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
+    <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
       <PageHeader
         title="My Locations"
         icon={MapPin}
@@ -225,16 +225,16 @@ export default function LocationPage() {
           <Button
             onClick={handleAddLocation}
             size="sm"
-            className="gap-2 h-9 rounded-lg"
+            className="gap-1.5 h-6 rounded"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3 w-3" />
             <span className="hidden sm:inline">Add Location</span>
           </Button>
         }
       />
 
       {}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {locations.map((location, index) => {
           const uniqueKey = `location-${location.id}-${index}`;
           return (
@@ -253,16 +253,16 @@ export default function LocationPage() {
       {}
       {locationPagination.hasMore && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
             {Array.from({ length: skeletonCount }).map((_, i) => (
-              <Skeleton key={i} className="h-48 rounded-2xl" />
+              <Skeleton key={i} className="h-32 rounded" />
             ))}
           </div>
 
           {}
-          <div className="flex flex-col items-center justify-center mt-6 py-6">
-            <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
-            <p className="text-xs sm:text-sm text-muted-foreground">
+          <div className="flex flex-col items-center justify-center mt-4 py-4">
+            <Loader2 className="h-4 w-4 animate-spin text-primary mb-1.5" />
+            <p className="text-xs sm:text-xs text-muted-foreground">
               Loading more locations...
             </p>
           </div>
@@ -271,7 +271,7 @@ export default function LocationPage() {
 
       {}
       {locationPagination.hasMore && !isLoading.fetch && (
-        <div ref={sentinelRef} className="h-10 w-full mt-4" />
+        <div ref={sentinelRef} className="h-7 w-full mt-3" />
       )}
 
       <LocationModal

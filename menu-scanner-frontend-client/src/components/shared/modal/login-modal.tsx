@@ -133,16 +133,16 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-xl p-0 flex flex-col gap-0">
         {/* Header — matches FormHeader admin style */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-primary/10 border border-primary/30 rounded-lg shrink-0">
-              <LogIn className="h-5 w-5 text-primary" />
+        <DialogHeader className="px-4 pt-4 pb-3 border-b flex-shrink-0">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-primary/10 border border-primary/30 rounded shrink-0">
+              <LogIn className="h-3.5 w-3.5 text-primary" />
             </div>
             <div className="flex flex-col gap-1 flex-1 min-w-0">
-              <DialogTitle className="text-xl font-semibold">
+              <DialogTitle className="text-xs font-semibold">
                 Sign In
               </DialogTitle>
-              <DialogDescription className="text-sm">
+              <DialogDescription className="text-xs">
                 {businessName
                   ? `Welcome back to ${businessName}`
                   : "Sign in to your account to continue"}
@@ -181,7 +181,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
                 <span className="w-full border-t border-border/50" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-background px-3 text-xs text-muted-foreground">
+                <span className="bg-background px-2 text-xs text-muted-foreground">
                   or continue with
                 </span>
               </div>
@@ -194,13 +194,13 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               onAuth={handleTelegramAuth}
               disabled={isAnyLoading}
               loading={isTelegramLoading}
-              className="w-full h-10"
+              className="w-full h-7"
             />
           </FormBody>
 
           {/* Footer — matches FormFooter admin style */}
-          <div className="flex flex-col gap-3 px-6 py-4 border-t bg-muted/30 flex-shrink-0 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground order-2 sm:order-1">
+          <div className="flex flex-col gap-2 px-4 py-3 border-t bg-muted/30 flex-shrink-0 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-muted-foreground order-2 sm:order-1">
               No account?{" "}
               <button
                 type="button"
@@ -214,7 +214,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
                 Register
               </button>
             </p>
-            <div className="flex gap-3 order-1 sm:order-2">
+            <div className="flex gap-2 order-1 sm:order-2">
               <Button
                 type="button"
                 variant="outline"
@@ -226,7 +226,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               <Button type="submit" disabled={isAnyLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
                     Signing in...
                   </>
                 ) : (

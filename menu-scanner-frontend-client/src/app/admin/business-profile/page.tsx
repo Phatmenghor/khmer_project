@@ -59,19 +59,19 @@ export default function BusinessProfileEditorPage() {
   ];
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl">
+    <div className="container mx-auto px-2 sm:px-3 py-3 sm:py-5 max-w-7xl">
       {}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3 sm:mb-5">
         <div>
-          <h1 className="text-xl sm:text-3xl font-bold">Business Profile</h1>
-          <p className="text-sm text-gray-600 mt-1">
+          <h1 className="text-xs sm:text-xs font-bold">Business Profile</h1>
+          <p className="text-xs text-gray-600 mt-1">
             Customize your business portfolio and showcase your brand
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <Link href="/business-profile" target="_blank">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Eye className="w-4 h-4" />
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <Eye className="w-3 h-3" />
               Preview
             </Button>
           </Link>
@@ -79,22 +79,22 @@ export default function BusinessProfileEditorPage() {
             size="sm"
             onClick={handleSubmit(onSubmit)}
             disabled={!isDirty}
-            className="gap-2"
+            className="gap-1.5"
           >
-            <Save className="w-4 h-4" />
+            <Save className="w-3 h-3" />
             Save Changes
           </Button>
         </div>
       </div>
 
       {}
-      <div className="border-b border-gray-200 mb-6">
-        <nav className="flex gap-4 overflow-x-auto">
+      <div className="border-b border-gray-200 mb-4">
+        <nav className="flex gap-3 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-3 px-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`py-2 px-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors ${
                 activeTab === tab.id
                   ? "border-orange-600 text-orange-600"
                   : "border-transparent text-gray-600 hover:text-gray-900"
@@ -106,17 +106,17 @@ export default function BusinessProfileEditorPage() {
         </nav>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {}
         {activeTab === "basic" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>Basic Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1.5">
                     Business Name *
                   </label>
                   <Controller
@@ -128,14 +128,14 @@ export default function BusinessProfileEditorPage() {
                     )}
                   />
                   {errors.businessName && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p className="text-red-600 text-xs mt-1">
                       {errors.businessName.message}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1.5">
                     Tagline
                   </label>
                   <Controller
@@ -147,9 +147,9 @@ export default function BusinessProfileEditorPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-xs font-medium mb-1.5">
                       Business Type *
                     </label>
                     <Controller
@@ -158,7 +158,7 @@ export default function BusinessProfileEditorPage() {
                       render={({ field }) => (
                         <select
                           {...field}
-                          className="w-full border rounded-md px-3 py-2"
+                          className="w-full border rounded px-2 py-1.5"
                         >
                           {Object.values(BusinessType).map((type) => (
                             <option key={type} value={type}>
@@ -173,7 +173,7 @@ export default function BusinessProfileEditorPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1.5">
                     About Your Business *
                   </label>
                   <Controller
@@ -189,7 +189,7 @@ export default function BusinessProfileEditorPage() {
                     )}
                   />
                   {errors.description && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p className="text-red-600 text-xs mt-1">
                       {errors.description.message}
                     </p>
                   )}
@@ -201,14 +201,14 @@ export default function BusinessProfileEditorPage() {
 
         {}
         {activeTab === "contact" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
                 <CardTitle>Contact Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1.5">
                     Email *
                   </label>
                   <Controller
@@ -230,14 +230,14 @@ export default function BusinessProfileEditorPage() {
                     )}
                   />
                   {errors.email && (
-                    <p className="text-red-600 text-sm mt-1">
+                    <p className="text-red-600 text-xs mt-1">
                       {errors.email.message}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1.5">
                     Phone *
                   </label>
                   <Controller
@@ -251,7 +251,7 @@ export default function BusinessProfileEditorPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1.5">
                     WhatsApp (optional)
                   </label>
                   <Controller
@@ -264,7 +264,7 @@ export default function BusinessProfileEditorPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1.5">
                     Address *
                   </label>
                   <Controller
@@ -284,10 +284,10 @@ export default function BusinessProfileEditorPage() {
                 <CardTitle>Business Hours</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {profile.businessHours?.map((hours, index) => (
-                    <div key={hours.day} className="flex flex-wrap items-center gap-2">
-                      <div className="w-24 font-medium text-sm">
+                    <div key={hours.day} className="flex flex-wrap items-center gap-1.5">
+                      <div className="w-16 font-medium text-xs">
                         {hours.day.charAt(0) + hours.day.slice(1).toLowerCase()}
                       </div>
                       <input
@@ -303,18 +303,18 @@ export default function BusinessProfileEditorPage() {
                           <Input
                             type="time"
                             value={hours.openTime}
-                            className="w-32"
+                            className="w-24"
                           />
                           <span>to</span>
                           <Input
                             type="time"
                             value={hours.closeTime}
-                            className="w-32"
+                            className="w-24"
                           />
                         </>
                       )}
                       {!hours.isOpen && (
-                        <span className="text-gray-500 text-sm">Closed</span>
+                        <span className="text-gray-500 text-xs">Closed</span>
                       )}
                     </div>
                   ))}
@@ -326,19 +326,19 @@ export default function BusinessProfileEditorPage() {
 
         {}
         {activeTab === "media" && (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-4">
             <Card>
               <CardHeader>
                 <CardTitle>Cover Image & Logo</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1.5">
                     Cover Image
                   </label>
-                  <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-orange-500 transition-colors cursor-pointer">
-                    <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600">
+                  <div className="border-2 border-dashed rounded p-5 text-center hover:border-orange-500 transition-colors cursor-pointer">
+                    <Upload className="w-5 h-5 mx-auto text-gray-400 mb-1.5" />
+                    <p className="text-xs text-gray-600">
                       Click to upload or drag and drop
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
@@ -348,12 +348,12 @@ export default function BusinessProfileEditorPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-xs font-medium mb-1.5">
                     Business Logo
                   </label>
-                  <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-orange-500 transition-colors cursor-pointer">
-                    <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600">
+                  <div className="border-2 border-dashed rounded p-5 text-center hover:border-orange-500 transition-colors cursor-pointer">
+                    <Upload className="w-5 h-5 mx-auto text-gray-400 mb-1.5" />
+                    <p className="text-xs text-gray-600">
                       Click to upload or drag and drop
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
@@ -368,29 +368,29 @@ export default function BusinessProfileEditorPage() {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Gallery</span>
-                  <Button size="sm" className="gap-2">
-                    <Plus className="w-4 h-4" />
+                  <Button size="sm" className="gap-1.5">
+                    <Plus className="w-3 h-3" />
                     Add Photo
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                   {profile.gallery?.map((item, index) => (
                     <div key={item.id} className="relative group aspect-square">
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors rounded-lg flex items-center justify-center">
-                        <button className="opacity-0 group-hover:opacity-100 transition-opacity p-2 bg-red-500 rounded-full text-white">
-                          <Trash2 className="w-4 h-4" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors rounded flex items-center justify-center">
+                        <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 bg-red-500 rounded-full text-white">
+                          <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
-                      <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
-                        <ImageIcon className="w-8 h-8 text-gray-400" />
+                      <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center">
+                        <ImageIcon className="w-5 h-5 text-gray-400" />
                       </div>
                     </div>
                   ))}
-                  <div className="aspect-square border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:border-orange-500 transition-colors">
+                  <div className="aspect-square border-2 border-dashed rounded flex items-center justify-center cursor-pointer hover:border-orange-500 transition-colors">
                     <div className="text-center">
-                      <Plus className="w-6 h-6 mx-auto text-gray-400" />
+                      <Plus className="w-4 h-4 mx-auto text-gray-400" />
                       <p className="text-xs text-gray-500 mt-1">Add Photo</p>
                     </div>
                   </div>
@@ -406,17 +406,17 @@ export default function BusinessProfileEditorPage() {
             <CardHeader>
               <CardTitle>Social Media Links</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 max-w-2xl">
+            <CardContent className="space-y-3 max-w-2xl">
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs font-medium mb-1.5">
                   Website
                 </label>
                 <Controller
                   name="website"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-5 h-5 text-gray-400" />
+                    <div className="flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-gray-400" />
                       <Input {...field} placeholder="https://yourwebsite.com" />
                     </div>
                   )}
@@ -424,7 +424,7 @@ export default function BusinessProfileEditorPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs font-medium mb-1.5">
                   Facebook
                 </label>
                 <Controller
@@ -440,7 +440,7 @@ export default function BusinessProfileEditorPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs font-medium mb-1.5">
                   Instagram
                 </label>
                 <Controller
@@ -456,7 +456,7 @@ export default function BusinessProfileEditorPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs font-medium mb-1.5">
                   Twitter
                 </label>
                 <Controller
@@ -472,7 +472,7 @@ export default function BusinessProfileEditorPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-xs font-medium mb-1.5">
                   LinkedIn
                 </label>
                 <Controller
@@ -501,7 +501,7 @@ export default function BusinessProfileEditorPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
+              <div className="text-center py-8">
                 <p className="text-gray-500">
                   This section will allow you to manage your{" "}
                   {activeTab === "services"
@@ -509,8 +509,8 @@ export default function BusinessProfileEditorPage() {
                     : "team members and customer testimonials"}
                   .
                 </p>
-                <Button className="mt-4 gap-2">
-                  <Plus className="w-4 h-4" />
+                <Button className="mt-3 gap-1.5">
+                  <Plus className="w-3 h-3" />
                   Add {activeTab === "services" ? "Service" : "Team Member"}
                 </Button>
               </div>

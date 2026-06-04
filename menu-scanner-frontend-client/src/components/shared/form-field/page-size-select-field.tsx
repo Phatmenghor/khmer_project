@@ -29,9 +29,9 @@ export function PageSizeSelectField({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-1.5 ${className}`}>
       {label && (
-        <span className="text-xs sm:text-sm text-muted-foreground font-semibold whitespace-nowrap">
+        <span className="text-xs sm:text-xs text-muted-foreground font-semibold whitespace-nowrap">
           {label}
         </span>
       )}
@@ -41,17 +41,17 @@ export function PageSizeSelectField({
             variant="outline"
             role="combobox"
             className={cn(
-              "justify-between gap-2 min-w-[80px] h-10 px-3 transition-colors",
+              "justify-between gap-1.5 min-w-[80px] h-7 px-2 transition-colors",
               "hover:bg-accent/50 focus:ring-2 focus:ring-primary focus:ring-offset-2"
             )}
             aria-label={`Select rows per page, currently showing ${pageSize} rows`}
             aria-expanded={open}
             aria-haspopup="listbox"
           >
-            <span className="font-medium text-sm">{pageSize}</span>
+            <span className="font-medium text-xs">{pageSize}</span>
             <ChevronDown
               className={cn(
-                "h-4 w-4 opacity-50 shrink-0 transition-transform duration-200",
+                "h-3 w-3 opacity-50 shrink-0 transition-transform duration-200",
                 open && "rotate-180"
               )}
             />
@@ -74,7 +74,7 @@ export function PageSizeSelectField({
                   setOpen(false);
                 }}
                 className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2 text-sm text-left rounded transition-colors",
+                  "w-full flex items-center gap-1.5 px-2 py-1.5 text-xs text-left rounded transition-colors",
                   "hover:bg-accent hover:text-accent-foreground cursor-pointer",
                   pageSize === size
                     ? "bg-accent text-accent-foreground font-medium"
@@ -84,7 +84,7 @@ export function PageSizeSelectField({
               >
                 <Check
                   className={cn(
-                    "h-4 w-4 flex-shrink-0",
+                    "h-3 w-3 flex-shrink-0",
                     pageSize === size ? "opacity-100" : "opacity-0"
                   )}
                   aria-hidden="true"

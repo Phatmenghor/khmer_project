@@ -223,21 +223,21 @@ export default function OrdersPage() {
   }
 
   return (
-    <PageContainer className="min-h-screen flex flex-col py-6 sm:py-8">
+    <PageContainer className="min-h-screen flex flex-col py-4 sm:py-5">
       <PageHeader
         title="My Orders"
         subtitle={`You have ${totalOrders} order${totalOrders !== 1 ? "s" : ""}`}
         icon={ShoppingBag}
       />
 
-      <div className="mt-8 mb-6 space-y-4">
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end justify-between w-full">
+      <div className="mt-5 mb-4 space-y-3">
+        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-end justify-between w-full">
           <div className="min-w-0 w-full sm:w-auto sm:max-w-xs">
-            <label className="text-sm font-semibold text-foreground mb-2 block">
+            <label className="text-xs font-semibold text-foreground mb-1.5 block">
               Search Orders
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search by order number..."
@@ -246,7 +246,7 @@ export default function OrdersPage() {
                   setFilters((prev) => ({ ...prev, search: e.target.value }));
                   setCurrentPage(1);
                 }}
-                className="pl-10 h-11 rounded-lg border-border/70 bg-background text-base"
+                className="pl-7 h-8 rounded border-border/70 bg-background text-xs"
               />
               {filters.search && (
                 <button
@@ -254,17 +254,17 @@ export default function OrdersPage() {
                     setFilters((prev) => ({ ...prev, search: "" }));
                     setCurrentPage(1);
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3" />
                 </button>
               )}
             </div>
           </div>
 
-          <div className="flex flex-shrink-0 gap-3 items-end w-full sm:w-auto">
+          <div className="flex flex-shrink-0 gap-2 items-end w-full sm:w-auto">
             <div className="w-auto flex-shrink-0
-              [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
+              [&>.space-y-1.5]:!w-auto [&>.space-y-1.5]:!flex [&>.space-y-1.5]:!flex-col [&>.space-y-1.5]:!gap-1
               [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
               [&_.w-full]:!w-auto">
               <CustomSelect
@@ -281,7 +281,7 @@ export default function OrdersPage() {
             </div>
 
             <div className="w-auto flex-shrink-0
-              [&>.space-y-2]:!w-auto [&>.space-y-2]:!flex [&>.space-y-2]:!flex-col [&>.space-y-2]:!gap-1
+              [&>.space-y-1.5]:!w-auto [&>.space-y-1.5]:!flex [&>.space-y-1.5]:!flex-col [&>.space-y-1.5]:!gap-1
               [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
               [&_.w-full]:!w-auto">
               <CustomSelect
@@ -299,31 +299,31 @@ export default function OrdersPage() {
       </div>
 
       {error.list ? (
-        <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-6">
-          <div className="flex items-start gap-4">
-            <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="rounded border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-semibold text-red-900 dark:text-red-200">Error Loading Orders</h3>
-              <p className="text-red-800 dark:text-red-300 text-sm mt-1">{error.list}</p>
+              <p className="text-red-800 dark:text-red-300 text-xs mt-1">{error.list}</p>
             </div>
           </div>
         </div>
       ) : orders.length === 0 && !loading.list ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <ShoppingBag className="h-8 w-8 text-primary" />
+        <div className="rounded border border-dashed border-border bg-card p-8 text-center">
+          <div className="w-11 h-11 rounded bg-primary/10 flex items-center justify-center mx-auto mb-3">
+            <ShoppingBag className="h-5 w-5 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">
+          <h3 className="text-xs font-semibold text-foreground mb-1.5">
             {filters.status ? "No Orders Found" : "No Orders Yet"}
           </h3>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-muted-foreground mb-4">
             {filters.status
               ? `No orders with ${filters.status.toLowerCase()} status. Try a different filter.`
               : "You haven't placed any orders yet. Start shopping now!"}
           </p>
           <CustomButton
             onClick={() => router.push("/menu")}
-            className="rounded-xl h-11 px-6"
+            className="rounded h-8 px-4"
           >
             Browse Menu
           </CustomButton>
@@ -514,17 +514,17 @@ function createOrderTableColumns(
       minWidth: "120px",
       maxWidth: "160px",
       render: (order) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewOrder(order)}
           />
           <ActionButton
             icon={
               downloadingOrderId === order.id
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : <Download className="w-4 h-4" />
+                ? <Loader2 className="w-3 h-3 animate-spin" />
+                : <Download className="w-3 h-3" />
             }
             tooltip="Download Receipt"
             onClick={() => handleDownloadReceipt(order)}
@@ -532,7 +532,7 @@ function createOrderTableColumns(
           />
           {order.orderStatus === "PENDING" && (
             <ActionButton
-              icon={cancelingOrderId === order.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+              icon={cancelingOrderId === order.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}
               tooltip="Cancel Order"
               onClick={() => handleCancelOrder(order)}
               variant="destructive"
@@ -547,14 +547,14 @@ function createOrderTableColumns(
 
 function OrdersPageSkeleton() {
   return (
-    <PageContainer className="min-h-screen flex flex-col py-8">
-      <div className="space-y-4">
-        <div className="h-12 bg-muted rounded-lg animate-pulse" />
-        <div className="h-11 bg-muted rounded-lg animate-pulse" />
+    <PageContainer className="min-h-screen flex flex-col py-5">
+      <div className="space-y-3">
+        <div className="h-8 bg-muted rounded animate-pulse" />
+        <div className="h-8 bg-muted rounded animate-pulse" />
         {[1, 2, 3].map((i) => (
-          <div key={i} className="rounded-lg border border-border p-4 space-y-3">
-            <div className="h-6 bg-muted rounded animate-pulse" />
+          <div key={i} className="rounded border border-border p-3 space-y-2">
             <div className="h-4 bg-muted rounded animate-pulse" />
+            <div className="h-3 bg-muted rounded animate-pulse" />
           </div>
         ))}
       </div>

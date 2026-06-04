@@ -133,18 +133,18 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               >
                 <div className="flex w-full items-center">
                   {route.icon && (
-                    <route.icon className="w-5 h-5 flex-shrink-0 transition-colors duration-200" />
+                    <route.icon className="w-3.5 h-3.5 flex-shrink-0 transition-colors duration-200" />
                   )}
                   {!isCollapsed && (
                     <>
-                      <span className="ml-3 truncate transition-colors duration-200">
+                      <span className="ml-2 truncate transition-colors duration-200">
                         {route.title}
                       </span>
                       <div className="ml-auto">
                         {isOpen ? (
-                          <ChevronDown className="h-4 w-4 transition-colors duration-200" />
+                          <ChevronDown className="h-3 w-3 transition-colors duration-200" />
                         ) : (
-                          <ChevronRight className="h-4 w-4 transition-colors duration-200" />
+                          <ChevronRight className="h-3 w-3 transition-colors duration-200" />
                         )}
                       </div>
                     </>
@@ -153,7 +153,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               </Button>
 
               {!isCollapsed && isOpen && (
-                <div className="relative ml-6 mt-1 space-y-1">
+                <div className="relative ml-4 mt-1 space-y-1">
                   <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 z-0"></div>
 
                   {filteredItems.map((subItem) => {
@@ -163,7 +163,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                       <div key={subItem.title} className="relative">
                         <div
                           className={cn(
-                            "absolute left-0 top-1/2 w-4 h-px z-0 transition-colors duration-200",
+                            "absolute left-0 top-1/2 w-3 h-px z-0 transition-colors duration-200",
                             isSubItemActive ? "bg-primary/40" : "bg-gray-300",
                           )}
                         ></div>
@@ -175,20 +175,20 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                           )}
                         ></div>
 
-                        <div className="absolute left-4 top-1/2 w-2 h-px z-0 transition-colors duration-200 bg-gray-200"></div>
+                        <div className="absolute left-3 top-1/2 w-1.5 h-px z-0 transition-colors duration-200 bg-gray-200"></div>
 
                         <Button
                           variant="ghost"
                           asChild
                           className={cn(
-                            "relative w-full justify-start hover:bg-primary/10 hover:text-primary pl-6 rounded z-20 border-l border-transparent hover:border-l-primary/30 transition-all duration-200",
+                            "relative w-full justify-start hover:bg-primary/10 hover:text-primary pl-4 rounded z-20 border-l border-transparent hover:border-l-primary/30 transition-all duration-200",
                             isSubItemActive &&
                               "bg-primary/20 text-primary font-medium border-l-2 border-primary shadow-sm",
                           )}
                         >
                           <Link
                             href={subItem.href}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-1.5"
                           >
                             <span className="truncate">{subItem.title}</span>
                           </Link>
@@ -215,10 +215,10 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
           >
             <Link
               href={route.href || "#"}
-              className="flex items-center gap-3 px-3 py-2"
+              className="flex items-center gap-2 px-2 py-1.5"
               title={collapsed ? route.title : undefined}
             >
-              {route.icon && <route.icon className="w-5 h-5 flex-shrink-0" />}
+              {route.icon && <route.icon className="w-3.5 h-3.5 flex-shrink-0" />}
               {!collapsed && <span className="truncate">{route.title}</span>}
             </Link>
           </Button>
@@ -239,20 +239,20 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border/50 bg-background/95 backdrop-blur-xl transition-all duration-300 ease-out shadow-xl",
-          collapsed ? "w-16" : "w-60",
+          collapsed ? "w-11" : "w-44",
           isMobile && !isOpen && "hidden",
         )}
       >
-        <div className="relative flex h-20 items-center justify-between border-b border-border/50 px-4 bg-gradient-to-br from-primary/5 via-background/50 to-primary/5">
+        <div className="relative flex h-14 items-center justify-between border-b border-border/50 px-3 bg-gradient-to-br from-primary/5 via-background/50 to-primary/5">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/10 opacity-50 blur-3xl"></div>
 
           {!collapsed && (
             <Link
               href="/"
-              className="relative flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
+              className="relative flex items-center gap-2 group transition-all duration-300 hover:scale-[1.02]"
             >
               <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
+                <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                   <img
                     key={logoUrl}
                     src={logoUrl || "/assets/image/no-image.png"}
@@ -263,10 +263,10 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                     }}
                   />
                 </div>
-                <div className="absolute -inset-1 rounded-xl bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute -inset-1 rounded bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
+                <span className="text-foreground font-bold text-xs leading-tight tracking-tight">
                   {businessName}
                 </span>
                 <span className="text-muted-foreground text-xs font-medium tracking-wide">
@@ -281,22 +281,22 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             size="icon"
             onClick={toggleCollapsed}
             className={cn(
-              "relative h-9 w-9 rounded-xl transition-all duration-300 hover:bg-primary/10 hover:scale-110 group",
+              "relative h-6 w-6 rounded transition-all duration-300 hover:bg-primary/10 hover:scale-110 group",
               collapsed && "ml-auto",
             )}
           >
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/10 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 rounded bg-gradient-to-r from-primary/10 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <ChevronLeft
               className={cn(
-                "h-4 w-4 relative z-10 transition-transform duration-300",
+                "h-3 w-3 relative z-10 transition-transform duration-300",
                 collapsed && "rotate-180",
               )}
             />
           </Button>
         </div>
 
-        <ScrollArea className="flex-1 py-6">
-          <div className="px-4 space-y-2">{renderNavItems(collapsed)}</div>
+        <ScrollArea className="flex-1 py-4">
+          <div className="px-3 space-y-1.5">{renderNavItems(collapsed)}</div>
         </ScrollArea>
 
         {profile && (

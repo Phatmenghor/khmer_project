@@ -18,13 +18,13 @@ export const SectionHeader = ({
   className,
 }: SectionHeaderProps) => {
   return (
-    <div className={cn("mb-4 sm:mb-6", className)}>
-      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-        {Icon && <Icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-primary" />}
+    <div className={cn("mb-3 sm:mb-4", className)}>
+      <h2 className="text-xs sm:text-base md:text-xs font-bold tracking-tight flex items-center gap-1.5">
+        {Icon && <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary" />}
         {title}
       </h2>
       {subtitle && (
-        <p className="text-muted-foreground text-xs sm:text-sm mt-1">{subtitle}</p>
+        <p className="text-muted-foreground text-xs sm:text-xs mt-1">{subtitle}</p>
       )}
     </div>
   );
@@ -39,7 +39,7 @@ export const SectionWrapper = ({
   children,
   className,
 }: SectionWrapperProps) => {
-  return <section className={cn("mb-8 sm:mb-12", className)}>{children}</section>;
+  return <section className={cn("mb-5 sm:mb-8", className)}>{children}</section>;
 };
 
 interface ViewAllButtonProps {
@@ -54,15 +54,15 @@ export const ViewAllButton = ({
   className,
 }: ViewAllButtonProps) => {
   return (
-    <div className={cn("flex justify-center mt-6 sm:mt-8", className)}>
+    <div className={cn("flex justify-center mt-4 sm:mt-5", className)}>
       <Link href={href}>
         <Button
           size="default"
           variant="outline"
-          className="gap-2 group border-2 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all px-6 sm:px-8"
+          className="gap-1.5 group border-2 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all px-4 sm:px-5"
         >
           {text}
-          <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
+          <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 transition-transform group-hover:translate-x-1" />
         </Button>
       </Link>
     </div>

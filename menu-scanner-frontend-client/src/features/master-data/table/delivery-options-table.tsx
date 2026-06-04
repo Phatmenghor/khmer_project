@@ -55,7 +55,7 @@ export const deliveryOptionsTableColumns = ({
       maxWidth: "400px",
       render: (deliveryOptions) => {
         return (
-          <div className="h-12 w-12 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+          <div className="h-8 w-8 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
             {deliveryOptions.imageUrl ? (
               <img
                 src={deliveryOptions.imageUrl}
@@ -106,7 +106,7 @@ export const deliveryOptionsTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (deliveryOptions) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Switch
             checked={deliveryOptions?.status === "ACTIVE"}
             onCheckedChange={() => handleToggleDeliveryOptionsStatus(deliveryOptions)}
@@ -124,7 +124,7 @@ export const deliveryOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (deliveryOptions) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(deliveryOptions?.createdAt)}
         </span>
       ),
@@ -136,19 +136,19 @@ export const deliveryOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (deliveryOptions) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleDeliveryOptionsViewDetail(deliveryOptions)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Delivery Options"
             onClick={() => handleEditDeliveryOptions(deliveryOptions)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Delivery Options"
             onClick={() => handleDeleteDeliveryOptions(deliveryOptions)}
             variant="destructive"

@@ -253,7 +253,7 @@ export default function WorkScheduleModal({
         />
 
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -263,8 +263,8 @@ export default function WorkScheduleModal({
           >
             <FormBody>
               {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
+                <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                  <p className="text-xs text-destructive font-medium">
                     {reduxError}
                   </p>
                 </div>
@@ -326,8 +326,8 @@ export default function WorkScheduleModal({
               />
 
               {}
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {}
                   <TimePickerField
                     control={control}
@@ -352,11 +352,11 @@ export default function WorkScheduleModal({
                 </div>
 
                 {}
-                <div className="border-t pt-4">
-                  <h3 className="text-sm font-medium text-gray-600 mb-3">
+                <div className="border-t pt-3">
+                  <h3 className="text-xs font-medium text-gray-600 mb-2">
                     Break Times (Optional)
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {}
                     <TimePickerField
                       control={control}

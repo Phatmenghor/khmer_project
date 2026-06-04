@@ -38,21 +38,21 @@ export function FormFooter({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 px-4 py-4 border-t bg-muted/30 flex-shrink-0",
-        "sm:flex-row sm:items-center sm:justify-between sm:px-6",
+        "flex flex-col gap-2 px-3 py-3 border-t bg-muted/30 flex-shrink-0",
+        "sm:flex-row sm:items-center sm:justify-between sm:px-4",
         className
       )}
     >
-      <div className="text-sm text-muted-foreground flex items-center gap-2 order-2 sm:order-1">
+      <div className="text-xs text-muted-foreground flex items-center gap-1.5 order-2 sm:order-1">
         {isSubmitting && (
-          <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+          <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
         )}
         {isDirty && !isSubmitting && (
-          <div className="h-2 w-2 rounded-full bg-orange-500" />
+          <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
         )}
         <span>{getStatusMessage()}</span>
       </div>
-      <div className="flex gap-3 order-1 sm:order-2">{children}</div>
+      <div className="flex gap-2 order-1 sm:order-2">{children}</div>
     </div>
   );
 }

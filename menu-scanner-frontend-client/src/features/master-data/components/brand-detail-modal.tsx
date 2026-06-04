@@ -37,12 +37,12 @@ export function BrandDetailModal({
       <DialogTitle className="sr-only">Brand Details - {brand?.name}</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="text-xs font-semibold text-foreground">
               Brand Details
             </h2>
-            <p className="text-sm text-foreground mt-1">
+            <p className="text-xs text-foreground mt-1">
               Detailed information about the selected brand
             </p>
           </div>
@@ -50,31 +50,31 @@ export function BrandDetailModal({
 
         {}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-6">
+          <div className="p-4 space-y-4">
             {}
             <Card>
               <CardHeader>
                 <CardTitle>Brand Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {}
-                <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex flex-col md:flex-row gap-4">
                   {}
                   <div className="w-full md:w-1/2">
-                    <p className="text-sm font-medium text-foreground">Brand Name</p>
+                    <p className="text-xs font-medium text-foreground">Brand Name</p>
                   </div>
                   {}
                   {brand.imageUrl && (
                     <div className="w-full md:w-1/2">
-                      <p className="text-sm font-medium text-foreground">Brand Image</p>
+                      <p className="text-xs font-medium text-foreground">Brand Image</p>
                     </div>
                   )}
                 </div>
 
                 {}
-                <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex flex-col md:flex-row gap-4">
                   {}
-                  <div className="w-full md:w-1/2 space-y-4">
+                  <div className="w-full md:w-1/2 space-y-3">
                     <p className="text-foreground">{brand.name || "---"}</p>
                     <DisplayField label="Description" value={brand.description || "---"} />
                     <DisplayField label="Status" value={brand.status ? formatEnumValue(brand.status) : "---"} />
@@ -85,7 +85,7 @@ export function BrandDetailModal({
                   {}
                   {brand.imageUrl && (
                     <div className="w-full md:w-1/2">
-                      <div className="h-40 w-40 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+                      <div className="h-28 w-28 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
                         <img
                           src={brand.imageUrl}
                           alt={brand.name}
@@ -103,8 +103,8 @@ export function BrandDetailModal({
               <CardHeader>
                 <CardTitle>System Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <DisplayField label="Brand ID" value={brand.id} />
                   <DisplayField label="Created At" value={dateTimeFormat(brand.createdAt ?? "")} />
                   <DisplayField label="Created By" value={brand.createdBy || "---"} />

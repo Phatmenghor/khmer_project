@@ -31,7 +31,7 @@ export const CustomButton = React.forwardRef<
       {...props}
     >
       {icon !== undefined
-        ? (isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : icon)
+        ? (isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : icon)
         : null}
       {children}
     </Button>

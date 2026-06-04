@@ -22,10 +22,10 @@ export function DateTimePickerField<T extends FieldValues = any>({
   mode = "date",
 }: DatePickerFormFieldProps<T>) {
   return (
-    <div className={`space-y-2`}>
+    <div className={`space-y-1.5`}>
       <Label
         htmlFor={name}
-        className="text-xs sm:text-sm font-semibold text-foreground"
+        className="text-xs sm:text-xs font-semibold text-foreground"
       >
         {label} {required && <span className="text-destructive ml-1">*</span>}
       </Label>

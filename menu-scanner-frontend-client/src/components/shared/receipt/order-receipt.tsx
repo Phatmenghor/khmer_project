@@ -64,25 +64,25 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
       `}</style>
 
       <div className="receipt-wrapper">
-        <div className="receipt-content p-6 max-w-2xl mx-auto">
+        <div className="receipt-content p-4 max-w-2xl mx-auto">
           {/* Premium Header */}
-          <div className="text-center border-b-4 border-gray-900 pb-4 mb-4">
-            <div className="mb-2">
-              <div className="text-4xl font-bold text-gray-900">═════════════════════</div>
+          <div className="text-center border-b-4 border-gray-900 pb-3 mb-3">
+            <div className="mb-1.5">
+              <div className="text-base font-bold text-gray-900">═════════════════════</div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-widest mb-1">RECEIPT</h1>
+            <h1 className="text-base font-bold text-gray-900 tracking-widest mb-1">RECEIPT</h1>
             <p className="text-gray-600 text-xs">Professional Receipt Document</p>
-            <div className="text-4xl font-bold text-gray-900 mt-2">═════════════════════</div>
+            <div className="text-base font-bold text-gray-900 mt-1.5">═════════════════════</div>
           </div>
 
           {/* Business & Order Info */}
-          <div className="mb-4 px-4 py-3 border border-gray-400">
-            <p className="text-gray-900 font-bold text-center text-lg mb-3">{order.businessName}</p>
+          <div className="mb-3 px-3 py-2 border border-gray-400">
+            <p className="text-gray-900 font-bold text-center text-xs mb-2">{order.businessName}</p>
 
-            <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
+            <div className="grid grid-cols-2 gap-3 mb-2 text-xs">
               <div>
                 <p className="text-gray-700 font-semibold">ORDER NUMBER</p>
-                <p className="text-gray-900 font-bold text-lg">{order.orderNumber}</p>
+                <p className="text-gray-900 font-bold text-xs">{order.orderNumber}</p>
               </div>
               <div>
                 <p className="text-gray-700 font-semibold">DATE & TIME</p>
@@ -92,39 +92,39 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
             </div>
 
             {order.customerName && (
-              <div className="border-t border-gray-400 pt-2">
-                <p className="text-gray-700 font-semibold text-sm">CUSTOMER</p>
+              <div className="border-t border-gray-400 pt-1.5">
+                <p className="text-gray-700 font-semibold text-xs">CUSTOMER</p>
                 <p className="text-gray-900 font-bold">{order.customerName}</p>
                 {order.customerPhone && (
-                  <p className="text-gray-700 text-sm">{order.customerPhone}</p>
+                  <p className="text-gray-700 text-xs">{order.customerPhone}</p>
                 )}
               </div>
             )}
           </div>
 
           {/* Status Info */}
-          <div className="mb-4 px-4 py-3 border border-gray-400 bg-gray-50">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="mb-3 px-3 py-2 border border-gray-400 bg-gray-50">
+            <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
                 <p className="text-gray-700 font-semibold">ORDER STATUS</p>
-                <p className="text-gray-900 font-bold text-base">{order.orderStatus}</p>
+                <p className="text-gray-900 font-bold text-xs">{order.orderStatus}</p>
               </div>
               <div>
                 <p className="text-gray-700 font-semibold">PAYMENT STATUS</p>
-                <p className="text-gray-900 font-bold text-base">{order.payment?.paymentStatus || "Pending"}</p>
+                <p className="text-gray-900 font-bold text-xs">{order.payment?.paymentStatus || "Pending"}</p>
               </div>
             </div>
           </div>
 
           {/* Items Section */}
-          <div className="mb-4 border border-gray-400">
-            <div className="bg-gray-900 text-white px-4 py-2 font-bold text-sm">
+          <div className="mb-3 border border-gray-400">
+            <div className="bg-gray-900 text-white px-3 py-1.5 font-bold text-xs">
               ITEMS ({(order.items || []).length})
             </div>
 
-            <div className="px-4 py-3">
+            <div className="px-3 py-2">
               {/* Column Headers */}
-              <div className="grid grid-cols-12 gap-2 mb-2 pb-2 border-b-2 border-gray-900 text-xs font-bold">
+              <div className="grid grid-cols-12 gap-1.5 mb-1.5 pb-1.5 border-b-2 border-gray-900 text-xs font-bold">
                 <div className="col-span-6">ITEM DESCRIPTION</div>
                 <div className="col-span-2 text-center">QTY</div>
                 <div className="col-span-2 text-center">PRICE</div>
@@ -132,7 +132,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
               </div>
 
               {/* Items */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {(order.items || []).map((item, index) => {
                   const itemTotal = item.finalPrice * item.quantity;
                   const getPromotionLabel = () => {
@@ -148,8 +148,8 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
                   const promotionLabel = getPromotionLabel();
 
                   return (
-                    <div key={item.id} className="pb-3 border-b border-gray-300">
-                      <div className="grid grid-cols-12 gap-2 text-sm mb-2">
+                    <div key={item.id} className="pb-2 border-b border-gray-300">
+                      <div className="grid grid-cols-12 gap-1.5 text-xs mb-1.5">
                         <div className="col-span-6">
                           <p className="font-bold text-gray-900">{index + 1}. {item.product?.name || "Product"}</p>
                           {item.product?.sizeName && (
@@ -162,17 +162,17 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
                       </div>
 
                       {promotionLabel && (
-                        <div className="ml-4 bg-green-50 border-l-3 border-green-600 px-2 py-1.5 text-xs">
+                        <div className="ml-3 bg-green-50 border-l-3 border-green-600 px-1.5 py-1.5 text-xs">
                           <p className="font-bold text-green-700">✓ PROMOTION: {promotionLabel}</p>
                         </div>
                       )}
 
                       {item.customizations && item.customizations.length > 0 && (
-                        <div className="ml-4 mt-0">
+                        <div className="ml-3 mt-0">
                           {item.customizations.map((c, idx) => (
                             <div key={idx} className="flex justify-between leading-tight text-gray-500 min-w-0" style={{fontSize: "0.7rem"}}>
                               <span className="truncate min-w-0">{c.name}</span>
-                              <span className="ml-2 shrink-0">{(c.priceAdjustment || 0).toFixed(2)}</span>
+                              <span className="ml-1.5 shrink-0">{(c.priceAdjustment || 0).toFixed(2)}</span>
                             </div>
                           ))}
                         </div>
@@ -186,11 +186,11 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
 
           {/* Promotions Summary */}
           {promotionalItems.length > 0 && (
-            <div className="mb-4 border-2 border-green-600 px-4 py-3 bg-green-50">
-              <p className="font-bold text-green-900 mb-2 text-sm">🎉 PROMOTIONS APPLIED</p>
-              <div className="space-y-2">
+            <div className="mb-3 border-2 border-green-600 px-3 py-2 bg-green-50">
+              <p className="font-bold text-green-900 mb-1.5 text-xs">🎉 PROMOTIONS APPLIED</p>
+              <div className="space-y-1.5">
                 {promotionalItems.map((item, idx) => (
-                  <div key={`promo-${idx}`} className="flex justify-between text-sm">
+                  <div key={`promo-${idx}`} className="flex justify-between text-xs">
                     <span className="text-green-800">{item.product?.name || "Product"}</span>
                     <span className="font-bold text-green-900">
                       {item.promotionType === "PERCENTAGE"
@@ -204,8 +204,8 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
           )}
 
           {/* Pricing Summary */}
-          <div className="mb-4 border border-gray-400 px-4 py-3 bg-gray-50">
-            <div className="space-y-2 text-sm">
+          <div className="mb-3 border border-gray-400 px-3 py-2 bg-gray-50">
+            <div className="space-y-1.5 text-xs">
               <div className="flex justify-between">
                 <span className="text-gray-700">Subtotal</span>
                 <span className="font-bold text-gray-900">{formatCurrency(order.pricing?.subtotal)}</span>
@@ -219,7 +219,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
               )}
 
               {(order.pricing?.discountAmount ?? 0) > 0 && (
-                <div className="flex justify-between bg-red-50 px-2 py-1">
+                <div className="flex justify-between bg-red-50 px-1.5 py-1">
                   <span className="text-red-700 font-semibold">Discount</span>
                   <span className="font-bold text-red-700">-{formatCurrency(order.pricing?.discountAmount)}</span>
                 </div>
@@ -242,23 +242,23 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
           </div>
 
           {/* Total Amount */}
-          <div className="mb-4 border-4 border-gray-900 px-4 py-4 bg-gray-900 text-white">
+          <div className="mb-3 border-4 border-gray-900 px-3 py-3 bg-gray-900 text-white">
             <p className="text-xs font-semibold mb-1">FINAL AMOUNT DUE</p>
             <div className="flex justify-between items-baseline">
-              <span className="text-sm font-bold">TOTAL:</span>
-              <span className="text-3xl font-bold">{formatCurrency(order.pricing?.finalTotal)}</span>
+              <span className="text-xs font-bold">TOTAL:</span>
+              <span className="text-xs font-bold">{formatCurrency(order.pricing?.finalTotal)}</span>
             </div>
           </div>
 
           {/* Payment Method */}
-          <div className="mb-4 border border-gray-400 px-4 py-3 bg-gray-50">
-            <p className="text-gray-700 font-semibold text-sm">PAYMENT METHOD</p>
-            <p className="text-gray-900 font-bold text-base">{order.payment?.paymentMethod || "Not Specified"}</p>
+          <div className="mb-3 border border-gray-400 px-3 py-2 bg-gray-50">
+            <p className="text-gray-700 font-semibold text-xs">PAYMENT METHOD</p>
+            <p className="text-gray-900 font-bold text-xs">{order.payment?.paymentMethod || "Not Specified"}</p>
           </div>
 
           {/* Footer */}
-          <div className="text-center border-t-4 border-gray-900 pt-4 space-y-2">
-            <div className="font-bold text-gray-900 text-sm">
+          <div className="text-center border-t-4 border-gray-900 pt-3 space-y-1.5">
+            <div className="font-bold text-gray-900 text-xs">
               ✓ Thank You For Your Order!
             </div>
             <p className="text-xs text-gray-700">
@@ -267,7 +267,7 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
             <p className="text-xs text-gray-600">
               We appreciate your business!
             </p>
-            <div className="text-xs text-gray-500 mt-3 pt-3 border-t border-gray-400">
+            <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-400">
               <p>Generated: {formattedDate} at {formattedTime}</p>
               <p className="mt-1">Receipt ID: {(order.id || "").substring(0, 8).toUpperCase()}</p>
             </div>

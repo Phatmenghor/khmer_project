@@ -70,9 +70,9 @@ function ComboboxSelectCategoriesPublicComponent({
   }, [loading, lastPage]);
 
   const sizeClasses = {
-    sm: "h-8 text-xs",
-    md: "h-9 text-sm",
-    lg: "h-10 text-base",
+    sm: "h-5 text-xs",
+    md: "h-6 text-xs",
+    lg: "h-7 text-xs",
   };
 
   const removeDuplicates = (
@@ -165,9 +165,9 @@ function ComboboxSelectCategoriesPublicComponent({
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-500/10">
-            <Package className="h-3.5 w-3.5 text-blue-500" />
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-center w-5 h-5 rounded bg-blue-500/10">
+            <Package className="h-2.5 w-2.5 text-blue-500" />
           </div>
           <Label className="text-xs font-medium text-foreground">{label}</Label>
         </div>
@@ -179,7 +179,7 @@ function ComboboxSelectCategoriesPublicComponent({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between min-w-[150px] px-3 py-2 transition-all duration-200 border-input",
+              "w-full justify-between min-w-[150px] px-2 py-1.5 transition-all duration-200 border-input",
               sizeClasses[size],
               !selectedCategory && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
@@ -194,7 +194,7 @@ function ComboboxSelectCategoriesPublicComponent({
             </span>
             <ChevronsUpDown
               className={cn(
-                "ml-2 h-4 w-4 shrink-0 transition-all duration-200",
+                "ml-1.5 h-3 w-3 shrink-0 transition-all duration-200",
                 !open && "opacity-50",
                 open && "opacity-100 text-primary rotate-180",
               )}
@@ -215,7 +215,7 @@ function ComboboxSelectCategoriesPublicComponent({
               value={searchTerm}
               onValueChange={setSearchTerm}
             />
-            <CommandList className="max-h-60 overflow-y-auto">
+            <CommandList className="max-h-44 overflow-y-auto">
               <CommandEmpty>No categories found.</CommandEmpty>
               <CommandGroup>
                 {data.map((item, index) => (
@@ -234,7 +234,7 @@ function ComboboxSelectCategoriesPublicComponent({
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        "mr-1.5 h-3 w-3",
                         (selectedCategory === item.id ||
                           (!selectedCategory && item.id === ""))
                           ? "opacity-100"
@@ -247,13 +247,13 @@ function ComboboxSelectCategoriesPublicComponent({
               </CommandGroup>
 
               {loading && (
-                <div className="text-center py-2">
-                  <Loader2 className="animate-spin text-primary h-5 w-5 mx-auto" />
+                <div className="text-center py-1.5">
+                  <Loader2 className="animate-spin text-primary h-3.5 w-3.5 mx-auto" />
                 </div>
               )}
 
               {!loading && lastPage && data.length > 0 && (
-                <div className="text-center py-2 text-sm text-muted-foreground">
+                <div className="text-center py-1.5 text-xs text-muted-foreground">
                   No more categories
                 </div>
               )}

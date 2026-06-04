@@ -105,14 +105,14 @@ export function CancelOrderModal({
           {}
           <FormBody>
             {}
-            <div className="space-y-3 p-4 bg-muted rounded-lg border border-muted-foreground/20">
+            <div className="space-y-2 p-3 bg-muted rounded border border-muted-foreground/20">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Order Number:</span>
-                <span className="text-sm font-semibold text-foreground">#{orderNumber}</span>
+                <span className="text-xs text-muted-foreground">Order Number:</span>
+                <span className="text-xs font-semibold text-foreground">#{orderNumber}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">New Status:</span>
-                <span className="text-sm font-semibold px-2.5 py-1 rounded-md bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800">
+                <span className="text-xs text-muted-foreground">New Status:</span>
+                <span className="text-xs font-semibold px-1.5.5 py-1 rounded bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800">
                   CANCELLED
                 </span>
               </div>
@@ -121,13 +121,13 @@ export function CancelOrderModal({
             {}
             {error && (
               <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
+                <AlertTriangle className="h-3 w-3" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             {}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <TextAreaField
                 control={control}
                 name="customerNote"

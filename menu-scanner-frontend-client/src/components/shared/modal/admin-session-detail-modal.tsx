@@ -31,13 +31,13 @@ export function AdminSessionDetailModal({
   const getDeviceIcon = (deviceType: string) => {
     switch (deviceType) {
       case "MOBILE":
-        return <Smartphone className="h-6 w-6" />;
+        return <Smartphone className="h-4 w-4" />;
       case "TABLET":
-        return <Tablet className="h-6 w-6" />;
+        return <Tablet className="h-4 w-4" />;
       case "DESKTOP":
-        return <Monitor className="h-6 w-6" />;
+        return <Monitor className="h-4 w-4" />;
       default:
-        return <Globe className="h-6 w-6" />;
+        return <Globe className="h-4 w-4" />;
     }
   };
 
@@ -46,21 +46,21 @@ export function AdminSessionDetailModal({
       case "ACTIVE":
         return (
           <Badge variant="secondary" className="bg-green-100 text-green-700">
-            <CheckCircle2 className="h-3 w-3 mr-1" />
+            <CheckCircle2 className="h-2 w-2 mr-1" />
             Active
           </Badge>
         );
       case "LOGGED_OUT":
         return (
           <Badge variant="secondary" className="bg-gray-100 text-gray-700">
-            <XCircle className="h-3 w-3 mr-1" />
+            <XCircle className="h-2 w-2 mr-1" />
             Logged Out
           </Badge>
         );
       case "EXPIRED":
         return (
           <Badge variant="secondary" className="bg-red-100 text-red-700">
-            <XCircle className="h-3 w-3 mr-1" />
+            <XCircle className="h-2 w-2 mr-1" />
             Expired
           </Badge>
         );
@@ -76,23 +76,23 @@ export function AdminSessionDetailModal({
           <DialogTitle>Session Details (Admin View)</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+        <div className="space-y-3 max-h-[70vh] overflow-y-auto">
           {}
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <User className="h-4 w-4" />
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+              <User className="h-3 w-3" />
               User Information
             </h4>
 
-            <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <User className="h-6 w-6 text-primary" />
+            <div className="flex items-center gap-3 p-2 bg-muted/50 rounded">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <User className="h-4 w-4 text-primary" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">
                   {session.userFullName}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {session.userIdentifier}
                 </p>
                 <Badge variant="outline" className="mt-1 text-xs">
@@ -105,15 +105,15 @@ export function AdminSessionDetailModal({
           <Separator />
 
           {}
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center bg-gray-100 text-gray-600">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 text-gray-600">
               {getDeviceIcon(session.deviceType)}
             </div>
             <div>
               <h3 className="font-semibold text-foreground">
                 {session.deviceDisplayName || session.deviceName}
               </h3>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-1.5 mt-1">
                 {getStatusBadge(session.status)}
                 {session.isCurrentSession && (
                   <Badge className="bg-blue-500">Current</Badge>
@@ -125,28 +125,28 @@ export function AdminSessionDetailModal({
           <Separator />
 
           {}
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">
               Device Information
             </h4>
 
             <DetailRow
-              icon={<Globe className="h-4 w-4" />}
+              icon={<Globe className="h-3 w-3" />}
               label="Browser"
               value={session.browser}
             />
             <DetailRow
-              icon={<Monitor className="h-4 w-4" />}
+              icon={<Monitor className="h-3 w-3" />}
               label="Operating System"
               value={session.operatingSystem}
             />
             <DetailRow
-              icon={<Smartphone className="h-4 w-4" />}
+              icon={<Smartphone className="h-3 w-3" />}
               label="Device Type"
               value={session.deviceType}
             />
             <DetailRow
-              icon={<Shield className="h-4 w-4" />}
+              icon={<Shield className="h-3 w-3" />}
               label="Device ID"
               value={session.deviceId}
             />
@@ -155,18 +155,18 @@ export function AdminSessionDetailModal({
           <Separator />
 
           {}
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">
               Location
             </h4>
 
             <DetailRow
-              icon={<MapPin className="h-4 w-4" />}
+              icon={<MapPin className="h-3 w-3" />}
               label="Location"
               value={session.location}
             />
             <DetailRow
-              icon={<Wifi className="h-4 w-4" />}
+              icon={<Wifi className="h-3 w-3" />}
               label="IP Address"
               value={session.ipAddress}
             />
@@ -175,13 +175,13 @@ export function AdminSessionDetailModal({
           <Separator />
 
           {}
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium text-muted-foreground">
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-muted-foreground">
               Session Timing
             </h4>
 
             <DetailRow
-              icon={<Calendar className="h-4 w-4" />}
+              icon={<Calendar className="h-3 w-3" />}
               label="Login Time"
               value={format(
                 new Date(session.loginAt),
@@ -189,14 +189,14 @@ export function AdminSessionDetailModal({
               )}
             />
             <DetailRow
-              icon={<Clock className="h-4 w-4" />}
+              icon={<Clock className="h-3 w-3" />}
               label="Last Active"
               value={formatDistanceToNow(new Date(session.lastActiveAt), {
                 addSuffix: true,
               })}
             />
             <DetailRow
-              icon={<Calendar className="h-4 w-4" />}
+              icon={<Calendar className="h-3 w-3" />}
               label="Expires"
               value={format(
                 new Date(session.expiresAt),
@@ -209,14 +209,14 @@ export function AdminSessionDetailModal({
           {session.loggedOutAt && (
             <>
               <Separator />
-              <div className="space-y-3">
-                <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <LogOut className="h-4 w-4" />
+              <div className="space-y-2">
+                <h4 className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                  <LogOut className="h-3 w-3" />
                   Logout Information
                 </h4>
 
                 <DetailRow
-                  icon={<Calendar className="h-4 w-4" />}
+                  icon={<Calendar className="h-3 w-3" />}
                   label="Logged Out At"
                   value={format(
                     new Date(session.loggedOutAt),
@@ -225,7 +225,7 @@ export function AdminSessionDetailModal({
                 />
                 {session.logoutReason && (
                   <DetailRow
-                    icon={<XCircle className="h-4 w-4" />}
+                    icon={<XCircle className="h-3 w-3" />}
                     label="Logout Reason"
                     value={session.logoutReason}
                   />
@@ -235,7 +235,7 @@ export function AdminSessionDetailModal({
           )}
         </div>
 
-        <DialogFooter className="mt-4">
+        <DialogFooter className="mt-3">
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
@@ -256,11 +256,11 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2 text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-muted-foreground">
         {icon}
-        <span className="text-sm">{label}</span>
+        <span className="text-xs">{label}</span>
       </div>
-      <span className="text-sm font-medium truncate max-w-[200px]" title={value}>
+      <span className="text-xs font-medium truncate max-w-[200px]" title={value}>
         {value}
       </span>
     </div>

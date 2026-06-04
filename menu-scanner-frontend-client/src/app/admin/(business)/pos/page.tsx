@@ -812,14 +812,14 @@ export default function PosPage() {
         {}
         <div className="flex-1 flex flex-col overflow-hidden relative">
           {}
-          <div className="flex flex-wrap items-end gap-2 max-md:gap-1 max-md:p-2 md:p-3 border-b bg-muted/20 shrink-0 py-0.5">
+          <div className="flex flex-wrap items-end gap-1.5 max-md:gap-1 max-md:p-1.5 md:p-2 border-b bg-muted/20 shrink-0 py-0.5">
             <div className="relative flex-1 max-md:min-w-[140px] md:min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 max-md:h-3.5 max-md:w-3.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 max-md:h-2.5 max-md:w-2.5 h-3 w-3 text-muted-foreground" />
               <Input
                 ref={searchInputRef}
                 type="search"
                 placeholder="Search..."
-                className="max-md:pl-8 max-md:h-10 max-md:text-xs pl-10 h-11"
+                className="max-md:pl-5 max-md:h-7 max-md:text-xs pl-7 h-8"
                 value={searchTerm}
                 onChange={(e) => dispatch(setSearchTerm(e.target.value))}
               />
@@ -831,10 +831,10 @@ export default function PosPage() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={brandOpen}
-                  className="max-md:w-[120px] md:w-[200px] justify-between h-11 text-sm"
+                  className="max-md:w-[120px] md:w-[200px] justify-between h-8 text-xs"
                 >
                   {selectedBrand?.name || "All Brands"}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0">
@@ -853,7 +853,7 @@ export default function PosPage() {
                       >
                         <Check
                           className={cn(
-                            "mr-2 h-4 w-4",
+                            "mr-1.5 h-3 w-3",
                             selectedBrand === null ? "opacity-100" : "opacity-0"
                           )}
                         />
@@ -871,7 +871,7 @@ export default function PosPage() {
                         >
                           <Check
                             className={cn(
-                              "mr-2 h-4 w-4",
+                              "mr-1.5 h-3 w-3",
                               selectedBrand?.id === brand.id ? "opacity-100" : "opacity-0"
                             )}
                           />
@@ -890,10 +890,10 @@ export default function PosPage() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={promotionOpen}
-                  className="max-md:w-[100px] md:w-[130px] justify-between h-11 text-sm max-md:text-xs"
+                  className="max-md:w-[100px] md:w-[130px] justify-between h-8 text-xs max-md:text-xs"
                 >
                   {promotionFilter === undefined ? "All Products" : "Promotion"}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[130px] p-0">
@@ -910,7 +910,7 @@ export default function PosPage() {
                       >
                         <Check
                           className={cn(
-                            "mr-2 h-4 w-4",
+                            "mr-1.5 h-3 w-3",
                             promotionFilter === undefined ? "opacity-100" : "opacity-0"
                           )}
                         />
@@ -926,7 +926,7 @@ export default function PosPage() {
                       >
                         <Check
                           className={cn(
-                            "mr-2 h-4 w-4",
+                            "mr-1.5 h-3 w-3",
                             promotionFilter === true ? "opacity-100" : "opacity-0"
                           )}
                         />
@@ -941,7 +941,7 @@ export default function PosPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 text-red-500 hover:text-red-700 hover:bg-red-50"
+                className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-50"
                 onClick={() => {
                   dispatch(setSearchTerm(""));
                   dispatch(setSelectedCategory(null));
@@ -950,27 +950,27 @@ export default function PosPage() {
                 }}
                 title="Clear all filters"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3" />
               </Button>
           </div>
 
           {}
-          <div className="shrink-0 border-b bg-muted/10 flex items-center gap-2 px-2 h-10 mt-2">
+          <div className="shrink-0 border-b bg-muted/10 flex items-center gap-1.5 px-1.5 h-7 mt-1.5">
             <Button
               variant="outline"
               size="icon"
-              className="h-10 w-10 shrink-0 hover:bg-primary/10"
+              className="h-7 w-7 shrink-0 hover:bg-primary/10"
               onClick={() => scrollCategories("left")}
               title="Scroll left"
             >
-              <ChevronRight className="h-5 w-5 transform rotate-180" />
+              <ChevronRight className="h-3.5 w-3.5 transform rotate-180" />
             </Button>
-            <ScrollArea className="flex-1 h-10 overflow-hidden" ref={categoryScrollRef}>
-              <div className="flex gap-3 px-2 h-10 items-center">
+            <ScrollArea className="flex-1 h-7 overflow-hidden" ref={categoryScrollRef}>
+              <div className="flex gap-2 px-1.5 h-7 items-center">
                 <button
                   onClick={() => dispatch(setSelectedCategory(null))}
                   className={cn(
-                    "shrink-0 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-10 flex items-center",
+                    "shrink-0 px-3 py-1.5 rounded text-xs font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-7 flex items-center",
                     selectedCategory === null
                       ? "bg-primary text-primary-foreground"
                       : "bg-white border border-border text-foreground hover:bg-muted"
@@ -979,8 +979,8 @@ export default function PosPage() {
                   All
                 </button>
                 {categoriesLoading ? (
-                  <div className="flex items-center gap-2 px-3 h-10">
-                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                  <div className="flex items-center gap-1.5 px-2 h-7">
+                    <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
                   </div>
                 ) : (
                   categories.map((category) => (
@@ -988,7 +988,7 @@ export default function PosPage() {
                       key={category.id}
                       onClick={() => dispatch(setSelectedCategory(category))}
                       className={cn(
-                        "shrink-0 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-10 flex items-center",
+                        "shrink-0 px-3 py-1.5 rounded text-xs font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-7 flex items-center",
                         selectedCategory?.id === category.id
                           ? "bg-primary text-primary-foreground"
                           : "bg-white border border-border text-foreground hover:bg-muted"
@@ -1004,18 +1004,18 @@ export default function PosPage() {
             <Button
               variant="outline"
               size="icon"
-              className="h-10 w-10 shrink-0 hover:bg-primary/10"
+              className="h-7 w-7 shrink-0 hover:bg-primary/10"
               onClick={() => scrollCategories("right")}
               title="Scroll right"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-3.5 w-3.5" />
             </Button>
           </div>
 
           {}
           <ScrollArea className="flex-1 w-full overflow-hidden" ref={productGridRef}>
             <div
-              className="w-full max-md:p-2 md:p-4"
+              className="w-full max-md:p-1.5 md:p-3"
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
@@ -1041,9 +1041,9 @@ export default function PosPage() {
                 ))}
               {}
               {hasMoreProducts && (
-                <div className="col-span-full flex flex-col items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                <div className="col-span-full flex flex-col items-center justify-center py-5">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary mb-1.5" />
+                  <p className="text-xs sm:text-xs text-muted-foreground">
                     Loading more products...
                   </p>
                 </div>
@@ -1053,16 +1053,16 @@ export default function PosPage() {
               <div ref={observerTarget} className="h-1" />
             )}
             {!productsLoading && products.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+              <div className="flex flex-col items-center justify-center py-14 text-muted-foreground">
                 {productsError ? (
                   <>
-                    <Package className="w-16 h-16 mb-4 opacity-20 text-destructive" />
-                    <p className="text-sm font-medium text-destructive">Failed to load products</p>
+                    <Package className="w-11 h-11 mb-3 opacity-20 text-destructive" />
+                    <p className="text-xs font-medium text-destructive">Failed to load products</p>
                     <p className="text-xs mt-1">{productsError}</p>
                     <CustomButton
                       variant="outline"
                       size="sm"
-                      className="mt-3"
+                      className="mt-2"
                       onClick={() => {
                         dispatch(setProducts([]));
                         dispatch(setProductsLoading(true));
@@ -1083,8 +1083,8 @@ export default function PosPage() {
                   </>
                 ) : (
                   <>
-                    <Package className="w-16 h-16 mb-4 opacity-20" />
-                    <p className="text-sm font-medium">No products found</p>
+                    <Package className="w-11 h-11 mb-3 opacity-20" />
+                    <p className="text-xs font-medium">No products found</p>
                     <p className="text-xs mt-1">Try adjusting your search or filter</p>
                   </>
                 )}
@@ -1097,11 +1097,11 @@ export default function PosPage() {
             <Button
               variant="outline"
               size="icon"
-              className="absolute bottom-4 right-4 h-10 w-10 rounded-full border-2 border-primary shadow-lg bg-background hover:bg-primary hover:text-primary-foreground transition-all duration-200 animate-fade-in"
+              className="absolute bottom-3 right-3 h-7 w-7 rounded-full border-2 border-primary shadow-lg bg-background hover:bg-primary hover:text-primary-foreground transition-all duration-200 animate-fade-in"
               onClick={scrollProductsToTop}
               title="Scroll to top"
             >
-              <ChevronRight className="h-5 w-5 transform -rotate-90" />
+              <ChevronRight className="h-3.5 w-3.5 transform -rotate-90" />
             </Button>
           )}
         </div>
@@ -1115,9 +1115,9 @@ export default function PosPage() {
           }`}
         >
           {}
-          <div className="flex items-center justify-between px-4 py-3 border-b shrink-0">
+          <div className="flex items-center justify-between px-3 py-2 border-b shrink-0">
             <div>
-              <h2 className="font-semibold text-sm">Current Order</h2>
+              <h2 className="font-semibold text-xs">Current Order</h2>
               {cartItems.length > 0 && (
                 <p className="text-xs text-muted-foreground">
                   {cartItems.length} {cartItems.length === 1 ? "item" : "items"} • {cartSummary.totalQuantity} total
@@ -1130,19 +1130,19 @@ export default function PosPage() {
                   variant="ghost"
                   size="sm"
                   onClick={clearCart}
-                  className="text-xs text-destructive hover:text-destructive hover:bg-destructive/10 h-8 rounded-lg gap-1"
+                  className="text-xs text-destructive hover:text-destructive hover:bg-destructive/10 h-5 rounded gap-1"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-2.5 h-2.5" />
                   Clear
                 </Button>
               )}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 lg:hidden"
+                className="h-5 w-5 lg:hidden"
                 onClick={() => dispatch(setShowCart(false))}
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3" />
               </Button>
             </div>
           </div>
@@ -1150,16 +1150,16 @@ export default function PosPage() {
           {}
           <div className="flex-1 overflow-hidden flex flex-col min-h-0">
             {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground flex-1">
-                <ShoppingCart className="w-20 h-20 mb-4 opacity-20" />
-                <p className="text-base font-semibold">No items yet</p>
-                <p className="text-sm mt-2 text-center px-4 leading-relaxed">
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground flex-1">
+                <ShoppingCart className="w-14 h-14 mb-3 opacity-20" />
+                <p className="text-xs font-semibold">No items yet</p>
+                <p className="text-xs mt-1.5 text-center px-3 leading-relaxed">
                   Click on products to add them to the order
                 </p>
               </div>
             ) : (
               <ScrollArea className="flex-1 min-h-0">
-                <div className="space-y-3 p-3">
+                <div className="space-y-2 p-2">
                   {cartItems.map((item) => (
                     <POSCartItem
                       key={item.id}
@@ -1186,11 +1186,11 @@ export default function PosPage() {
 
           {}
           <div className="border-t bg-card shrink-0">
-            <div className="p-3 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+            <div className="p-2 space-y-1.5">
+              <div className="grid grid-cols-2 gap-1.5">
                 <div className="space-y-1 min-w-0">
                   <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
-                    <Truck className="w-3 h-3 shrink-0" />
+                    <Truck className="w-2 h-2 shrink-0" />
                     Delivery
                   </Label>
                   <ComboboxSelectDelivery
@@ -1204,7 +1204,7 @@ export default function PosPage() {
                 </div>
                 <div className="space-y-1 min-w-0">
                   <Label className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1">
-                    <CreditCard className="w-3 h-3 shrink-0" />
+                    <CreditCard className="w-2 h-2 shrink-0" />
                     Payment
                   </Label>
                   <ComboboxSelectPayment
@@ -1217,7 +1217,7 @@ export default function PosPage() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 space-y-1.5">
+              <div className="rounded border border-border bg-muted/20 px-2 py-1.5 space-y-1.5">
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">
                     Subtotal ({cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"})
@@ -1244,25 +1244,25 @@ export default function PosPage() {
                 </div>
                 <Separator />
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold">Total</span>
-                  <span className="text-base font-bold text-primary">
+                  <span className="text-xs font-bold">Total</span>
+                  <span className="text-xs font-bold text-primary">
                     {formatCurrency(cartSummary.finalTotal)}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="px-3 pb-3">
-              <div className="rounded-xl overflow-hidden border border-border shadow-sm flex items-stretch">
+            <div className="px-2 pb-2">
+              <div className="rounded overflow-hidden border border-border shadow-sm flex items-stretch">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-auto px-3 gap-2 text-xs font-semibold border-r border-border hover:bg-muted/50"
+                  className="h-auto px-2 gap-1.5 text-xs font-semibold border-r border-border hover:bg-muted/50"
                   onClick={() => dispatch(setShowOrderDetailsModal(true))}
                 >
-                  <Tag className="w-3.5 h-3.5" />
+                  <Tag className="w-2.5 h-2.5" />
                 </Button>
-                <div className="flex-1 px-3 py-2.5 bg-muted/30 min-w-0 flex items-center justify-between">
+                <div className="flex-1 px-2 py-1.5.5 bg-muted/30 min-w-0 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] text-muted-foreground font-medium">
                       {cartSummary.totalQuantity} {cartSummary.totalQuantity === 1 ? "item" : "items"}
@@ -1272,23 +1272,23 @@ export default function PosPage() {
                         </span>
                       )}
                     </p>
-                    <p className="text-lg font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
+                    <p className="text-xs font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
                   </div>
                 </div>
                 <button
                   onClick={handleSubmitOrder}
                   disabled={cartItems.length === 0 || isSubmitting}
                   className={cn(
-                    "flex flex-col items-center justify-center px-5 gap-0.5 transition-all shrink-0",
+                    "flex flex-col items-center justify-center px-3.5 gap-0.5 transition-all shrink-0",
                     cartItems.length === 0 || isSubmitting
                       ? "bg-muted text-muted-foreground cursor-not-allowed"
                       : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 cursor-pointer"
                   )}
                 >
                   {isSubmitting ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : (
-                    <ReceiptText className="w-5 h-5" />
+                    <ReceiptText className="w-3.5 h-3.5" />
                   )}
                   <span className="text-[11px] font-semibold whitespace-nowrap">
                     {isSubmitting ? "Processing..." : "Place Order"}

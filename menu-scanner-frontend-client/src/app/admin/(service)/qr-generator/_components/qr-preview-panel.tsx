@@ -24,14 +24,14 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
 
   return (
     <Card className="flex flex-col">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <QrCode className="w-4 h-4 text-primary" />
-          <CardTitle className="text-sm font-semibold">QR Preview</CardTitle>
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-1.5">
+          <QrCode className="w-3 h-3 text-primary" />
+          <CardTitle className="text-xs font-semibold">QR Preview</CardTitle>
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col items-center gap-5 flex-1">
+      <CardContent className="flex flex-col items-center gap-3.5 flex-1">
         {/* Unified QR generator — same component as modal */}
         <QRGenerator
           link={effectiveUrl}
@@ -51,11 +51,11 @@ export function QRPreviewPanel({ config, style }: QRPreviewPanelProps) {
 
         {/* URL display info */}
         {qrUrl ? (
-          <div className="w-full rounded-lg border bg-muted px-3 py-2.5 font-mono text-xs text-muted-foreground break-all leading-relaxed">
+          <div className="w-full rounded border bg-muted px-2 py-1.5.5 font-mono text-xs text-muted-foreground break-all leading-relaxed">
             {qrUrl}
           </div>
         ) : (
-          <div className="w-full rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-700 text-center">
+          <div className="w-full rounded border border-amber-200 bg-amber-50 px-2 py-1.5.5 text-xs text-amber-700 text-center">
             Complete required fields to generate a valid URL
           </div>
         )}

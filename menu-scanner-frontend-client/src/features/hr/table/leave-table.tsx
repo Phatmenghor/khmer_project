@@ -139,7 +139,7 @@ export const leaveTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (leave) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(leave?.createdAt)}
         </span>
       ),
@@ -154,22 +154,22 @@ export const leaveTableColumns = ({
         const isPending = leave.status === "PENDING";
 
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <ActionButton
-              icon={<Eye className="w-4 h-4" />}
+              icon={<Eye className="w-3 h-3" />}
               tooltip="View Details"
               onClick={() => handleViewDetailItem(leave)}
             />
             {isPending && (
               <>
                 <ActionButton
-                  icon={<Check className="w-4 h-4" />}
+                  icon={<Check className="w-3 h-3" />}
                   tooltip="Approve Leave"
                   onClick={() => handleApproveItem(leave)}
                   className="text-green-600 hover:text-green-700 hover:bg-green-50"
                 />
                 <ActionButton
-                  icon={<X className="w-4 h-4" />}
+                  icon={<X className="w-3 h-3" />}
                   tooltip="Reject Leave"
                   onClick={() => handleRejectItem(leave)}
                   variant="destructive"
@@ -177,12 +177,12 @@ export const leaveTableColumns = ({
               </>
             )}
             <ActionButton
-              icon={<Edit className="w-4 h-4" />}
+              icon={<Edit className="w-3 h-3" />}
               tooltip="Edit Leave"
               onClick={() => handleEditItem(leave)}
             />
             <ActionButton
-              icon={<Trash className="w-4 h-4" />}
+              icon={<Trash className="w-3 h-3" />}
               tooltip="Delete Leave"
               onClick={() => handleDeleteItem(leave)}
               variant="destructive"

@@ -209,15 +209,15 @@ export default function OrdersAdminPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-3 px-1.5">
+      <div className="space-y-3">
         <CardHeaderSection
           title="Order Management"
           searchValue={filters.search}
           searchPlaceholder="Search order..."
           onSearchChange={handleSearchChange}
           buttonText="New Order"
-          buttonIcon={<Plus className="h-4 w-4" />}
+          buttonIcon={<Plus className="h-3 w-3" />}
           buttonHref={ROUTES.ADMIN.POS}
           buttonTooltip="Create a new POS order"
         >
@@ -236,9 +236,9 @@ export default function OrdersAdminPage() {
             onValueChange={handlePaymentStatusChange}
             label="Payment Status"
           />
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <div className="flex-1">
-              <label className="text-sm font-medium text-foreground mb-1 block">From Date</label>
+              <label className="text-xs font-medium text-foreground mb-1 block">From Date</label>
               <CustomDateTimePicker
                 value={filters.startDate || ""}
                 onChange={handleStartDateChange}
@@ -247,7 +247,7 @@ export default function OrdersAdminPage() {
               />
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium text-foreground mb-1 block">To Date</label>
+              <label className="text-xs font-medium text-foreground mb-1 block">To Date</label>
               <CustomDateTimePicker
                 value={filters.endDate || ""}
                 onChange={handleEndDateChange}

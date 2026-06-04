@@ -127,8 +127,8 @@ export default function ApproveRejectLeaveModal({
         >
           <FormBody>
             {reduxError && (
-              <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                <p className="text-sm text-destructive font-medium">
+              <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                <p className="text-xs text-destructive font-medium">
                   {reduxError}
                 </p>
               </div>
@@ -175,12 +175,12 @@ export default function ApproveRejectLeaveModal({
                 <>
                   {isApprove ? (
                     <>
-                      <Check className="w-4 h-4 mr-2" />
+                      <Check className="w-3 h-3 mr-1.5" />
                       Approve
                     </>
                   ) : (
                     <>
-                      <X className="w-4 h-4 mr-2" />
+                      <X className="w-3 h-3 mr-1.5" />
                       Reject
                     </>
                   )}

@@ -339,7 +339,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     <>
       <div
         className={cn(
-          "group relative bg-card rounded-xl border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col hover-scale-102 hover-lift",
+          "group relative bg-card rounded border border-border hover:border-primary/30 hover:shadow-lg overflow-hidden transition-all duration-300 flex flex-col hover-scale-102 hover-lift",
           isInCart && "ring-1 ring-primary/30 border-primary/50",
           isOutOfStock && "opacity-70",
           !isInCart && product?.hasPromotion && "ring-1 ring-amber-500/20",
@@ -361,13 +361,13 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
             onToggleFavorite={handleToggleFavorite}
           />
 
-          <div className="p-3 pb-2 flex flex-col flex-1">
+          <div className="p-2 pb-1.5 flex flex-col flex-1">
             <ProductInfo product={product} />
           </div>
         </Link>
 
         {/* Actions live outside the Link — clicks never trigger navigation or the progress bar */}
-        <div className="px-3 pb-3">
+        <div className="px-2 pb-2">
           <ProductActions
             displayQuantity={displayQuantity}
             isInCart={isInCart}

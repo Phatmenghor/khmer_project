@@ -74,7 +74,7 @@ export function LocationCard({
   return (
     <div
       className={cn(
-        "group relative rounded-xl border bg-background overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md",
+        "group relative rounded border bg-background overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md",
         isPrimary
           ? "border-amber-300/70 dark:border-amber-700/50"
           : "border-border"
@@ -92,13 +92,13 @@ export function LocationCard({
         )}
       />
 
-      <div className="pl-4 pr-3 py-4">
+      <div className="pl-3 pr-2 py-3">
         {}
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-2">
           {}
           <div
             className={cn(
-              "p-2 rounded-lg shrink-0 mt-0.5",
+              "p-1.5 rounded shrink-0 mt-0.5",
               isPrimary
                 ? "bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
                 : theme
@@ -106,16 +106,16 @@ export function LocationCard({
                 : "bg-primary/10 text-primary"
             )}
           >
-            <LabelIcon className="h-4 w-4" />
+            <LabelIcon className="h-3 w-3" />
           </div>
 
           {}
           <div className="flex-1 min-w-0">
             {}
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
               <span
                 className={cn(
-                  "text-sm font-semibold leading-tight",
+                  "text-xs font-semibold leading-tight",
                   isPrimary
                     ? "text-amber-700 dark:text-amber-400"
                     : "text-foreground"
@@ -124,8 +124,8 @@ export function LocationCard({
                 {location.label || "Location"}
               </span>
               {isPrimary && (
-                <Badge className="h-5 px-2 text-[10px] font-bold tracking-wide bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700/50 shrink-0 flex items-center gap-1">
-                  <Crown className="h-3 w-3" />
+                <Badge className="h-3.5 px-1.5 text-[10px] font-bold tracking-wide bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700/50 shrink-0 flex items-center gap-1">
+                  <Crown className="h-2 w-2" />
                   Default
                 </Badge>
               )}
@@ -142,7 +142,7 @@ export function LocationCard({
               )}
               title={hasCoordinates ? "Click to view on Google Maps" : ""}
             >
-              <p className="text-sm font-medium text-foreground line-clamp-2">
+              <p className="text-xs font-medium text-foreground line-clamp-2">
                 {location.fullAddress || "No address provided"}
               </p>
             </button>
@@ -158,9 +158,9 @@ export function LocationCard({
                 size="sm"
                 onClick={() => onSetPrimary(location)}
                 disabled={isSettingPrimary}
-                className="h-8 text-xs gap-1.5 rounded-lg"
+                className="h-5 text-xs gap-1.5 rounded"
               >
-                <Star className="h-3.5 w-3.5" />
+                <Star className="h-2.5 w-2.5" />
                 <span className="hidden sm:inline">Default</span>
               </Button>
             )}
@@ -168,19 +168,19 @@ export function LocationCard({
               variant="outline"
               size="sm"
               onClick={() => onEdit(location)}
-              className="h-8 w-8 p-0 rounded-lg"
+              className="h-5 w-5 p-0 rounded"
               title="Edit"
             >
-              <Edit2 className="h-3.5 w-3.5" />
+              <Edit2 className="h-2.5 w-2.5" />
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => onDelete(location)}
-              className="h-8 w-8 p-0 rounded-lg"
+              className="h-5 w-5 p-0 rounded"
               title="Delete"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 className="h-2.5 w-2.5" />
             </Button>
           </div>
         </div>

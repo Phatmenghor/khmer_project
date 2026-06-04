@@ -230,19 +230,19 @@ export default function DeliveryOptionsPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-3 px-1.5">
+      <div className="space-y-3">
         <CardHeaderSection
           title="Delivery Options Information"
           buttonTooltip="Create a new delivery options"
           searchValue={filters.search}
           searchPlaceholder="Search delivery options..."
-          buttonIcon={<Plus className="w-3 h-3" />}
+          buttonIcon={<Plus className="w-2 h-2" />}
           buttonText="New"
           onSearchChange={handleSearchChange}
           openModal={handleCreateDeliveryOptions}
         >
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
             <CustomSelect
               options={DELIVERY_OPTIONS_FILTER}
               value={filters.status}

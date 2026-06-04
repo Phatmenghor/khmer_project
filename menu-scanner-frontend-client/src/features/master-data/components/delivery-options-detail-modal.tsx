@@ -36,9 +36,9 @@ export function DeliveryOptionsDetailModal({
       <DialogTitle className="sr-only">Delivery Options Details - {deliveryOptions.name}</DialogTitle>
       <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="text-xs font-semibold text-foreground">
               {deliveryOptions.name}
             </h2>
           </div>
@@ -46,31 +46,31 @@ export function DeliveryOptionsDetailModal({
 
         {}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6 space-y-6">
+          <div className="p-4 space-y-4">
             {}
             <Card>
               <CardHeader>
                 <CardTitle>Delivery Options Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {}
-                <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex flex-col md:flex-row gap-4">
                   {}
                   <div className="w-full md:w-1/2">
-                    <p className="text-sm font-medium text-foreground">Delivery Options Details</p>
+                    <p className="text-xs font-medium text-foreground">Delivery Options Details</p>
                   </div>
                   {}
                   {deliveryOptions.imageUrl && (
                     <div className="w-full md:w-1/2">
-                      <p className="text-sm font-medium text-foreground">Delivery Options Image</p>
+                      <p className="text-xs font-medium text-foreground">Delivery Options Image</p>
                     </div>
                   )}
                 </div>
 
                 {}
-                <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex flex-col md:flex-row gap-4">
                   {}
-                  <div className="w-full md:w-1/2 space-y-4">
+                  <div className="w-full md:w-1/2 space-y-3">
                     <p className="text-foreground font-medium">{deliveryOptions.name || "---"}</p>
                     <DisplayField
                       label="Price"
@@ -91,7 +91,7 @@ export function DeliveryOptionsDetailModal({
                   {}
                   {deliveryOptions.imageUrl && (
                     <div className="w-full md:w-1/2">
-                      <div className="h-40 w-40 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+                      <div className="h-28 w-28 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
                         <img
                           src={deliveryOptions.imageUrl}
                           alt={deliveryOptions.name}
@@ -109,8 +109,8 @@ export function DeliveryOptionsDetailModal({
               <CardHeader>
                 <CardTitle>System Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <DisplayField label="Delivery Options ID" value={deliveryOptions.id} />
                   <DisplayField label="Business ID" value={deliveryOptions.businessId || "---"} />
                   <DisplayField

@@ -62,23 +62,23 @@ function NavbarMenuComponent({
       <Button
         variant="ghost"
         size="icon"
-        className="lg:hidden h-10 w-10 shrink-0 hover:bg-primary/10 hover:text-primary transition-colors"
+        className="lg:hidden h-7 w-7 shrink-0 hover:bg-primary/10 hover:text-primary transition-colors"
         onClick={() => onOpenChange(!open)}
         title="Menu"
       >
-        <Menu className="h-5 w-5" />
+        <Menu className="h-3.5 w-3.5" />
       </Button>
 
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="left" className="w-4/5 sm:w-96 p-0 flex flex-col">
+        <SheetContent side="left" className="w-4/5 sm:w-64 p-0 flex flex-col">
           <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
 
           {/* Header */}
-          <div className="border-b border-border/60 px-6 py-4 mt-0 bg-gradient-to-br from-primary/5 to-transparent">
-            <div className="flex items-start gap-3">
+          <div className="border-b border-border/60 px-4 py-3 mt-0 bg-gradient-to-br from-primary/5 to-transparent">
+            <div className="flex items-start gap-2">
               {businessLogoUrl && (
                 <div className="relative shrink-0">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
+                  <div className="w-8 h-8 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
                     <img
                       src={businessLogoUrl}
                       alt={businessName}
@@ -93,7 +93,7 @@ function NavbarMenuComponent({
               )}
 
               <div className="flex-1 min-w-0 pt-1">
-                <h2 className="text-foreground font-bold text-sm leading-tight line-clamp-1">
+                <h2 className="text-foreground font-bold text-xs leading-tight line-clamp-1">
                   {businessName}
                 </h2>
                 <p className="text-muted-foreground text-xs font-medium">
@@ -105,7 +105,7 @@ function NavbarMenuComponent({
 
           <div className="flex flex-col h-full overflow-y-auto">
             {/* Navigation */}
-            <nav className="flex flex-col py-2">
+            <nav className="flex flex-col py-1.5">
               {navigationLinks.map((link) => {
                 const active =
                   pathname === link.href ||
@@ -121,7 +121,7 @@ function NavbarMenuComponent({
                         onOpenChange(false);
                       }}
                       className={cn(
-                        "w-full text-left px-4 py-3 mx-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3",
+                        "w-full text-left px-3 py-2 mx-1.5 rounded text-xs font-medium transition-all duration-200 flex items-center gap-2",
                         active
                           ? "text-primary bg-primary/10 shadow-sm"
                           : "text-foreground hover:bg-muted/50 active:bg-muted/70"
@@ -129,7 +129,7 @@ function NavbarMenuComponent({
                     >
                       <span className="flex-1">{link.name}</span>
                       {active && (
-                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                       )}
                     </button>
                   );
@@ -143,7 +143,7 @@ function NavbarMenuComponent({
                       onOpenChange(false);
                     }}
                     className={cn(
-                      "w-full text-left px-4 py-3 mx-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3",
+                      "w-full text-left px-3 py-2 mx-1.5 rounded text-xs font-medium transition-all duration-200 flex items-center gap-2",
                       active
                         ? "text-primary bg-primary/10 shadow-sm"
                         : "text-foreground hover:bg-muted/50 active:bg-muted/70"
@@ -151,7 +151,7 @@ function NavbarMenuComponent({
                   >
                     <span className="flex-1">{link.name}</span>
                     {active && (
-                      <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                     )}
                   </button>
                 );
@@ -159,19 +159,19 @@ function NavbarMenuComponent({
             </nav>
 
             {/* Divider */}
-            <div className="my-2 mx-4 border-t border-border/40" />
+            <div className="my-1.5 mx-3 border-t border-border/40" />
 
             {/* Footer */}
             {isAuthenticated ? (
-              <div className="px-4 py-4 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent">
-                <div className="flex items-center gap-3 mb-4 p-2 rounded-lg bg-background/50">
+              <div className="px-3 py-3 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent">
+                <div className="flex items-center gap-2 mb-3 p-1.5 rounded bg-background/50">
                   <CustomAvatar
                     imageUrl={profileImage || profile?.profileImageUrl}
                     name={fullName || profile?.fullName || "User"}
                     size="md"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold line-clamp-1">
+                    <p className="text-xs font-semibold line-clamp-1">
                       {fullName || profile?.fullName || "User"}
                     </p>
                     <p className="text-xs text-muted-foreground line-clamp-1">
@@ -188,12 +188,12 @@ function NavbarMenuComponent({
                     onOpenChange(false);
                   }}
                 >
-                  <LogOut className="h-4 w-4 mr-2" />
+                  <LogOut className="h-3 w-3 mr-1.5" />
                   Logout
                 </Button>
               </div>
             ) : (
-              <div className="px-4 py-4 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent flex gap-2">
+              <div className="px-3 py-3 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent flex gap-1.5">
                 <Button
                   variant="outline"
                   size="sm"

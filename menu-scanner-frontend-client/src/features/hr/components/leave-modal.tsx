@@ -209,7 +209,7 @@ export default function LeaveModal({
         />
 
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -219,8 +219,8 @@ export default function LeaveModal({
           >
             <FormBody>
               {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
+                <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                  <p className="text-xs text-destructive font-medium">
                     {reduxError}
                   </p>
                 </div>
@@ -284,7 +284,7 @@ export default function LeaveModal({
               updateMessage="Updating leave request..."
             >
               <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   {!isCreate && isPending && onApprove && (
                     <Button
                       type="button"
@@ -292,7 +292,7 @@ export default function LeaveModal({
                       disabled={isSubmitting}
                       className="bg-green-600 hover:bg-green-700"
                     >
-                      <Check className="w-4 h-4 mr-2" />
+                      <Check className="w-3 h-3 mr-1.5" />
                       Approve
                     </Button>
                   )}
@@ -303,12 +303,12 @@ export default function LeaveModal({
                       disabled={isSubmitting}
                       variant="destructive"
                     >
-                      <X className="w-4 h-4 mr-2" />
+                      <X className="w-3 h-3 mr-1.5" />
                       Reject
                     </Button>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <CancelButton onClick={handleClose} disabled={isSubmitting} />
                   <SubmitButton
                     isSubmitting={isSubmitting}

@@ -47,7 +47,7 @@ export const paymentOptionsTableColumns = ({
       maxWidth: "400px",
       render: (option) => {
         return (
-          <div className="h-10 w-10 rounded-md overflow-hidden bg-muted border border-border flex-shrink-0">
+          <div className="h-7 w-7 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
             {option.imageUrl ? (
               <img
                 src={option.imageUrl}
@@ -101,7 +101,7 @@ export const paymentOptionsTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (option) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Switch
             checked={option?.status === "ACTIVE"}
             onCheckedChange={() => handleTogglePaymentOptionStatus(option)}
@@ -118,7 +118,7 @@ export const paymentOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (option) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(option?.createdAt)}
         </span>
       ),
@@ -129,19 +129,19 @@ export const paymentOptionsTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (option) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewPaymentOption(option)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Payment Option"
             onClick={() => handleEditPaymentOption(option)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Payment Option"
             onClick={() => handleDeletePaymentOption(option)}
             variant="destructive"

@@ -175,7 +175,7 @@ export function ComboboxSelectDelivery({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between px-4 py-2 h-11 text-sm transition-all duration-200 border-input",
+              "w-full justify-between px-3 py-1.5 h-8 text-xs transition-all duration-200 border-input",
               !dataSelect && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
@@ -189,15 +189,15 @@ export function ComboboxSelectDelivery({
               {dataSelect ? dataSelect.name : placeholder}
             </span>
             {dataSelect && (
-              <span className="text-sm font-semibold text-primary flex-shrink-0 ml-2 whitespace-nowrap">
+              <span className="text-xs font-semibold text-primary flex-shrink-0 ml-1.5 whitespace-nowrap">
                 +{formatCurrency(dataSelect.price || 0)}
               </span>
             )}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-96 p-0 shadow-lg border-border"
+          className="w-64 p-0 shadow-lg border-border"
           align="start"
           side="bottom"
           sideOffset={4}
@@ -208,10 +208,10 @@ export function ComboboxSelectDelivery({
               placeholder="Search delivery option..."
               value={searchTerm}
               onValueChange={handleSearchChange}
-              className="text-sm h-11 px-3 border-b"
+              className="text-xs h-8 px-2 border-b"
             />
-            <CommandList className="max-h-48 overflow-y-auto">
-              <CommandEmpty className="text-sm py-4 text-center text-muted-foreground">
+            <CommandList className="max-h-32 overflow-y-auto">
+              <CommandEmpty className="text-xs py-3 text-center text-muted-foreground">
                 No delivery option found.
               </CommandEmpty>
               <CommandGroup>
@@ -221,26 +221,26 @@ export function ComboboxSelectDelivery({
                     value={item.name}
                     onSelect={() => handleSelect(item)}
                     ref={index === data.length - 1 ? ref : null}
-                    className="text-sm py-2.5"
+                    className="text-xs py-1.5.5"
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4 flex-shrink-0",
+                        "mr-1.5 h-3 w-3 flex-shrink-0",
                         dataSelect?.id === item.id ? "opacity-100" : "opacity-0"
                       )}
                     />
                     <span className="truncate line-clamp-1 flex-1">
                       {item.name}
                     </span>
-                    <span className="text-sm font-semibold text-primary flex-shrink-0 ml-2 whitespace-nowrap">
+                    <span className="text-xs font-semibold text-primary flex-shrink-0 ml-1.5 whitespace-nowrap">
                       +{formatCurrency(item.price || 0)}
                     </span>
                   </CommandItem>
                 ))}
               </CommandGroup>
               {loading && (
-                <div className="text-center py-2">
-                  <Loader2 className="animate-spin text-gray-500 h-4 w-4 mx-auto" />
+                <div className="text-center py-1.5">
+                  <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
                 </div>
               )}
               {!loading && lastPage && data.length > 0 && (

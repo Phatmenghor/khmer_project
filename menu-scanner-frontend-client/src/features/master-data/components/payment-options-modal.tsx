@@ -159,14 +159,14 @@ export default function PaymentOptionsModal({
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
           <FormBody>
             {reduxError && (
-              <div className="p-4 bg-destructive/10 border border-destructive rounded-lg mb-4">
-                <p className="text-sm text-destructive font-medium">
+              <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+                <p className="text-xs text-destructive font-medium">
                   {reduxError}
                 </p>
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <TextField
                 control={control}
                 name="name"
@@ -206,7 +206,7 @@ export default function PaymentOptionsModal({
                 disabled={isSubmitting}
                 placeholder="Click to upload QR code or payment method image"
                 helperText="PNG, JPG, GIF up to 10MB"
-                height="h-48"
+                height="h-32"
                 aspectRatio="square"
               />
             </div>

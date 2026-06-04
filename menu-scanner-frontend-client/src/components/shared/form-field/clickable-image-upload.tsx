@@ -61,9 +61,9 @@ export function ClickableImageUpload({
 
   const getHeightClass = () => {
     if (height) return height;
-    if (aspectRatio === "banner") return "h-48";
-    if (aspectRatio === "auto") return "h-64";
-    return "h-56";
+    if (aspectRatio === "banner") return "h-32";
+    if (aspectRatio === "auto") return "h-44";
+    return "h-40";
   };
 
   const handleFileChange = async (
@@ -121,17 +121,17 @@ export function ClickableImageUpload({
   };
 
   return (
-    <div className="space-y-2">
-      <Label className="text-sm font-medium">
+    <div className="space-y-1.5">
+      <Label className="text-xs font-medium">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </Label>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div
           onClick={handleClick}
           className={cn(
-            "relative w-full rounded-lg overflow-hidden border-2 transition-all",
+            "relative w-full rounded overflow-hidden border-2 transition-all",
             getHeightClass(),
             getAspectRatioClass(),
             value
@@ -161,9 +161,9 @@ export function ClickableImageUpload({
               />
 
               <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-                <div className="opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-2 text-white">
-                  <Upload className="h-8 w-8" />
-                  <p className="text-sm font-medium">Click to change image</p>
+                <div className="opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-1.5 text-white">
+                  <Upload className="h-5 w-5" />
+                  <p className="text-xs font-medium">Click to change image</p>
                 </div>
               </div>
 
@@ -172,20 +172,20 @@ export function ClickableImageUpload({
                   type="button"
                   variant="destructive"
                   size="sm"
-                  className="absolute top-3 right-3 z-10"
+                  className="absolute top-2 right-2 z-10"
                   onClick={handleRemove}
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3" />
                 </Button>
               )}
             </>
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-muted/30">
-              <div className="p-4 bg-muted rounded-full">
-                <ImageIcon className="h-10 w-10 text-muted-foreground" />
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-muted/30">
+              <div className="p-3 bg-muted rounded-full">
+                <ImageIcon className="h-7 w-7 text-muted-foreground" />
               </div>
-              <div className="text-center px-4">
-                <p className="text-sm font-medium text-foreground">
+              <div className="text-center px-3">
+                <p className="text-xs font-medium text-foreground">
                   {placeholder}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">

@@ -59,7 +59,7 @@ export default function BrandsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageContainer className="min-h-screen flex flex-col py-4 sm:py-8">
+      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
         <PageHeader
           title="Brands"
           icon={Store}
@@ -75,7 +75,7 @@ export default function BrandsPage() {
 
         {}
         {isInitialLoading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
             {Array.from({ length: skeletonCount }).map((_, i) => (
               <BrandCardSkeleton key={i} />
             ))}
@@ -95,7 +95,7 @@ export default function BrandsPage() {
         {}
         {!isInitialLoading && brands.length > 0 && (
           <div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {brands.map((brand) => (
                 <BrandCard key={brand.id} brand={brand} />
               ))}
@@ -106,23 +106,23 @@ export default function BrandsPage() {
             </div>
 
             {isLoadingMore && (
-              <div className="flex items-center justify-center py-6 mt-2">
-                <div className="flex items-center gap-2 text-primary">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm font-medium">Loading more...</span>
+              <div className="flex items-center justify-center py-4 mt-1.5">
+                <div className="flex items-center gap-1.5 text-primary">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span className="text-xs font-medium">Loading more...</span>
                 </div>
               </div>
             )}
 
             {!hasMore && !isLoadingMore && brands.length > 0 && (
-              <div className="flex flex-col items-center justify-center mt-10 py-8 px-4">
-                <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
-                  <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+              <div className="flex flex-col items-center justify-center mt-7 py-5 px-3">
+                <div className="flex items-center justify-center w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-primary/10 mb-3">
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">
+                <h3 className="text-xs sm:text-xs font-semibold mb-1.5 text-center">
                   You've seen all brands!
                 </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md">
+                <p className="text-xs sm:text-xs text-muted-foreground text-center max-w-md">
                   You've reached the end of our brand list. Check back later for new brands!
                 </p>
               </div>
@@ -130,7 +130,7 @@ export default function BrandsPage() {
 
             {}
             {hasMore && !isLoadingMore && (
-              <div ref={observerTarget} className="h-4" />
+              <div ref={observerTarget} className="h-3" />
             )}
           </div>
         )}

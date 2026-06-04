@@ -25,7 +25,7 @@ const ProductFilters = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-72 h-96 bg-muted animate-pulse rounded-lg" />
+      <div className="w-52 h-64 bg-muted animate-pulse rounded" />
     ),
   },
 );
@@ -203,16 +203,16 @@ export function ProductListPage({
       {}
       {hero && (
         <div className="relative">
-          <PageContainer className="max-w-8xl pt-3 max sm:pt-6 pb-0">
-            <div className="mb-6">{hero}</div>
+          <PageContainer className="max-w-8xl pt-2 max sm:pt-4 pb-0">
+            <div className="mb-4">{hero}</div>
           </PageContainer>
         </div>
       )}
 
       {}
-      <div className="relative py-6 sm:py-10">
+      <div className="relative py-4 sm:py-7">
         <PageContainer className="max-w-8xl">
-          <div className="flex gap-6 lg:gap-8 flex-col lg:flex-row">
+          <div className="flex gap-4 lg:gap-5 flex-col lg:flex-row">
             {}
             <ProductFilters
               totalResults={pagination.totalElements}
@@ -225,7 +225,7 @@ export function ProductListPage({
 
               {}
               {isInitialLoad ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
                   {Array.from({ length: 12 }).map((_, i) => (
                     <ProductCardSkeleton key={`skeleton-initial-${i}`} />
                   ))}
@@ -238,7 +238,7 @@ export function ProductListPage({
                     hasMore={pagination.hasMore}
                     onLoadMore={debouncedLoadMore}
                     isInitialLoading={false}
-                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3"
                     sectionKey={lockedPromotion ? "promotions" : "products"}
                   />
 
@@ -246,24 +246,24 @@ export function ProductListPage({
                   {!pagination.hasMore &&
                     products.length > 0 &&
                     !loading.list && (
-                      <div className="flex flex-col items-center justify-center mt-10 py-8">
+                      <div className="flex flex-col items-center justify-center mt-7 py-5">
                         <div
-                          className={`flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
+                          className={`flex items-center justify-center w-11 h-11 rounded-full mb-3 ${
                             lockedPromotion
                               ? "bg-orange-500/10"
                               : "bg-primary/10"
                           }`}
                         >
                           <CheckCircle2
-                            className={`h-8 w-8 ${lockedPromotion ? "text-orange-500" : "text-primary"}`}
+                            className={`h-5 w-5 ${lockedPromotion ? "text-orange-500" : "text-primary"}`}
                           />
                         </div>
-                        <h3 className="text-lg font-semibold mb-2">
+                        <h3 className="text-xs font-semibold mb-1.5">
                           {lockedPromotion
                             ? "All deals loaded!"
                             : "You've seen it all!"}
                         </h3>
-                        <p className="text-sm text-muted-foreground text-center max-w-md">
+                        <p className="text-xs text-muted-foreground text-center max-w-md">
                           {lockedPromotion
                             ? "You've seen all current promotions. Check back later for new deals!"
                             : "You've reached the end of products. Check back later for new arrivals!"}
@@ -273,15 +273,15 @@ export function ProductListPage({
                 </>
               ) : (
 
-                <div className="text-center py-16">
-                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4 mx-auto">
+                <div className="text-center py-11">
+                  <div className="flex items-center justify-center w-11 h-11 rounded-full bg-muted mb-3 mx-auto">
                     {lockedPromotion ? (
-                      <Flame className="h-8 w-8 text-muted-foreground" />
+                      <Flame className="h-5 w-5 text-muted-foreground" />
                     ) : (
-                      <span className="text-3xl">📦</span>
+                      <span className="text-xs">📦</span>
                     )}
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">
+                  <h3 className="text-xs font-semibold mb-1.5">
                     {lockedPromotion ? "No deals found" : "No products found"}
                   </h3>
                   <p className="text-muted-foreground">
