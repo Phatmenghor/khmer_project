@@ -561,7 +561,7 @@ export default function ProductDetailPage() {
               <div
                 className={cn(
                   "relative rounded-xl overflow-hidden bg-muted group shadow-sm flex-1",
-                  "aspect-square md:aspect-auto md:h-[300px] lg:h-[380px]",
+                  "h-[260px] sm:h-[320px] md:h-[300px] lg:h-[380px]",
                 )}
               >
                 {!imageLoaded && <Skeleton className="absolute inset-0 rounded-xl" />}
@@ -1035,7 +1035,7 @@ function ProductDetailSkeleton() {
               <Skeleton key={i} className="w-full h-[52px] sm:h-[60px] lg:h-[64px] rounded-lg" />
             ))}
           </div>
-          <Skeleton className="flex-1 aspect-square md:aspect-auto md:h-[300px] lg:h-[380px] rounded-xl" />
+          <Skeleton className="flex-1 h-[260px] sm:h-[320px] md:h-[300px] lg:h-[380px] rounded-xl" />
         </div>
         {/* Info skeleton */}
         <div className="space-y-4 sm:space-y-5">
