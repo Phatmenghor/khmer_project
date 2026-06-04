@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -19,6 +19,12 @@ import {
 } from "@/features/main/store/slice/cart-slice";
 import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
+import {
+  buildCustomizationMapKey,
+  buildQuantityMap,
+  getQuantityForCombo,
+} from "@/utils/common/customization-utils";
+import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
 import { LoginModal } from "@/components/shared/modal/login-modal";
@@ -126,6 +132,12 @@ export default function ProductDetailPage() {
       return cartItem?.quantity ?? 0;
     },
     [cartItems, product],
+  );
+
+  // Committed cart quantities keyed by size+customization combo (mirrors modal's originalQuantities)
+  const originalQuantities = useMemo(
+    () => (product ? buildQuantityMap(cartItems as unknown as PosPageCartItem[], product.id) : new Map<string, number>()),
+    [cartItems, product?.id], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const allImages = product
@@ -275,71 +287,128 @@ export default function ProductDetailPage() {
 
   // ─── Derived: sized/customized ────────────────────────────────────────────
 
-  // Current display qty for selected size (pending takes priority over cart)
   const selectedSizeCustoms = customizationsBySize.get(selectedSize?.id ?? "") ?? new Set<string>();
+
+  // Combo-aware qty lookup (exact match on size + customization set, mirrors modal)
+  const getComboQty = useCallback(
+    (sizeId: string, customs: Set<string>): number =>
+      getQuantityForCombo(
+        buildCustomizationMapKey(sizeId, customs),
+        sizeId,
+        customs.size > 0,
+        originalQuantities,
+      ),
+    [originalQuantities],
+  );
+
+  // Current display qty for selected size: pending first, then committed combo qty
   const currentSizedQty = selectedSize
-    ? (pendingQuantities.has(selectedSize.id) ? pendingQuantities.get(selectedSize.id)! : getQuantityForSize(selectedSize.id))
+    ? (pendingQuantities.has(selectedSize.id)
+        ? pendingQuantities.get(selectedSize.id)!
+        : getComboQty(selectedSize.id, selectedSizeCustoms))
     : 0;
+
   const hasUnsavedChanges = modifiedSizes.size > 0;
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
-  // Select a size — load its cart customizations if any
-  const handleSizeButtonClick = useCallback((size: ProductSize) => {
-    setSelectedSize(size);
-    if (!product?.customizations?.length) return;
-    // Only load from cart if we haven't loaded for this size yet
-    setCustomizationsBySize((prev) => {
-      if (prev.has(size.id)) return prev;
-      const cartItem = cartItems.find((item) => item.productId === product.id && item.productSizeId === size.id);
-      if (!cartItem?.customizations?.length) return prev;
-      const next = new Map(prev);
-      next.set(size.id, new Set(cartItem.customizations.map((c: { productCustomizationId: string }) => c.productCustomizationId)));
-      return next;
-    });
-  }, [product, cartItems]);
+  // Select a size — load its cart customizations and sync pending qty
+  const handleSizeButtonClick = useCallback(
+    (size: ProductSize) => {
+      setSelectedSize(size);
+      const sizeId = size.id;
 
-  const toggleCustomization = useCallback((id: string) => {
-    if (!selectedSize) return;
-    const sizeId = selectedSize.id;
-    setCustomizationsBySize((prev) => {
-      const next = new Map(prev);
-      const current = new Set(prev.get(sizeId) ?? []);
-      if (current.has(id)) current.delete(id); else current.add(id);
-      if (current.size > 0) next.set(sizeId, current); else next.delete(sizeId);
-      return next;
-    });
-    // Any customization change marks this size as modified
-    setModifiedSizes((prev) => {
-      const next = new Set(prev);
-      next.add(sizeId);
-      return next;
-    });
-  }, [selectedSize]);
+      // Load customizations from cart for this size (only if not already tracked)
+      let effectiveCustoms = customizationsBySize.get(sizeId);
+      if (!effectiveCustoms && product?.customizations?.length) {
+        const cartItem = cartItems.find(
+          (item) => item.productId === product.id && item.productSizeId === sizeId,
+        );
+        if (cartItem?.customizations?.length) {
+          effectiveCustoms = new Set(
+            cartItem.customizations.map(
+              (c: { productCustomizationId: string }) => c.productCustomizationId,
+            ),
+          );
+          setCustomizationsBySize((prev) => {
+            const next = new Map(prev);
+            next.set(sizeId, effectiveCustoms!);
+            return next;
+          });
+        }
+      }
+
+      // If this combo exists in cart, clear any stale pending so cart qty shows
+      const customs = effectiveCustoms ?? new Set<string>();
+      const comboQty = getComboQty(sizeId, customs);
+      if (comboQty > 0 && !modifiedSizes.has(sizeId)) {
+        setPendingQuantities((prev) => {
+          if (!prev.has(sizeId)) return prev;
+          const next = new Map(prev);
+          next.delete(sizeId);
+          return next;
+        });
+      }
+    },
+    [product, cartItems, customizationsBySize, getComboQty, modifiedSizes],
+  );
+
+  const toggleCustomization = useCallback(
+    (id: string) => {
+      if (!selectedSize) return;
+      const sizeId = selectedSize.id;
+
+      // Compute new customization set synchronously
+      const current = customizationsBySize.get(sizeId) ?? new Set<string>();
+      const newCustoms = new Set(current);
+      if (newCustoms.has(id)) newCustoms.delete(id); else newCustoms.add(id);
+
+      setCustomizationsBySize((prev) => {
+        const next = new Map(prev);
+        if (newCustoms.size > 0) next.set(sizeId, newCustoms); else next.delete(sizeId);
+        return next;
+      });
+
+      // Check if the new combo already exists in cart — if so, load its qty (like modal)
+      const qtyForNewCombo = getComboQty(sizeId, newCustoms);
+      if (qtyForNewCombo > 0) {
+        setPendingQuantities((prev) => { const next = new Map(prev); next.delete(sizeId); return next; });
+        setModifiedSizes((prev) => { const next = new Set(prev); next.delete(sizeId); return next; });
+      } else {
+        // Combo not in cart — ensure pending is 0 for this size if unset
+        setPendingQuantities((prev) => {
+          if (prev.has(sizeId)) return prev;
+          const next = new Map(prev); next.set(sizeId, 0); return next;
+        });
+        setModifiedSizes((prev) => { const next = new Set(prev); next.add(sizeId); return next; });
+      }
+    },
+    [selectedSize, customizationsBySize, getComboQty],
+  );
 
   // Sized/customized: update pending qty only — no API yet
   const handleSizedDecrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!selectedSize) return;
     const sizeId = selectedSize.id;
-    const current = pendingQuantities.has(sizeId) ? pendingQuantities.get(sizeId)! : getQuantityForSize(sizeId);
+    const comboQty = getComboQty(sizeId, selectedSizeCustoms);
+    const current = pendingQuantities.has(sizeId) ? pendingQuantities.get(sizeId)! : comboQty;
     if (current <= 0) return;
     const newQty = current - 1;
-    const cartQty = getQuantityForSize(sizeId);
     setPendingQuantities((prev) => { const next = new Map(prev); next.set(sizeId, newQty); return next; });
-    setModifiedSizes((prev) => { const next = new Set(prev); if (newQty === cartQty) next.delete(sizeId); else next.add(sizeId); return next; });
-  }, [isAuthenticated, selectedSize, pendingQuantities, getQuantityForSize]);
+    setModifiedSizes((prev) => { const next = new Set(prev); if (newQty === comboQty) next.delete(sizeId); else next.add(sizeId); return next; });
+  }, [isAuthenticated, selectedSize, selectedSizeCustoms, pendingQuantities, getComboQty]);
 
   const handleSizedIncrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!selectedSize) return;
     const sizeId = selectedSize.id;
-    const current = pendingQuantities.has(sizeId) ? pendingQuantities.get(sizeId)! : getQuantityForSize(sizeId);
+    const comboQty = getComboQty(sizeId, selectedSizeCustoms);
+    const current = pendingQuantities.has(sizeId) ? pendingQuantities.get(sizeId)! : comboQty;
     const newQty = current + 1;
-    const cartQty = getQuantityForSize(sizeId);
     setPendingQuantities((prev) => { const next = new Map(prev); next.set(sizeId, newQty); return next; });
-    setModifiedSizes((prev) => { const next = new Set(prev); if (newQty === cartQty) next.delete(sizeId); else next.add(sizeId); return next; });
-  }, [isAuthenticated, selectedSize, pendingQuantities, getQuantityForSize]);
+    setModifiedSizes((prev) => { const next = new Set(prev); if (newQty === comboQty) next.delete(sizeId); else next.add(sizeId); return next; });
+  }, [isAuthenticated, selectedSize, selectedSizeCustoms, pendingQuantities, getComboQty]);
 
   // Commit all modified sizes to cart + API at once (mirrors modal's handleSelectSize)
   const handleApplyCart = useCallback(() => {
@@ -770,14 +839,15 @@ export default function ProductDetailPage() {
                       {formatCurrency(displayPrice * currentSizedQty)}
                     </span>
                   )}
+                  <div className="flex-1" />
+                  <CustomButton
+                    className="h-10 px-5 rounded-xl font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                    onClick={handleApplyCart}
+                    disabled={!hasUnsavedChanges}
+                  >
+                    Add to Cart
+                  </CustomButton>
                 </div>
-                <CustomButton
-                  className="h-10 px-6 rounded-xl font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handleApplyCart}
-                  disabled={!hasUnsavedChanges}
-                >
-                  Add to Cart
-                </CustomButton>
               </div>
             )}
 
