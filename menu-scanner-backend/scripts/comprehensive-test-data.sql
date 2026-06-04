@@ -2,7 +2,7 @@
 -- ============================================================================
 -- COMPREHENSIVE TEST DATA GENERATION SCRIPT
 -- 2 Businesses · 3 Main Users · 300 Products · ±4 months orders
--- Users: phatmenghor19 (PLATFORM_OWNER) | phatmenghor20 (Mega Store) | phatmenghor21 (Fashion Hub)
+-- Users: phatmenghor19 (PLATFORM_OWNER) | phatmenghor20 (Mega Store) | phatmenghor21 (CUSTOMER)
 --
 -- LATEST UPDATES (Auth Flow & Error Handling):
 --
@@ -68,7 +68,7 @@ VALUES (
   'ACTIVE', true, 0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
--- Business 2: Fashion Hub (phatmenghor21@gmail.com owner)
+-- Customer user: phatmenghor21@gmail.com (CUSTOMER role, no business)
 INSERT INTO businesses (id, name, phone, email, address, status, is_subscription_active, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
   '660cad56-cafd-4aba-baef-c4dcd53940d0',
@@ -372,18 +372,16 @@ SELECT '660e8400-e29b-41d4-a716-446655440001', 'phatmenghor20@gmail.com',
   0, false, NOW(), NOW(), 'admin', 'admin'
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'phatmenghor20@gmail.com');
 
--- phatmenghor21 — BUSINESS_USER, owner of Fashion Hub
--- ✅ Per-business user: userIdentifier unique within Fashion Hub business only
--- ✅ Login flow: businessId required for lookup (660cad56-cafd-4aba-baef-c4dcd53940d0)
-UPDATE users SET business_id = '660cad56-cafd-4aba-baef-c4dcd53940d0',
+-- phatmenghor21 — CUSTOMER user (no business association)
+UPDATE users SET business_id = NULL, user_type = 'CUSTOMER',
   account_status = 'ACTIVE', status = 'ACTIVE', updated_at = NOW()
-WHERE user_identifier = 'phatmenghor21@gmail.com' AND business_id IS NULL;
+WHERE user_identifier = 'phatmenghor21@gmail.com';
 
 INSERT INTO users (id, user_identifier, password, user_type, account_status, status, business_id, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT '660e8400-e29b-41d4-a716-446655440002', 'phatmenghor21@gmail.com',
   '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
-  'BUSINESS_USER', 'ACTIVE', 'ACTIVE',
-  '660cad56-cafd-4aba-baef-c4dcd53940d0',
+  'CUSTOMER', 'ACTIVE', 'ACTIVE',
+  NULL,
   0, false, NOW(), NOW(), 'admin', 'admin'
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE user_identifier = 'phatmenghor21@gmail.com');
 
@@ -520,7 +518,7 @@ SELECT
   r.id
 FROM users u
 CROSS JOIN roles r
-WHERE u.user_identifier IN ('phatmenghor20@gmail.com', 'phatmenghor21@gmail.com')
+WHERE u.user_identifier = 'phatmenghor20@gmail.com'
   AND u.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
   AND r.name = 'BUSINESS_OWNER'
   AND r.business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
@@ -576,7 +574,7 @@ ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 
--- Assign CUSTOMER role to CUSTOMER user
+-- Assign CUSTOMER role to phatmenghor21
 INSERT INTO user_roles (user_id, role_id)
 SELECT
   u.id,
@@ -586,7 +584,6 @@ CROSS JOIN roles r
 WHERE u.user_identifier = 'phatmenghor21@gmail.com'
   AND u.user_type = 'CUSTOMER'
   AND r.name = 'CUSTOMER'
-  AND r.user_type = 'CUSTOMER'
   AND NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = u.id AND role_id = r.id)
 ON CONFLICT DO NOTHING;
 DO $$ BEGIN RAISE NOTICE ' 25%% [█████░░░░░░░░░░░░░░░] User addresses, updates & roles done'; END $$;
