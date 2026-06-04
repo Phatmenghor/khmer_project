@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -22,7 +22,6 @@ import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
 import { LoginModal } from "@/components/shared/modal/login-modal";
-import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
 import { showToast } from "@/components/shared/common/show-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,7 +56,6 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { cn } from "@/lib/utils";
 import { useScrollToTop } from "@/hooks/use-scroll-restoration";
-import { getSizeQuantity } from "@/utils/common/quantity-utils";
 
 const CUSTOMIZATION_LIMIT = 4;
 const MAX_VISIBLE_THUMBS = 4;
@@ -104,7 +102,6 @@ export default function ProductDetailPage() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [thumbOffset, setThumbOffset] = useState(0);
   const [showAllCustomizations, setShowAllCustomizations] = useState(false);
-  const [sizePickerOpen, setSizePickerOpen] = useState(false);
   const [selectedCustomizationIds, setSelectedCustomizationIds] = useState<Set<string>>(new Set());
   const [pageQuantity, setPageQuantity] = useState(0);
 
@@ -123,12 +120,7 @@ export default function ProductDetailPage() {
       const cartItem = cartItems.find(
         (item) => item.productId === product.id && item.productSizeId === sizeId,
       );
-      if (cartItem) return cartItem.quantity;
-      if (sizeId) {
-        const size = product.sizes?.find((s) => s.id === sizeId);
-        return getSizeQuantity(size as unknown as Record<string, unknown>);
-      }
-      return 0;
+      return cartItem?.quantity ?? 0;
     },
     [cartItems, product],
   );
@@ -271,29 +263,6 @@ export default function ProductDetailPage() {
   const totalCartQty = product?.hasSizes
     ? (product.sizes?.reduce((sum, s) => sum + getQuantityForSize(s.id), 0) ?? 0)
     : getQuantityForSize(null);
-  // ─── Modal initial quantities ─────────────────────────────────────────────
-
-  // Stable array reference — avoid recreating on every render (would retrigger modal's open effect)
-  const initialCustomizationsForModal = useMemo(
-    () => Array.from(selectedCustomizationIds),
-    [selectedCustomizationIds],
-  );
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const initialQuantities = useMemo(() => {
-    const map = new Map<string, number>();
-    if (!product) return map;
-    if (product.hasSizes && product.sizes) {
-      product.sizes.forEach((s) => {
-        const qty = getQuantityForSize(s.id);
-        if (qty > 0) map.set(s.id, qty);
-      });
-    } else {
-      const qty = getQuantityForSize(null);
-      if (qty > 0) map.set("__no_size__", qty);
-    }
-    return map;
-  }, [product?.id, cartItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const hasSizes = !!(product?.hasSizes && product?.sizes && product.sizes.length > 0);
   const hasCustomizations = !!(product?.customizations && product.customizations.length > 0);
@@ -311,114 +280,69 @@ export default function ProductDetailPage() {
     });
   }, []);
 
-  const handleAddToCart = useCallback(() => {
-    if (!isAuthenticated) {
-      setShowLoginModal(true);
-      return;
-    }
-    setSizePickerOpen(true);
-  }, [isAuthenticated]);
-
-  const handleSizeSelect = useCallback(
-    (
-      selectedProduct: ProductDetailResponseModel,
-      size?: ProductSize,
-      qty?: number,
-      customizationIds?: string[],
-    ) => {
-      const timestamp = Date.now();
-      const sizeId = size?.id === "__no_size__" ? null : size?.id ?? null;
-      const quantity = qty ?? 1;
-      const customizations = customizationIds || [];
-      const key = cartItemKey(selectedProduct.id, sizeId, customizations);
-
-      const isEditing = totalCartQty > 0;
-
-      if (isEditing) {
-        cartDispatch(
-          updateLocalCartItem({
-            productId: selectedProduct.id,
-            productSizeId: sizeId,
-            quantity,
-            optimisticTimestamp: timestamp,
-          }),
-        );
-      } else if (quantity > 0) {
-        cartDispatch(
-          addLocalCartItem({
-            productId: selectedProduct.id,
-            productSizeId: sizeId,
-            quantity,
-            productName: selectedProduct.name,
-            productImageUrl: selectedProduct.mainImageUrl,
-            sizeName: size?.name ?? null,
-            finalPrice: size?.finalPrice ?? selectedProduct.displayPrice,
-            currentPrice: size?.price ?? selectedProduct.displayOriginPrice ?? selectedProduct.displayPrice,
-            hasPromotion: size?.hasPromotion ?? selectedProduct.hasPromotion,
-            promotionType: size?.promotionType ?? selectedProduct.displayPromotionType ?? null,
-            promotionValue: size?.promotionValue ?? selectedProduct.displayPromotionValue ?? null,
-            promotionFromDate: size?.promotionFromDate ?? selectedProduct.displayPromotionFromDate ?? null,
-            promotionToDate: size?.promotionToDate ?? selectedProduct.displayPromotionToDate ?? null,
-            optimisticTimestamp: timestamp,
-          }),
-        );
-      }
-
-      setSizePickerOpen(false);
-      debouncedUpdate(key, selectedProduct.id, sizeId, quantity, timestamp, customizations);
-    },
-    [cartDispatch, totalCartQty, debouncedUpdate],
-  );
+  // Build cart args from current page-level selections (size, customizations)
+  const buildCartArgs = useCallback(() => {
+    if (!product) return null;
+    const sizeId = selectedSize?.id ?? null;
+    const customizationIds = Array.from(selectedCustomizationIds);
+    const finalPrice = selectedSize?.finalPrice ?? product.displayPrice;
+    return {
+      sizeId,
+      customizationIds,
+      finalPrice,
+      key: cartItemKey(product.id, sizeId, customizationIds),
+    };
+  }, [product, selectedSize, selectedCustomizationIds]);
 
   const handleInlineDecrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
-    if (!product) return;
-    if (hasSizes || hasCustomizations) { setSizePickerOpen(true); return; }
-    if (pageQuantity <= 0) return;
-
-    const key = cartItemKey(product.id, null);
+    if (!product || pageQuantity <= 0) return;
+    const args = buildCartArgs();
+    if (!args) return;
     const ts = Date.now();
     const newQty = pageQuantity - 1;
-    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-    debouncedUpdate(key, product.id, null, newQty, ts);
+    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: args.sizeId, quantity: newQty, optimisticTimestamp: ts }));
+    debouncedUpdate(args.key, product.id, args.sizeId, newQty, ts, args.customizationIds);
     setPageQuantity(newQty);
-  }, [isAuthenticated, product, hasSizes, hasCustomizations, pageQuantity, cartDispatch, debouncedUpdate]);
+  }, [isAuthenticated, product, pageQuantity, buildCartArgs, cartDispatch, debouncedUpdate]);
 
   const handleInlineIncrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!product) return;
-    if (hasSizes || hasCustomizations) { setSizePickerOpen(true); return; }
-
-    const key = cartItemKey(product.id, null);
+    const args = buildCartArgs();
+    if (!args) return;
     const ts = Date.now();
     const newQty = pageQuantity + 1;
-
     if (pageQuantity === 0) {
-      cartDispatch(
-        addLocalCartItem({
-          productId: product.id,
-          productSizeId: null,
-          quantity: 1,
-          productName: product.name,
-          productImageUrl: product.mainImageUrl,
-          sizeName: null,
-          finalPrice: product.displayPrice,
-          currentPrice: product.displayOriginPrice ?? product.displayPrice,
-          hasPromotion: product.hasPromotion,
-          promotionType: product.displayPromotionType ?? null,
-          promotionValue: product.displayPromotionValue ?? null,
-          promotionFromDate: product.displayPromotionFromDate ?? null,
-          promotionToDate: product.displayPromotionToDate ?? null,
-          optimisticTimestamp: ts,
-        }),
-      );
-      debouncedUpdate(key, product.id, null, 1, ts);
+      cartDispatch(addLocalCartItem({
+        productId: product.id,
+        productSizeId: args.sizeId,
+        quantity: 1,
+        productName: product.name,
+        productImageUrl: product.mainImageUrl,
+        sizeName: selectedSize?.name ?? null,
+        finalPrice: args.finalPrice,
+        currentPrice: selectedSize?.price ?? product.displayOriginPrice ?? args.finalPrice,
+        hasPromotion: selectedSize?.hasPromotion ?? product.hasPromotion,
+        promotionType: selectedSize?.promotionType ?? product.displayPromotionType ?? null,
+        promotionValue: selectedSize?.promotionValue ?? product.displayPromotionValue ?? null,
+        promotionFromDate: selectedSize?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
+        promotionToDate: selectedSize?.promotionToDate ?? product.displayPromotionToDate ?? null,
+        optimisticTimestamp: ts,
+      }));
+      debouncedUpdate(args.key, product.id, args.sizeId, 1, ts, args.customizationIds);
     } else {
-      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
-      debouncedUpdate(key, product.id, null, newQty, ts);
+      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: args.sizeId, quantity: newQty, optimisticTimestamp: ts }));
+      debouncedUpdate(args.key, product.id, args.sizeId, newQty, ts, args.customizationIds);
     }
     setPageQuantity(newQty);
-  }, [isAuthenticated, product, hasSizes, hasCustomizations, pageQuantity, cartDispatch, debouncedUpdate]);
+  }, [isAuthenticated, product, selectedSize, pageQuantity, buildCartArgs, cartDispatch, debouncedUpdate]);
+
+  // CTA: adds qty=1 when not in cart; same as increment otherwise
+  const handleAddToCart = useCallback(() => {
+    if (!isAuthenticated) { setShowLoginModal(true); return; }
+    handleInlineIncrement();
+  }, [isAuthenticated, handleInlineIncrement]);
 
   const handleToggleFavorite = () => {
     if (!product) return;
@@ -470,7 +394,6 @@ export default function ProductDetailPage() {
   const isOutOfStock =
     product.stockStatus === "OUT_OF_STOCK" || product.stockStatus === "DISABLED";
 
-  const addToCartLabel = hasSizes ? "Choose Size" : hasCustomizations ? "Choose Add-ons" : "Add to Cart";
 
   return (
     <div className="min-h-screen bg-background">
@@ -763,23 +686,11 @@ export default function ProductDetailPage() {
                   >
                     <ShoppingCart className="h-4 w-4 shrink-0" />
                     <span className="truncate">
-                      {hasSizes
-                        ? totalCartQty > 0 ? "Manage Sizes" : addToCartLabel
-                        : hasCustomizations
-                          ? totalCartQty > 0 ? "Manage Add-ons" : addToCartLabel
-                          : totalCartQty > 0 ? "Update Cart" : addToCartLabel}
+                      {totalCartQty > 0 ? "Update Cart" : "Add to Cart"}
                     </span>
                   </CustomButton>
                 </div>
               </div>
-            )}
-
-            {/* Out of stock CTA */}
-            {isOutOfStock && (
-              <CustomButton className="w-full h-10 rounded-xl font-semibold text-sm bg-primary/50 text-primary-foreground cursor-not-allowed" disabled>
-                <ShoppingCart className="h-4 w-4" />
-                Out of Stock
-              </CustomButton>
             )}
 
             {/* Customizations — selectable, collapsible if >4 */}
@@ -1000,16 +911,6 @@ export default function ProductDetailPage() {
           </div>
         </div>
       )}
-
-      <SizePickerModal
-        product={product}
-        open={sizePickerOpen}
-        onOpenChange={setSizePickerOpen}
-        onSizeSelect={handleSizeSelect}
-        isEditing={totalCartQty > 0}
-        initialQuantities={initialQuantities}
-        initialCustomizations={initialCustomizationsForModal}
-      />
 
       <LoginModal open={showLoginModal} onOpenChange={setShowLoginModal} />
     </div>
