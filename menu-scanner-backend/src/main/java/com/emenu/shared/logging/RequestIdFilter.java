@@ -1,41 +1,49 @@
 package com.emenu.shared.logging;
 
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
-@RequiredArgsConstructor
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
-public class RequestIdFilter implements Filter {
+public class RequestIdFilter extends OncePerRequestFilter {
 
-    private final RequestIdGenerator requestIdGenerator;
+    private static final String REQUEST_ID_HEADER = "X-Request-ID";
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
-        String requestId = requestIdGenerator.generateRequestId();
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain) throws IOException, ServletException {
+        String requestId = resolveOrGenerateRequestId(request);
         MDC.put("requestId", requestId);
+        response.setHeader(REQUEST_ID_HEADER, requestId);
 
-        if (request instanceof HttpServletRequest httpRequest) {
-            String method = httpRequest.getMethod();
-            String path = httpRequest.getRequestURI();
-            log.info("API Request [{}]: {} {}", requestId, method, path);
-        }
-
+        long start = System.currentTimeMillis();
         try {
+            log.debug("{} {} [requestId={}]", request.getMethod(), request.getRequestURI(), requestId);
             chain.doFilter(request, response);
         } finally {
-            MDC.remove("requestId");
+            long elapsed = System.currentTimeMillis() - start;
+            log.debug("{} {} => {} ({}ms) [requestId={}]",
+                    request.getMethod(), request.getRequestURI(),
+                    response.getStatus(), elapsed, requestId);
+            MDC.clear();
         }
+    }
+
+    private String resolveOrGenerateRequestId(HttpServletRequest request) {
+        String existing = request.getHeader(REQUEST_ID_HEADER);
+        return (existing != null && !existing.isBlank()) ? existing : UUID.randomUUID().toString();
     }
 }

@@ -1,11 +1,8 @@
 package com.emenu.exception;
 
 import com.emenu.exception.custom.*;
-import com.emenu.security.SecurityUtils;
 import com.emenu.shared.constants.ErrorCodes;
 import com.emenu.shared.dto.ApiResponse;
-import com.emenu.shared.dto.ErrorResponse;
-import com.emenu.shared.logging.RequestIdUtils;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -32,18 +29,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.security.auth.login.AccountLockedException;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-@RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
 
-    private final SecurityUtils securityUtils;
 
     // ================================
     // AUTHENTICATION & AUTHORIZATION ERRORS

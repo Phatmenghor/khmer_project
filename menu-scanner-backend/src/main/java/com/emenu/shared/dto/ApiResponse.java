@@ -27,19 +27,11 @@ public class ApiResponse<T> {
         return new ApiResponse<>("success", message, data);
     }
 
-    public static <T> ApiResponse<T> success(String message, T data, String code) {
-        return new ApiResponse<>("success", message, data);
-    }
-
     public static <T> ApiResponse<T> error(String message) {
         return new ApiResponse<>("error", message, null);
     }
 
     public static <T> ApiResponse<T> error(String message, T errorData) {
-        return new ApiResponse<>("error", message, errorData);
-    }
-
-    public static <T> ApiResponse<T> error(String message, T errorData, String code) {
         return new ApiResponse<>("error", message, errorData);
     }
 }
