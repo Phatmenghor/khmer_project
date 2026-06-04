@@ -6,6 +6,7 @@ import com.emenu.features.setting.dto.request.ImageUploadRequest;
 import com.emenu.features.setting.service.ImageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/images")
+@Slf4j
 @RequiredArgsConstructor
 public class ImageController {
 

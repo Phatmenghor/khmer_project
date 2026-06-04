@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.LocalTime;
 
 @Configuration
 public class OpenApiConfig {
@@ -26,9 +25,6 @@ public class OpenApiConfig {
 
     @Value("${app.description:Simple E-Menu Platform for Restaurant Management}")
     private String appDescription;
-
-    @Value("${server.url:http://localhost:8080}")
-    private String serverUrl;
 
     @Bean
     public OpenAPI customOpenAPI() {

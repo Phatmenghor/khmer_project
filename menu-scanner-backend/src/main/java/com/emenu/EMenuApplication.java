@@ -1,5 +1,6 @@
 package com.emenu;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -15,33 +16,20 @@ import java.util.TimeZone;
 @EnableScheduling
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 @EnableTransactionManagement
+@Slf4j
 public class EMenuApplication {
 
-	public static void main(String[] args) {
-		// Must be set before Spring context initialises so every LocalDateTime.now()
-		// and LocalDate.now() throughout the application uses Cambodia time (UTC+7).
-		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Phnom_Penh"));
-		SpringApplication.run(EMenuApplication.class, args);
+    public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Phnom_Penh"));
+        SpringApplication.run(EMenuApplication.class, args);
 
-		ZonedDateTime cambodiaTime = ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh"));
-		LocalDateTime jvmNow      = LocalDateTime.now();
+        ZonedDateTime cambodiaTime = ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh"));
+        LocalDateTime jvmNow = LocalDateTime.now();
 
-		System.out.println("""
-
-            🇰🇭 Cambodia E-Menu Platform Started Successfully! 🇰🇭
-
-
-            🌐 Access Points:
-            • Application: http://localhost:8080
-            • Swagger UI: http://localhost:8080/swagger-ui.html
-            • Health Check: http://localhost:8080/actuator/health
-
-            """ +
-			"⏰ Timezone check:\n" +
-			"   JVM default timezone : " + TimeZone.getDefault().getID() + "\n" +
-			"   LocalDateTime.now()  : " + jvmNow + "\n" +
-			"   Asia/Phnom_Penh now  : " + cambodiaTime + "\n" +
-			"   Current hour (used for dashboard) : " + jvmNow.getHour() + "\n"
-		);
-	}
+        log.info("Cambodia E-Menu Platform started. timezone={}, time={}, hour={}",
+                TimeZone.getDefault().getID(), jvmNow, jvmNow.getHour());
+        log.info("Swagger UI: http://localhost:7070/swagger-ui.html");
+        log.info("Health check: http://localhost:7070/actuator/health");
+        log.info("Prometheus metrics: http://localhost:7070/actuator/prometheus");
+    }
 }

@@ -49,6 +49,7 @@ public class User extends BaseUUIDEntity {
     private Business business;
 
     @ManyToMany(fetch = FetchType.EAGER)
+    @org.hibernate.annotations.BatchSize(size = 30)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

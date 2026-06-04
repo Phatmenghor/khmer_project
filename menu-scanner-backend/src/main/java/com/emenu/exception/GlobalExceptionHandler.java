@@ -286,7 +286,16 @@ public class GlobalExceptionHandler {
             NotFoundException ex, HttpServletRequest request) {
         log.warn("Resource not found: {}", ex.getMessage());
 
-        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(), ErrorCodes.USER_NOT_FOUND, request);
+        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(), ErrorCodes.RESOURCE_NOT_FOUND, request);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(
+            ResourceNotFoundException ex, HttpServletRequest request) {
+        log.warn("Resource not found: {}", ex.getMessage());
+
+        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(), ErrorCodes.RESOURCE_NOT_FOUND, request);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
