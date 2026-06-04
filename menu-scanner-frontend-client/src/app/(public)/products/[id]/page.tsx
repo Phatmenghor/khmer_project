@@ -428,28 +428,42 @@ export default function ProductDetailPage() {
   );
 
   // Sized/customized: update pending qty only — no API yet
+  // Lock the current selectedSizeCustoms into customizationsBySize so handleApplyCart uses them.
+  // Needed because selectedSizeCustoms may be auto-derived (useMemo fallback) and never stored.
+  const persistCurrentCustoms = useCallback((sizeId: string) => {
+    if (!customizationsBySize.has(sizeId) && selectedSizeCustoms.size > 0) {
+      setCustomizationsBySize((prev) => {
+        const next = new Map(prev);
+        next.set(sizeId, selectedSizeCustoms);
+        return next;
+      });
+    }
+  }, [customizationsBySize, selectedSizeCustoms]);
+
   const handleSizedDecrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!selectedSize) return;
     const sizeId = selectedSize.id;
+    persistCurrentCustoms(sizeId);
     const comboQty = getComboQty(sizeId, selectedSizeCustoms);
     const current = pendingQuantities.has(sizeId) ? pendingQuantities.get(sizeId)! : comboQty;
     if (current <= 0) return;
     const newQty = current - 1;
     setPendingQuantities((prev) => { const next = new Map(prev); next.set(sizeId, newQty); return next; });
     setModifiedSizes((prev) => { const next = new Set(prev); if (newQty === comboQty) next.delete(sizeId); else next.add(sizeId); return next; });
-  }, [isAuthenticated, selectedSize, selectedSizeCustoms, pendingQuantities, getComboQty]);
+  }, [isAuthenticated, selectedSize, selectedSizeCustoms, pendingQuantities, getComboQty, persistCurrentCustoms]);
 
   const handleSizedIncrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!selectedSize) return;
     const sizeId = selectedSize.id;
+    persistCurrentCustoms(sizeId);
     const comboQty = getComboQty(sizeId, selectedSizeCustoms);
     const current = pendingQuantities.has(sizeId) ? pendingQuantities.get(sizeId)! : comboQty;
     const newQty = current + 1;
     setPendingQuantities((prev) => { const next = new Map(prev); next.set(sizeId, newQty); return next; });
     setModifiedSizes((prev) => { const next = new Set(prev); if (newQty === comboQty) next.delete(sizeId); else next.add(sizeId); return next; });
-  }, [isAuthenticated, selectedSize, selectedSizeCustoms, pendingQuantities, getComboQty]);
+  }, [isAuthenticated, selectedSize, selectedSizeCustoms, pendingQuantities, getComboQty, persistCurrentCustoms]);
 
   // Commit all modified sizes to cart + API at once (mirrors modal's handleSelectSize)
   const handleApplyCart = useCallback(() => {
