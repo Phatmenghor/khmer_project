@@ -719,9 +719,9 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* Inline quantity — product-card style, background API */}
+            {/* Inline quantity + CTA in one row */}
             {!isOutOfStock && (
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {hasSizes && selectedSize ? `Quantity — ${selectedSize.name}` : "Quantity"}
                 </p>
@@ -741,7 +741,7 @@ export default function ProductDetailPage() {
                     <Minus className="h-4 w-4" />
                   </CustomButton>
 
-                  <div className="w-16 h-10 bg-primary/10 text-primary font-bold text-base rounded-lg border border-primary/20 flex items-center justify-center select-none">
+                  <div className="w-14 h-10 bg-primary/10 text-primary font-bold text-sm rounded-lg border border-primary/20 flex items-center justify-center select-none shrink-0">
                     {hasSizes || hasCustomizations ? totalCartQty : pageQuantity}
                   </div>
 
@@ -754,13 +754,32 @@ export default function ProductDetailPage() {
                     <Plus className="h-4 w-4" />
                   </CustomButton>
 
-                  {pageQuantity > 0 && displayPrice > 0 && !(hasSizes || hasCustomizations) && (
-                    <span className="text-sm text-muted-foreground ml-1">
-                      = <span className="font-semibold text-foreground">{formatCurrency(displayPrice * pageQuantity)}</span>
+                  <CustomButton
+                    className={cn(
+                      "flex-1 h-10 rounded-xl gap-1.5 font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200",
+                      totalCartQty > 0 && "shadow-md",
+                    )}
+                    onClick={handleAddToCart}
+                  >
+                    <ShoppingCart className="h-4 w-4 shrink-0" />
+                    <span className="truncate">
+                      {hasSizes
+                        ? totalCartQty > 0 ? "Manage Sizes" : addToCartLabel
+                        : hasCustomizations
+                          ? totalCartQty > 0 ? "Manage Add-ons" : addToCartLabel
+                          : totalCartQty > 0 ? "Update Cart" : addToCartLabel}
                     </span>
-                  )}
+                  </CustomButton>
                 </div>
               </div>
+            )}
+
+            {/* Out of stock CTA */}
+            {isOutOfStock && (
+              <CustomButton className="w-full h-10 rounded-xl font-semibold text-sm bg-primary/50 text-primary-foreground cursor-not-allowed" disabled>
+                <ShoppingCart className="h-4 w-4" />
+                Out of Stock
+              </CustomButton>
             )}
 
             {/* Customizations — selectable, collapsible if >4 */}
@@ -834,31 +853,6 @@ export default function ProductDetailPage() {
                 )}
               </div>
             )}
-
-            {/* Add to Cart CTA */}
-            <CustomButton
-              className={cn(
-                "w-full h-11 sm:h-12 rounded-xl gap-2 font-semibold text-sm sm:text-base bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200",
-                totalCartQty > 0 && "shadow-md",
-              )}
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-            >
-              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
-              {isOutOfStock
-                ? "Out of Stock"
-                : hasSizes
-                  ? totalCartQty > 0
-                    ? "Manage Sizes"
-                    : addToCartLabel
-                  : hasCustomizations
-                    ? totalCartQty > 0
-                      ? "Manage Add-ons"
-                      : addToCartLabel
-                    : totalCartQty > 0
-                      ? "Update Cart"
-                      : addToCartLabel}
-            </CustomButton>
 
             {/* Secondary actions */}
             <div className="grid grid-cols-2 gap-2.5">
