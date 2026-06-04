@@ -485,25 +485,25 @@ function createOrderTableColumns(
             case "COMPLETED":
             case "READY":
             case "DELIVERED":
-              return "bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-300 border border-green-300 dark:border-green-800";
+              return "text-green-600 dark:text-green-400 font-medium";
             case "CANCELLED":
             case "FAILED":
-              return "bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800";
+              return "text-red-600 dark:text-red-400 font-medium";
             case "PENDING":
-              return "bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-300 border border-yellow-300 dark:border-yellow-800";
+              return "text-yellow-600 dark:text-yellow-400 font-medium";
             case "PREPARING":
             case "CONFIRMED":
             case "PROCESSING":
-              return "bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-800";
+              return "text-blue-600 dark:text-blue-400 font-medium";
             case "SHIPPED":
             case "IN_TRANSIT":
-              return "bg-cyan-100 dark:bg-cyan-950/30 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-800";
+              return "text-cyan-600 dark:text-cyan-400 font-medium";
             default:
-              return "bg-gray-100 dark:bg-gray-950/30 text-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-800";
+              return "text-gray-600 dark:text-gray-400 font-medium";
           }
         };
         return (
-          <span className={`text-xs font-semibold px-2.5 py-1.5 rounded-md w-fit ${getStatusColor(order?.orderStatus)}`}>
+          <span className={`text-xs ${getStatusColor(order?.orderStatus)}`}>
             {getOrderStatusLabel(order?.orderStatus)}
           </span>
         );
@@ -520,25 +520,23 @@ function createOrderTableColumns(
         const getPaymentColor = (status: string) => {
           switch (status) {
             case "PAID":
-              return "bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-300 border border-green-300 dark:border-green-800";
+              return "text-green-600 dark:text-green-400 font-medium";
             case "UNPAID":
-              return "bg-orange-100 dark:bg-orange-950/30 text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-800";
+              return "text-orange-600 dark:text-orange-400 font-medium";
             case "REFUNDED":
-              return "bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800";
+              return "text-red-600 dark:text-red-400 font-medium";
             default:
-              return "bg-gray-100 dark:bg-gray-950/30 text-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-800";
+              return "text-gray-600 dark:text-gray-400 font-medium";
           }
         };
         return (
-          <div className="flex flex-col gap-1">
-            {paymentStatus && (
-              <span className={`text-xs font-semibold px-2 py-1 rounded-md w-fit ${getPaymentColor(paymentStatus)}`}>
-                {paymentStatus}
-              </span>
-            )}
-            {paymentMethod && (
-              <span className="text-xs text-muted-foreground">{paymentMethod}</span>
-            )}
+          <div className="flex flex-col gap-0.5">
+            <span className={`text-xs ${getPaymentColor(paymentStatus ?? "")}`}>
+              {paymentStatus || "---"}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {paymentMethod || "---"}
+            </span>
           </div>
         );
       },
