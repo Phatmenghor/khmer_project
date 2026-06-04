@@ -527,6 +527,20 @@ export default function PosPage() {
         promotionToDate: size ? size.promotionToDate : product.displayPromotionToDate,
       };
 
+      if (quantity <= 0) {
+        if (editingId) {
+          const existingItem = cartItems.find((item) => item.id === editingId);
+          if (existingItem) {
+            dispatch(removeCartItem(editingId));
+            dispatch(clearProductCustomizations(existingItem.productId));
+          }
+        } else if (cartItems.some((item) => item.id === cartId)) {
+          dispatch(removeCartItem(cartId));
+          dispatch(clearProductCustomizations(product.id));
+        }
+        return;
+      }
+
       if (editingId) {
 
         const existingItem = cartItems.find((item) => item.id === editingId);
@@ -1296,7 +1310,7 @@ export default function PosPage() {
             }
           }}
           onSizeSelect={(product, size, qty, customizationIds) => {
-            addToCart(product, size, editingCartItemId, qty || 1, customizationIds);
+            addToCart(product, size, editingCartItemId, qty ?? 0, customizationIds);
             dispatch(setSizePickerProduct(null));
             dispatch(setEditingCartItemId(null));
           }}

@@ -12,6 +12,7 @@ interface SizeSelectorProps {
   onSizeSelect: (size: ProductSize) => void;
   getDisplayQuantity: (sizeId: string) => number;
   getQuantityForSize: (sizeId: string) => number;
+  getTotalQuantityForSize?: (sizeId: string) => number;
   modifiedSizes: Set<string>;
 }
 
@@ -21,6 +22,7 @@ function SizeSelectorComponent({
   onSizeSelect,
   getDisplayQuantity,
   getQuantityForSize,
+  getTotalQuantityForSize,
   modifiedSizes,
 }: SizeSelectorProps) {
   if (sizes.length === 0) return null;
@@ -34,6 +36,7 @@ function SizeSelectorComponent({
           const sizeDisplayQty = getDisplayQuantity(size.id);
           const sizeCartQty = getQuantityForSize(size.id);
           const isModified = modifiedSizes.has(size.id) && sizeDisplayQty !== sizeCartQty;
+          const badgeQty = getTotalQuantityForSize ? getTotalQuantityForSize(size.id) : sizeDisplayQty;
 
           return (
             <button
@@ -55,14 +58,14 @@ function SizeSelectorComponent({
               )}
 
               {/* Cart quantity badge */}
-              {sizeDisplayQty > 0 && (
+              {badgeQty > 0 && (
                 <div
                   className={cn(
                     "absolute -top-2 -left-2 min-w-[20px] h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1.5 shadow-sm z-10",
                     isModified ? "bg-amber-500" : "bg-emerald-500",
                   )}
                 >
-                  {sizeDisplayQty}
+                  {badgeQty}
                 </div>
               )}
 

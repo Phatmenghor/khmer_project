@@ -86,6 +86,30 @@ export function SizePickerModal({
     [pendingQuantities, getQuantityForSize],
   );
 
+  // Returns the total qty for a size across ALL customization combos.
+  // Used for the size button badge so it reflects the full in-cart qty for that size.
+  const getTotalQuantityForSize = useCallback(
+    (sizeId: string): number => {
+      let total = 0;
+      originalQuantities.forEach((qty, key) => {
+        if (key === sizeId || key.startsWith(`${sizeId}-`)) {
+          total += qty;
+        }
+      });
+
+      // If user has a pending change for this size, swap out the original combo qty
+      if (pendingQuantities.has(sizeId)) {
+        const pendingQty = pendingQuantities.get(sizeId)!;
+        const customs = customizationsBySize.get(sizeId) ?? new Set<string>();
+        const originalComboQty = getQuantityForSize(sizeId, customs.size > 0 ? customs : undefined);
+        total = total - originalComboQty + pendingQty;
+      }
+
+      return Math.max(0, total);
+    },
+    [originalQuantities, pendingQuantities, customizationsBySize, getQuantityForSize],
+  );
+
   const currentQuantity = selectedSize
     ? getDisplayQuantity(selectedSize.id)
     : 0;
@@ -518,6 +542,7 @@ export function SizePickerModal({
               onSizeSelect={handleSizeButtonClick}
               getDisplayQuantity={getDisplayQuantity}
               getQuantityForSize={getQuantityForSize}
+              getTotalQuantityForSize={getTotalQuantityForSize}
               modifiedSizes={modifiedSizes}
             />
           )}
