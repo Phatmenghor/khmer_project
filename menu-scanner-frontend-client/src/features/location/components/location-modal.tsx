@@ -55,6 +55,12 @@ import {
 import { useLocationState } from "../store/state/location-state";
 import { usePublicLocationState } from "../store/state/public-location-state";
 import {
+  fetchProvincesService,
+  fetchDistrictsService,
+  fetchCommunesService,
+  fetchVillagesService,
+} from "../store/thunks/public-location-thunks";
+import {
   createLocationSchema,
   LocationFormData,
 } from "../store/models/schema/location-schema";
@@ -199,6 +205,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     selectedProvince, selectedDistrict, selectedCommune,
     selectProvince, selectDistrict, selectCommune,
     reset: resetPublicLocation,
+    dispatch,
   } = usePublicLocationState();
 
   const { isCreating, isUpdating } = operations;
@@ -217,6 +224,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   const fullscreenAutocompleteRef = useRef<google.maps.places.PlaceAutocompleteElement | null>(null);
   const geocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setValueRef = useRef<typeof setValue>(null!);
+  const dropdownInitRef = useRef(false);
 
   const [isMapReady, setIsMapReady] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -278,6 +286,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       setIsMapReady(false);
       setIsFullScreen(false);
       setMapError(null);
+      dropdownInitRef.current = false;
 
       googleMapRef.current = null;
       geocoderRef.current = null;
@@ -295,6 +304,45 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     })();
     return () => { cancelled = true; };
   }, [isOpen]);
+
+  // Pre-populate dropdowns when editing an existing location
+  useEffect(() => {
+    if (!isOpen || isCreate || dropdownInitRef.current) return;
+    dropdownInitRef.current = true;
+
+    const initDropdowns = async () => {
+      try {
+        if (!editData?.province) return;
+
+        const provRes = await dispatch(fetchProvincesService({ search: editData.province, pageNo: 1, pageSize: 20 })).unwrap();
+        const province = provRes?.content?.find((p) => p.provinceEn === editData.province);
+        if (!province) return;
+        selectProvince(province);
+
+        if (!editData.district) return;
+        const distRes = await dispatch(fetchDistrictsService({ search: editData.district, provinceCode: province.provinceCode, pageNo: 1, pageSize: 20 })).unwrap();
+        const district = distRes?.content?.find((d) => d.districtEn === editData.district);
+        if (!district) return;
+        selectDistrict(district);
+
+        if (!editData.commune) return;
+        const commRes = await dispatch(fetchCommunesService({ search: editData.commune, districtCode: district.districtCode, pageNo: 1, pageSize: 20 })).unwrap();
+        const commune = commRes?.content?.find((c) => c.communeEn === editData.commune);
+        if (!commune) return;
+        selectCommune(commune);
+
+        if (!editData.village) return;
+        const villRes = await dispatch(fetchVillagesService({ search: editData.village, communeCode: commune.communeCode, pageNo: 1, pageSize: 20 })).unwrap();
+        const village = villRes?.content?.find((v) => v.villageEn === editData.village);
+        if (village) setSelectedVillage(village);
+      } catch {
+        // silently fail — user can re-select manually
+      }
+    };
+
+    initDropdowns();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, isCreate]);
 
   const reverseGeocode = useCallback((lat: number, lng: number) => {
     if (!geocoderRef.current) return;
@@ -591,6 +639,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   const handleClose = useCallback(() => {
     setIsFullScreen(false); setSelectionMode("map"); setSelectedVillage(null);
     setGeocodedCoords(null); setGeocodeSuccess(false); setIsLocalSubmitting(false);
+    dropdownInitRef.current = false;
     resetPublicLocation(); reset(); clearError(); onClose();
   }, [reset, clearError, onClose, resetPublicLocation]);
 
