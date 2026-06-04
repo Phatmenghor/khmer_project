@@ -9,6 +9,13 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { sanitizeImageUrl } from "@/utils/common/common";
 import { appImages } from "@/constants/app-resource/icons/app-images";
 
+export interface CartItemCustomization {
+  id: string;
+  productCustomizationId: string;
+  name: string;
+  priceAdjustment: number;
+}
+
 export interface CartItemCardProps {
   id: string;
   productId: string;
@@ -16,6 +23,7 @@ export interface CartItemCardProps {
   productImageUrl: string;
   productSizeId?: string | null;
   sizeName?: string | null;
+  customizations?: CartItemCustomization[];
   currentPrice: number;
   finalPrice: number;
   quantity: number;
@@ -37,6 +45,7 @@ export function CartItemCard({
   productName,
   productImageUrl,
   sizeName,
+  customizations,
   currentPrice,
   finalPrice,
   quantity,
@@ -102,12 +111,19 @@ export function CartItemCard({
             {productName}
           </h3>
 
-          {}
-          {sizeName && (
-            <div className="mb-2">
-              <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
-                {sizeName}
-              </span>
+          {/* Size + customizations */}
+          {(sizeName || (customizations && customizations.length > 0)) && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {sizeName && (
+                <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
+                  {sizeName}
+                </span>
+              )}
+              {customizations?.map((c) => (
+                <span key={c.productCustomizationId} className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full border border-border whitespace-nowrap">
+                  {c.name}{c.priceAdjustment > 0 ? ` +${formatCurrency(c.priceAdjustment)}` : ""}
+                </span>
+              ))}
             </div>
           )}
 

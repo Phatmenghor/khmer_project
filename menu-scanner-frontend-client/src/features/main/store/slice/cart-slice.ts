@@ -181,6 +181,7 @@ const cartSlice = createSlice({
         promotionFromDate?: string | null;
         promotionToDate?: string | null;
         optimisticTimestamp?: number;
+        customizations?: CartItemCustomization[];
       }>
     ) => {
       const {
@@ -197,25 +198,26 @@ const cartSlice = createSlice({
         promotionValue,
         promotionFromDate,
         promotionToDate,
-        optimisticTimestamp
+        optimisticTimestamp,
+        customizations,
       } = action.payload;
 
-
-      const existingItem = state.items.find(
-        (i) =>
-          i.productId === productId &&
-          i.productSizeId === (productSizeId || null)
-      );
+      // Match by productId + productSizeId + exact customization set
+      const incomingCustomIds = (customizations || []).map((c) => c.productCustomizationId).sort();
+      const existingItem = state.items.find((i) => {
+        if (i.productId !== productId || i.productSizeId !== (productSizeId || null)) return false;
+        const itemCustomIds = (i.customizations || []).map((c) => c.productCustomizationId).sort();
+        if (itemCustomIds.length !== incomingCustomIds.length) return false;
+        return incomingCustomIds.every((id, idx) => id === itemCustomIds[idx]);
+      });
 
       if (existingItem) {
-
         existingItem.quantity += quantity;
         existingItem.totalPrice = existingItem.finalPrice * existingItem.quantity;
         if (optimisticTimestamp) {
           existingItem.lastOptimisticTimestamp = optimisticTimestamp;
         }
       } else {
-
         const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const totalBeforeDiscount = currentPrice * quantity;
         const discountAmount = totalBeforeDiscount - (finalPrice * quantity);
@@ -239,7 +241,8 @@ const cartSlice = createSlice({
           promotionToDate: promotionToDate || null,
           totalBeforeDiscount,
           discountAmount,
-          lastOptimisticTimestamp: optimisticTimestamp || Date.now()
+          lastOptimisticTimestamp: optimisticTimestamp || Date.now(),
+          customizations: customizations || [],
         });
       }
 
@@ -252,14 +255,22 @@ const cartSlice = createSlice({
         productSizeId?: string | null;
         quantity: number;
         optimisticTimestamp?: number;
+        customizationIds?: string[];
       }>
     ) => {
-      const { productId, productSizeId, quantity, optimisticTimestamp } = action.payload;
+      const { productId, productSizeId, quantity, optimisticTimestamp, customizationIds } = action.payload;
 
-
-      const item = state.items.find(
-        (i) => i.productId === productId && i.productSizeId === (productSizeId || null)
-      );
+      // Match by productId + productSizeId + customizations (if provided)
+      const sortedCustomIds = (customizationIds || []).sort();
+      const item = state.items.find((i) => {
+        if (i.productId !== productId || i.productSizeId !== (productSizeId || null)) return false;
+        if (sortedCustomIds.length > 0) {
+          const itemCustomIds = (i.customizations || []).map((c) => c.productCustomizationId).sort();
+          if (itemCustomIds.length !== sortedCustomIds.length) return false;
+          return sortedCustomIds.every((id, idx) => id === itemCustomIds[idx]);
+        }
+        return true;
+      });
 
       if (item) {
         if (quantity <= 0) {

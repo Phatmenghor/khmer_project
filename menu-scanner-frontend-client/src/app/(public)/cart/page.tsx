@@ -261,6 +261,7 @@ function CartPage() {
                     productImageUrl={item.productImageUrl}
                     productSizeId={item.productSizeId}
                     sizeName={item.sizeName}
+                    customizations={item.customizations}
                     currentPrice={item.currentPrice}
                     finalPrice={item.finalPrice}
                     quantity={item.quantity}

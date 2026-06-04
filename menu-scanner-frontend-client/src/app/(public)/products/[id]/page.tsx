@@ -417,11 +417,18 @@ export default function ProductDetailPage() {
     const ts = Date.now();
     modifiedSizes.forEach((sizeId) => {
       const pendingQty = pendingQuantities.get(sizeId) ?? 0;
-      const cartQty = getQuantityForSize(sizeId);
       const size = product.sizes?.find((s) => s.id === sizeId) ?? null;
       const finalPrice = size?.finalPrice ?? product.displayPrice;
-      const customizationIds = Array.from(customizationsBySize.get(sizeId) ?? new Set());
+      const customs = customizationsBySize.get(sizeId) ?? new Set<string>();
+      const customizationIds = Array.from(customs);
       const key = cartItemKey(product.id, sizeId, customizationIds);
+      // Build full customization objects for local cart storage (needed for buildQuantityMap combo keys)
+      const customizationObjects = customizationIds.map((cid) => {
+        const c = product.customizations?.find((pc) => pc.id === cid);
+        return { id: "", productCustomizationId: cid, name: c?.name ?? "", priceAdjustment: c?.priceAdjustment ?? 0 };
+      });
+      // Use combo-aware cart qty to decide add vs update
+      const cartQty = getComboQty(sizeId, customs);
       if (cartQty === 0 && pendingQty > 0) {
         cartDispatch(addLocalCartItem({
           productId: product.id,
@@ -438,15 +445,16 @@ export default function ProductDetailPage() {
           promotionFromDate: size?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
           promotionToDate: size?.promotionToDate ?? product.displayPromotionToDate ?? null,
           optimisticTimestamp: ts,
+          customizations: customizationObjects,
         }));
       } else {
-        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: pendingQty, optimisticTimestamp: ts }));
+        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: pendingQty, optimisticTimestamp: ts, customizationIds }));
       }
       debouncedUpdate(key, product.id, sizeId, pendingQty, ts, customizationIds);
     });
     setPendingQuantities(new Map());
     setModifiedSizes(new Set());
-  }, [isAuthenticated, product, hasUnsavedChanges, modifiedSizes, pendingQuantities, getQuantityForSize, customizationsBySize, cartDispatch, debouncedUpdate]);
+  }, [isAuthenticated, product, hasUnsavedChanges, modifiedSizes, pendingQuantities, getComboQty, customizationsBySize, cartDispatch, debouncedUpdate]);
 
   // Simple product: immediate dispatch + debounce (matches product card)
   const handleAddToCart = useCallback(() => {
