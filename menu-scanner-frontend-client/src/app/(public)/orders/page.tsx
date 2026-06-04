@@ -531,11 +531,11 @@ function createOrderTableColumns(
         };
         return (
           <div className="flex flex-col gap-0.5">
+            <span className="text-xs font-medium">
+              {paymentMethod || "---"}
+            </span>
             <span className={`text-xs ${getPaymentColor(paymentStatus ?? "")}`}>
               {paymentStatus || "---"}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {paymentMethod || "---"}
             </span>
           </div>
         );

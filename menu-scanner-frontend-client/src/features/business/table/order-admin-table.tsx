@@ -180,11 +180,11 @@ export const orderAdminTableColumns = ({
         };
         return (
           <div className="flex flex-col gap-0.5">
+            <span className="text-xs font-medium">
+              {order?.payment?.paymentMethod || "---"}
+            </span>
             <span className={`text-xs ${getPaymentColor(order?.payment?.paymentStatus)}`}>
               {order?.payment?.paymentStatus || "---"}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {order?.payment?.paymentMethod || "---"}
             </span>
           </div>
         );
