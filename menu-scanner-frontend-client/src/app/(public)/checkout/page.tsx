@@ -492,7 +492,7 @@ export default function CheckoutPage() {
             <div className="space-y-2">
               {items.map((item) => (
                 <CartItemCard
-                  key={item.id}
+                  key={`${item.productId}-${item.productSizeId ?? "no-size"}-${(item.customizations ?? []).map((c: any) => c.productCustomizationId).sort().join(",")}`}
                   id={item.id}
                   productId={item.productId}
                   productName={item.productName}
