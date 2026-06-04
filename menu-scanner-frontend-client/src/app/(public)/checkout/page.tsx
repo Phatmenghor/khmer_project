@@ -6,7 +6,7 @@ import { OrderStatus } from "@/enums/order-status.enum";
 import { OrderFromEnum } from "@/enums/order.enum";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { MapPin, CreditCard, MessageSquare, Lock, Loader2, AlertCircle, Check, Truck } from "lucide-react";
+import { MapPin, CreditCard, MessageSquare, Lock, Loader2, AlertCircle, Check } from "lucide-react";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useLocationState } from "@/features/location/store/state/location-state";
@@ -527,10 +527,8 @@ export default function CheckoutPage() {
 
               <div className="grid sm:grid-cols-2 gap-4 mb-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-foreground flex items-center gap-2">
-                    <Truck className="h-3.5 w-3.5 text-primary" />
-                    Delivery Option
-                    <span className="text-red-500">*</span>
+                  <label className="text-xs font-semibold text-foreground">
+                    Delivery Option <span className="text-red-500">*</span>
                   </label>
                   <ComboboxSelectDelivery
                     dataSelect={selectedDeliveryOption as any}
@@ -550,10 +548,8 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-foreground flex items-center gap-2">
-                    <CreditCard className="h-3.5 w-3.5 text-primary" />
-                    Payment Method
-                    <span className="text-red-500">*</span>
+                  <label className="text-xs font-semibold text-foreground">
+                    Payment Method <span className="text-red-500">*</span>
                   </label>
                   <ComboboxSelectPaymentPublic
                     dataSelect={selectedPaymentOption as any}
@@ -667,12 +663,10 @@ export default function CheckoutPage() {
             <div>
               <h2 className="text-base font-semibold text-foreground mb-5">Order Summary</h2>
 
-              <div className="space-y-3 mb-5">
+              <div className="grid grid-cols-2 gap-3 mb-5">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-foreground flex items-center gap-2">
-                    <Truck className="h-3.5 w-3.5 text-primary" />
-                    Delivery Option
-                    <span className="text-red-500">*</span>
+                  <label className="text-xs font-semibold text-foreground">
+                    Delivery Option <span className="text-red-500">*</span>
                   </label>
                   <ComboboxSelectDelivery
                     dataSelect={selectedDeliveryOption as any}
@@ -692,10 +686,8 @@ export default function CheckoutPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-foreground flex items-center gap-2">
-                    <CreditCard className="h-3.5 w-3.5 text-primary" />
-                    Payment Method
-                    <span className="text-red-500">*</span>
+                  <label className="text-xs font-semibold text-foreground">
+                    Payment Method <span className="text-red-500">*</span>
                   </label>
                   <ComboboxSelectPaymentPublic
                     dataSelect={selectedPaymentOption as any}
