@@ -150,9 +150,11 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (paymentOptions && paymentOptions.length > 0 && !checkoutState.selectedPaymentOptionId) {
+      const cashOption = paymentOptions.find((opt) => opt.paymentOptionType === "CASH");
+      const defaultOption = cashOption || paymentOptions[0];
       setCheckoutState((prev) => ({
         ...prev,
-        selectedPaymentOptionId: paymentOptions[0].id || null,
+        selectedPaymentOptionId: defaultOption.id || null,
       }));
     }
   }, [paymentOptions, checkoutState.selectedPaymentOptionId]);
