@@ -172,99 +172,61 @@ function OrderBody({ order }: { order: OrderResponse }) {
         </div>
       )}
 
-      {/* ── Pricing · Customer · Delivery ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* ── Pricing · Customer · Delivery · Status History (one section, grid-2) ── */}
+      <Section title="Details">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+          <Field label="Subtotal" value={formatCurrency(p?.subtotal ?? 0)} />
+          {(p?.customizationTotal ?? 0) > 0 && (
+            <Field label="Add-ons" value={`+${formatCurrency(p!.customizationTotal)}`} />
+          )}
+          {(p?.deliveryFee ?? 0) > 0 && (
+            <Field label="Delivery Fee" value={formatCurrency(p!.deliveryFee)} />
+          )}
+          {(p?.taxAmount ?? 0) > 0 && (
+            <Field label={`Tax (${p?.taxPercentage}%)`} value={`+${formatCurrency(p!.taxAmount)}`} />
+          )}
+          {(p?.discountAmount ?? 0) > 0 && (
+            <Field label="Discount" value={<span className="text-red-600 dark:text-red-400 font-medium">-{formatCurrency(p!.discountAmount)}</span>} />
+          )}
+          <Field label="Total" value={<span className="font-bold text-base text-foreground">{formatCurrency(p?.finalTotal ?? 0)}</span>} />
 
-        {/* Pricing */}
-        <Section title="Pricing Summary">
-          <div className="space-y-2">
-            <div className="space-y-1.5 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium">{formatCurrency(p?.subtotal ?? 0)}</span>
+          <Field label="Customer Name" value={order.customerName || "Walk-in Customer"} />
+          {order.customerPhone && (
+            <Field
+              label="Phone"
+              value={
+                <a href={`tel:${order.customerPhone}`} className="text-primary hover:underline font-medium">
+                  {order.customerPhone}
+                </a>
+              }
+            />
+          )}
+          {order.customerNote && <Field label="Customer Note" value={order.customerNote} />}
+
+          {address && <Field label="Delivery Address" value={address} />}
+          {order.deliveryOption && <Field label="Delivery Method" value={order.deliveryOption.name || "---"} />}
+          {order.deliveryAddress?.note && <Field label="Delivery Note" value={order.deliveryAddress.note} />}
+
+          {order.statusHistory && order.statusHistory.length > 0 && (
+            <div className="col-span-2 pt-2 border-t border-border/50">
+              <p className="text-xs text-muted-foreground mb-2">Status History</p>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-1">
+                {order.statusHistory.map((h, idx) => (
+                  <div key={h.id} className="flex items-center justify-between py-1.5 border-b border-border/30 last:border-0">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground flex-shrink-0">
+                        {idx + 1}
+                      </span>
+                      <span className="text-sm text-foreground">{h.statusName}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{dateTimeFormat(h.changedAt)}</span>
+                  </div>
+                ))}
               </div>
-              {(p?.customizationTotal ?? 0) > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Add-ons</span>
-                  <span className="font-medium">+{formatCurrency(p!.customizationTotal)}</span>
-                </div>
-              )}
-              {(p?.deliveryFee ?? 0) > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Delivery</span>
-                  <span className="font-medium">{formatCurrency(p!.deliveryFee)}</span>
-                </div>
-              )}
-              {(p?.taxAmount ?? 0) > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tax ({p?.taxPercentage}%)</span>
-                  <span className="font-medium">+{formatCurrency(p!.taxAmount)}</span>
-                </div>
-              )}
-              {(p?.discountAmount ?? 0) > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Discount</span>
-                  <span className="font-medium text-red-600 dark:text-red-400">-{formatCurrency(p!.discountAmount)}</span>
-                </div>
-              )}
             </div>
-            <div className="pt-2 border-t border-border/60 flex justify-between items-center">
-              <span className="text-sm font-semibold">Total</span>
-              <span className="text-base font-bold text-foreground">{formatCurrency(p?.finalTotal ?? 0)}</span>
-            </div>
-          </div>
-        </Section>
-
-        {/* Customer */}
-        <Section title="Customer">
-          <div className="space-y-3">
-            <Field label="Name" value={order.customerName || "Walk-in Customer"} />
-            {order.customerPhone && (
-              <Field
-                label="Phone"
-                value={
-                  <a href={`tel:${order.customerPhone}`} className="text-primary hover:underline font-medium text-sm">
-                    {order.customerPhone}
-                  </a>
-                }
-              />
-            )}
-            {order.customerNote && <Field label="Note" value={order.customerNote} />}
-          </div>
-        </Section>
-
-        {/* Delivery */}
-        <Section title="Delivery">
-          <div className="space-y-3">
-            {address ? (
-              <Field label="Address" value={address} />
-            ) : (
-              <p className="text-xs text-muted-foreground">No delivery address</p>
-            )}
-            {order.deliveryOption && <Field label="Method" value={order.deliveryOption.name || "---"} />}
-            {order.deliveryAddress?.note && <Field label="Note" value={order.deliveryAddress.note} />}
-          </div>
-        </Section>
-      </div>
-
-      {/* ── Status History ── */}
-      {order.statusHistory && order.statusHistory.length > 0 && (
-        <Section title="Status History">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1">
-            {order.statusHistory.map((h, idx) => (
-              <div key={h.id} className="flex items-center justify-between py-2 border-b border-border/40 last:border-0">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground flex-shrink-0">
-                    {idx + 1}
-                  </span>
-                  <span className="text-sm text-foreground">{h.statusName}</span>
-                </div>
-                <span className="text-xs text-muted-foreground ml-2">{dateTimeFormat(h.changedAt)}</span>
-              </div>
-            ))}
-          </div>
-        </Section>
-      )}
+          )}
+        </div>
+      </Section>
 
     </div>
   );
