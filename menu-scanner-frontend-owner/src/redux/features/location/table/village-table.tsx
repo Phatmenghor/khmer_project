@@ -152,7 +152,7 @@ export const villageTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (village) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(village?.createdAt)}
         </span>
       ),
@@ -163,19 +163,19 @@ export const villageTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (village) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleVillageViewDetail(village)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Village"
             onClick={() => handleEditVillage(village)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Village"
             onClick={() => handleDeleteVillage(village)}
             variant="destructive"

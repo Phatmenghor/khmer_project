@@ -128,28 +128,28 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-screen sm:w-full sm:max-w-7xl max-h-[100dvh] sm:max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded-lg">
+      <DialogContent className="w-screen sm:w-full sm:max-w-7xl max-h-[100dvh] sm:max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded">
         {/* Mobile drag handle */}
-        <div className="sm:hidden h-1 bg-slate-300 rounded-full w-12 mx-auto mt-3"></div>
+        <div className="sm:hidden h-1 bg-slate-300 rounded-full w-8 mx-auto mt-2"></div>
 
         {/* Header */}
-        <DialogHeader className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex flex-col gap-4">
+        <DialogHeader className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex flex-col gap-3">
             <div>
-              <DialogTitle className="text-2xl font-bold text-foreground">
+              <DialogTitle className="text-base font-bold text-foreground">
                 Create Your Account
               </DialogTitle>
-              <DialogDescription className="text-base text-muted-foreground mt-1">
+              <DialogDescription className="text-xs text-muted-foreground mt-1">
                 Register to get started with your business
               </DialogDescription>
             </div>
 
             {/* Selected Plan Display */}
             {plan && (
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <div className="bg-primary/5 border border-primary/20 rounded p-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-semibold text-foreground">{plan.name} Plan</h4>
-                  <span className="text-sm text-muted-foreground">{plan.price} {plan.period}</span>
+                  <span className="text-xs text-muted-foreground">{plan.price} {plan.period}</span>
                 </div>
               </div>
             )}
@@ -158,14 +158,14 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
 
         {/* Content */}
         <ScrollArea className="flex-1 min-h-0 w-full">
-          <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-8 space-y-10">
+          <form onSubmit={handleSubmit(onSubmit)} className="px-4 py-5 space-y-7">
             {/* Account Credentials Section */}
               <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">1</span>
+                <h3 className="text-xs font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">1</span>
                   Account Credentials
                 </h3>
-                <div className="grid sm:grid-cols-2 gap-5">
+                <div className="grid sm:grid-cols-2 gap-3">
                   {/* Login Fields - First Priority */}
                   <TextField
                     name="userIdentifier"
@@ -233,11 +233,11 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
 
               {/* Business section */}
               <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">2</span>
+                <h3 className="text-xs font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">2</span>
                   Business Information
                 </h3>
-                <div className="grid sm:grid-cols-2 gap-5">
+                <div className="grid sm:grid-cols-2 gap-3">
                   <TextField
                     name="businessName"
                     label="Business Name"
@@ -281,41 +281,41 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
 
               {/* Settings section */}
               <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">3</span>
+                <h3 className="text-xs font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">3</span>
                   Settings
                 </h3>
-                <div className="grid sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Enable Stock Management</label>
-                    <div className="flex items-center gap-3 p-3 border rounded-md bg-muted/30">
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium">Enable Stock Management</label>
+                    <div className="flex items-center gap-2 p-2 border rounded bg-muted/30">
                       <Switch
                         checked={watch("enableStockManagement")}
                         onCheckedChange={(checked) => setValue("enableStockManagement", checked)}
                         disabled={isSubmitting}
                       />
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {watch("enableStockManagement") ? "Enabled" : "Disabled"}
                       </span>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Primary Color</label>
-                    <div className="flex gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium">Primary Color</label>
+                    <div className="flex gap-2">
                       <input
                         type="color"
                         value={watch("primaryColor")}
                         onChange={(e) => setValue("primaryColor", e.target.value)}
                         disabled={isSubmitting}
-                        className="w-20 h-10 cursor-pointer rounded border border-input"
+                        className="w-14 h-7 cursor-pointer rounded border border-input"
                       />
                       <input
                         placeholder="#RRGGBB"
                         value={watch("primaryColor")}
                         onChange={(e) => setValue("primaryColor", e.target.value)}
                         disabled={isSubmitting}
-                        className={`flex-1 px-3 py-2 border rounded-md ${errors.primaryColor ? "border-red-500" : "border-input"}`}
+                        className={`flex-1 px-2 py-1 border rounded ${errors.primaryColor ? "border-red-500" : "border-input"}`}
                       />
                     </div>
                     {errors.primaryColor && (
@@ -331,14 +331,14 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         </ScrollArea>
 
         {/* Footer with buttons - outside scroll area */}
-        <div className="flex justify-between items-center px-6 py-4 border-t bg-muted/30 flex-shrink-0">
-          <div className="text-sm text-muted-foreground flex items-center gap-2">
+        <div className="flex justify-between items-center px-4 py-3 border-t bg-muted/30 flex-shrink-0">
+          <div className="text-xs text-muted-foreground flex items-center gap-1">
             {isSubmitting && (
-              <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+              <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
             )}
             <span>{isSubmitting ? "Creating account..." : "Ready to create account"}</span>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <Button
               type="button"
               variant="outline"
@@ -355,7 +355,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                   Creating...
                 </>
               ) : (

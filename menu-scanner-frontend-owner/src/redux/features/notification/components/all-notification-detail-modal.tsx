@@ -65,7 +65,7 @@ export function AllNotificationDetailModal({
       }
     >
       {notificationData ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Notification Information */}
           <DetailSection title="Commune Information">
             <DetailRow label="Title" value={notificationData?.title || "---"} />
@@ -145,7 +145,7 @@ export function AllNotificationDetailModal({
             <DetailRow
               label="Notification ID"
               value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                <span className="text-xs font-mono bg-muted px-1 py-1 rounded">
                   {notificationData?.id}
                 </span>
               }
@@ -170,7 +170,7 @@ export function AllNotificationDetailModal({
           </DetailSection>
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-muted-foreground">
             No notification data available
           </p>

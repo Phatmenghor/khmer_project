@@ -140,20 +140,20 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
         >
           <FormBody>
             {reduxError && (
-              <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                <p className="text-sm text-destructive font-medium">
+              <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                <p className="text-xs text-destructive font-medium">
                   {reduxError}
                 </p>
               </div>
             )}
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Account Credentials */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
+              <div className="space-y-3">
+                <h3 className="text-xs font-semibold">
                   Account Credentials <span className="text-destructive">*</span>
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <TextField
                     control={control}
                     name="userIdentifier"
@@ -188,11 +188,11 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
               </div>
 
               {/* Owner Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
+              <div className="space-y-3">
+                <h3 className="text-xs font-semibold">
                   Owner Information <span className="text-destructive">*</span>
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <TextField
                     control={control}
                     name="ownerFullName"
@@ -215,11 +215,11 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
               </div>
 
               {/* Business Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
+              <div className="space-y-3">
+                <h3 className="text-xs font-semibold">
                   Business Information <span className="text-destructive">*</span>
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <TextField
                     control={control}
                     name="businessName"
@@ -261,9 +261,9 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
               </div>
 
               {/* Subscription Plan (optional) */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Subscription Plan</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <h3 className="text-xs font-semibold">Subscription Plan</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <SelectField
                     control={control}
                     name="planId"

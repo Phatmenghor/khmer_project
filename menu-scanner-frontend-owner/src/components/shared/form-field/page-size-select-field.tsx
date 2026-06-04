@@ -28,9 +28,9 @@ export function PageSizeSelectField({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-1 ${className}`}>
       {label && (
-        <span className="text-xs sm:text-sm text-muted-foreground font-semibold whitespace-nowrap">
+        <span className="text-xs sm:text-xs text-muted-foreground font-semibold whitespace-nowrap">
           {label}
         </span>
       )}
@@ -40,16 +40,16 @@ export function PageSizeSelectField({
             variant="outline"
             role="combobox"
             className={cn(
-              "justify-between gap-2 min-w-[80px] h-9 px-3 transition-all duration-200",
+              "justify-between gap-1 min-w-[80px] h-6 px-2 transition-all duration-200",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               open && "bg-primary/20 border-primary text-primary"
             )}
             aria-expanded={open}
           >
-            <span className="font-medium text-sm">{pageSize}</span>
+            <span className="font-medium text-xs">{pageSize}</span>
             <ChevronDown
               className={cn(
-                "h-4 w-4 opacity-50 shrink-0 transition-transform duration-200",
+                "h-3 w-3 opacity-50 shrink-0 transition-transform duration-200",
                 open && "rotate-180 opacity-100"
               )}
             />
@@ -66,7 +66,7 @@ export function PageSizeSelectField({
                   setOpen(false);
                 }}
                 className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2 text-sm text-left rounded transition-colors cursor-pointer",
+                  "w-full flex items-center gap-1 px-2 py-1 text-xs text-left rounded transition-colors cursor-pointer",
                   "hover:bg-accent hover:text-accent-foreground",
                   pageSize === size
                     ? "bg-accent text-accent-foreground font-medium"
@@ -75,7 +75,7 @@ export function PageSizeSelectField({
               >
                 <Check
                   className={cn(
-                    "h-4 w-4 flex-shrink-0",
+                    "h-3 w-3 flex-shrink-0",
                     pageSize === size ? "opacity-100" : "opacity-0"
                   )}
                 />

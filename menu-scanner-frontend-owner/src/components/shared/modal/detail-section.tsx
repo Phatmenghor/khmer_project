@@ -8,12 +8,12 @@ interface DetailSectionProps {
 
 export function DetailSection({ title, children }: DetailSectionProps) {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-1 h-6 bg-primary rounded-full"></div>
-        <h3 className="text-base font-semibold">{title}</h3>
+    <div className="space-y-3">
+      <div className="flex items-center gap-1 mb-2">
+        <div className="w-1 h-4 bg-primary rounded-full"></div>
+        <h3 className="text-xs font-semibold">{title}</h3>
       </div>
-      <div className="grid gap-3">{children}</div>
+      <div className="grid gap-2">{children}</div>
     </div>
   );
 }
@@ -27,14 +27,14 @@ interface DetailRowProps {
 export function DetailRow({ label, value, isLast = false }: DetailRowProps) {
   return (
     <div
-      className={`flex items-start justify-between py-2 ${
+      className={`flex items-start justify-between py-1 ${
         !isLast ? "border-b border-border/40" : ""
       }`}
     >
-      <Label className="text-sm font-medium text-muted-foreground">
+      <Label className="text-xs font-medium text-muted-foreground">
         {label}
       </Label>
-      <div className="text-sm text-right">{value}</div>
+      <div className="text-xs text-right">{value}</div>
     </div>
   );
 }

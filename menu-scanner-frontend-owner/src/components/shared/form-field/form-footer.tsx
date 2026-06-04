@@ -38,20 +38,20 @@ export function FormFooter({
   return (
     <div
       className={cn(
-        "flex justify-between items-center p-6 border-t bg-muted/30 flex-shrink-0",
+        "flex justify-between items-center p-4 border-t bg-muted/30 flex-shrink-0",
         className
       )}
     >
-      <div className="text-sm text-muted-foreground flex items-center gap-2">
+      <div className="text-xs text-muted-foreground flex items-center gap-1">
         {isSubmitting && (
-          <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+          <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
         )}
         {isDirty && !isSubmitting && (
-          <div className="h-2 w-2 rounded-full bg-orange-500" />
+          <div className="h-1 w-1 rounded-full bg-orange-500" />
         )}
         <span>{getStatusMessage()}</span>
       </div>
-      <div className="flex gap-3">{children}</div>
+      <div className="flex gap-2">{children}</div>
     </div>
   );
 }

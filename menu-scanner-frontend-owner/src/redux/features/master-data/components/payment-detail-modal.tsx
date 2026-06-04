@@ -73,7 +73,7 @@ export function PaymentDetailModal({
               variant="outline"
               className={getStatusColor(paymentData?.status ?? null)}
             >
-              <span className="ml-1.5">
+              <span className="ml-1">
                 {formatEnumToDisplay(paymentData?.status ?? "")}
               </span>
             </Badge>
@@ -82,7 +82,7 @@ export function PaymentDetailModal({
       }
     >
       {paymentData ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Personal Information */}
           <DetailSection title="Payment Information">
             <DetailRow
@@ -122,7 +122,7 @@ export function PaymentDetailModal({
             <DetailRow
               label="Payment ID"
               value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                <span className="text-xs font-mono bg-muted px-1 py-1 rounded">
                   {paymentData?.id}
                 </span>
               }
@@ -147,7 +147,7 @@ export function PaymentDetailModal({
           </DetailSection>
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-muted-foreground">No payment data available</p>
         </div>
       )}

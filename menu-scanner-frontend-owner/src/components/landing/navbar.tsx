@@ -45,29 +45,29 @@ export default function Navbar() {
           scrolled ? "shadow-sm" : "",
         )}
       >
-        <div className="max-w-[1330px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1330px] mx-auto px-3 sm:px-4 lg:px-5">
           <div className="flex items-center justify-between ">
             {/* Logo */}
-            <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-3">
+            <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-2">
               <Image
                 src="/images/logo/my_logo.png"
                 alt="Emenu Cambodia Logo"
                 width={120}
                 height={120}
-                className="h-20 w-auto"
+                className="h-14 w-auto"
                 priority
               />
             </Link>
 
             {/* Desktop nav and CTA - Right side */}
-            <div className="hidden md:flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-4">
               {/* Navigation Links */}
               <nav className="flex items-center gap-1">
                 {navLinks.map((link) => (
                   <a
                     key={link.label}
                     href={link.href}
-                    className="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                    className="px-2 py-1 rounded text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                   >
                     {link.label}
                   </a>
@@ -75,16 +75,16 @@ export default function Navbar() {
               </nav>
 
               {/* Auth Buttons */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
-                  className="h-10 px-6"
+                  className="h-7 px-4"
                   onClick={() => setLoginOpen(true)}
                 >
                   Sign In
                 </Button>
                 <Button
-                  className="h-10 px-8 text-base bg-primary hover:bg-primary/90 text-white rounded-lg"
+                  className="h-7 px-5 text-xs bg-primary hover:bg-primary/90 text-white rounded"
                   onClick={() => setRegisterOpen(true)}
                 >
                   Get Started Free
@@ -96,13 +96,13 @@ export default function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden w-12 h-12"
+              className="md:hidden w-8 h-8"
               onClick={() => setMobileOpen((v) => !v)}
             >
               {mobileOpen ? (
-                <X className="h-6 w-6" />
+                <X className="h-4 w-4" />
               ) : (
-                <Menu className="h-6 w-6" />
+                <Menu className="h-4 w-4" />
               )}
             </Button>
           </div>
@@ -110,21 +110,21 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-1">
+          <div className="md:hidden border-t border-slate-200 bg-white px-3 py-3 space-y-1">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="block px-4 py-3 rounded-md text-base font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                className="block px-3 py-2 rounded text-xs font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100"
               >
                 {link.label}
               </a>
             ))}
-            <div className="pt-4 border-t border-slate-200 mt-3 space-y-2">
+            <div className="pt-3 border-t border-slate-200 mt-2 space-y-1">
               <Button
                 variant="outline"
-                className="w-full h-10"
+                className="w-full h-7"
                 onClick={() => {
                   setMobileOpen(false);
                   setLoginOpen(true);
@@ -133,7 +133,7 @@ export default function Navbar() {
                 Sign In
               </Button>
               <Button
-                className="w-full h-10 text-base bg-primary hover:bg-primary/90 text-white"
+                className="w-full h-7 text-xs bg-primary hover:bg-primary/90 text-white"
                 onClick={() => {
                   setMobileOpen(false);
                   setRegisterOpen(true);

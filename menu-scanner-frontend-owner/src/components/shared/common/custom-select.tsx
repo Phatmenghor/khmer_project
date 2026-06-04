@@ -37,15 +37,15 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   required = false,
 }) => {
   const sizeClasses = {
-    sm: "h-8 text-xs",
-    md: "h-9 text-sm",
-    lg: "h-10 text-base",
+    sm: "h-5 text-xs",
+    md: "h-6 text-xs",
+    lg: "h-7 text-xs",
   };
 
   return (
-    <div className="space-y-2 w-full">
+    <div className="space-y-1 w-full">
       {label && (
-        <Label className="text-xs sm:text-sm font-semibold text-foreground">
+        <Label className="text-xs sm:text-xs font-semibold text-foreground">
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
         </Label>

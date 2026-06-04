@@ -81,16 +81,16 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               >
                 <div className="flex w-full items-center">
                   {route.icon && (
-                    <route.icon className="w-5 h-5 flex-shrink-0" />
+                    <route.icon className="w-3 h-3 flex-shrink-0" />
                   )}
                   {!isCollapsed && (
                     <>
-                      <span className="ml-3 truncate">{route.title}</span>
+                      <span className="ml-2 truncate">{route.title}</span>
                       <div className="ml-auto">
                         {isOpen ? (
-                          <ChevronDown className="h-4 w-4" />
+                          <ChevronDown className="h-3 w-3" />
                         ) : (
-                          <ChevronRight className="h-4 w-4" />
+                          <ChevronRight className="h-3 w-3" />
                         )}
                       </div>
                     </>
@@ -99,14 +99,14 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               </Button>
 
               {!isCollapsed && isOpen && (
-                <div className="relative ml-6 mt-1 space-y-1">
+                <div className="relative ml-4 mt-1 space-y-1">
                   <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-300 z-0"></div>
 
                   {route.subroutes.map((subroute, index) => (
                     <div key={subroute.title} className="relative">
-                      <div className="absolute left-0 top-1/2 w-4 h-px bg-gray-300 z-0"></div>
+                      <div className="absolute left-0 top-1/2 w-3 h-px bg-gray-300 z-0"></div>
 
-                      <div className="absolute left-0 top-1/2 w-1.5 h-1.5 bg-gray-400 rounded-full transform -translate-x-0.5 -translate-y-0.5 z-10"></div>
+                      <div className="absolute left-0 top-1/2 w-1 h-1 bg-gray-400 rounded-full transform -translate-x-0.5 -translate-y-0.5 z-10"></div>
 
                       {index === route.subroutes!.length - 1 && (
                         <div
@@ -115,20 +115,20 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                         ></div>
                       )}
 
-                      <div className="absolute left-4 top-1/2 w-2 h-px bg-gray-200 z-0"></div>
+                      <div className="absolute left-3 top-1/2 w-1 h-px bg-gray-200 z-0"></div>
 
                       <Button
                         variant="ghost"
                         asChild
                         className={cn(
-                          "relative w-full justify-start hover:bg-primary/10 hover:text-primary pl-6 rounded z-20 border-l border-transparent hover:border-l-primary/30 transition-all duration-200",
+                          "relative w-full justify-start hover:bg-primary/10 hover:text-primary pl-4 rounded z-20 border-l border-transparent hover:border-l-primary/30 transition-all duration-200",
                           pathname === subroute.href &&
                             "bg-primary/15 text-primary font-medium border-l-2 border-primary shadow-sm",
                         )}
                       >
                         <Link
                           href={subroute.href}
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-1"
                         >
                           <span className="truncate">{subroute.title}</span>
                         </Link>
@@ -154,10 +154,10 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
           >
             <Link
               href={route.href || "#"}
-              className="flex items-center gap-3 px-3 py-2"
+              className="flex items-center gap-2 px-2 py-1"
               title={collapsed ? route.title : undefined}
             >
-              {route.icon && <route.icon className="w-5 h-5 flex-shrink-0" />}
+              {route.icon && <route.icon className="w-3 h-3 flex-shrink-0" />}
               {!collapsed && <span className="truncate">{route.title}</span>}
             </Link>
           </Button>
@@ -178,28 +178,28 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border/50 bg-background/95 backdrop-blur-xl transition-all duration-300 ease-out shadow-xl",
-          collapsed ? "w-16" : "w-60",
+          collapsed ? "w-11" : "w-44",
           isMobile && !isOpen && "hidden",
         )}
       >
-        <div className="relative flex h-20 items-center justify-between border-b border-border/50 px-4 bg-gradient-to-br from-primary/5 via-background/50 to-accent/5">
+        <div className="relative flex h-14 items-center justify-between border-b border-border/50 px-3 bg-gradient-to-br from-primary/5 via-background/50 to-accent/5">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-50 blur-3xl"></div>
 
           {!collapsed && (
             <Link
               href="/"
-              className="relative flex items-center gap-3 group transition-all duration-300 hover:scale-[1.02]"
+              className="relative flex items-center gap-2 group transition-all duration-300 hover:scale-[1.02]"
             >
               <Image
                 src="/images/logo/my_logo.png"
                 alt="Emenu Cambodia Logo"
                 width={120}
                 height={120}
-                className="h-14 w-auto object-contain"
+                className="h-10 w-auto object-contain"
                 priority
               />
 
-              <span className="text-foreground font-bold text-sm leading-tight tracking-tight">
+              <span className="text-foreground font-bold text-xs leading-tight tracking-tight">
                 Emenu Cambodia
               </span>
             </Link>
@@ -210,13 +210,13 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               href="/"
               className="relative flex items-center justify-center group transition-all duration-300 hover:scale-[1.02]"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
+              <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                 <Image
                   src="/images/logo/my_logo.png"
                   alt="Emenu Cambodia Logo"
                   width={40}
                   height={40}
-                  className="w-8 h-8 object-contain"
+                  className="w-5 h-5 object-contain"
                   priority
                 />
               </div>
@@ -228,16 +228,16 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             size="icon"
             onClick={toggleCollapsed}
             className={cn(
-              "relative h-9 w-9 rounded-xl transition-all duration-300 hover:bg-accent/50 hover:scale-110 group",
+              "relative h-6 w-6 rounded transition-all duration-300 hover:bg-accent/50 hover:scale-110 group",
             )}
           >
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <ChevronLeft className="h-4 w-4 relative z-10" />
+            <div className="absolute inset-0 rounded bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <ChevronLeft className="h-3 w-3 relative z-10" />
           </Button>
         </div>
 
-        <ScrollArea className="flex-1 py-6">
-          <nav className="px-4 space-y-2">{renderNavItems(collapsed)}</nav>
+        <ScrollArea className="flex-1 py-4">
+          <nav className="px-3 space-y-1">{renderNavItems(collapsed)}</nav>
         </ScrollArea>
 
         {/* User Avatar Card */}

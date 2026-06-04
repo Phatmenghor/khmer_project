@@ -24,12 +24,12 @@ export function CheckboxField<T extends FieldValues>({
   className = "",
 }: CheckboxFieldProps<T>) {
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`space-y-1 ${className}`}>
       <Controller
         control={control}
         name={name}
         render={({ field }) => (
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1">
             <Checkbox
               id={name}
               checked={field.value}
@@ -38,7 +38,7 @@ export function CheckboxField<T extends FieldValues>({
             />
             <Label
               htmlFor={name}
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               {label}
             </Label>

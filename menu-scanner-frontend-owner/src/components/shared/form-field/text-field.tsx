@@ -29,8 +29,8 @@ export function TextField({
   className = "",
 }: TextFieldProps) {
   return (
-    <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={name} className="text-xs sm:text-sm font-semibold text-foreground">
+    <div className={`space-y-1 ${className}`}>
+      <Label htmlFor={name} className="text-xs sm:text-xs font-semibold text-foreground">
         {label} {required && <span className="text-destructive ml-1">*</span>}
       </Label>
       <Controller

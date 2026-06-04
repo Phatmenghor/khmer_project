@@ -54,7 +54,7 @@ function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
+        "inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium",
         styles
       )}
     >
@@ -76,18 +76,18 @@ function OwnerRow({ owner }: { owner: RecentOwner }) {
 
   return (
     <tr className="border-b last:border-0 hover:bg-muted/40 transition-colors">
-      <td className="py-3 pr-4">
-        <div className="flex items-center gap-3">
+      <td className="py-2 pr-3">
+        <div className="flex items-center gap-2">
           {owner.logoUrl ? (
             <img
               src={owner.logoUrl}
               alt={owner.ownerName}
-              className="h-8 w-8 rounded-full object-cover shrink-0"
+              className="h-5 w-5 rounded-full object-cover shrink-0"
             />
           ) : (
             <div
               className={cn(
-                "h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0",
+                "h-5 w-5 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0",
                 avatarBg
               )}
             >
@@ -95,25 +95,25 @@ function OwnerRow({ owner }: { owner: RecentOwner }) {
             </div>
           )}
           <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
+            <p className="text-xs font-medium text-foreground truncate">
               {owner.ownerName}
             </p>
           </div>
         </div>
       </td>
-      <td className="py-3 pr-4">
-        <p className="text-sm text-muted-foreground truncate max-w-[140px]">
+      <td className="py-2 pr-3">
+        <p className="text-xs text-muted-foreground truncate max-w-[140px]">
           {owner.businessName}
         </p>
       </td>
-      <td className="py-3 pr-4">
-        <span className="text-sm text-foreground">{owner.planName}</span>
+      <td className="py-2 pr-3">
+        <span className="text-xs text-foreground">{owner.planName}</span>
       </td>
-      <td className="py-3 pr-4">
+      <td className="py-2 pr-3">
         <StatusBadge status={owner.subscriptionStatus} />
       </td>
-      <td className="py-3">
-        <span className="text-sm text-muted-foreground whitespace-nowrap">
+      <td className="py-2">
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
           {joinedFormatted}
         </span>
       </td>
@@ -124,23 +124,23 @@ function OwnerRow({ owner }: { owner: RecentOwner }) {
 function OwnerRowSkeleton() {
   return (
     <tr className="border-b last:border-0">
-      <td className="py-3 pr-4">
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-8 w-8 rounded-full shrink-0" />
-          <Skeleton className="h-4 w-24" />
+      <td className="py-2 pr-3">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-5 w-5 rounded-full shrink-0" />
+          <Skeleton className="h-3 w-16" />
         </div>
       </td>
-      <td className="py-3 pr-4">
-        <Skeleton className="h-4 w-32" />
+      <td className="py-2 pr-3">
+        <Skeleton className="h-3 w-24" />
       </td>
-      <td className="py-3 pr-4">
-        <Skeleton className="h-4 w-20" />
+      <td className="py-2 pr-3">
+        <Skeleton className="h-3 w-14" />
       </td>
-      <td className="py-3 pr-4">
-        <Skeleton className="h-5 w-16 rounded-full" />
+      <td className="py-2 pr-3">
+        <Skeleton className="h-3 w-11 rounded-full" />
       </td>
-      <td className="py-3">
-        <Skeleton className="h-4 w-24" />
+      <td className="py-2">
+        <Skeleton className="h-3 w-16" />
       </td>
     </tr>
   );
@@ -154,10 +154,10 @@ interface RecentOwnersCardProps {
 export function RecentOwnersCard({ recentOwners, loading }: RecentOwnersCardProps) {
   return (
     <Card>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-1">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">Recent Owners</CardTitle>
+            <CardTitle className="text-xs">Recent Owners</CardTitle>
             <CardDescription>Latest business owners on the platform</CardDescription>
           </div>
           <Link
@@ -165,7 +165,7 @@ export function RecentOwnersCard({ recentOwners, loading }: RecentOwnersCardProp
             className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
           >
             View all
-            <ArrowRight className="h-3 w-3" />
+            <ArrowRight className="h-2 w-2" />
           </Link>
         </div>
       </CardHeader>
@@ -173,19 +173,19 @@ export function RecentOwnersCard({ recentOwners, loading }: RecentOwnersCardProp
         <table className="w-full text-left">
           <thead>
             <tr className="border-b">
-              <th className="pb-2 pr-4 text-xs font-medium text-muted-foreground">
+              <th className="pb-1 pr-3 text-xs font-medium text-muted-foreground">
                 Owner
               </th>
-              <th className="pb-2 pr-4 text-xs font-medium text-muted-foreground">
+              <th className="pb-1 pr-3 text-xs font-medium text-muted-foreground">
                 Business
               </th>
-              <th className="pb-2 pr-4 text-xs font-medium text-muted-foreground">
+              <th className="pb-1 pr-3 text-xs font-medium text-muted-foreground">
                 Plan
               </th>
-              <th className="pb-2 pr-4 text-xs font-medium text-muted-foreground">
+              <th className="pb-1 pr-3 text-xs font-medium text-muted-foreground">
                 Status
               </th>
-              <th className="pb-2 text-xs font-medium text-muted-foreground">
+              <th className="pb-1 text-xs font-medium text-muted-foreground">
                 Joined
               </th>
             </tr>
@@ -207,7 +207,7 @@ export function RecentOwnersCard({ recentOwners, loading }: RecentOwnersCardProp
               <tr>
                 <td
                   colSpan={5}
-                  className="py-8 text-center text-muted-foreground text-sm"
+                  className="py-5 text-center text-muted-foreground text-xs"
                 >
                   No recent owners found
                 </td>

@@ -166,7 +166,7 @@ export const subscriptionHistoryTableColumns = ({
       maxWidth: "80px",
       render: (row) => (
         <ActionButton
-          icon={<Eye className="w-4 h-4" />}
+          icon={<Eye className="w-3 h-3" />}
           tooltip="View Detail"
           onClick={() => handleViewDetail(row)}
         />

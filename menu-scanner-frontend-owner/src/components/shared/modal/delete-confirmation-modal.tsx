@@ -71,17 +71,17 @@ export function DeleteConfirmationModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-xl p-0 flex flex-col">
         <DialogTitle className="sr-only">{title}</DialogTitle>
-        <div className="p-6 border-b border-border bg-destructive/5">
-          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-          <p className="text-sm text-muted-foreground mt-2">{description}</p>
+        <div className="p-4 border-b border-border bg-destructive/5">
+          <h2 className="text-xs font-semibold text-foreground">{title}</h2>
+          <p className="text-xs text-muted-foreground mt-1">{description}</p>
         </div>
 
         <FormBody>
           {itemName && (
-            <div className="p-3 bg-muted rounded-lg border border-muted-foreground/20">
-              <p className="text-sm">
+            <div className="p-2 bg-muted rounded border border-muted-foreground/20">
+              <p className="text-xs">
                 <span className="text-muted-foreground">Item to delete:</span>
-                <span className="font-semibold text-foreground ml-2">
+                <span className="font-semibold text-foreground ml-1">
                   "{itemName}"
                 </span>
               </p>
@@ -90,7 +90,7 @@ export function DeleteConfirmationModal({
 
           {isCritical && (
             <Alert className="border-red-200 bg-red-50">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <AlertTriangle className="h-3 w-3 text-red-600" />
               <AlertDescription className="text-red-700">
                 This action cannot be undone.
               </AlertDescription>
@@ -98,8 +98,8 @@ export function DeleteConfirmationModal({
           )}
 
           {requireConfirmation && (
-            <div className="space-y-2">
-              <Label htmlFor="confirmation" className="text-sm font-medium">
+            <div className="space-y-1">
+              <Label htmlFor="confirmation" className="text-xs font-medium">
                 Type{" "}
                 <code className="bg-muted px-1 py-0.5 rounded text-red-600 font-mono text-xs">
                   {confirmationText}
@@ -120,7 +120,7 @@ export function DeleteConfirmationModal({
 
           {(error || errorMessage) && (
             <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="h-3 w-3" />
               <AlertDescription>{error || errorMessage}</AlertDescription>
             </Alert>
           )}

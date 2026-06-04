@@ -75,7 +75,7 @@ export function ExchangeRateDetailModal({
                 exchangeData?.isActive == true ? Status.ACTIVE : Status.INACTIVE
               )}
             >
-              <span className="ml-1.5">
+              <span className="ml-1">
                 {formatEnumToDisplay(
                   exchangeData?.isActive == true
                     ? Status.ACTIVE
@@ -88,7 +88,7 @@ export function ExchangeRateDetailModal({
       }
     >
       {exchangeData ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Personal Information */}
           <DetailSection title="Personal Information">
             <DetailRow
@@ -107,7 +107,7 @@ export function ExchangeRateDetailModal({
                       : Status.INACTIVE
                   )}
                 >
-                  <span className="ml-1.5">
+                  <span className="ml-1">
                     {formatEnumToDisplay(
                       exchangeData?.isActive == true
                         ? Status.ACTIVE
@@ -126,7 +126,7 @@ export function ExchangeRateDetailModal({
             <DetailRow
               label="Exchange Rate ID"
               value={
-                <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                <span className="text-xs font-mono bg-muted px-1 py-1 rounded">
                   {exchangeData?.id}
                 </span>
               }
@@ -151,7 +151,7 @@ export function ExchangeRateDetailModal({
           </DetailSection>
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-muted-foreground">No user data available</p>
         </div>
       )}

@@ -72,7 +72,7 @@ export const exchangeRateTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (exchange) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(exchange?.createdAt)}
         </span>
       ),
@@ -96,19 +96,19 @@ export const exchangeRateTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (business) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleExchangeRateViewDetail(business)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Exchange Rate"
             onClick={() => handleEditExchangeRate(business)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Exchange Rate"
             onClick={() => handleDeleteExchangeRate(business)}
             variant="destructive"

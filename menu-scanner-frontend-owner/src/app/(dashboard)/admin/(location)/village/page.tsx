@@ -235,8 +235,8 @@ export default function VillagePage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-3 px-1">
+      <div className="space-y-3">
         <CardHeaderSection
           breadcrumbs={[
             { label: "Dashboard", href: ROUTES.DASHBOARD.INDEX },
@@ -246,12 +246,12 @@ export default function VillagePage() {
           searchValue={filters.search}
           searchPlaceholder="Search village..."
           buttonTooltip="Create a new village"
-          buttonIcon={<Plus className="w-3 h-3" />}
+          buttonIcon={<Plus className="w-2 h-2" />}
           buttonText="New"
           onSearchChange={handleSearchChange}
           openModal={handleCreateVillage}
         >
-          <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-wrap items-end gap-2">
             <ComboboxSelectCommune
               dataSelect={selectedCommune}
               onChangeSelected={handleCommuneChange}

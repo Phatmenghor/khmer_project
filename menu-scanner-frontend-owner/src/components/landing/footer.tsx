@@ -9,9 +9,9 @@ export default function Footer() {
 
   return (
     <footer className="bg-gradient-to-b from-white to-slate-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-5 py-11">
         <FadeIn direction="up">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-7 mb-8">
             {/* Brand */}
             <div>
               <Link href={ROUTES.PUBLIC.HOME} className="inline-block">
@@ -20,14 +20,14 @@ export default function Footer() {
                   alt="Emenu Cambodia Logo"
                   width={200}
                   height={110}
-                  className="h-24 w-auto"
+                  className="h-16 w-auto"
                   priority
                 />
               </Link>
-              <p className="text-base text-slate-600 leading-relaxed mb-4">
+              <p className="text-xs text-slate-600 leading-relaxed mb-3">
                 {footer.description}
               </p>
-              <div className="text-sm text-slate-600 space-y-2">
+              <div className="text-xs text-slate-600 space-y-1">
                 <p className="font-semibold text-slate-900">Contact</p>
                 <p>{footer.contact.email}</p>
                 <p>{footer.contact.phone}</p>
@@ -38,15 +38,15 @@ export default function Footer() {
             {/* Link columns from config */}
             {Object.entries(footer.links).map(([category, links]) => (
               <div key={category}>
-                <h4 className="text-base font-bold text-slate-900 mb-4">
+                <h4 className="text-xs font-bold text-slate-900 mb-3">
                   {category}
                 </h4>
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                   {(links as string[]).map((label) => (
                     <li key={label}>
                       <a
                         href="#"
-                        className="text-base text-slate-600 hover:text-primary transition-colors"
+                        className="text-xs text-slate-600 hover:text-primary transition-colors"
                       >
                         {label}
                       </a>
@@ -57,13 +57,13 @@ export default function Footer() {
             ))}
           </div>
 
-          <div className="border-t border-slate-200 pt-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-base text-slate-600 mb-4">
+          <div className="border-t border-slate-200 pt-5">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 mb-3">
               <span>
                 © {new Date().getFullYear()} {footer.company}. All rights
                 reserved.
               </span>
-              <div className="flex gap-6">
+              <div className="flex gap-4">
                 <a href="#" className="hover:text-primary transition-colors">
                   Privacy Policy
                 </a>
@@ -72,10 +72,10 @@ export default function Footer() {
                 </a>
               </div>
             </div>
-            <p className="text-center text-base font-semibold text-primary mt-8 mb-2">
+            <p className="text-center text-xs font-semibold text-primary mt-5 mb-1">
               {footer.social}
             </p>
-            <div className="flex gap-6 justify-center text-sm text-slate-600">
+            <div className="flex gap-4 justify-center text-xs text-slate-600">
               <a href="#" className="hover:text-primary transition-colors">
                 Privacy Policy
               </a>

@@ -52,10 +52,10 @@ export function UserBusinessDetailModal({
         <DialogTitle className="sr-only">Business User Details</DialogTitle>
         <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-            <div className="flex items-center gap-4 pr-8">
+          <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+            <div className="flex items-center gap-3 pr-5">
               {userData && (
-                <div className="h-16 w-16 rounded-lg overflow-hidden bg-muted border border-border flex-shrink-0">
+                <div className="h-11 w-11 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
                   {userData.profileImageUrl ? (
                     <img
                       src={userData.profileImageUrl}
@@ -64,7 +64,7 @@ export function UserBusinessDetailModal({
                     />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
-                      <span className="text-lg font-semibold text-primary">
+                      <span className="text-xs font-semibold text-primary">
                         {userData.firstName?.charAt(0)?.toUpperCase() || "U"}
                       </span>
                     </div>
@@ -72,8 +72,8 @@ export function UserBusinessDetailModal({
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-semibold text-foreground">Business User Details</h2>
-                <p className="text-sm text-muted-foreground mt-0.5">
+                <h2 className="text-xs font-semibold text-foreground">Business User Details</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {userData
                     ? userData.fullName || `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "---"
                     : "Detailed information about the selected business user"}
@@ -92,14 +92,14 @@ export function UserBusinessDetailModal({
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto">
-              <div className="p-6 space-y-6">
+              <div className="p-4 space-y-4">
                 {/* Personal Information */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Personal Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <DisplayField label="Full Name" value={userData.fullName || "---"} />
                       <DisplayField label="Email" value={userData.email || "---"} />
                       <DisplayField label="Phone Number" value={userData.phoneNumber || "---"} />
@@ -131,8 +131,8 @@ export function UserBusinessDetailModal({
                   <CardHeader>
                     <CardTitle>Telegram</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <DisplayField
                         label="Synced"
                         value={userData.telegramSynced ? "Connected" : "Not Connected"}
@@ -153,8 +153,8 @@ export function UserBusinessDetailModal({
                   <CardHeader>
                     <CardTitle>System Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <DisplayField label="User ID" value={userData.id} />
                       <DisplayField
                         label="Last Login"

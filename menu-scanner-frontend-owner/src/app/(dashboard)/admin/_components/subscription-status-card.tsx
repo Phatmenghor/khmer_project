@@ -21,17 +21,17 @@ interface StatusRowProps {
 
 function StatusRow({ label, count, percent, barColor, textColor }: StatusRowProps) {
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-sm">
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-xs">
         <span className="font-medium text-foreground">{label}</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <span className={cn("text-xs font-semibold", textColor)}>
             {percent.toFixed(1)}%
           </span>
-          <span className="text-muted-foreground text-xs w-8 text-right">{count}</span>
+          <span className="text-muted-foreground text-xs w-5 text-right">{count}</span>
         </div>
       </div>
-      <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
+      <div className="relative h-1 w-full overflow-hidden rounded-full bg-muted">
         <div
           className={cn("h-full rounded-full transition-all duration-500", barColor)}
           style={{ width: `${Math.min(percent, 100)}%` }}
@@ -43,12 +43,12 @@ function StatusRow({ label, count, percent, barColor, textColor }: StatusRowProp
 
 function StatusRowSkeleton() {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-3 w-11" />
       </div>
-      <Skeleton className="h-2 w-full rounded-full" />
+      <Skeleton className="h-1 w-full rounded-full" />
     </div>
   );
 }
@@ -64,20 +64,20 @@ export function SubscriptionStatusCard({
 }: SubscriptionStatusCardProps) {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base">Subscription Status</CardTitle>
+      <CardHeader className="pb-1">
+        <CardTitle className="text-xs">Subscription Status</CardTitle>
         <CardDescription>
           {loading || !statusBreakdown
             ? "Breakdown by status"
             : `${statusBreakdown.total} total subscriptions`}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-5">
+      <CardContent className="space-y-3">
         {loading ? (
           <>
-            <div className="flex items-center justify-between mb-2">
-              <Skeleton className="h-5 w-28" />
-              <Skeleton className="h-5 w-12" />
+            <div className="flex items-center justify-between mb-1">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-3 w-8" />
             </div>
             <StatusRowSkeleton />
             <StatusRowSkeleton />
@@ -85,9 +85,9 @@ export function SubscriptionStatusCard({
           </>
         ) : statusBreakdown ? (
           <>
-            <div className="flex items-center justify-between border-b pb-3">
-              <span className="text-sm text-muted-foreground">Total subscriptions</span>
-              <span className="text-xl font-bold text-foreground">
+            <div className="flex items-center justify-between border-b pb-2">
+              <span className="text-xs text-muted-foreground">Total subscriptions</span>
+              <span className="text-xs font-bold text-foreground">
                 {statusBreakdown.total}
               </span>
             </div>
@@ -128,7 +128,7 @@ export function SubscriptionStatusCard({
             />
           </>
         ) : (
-          <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
+          <div className="h-24 flex items-center justify-center text-muted-foreground text-xs">
             No data available
           </div>
         )}

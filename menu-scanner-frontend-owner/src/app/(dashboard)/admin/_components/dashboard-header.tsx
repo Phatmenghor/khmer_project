@@ -10,18 +10,18 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ today, onRefresh }: DashboardHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-foreground">Platform Dashboard</h1>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+        <div className="flex items-center gap-1">
+          <h1 className="text-base font-bold text-foreground">Platform Dashboard</h1>
+          <span className="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
             Last 30 days
           </span>
         </div>
-        <p className="text-sm text-muted-foreground mt-0.5">{today}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{today}</p>
       </div>
-      <Button variant="outline" size="sm" className="gap-1.5 self-start sm:self-auto" onClick={onRefresh}>
-        <RefreshCw className="h-3.5 w-3.5" />
+      <Button variant="outline" size="sm" className="gap-1 self-start sm:self-auto" onClick={onRefresh}>
+        <RefreshCw className="h-2.5 w-2.5" />
         Refresh
       </Button>
     </div>

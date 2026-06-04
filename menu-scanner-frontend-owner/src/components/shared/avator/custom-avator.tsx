@@ -24,10 +24,10 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
   const justOpenedRef = useRef(false);
 
   const sizeClasses = {
-    sm: { avatar: "h-8 w-8", indicator: "w-2 h-2" },
-    md: { avatar: "h-10 w-10", indicator: "w-3 h-3" },
-    lg: { avatar: "h-12 w-12", indicator: "w-3.5 h-3.5" },
-    xl: { avatar: "h-16 w-16", indicator: "w-4 h-4" },
+    sm: { avatar: "h-5 w-5", indicator: "w-1 h-1" },
+    md: { avatar: "h-7 w-7", indicator: "w-2 h-2" },
+    lg: { avatar: "h-8 w-8", indicator: "w-2.5 h-2.5" },
+    xl: { avatar: "h-11 w-11", indicator: "w-3 h-3" },
   };
 
   const fallbackText = name?.charAt(0)?.toUpperCase() || "B";
@@ -106,14 +106,14 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
           onMouseEnter={handlePreviewMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <div className="relative bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl border border-border">
-            <div className="flex flex-col items-center gap-4">
+          <div className="relative bg-white dark:bg-gray-900 p-4 rounded shadow-2xl border border-border">
+            <div className="flex flex-col items-center gap-3">
               {/* Loading spinner */}
               {imageLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 rounded-2xl z-10">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-                    <p className="text-sm text-muted-foreground">
+                <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 rounded z-10">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                    <p className="text-xs text-muted-foreground">
                       Loading image...
                     </p>
                   </div>
@@ -123,7 +123,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
               <img
                 src={imageUrl}
                 alt={name || "User"}
-                className="max-w-[70vw] max-h-[70vh] w-auto h-auto object-contain rounded-lg"
+                className="max-w-[70vw] max-h-[70vh] w-auto h-auto object-contain rounded"
                 onLoad={() => setImageLoading(false)}
                 onError={() => setImageLoading(false)}
                 style={{
@@ -131,7 +131,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
                   transition: "opacity 0.3s",
                 }}
               />
-              <p className="text-lg font-semibold text-center text-gray-900 dark:text-white">
+              <p className="text-xs font-semibold text-center text-gray-900 dark:text-white">
                 {name || "User"}
               </p>
             </div>

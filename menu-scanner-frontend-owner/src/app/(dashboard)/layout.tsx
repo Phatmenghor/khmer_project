@@ -21,7 +21,7 @@ export default function DashboardGroupLayout({
   return (
     <DashboardLayout>
       <WebSocketProvider>
-        <div className="flex-1 space-y-4 pl-4">{children}</div>
+        <div className="flex-1 space-y-3 pl-3">{children}</div>
       </WebSocketProvider>
     </DashboardLayout>
   );

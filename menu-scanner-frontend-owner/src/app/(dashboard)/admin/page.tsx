@@ -62,19 +62,19 @@ export default function AdminDashboardPage() {
   const today = format(new Date(), "EEEE, MMM d yyyy");
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4">
       <DashboardHeader today={today} onRefresh={fetchAll} />
 
       <KpiSection summary={summary} loading={loading.summary} />
 
       {/* Subscription trends + status breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <SubscriptionTrendsCard trends={trends} loading={loading.trends} className="lg:col-span-2" />
         <SubscriptionStatusCard statusBreakdown={statusBreakdown} loading={loading.statusBreakdown} />
       </div>
 
       {/* Daily charts: customers, business users, payments */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <DailyTrendsCard
           title="Customer Registrations"
           description="New customers per day — last 30 days"
@@ -105,7 +105,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Recent owners + plan breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <RecentOwnersCard recentOwners={recentOwners} loading={loading.recentOwners} />
         <PlanBreakdownCard planBreakdown={planBreakdown} loading={loading.planBreakdown} />
       </div>

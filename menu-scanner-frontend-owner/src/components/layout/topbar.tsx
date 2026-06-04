@@ -34,22 +34,22 @@ export function TopBar({ onMenuClick }: TopBarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-20 items-center gap-4 border-b bg-background px-4 sm:px-6">
+      <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b bg-background px-3 sm:px-4">
         {isMobile && (
           <Button variant="ghost" size="icon" onClick={onMenuClick}>
-            <Menu className="h-5 w-5" />
+            <Menu className="h-3 w-3" />
             <span className="sr-only">Toggle menu</span>
           </Button>
         )}
 
-        <div className="flex items-center gap-3 justify-end flex-1">
+        <div className="flex items-center gap-2 justify-end flex-1">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowLogoutAlert(true)}
-            className="flex items-center gap-2 hover:bg-destructive/10 hover:text-destructive transition-colors"
+            className="flex items-center gap-1 hover:bg-destructive/10 hover:text-destructive transition-colors"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-3 w-3" />
             <span className="hidden sm:inline text-xs font-medium">Logout</span>
           </Button>
         </div>
@@ -63,36 +63,36 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           />
 
           <FormBody className="flex-1">
-            <div className="space-y-6">
-              <div className="p-5 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg">
-                <p className="text-base text-red-900 dark:text-red-100 font-medium leading-relaxed">
+            <div className="space-y-4">
+              <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded">
+                <p className="text-xs text-red-900 dark:text-red-100 font-medium leading-relaxed">
                   Are you sure you want to sign out of your account? You'll need to sign in again to access your dashboard and saved data.
                 </p>
               </div>
 
-              <div className="p-5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg">
-                <p className="text-sm text-amber-900 dark:text-amber-100 leading-relaxed">
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded">
+                <p className="text-xs text-amber-900 dark:text-amber-100 leading-relaxed">
                   <span className="font-semibold">⚠️ Important:</span> This action will end your current session and you'll be redirected to the login page. Make sure you've saved any ongoing work before proceeding.
                 </p>
               </div>
             </div>
           </FormBody>
 
-          <div className="flex justify-between items-center p-6 border-t bg-muted/30 flex-shrink-0">
+          <div className="flex justify-between items-center p-4 border-t bg-muted/30 flex-shrink-0">
             <div></div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={() => setShowLogoutAlert(false)}
-                className="rounded-lg"
+                className="rounded"
               >
                 Stay Signed In
               </Button>
               <Button
                 onClick={handleLogout}
-                className="rounded-lg bg-red-600 hover:bg-red-700 focus:ring-red-600 gap-2"
+                className="rounded bg-red-600 hover:bg-red-700 focus:ring-red-600 gap-1"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-3 w-3" />
                 Sign Out
               </Button>
             </div>

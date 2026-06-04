@@ -24,8 +24,8 @@ import { OwnerDashboardTrendsResponse } from "@/redux/features/owner-dashboard/s
 function TrendsTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-popover border rounded-xl shadow-lg px-4 py-3 text-sm space-y-1">
-      <p className="font-semibold text-foreground mb-2">{label}</p>
+    <div className="bg-popover border rounded shadow-lg px-3 py-2 text-xs space-y-1">
+      <p className="font-semibold text-foreground mb-1">{label}</p>
       <p className="text-primary">
         New Subs:{" "}
         <span className="font-bold">{payload[0]?.value ?? 0}</span>
@@ -58,15 +58,15 @@ export function SubscriptionTrendsCard({
 
   return (
     <Card className={cn(className)}>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-1">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">Subscription Trends</CardTitle>
+            <CardTitle className="text-xs">Subscription Trends</CardTitle>
             <CardDescription>New subscriptions &amp; revenue over time</CardDescription>
           </div>
           {trends && (
             <div className="text-right">
-              <p className="text-lg font-bold text-primary">
+              <p className="text-xs font-bold text-primary">
                 {formatRevenue(trends.totalRevenue)}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -80,7 +80,7 @@ export function SubscriptionTrendsCard({
         {loading ? (
           <ChartSkeleton />
         ) : !trends?.data?.length ? (
-          <div className="h-[280px] flex items-center justify-center text-muted-foreground text-sm">
+          <div className="h-[280px] flex items-center justify-center text-muted-foreground text-xs">
             No trend data for this period
           </div>
         ) : (

@@ -539,7 +539,7 @@
   display: grid;
   gap: 1rem;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.6125rem;
   grid-template-columns: repeat(var(--cols), minmax(200px, 1fr));
 }
 
@@ -553,7 +553,7 @@
 @layer base {
   /* 30% smaller = 70% of original size (more compact display) */
   html {
-    font-size: 70%;
+    font-size: 100%;
   }
 
   :root {
@@ -631,9 +631,9 @@
     --chart-4: 146 79% 41%;
     --chart-5: 2 85% 55%;
 
-    --radius: 0.5rem;
-    --card-radius: 0.75rem;
-    --button-radius: 0.5rem;
+    --radius: 0.35rem;
+    --card-radius: 0.525rem;
+    --button-radius: 0.35rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;

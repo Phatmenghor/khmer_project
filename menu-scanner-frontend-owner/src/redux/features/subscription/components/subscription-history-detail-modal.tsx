@@ -39,9 +39,9 @@ export function SubscriptionHistoryDetailModal({
       <DialogTitle className="sr-only">Subscription Detail</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-4 pr-8">
-            <div className="h-14 w-14 rounded-lg overflow-hidden bg-primary/10 border border-border flex-shrink-0 flex items-center justify-center">
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-3 pr-5">
+            <div className="h-10 w-10 rounded overflow-hidden bg-primary/10 border border-border flex-shrink-0 flex items-center justify-center">
               {h?.logoBusinessUrl ? (
                 <img
                   src={h.logoBusinessUrl}
@@ -49,16 +49,16 @@ export function SubscriptionHistoryDetailModal({
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="text-lg font-semibold text-primary">
+                <span className="text-xs font-semibold text-primary">
                   {h?.businessName?.charAt(0)?.toUpperCase() || "S"}
                 </span>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="text-xs font-semibold text-foreground">
                 Subscription Detail
               </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {h
                   ? `${h.businessName} — ${h.planName}`
                   : "Loading..."}
@@ -77,7 +77,7 @@ export function SubscriptionHistoryDetailModal({
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto">
-            <div className="p-6 space-y-6">
+            <div className="p-4 space-y-4">
 
               {/* Business Information */}
               <Card>
@@ -85,12 +85,12 @@ export function SubscriptionHistoryDetailModal({
                   <CardTitle>Business Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField label="Business Name" value={h.businessName || "---"} />
                     <DisplayField
                       label="Business ID"
                       value={
-                        <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                        <span className="text-xs font-mono bg-muted px-1 py-1 rounded">
                           {h.businessId}
                         </span>
                       }
@@ -105,7 +105,7 @@ export function SubscriptionHistoryDetailModal({
                   <CardTitle>Subscription Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField label="Plan Name" value={h.planName || "---"} />
                     <DisplayField
                       label="Plan Price"
@@ -133,7 +133,7 @@ export function SubscriptionHistoryDetailModal({
                   <CardTitle>Payment Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField label="Payment Status" value={h.paymentStatus?.replace("_", " ") || "---"} />
                     <DisplayField
                       label="Total Paid"

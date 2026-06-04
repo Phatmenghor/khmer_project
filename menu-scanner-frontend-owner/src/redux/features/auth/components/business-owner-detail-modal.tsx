@@ -60,9 +60,9 @@ export function BusinessOwnerDetailModal({
       <DialogTitle className="sr-only">Business Owner Details</DialogTitle>
       <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-4 pr-8">
-            <div className="h-14 w-14 rounded-lg overflow-hidden bg-primary/10 border border-border flex-shrink-0 flex items-center justify-center">
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-3 pr-5">
+            <div className="h-10 w-10 rounded overflow-hidden bg-primary/10 border border-border flex-shrink-0 flex items-center justify-center">
               {d?.logoBusinessUrl ? (
                 <img
                   src={d.logoBusinessUrl}
@@ -70,16 +70,16 @@ export function BusinessOwnerDetailModal({
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="text-lg font-semibold text-primary">
+                <span className="text-xs font-semibold text-primary">
                   {d?.ownerFullName?.charAt(0)?.toUpperCase() || "B"}
                 </span>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="text-xs font-semibold text-foreground">
                 Business Owner Details
               </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {d ? d.ownerFullName || d.ownerUserIdentifier : "Loading..."}
               </p>
             </div>
@@ -96,7 +96,7 @@ export function BusinessOwnerDetailModal({
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto">
-            <div className="p-6 space-y-6">
+            <div className="p-4 space-y-4">
 
               {/* Owner Information */}
               <Card>
@@ -104,7 +104,7 @@ export function BusinessOwnerDetailModal({
                   <CardTitle>Owner Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField label="User Identifier" value={d.ownerUserIdentifier || "---"} />
                     <DisplayField label="Full Name" value={d.ownerFullName || "---"} />
                     <DisplayField label="Email" value={d.ownerEmail || "---"} />
@@ -120,7 +120,7 @@ export function BusinessOwnerDetailModal({
                   <CardTitle>Business Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField label="Business Name" value={d.businessName || "---"} />
                     <DisplayField label="Business Email" value={d.businessEmail || "---"} />
                     <DisplayField label="Business Phone" value={d.businessPhone || "---"} />
@@ -140,7 +140,7 @@ export function BusinessOwnerDetailModal({
                   <CardTitle>Subscription Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField label="Plan Name" value={d.currentPlanName || "---"} />
                     <DisplayField
                       label="Plan Price"
@@ -170,27 +170,27 @@ export function BusinessOwnerDetailModal({
                 </CardHeader>
                 <CardContent className="p-0">
                   {isLoadingHistory ? (
-                    <div className="flex items-center justify-center py-8">
+                    <div className="flex items-center justify-center py-5">
                       <Loading />
                     </div>
                   ) : subscriptionHistory.length === 0 ? (
-                    <div className="flex items-center justify-center py-8">
-                      <p className="text-sm text-muted-foreground">No subscription history found</p>
+                    <div className="flex items-center justify-center py-5">
+                      <p className="text-xs text-muted-foreground">No subscription history found</p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
+                      <table className="w-full text-xs">
                         <thead>
                           <tr className="border-b bg-muted/30">
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">#</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Plan</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Duration</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Price</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Start Date</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">End Date</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Status</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Payment</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">Total Paid</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">#</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Plan</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Duration</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Price</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Start Date</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">End Date</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Status</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Payment</th>
+                            <th className="text-left px-3 py-2 text-xs font-semibold text-muted-foreground">Total Paid</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -199,19 +199,19 @@ export function BusinessOwnerDetailModal({
                               key={row.subscriptionId}
                               className="border-b last:border-0 hover:bg-muted/20 transition-colors"
                             >
-                              <td className="px-4 py-3 text-xs text-muted-foreground">{idx + 1}</td>
-                              <td className="px-4 py-3 text-xs font-medium">{row.planName || "---"}</td>
-                              <td className="px-4 py-3 text-xs text-muted-foreground">{row.planDurationType || "---"}</td>
-                              <td className="px-4 py-3 text-xs text-muted-foreground">
+                              <td className="px-3 py-2 text-xs text-muted-foreground">{idx + 1}</td>
+                              <td className="px-3 py-2 text-xs font-medium">{row.planName || "---"}</td>
+                              <td className="px-3 py-2 text-xs text-muted-foreground">{row.planDurationType || "---"}</td>
+                              <td className="px-3 py-2 text-xs text-muted-foreground">
                                 ${row.planPrice?.toFixed(2) ?? "0.00"}
                               </td>
-                              <td className="px-4 py-3 text-xs text-muted-foreground">{row.startDate || "---"}</td>
-                              <td className="px-4 py-3 text-xs text-muted-foreground">{row.endDate || "---"}</td>
-                              <td className="px-4 py-3 text-xs text-muted-foreground">{row.status || "---"}</td>
-                              <td className="px-4 py-3 text-xs text-muted-foreground">
+                              <td className="px-3 py-2 text-xs text-muted-foreground">{row.startDate || "---"}</td>
+                              <td className="px-3 py-2 text-xs text-muted-foreground">{row.endDate || "---"}</td>
+                              <td className="px-3 py-2 text-xs text-muted-foreground">{row.status || "---"}</td>
+                              <td className="px-3 py-2 text-xs text-muted-foreground">
                                 {row.paymentStatus?.replace("_", " ") || "---"}
                               </td>
-                              <td className="px-4 py-3 text-xs text-muted-foreground">
+                              <td className="px-3 py-2 text-xs text-muted-foreground">
                                 ${row.totalPaid?.toFixed(2) ?? "0.00"}
                               </td>
                             </tr>
@@ -229,11 +229,11 @@ export function BusinessOwnerDetailModal({
                   <CardTitle>System Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Owner ID"
                       value={
-                        <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                        <span className="text-xs font-mono bg-muted px-1 py-1 rounded">
                           {d.ownerId}
                         </span>
                       }
@@ -241,7 +241,7 @@ export function BusinessOwnerDetailModal({
                     <DisplayField
                       label="Business ID"
                       value={
-                        <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                        <span className="text-xs font-mono bg-muted px-1 py-1 rounded">
                           {d.businessId}
                         </span>
                       }

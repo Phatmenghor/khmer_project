@@ -145,7 +145,7 @@ export const myNotificationTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (notification) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(notification?.createdAt)}
         </span>
       ),
@@ -157,14 +157,14 @@ export const myNotificationTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (notification) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleNotificationViewDetail(notification)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Notification"
             onClick={() => handleDeleteNotification(notification)}
             variant="destructive"

@@ -143,7 +143,7 @@ export const userBusinessOwnerTableColumns = ({
       minWidth: "100px",
       maxWidth: "140px",
       render: (user) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Switch
             checked={user.autoRenew ?? false}
             onCheckedChange={(checked) => handleToggleAutoRenew(user, checked)}
@@ -199,31 +199,31 @@ export const userBusinessOwnerTableColumns = ({
       render: (user) => (
         <div className="flex items-center gap-1">
           <ActionButton
-            icon={<CreditCard className="w-4 h-4" />}
+            icon={<CreditCard className="w-3 h-3" />}
             tooltip="Subscription"
             onClick={() => handleSubscriptionAction(user)}
             size="sm"
           />
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewUserDetail(user)}
             size="sm"
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit"
             onClick={() => handleEditOwner(user)}
             size="sm"
           />
           <ActionButton
-            icon={<RotateCw className="w-4 h-4" />}
+            icon={<RotateCw className="w-3 h-3" />}
             tooltip="Reset Password"
             onClick={() => handleResetPassword(user)}
             size="sm"
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete"
             onClick={() => handleDeleteUser(user)}
             size="sm"

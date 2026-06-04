@@ -218,18 +218,18 @@ export default function SubscriptionPlanPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-2">
-      <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-3 px-1">
+      <div className="space-y-3">
         <CardHeaderSection
           title="Subscription Plan"
           searchValue={filters.search}
           searchPlaceholder="Search subscription plan..."
-          buttonIcon={<Plus className="w-3 h-3" />}
+          buttonIcon={<Plus className="w-2 h-2" />}
           buttonText="New"
           onSearchChange={handleSearchChange}
           openModal={handleCreatePlan}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <CustomSelect
               options={SUBSCRIPTION_PLAN_FILTER}
               value={filters.statuses}

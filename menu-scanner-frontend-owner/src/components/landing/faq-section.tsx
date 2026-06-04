@@ -36,50 +36,50 @@ export default function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="contact" className="relative py-24">
+    <section id="contact" className="relative py-16">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white"></div>
-        <div className="absolute top-1/2 left-0 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-pulse" style={{animationDuration: "6s"}}></div>
-        <div className="absolute top-1/2 right-0 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-pulse" style={{animationDuration: "7s", animationDelay: "2s"}}></div>
+        <div className="absolute top-1/2 left-0 w-64 h-64 bg-primary/8 rounded-full blur-3xl animate-pulse" style={{animationDuration: "6s"}}></div>
+        <div className="absolute top-1/2 right-0 w-64 h-64 bg-primary/8 rounded-full blur-3xl animate-pulse" style={{animationDuration: "7s", animationDelay: "2s"}}></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-5">
         <FadeIn direction="up">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">
+          <div className="text-center mb-11">
+            <h2 className="text-base sm:text-xs font-bold text-slate-900 mb-3">
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Questions Answered</span>
             </h2>
-            <p className="text-lg text-slate-700 font-medium">
+            <p className="text-xs text-slate-700 font-medium">
               Everything you need to know about Emenu Cambodia
             </p>
           </div>
         </FadeIn>
 
         <FadeIn direction="up" delay={100}>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {faqs.map(({ q, a }, i) => (
-              <div key={i} className="border border-slate-200 rounded-2xl overflow-hidden bg-white hover:border-primary/30 transition-colors">
+              <div key={i} className="border border-slate-200 rounded overflow-hidden bg-white hover:border-primary/30 transition-colors">
                 <button
                   onClick={() => setOpen(open === i ? null : i)}
-                  className="w-full flex items-center justify-between px-7 py-5 text-left"
+                  className="w-full flex items-center justify-between px-5 py-3 text-left"
                 >
                   <span className={cn(
-                    "text-lg font-semibold pr-4",
+                    "text-xs font-semibold pr-3",
                     open === i ? "text-primary" : "text-slate-900"
                   )}>
                     {q}
                   </span>
                   <ChevronDown className={cn(
-                    "h-5 w-5 flex-shrink-0 text-slate-400 transition-transform duration-200",
+                    "h-3 w-3 flex-shrink-0 text-slate-400 transition-transform duration-200",
                     open === i ? "rotate-180 text-primary" : ""
                   )} />
                 </button>
                 <div className={cn(
                   "overflow-hidden transition-all duration-300 ease-in-out",
-                  open === i ? "max-h-48" : "max-h-0"
+                  open === i ? "max-h-32" : "max-h-0"
                 )}>
-                  <div className="px-7 pb-6 text-base text-slate-600 leading-relaxed border-t border-slate-100 pt-4">
+                  <div className="px-5 pb-4 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
                     {a}
                   </div>
                 </div>

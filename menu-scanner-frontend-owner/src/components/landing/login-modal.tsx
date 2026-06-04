@@ -95,24 +95,24 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-screen sm:w-full sm:max-w-md max-h-[100dvh] sm:max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded-lg">
+      <DialogContent className="w-screen sm:w-full sm:max-w-md max-h-[100dvh] sm:max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded">
         {/* Mobile drag handle */}
-        <div className="sm:hidden h-1 bg-slate-300 rounded-full w-12 mx-auto mt-3"></div>
+        <div className="sm:hidden h-1 bg-slate-300 rounded-full w-8 mx-auto mt-2"></div>
 
         {/* Header */}
-        <DialogHeader className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <DialogTitle className="text-2xl font-bold text-foreground">
+        <DialogHeader className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+          <DialogTitle className="text-base font-bold text-foreground">
             Welcome Back
           </DialogTitle>
-          <DialogDescription className="text-base text-muted-foreground mt-1">
+          <DialogDescription className="text-xs text-muted-foreground mt-1">
             Sign in to your account
           </DialogDescription>
         </DialogHeader>
 
         {/* Content */}
         <ScrollArea className="flex-1 min-h-0">
-          <div className="px-6 py-8">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="px-4 py-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <TextField
                 name="userIdentifier"
                 label="Email or Username"
@@ -135,14 +135,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 onTogglePassword={() => setShowPassword((v) => !v)}
               />
 
-              <div className="flex justify-between items-center pt-4 -mx-6 -mb-8 px-6 py-4 border-t bg-muted/30">
-                <div className="text-sm text-muted-foreground flex items-center gap-2">
+              <div className="flex justify-between items-center pt-3 -mx-4 -mb-5 px-4 py-3 border-t bg-muted/30">
+                <div className="text-xs text-muted-foreground flex items-center gap-1">
                   {isSubmitting && (
-                    <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+                    <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
                   )}
                   <span>{isSubmitting ? "Signing in..." : "Ready to sign in"}</span>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <Button
                     type="button"
                     variant="outline"
@@ -158,7 +158,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                         Signing in...
                       </>
                     ) : (

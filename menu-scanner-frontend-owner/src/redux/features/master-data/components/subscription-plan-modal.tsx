@@ -209,7 +209,7 @@ export default function SubscriptionPlanModal({
         />
 
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[300px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[300px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -219,20 +219,20 @@ export default function SubscriptionPlanModal({
           >
             <FormBody>
               {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
+                <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                  <p className="text-xs text-destructive font-medium">
                     {reduxError}
                   </p>
                 </div>
               )}
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Plan Details */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold">
                     Plan Details <span className="text-destructive">*</span>
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <TextField
                       control={control}
                       name="name"
@@ -278,8 +278,8 @@ export default function SubscriptionPlanModal({
                 </div>
 
                 {/* Additional Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold">
                     Additional Information
                   </h3>
                   <TextareaField

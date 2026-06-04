@@ -80,7 +80,7 @@ export const provinceTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (province) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(province?.createdAt)}
         </span>
       ),
@@ -91,19 +91,19 @@ export const provinceTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (province) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleProvinceViewDetail(province)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Province"
             onClick={() => handleEditProvince(province)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Province"
             onClick={() => handleDeleteProvince(province)}
             variant="destructive"

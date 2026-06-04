@@ -68,7 +68,7 @@ export function ComboboxBusiness({
   useEffect(() => { lastPageRef.current = lastPage; }, [lastPage]);
   useEffect(() => { pageRef.current = page; }, [page]);
 
-  const sizeClasses = { sm: "h-8 text-xs", md: "h-9 text-sm", lg: "h-10 text-base" };
+  const sizeClasses = { sm: "h-5 text-xs", md: "h-6 text-xs", lg: "h-7 text-xs" };
 
   const fetchData = async (search: string, newPage: number) => {
     if (loadingRef.current || (lastPageRef.current && newPage > 1)) return;
@@ -123,7 +123,7 @@ export function ComboboxBusiness({
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
-        <Label className="text-xs sm:text-sm font-semibold text-foreground">
+        <Label className="text-xs sm:text-xs font-semibold text-foreground">
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
         </Label>
@@ -135,7 +135,7 @@ export function ComboboxBusiness({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between gap-2 min-w-[160px] transition-all duration-200",
+              "w-full justify-between gap-1 min-w-[160px] transition-all duration-200",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               open && "bg-primary/20 border-primary text-primary",
               sizeClasses[size],
@@ -147,7 +147,7 @@ export function ComboboxBusiness({
             <span className="flex-1 truncate min-w-0 text-left">
               {value ? value.name : placeholder}
             </span>
-            <ChevronDown className={cn("ml-2 h-4 w-4 shrink-0 transition-all duration-200", open ? "rotate-180 opacity-100 text-primary" : "opacity-50")} />
+            <ChevronDown className={cn("ml-1 h-3 w-3 shrink-0 transition-all duration-200", open ? "rotate-180 opacity-100 text-primary" : "opacity-50")} />
           </Button>
         </PopoverTrigger>
 
@@ -159,7 +159,7 @@ export function ComboboxBusiness({
               onValueChange={setSearchTerm}
             />
             <CommandList
-              className="max-h-60 overflow-y-auto"
+              className="max-h-44 overflow-y-auto"
               onScroll={handleScroll}
               onWheel={(e) => e.stopPropagation()}
             >
@@ -170,20 +170,20 @@ export function ComboboxBusiness({
                     key={item.id}
                     value={item.name}
                     onSelect={() => handleSelect(item)}
-                    className="min-h-fit py-2 px-2 whitespace-normal"
+                    className="min-h-fit py-1 px-1 whitespace-normal"
                   >
-                    <Check className={cn("mr-2 h-4 w-4 shrink-0", (item.id === "all" && !value) || value?.id === item.id ? "opacity-100" : "opacity-0")} />
+                    <Check className={cn("mr-1 h-3 w-3 shrink-0", (item.id === "all" && !value) || value?.id === item.id ? "opacity-100" : "opacity-0")} />
                     <span className="break-words">{item.name}</span>
                   </CommandItem>
                 ))}
               </CommandGroup>
               {loading && (
-                <div className="text-center py-2">
-                  <Loader2 className="animate-spin text-gray-500 h-5 w-5 mx-auto" />
+                <div className="text-center py-1">
+                  <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
                 </div>
               )}
               {!loading && lastPage && data.length > 0 && (
-                <div className="text-center py-2 text-sm text-gray-400">No more businesses</div>
+                <div className="text-center py-1 text-xs text-gray-400">No more businesses</div>
               )}
             </CommandList>
           </Command>

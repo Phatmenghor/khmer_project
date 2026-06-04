@@ -103,12 +103,12 @@ export function ProfilePictureModal({
         <DialogTitle className="sr-only">Update Profile Picture</DialogTitle>
         <DialogDescription className="sr-only">Upload, download, or remove your profile picture</DialogDescription>
 
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold">Update Profile Picture</h2>
+        <div className="px-4 py-3 border-b">
+          <h2 className="text-xs font-semibold">Update Profile Picture</h2>
         </div>
 
-        <div className="p-6 flex flex-col items-center gap-4">
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 flex items-center justify-center bg-gray-100">
+        <div className="p-4 flex flex-col items-center gap-3">
+          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-200 flex items-center justify-center bg-gray-100">
             {selectedImage || currentImageUrl ? (
               <img
                 src={selectedImage || currentImageUrl}
@@ -121,24 +121,24 @@ export function ProfilePictureModal({
           </div>
 
           {selectedImage && selectedImage !== currentImageUrl && (
-            <p className="text-sm text-blue-600 font-medium">New image selected</p>
+            <p className="text-xs text-blue-600 font-medium">New image selected</p>
           )}
         </div>
 
-        <div className="border-t px-6 py-4 space-y-3">
+        <div className="border-t px-4 py-3 space-y-2">
           <Button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full gap-2 bg-primary hover:bg-primary/90"
+            className="w-full gap-1 bg-primary hover:bg-primary/90"
             disabled={isLoading}
           >
             {isLoading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-3 w-3 animate-spin" />
                 Uploading...
               </>
             ) : (
               <>
-                <Camera className="h-4 w-4" />
+                <Camera className="h-3 w-3" />
                 Select Photo
               </>
             )}
@@ -148,10 +148,10 @@ export function ProfilePictureModal({
             <Button
               onClick={handleDownload}
               variant="outline"
-              className="w-full gap-2"
+              className="w-full gap-1"
               disabled={isLoading}
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-3 w-3" />
               Download
             </Button>
           )}
@@ -160,22 +160,22 @@ export function ProfilePictureModal({
             <Button
               onClick={handleRemoveClick}
               variant="outline"
-              className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="w-full gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
               disabled={isLoading}
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-3 w-3" />
               Remove
             </Button>
           )}
 
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-1 pt-1">
             <Button onClick={handleCancel} variant="outline" className="flex-1" disabled={isLoading}>
               Cancel
             </Button>
             <Button onClick={handleSave} disabled={isLoading || !hasChanges} className="flex-1">
               {isLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
                   Saving...
                 </>
               ) : (

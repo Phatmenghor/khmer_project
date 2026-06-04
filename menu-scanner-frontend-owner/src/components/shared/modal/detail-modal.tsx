@@ -43,23 +43,23 @@ export function DetailModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl h-[90vh] p-0 gap-0 flex flex-col">
         {/* Header */}
-        <DialogHeader className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-4 pr-8">
+        <DialogHeader className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-3 pr-5">
             {(avatarUrl || avatarName) && (
               <CustomAvatar imageUrl={avatarUrl} name={avatarName} size="xl" />
             )}
 
             <div className="flex-1">
-              <DialogTitle className="text-xl font-semibold">
+              <DialogTitle className="text-xs font-semibold">
                 {title}
               </DialogTitle>
               {description && (
-                <DialogDescription className="text-sm text-muted-foreground">
+                <DialogDescription className="text-xs text-muted-foreground">
                   {description}
                 </DialogDescription>
               )}
               {badges && (
-                <div className="flex items-center gap-2 mt-2">{badges}</div>
+                <div className="flex items-center gap-1 mt-1">{badges}</div>
               )}
             </div>
           </div>
@@ -67,7 +67,7 @@ export function DetailModal({
 
         {/* Content */}
         <ScrollArea className="flex-1 min-h-0">
-          <div className="p-6 ">{isLoading ? <Loading /> : children}</div>
+          <div className="p-4 ">{isLoading ? <Loading /> : children}</div>
         </ScrollArea>
       </DialogContent>
     </Dialog>

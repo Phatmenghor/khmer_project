@@ -51,13 +51,13 @@ export function CommuneDetailModal({
       <DialogTitle className="sr-only">Commune Details</DialogTitle>
       <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-4 pr-8">
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-3 pr-5">
             <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="text-xs font-semibold text-foreground">
                 Commune Details
               </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {communeData
                   ? communeData.communeEn
                   : "Detailed information about the selected commune"}
@@ -76,14 +76,14 @@ export function CommuneDetailModal({
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto">
-            <div className="p-6 space-y-6">
+            <div className="p-4 space-y-4">
               {/* Commune Information */}
               <Card>
                 <CardHeader>
                   <CardTitle>Commune Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Commune Code"
                       value={communeData.communeCode || "---"}
@@ -105,8 +105,8 @@ export function CommuneDetailModal({
                 <CardHeader>
                   <CardTitle>District Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="District Code"
                       value={communeData.district?.districtCode || "---"}
@@ -128,8 +128,8 @@ export function CommuneDetailModal({
                 <CardHeader>
                   <CardTitle>Province Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Province Code"
                       value={communeData.district?.province?.provinceCode || "---"}
@@ -151,12 +151,12 @@ export function CommuneDetailModal({
                 <CardHeader>
                   <CardTitle>System Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Commune ID"
                       value={
-                        <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                        <span className="text-xs font-mono bg-muted px-1 py-1 rounded">
                           {communeData.id}
                         </span>
                       }

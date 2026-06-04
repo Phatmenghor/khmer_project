@@ -31,7 +31,7 @@ function CustomTooltip({ active, payload, label, mode }: any) {
   if (!active || !payload?.length) return null;
   const val = payload[0]?.value ?? 0;
   return (
-    <div className="bg-popover border rounded-xl shadow-lg px-4 py-3 text-sm space-y-1">
+    <div className="bg-popover border rounded shadow-lg px-3 py-2 text-xs space-y-1">
       <p className="font-semibold text-foreground mb-1">
         {(() => { try { return format(new Date(label), "MMM d, yyyy"); } catch { return label; } })()}
       </p>
@@ -64,17 +64,17 @@ export function DailyTrendsCard({
 
   return (
     <Card>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-1">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base">{title}</CardTitle>
+            <CardTitle className="text-xs">{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
           </div>
           {loading ? (
-            <Skeleton className="h-6 w-20" />
+            <Skeleton className="h-4 w-14" />
           ) : (
             <div className="text-right">
-              <p className="text-lg font-bold text-primary">{total}</p>
+              <p className="text-xs font-bold text-primary">{total}</p>
               <p className="text-xs text-muted-foreground">{totalLabel}</p>
             </div>
           )}
@@ -84,7 +84,7 @@ export function DailyTrendsCard({
         {loading ? (
           <ChartSkeleton height={200} />
         ) : !chartData.length ? (
-          <div className="h-[200px] flex items-center justify-center text-muted-foreground text-sm">
+          <div className="h-[200px] flex items-center justify-center text-muted-foreground text-xs">
             No data for this period
           </div>
         ) : (

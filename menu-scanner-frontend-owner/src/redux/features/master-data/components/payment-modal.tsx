@@ -249,7 +249,7 @@ export default function PaymentModal({
 
         {/* Loading State - Edit Mode Only */}
         {!isCreate && isFetchingDetail ? (
-          <div className="p-6 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[400px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -261,15 +261,15 @@ export default function PaymentModal({
             <FormBody>
               {/* Error Display */}
               {reduxError && (
-                <div className="p-4 bg-destructive/10 border border-destructive rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
+                <div className="p-3 bg-destructive/10 border border-destructive rounded">
+                  <p className="text-xs text-destructive font-medium">
                     {reduxError}
                   </p>
                 </div>
               )}
 
               {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <TextField
                   control={control}
                   name="businessId"

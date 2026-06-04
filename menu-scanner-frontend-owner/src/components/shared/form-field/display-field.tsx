@@ -10,8 +10,8 @@ interface DisplayFieldProps {
 export function DisplayField({ label, value }: DisplayFieldProps) {
   return (
     <div className="space-y-1">
-      <div className="text-sm font-medium text-foreground">{label}</div>
-      <div className="text-base text-foreground">
+      <div className="text-xs font-medium text-foreground">{label}</div>
+      <div className="text-xs text-foreground">
         {typeof value === "string" ? value || "-" : value || "-"}
       </div>
     </div>

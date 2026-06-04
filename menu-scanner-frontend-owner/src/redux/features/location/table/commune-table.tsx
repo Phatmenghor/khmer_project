@@ -128,7 +128,7 @@ export const communeTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (commune) => (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {dateTimeFormat(commune?.createdAt)}
         </span>
       ),
@@ -139,19 +139,19 @@ export const communeTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (commune) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <ActionButton
-            icon={<Eye className="w-4 h-4" />}
+            icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleCommuneViewDetail(commune)}
           />
           <ActionButton
-            icon={<Edit className="w-4 h-4" />}
+            icon={<Edit className="w-3 h-3" />}
             tooltip="Edit Commune"
             onClick={() => handleEditCommune(commune)}
           />
           <ActionButton
-            icon={<Trash className="w-4 h-4" />}
+            icon={<Trash className="w-3 h-3" />}
             tooltip="Delete Commune"
             onClick={() => handleDeleteCommune(commune)}
             variant="destructive"

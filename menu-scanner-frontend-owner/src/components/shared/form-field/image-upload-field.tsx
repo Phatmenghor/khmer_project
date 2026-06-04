@@ -82,16 +82,16 @@ export function ImageUploadField({
   };
 
   return (
-    <div className={`space-y-2 ${className}`}>
-      <Label className="text-xs sm:text-sm font-semibold text-foreground">
+    <div className={`space-y-1 ${className}`}>
+      <Label className="text-xs sm:text-xs font-semibold text-foreground">
         {label}
         {required && <span className="text-destructive ml-1">*</span>}
       </Label>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {/* Preview */}
         {preview && (
-          <div className="relative w-full h-48 bg-muted rounded-lg overflow-hidden border">
+          <div className="relative w-full h-32 bg-muted rounded overflow-hidden border">
             <img
               src={preview}
               alt="Preview"
@@ -102,10 +102,10 @@ export function ImageUploadField({
                 type="button"
                 variant="destructive"
                 size="sm"
-                className="absolute top-2 right-2"
+                className="absolute top-1 right-1"
                 onClick={handleRemove}
               >
-                <X className="h-4 w-4" />
+                <X className="h-3 w-3" />
               </Button>
             )}
           </div>
@@ -115,7 +115,7 @@ export function ImageUploadField({
         {!preview && (
           <div
             className={cn(
-              "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
+              "border-2 border-dashed rounded p-5 text-center transition-colors",
               error ? "border-red-500" : "border-border hover:border-primary",
               disabled && "opacity-50 cursor-not-allowed"
             )}
@@ -131,13 +131,13 @@ export function ImageUploadField({
             <label
               htmlFor="image-upload"
               className={cn(
-                "cursor-pointer flex flex-col items-center gap-2",
+                "cursor-pointer flex flex-col items-center gap-1",
                 disabled && "cursor-not-allowed"
               )}
             >
-              <ImageIcon className="h-10 w-10 text-muted-foreground" />
+              <ImageIcon className="h-7 w-7 text-muted-foreground" />
               <div className="space-y-1">
-                <p className="text-sm font-medium">Click to upload image</p>
+                <p className="text-xs font-medium">Click to upload image</p>
                 <p className="text-xs text-muted-foreground">
                   PNG, JPG, GIF up to {maxSize}MB
                 </p>
@@ -167,7 +167,7 @@ export function ImageUploadField({
                 asChild
               >
                 <span>
-                  <Upload className="h-4 w-4 mr-2" />
+                  <Upload className="h-3 w-3 mr-1" />
                   Change Image
                 </span>
               </Button>

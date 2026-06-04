@@ -31,11 +31,11 @@ export default function DashboardLayout({
       <div
         className={cn(
           "dashboard-content flex flex-col flex-1 transition-all overflow-y-auto duration-300",
-          isMobile ? "w-full" : isSidebarOpen ? "ml-56" : "ml-[60px]"
+          isMobile ? "w-full" : isSidebarOpen ? "ml-40" : "ml-[60px]"
         )}
       >
         <TopBar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
-        <main className="dashboard-main flex-1 p-2 md:p-4">{children}</main>
+        <main className="dashboard-main flex-1 p-1 md:p-3">{children}</main>
         <AdminFooter />
       </div>
     </div>

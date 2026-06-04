@@ -20,8 +20,8 @@ export function PasswordField({
   className = "",
 }: PasswordFieldProps) {
   return (
-    <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={name} className="text-xs sm:text-sm font-semibold text-foreground">
+    <div className={`space-y-1 ${className}`}>
+      <Label htmlFor={name} className="text-xs sm:text-xs font-semibold text-foreground">
         {label} {required && <span className="text-destructive">*</span>}
       </Label>
       <div className="relative">
@@ -37,7 +37,7 @@ export function PasswordField({
               placeholder={placeholder}
               disabled={disabled}
               autoComplete="new-password"
-              className={`pr-12 transition-colors ${
+              className={`pr-8 transition-colors ${
                 error ? "border-destructive focus:border-destructive" : ""
               }`}
             />
@@ -47,13 +47,13 @@ export function PasswordField({
           <button
             type="button"
             onClick={onTogglePassword}
-            className="absolute inset-y-0 right-0 flex items-center pr-3"
+            className="absolute inset-y-0 right-0 flex items-center pr-2"
             tabIndex={-1}
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4 text-gray-500" />
+              <EyeOff className="h-3 w-3 text-gray-500" />
             ) : (
-              <Eye className="h-4 w-4 text-gray-500" />
+              <Eye className="h-3 w-3 text-gray-500" />
             )}
           </button>
         )}

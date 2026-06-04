@@ -8,33 +8,33 @@ export default function FounderSection() {
   const founder = LANDING_CONFIG.founder;
 
   return (
-    <section className="relative py-24">
+    <section className="relative py-16">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-white via-primary/2 to-slate-50"></div>
-        <div className="absolute top-1/3 left-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "6s"}}></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "8s", animationDelay: "2s"}}></div>
+        <div className="absolute top-1/3 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "6s"}}></div>
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "8s", animationDelay: "2s"}}></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-5">
         <FadeIn direction="up">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-3">
+          <div className="text-center mb-11">
+            <h2 className="text-base sm:text-xs font-bold text-slate-900 mb-2">
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meet the Founder</span>
             </h2>
-            <p className="text-lg text-slate-700 font-medium">The vision behind Emenu Cambodia</p>
+            <p className="text-xs text-slate-700 font-medium">The vision behind Emenu Cambodia</p>
           </div>
         </FadeIn>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-5">
           {/* Founder photo card - Left side */}
           <FadeIn direction="right" delay={100}>
             <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
               {/* Animated bg dot */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16"></div>
+              <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-11 -mt-11"></div>
 
-              <CardContent className="p-4 sm:p-6 lg:p-8 relative z-10 flex flex-col">
-                <div className="relative aspect-video sm:aspect-square rounded-2xl overflow-hidden shadow-lg bg-white mb-4 sm:mb-6 lg:mb-8">
+              <CardContent className="p-3 sm:p-4 lg:p-5 relative z-10 flex flex-col">
+                <div className="relative aspect-video sm:aspect-square rounded overflow-hidden shadow-lg bg-white mb-3 sm:mb-4 lg:mb-5">
                   <Image
                     src={founder.image}
                     alt={founder.name}
@@ -43,9 +43,9 @@ export default function FounderSection() {
                     priority
                   />
                 </div>
-                <div className="flex flex-col gap-2 sm:gap-3">
-                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900">{founder.name}</h3>
-                  <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
+                <div className="flex flex-col gap-1 sm:gap-2">
+                  <h3 className="text-xs sm:text-base font-bold text-slate-900">{founder.name}</h3>
+                  <div className="space-y-1 sm:space-y-1 text-xs sm:text-xs">
                     <p className="text-slate-700">{founder.title}</p>
                     <p className="text-slate-700">{founder.contact.location}</p>
                     <p>
@@ -74,13 +74,13 @@ export default function FounderSection() {
 
           {/* Story cards and highlights - Right side */}
           <FadeIn direction="left" delay={150}>
-            <div className="space-y-4 flex flex-col">
+            <div className="space-y-3 flex flex-col">
               {/* Vision Card */}
               <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
-                <CardContent className="p-7 relative z-10 flex flex-col">
-                  <h4 className="text-lg font-bold text-slate-900 mb-3">The Vision</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-8 -mt-8"></div>
+                <CardContent className="p-5 relative z-10 flex flex-col">
+                  <h4 className="text-xs font-bold text-slate-900 mb-2">The Vision</h4>
+                  <p className="text-xs text-slate-700 leading-relaxed font-medium">
                     {founder.vision}
                   </p>
                 </CardContent>
@@ -88,10 +88,10 @@ export default function FounderSection() {
 
               {/* Bio Card */}
               <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
-                <CardContent className="p-7 relative z-10 flex flex-col">
-                  <h4 className="text-lg font-bold text-slate-900 mb-3">Background</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-8 -mt-8"></div>
+                <CardContent className="p-5 relative z-10 flex flex-col">
+                  <h4 className="text-xs font-bold text-slate-900 mb-2">Background</h4>
+                  <p className="text-xs text-slate-700 leading-relaxed font-medium">
                     {founder.bio}
                   </p>
                 </CardContent>
@@ -99,10 +99,10 @@ export default function FounderSection() {
 
               {/* Story Card */}
               <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
-                <CardContent className="p-7 relative z-10 flex flex-col">
-                  <h4 className="text-lg font-bold text-slate-900 mb-3">Why Emenu Cambodia?</h4>
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-8 -mt-8"></div>
+                <CardContent className="p-5 relative z-10 flex flex-col">
+                  <h4 className="text-xs font-bold text-slate-900 mb-2">Why Emenu Cambodia?</h4>
+                  <p className="text-xs text-slate-700 leading-relaxed font-medium">
                     {founder.story}
                   </p>
                 </CardContent>
@@ -110,25 +110,25 @@ export default function FounderSection() {
 
               {/* Highlights Card */}
               <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-12 -mt-12"></div>
-                <CardContent className="p-7 relative z-10 flex flex-col">
-                  <h4 className="text-lg font-bold text-slate-900 mb-5">Highlights</h4>
-                  <div className="space-y-4">
-                    <div className="flex gap-3 items-start">
-                      <Globe className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-slate-700 font-medium">{founder.highlights[0]}</p>
+                <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-8 -mt-8"></div>
+                <CardContent className="p-5 relative z-10 flex flex-col">
+                  <h4 className="text-xs font-bold text-slate-900 mb-3">Highlights</h4>
+                  <div className="space-y-3">
+                    <div className="flex gap-2 items-start">
+                      <Globe className="w-3 h-3 text-primary flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-slate-700 font-medium">{founder.highlights[0]}</p>
                     </div>
-                    <div className="flex gap-3 items-start">
-                      <Briefcase className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-slate-700 font-medium">{founder.highlights[1]}</p>
+                    <div className="flex gap-2 items-start">
+                      <Briefcase className="w-3 h-3 text-primary flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-slate-700 font-medium">{founder.highlights[1]}</p>
                     </div>
-                    <div className="flex gap-3 items-start">
-                      <UtensilsCrossed className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-slate-700 font-medium">{founder.highlights[2]}</p>
+                    <div className="flex gap-2 items-start">
+                      <UtensilsCrossed className="w-3 h-3 text-primary flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-slate-700 font-medium">{founder.highlights[2]}</p>
                     </div>
-                    <div className="flex gap-3 items-start">
-                      <Zap className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-slate-700 font-medium">{founder.highlights[3]}</p>
+                    <div className="flex gap-2 items-start">
+                      <Zap className="w-3 h-3 text-primary flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-slate-700 font-medium">{founder.highlights[3]}</p>
                     </div>
                   </div>
                 </CardContent>

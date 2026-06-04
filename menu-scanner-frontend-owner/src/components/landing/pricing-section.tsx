@@ -102,35 +102,35 @@ export default function PricingSection() {
   };
 
   return (
-    <section id="pricing" className="relative py-24">
+    <section id="pricing" className="relative py-16">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white"></div>
-        <div className="absolute top-0 left-1/3 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-pulse" style={{animationDuration: "6s"}}></div>
-        <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-pulse" style={{animationDuration: "8s", animationDelay: "2s"}}></div>
+        <div className="absolute top-0 left-1/3 w-64 h-64 bg-primary/8 rounded-full blur-3xl animate-pulse" style={{animationDuration: "6s"}}></div>
+        <div className="absolute bottom-0 right-1/3 w-64 h-64 bg-primary/8 rounded-full blur-3xl animate-pulse" style={{animationDuration: "8s", animationDelay: "2s"}}></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-5">
         <FadeIn direction="up">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-4">
+          <div className="text-center mb-11">
+            <h2 className="text-base sm:text-xs font-bold text-slate-900 mb-3">
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Simple Pricing</span>
             </h2>
-            <p className="text-lg text-slate-700 leading-relaxed max-w-3xl mx-auto font-medium">
+            <p className="text-xs text-slate-700 leading-relaxed max-w-3xl mx-auto font-medium">
               {LANDING_CONFIG.pricing.subtitle}
             </p>
           </div>
         </FadeIn>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-8">
             <div className="text-center">
-              <div className="inline-block w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-              <p className="mt-4 text-slate-600">Loading pricing plans...</p>
+              <div className="inline-block w-5 h-5 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+              <p className="mt-3 text-slate-600">Loading pricing plans...</p>
             </div>
           </div>
         ) : (
-          <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-6 mt-16 items-start">
+          <div className="grid lg:grid-cols-3 sm:grid-cols-2 gap-4 mt-11 items-start">
             {plans.map(({ id, name, price, period, description, features = [], highlighted = false }, i) => {
               const planData: PlanData = { id, name, price, period, description };
               return (
@@ -144,11 +144,11 @@ export default function PricingSection() {
                 )}
               >
                 {/* Animated bg dot */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-16 -mt-16 pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-300 -mr-11 -mt-11 pointer-events-none"></div>
 
                 {highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
-                    <div className="text-sm px-6 py-2 bg-gradient-to-r from-primary to-primary/90 text-white border-0 shadow-lg font-bold whitespace-nowrap rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                    <div className="text-xs px-4 py-1 bg-gradient-to-r from-primary to-primary/90 text-white border-0 shadow-lg font-bold whitespace-nowrap rounded-full">
                       🌟 Most Popular
                     </div>
                   </div>
@@ -157,25 +157,25 @@ export default function PricingSection() {
 
                 {/* Header */}
                 <div className={cn(
-                  "px-8 pb-8 relative z-10",
-                  highlighted ? "bg-gradient-to-r from-primary/10 to-transparent pt-16" : "pt-12"
+                  "px-5 pb-5 relative z-10",
+                  highlighted ? "bg-gradient-to-r from-primary/10 to-transparent pt-11" : "pt-8"
                 )}>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4">{name}</h3>
-                  <div className="flex items-baseline gap-2 mb-4">
-                    <span className={cn("text-6xl font-bold", highlighted ? "text-primary" : "text-slate-900")}>
+                  <h3 className="text-base font-bold text-slate-900 mb-3">{name}</h3>
+                  <div className="flex items-baseline gap-1 mb-3">
+                    <span className={cn("text-base font-bold", highlighted ? "text-primary" : "text-slate-900")}>
                       {price}
                     </span>
-                    {period && <span className="text-lg text-slate-700 font-semibold">{period}</span>}
+                    {period && <span className="text-xs text-slate-700 font-semibold">{period}</span>}
                   </div>
-                  <p className="text-base text-slate-700 leading-relaxed font-medium">{description}</p>
+                  <p className="text-xs text-slate-700 leading-relaxed font-medium">{description}</p>
                 </div>
 
                 {/* Features */}
-                <CardContent className="px-8 py-8 flex flex-col flex-1 relative z-10">
-                  <ul className="space-y-4 flex-1">
+                <CardContent className="px-5 py-5 flex flex-col flex-1 relative z-10">
+                  <ul className="space-y-3 flex-1">
                     {features.map((f) => (
-                      <li key={f} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
-                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5 animate-scale-in" />
+                      <li key={f} className="flex items-start gap-2 text-xs text-slate-700 font-medium">
+                        <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0 mt-0.5 animate-scale-in" />
                         <span>{f}</span>
                       </li>
                     ))}
@@ -184,7 +184,7 @@ export default function PricingSection() {
                   <Button
                     onClick={() => handlePlanClick(planData)}
                     className={cn(
-                      "w-full h-14 mt-8 font-bold text-base rounded-xl transition-all duration-300",
+                      "w-full h-10 mt-5 font-bold text-xs rounded transition-all duration-300",
                       highlighted
                         ? "bg-primary text-white shadow-lg hover:shadow-xl hover:bg-primary/90"
                         : "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-white"

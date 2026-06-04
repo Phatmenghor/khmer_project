@@ -69,7 +69,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
       case "date-picker":
         return (
           <div key={filter.id} className="flex flex-col gap-1">
-            <label className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
+            <label className="text-xs sm:text-xs font-semibold text-foreground whitespace-nowrap">
               {filter.label}
             </label>
             <CustomDateTimePicker
@@ -88,22 +88,22 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <Card>
-        <CardContent className="py-3 sm:py-5 space-y-3">
-          <div className="flex items-center gap-2 mb-0">
-            <h1 className="text-base sm:text-lg font-bold">{config.title}</h1>
+        <CardContent className="py-2 sm:py-3 space-y-2">
+          <div className="flex items-center gap-1 mb-0">
+            <h1 className="text-xs sm:text-xs font-bold">{config.title}</h1>
           </div>
 
-          <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-wrap items-end gap-2">
             {/* Search */}
-            <div className="w-[300px] h-10">
+            <div className="w-[300px] h-7">
               <div className="relative w-full h-full group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" />
                 <Input
                   type="search"
                   placeholder={config.searchPlaceholder}
-                  className="pl-10 w-full h-full placeholder:text-gray-500 focus:border-primary focus:ring-primary/30 hover:border-primary transition-all duration-200"
+                  className="pl-7 w-full h-full placeholder:text-gray-500 focus:border-primary focus:ring-primary/30 hover:border-primary transition-all duration-200"
                   value={config.searchValue}
                   onChange={config.onSearchChange}
                 />
@@ -111,10 +111,10 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             </div>
 
             {/* Essential filters + button — right-aligned */}
-            <div className="flex flex-wrap items-end gap-3 ml-auto overflow-x-auto max-w-[calc(100vw-330px)] pb-2">
+            <div className="flex flex-wrap items-end gap-2 ml-auto overflow-x-auto max-w-[calc(100vw-330px)] pb-1">
               {essentialFilters.length > 0 && (
                 <div
-                  className="grid gap-3 flex-shrink-0"
+                  className="grid gap-2 flex-shrink-0"
                   style={{
                     gridTemplateColumns: `repeat(${essentialFilters.length}, minmax(120px, 1fr))`,
                     maxWidth: `${essentialFilters.length * 160}px`,
@@ -129,9 +129,9 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                   disabled={config.buttonDisabled}
                   variant="default"
                   onClick={config.onButtonClick}
-                  className="gap-2 flex-shrink-0 h-10 px-4"
+                  className="gap-1 flex-shrink-0 h-7 px-3"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3 h-3" />
                   {config.buttonText}
                 </Button>
               )}
@@ -142,13 +142,13 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
       {/* Advanced filters */}
       {advancedFilters.length > 0 && (
-        <div className="bg-primary/5 rounded-lg border border-primary/20 p-3">
+        <div className="bg-primary/5 rounded border border-primary/20 p-2">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center justify-between w-full hover:text-primary hover:bg-primary/10 px-2 py-1 rounded transition-all duration-200"
+            className="flex items-center justify-between w-full hover:text-primary hover:bg-primary/10 px-1 py-1 rounded transition-all duration-200"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-primary">
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-bold text-primary">
                 Advanced Filters
               </span>
               {activeFiltersCount > 0 && (
@@ -161,16 +161,16 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               )}
             </div>
             <ChevronDown
-              className={`w-4 h-4 transition-transform ${
+              className={`w-3 h-3 transition-transform ${
                 showAdvanced ? "rotate-180" : ""
               }`}
             />
           </button>
 
           {showAdvanced && (
-            <div className="mt-3 pt-3 border-t border-primary/20">
+            <div className="mt-2 pt-2 border-t border-primary/20">
               <div
-                className="grid gap-3 w-full"
+                className="grid gap-2 w-full"
                 style={{
                   gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
                 }}

@@ -40,9 +40,9 @@ export default function FadeIn({
   }, [delay]);
 
   const hiddenClass = {
-    up: "opacity-0 translate-y-10",
-    left: "opacity-0 translate-x-10",
-    right: "opacity-0 -translate-x-10",
+    up: "opacity-0 translate-y-7",
+    left: "opacity-0 translate-x-7",
+    right: "opacity-0 -translate-x-7",
     none: "opacity-0",
   }[direction];
 

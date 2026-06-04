@@ -17,18 +17,18 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
-      <div className="text-center space-y-6 max-w-md">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-3">
+      <div className="text-center space-y-4 max-w-md">
         {/* Error Icon */}
         <div className="flex justify-center">
-          <div className="rounded-full bg-destructive/10 p-4">
-            <AlertTriangle className="h-8 w-8 text-destructive" />
+          <div className="rounded-full bg-destructive/10 p-3">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
           </div>
         </div>
 
         {/* Error Message */}
-        <div className="space-y-3">
-          <h1 className="text-2xl font-semibold text-foreground">
+        <div className="space-y-2">
+          <h1 className="text-base font-semibold text-foreground">
             Oops! Something went wrong
           </h1>
           <p className="text-muted-foreground leading-relaxed">
@@ -38,11 +38,11 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
           {/* Error Details (only in development) */}
           {process.env.NODE_ENV === "development" && (
-            <details className="mt-4 text-left">
-              <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+            <details className="mt-3 text-left">
+              <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
                 Technical Details
               </summary>
-              <pre className="mt-2 text-xs bg-muted p-3 rounded-md overflow-auto max-h-32">
+              <pre className="mt-1 text-xs bg-muted p-2 rounded overflow-auto max-h-24">
                 {error.message}
               </pre>
             </details>
@@ -50,24 +50,24 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4">
-          <Button onClick={reset} className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
+        <div className="flex flex-col sm:flex-row gap-2 pt-3">
+          <Button onClick={reset} className="flex items-center gap-1">
+            <RefreshCw className="h-3 w-3" />
             Try Again
           </Button>
           <Button
             variant="outline"
             onClick={() => (window.location.href = "/dashboard")}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1"
           >
-            <Home className="h-4 w-4" />
+            <Home className="h-3 w-3" />
             Go Home
           </Button>
         </div>
 
         {/* Support Information */}
-        <div className="pt-8 border-t border-border/50">
-          <p className="text-sm text-muted-foreground">
+        <div className="pt-5 border-t border-border/50">
+          <p className="text-xs text-muted-foreground">
             If this problem persists, please{" "}
             <a
               href="mailto:support@menuscanner.com?subject=Application Error"

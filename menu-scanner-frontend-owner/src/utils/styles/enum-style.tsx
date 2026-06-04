@@ -71,13 +71,13 @@ export const getUserTypeIcon = (
 ): React.ReactElement => {
   switch (userType?.toUpperCase()) {
     case "PLATFORM_USER":
-      return <Crown className="h-3.5 w-3.5" />;
+      return <Crown className="h-2.5 w-2.5" />;
     case "BUSINESS_USER":
-      return <UserCheck className="h-3.5 w-3.5" />;
+      return <UserCheck className="h-2.5 w-2.5" />;
     case "CUSTOMER":
-      return <Users className="h-3.5 w-3.5" />;
+      return <Users className="h-2.5 w-2.5" />;
     default:
-      return <User className="h-3.5 w-3.5" />;
+      return <User className="h-2.5 w-2.5" />;
   }
 };
 

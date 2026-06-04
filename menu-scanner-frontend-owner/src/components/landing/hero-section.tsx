@@ -23,21 +23,21 @@ export default function HeroSection() {
   return (
     <>
       <style>{scrollStyles}</style>
-      <section className="relative overflow-hidden pt-16 sm:pt-24 pb-20 sm:pb-24">
+      <section className="relative overflow-hidden pt-11 sm:pt-16 pb-14 sm:pb-16">
       {/* Animated Background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "4s"}}></div>
-        <div className="absolute bottom-0 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{animationDuration: "6s", animationDelay: "1s"}}></div>
+        <div className="absolute top-0 left-1/4 w-44 sm:w-64 h-44 sm:h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDuration: "4s"}}></div>
+        <div className="absolute bottom-0 right-1/4 w-44 sm:w-64 h-44 sm:h-64 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{animationDuration: "6s", animationDelay: "1s"}}></div>
         <div className="absolute inset-0 bg-gradient-to-b from-white via-primary/3 to-white"></div>
       </div>
 
-      <div className="max-w-[1330px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
+      <div className="max-w-[1330px] mx-auto px-3 sm:px-4 lg:px-5">
+          <div className="grid lg:grid-cols-2 gap-5 lg:gap-11 items-stretch">
             <FadeIn direction="right" delay={0}>
-              <div className="flex flex-col justify-start h-full space-y-8 sm:space-y-10">
+              <div className="flex flex-col justify-start h-full space-y-5 sm:space-y-7">
                 {/* Headline */}
-                <div className="space-y-3 sm:space-y-4">
-                  <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.1] tracking-tight bg-gradient-to-r from-slate-900 via-primary to-slate-900 bg-clip-text text-transparent">
+                <div className="space-y-2 sm:space-y-3">
+                  <h1 className="text-xs sm:text-base lg:text-base xl:text-xs font-bold leading-[1.1] tracking-tight bg-gradient-to-r from-slate-900 via-primary to-slate-900 bg-clip-text text-transparent">
                     Transform Your Business
                     <br />
                     Into a Digital Powerhouse
@@ -45,12 +45,12 @@ export default function HeroSection() {
                 </div>
 
                 {/* Subheadline */}
-                <p className="text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-2xl font-medium tracking-wide">
+                <p className="text-xs sm:text-xs lg:text-xs text-slate-600 leading-relaxed max-w-2xl font-medium tracking-wide">
                   Enterprise-grade platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, and global payment processing.
                 </p>
 
                 {/* Features Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3 pt-3">
                   {[
                     "Free trial included",
                     "Full feature access",
@@ -59,27 +59,27 @@ export default function HeroSection() {
                     "Auto-scaling infrastructure",
                     "GDPR & compliance ready"
                   ].map((feature, i) => (
-                    <div key={i} className="flex items-center gap-3 group" style={{animationDelay: `${i * 50}ms`}}>
+                    <div key={i} className="flex items-center gap-2 group" style={{animationDelay: `${i * 50}ms`}}>
                       <div className="relative flex-shrink-0">
                         <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg group-hover:blur-xl group-hover:scale-110 transition-all"></div>
-                        <CheckCircle className="w-6 h-6 text-primary relative z-10" />
+                        <CheckCircle className="w-4 h-4 text-primary relative z-10" />
                       </div>
-                      <span className="text-sm sm:text-base font-semibold text-slate-900 group-hover:text-primary transition-colors">{feature}</span>
+                      <span className="text-xs sm:text-xs font-semibold text-slate-900 group-hover:text-primary transition-colors">{feature}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* CTAs */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-6 sm:pt-8">
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 sm:pt-5">
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white px-8 py-4 text-base sm:text-lg rounded-2xl group shadow-lg hover:shadow-2xl transition-all font-semibold"
+                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white px-5 py-3 text-xs sm:text-xs rounded group shadow-lg hover:shadow-2xl transition-all font-semibold"
                     onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
                   >
                     Start Free Trial
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition" />
+                    <ArrowRight className="ml-1 w-3 h-3 group-hover:translate-x-1 transition" />
                   </Button>
-                  <Button size="lg" className="px-8 py-4 text-base sm:text-lg rounded-2xl border-2 border-primary/30 bg-white text-primary hover:bg-primary/5 hover:border-primary/50 font-semibold transition-all" asChild>
+                  <Button size="lg" className="px-5 py-3 text-xs sm:text-xs rounded border-2 border-primary/30 bg-white text-primary hover:bg-primary/5 hover:border-primary/50 font-semibold transition-all" asChild>
                     <Link href="/">Schedule Demo</Link>
                   </Button>
                 </div>
@@ -88,7 +88,7 @@ export default function HeroSection() {
 
             {/* Mobile App Image - Right side */}
             <FadeIn direction="left" delay={100}>
-              <div className="relative h-auto min-h-[450px] lg:min-h-[550px] rounded-3xl overflow-hidden shadow-2xl group">
+              <div className="relative h-auto min-h-[450px] lg:min-h-[550px] rounded overflow-hidden shadow-2xl group">
                 <Image
                   src="/images/hero/mobile-restaurant.jpg"
                   alt="Emenu Cambodia Mobile App"
@@ -104,9 +104,9 @@ export default function HeroSection() {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2">
-          <p className="text-xs sm:text-sm text-slate-500 font-medium">Scroll to explore</p>
-          <ChevronDown className="w-5 h-5 text-primary scroll-indicator" />
+        <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1">
+          <p className="text-xs sm:text-xs text-slate-500 font-medium">Scroll to explore</p>
+          <ChevronDown className="w-3 h-3 text-primary scroll-indicator" />
         </div>
       </section>
     </>
