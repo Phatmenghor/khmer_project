@@ -298,9 +298,8 @@ function CartPage() {
                   <div className="text-xs text-muted-foreground mb-2">Items Breakdown</div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">{totalItems} unique {totalItems === 1 ? 'product' : 'products'}</span>
-                    <span className="text-lg font-bold text-foreground">{totalQuantity}</span>
+                    <span className="text-lg font-bold text-foreground">{totalQuantity} qty</span>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">total quantity</div>
                 </div>
 
                 {}
