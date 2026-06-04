@@ -581,7 +581,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   const handleClose = useCallback(() => {
     setIsFullScreen(false); setSelectionMode("map"); setSelectedVillage(null);
-    setGeocodedCoords(null); setGeocodeSuccess(false); setSearchText("");
+    setGeocodedCoords(null); setGeocodeSuccess(false);
     resetPublicLocation(); reset(); clearError(); onClose();
   }, [reset, clearError, onClose, resetPublicLocation]);
 
