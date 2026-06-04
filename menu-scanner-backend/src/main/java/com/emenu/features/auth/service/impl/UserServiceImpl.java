@@ -388,6 +388,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CustomerUserResponse getCustomerProfile() {
         User currentUserContext = securityUtils.getCurrentUser();
         log.info("Customer profile retrieved: id={}", currentUserContext.getId());
