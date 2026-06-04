@@ -228,6 +228,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   const [isGeocodingAddress, setIsGeocodingAddress] = useState(false);
   const [geocodedCoords, setGeocodedCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geocodeSuccess, setGeocodeSuccess] = useState(false);
+  const [searchText, setSearchText] = useState("");
 
   const { control, handleSubmit, reset, setValue, watch, getValues, formState: { errors, isDirty } } = useForm<LocationFormData>({
     resolver: zodResolver(createLocationSchema) as any,
@@ -323,17 +324,16 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     });
   }, []);
 
-  const setupAutocomplete = useCallback((input: HTMLInputElement, ref: React.MutableRefObject<google.maps.places.Autocomplete | null>) => {
-    const map = googleMapRef.current;
-    if (!map || !google.maps.places) return;
+  const setupAutocomplete = useCallback((input: HTMLInputElement, ref: React.MutableRefObject<google.maps.places.Autocomplete | null>, mapInstance: google.maps.Map) => {
+    if (!mapInstance || !google.maps.places) return;
     if (ref.current) google.maps.event.clearInstanceListeners(ref.current);
     const ac = new google.maps.places.Autocomplete(input, { types: ["geocode", "establishment"] });
-    ac.bindTo("bounds", map);
+    ac.bindTo("bounds", mapInstance);
     ac.addListener("place_changed", () => {
       const place = ac.getPlace();
       if (place.geometry?.location) {
-        map.setCenter(place.geometry.location);
-        map.setZoom(17);
+        mapInstance.setCenter(place.geometry.location);
+        mapInstance.setZoom(17);
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
         setValueRef.current("latitude", lat, { shouldDirty: true });
@@ -426,7 +426,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         if (center) fullscreenMap.setCenter(center);
         setIsFullScreenMapReady(true);
         if (fullscreenSearchRef.current && google.maps.places) {
-          setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef);
+          setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef, fullscreenMap);
         }
       }, 100);
 
@@ -570,7 +570,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
   const handleClose = useCallback(() => {
     setIsFullScreen(false); setSelectionMode("map"); setSelectedVillage(null);
-    setGeocodedCoords(null); setGeocodeSuccess(false);
+    setGeocodedCoords(null); setGeocodeSuccess(false); setSearchText("");
     resetPublicLocation(); reset(); clearError(); onClose();
   }, [reset, clearError, onClose, resetPublicLocation]);
 
@@ -607,7 +607,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
               <LocateFixed className="h-4 w-4" />
               <span className="hidden sm:inline">My Location</span>
             </Button>
-            <Button type="button" variant="default" size="sm" onClick={() => setIsFullScreen(false)} className="gap-1 h-9">
+            <Button type="button" variant="default" size="sm" onClick={() => { setIsFullScreen(false); setSearchText(""); }} className="gap-1 h-9">
               <Minimize2 className="h-4 w-4" />
               <span className="hidden sm:inline">Done</span>
             </Button>
@@ -617,8 +617,31 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         {}
         <div className="px-4 py-3 border-b bg-background/95 backdrop-blur shrink-0">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input ref={fullscreenSearchRef} type="text" placeholder="Search for a place, address…" className="pl-9 h-10 rounded-lg text-sm w-full" autoComplete="off" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              ref={fullscreenSearchRef}
+              type="text"
+              placeholder="Search for a place, address…"
+              className="pl-9 pr-9 h-10 rounded-lg text-sm w-full"
+              autoComplete="off"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            {searchText && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchText("");
+                  if (fullscreenSearchRef.current) {
+                    fullscreenSearchRef.current.value = "";
+                    fullscreenSearchRef.current.focus();
+                  }
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
 
