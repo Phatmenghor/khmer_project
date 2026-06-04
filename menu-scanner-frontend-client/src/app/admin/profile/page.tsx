@@ -513,7 +513,7 @@ export default function AdminProfilePage() {
               <div className="flex-1">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-base font-bold text-foreground">
+                    <h2 className="text-xs font-bold text-foreground">
                       {userProfile?.fullName}
                     </h2>
                     <p className="text-primary/70 text-xs font-medium">

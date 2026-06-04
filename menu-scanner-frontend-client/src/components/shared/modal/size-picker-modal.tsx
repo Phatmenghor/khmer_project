@@ -509,7 +509,7 @@ export function SizePickerModal({
                 {product?.name}
               </h3>
               <div className="flex items-center gap-1">
-                <span className="text-xs font-bold text-primary">
+                <span className="text-sm font-bold text-primary">
                   {formatCurrency(priceWithCustomizations)}
                 </span>
                 {hasDiscount && originalPrice && (
@@ -614,7 +614,7 @@ export function SizePickerModal({
             )}
             <div className="flex justify-between items-center border-t pt-1">
               <span className="text-muted-foreground font-semibold text-xs">Total</span>
-              <span className="text-xs font-bold text-primary">
+              <span className="text-sm font-bold text-primary">
                 {formatCurrency(priceWithCustomizations * currentQuantity)}
               </span>
             </div>

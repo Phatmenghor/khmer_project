@@ -158,7 +158,7 @@ export default function AdminSessionsPage() {
         {}
         <div className="flex flex-wrap gap-2 items-start justify-between mb-3 sm:mb-4">
           <div>
-            <h1 className="text-xs sm:text-base font-bold text-foreground">
+            <h1 className="text-xs sm:text-sm font-bold text-foreground">
               Session Management
             </h1>
             <p className="text-xs text-muted-foreground mt-1">

@@ -28,7 +28,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
 
         {/* Error Message */}
         <div className="space-y-2">
-          <h1 className="text-base font-semibold text-foreground">
+          <h1 className="text-xs font-semibold text-foreground">
             Oops! Something went wrong
           </h1>
           <p className="text-muted-foreground leading-relaxed">

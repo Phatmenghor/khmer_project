@@ -348,7 +348,7 @@ export default function CheckoutPage() {
           <div className="w-11 h-11 rounded bg-primary/10 flex items-center justify-center mx-auto mb-3">
             <AlertCircle className="h-5 w-5 text-primary" />
           </div>
-          <h1 className="text-base font-bold mb-1">Cart is Empty</h1>
+          <h1 className="text-xs font-bold mb-1">Cart is Empty</h1>
           <p className="text-muted-foreground mb-4">
             Add items to your cart before checking out.
           </p>
@@ -609,7 +609,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between items-center pt-3 border-t-2 border-border">
                   <span className="font-bold text-xs text-foreground">Total Amount</span>
                   <div className="text-right">
-                    <span className="text-xs font-bold text-primary">{formatCurrency(orderTotal)}</span>
+                    <span className="text-sm font-bold text-primary">{formatCurrency(orderTotal)}</span>
                   </div>
                 </div>
 
@@ -747,7 +747,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between items-center pt-2.5 border-t border-border">
                   <span className="font-semibold text-foreground">Total</span>
                   <div className="text-right">
-                    <span className="text-base font-bold text-primary">{formatCurrency(orderTotal)}</span>
+                    <span className="text-sm font-bold text-primary">{formatCurrency(orderTotal)}</span>
                   </div>
                 </div>
 

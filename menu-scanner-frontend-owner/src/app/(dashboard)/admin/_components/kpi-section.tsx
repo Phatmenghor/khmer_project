@@ -35,7 +35,7 @@ function KpiCard({ title, value, change, icon, iconBg, description }: KpiCardPro
             {icon}
           </div>
         </div>
-        <p className="text-base font-bold text-foreground tracking-tight">{value}</p>
+        <p className="text-xs font-bold text-foreground tracking-tight">{value}</p>
         {change !== undefined && (
           <div className="flex items-center gap-1 mt-1">
             {isPositive

@@ -1245,7 +1245,7 @@ export default function PosPage() {
                 <Separator />
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-bold">Total</span>
-                  <span className="text-xs font-bold text-primary">
+                  <span className="text-sm font-bold text-primary">
                     {formatCurrency(cartSummary.finalTotal)}
                   </span>
                 </div>
@@ -1272,7 +1272,7 @@ export default function PosPage() {
                         </span>
                       )}
                     </p>
-                    <p className="text-xs font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
+                    <p className="text-sm font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
                   </div>
                 </div>
                 <button

@@ -113,7 +113,7 @@ export default function PricingSection() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-5">
         <FadeIn direction="up">
           <div className="text-center mb-11">
-            <h2 className="text-base sm:text-xs font-bold text-slate-900 mb-3">
+            <h2 className="text-xs font-bold text-slate-900 mb-3">
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Simple Pricing</span>
             </h2>
             <p className="text-xs text-slate-700 leading-relaxed max-w-3xl mx-auto font-medium">
@@ -160,9 +160,9 @@ export default function PricingSection() {
                   "px-5 pb-5 relative z-10",
                   highlighted ? "bg-gradient-to-r from-primary/10 to-transparent pt-11" : "pt-8"
                 )}>
-                  <h3 className="text-base font-bold text-slate-900 mb-3">{name}</h3>
+                  <h3 className="text-xs font-bold text-slate-900 mb-3">{name}</h3>
                   <div className="flex items-baseline gap-1 mb-3">
-                    <span className={cn("text-base font-bold", highlighted ? "text-primary" : "text-slate-900")}>
+                    <span className={cn("text-xs font-bold", highlighted ? "text-primary" : "text-slate-900")}>
                       {price}
                     </span>
                     {period && <span className="text-xs text-slate-700 font-semibold">{period}</span>}

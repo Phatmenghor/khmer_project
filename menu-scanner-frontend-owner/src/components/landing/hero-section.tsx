@@ -37,7 +37,7 @@ export default function HeroSection() {
               <div className="flex flex-col justify-start h-full space-y-5 sm:space-y-7">
                 {/* Headline */}
                 <div className="space-y-2 sm:space-y-3">
-                  <h1 className="text-xs sm:text-base lg:text-base xl:text-xs font-bold leading-[1.1] tracking-tight bg-gradient-to-r from-slate-900 via-primary to-slate-900 bg-clip-text text-transparent">
+                  <h1 className="text-xs sm:text-sm lg:text-base xl:text-xs font-bold leading-[1.1] tracking-tight bg-gradient-to-r from-slate-900 via-primary to-slate-900 bg-clip-text text-transparent">
                     Transform Your Business
                     <br />
                     Into a Digital Powerhouse

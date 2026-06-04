@@ -389,7 +389,7 @@ export function POSEditCartItemModal({
               )}
               <div className="flex justify-between border-t pt-1">
                 <span className="text-muted-foreground font-semibold">Total:</span>
-                <span className="text-xs font-bold text-primary">
+                <span className="text-sm font-bold text-primary">
                   {formatCurrency(calculatedTotal)}
                 </span>
               </div>

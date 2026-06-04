@@ -122,7 +122,7 @@ export function BusinessSettingsForm({
       {/* Header with refresh button */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-base font-bold">Business Settings</h1>
+          <h1 className="text-xs font-bold">Business Settings</h1>
           <p className="text-xs text-muted-foreground mt-1">
             Manage your business information and preferences
           </p>

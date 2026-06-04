@@ -42,7 +42,7 @@ const ProductsSectionComponent = ({
     return (
       <SectionWrapper>
         <div className="flex flex-col items-center justify-center py-8">
-          <div className="text-base mb-3">⚠️</div>
+          <div className="text-xs mb-3">⚠️</div>
           <h3 className="text-xs font-semibold text-foreground mb-1">
             Error Loading Products
           </h3>
@@ -59,7 +59,7 @@ const ProductsSectionComponent = ({
     return (
       <SectionWrapper>
         <div className="flex flex-col items-center justify-center py-8">
-          <div className="text-base mb-3">📦</div>
+          <div className="text-xs mb-3">📦</div>
           <h3 className="text-xs font-semibold text-foreground mb-1">
             No Products Available
           </h3>

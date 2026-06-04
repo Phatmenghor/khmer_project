@@ -70,7 +70,7 @@ export function ReviewSubmissionModal({
       <div className="bg-white rounded max-w-lg w-full max-h-[90vh] overflow-y-auto">
         {}
         <div className="sticky top-0 bg-white border-b px-4 py-3 flex items-center justify-between">
-          <h2 className="text-base font-bold">Write a Review</h2>
+          <h2 className="text-xs font-bold">Write a Review</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-full transition-colors"

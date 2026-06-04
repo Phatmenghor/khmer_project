@@ -101,7 +101,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
         {/* Header */}
         <DialogHeader className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
-          <DialogTitle className="text-base font-bold text-foreground">
+          <DialogTitle className="text-xs font-bold text-foreground">
             Welcome Back
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground mt-1">

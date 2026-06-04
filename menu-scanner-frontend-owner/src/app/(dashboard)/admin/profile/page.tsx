@@ -243,7 +243,7 @@ export default function AdminProfilePage() {
               <div className="flex-1">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h2 className="text-base font-bold text-foreground">{userProfile?.fullName}</h2>
+                    <h2 className="text-xs font-bold text-foreground">{userProfile?.fullName}</h2>
                     <p className="text-primary/70 text-xs font-medium">{userProfile?.email}</p>
                     <div className="flex items-center gap-1 mt-1">
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold">

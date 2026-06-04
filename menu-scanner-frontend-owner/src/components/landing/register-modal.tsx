@@ -136,7 +136,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         <DialogHeader className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex flex-col gap-3">
             <div>
-              <DialogTitle className="text-base font-bold text-foreground">
+              <DialogTitle className="text-xs font-bold text-foreground">
                 Create Your Account
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-1">

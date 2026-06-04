@@ -13,7 +13,7 @@ export function DashboardHeader({ today, onRefresh }: DashboardHeaderProps) {
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
         <div className="flex items-center gap-1">
-          <h1 className="text-base font-bold text-foreground">Platform Dashboard</h1>
+          <h1 className="text-xs font-bold text-foreground">Platform Dashboard</h1>
           <span className="inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
             Last 30 days
           </span>

@@ -15,7 +15,7 @@ export default function StatsSection() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-5">
         <FadeIn direction="up">
           <div className="text-center mb-11">
-            <h2 className="text-base sm:text-xs font-bold text-slate-900 mb-3">
+            <h2 className="text-xs font-bold text-slate-900 mb-3">
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Real Results from Real Businesses</span>
             </h2>
             <p className="text-xs text-slate-700 leading-relaxed max-w-3xl mx-auto font-medium">

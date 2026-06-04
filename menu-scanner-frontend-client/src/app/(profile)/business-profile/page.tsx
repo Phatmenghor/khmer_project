@@ -311,7 +311,7 @@ export default function BusinessProfilePage() {
 
           {/* Business name + meta */}
           <div className="pb-3 space-y-1">
-            <h1 className="text-xs sm:text-base font-bold text-foreground tracking-tight leading-snug">
+            <h1 className="text-xs sm:text-sm font-bold text-foreground tracking-tight leading-snug">
               {profile.businessName}
             </h1>
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -342,7 +342,7 @@ export default function BusinessProfilePage() {
 
                 return (
                   <div key={stat.id} className={`${widthClass} p-3 sm:p-3 text-center`}>
-                    <p className="text-base sm:text-xs font-bold text-muted-foreground break-words">{stat.value}</p>
+                    <p className="text-xs font-bold text-muted-foreground break-words">{stat.value}</p>
                     <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{stat.label}</p>
                   </div>
                 );
@@ -417,7 +417,7 @@ export default function BusinessProfilePage() {
                         className="relative aspect-square rounded overflow-hidden group cursor-pointer bg-muted">
                         {item.url
                           ? <Image src={item.url} alt={item.title || "Gallery"} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
-                          : <div className="w-full h-full flex items-center justify-center bg-primary/10"><span className="text-base">🍜</span></div>
+                          : <div className="w-full h-full flex items-center justify-center bg-primary/10"><span className="text-xs">🍜</span></div>
                         }
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-end p-2">
                           <p className="text-white text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">{item.title}</p>
@@ -481,7 +481,7 @@ export default function BusinessProfilePage() {
               <CardContent className="space-y-3">
                 <div className="flex gap-4 p-3 rounded bg-primary/5 border border-primary/10">
                   <div className="text-center flex-shrink-0">
-                    <p className="text-base font-bold text-primary">{avg.toFixed(2)}</p>
+                    <p className="text-xs font-bold text-primary">{avg.toFixed(2)}</p>
                     <StarRow rating={avg} size={4} />
                     <p className="text-xs text-muted-foreground mt-1">{total} reviews</p>
                   </div>

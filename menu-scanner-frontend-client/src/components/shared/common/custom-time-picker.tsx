@@ -189,7 +189,7 @@ export function CustomTimePicker({
             </div>
 
             {/* Separator */}
-            <div className="text-xs sm:text-base font-bold text-muted-foreground xs:mt-3 flex-shrink-0">:</div>
+            <div className="text-xs sm:text-sm font-bold text-muted-foreground xs:mt-3 flex-shrink-0">:</div>
 
             {/* Minute Selector */}
             <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-11 min-w-0">
@@ -234,7 +234,7 @@ export function CustomTimePicker({
           {}
           <div className="p-2 sm:p-3 bg-primary/10 border border-primary/20 rounded text-center space-y-1">
             <span className="text-xs text-muted-foreground block uppercase tracking-wide font-semibold truncate line-clamp-1">Selected Time</span>
-            <div className="text-xs sm:text-base font-bold text-primary truncate line-clamp-1">
+            <div className="text-xs sm:text-sm font-bold text-primary truncate line-clamp-1">
               {formatTimeDisplay(selectedHour, selectedMinute, selectedPeriod)}
             </div>
           </div>

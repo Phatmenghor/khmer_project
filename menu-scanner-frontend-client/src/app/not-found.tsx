@@ -11,7 +11,7 @@ export default function NotFoundPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-3">
       <div className="text-center space-y-3">
-        <p className="text-base font-bold text-muted-foreground/30">404</p>
+        <p className="text-xs font-bold text-muted-foreground/30">404</p>
         <h1 className="text-xs font-semibold">Page Not Found</h1>
         <p className="text-xs text-muted-foreground">The page you're looking for doesn't exist.</p>
         <div className="flex gap-2 justify-center pt-1">

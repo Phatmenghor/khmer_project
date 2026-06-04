@@ -49,7 +49,7 @@ export default function PlanPage() {
     return (
       <div className="min-h-screen">
         <div className="border-b px-4 py-4 space-y-1">
-          <h1 className="text-base font-semibold text-foreground">My Plan</h1>
+          <h1 className="text-xs font-semibold text-foreground">My Plan</h1>
           <p className="text-xs text-muted-foreground">
             View and manage your subscription plan
           </p>
@@ -74,7 +74,7 @@ export default function PlanPage() {
     return (
       <div className="min-h-screen">
         <div className="border-b px-4 py-4 space-y-1">
-          <h1 className="text-base font-semibold text-foreground">My Plan</h1>
+          <h1 className="text-xs font-semibold text-foreground">My Plan</h1>
           <p className="text-xs text-muted-foreground">
             View and manage your subscription plan
           </p>
@@ -137,7 +137,7 @@ export default function PlanPage() {
   return (
     <div className="min-h-screen pb-4">
       <div className="border-b px-4 py-4 space-y-1">
-        <h1 className="text-base font-semibold text-foreground">My Plan</h1>
+        <h1 className="text-xs font-semibold text-foreground">My Plan</h1>
         <p className="text-xs text-muted-foreground">
           View and manage your subscription plan
         </p>
@@ -225,13 +225,13 @@ export default function PlanPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <p className="text-xs text-muted-foreground">Plan Price</p>
-                  <p className="text-base font-bold text-foreground mt-1">
+                  <p className="text-xs font-bold text-foreground mt-1">
                     ${currentSubscription.planPrice.toFixed(2)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Payment Status</p>
-                  <p className="text-base font-bold text-foreground mt-1">
+                  <p className="text-xs font-bold text-foreground mt-1">
                     {currentSubscription.paymentStatus}
                   </p>
                 </div>

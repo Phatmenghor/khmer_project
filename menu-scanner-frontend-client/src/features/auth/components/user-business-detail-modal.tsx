@@ -92,7 +92,7 @@ export function UserBusinessDetailModal({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                  <span className="text-base font-semibold text-primary">
+                  <span className="text-xs font-semibold text-primary">
                     {userData.fullName?.charAt(0)?.toUpperCase() || "U"}
                   </span>
                 </div>

@@ -367,7 +367,7 @@ export function AttendanceDetailModal({
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-green-50 dark:bg-green-950 p-3 rounded border border-green-200 dark:border-green-800">
                 <p className="text-xs text-muted-foreground">Check-ins</p>
-                <p className="text-base font-bold text-green-700 dark:text-green-300">
+                <p className="text-xs font-bold text-green-700 dark:text-green-300">
                   {attendanceData.checkIns.length}
                 </p>
               </div>
@@ -375,7 +375,7 @@ export function AttendanceDetailModal({
               {distance !== null && (
                 <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded border border-blue-200 dark:border-blue-800">
                   <p className="text-xs text-muted-foreground">Distance</p>
-                  <p className="text-base font-bold text-blue-700 dark:text-blue-300">
+                  <p className="text-xs font-bold text-blue-700 dark:text-blue-300">
                     {distance.toFixed(2)} km
                   </p>
                 </div>

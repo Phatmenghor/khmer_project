@@ -19,7 +19,7 @@ export default function CtaSection() {
       </div>
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-5 text-center relative z-10">
         <FadeIn direction="up">
-          <h2 className="text-xs sm:text-base font-bold text-white leading-tight mb-4 drop-shadow-lg">
+          <h2 className="text-xs sm:text-sm font-bold text-white leading-tight mb-4 drop-shadow-lg">
             {cta.subtitle}
           </h2>
 

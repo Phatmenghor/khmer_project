@@ -562,7 +562,7 @@ export default function OrderDetailPage() {
 
               <div className="pt-2 border-t border-border/50 flex items-center justify-between">
                 <span className="font-semibold text-foreground">Total</span>
-                <span className="text-base font-bold text-primary">
+                <span className="text-sm font-bold text-primary">
                   {formatCurrency(order.pricing?.finalTotal || 0)}
                 </span>
               </div>

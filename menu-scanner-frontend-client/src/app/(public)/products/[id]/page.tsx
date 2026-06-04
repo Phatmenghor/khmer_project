@@ -782,13 +782,13 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Name */}
-            <h1 className="text-xs sm:text-base lg:text-xs font-bold leading-snug tracking-tight -mt-1">
+            <h1 className="text-xs sm:text-sm lg:text-xs font-bold leading-snug tracking-tight -mt-1">
               {product.name}
             </h1>
 
             {/* Price */}
             <div className="flex flex-wrap items-baseline gap-x-1 gap-y-1">
-              <span className="text-base sm:text-xs font-bold text-primary leading-none">
+              <span className="text-sm font-bold text-primary leading-none">
                 {formatCurrency(displayPrice)}
               </span>
               {originalPrice && (

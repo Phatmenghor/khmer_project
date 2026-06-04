@@ -84,11 +84,11 @@ export function Receipt({
           {/* Premium Header */}
           <div className="text-center border-b-4 border-gray-900 pb-3 mb-3">
             <div className="mb-1">
-              <div className="text-base font-bold text-gray-900">═════════════════════</div>
+              <div className="text-xs font-bold text-gray-900">═════════════════════</div>
             </div>
-            <h1 className="text-base font-bold text-gray-900 tracking-widest mb-1">RECEIPT</h1>
+            <h1 className="text-xs font-bold text-gray-900 tracking-widest mb-1">RECEIPT</h1>
             <p className="text-gray-600 text-xs">Professional Receipt Document</p>
-            <div className="text-base font-bold text-gray-900 mt-1">═════════════════════</div>
+            <div className="text-xs font-bold text-gray-900 mt-1">═════════════════════</div>
           </div>
 
           {/* Business & Order Info */}

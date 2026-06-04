@@ -25,7 +25,7 @@ export function DashboardHeader({ today, period, isLive, onPeriodChange, onRefre
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
         <div className="flex items-center gap-1">
-          <h1 className="text-base font-bold text-foreground">Dashboard</h1>
+          <h1 className="text-xs font-bold text-foreground">Dashboard</h1>
           <span
             className={cn(
               "inline-flex items-center gap-1 px-1 py-0.5 rounded-full text-xs font-medium border",

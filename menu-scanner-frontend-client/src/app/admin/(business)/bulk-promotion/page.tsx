@@ -689,7 +689,7 @@ export default function BulkPromotionPage() {
             <ArrowLeft className="h-3 w-3" />
           </Button>
           <div className="flex flex-col">
-            <h1 className="text-xs sm:text-base font-bold text-foreground">
+            <h1 className="text-xs sm:text-sm font-bold text-foreground">
               Create Bulk Promotion
             </h1>
             <p className="text-xs sm:text-xs text-muted-foreground mt-0.5">
@@ -888,7 +888,7 @@ export default function BulkPromotionPage() {
                   <div className="flex items-center gap-4 sm:gap-5">
                     {}
                     <div className="flex items-baseline gap-1">
-                      <p className="text-xs sm:text-base font-black text-primary">
+                      <p className="text-xs sm:text-sm font-black text-primary">
                         {selectedIds.length}
                       </p>
                       <p className="text-xs sm:text-xs font-semibold text-foreground/60">
@@ -901,7 +901,7 @@ export default function BulkPromotionPage() {
 
                     {}
                     <div className="flex items-baseline gap-1">
-                      <p className="text-xs sm:text-base font-black text-green-600">
+                      <p className="text-xs sm:text-sm font-black text-green-600">
                         {Object.values(selectedSizesFromRedux).reduce(
                           (sum, sizeArray) => sum + sizeArray.length,
                           0,

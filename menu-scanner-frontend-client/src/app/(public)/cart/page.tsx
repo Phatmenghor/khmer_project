@@ -321,7 +321,7 @@ function CartPage() {
                 <div className="bg-primary/10 rounded p-2 border border-primary/20">
                   <div className="flex justify-between items-center mb-1">
                     <span className="font-bold text-foreground">Total Amount</span>
-                    <span className="text-base font-bold text-primary">{formatCurrency(finalTotal)}</span>
+                    <span className="text-sm font-bold text-primary">{formatCurrency(finalTotal)}</span>
                   </div>
                 </div>
               </div>
@@ -343,7 +343,7 @@ function CartPage() {
           </div>
           <div className="text-right">
             <div className="text-xs text-muted-foreground">Total</div>
-            <div className="text-xs font-bold text-primary">{formatCurrency(finalTotal)}</div>
+            <div className="text-sm font-bold text-primary">{formatCurrency(finalTotal)}</div>
           </div>
         </div>
         <CustomButton className="w-full gap-1 h-8 rounded" onClick={handleCheckout} disabled={checkoutLoading}>

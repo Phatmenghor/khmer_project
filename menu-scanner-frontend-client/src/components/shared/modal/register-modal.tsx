@@ -190,7 +190,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
         {}
         <DialogHeader className="text-left">
           <div>
-            <DialogTitle className="text-base">{businessName}</DialogTitle>
+            <DialogTitle className="text-xs">{businessName}</DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
               Create a new account
             </p>

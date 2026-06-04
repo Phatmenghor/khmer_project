@@ -130,7 +130,7 @@ export default function SignupPage() {
                 Admin Panel
               </span>
             </div>
-            <h1 className="text-base font-bold text-foreground leading-tight">
+            <h1 className="text-xs font-bold text-foreground leading-tight">
               Create your account
             </h1>
             <p className="text-xs text-muted-foreground mt-1">

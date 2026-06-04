@@ -27,7 +27,7 @@ function PromotionsHero() {
             <Flame className="h-4 w-4 animate-bounce" />
           </div>
           <div>
-            <h1 className="text-base sm:text-xs font-bold tracking-tight">Hot Deals & Promotions</h1>
+            <h1 className="text-xs font-bold tracking-tight">Hot Deals & Promotions</h1>
             <div className="flex items-center gap-1 mt-1">
               <Zap className="h-2.5 w-2.5 text-yellow-300" />
               <span className="text-xs font-semibold text-white/90">Limited Time Offers</span>
