@@ -38,6 +38,6 @@ logging:
 # Telegram (Production)
 telegram:
   bot:
-    token: "${TELEGRAM_BOT_TOKEN}"
+    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
     enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID}"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
