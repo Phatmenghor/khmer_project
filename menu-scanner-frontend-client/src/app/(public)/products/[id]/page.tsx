@@ -20,6 +20,7 @@ import {
 import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import { ProductCard } from "@/components/shared/card/product-card";
+import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -90,6 +91,7 @@ export default function ProductDetailPage() {
   useScrollToTop();
 
   const [similarProducts, setSimilarProducts] = useState<ProductDetailResponseModel[]>([]);
+  const [similarLoading, setSimilarLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -167,10 +169,11 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (!product?.id || fetchedSimilarRef.current === product.id) return;
     fetchedSimilarRef.current = product.id;
+    setSimilarLoading(true);
     dispatch(
       fetchPublicProducts({
         pageNo: 1,
-        pageSize: 6,
+        pageSize: 7,
         categoryId: product.categoryId || undefined,
         statuses: ["ACTIVE"],
       }),
@@ -180,10 +183,11 @@ export default function ProductDetailPage() {
         setSimilarProducts(
           (res.content as ProductDetailResponseModel[])
             .filter((p) => p.id !== productId)
-            .slice(0, 4),
+            .slice(0, 6),
         );
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setSimilarLoading(false));
   }, [product?.id, product?.categoryId, productId, dispatch]);
 
   // ─── Image nav ────────────────────────────────────────────────────────────
@@ -885,18 +889,24 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Similar products */}
-        {similarProducts.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center gap-2 mb-5">
-              <h2 className="text-xl sm:text-2xl font-bold">You May Also Like</h2>
-              <span className="text-xs font-semibold bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                {similarProducts.length}
-              </span>
+        {(similarLoading || similarProducts.length > 0) && (
+          <div className="mb-10 sm:mb-12">
+            <div className="flex items-center gap-2 mb-4 sm:mb-5">
+              <h2 className="text-lg sm:text-xl font-bold">You May Also Like</h2>
+              {!similarLoading && (
+                <span className="text-xs font-semibold bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+                  {similarProducts.length}
+                </span>
+              )}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-              {similarProducts.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+              {similarLoading
+                ? Array.from({ length: 6 }).map((_, i) => (
+                    <ProductCardSkeleton key={`sim-skel-${i}`} />
+                  ))
+                : similarProducts.map((p) => (
+                    <ProductCard key={p.id} product={p} />
+                  ))}
             </div>
           </div>
         )}
@@ -992,47 +1002,53 @@ export default function ProductDetailPage() {
 
 function ProductDetailSkeleton() {
   return (
-    <PageContainer className="py-6">
-      <Skeleton className="h-9 w-20 mb-5 rounded-xl" />
-      <div className="grid grid-cols-1 lg:grid-cols-[9fr_11fr] gap-10">
-        <div className="space-y-3">
-          <div className="flex gap-2.5">
-            <div className="hidden lg:flex flex-col gap-1.5 w-[76px]">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="w-[76px] h-[76px] rounded-xl" />
-              ))}
-            </div>
-            <Skeleton className="flex-1 aspect-[4/3] lg:aspect-auto lg:h-[420px] rounded-2xl" />
-          </div>
-          <div className="flex lg:hidden gap-2">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="w-[68px] h-[68px] rounded-xl flex-shrink-0" />
-            ))}
-          </div>
-        </div>
-        <div className="space-y-5 pt-2">
-          <div className="flex gap-2">
-            <Skeleton className="h-6 w-24 rounded-full" />
-            <Skeleton className="h-6 w-16 rounded-full" />
-          </div>
-          <Skeleton className="h-9 w-4/5 rounded-lg" />
-          <Skeleton className="h-12 w-40 rounded-lg" />
-          <Skeleton className="h-16 w-full rounded-xl" />
-          <div className="flex gap-2">
+    <PageContainer className="py-3 sm:py-5 lg:py-6">
+      <Skeleton className="h-8 w-16 mb-4 rounded-lg" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[9fr_11fr] gap-5 md:gap-6 lg:gap-10 mb-10">
+        {/* Image gallery skeleton */}
+        <div className="flex gap-2">
+          {/* Thumb strip — always visible */}
+          <div className="flex flex-col gap-1 sm:gap-1.5 w-[52px] sm:w-[60px] lg:w-[64px] shrink-0">
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-[68px] w-[64px] rounded-xl" />
+              <Skeleton key={i} className="w-full h-[52px] sm:h-[60px] lg:h-[64px] rounded-lg" />
             ))}
           </div>
-          <Skeleton className="h-12 w-full rounded-xl" />
-          <div className="grid grid-cols-2 gap-3">
-            <Skeleton className="h-11 rounded-xl" />
-            <Skeleton className="h-11 rounded-xl" />
+          <Skeleton className="flex-1 aspect-square md:aspect-auto md:h-[300px] lg:h-[380px] rounded-xl" />
+        </div>
+        {/* Info skeleton */}
+        <div className="space-y-4 sm:space-y-5">
+          <div className="flex gap-2">
+            <Skeleton className="h-5 w-20 rounded-full" />
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+          <Skeleton className="h-7 w-4/5 rounded-lg" />
+          <Skeleton className="h-9 w-32 rounded-lg" />
+          <Skeleton className="h-14 w-full rounded-xl" />
+          <div className="flex gap-2">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-[60px] w-[60px] rounded-xl" />
+            ))}
+          </div>
+          <Skeleton className="h-11 w-full rounded-xl" />
+          <div className="grid grid-cols-2 gap-2.5">
+            <Skeleton className="h-10 rounded-xl" />
+            <Skeleton className="h-10 rounded-xl" />
           </div>
           <Skeleton className="h-px w-full" />
-          <div className="flex gap-3">
-            <Skeleton className="h-5 w-16 rounded" />
-            <Skeleton className="h-5 w-16 rounded" />
+          <div className="flex gap-4">
+            <Skeleton className="h-4 w-16 rounded" />
+            <Skeleton className="h-4 w-16 rounded" />
           </div>
+        </div>
+      </div>
+
+      {/* Similar products skeleton */}
+      <div className="mb-10">
+        <Skeleton className="h-7 w-40 mb-4 rounded-lg" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ProductCardSkeleton key={`detail-skel-${i}`} />
+          ))}
         </div>
       </div>
     </PageContainer>
