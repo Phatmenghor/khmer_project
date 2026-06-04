@@ -5,13 +5,12 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch } from "@/store";
 import { fetchOrderDetailsService } from "@/features/main/store/thunks/my-orders-thunks";
 import { Loading } from "@/components/shared/common/loading";
-import { OrderResponse, OrderItemResponse } from "@/features/main/store/models/response/order-response";
+import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { Badge } from "@/components/ui/badge";
-import { Package } from "lucide-react";
+import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
 import { cn } from "@/lib/utils";
 
 interface CustomerOrderDetailModalProps {
@@ -121,78 +120,6 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-/* ── item card (cart-item style, horizontal) ───────────────────────────── */
-
-function OrderItemCard({ item }: { item: OrderItemResponse }) {
-  const [imgError, setImgError] = useState(false);
-
-  return (
-    <div className="bg-card border border-border/60 rounded-xl p-4 hover:shadow-md transition-all duration-200">
-      <div className="flex gap-4">
-        {/* Image */}
-        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted border border-border/50 flex-shrink-0">
-          {item.product?.imageUrl && !imgError ? (
-            <img
-              src={item.product.imageUrl}
-              alt={item.product.name}
-              className="w-full h-full object-cover"
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted/60">
-              <Package className="h-7 w-7 text-muted-foreground/50" />
-            </div>
-          )}
-          {item.hasPromotion && (
-            <div className="absolute top-1 left-1 z-10">
-              <Badge variant="destructive" className="text-[9px] font-bold px-1.5 py-0.5 shadow-md">
-                {item.promotionType === "PERCENTAGE"
-                  ? `-${item.promotionValue}%`
-                  : `-${formatCurrency(item.promotionValue ?? 0)}`}
-              </Badge>
-            </div>
-          )}
-        </div>
-
-        {/* Details */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between">
-          <h4 className="font-semibold text-sm leading-tight text-foreground line-clamp-1 mb-2">
-            {item.product?.name || "Unknown Product"}
-          </h4>
-
-          {/* Size + customization pills */}
-          {(item.product?.sizeName || (item.customizations && item.customizations.length > 0)) && (
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {item.product?.sizeName && (
-                <span className="text-xs font-medium text-primary bg-primary/5 px-2.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
-                  {item.product.sizeName}
-                </span>
-              )}
-              {item.customizations?.map((c, ci) => (
-                <span key={ci} className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full border border-border whitespace-nowrap">
-                  {c.name}{c.priceAdjustment > 0 ? ` +${formatCurrency(c.priceAdjustment)}` : ""}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Price + qty/total */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-baseline gap-2">
-              <span className={cn("font-bold text-base", item.hasPromotion ? "text-red-500" : "text-foreground")}>
-                {formatCurrency(item.finalPrice)}
-              </span>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground">×{item.quantity}</p>
-              <p className="text-sm font-bold text-foreground">{formatCurrency(item.totalPrice)}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* ── body ───────────────────────────────────────────────────────────────── */
 
@@ -239,7 +166,31 @@ function OrderBody({ order }: { order: OrderResponse }) {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {order.items.map((item) => (
-              <OrderItemCard key={item.id} item={item} />
+              <CartItemCard
+                key={item.id}
+                id={item.id}
+                productId={item.product?.id ?? ""}
+                productName={item.product?.name || "Unknown Product"}
+                productImageUrl={item.product?.imageUrl ?? ""}
+                sizeName={item.product?.sizeName}
+                customizations={item.customizations?.map((c) => ({
+                  id: c.productCustomizationId,
+                  productCustomizationId: c.productCustomizationId,
+                  name: c.name,
+                  priceAdjustment: c.priceAdjustment,
+                }))}
+                currentPrice={item.finalPrice}
+                finalPrice={item.finalPrice}
+                quantity={item.quantity}
+                totalPrice={item.totalPrice}
+                hasPromotion={item.hasPromotion}
+                promotionType={item.promotionType}
+                promotionValue={item.promotionValue}
+                onQuantityChange={() => {}}
+                onRemove={() => {}}
+                showLink={false}
+                showControls={false}
+              />
             ))}
           </div>
         </div>
