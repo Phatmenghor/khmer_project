@@ -1107,7 +1107,7 @@ INSERT INTO order_items (
   product_name, product_image_url, size_name, sku, barcode,
   quantity, current_price, final_price, unit_price, total_price,
   has_promotion, promotion_type, promotion_value, promotion_from_date, promotion_to_date,
-  customization_total, customizations,
+  customization_total,
   version, is_deleted, created_at, updated_at, created_by, updated_by
 )
 -- Item 1
@@ -1118,7 +1118,7 @@ SELECT
   p1.price, p1.price, p1.price,
   p1.price * (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3),
   false, NULL, NULL::numeric, NULL::date, NULL::date,
-  0.00, '[]'::json,
+  0.00,
   0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
 JOIN prods p1 ON p1.idx = (EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) % 100
@@ -1130,7 +1130,7 @@ SELECT
   p2.name, p2.main_image_url, 'Standard', p2.sku, p2.barcode,
   1, p2.price, p2.price, p2.price, p2.price,
   false, NULL, NULL::numeric, NULL::date, NULL::date,
-  0.00, '[]'::json,
+  0.00,
   0, false, o.created_at, o.created_at, 'system', 'system'
 FROM orders o
 JOIN prods p2 ON p2.idx = ((EXTRACT(EPOCH FROM o.created_at)::bigint / 3600) + 50) % 100
