@@ -10,7 +10,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";
 import { CustomButton } from "@/components/shared/button/custom-button";
-import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
+import { OrderItemCard } from "@/components/shared/card/order-item-card";
 import { cn } from "@/lib/utils";
 
 interface CustomerOrderDetailModalProps {
@@ -166,31 +166,7 @@ function OrderBody({ order }: { order: OrderResponse }) {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {order.items.map((item) => (
-              <CartItemCard
-                key={item.id}
-                id={item.id}
-                productId={item.product?.id ?? ""}
-                productName={item.product?.name || "Unknown Product"}
-                productImageUrl={item.product?.imageUrl ?? ""}
-                sizeName={item.product?.sizeName}
-                customizations={item.customizations?.map((c) => ({
-                  id: c.productCustomizationId,
-                  productCustomizationId: c.productCustomizationId,
-                  name: c.name,
-                  priceAdjustment: c.priceAdjustment,
-                }))}
-                currentPrice={item.finalPrice}
-                finalPrice={item.finalPrice}
-                quantity={item.quantity}
-                totalPrice={item.totalPrice}
-                hasPromotion={item.hasPromotion}
-                promotionType={item.promotionType}
-                promotionValue={item.promotionValue}
-                onQuantityChange={() => {}}
-                onRemove={() => {}}
-                showLink={false}
-                showControls={false}
-              />
+              <OrderItemCard key={item.id} item={item} />
             ))}
           </div>
         </div>
