@@ -33,10 +33,8 @@ function SizeSelectorComponent({
       <div className="flex flex-wrap gap-2.5">
         {sizes.map((size) => {
           const isActive = selectedSize?.id === size.id;
-          const sizeDisplayQty = getDisplayQuantity(size.id);
-          const sizeCartQty = getQuantityForSize(size.id);
-          const isModified = modifiedSizes.has(size.id) && sizeDisplayQty !== sizeCartQty;
-          const badgeQty = getTotalQuantityForSize ? getTotalQuantityForSize(size.id) : sizeDisplayQty;
+          const isModified = modifiedSizes.has(size.id);
+          const badgeQty = getTotalQuantityForSize ? getTotalQuantityForSize(size.id) : getDisplayQuantity(size.id);
 
           return (
             <button

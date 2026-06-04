@@ -301,6 +301,25 @@ export default function ProductDetailPage() {
     [originalQuantities],
   );
 
+  // Total qty across ALL customization combos for a size — used for the size button badge
+  const getTotalQtyForSize = useCallback(
+    (sizeId: string): number => {
+      let total = 0;
+      originalQuantities.forEach((qty, key) => {
+        if (key === sizeId || key.startsWith(`${sizeId}-`)) total += qty;
+      });
+      // Swap in pending qty for the currently-editing combo of this size
+      if (pendingQuantities.has(sizeId)) {
+        const pendingQty = pendingQuantities.get(sizeId)!;
+        const customs = customizationsBySize.get(sizeId) ?? new Set<string>();
+        const originalComboQty = getComboQty(sizeId, customs);
+        total = total - originalComboQty + pendingQty;
+      }
+      return Math.max(0, total);
+    },
+    [originalQuantities, pendingQuantities, customizationsBySize, getComboQty],
+  );
+
   // Current display qty for selected size: pending first, then committed combo qty
   const currentSizedQty = selectedSize
     ? (pendingQuantities.has(selectedSize.id)
@@ -763,12 +782,9 @@ export default function ProductDetailPage() {
                   {product.sizes!.map((size) => {
                     const isSelected = selectedSize?.id === size.id;
                     const isModified = modifiedSizes.has(size.id);
-                    const pendingQty = pendingQuantities.get(size.id);
-                    // Use combo-aware qty for badge — exactly like modal's getDisplayQuantity
-                    const sizeComboCustoms = customizationsBySize.get(size.id) ?? new Set<string>();
-                    const committedQty = getComboQty(size.id, sizeComboCustoms);
-                    const displayQty = pendingQty !== undefined ? pendingQty : committedQty;
-                    const badgeAmber = isModified && displayQty !== committedQty;
+                    // Badge shows total qty across ALL customization combos for this size
+                    const totalQty = getTotalQtyForSize(size.id);
+                    const badgeAmber = isModified;
                     return (
                       <button
                         key={size.id}
@@ -786,12 +802,12 @@ export default function ProductDetailPage() {
                             <Check className="h-3 w-3 text-white" />
                           </div>
                         )}
-                        {displayQty > 0 && (
+                        {totalQty > 0 && (
                           <div className={cn(
                             "absolute -top-2 -left-2 min-w-[20px] h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1.5 shadow-sm z-10",
                             badgeAmber ? "bg-amber-500" : "bg-emerald-500",
                           )}>
-                            {displayQty}
+                            {totalQty}
                           </div>
                         )}
                         <div className="font-semibold text-xs">{size.name}</div>
