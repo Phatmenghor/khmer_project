@@ -156,19 +156,19 @@ export default function LoginPage() {
 
       {/* ── Right — form panel ── */}
       <div className="flex flex-1 items-center justify-center bg-muted/40 p-4">
-        <Card className="w-full max-w-lg shadow-2xl border border-border/60 rounded overflow-hidden">
+        <Card className="w-full max-w-sm shadow-2xl border border-border/60 rounded overflow-hidden">
 
           {/* Card header */}
-          <div className="bg-primary/5 border-b border-border/50 px-5 pt-5 pb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded bg-primary flex items-center justify-center shadow-sm">
+          <div className="bg-primary/5 border-b border-border/50 px-4 pt-4 pb-3">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-6 h-6 rounded bg-primary flex items-center justify-center shadow-sm">
                 <ShieldCheck className="h-3 w-3 text-primary-foreground" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-widest text-primary">
                 Admin Panel
               </span>
             </div>
-            <h1 className="text-base font-bold text-foreground leading-tight">
+            <h1 className="text-xs font-bold text-foreground leading-tight">
               Welcome back
             </h1>
             <p className="text-xs text-muted-foreground mt-1">
@@ -177,7 +177,7 @@ export default function LoginPage() {
           </div>
 
           {/* Card body */}
-          <CardContent className="px-5 py-5 space-y-3">
+          <CardContent className="px-4 py-4 space-y-3">
 
             {/* Credentials form */}
             <form onSubmit={form.handleSubmit(handleLoginSubmit)} className="space-y-3">
