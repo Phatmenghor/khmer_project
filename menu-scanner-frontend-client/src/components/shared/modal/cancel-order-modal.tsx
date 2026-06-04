@@ -105,14 +105,6 @@ export function CancelOrderModal({
           {}
           <FormBody>
             {}
-            <Alert className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/20">
-              <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
-              <AlertDescription className="text-red-700 dark:text-red-300">
-                This action cannot be undone. The order will be marked as cancelled and no longer processing.
-              </AlertDescription>
-            </Alert>
-
-            {}
             <div className="space-y-3 p-4 bg-muted rounded-lg border border-muted-foreground/20">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Order Number:</span>
@@ -145,9 +137,6 @@ export function CancelOrderModal({
                 rows={4}
                 error={errors.customerNote}
               />
-              <p className="text-xs text-muted-foreground">
-                This note will be recorded with the cancellation and may help us improve our service.
-              </p>
             </div>
           </FormBody>
 
