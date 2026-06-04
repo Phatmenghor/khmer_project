@@ -3,12 +3,10 @@
 import { Messages } from "@/constants/messages";
 import { useEffect, useCallback, useRef, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MapPin, Plus, CheckCircle2, Loader2 } from "lucide-react";
+import { MapPin, Plus, Loader2 } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
-import { useAppSelector } from "@/store";
-import { selectBusinessColors } from "@/features/business/store/selectors/business-settings-selector";
 import { PageHeader } from "@/components/shared/common/page-header";
 
 import { useLocationState } from "@/features/location/store/state/location-state";
@@ -30,9 +28,6 @@ export default function LocationPage() {
     remove,
     fetchAllWithPagination,
   } = useLocationState();
-
-  const colors = useAppSelector(selectBusinessColors);
-  const primaryColor = colors.primary;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] =
@@ -279,20 +274,6 @@ export default function LocationPage() {
         <div ref={sentinelRef} className="h-10 w-full mt-4" />
       )}
 
-      {}
-      {!locationPagination.hasMore && locations.length > 0 && (
-        <div className="flex flex-col items-center justify-center mt-12 py-8 px-4">
-          <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 mb-4">
-            <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-          </div>
-          <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">
-            All locations loaded!
-          </h3>
-          <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-md">
-            You've loaded all your saved locations. Add a new one to expand your coverage.
-          </p>
-        </div>
-      )}
       <LocationModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
