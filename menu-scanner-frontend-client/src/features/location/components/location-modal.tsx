@@ -545,6 +545,24 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     );
   }, [reverseGeocode]);
 
+  const handleGetCoordinates = useCallback(async () => {
+    const parts = [watch("houseNumber"), watch("streetNumber"), watch("village"), watch("commune"), watch("district"), watch("province")].filter(Boolean);
+    if (!parts.length) return;
+    setIsGeocodingAddress(true); setGeocodeSuccess(false);
+    try {
+      await loadGoogleMapsScript();
+      new google.maps.Geocoder().geocode({ address: parts.join(", ") }, (results: any, status: any) => {
+        setIsGeocodingAddress(false);
+        if (status === "OK" && results?.length) {
+          const loc = results[0].geometry.location;
+          const lat = loc.lat(); const lng = loc.lng();
+          setValue("latitude", lat, { shouldDirty: true }); setValue("longitude", lng, { shouldDirty: true });
+          setGeocodedCoords({ lat, lng }); setGeocodeSuccess(true);
+        } else { showToast.error(Messages.location.coordinatesFailed); }
+      });
+    } catch (err: unknown) { setIsGeocodingAddress(false); showToast.error((err as { message?: string })?.message ?? Messages.location.geocodeFailed); }
+  }, [watch, setValue]);
+
   const handleProvinceChange = useCallback((province: ProvinceResponseModel | null) => {
     if (!province) return;
     selectProvince(province); selectDistrict(null); selectCommune(null);
@@ -579,24 +597,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
     handleGetCoordinates();
   }, [setValue, handleGetCoordinates]);
-
-  const handleGetCoordinates = useCallback(async () => {
-    const parts = [watch("houseNumber"), watch("streetNumber"), watch("village"), watch("commune"), watch("district"), watch("province")].filter(Boolean);
-    if (!parts.length) return;
-    setIsGeocodingAddress(true); setGeocodeSuccess(false);
-    try {
-      await loadGoogleMapsScript();
-      new google.maps.Geocoder().geocode({ address: parts.join(", ") }, (results: any, status: any) => {
-        setIsGeocodingAddress(false);
-        if (status === "OK" && results?.length) {
-          const loc = results[0].geometry.location;
-          const lat = loc.lat(); const lng = loc.lng();
-          setValue("latitude", lat, { shouldDirty: true }); setValue("longitude", lng, { shouldDirty: true });
-          setGeocodedCoords({ lat, lng }); setGeocodeSuccess(true);
-        } else { showToast.error(Messages.location.coordinatesFailed); }
-      });
-    } catch (err: unknown) { setIsGeocodingAddress(false); showToast.error((err as { message?: string })?.message ?? Messages.location.geocodeFailed); }
-  }, [watch, setValue]);
 
   const onSubmit = async (data: LocationFormData) => {
     if (isSubmitting) return;
