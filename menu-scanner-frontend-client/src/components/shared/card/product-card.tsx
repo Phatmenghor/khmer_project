@@ -276,8 +276,17 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
         return { id: "", productCustomizationId: cid, name: c?.name ?? "", priceAdjustment: c?.priceAdjustment ?? 0 };
       });
 
-      // 1. Optimistic local state update immediately
-      if (isEditingProduct) {
+      // Per-combo check: does this exact size+customization combo already exist in cart?
+      const sortedIncoming = [...customizationIdList].sort();
+      const existingCombo = posCartItems.find((item) => {
+        if (item.productId !== selectedProduct.id || item.productSizeId !== sizeId) return false;
+        const itemCustomIds = (item.customizations || []).map((c) => c.productCustomizationId).sort();
+        if (itemCustomIds.length !== sortedIncoming.length) return false;
+        return sortedIncoming.every((id, idx) => id === itemCustomIds[idx]);
+      });
+
+      if (existingCombo) {
+        // Update (or remove when qty=0) the existing combo
         cartDispatch(
           updateLocalCartItem({
             productId: selectedProduct.id,
@@ -288,6 +297,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
           })
         );
       } else if (quantity > 0) {
+        // Brand-new combo — add as a separate cart item (same as POS behavior)
         cartDispatch(
           addLocalCartItem({
             productId: selectedProduct.id,
@@ -311,10 +321,10 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
 
       setSizePickerProduct(null);
 
-      // 2. API call in background via debounce (same system as +/- buttons)
+      // API call in background via debounce
       debouncedUpdate(key, selectedProduct.id, sizeId, quantity, timestamp, customizationIdList);
     },
-    [cartDispatch, isEditingProduct, debouncedUpdate]
+    [cartDispatch, posCartItems, debouncedUpdate]
   );
 
   const isOutOfStock = product.status === "OUT_OF_STOCK";
