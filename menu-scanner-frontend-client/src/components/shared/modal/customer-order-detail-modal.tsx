@@ -212,16 +212,17 @@ function OrderBody({ order }: { order: OrderResponse }) {
           {order.statusHistory && order.statusHistory.length > 0 && (
             <div className="col-span-2 pt-2 border-t border-border/50">
               <p className="text-xs text-muted-foreground mb-2">Status History</p>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-1">
+              <div className="space-y-1">
                 {order.statusHistory.map((h, idx) => (
-                  <div key={h.id} className="flex items-center justify-between py-1.5 border-b border-border/30 last:border-0">
+                  <div key={h.id} className="grid grid-cols-3 gap-4 py-1.5 border-b border-border/30 last:border-0 items-start">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground flex-shrink-0">
                         {idx + 1}
                       </span>
-                      <span className="text-sm text-foreground">{h.statusName}</span>
+                      <span className="text-sm font-medium text-foreground">{h.statusName}</span>
                     </div>
                     <span className="text-xs text-muted-foreground">{dateTimeFormat(h.changedAt)}</span>
+                    <span className="text-xs text-muted-foreground">{h.note || "---"}</span>
                   </div>
                 ))}
               </div>
