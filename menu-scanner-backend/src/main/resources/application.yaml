@@ -50,11 +50,11 @@ springdoc:
 # Telegram
 telegram:
   bot:
-    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
-    enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
+    token: "${TELEGRAM_BOT_TOKEN:}"
+    enabled: "${TELEGRAM_BOT_ENABLED:false}"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:}"
     webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
-    auto-setup: true
+    auto-setup: false
 
 # Application
 app:
@@ -74,8 +74,8 @@ app:
       enabled: true
   social:
     telegram:
-      bot-token: "8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU"
-      enabled: true
+      bot-token: "${TELEGRAM_BOT_TOKEN:}"
+      enabled: "${TELEGRAM_BOT_ENABLED:false}"
     google:
       client-id: "${GOOGLE_CLIENT_ID:}"
       client-secret: "${GOOGLE_CLIENT_SECRET:}"

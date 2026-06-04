@@ -39,6 +39,6 @@ logging:
 # Telegram (Local Development)
 telegram:
   bot:
-    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
-    enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
+    token: "${TELEGRAM_BOT_TOKEN:dummy-local-token}"
+    enabled: false
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:}"

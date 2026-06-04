@@ -30,13 +30,13 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
 
     private static final String SEND_MESSAGE_URL = "https://api.telegram.org/bot%s/sendMessage";
 
-    @Value("${telegram.bot.token}")
+    @Value("${telegram.bot.token:}")
     private String botToken;
 
     @Value("${telegram.bot.enabled:true}")
     private boolean enabled;
 
-    @Value("${telegram.bot.group-chat-id}")
+    @Value("${telegram.bot.group-chat-id:}")
     private String adminGroupChatId;
 
     private final BusinessSettingRepository businessSettingRepository;
