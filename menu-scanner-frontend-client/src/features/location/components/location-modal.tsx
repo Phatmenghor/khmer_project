@@ -504,7 +504,8 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     setValue("province", province.provinceEn, { shouldDirty: true });
     setValue("district", "", { shouldDirty: true }); setValue("commune", "", { shouldDirty: true });
     setValue("village", "", { shouldDirty: true }); setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
-  }, [selectProvince, selectDistrict, selectCommune, setValue]);
+    handleGetCoordinates();
+  }, [selectProvince, selectDistrict, selectCommune, setValue, handleGetCoordinates]);
 
   const handleDistrictChange = useCallback((district: DistrictResponseModel | null) => {
     if (!district) return;
@@ -513,24 +514,27 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     setValue("district", district.districtEn, { shouldDirty: true });
     setValue("commune", "", { shouldDirty: true }); setValue("village", "", { shouldDirty: true });
     setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
-  }, [selectDistrict, selectCommune, setValue]);
+    handleGetCoordinates();
+  }, [selectDistrict, selectCommune, setValue, handleGetCoordinates]);
 
   const handleCommuneChange = useCallback((commune: CommuneResponseModel | null) => {
     if (!commune) return;
     selectCommune(commune); setSelectedVillage(null); setGeocodeSuccess(false); setGeocodedCoords(null);
     setValue("commune", commune.communeEn, { shouldDirty: true });
     setValue("village", "", { shouldDirty: true }); setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
-  }, [selectCommune, setValue]);
+    handleGetCoordinates();
+  }, [selectCommune, setValue, handleGetCoordinates]);
 
   const handleVillageChange = useCallback((village: VillageResponseModel | null) => {
     setSelectedVillage(village); setGeocodeSuccess(false); setGeocodedCoords(null);
     setValue("village", village?.villageEn ?? "", { shouldDirty: true });
     setValue("latitude", 0, { shouldDirty: true }); setValue("longitude", 0, { shouldDirty: true });
-  }, [setValue]);
+    handleGetCoordinates();
+  }, [setValue, handleGetCoordinates]);
 
   const handleGetCoordinates = useCallback(async () => {
     const parts = [watch("houseNumber"), watch("streetNumber"), watch("village"), watch("commune"), watch("district"), watch("province")].filter(Boolean);
-    if (!parts.length) { showToast.error(Messages.location.selectAtLeastProvince); return; }
+    if (!parts.length) return;
     setIsGeocodingAddress(true); setGeocodeSuccess(false);
     try {
       await loadGoogleMapsScript();
@@ -541,7 +545,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
           const lat = loc.lat(); const lng = loc.lng();
           setValue("latitude", lat, { shouldDirty: true }); setValue("longitude", lng, { shouldDirty: true });
           setGeocodedCoords({ lat, lng }); setGeocodeSuccess(true);
-          showToast.success(Messages.location.coordinatesFound);
         } else { showToast.error(Messages.location.coordinatesFailed); }
       });
     } catch (err: unknown) { setIsGeocodingAddress(false); showToast.error((err as { message?: string })?.message ?? Messages.location.geocodeFailed); }
@@ -773,7 +776,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
                 onDistrictChange={handleDistrictChange}
                 onCommuneChange={handleCommuneChange}
                 onVillageChange={handleVillageChange}
-                onGetCoordinates={handleGetCoordinates}
               />
             )}
 
