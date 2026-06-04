@@ -459,25 +459,24 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[9fr_11fr] gap-5 md:gap-6 lg:gap-10 mb-10 sm:mb-12">
 
           {/* Left: image gallery */}
-          <div className="space-y-2.5">
-
-            {/* Desktop: thumb strip left + main image */}
+          <div>
+            {/* Thumb strip on left + main image — all screen sizes */}
             <div className="flex gap-2">
 
-              {/* Vertical thumb strip — desktop only */}
+              {/* Vertical thumb strip — all sizes, width scales with screen */}
               {allImages.length > 1 && (
-                <div className="hidden lg:flex flex-col items-center gap-1.5 w-[64px] shrink-0">
+                <div className="flex flex-col items-center gap-1 sm:gap-1.5 w-[52px] sm:w-[60px] lg:w-[64px] shrink-0">
                   <button
                     onClick={scrollThumbsUp}
                     disabled={!canScrollUp}
                     className={cn(
-                      "w-full h-6 rounded-lg flex items-center justify-center transition-colors",
+                      "w-full h-5 sm:h-6 rounded-md flex items-center justify-center transition-colors",
                       canScrollUp
                         ? "hover:bg-muted text-foreground cursor-pointer"
                         : "text-muted-foreground/20 cursor-default",
                     )}
                   >
-                    <ChevronUp className="h-4 w-4" />
+                    <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </button>
 
                   {visibleThumbs.map((img, i) => {
@@ -488,7 +487,7 @@ export default function ProductDetailPage() {
                         key={idx}
                         onClick={() => selectImage(img.imageUrl, idx)}
                         className={cn(
-                          "relative w-[64px] h-[64px] rounded-lg overflow-hidden shrink-0 transition-all duration-200",
+                          "relative w-[52px] h-[52px] sm:w-[60px] sm:h-[60px] lg:w-[64px] lg:h-[64px] rounded-lg overflow-hidden shrink-0 transition-all duration-200",
                           isActive
                             ? "ring-2 ring-primary ring-offset-1 shadow-md scale-[1.03]"
                             : "ring-1 ring-border/60 opacity-55 hover:opacity-90 hover:ring-primary/40",
@@ -515,13 +514,13 @@ export default function ProductDetailPage() {
                     onClick={scrollThumbsDown}
                     disabled={!canScrollDown}
                     className={cn(
-                      "w-full h-6 rounded-lg flex items-center justify-center transition-colors",
+                      "w-full h-5 sm:h-6 rounded-md flex items-center justify-center transition-colors",
                       canScrollDown
                         ? "hover:bg-muted text-foreground cursor-pointer"
                         : "text-muted-foreground/20 cursor-default",
                     )}
                   >
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </button>
                 </div>
               )}
@@ -539,7 +538,7 @@ export default function ProductDetailPage() {
                   src={selectedImage || appImages.NoImage}
                   alt={product.name}
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 50vw"
+                  sizes="(max-width: 640px) 85vw, (max-width: 1024px) 45vw, 40vw"
                   className={cn(
                     "object-cover transition-opacity duration-300",
                     imageLoaded ? "opacity-100" : "opacity-0",
@@ -588,41 +587,6 @@ export default function ProductDetailPage() {
                 )}
               </div>
             </div>
-
-            {/* Mobile/tablet: horizontal thumb strip (hidden on lg where vertical strip shows) */}
-            {allImages.length > 1 && (
-              <div className="flex lg:hidden gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-hide">
-                {allImages.map((img, i) => {
-                  const isActive = i === currentImageIndex;
-                  return (
-                    <button
-                      key={`mob-${i}`}
-                      onClick={() => selectImage(img.imageUrl, i)}
-                      className={cn(
-                        "relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden transition-all duration-200",
-                        isActive
-                          ? "ring-2 ring-primary ring-offset-1 shadow-md scale-[1.05]"
-                          : "ring-1 ring-border/60 opacity-55 hover:opacity-90 hover:ring-primary/40",
-                      )}
-                    >
-                      <Image
-                        src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)}
-                        alt={`View ${i + 1}`}
-                        fill
-                        sizes="64px"
-                        className="object-cover"
-                      />
-                      {!isActive && (
-                        <div className="absolute inset-0 bg-black/15 transition-opacity duration-200" />
-                      )}
-                      {isActive && (
-                        <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-primary" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
           </div>
 
           {/* Right: product info */}
