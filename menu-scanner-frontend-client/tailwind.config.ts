@@ -1,9 +1,84 @@
 import type { Config } from "tailwindcss";
 
+// Every rem-based Tailwind default is pre-multiplied by 0.7 so that the visual
+// appearance at html { font-size: 100% } matches what the UI looked like when
+// html { font-size: 70% } was in effect.  Pixel values are left untouched because
+// they are already absolute and therefore unaffected by the root font-size.
+
+const SCALE = 0.7;
+const r = (rem: number) => `${+(rem * SCALE).toFixed(6).replace(/\.?0+$/, "")}rem`;
+
 const config: Config = {
   darkMode: ["class"],
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
+    // ── Font-size scale (replaces Tailwind defaults) ────────────────────────
+    // All values are the standard Tailwind rem values × 0.7.
+    fontSize: {
+      xs:   [r(0.75),  { lineHeight: r(1.0)  }],
+      sm:   [r(0.875), { lineHeight: r(1.25) }],
+      base: [r(1.0),   { lineHeight: r(1.5)  }],
+      lg:   [r(1.125), { lineHeight: r(1.75) }],
+      xl:   [r(1.25),  { lineHeight: r(1.75) }],
+      "2xl":[r(1.5),   { lineHeight: r(2.0)  }],
+      "3xl":[r(1.875), { lineHeight: r(2.25) }],
+      "4xl":[r(2.25),  { lineHeight: r(2.5)  }],
+      "5xl":[r(3.0),   { lineHeight: "1"     }],
+      "6xl":[r(3.75),  { lineHeight: "1"     }],
+      "7xl":[r(4.5),   { lineHeight: "1"     }],
+      "8xl":[r(6.0),   { lineHeight: "1"     }],
+      "9xl":[r(8.0),   { lineHeight: "1"     }],
+    },
+
+    // ── Spacing scale (replaces Tailwind defaults) ──────────────────────────
+    // Controls: padding, margin, gap, width, height, translate, inset, etc.
+    // Numeric rem values × 0.7; pixel values left unchanged.
+    spacing: {
+      px:   "1px",
+      0:    "0px",
+      0.5:  r(0.125),
+      1:    r(0.25),
+      1.5:  r(0.375),
+      2:    r(0.5),
+      2.5:  r(0.625),
+      3:    r(0.75),
+      3.5:  r(0.875),
+      4:    r(1.0),
+      5:    r(1.25),
+      6:    r(1.5),
+      7:    r(1.75),
+      8:    r(2.0),
+      9:    r(2.25),
+      10:   r(2.5),
+      11:   r(2.75),
+      12:   r(3.0),
+      14:   r(3.5),
+      16:   r(4.0),
+      20:   r(5.0),
+      24:   r(6.0),
+      28:   r(7.0),
+      32:   r(8.0),
+      36:   r(9.0),
+      40:   r(10.0),
+      44:   r(11.0),
+      48:   r(12.0),
+      52:   r(13.0),
+      56:   r(14.0),
+      60:   r(15.0),
+      64:   r(16.0),
+      72:   r(18.0),
+      80:   r(20.0),
+      96:   r(24.0),
+      // Named semantic tokens (keep for any component using p-xs / gap-md etc.)
+      xs:   r(0.25),
+      sm:   r(0.5),
+      md:   r(1.0),
+      lg:   r(1.5),
+      xl:   r(2.0),
+      "2xl":r(3.0),
+      "3xl":r(4.0),
+    },
+
     extend: {
       colors: {
         brand: {
@@ -12,8 +87,8 @@ const config: Config = {
           200: "#BDD5AA",
           300: "#93BA78",
           400: "#6B9D4F",
-          500: "#57823D", // main
-          600: "#476B32", // darker
+          500: "#57823D",
+          600: "#476B32",
           700: "#3C5A2A",
           800: "#304922",
           900: "#25381A",
@@ -44,7 +119,7 @@ const config: Config = {
             200: "#FDE68A",
             300: "#FCD34D",
             400: "#FBBF24",
-            500: "#D09F2E", // main warning
+            500: "#D09F2E",
             600: "#D97706",
             700: "#B45309",
             800: "#92400E",
@@ -57,7 +132,7 @@ const config: Config = {
             200: "#BFDBFE",
             300: "#93C5FD",
             400: "#60A5FA",
-            500: "#2E74D0", // main info
+            500: "#2E74D0",
             600: "#2563EB",
             700: "#1D4ED8",
             800: "#1E40AF",
@@ -70,7 +145,7 @@ const config: Config = {
             200: "#BBF7D0",
             300: "#86EFAC",
             400: "#4ADE80",
-            500: "#2ED041", // main success
+            500: "#2ED041",
             600: "#16A34A",
             700: "#15803D",
             800: "#166534",
@@ -79,7 +154,6 @@ const config: Config = {
           },
         },
 
-        //  neutral colors
         neutral: {
           50: "#FAFAFA",
           100: "#F5F5F5",
@@ -101,7 +175,6 @@ const config: Config = {
           "light-3": "#FFFFFF",
         },
 
-        // Enhanced gray scale
         gray: {
           50: "hsl(var(--gray-50))",
           100: "hsl(var(--gray-100))",
@@ -115,7 +188,6 @@ const config: Config = {
           900: "hsl(var(--gray-900))",
         },
 
-        // Enhanced primary scale
         primary: {
           50: "hsl(var(--primary-50))",
           100: "hsl(var(--primary-100))",
@@ -132,7 +204,6 @@ const config: Config = {
           foreground: "hsl(var(--primary-foreground))",
         },
 
-        // Enhanced semantic colors
         success: {
           50: "hsl(var(--success-50))",
           100: "hsl(var(--success-100))",
@@ -166,14 +237,12 @@ const config: Config = {
           foreground: "hsl(var(--info-foreground))",
         },
 
-        // Surface colors for layering
         surface: {
           1: "hsl(var(--surface-1))",
           2: "hsl(var(--surface-2))",
           3: "hsl(var(--surface-3))",
         },
 
-        // Standard shadcn colors
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -221,75 +290,84 @@ const config: Config = {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+
+      // ── Border radius ──────────────────────────────────────────────────────
+      // lg/md/sm use CSS vars (--radius = 0.35rem) so they scale automatically.
+      // DEFAULT/xl/2xl/3xl are set to 0.7× of Tailwind defaults.
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        none:  "0",
+        sm:    "calc(var(--radius) - 4px)",   // ≈ 1.6 px
+        DEFAULT: r(0.25),                     // ≈ 2.8 px  (rounded)
+        md:    "calc(var(--radius) - 2px)",   // ≈ 3.6 px
+        lg:    "var(--radius)",               // = 5.6 px  (--radius = 0.35rem)
+        xl:    r(0.75),                       // ≈ 8.4 px
+        "2xl": r(1.0),                        // ≈ 11.2 px
+        "3xl": r(1.5),                        // ≈ 16.8 px
+        full:  "9999px",
       },
+
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "monospace"],
       },
-      fontSize: {
-        xs: "var(--font-size-xs)",
-        sm: "var(--font-size-sm)",
-        base: "var(--font-size-base)",
-        lg: "var(--font-size-lg)",
-        xl: "var(--font-size-xl)",
-        "2xl": "var(--font-size-2xl)",
-        "3xl": "var(--font-size-3xl)",
-        "4xl": "var(--font-size-4xl)",
-      },
-      spacing: {
-        xs: "var(--spacing-xs)",
-        sm: "var(--spacing-sm)",
-        md: "var(--spacing-md)",
-        lg: "var(--spacing-lg)",
-        xl: "var(--spacing-xl)",
-        "2xl": "var(--spacing-2xl)",
-        "3xl": "var(--spacing-3xl)",
-      },
+
       boxShadow: {
-        sm: "var(--shadow-sm)",
+        sm:      "var(--shadow-sm)",
         DEFAULT: "var(--shadow)",
-        md: "var(--shadow-md)",
-        lg: "var(--shadow-lg)",
-        xl: "var(--shadow-xl)",
-        soft: "0 2px 8px -2px rgba(0, 0, 0, 0.08), 0 4px 16px -6px rgba(0, 0, 0, 0.05)",
+        md:      "var(--shadow-md)",
+        lg:      "var(--shadow-lg)",
+        xl:      "var(--shadow-xl)",
+        soft:    "0 2px 8px -2px rgba(0,0,0,0.08), 0 4px 16px -6px rgba(0,0,0,0.05)",
         colored: "0 4px 12px -2px hsl(var(--primary) / 0.15)",
       },
+
       transitionDuration: {
-        fast: "var(--transition-fast)",
+        fast:   "var(--transition-fast)",
         normal: "var(--transition-normal)",
-        slow: "var(--transition-slow)",
+        slow:   "var(--transition-slow)",
       },
+
+      // ── Max-width ──────────────────────────────────────────────────────────
+      // Standard Tailwind rem values × 0.7; custom px breakpoints unchanged.
       maxWidth: {
+        xs:    r(20),   // 14 rem  ≈ 224 px
+        sm:    r(24),   // 16.8 rem ≈ 268.8 px
+        md:    r(28),   // 19.6 rem ≈ 313.6 px
+        lg:    r(32),   // 22.4 rem ≈ 358.4 px
+        xl:    r(36),   // 25.2 rem ≈ 403.2 px
+        "2xl": r(42),   // 29.4 rem ≈ 470.4 px
+        "3xl": r(48),   // 33.6 rem ≈ 537.6 px
+        "4xl": r(56),   // 39.2 rem ≈ 627.2 px
+        "5xl": r(64),   // 44.8 rem ≈ 716.8 px
+        "6xl": r(72),   // 50.4 rem ≈ 806.4 px
         "7xl": "1140px",
         "8xl": "1340px",
         "9xl": "1600px",
       },
+
       animation: {
-        "fade-in": "fadeIn 0.5s ease-in-out",
-        "slide-up": "slideUp 0.3s ease-out",
+        "fade-in":    "fadeIn 0.5s ease-in-out",
+        "slide-up":   "slideUp 0.3s ease-out",
         "slide-down": "slideDown 0.3s ease-out",
-        "scale-in": "scaleIn 0.2s ease-out",
+        "scale-in":   "scaleIn 0.2s ease-out",
       },
+
       keyframes: {
         fadeIn: {
-          "0%": { opacity: "0" },
+          "0%":   { opacity: "0" },
           "100%": { opacity: "1" },
         },
         slideUp: {
-          "0%": { transform: "translateY(10px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+          "0%":   { transform: "translateY(10px)", opacity: "0" },
+          "100%": { transform: "translateY(0)",    opacity: "1" },
         },
         slideDown: {
-          "0%": { transform: "translateY(-10px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+          "0%":   { transform: "translateY(-10px)", opacity: "0" },
+          "100%": { transform: "translateY(0)",     opacity: "1" },
         },
         scaleIn: {
-          "0%": { transform: "scale(0.95)", opacity: "0" },
-          "100%": { transform: "scale(1)", opacity: "1" },
+          "0%":   { transform: "scale(0.95)", opacity: "0" },
+          "100%": { transform: "scale(1)",    opacity: "1" },
         },
       },
     },

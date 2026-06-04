@@ -537,23 +537,25 @@
 
 .grid-header {
   display: grid;
-  gap: 1rem;
+  gap: 0.7rem;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.6125rem;
   grid-template-columns: repeat(var(--cols), minmax(200px, 1fr));
 }
 
 .grid-row {
   display: grid;
-  gap: 1rem;
+  gap: 0.7rem;
   align-items: center;
   grid-template-columns: repeat(var(--cols), minmax(200px, 1fr));
 }
 
 @layer base {
-  /* 35% smaller = 65% of original size (more compact display) */
+  /* Root font-size 100% (16px). All rem-based Tailwind utilities and CSS custom
+     properties below are pre-scaled to 0.7× so the visual appearance is identical
+     to the previous html { font-size: 70% } setup. */
   html {
-    font-size: 70%;
+    font-size: 100%;
   }
 
   :root {
@@ -634,9 +636,10 @@
     --chart-4: 146 79% 41%;
     --chart-5: 2 85% 55%;
 
-    --radius: 0.5rem;
-    --card-radius: 0.75rem;
-    --button-radius: 0.5rem;
+    /* Radii scaled to 0.7× so rounded-lg/md/sm visually match the 70%-font-size era */
+    --radius: 0.35rem;
+    --card-radius: 0.525rem;
+    --button-radius: 0.35rem;
 
     /* Sidebar colors - sidebar-primary uses primary color (will be set dynamically) */
     --sidebar-background: 0 0% 98%;
@@ -1078,7 +1081,7 @@ gmp-placeautocomplete {
   --gmpx-color-on-surface-variant: hsl(var(--muted-foreground));
   --gmpx-color-primary: hsl(var(--primary));
   --gmpx-font-family-base: inherit;
-  --gmpx-font-size-base: 0.875rem;
+  --gmpx-font-size-base: 0.6125rem;
   display: block;
   width: 100%;
 }
