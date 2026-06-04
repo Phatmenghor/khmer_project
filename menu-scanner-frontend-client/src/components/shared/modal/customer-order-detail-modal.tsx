@@ -52,7 +52,7 @@ export function CustomerOrderDetailModal({ orderId, isOpen, onClose }: CustomerO
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTitle className="sr-only">Order Details</DialogTitle>
-      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-6xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b flex-shrink-0">
           <h2 className="text-base font-semibold text-foreground">Order Details</h2>
@@ -251,7 +251,7 @@ function OrderBody({ order }: { order: OrderResponse }) {
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
             Items · {order.items.length}
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {order.items.map((item) => (
               <OrderItemCard key={item.id} item={item} />
             ))}
