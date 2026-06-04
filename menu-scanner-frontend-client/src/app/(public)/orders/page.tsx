@@ -238,8 +238,8 @@ export default function OrdersPage() {
       />
 
       <div className="mt-8 mb-6 space-y-4">
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end w-full">
-          <div className="flex-1 min-w-0 w-full sm:w-auto sm:max-w-xs">
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end justify-between w-full">
+          <div className="min-w-0 w-full sm:w-auto sm:max-w-xs">
             <label className="text-sm font-semibold text-foreground mb-2 block">
               Search Orders
             </label>
