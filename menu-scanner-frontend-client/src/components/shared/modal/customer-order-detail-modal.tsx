@@ -142,7 +142,7 @@ function OrderBody({ order }: { order: OrderResponse }) {
 
       {/* ── Overview ── */}
       <Section title="Order Info">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <Field label="Order Number" value={<span className="font-mono">{order.orderNumber}</span>} />
           <Field label="Date" value={dateTimeFormat(order.createdAt)} />
           <Field label="Order Status" value={<span className={cn("font-medium", statusColor(order.orderStatus))}>{getOrderStatusLabel(order.orderStatus)}</span>} />
