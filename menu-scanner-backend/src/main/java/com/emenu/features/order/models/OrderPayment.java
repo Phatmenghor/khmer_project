@@ -2,7 +2,6 @@ package com.emenu.features.order.models;
 
 import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.payment.PaymentStatus;
-import com.emenu.enums.payment.PaymentStatusConverter;
 import com.emenu.features.auth.models.Business;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
@@ -62,7 +61,7 @@ public class OrderPayment extends BaseUUIDEntity {
     @Column(name = "payment_method", nullable = false)
     private PaymentMethod paymentMethod;
 
-    @Convert(converter = PaymentStatusConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private PaymentStatus status = PaymentStatus.PAID;
 
