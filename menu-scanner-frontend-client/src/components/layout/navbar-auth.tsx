@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { useRouter } from "next/navigation";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
@@ -54,6 +54,11 @@ function NavbarAuthComponent({
           label: "My Profile",
           icon: <User className="h-4 w-4" />,
           onClick: () => router.push("/profile"),
+        },
+        {
+          label: "Location",
+          icon: <MapPin className="h-4 w-4" />,
+          onClick: () => router.push("/location"),
         },
       ],
     },
