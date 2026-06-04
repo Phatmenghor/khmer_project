@@ -348,7 +348,7 @@ export default function CheckoutPage() {
           <div className="w-11 h-11 rounded bg-primary/10 flex items-center justify-center mx-auto mb-3">
             <AlertCircle className="h-5 w-5 text-primary" />
           </div>
-          <h1 className="text-base font-bold mb-1.5">Cart is Empty</h1>
+          <h1 className="text-base font-bold mb-1">Cart is Empty</h1>
           <p className="text-muted-foreground mb-4">
             Add items to your cart before checking out.
           </p>
@@ -381,7 +381,7 @@ export default function CheckoutPage() {
           <div className="bg-card border border-border rounded p-4 sm:p-5 space-y-4">
             {}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <label className="text-xs font-semibold text-foreground flex items-center gap-1">
                 <MapPin className="h-3 w-3 text-primary" />
                 Delivery Address
                 <span className="text-red-500">*</span>
@@ -411,7 +411,7 @@ export default function CheckoutPage() {
               <h4 className="text-xs font-semibold text-foreground">Contact Information</h4>
               <div className="grid sm:grid-cols-2 gap-3">
                 {}
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <label className="text-xs font-semibold text-foreground">
                     Full Name <span className="text-red-500">*</span>
                   </label>
@@ -425,12 +425,12 @@ export default function CheckoutPage() {
                       }))
                     }
                     placeholder="Your full name"
-                    className="w-full px-2 py-1.5 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
+                    className="w-full px-2 py-1 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
                   />
                 </div>
 
                 {}
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <label className="text-xs font-semibold text-foreground">
                     Phone Number <span className="text-red-500">*</span>
                   </label>
@@ -444,7 +444,7 @@ export default function CheckoutPage() {
                       }))
                     }
                     placeholder="Your phone number"
-                    className="w-full px-2 py-1.5 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
+                    className="w-full px-2 py-1 rounded border border-border bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 text-xs"
                   />
                 </div>
               </div>
@@ -452,7 +452,7 @@ export default function CheckoutPage() {
 
             {}
             <div className="space-y-2 pt-3 border-t border-border/50">
-              <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <label className="text-xs font-semibold text-foreground flex items-center gap-1">
                 <MessageSquare className="h-3 w-3 text-primary" />
                 Special Instructions
               </label>
@@ -484,7 +484,7 @@ export default function CheckoutPage() {
           {}
           <div className="bg-card border border-border rounded p-4 sm:p-5">
             <div className="mb-4">
-              <h3 className="font-semibold text-foreground mb-1.5">Order Items</h3>
+              <h3 className="font-semibold text-foreground mb-1">Order Items</h3>
               <p className="text-xs text-muted-foreground">
                 {items.length} {items.length === 1 ? "item" : "items"} • {totalQuantity} total quantity
               </p>
@@ -528,7 +528,7 @@ export default function CheckoutPage() {
               <h2 className="text-xs font-bold text-foreground mb-4">Order Summary</h2>
 
               <div className="grid sm:grid-cols-2 gap-3 mb-4">
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <label className="text-xs font-semibold text-foreground">
                     Delivery Option <span className="text-red-500">*</span>
                   </label>
@@ -549,7 +549,7 @@ export default function CheckoutPage() {
                     statuses={["ACTIVE"]}
                   />
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <label className="text-xs font-semibold text-foreground">
                     Payment Method <span className="text-red-500">*</span>
                   </label>
@@ -589,7 +589,7 @@ export default function CheckoutPage() {
                 )}
 
                 {}
-                <div className="flex justify-between text-xs pt-1.5.5 border-t border-border/50">
+                <div className="flex justify-between text-xs pt-1 border-t border-border/50">
                   <span className="text-muted-foreground font-medium">Delivery Fee</span>
                   <span className="font-semibold text-primary">
                     {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
@@ -600,7 +600,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground font-medium flex items-center gap-1">
                     Tax
-                    <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-medium">0%</span>
+                    <span className="text-[10px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
                   </span>
                   <span className="font-semibold text-foreground">{formatCurrency(taxAmount)}</span>
                 </div>
@@ -614,7 +614,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {discountAmount > 0 && (
-                  <p className="text-xs text-red-600 dark:text-red-400 text-center font-semibold bg-red-50/50 dark:bg-red-950/30 p-1.5 rounded">
+                  <p className="text-xs text-red-600 dark:text-red-400 text-center font-semibold bg-red-50/50 dark:bg-red-950/30 p-1 rounded">
                     You save {formatCurrency(discountAmount)}
                   </p>
                 )}
@@ -638,18 +638,18 @@ export default function CheckoutPage() {
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
               className={cn(
-                "w-full gap-1.5 h-8 rounded font-bold text-xs shadow-lg hover:shadow-xl transition-all duration-200 mx-0",
+                "w-full gap-1 h-8 rounded font-bold text-xs shadow-lg hover:shadow-xl transition-all duration-200 mx-0",
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >
               {checkoutState.isProcessing ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="h-3 w-3 animate-spin" />
                   Processing Order
                 </>
               ) : (
                 <>
-                  <Check className="h-3.5 w-3.5" />
+                  <Check className="h-3 w-3" />
                   Place Order
                 </>
               )}
@@ -663,10 +663,10 @@ export default function CheckoutPage() {
           {}
           <div className="hidden lg:block bg-card border border-border rounded p-4 sm:p-5 sticky top-16 space-y-4">
             <div>
-              <h2 className="text-xs font-semibold text-foreground mb-3.5">Order Summary</h2>
+              <h2 className="text-xs font-semibold text-foreground mb-3">Order Summary</h2>
 
-              <div className="grid grid-cols-2 gap-2 mb-3.5">
-                <div className="space-y-1.5">
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <div className="space-y-1">
                   <label className="text-xs font-semibold text-foreground">
                     Delivery Option <span className="text-red-500">*</span>
                   </label>
@@ -687,7 +687,7 @@ export default function CheckoutPage() {
                     statuses={["ACTIVE"]}
                   />
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                   <label className="text-xs font-semibold text-foreground">
                     Payment Method <span className="text-red-500">*</span>
                   </label>
@@ -727,7 +727,7 @@ export default function CheckoutPage() {
                 )}
 
                 {}
-                <div className="flex justify-between text-xs pt-1.5.5 border-t border-border/50">
+                <div className="flex justify-between text-xs pt-1 border-t border-border/50">
                   <span className="text-muted-foreground">Delivery Fee</span>
                   <span className="font-medium text-primary">
                     {deliveryFee > 0 ? `+${formatCurrency(deliveryFee)}` : "Free"}
@@ -738,7 +738,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground flex items-center gap-1">
                     Tax
-                    <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-medium">0%</span>
+                    <span className="text-[10px] bg-muted px-1 py-0.5 rounded font-medium">0%</span>
                   </span>
                   <span className="font-medium text-foreground">{formatCurrency(taxAmount)}</span>
                 </div>
@@ -776,7 +776,7 @@ export default function CheckoutPage() {
               onClick={handleCheckout}
               disabled={!canCheckout || checkoutState.isProcessing}
               className={cn(
-                "w-full gap-1.5 h-8 rounded font-semibold text-xs",
+                "w-full gap-1 h-8 rounded font-semibold text-xs",
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >

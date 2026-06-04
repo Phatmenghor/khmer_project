@@ -25,7 +25,7 @@ function QuantityControlComponent({
   return (
     <div className="mb-3 p-2.5 bg-muted/30 rounded border">
       <h4 className="font-semibold mb-2 text-xs text-foreground">Quantity</h4>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         <CustomButton
           size="icon"
           variant="outline"

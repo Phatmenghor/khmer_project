@@ -172,7 +172,7 @@ export default function AdminSessionsPage() {
             disabled={isAdminLoading}
           >
             <RefreshCw
-              className={`h-3 w-3 mr-1.5 ${isAdminLoading ? "animate-spin" : ""}`}
+              className={`h-3 w-3 mr-1 ${isAdminLoading ? "animate-spin" : ""}`}
             />
             Refresh
           </Button>
@@ -276,7 +276,7 @@ export default function AdminSessionsPage() {
                     onClick={() => handleViewSession(session)}
                   >
                     <TableCell>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
                           <User className="h-3 w-3 text-primary" />
                         </div>
@@ -291,7 +291,7 @@ export default function AdminSessionsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         {getDeviceIcon(session.deviceType)}
                         <div>
                           <p className="text-xs">{session.deviceDisplayName}</p>
@@ -359,13 +359,13 @@ export default function AdminSessionsPage() {
 
         {}
         {adminSessions && adminSessions.totalPages > 1 && (
-          <div className="flex items-center justify-between mt-3 gap-1.5 flex-wrap">
+          <div className="flex items-center justify-between mt-3 gap-1 flex-wrap">
             <p className="text-xs sm:text-xs text-muted-foreground hidden sm:block">
               Showing {(currentPage - 1) * (filters.pageSize ?? 15) + 1} to{" "}
               {Math.min(currentPage * (filters.pageSize ?? 15), totalElements)} of{" "}
               {totalElements} sessions
             </p>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <Button
                 variant="outline"
                 size="sm"

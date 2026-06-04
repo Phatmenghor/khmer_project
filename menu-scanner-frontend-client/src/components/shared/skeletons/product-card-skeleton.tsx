@@ -28,7 +28,7 @@ export const ProductCardSkeleton = ({ compact = false }: { compact?: boolean }) 
           </div>
 
           {}
-          <div className="h-3.5 w-full bg-muted/50 rounded animate-pulse" />
+          <div className="h-3 w-full bg-muted/50 rounded animate-pulse" />
         </div>
       </div>
     );
@@ -40,24 +40,24 @@ export const ProductCardSkeleton = ({ compact = false }: { compact?: boolean }) 
       <div className="relative aspect-square w-full bg-muted/30 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
         {}
-        <div className="absolute top-1.5 left-1.5">
-          <div className="h-3.5 w-8 bg-muted/50 rounded animate-pulse" />
+        <div className="absolute top-1 left-1">
+          <div className="h-3 w-8 bg-muted/50 rounded animate-pulse" />
         </div>
-        <div className="absolute top-1.5 right-1.5">
-          <div className="h-3.5 w-10 bg-muted/50 rounded animate-pulse" />
+        <div className="absolute top-1 right-1">
+          <div className="h-3 w-10 bg-muted/50 rounded animate-pulse" />
         </div>
       </div>
 
       {}
       <div className="p-2 space-y-2">
         {}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <div className="h-3 w-full bg-muted/50 rounded animate-pulse" />
           <div className="h-3 w-3/4 bg-muted/50 rounded animate-pulse" />
         </div>
 
         {}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <div className="h-4 w-16 bg-muted/50 rounded animate-pulse" />
           <div className="h-2 w-14 bg-muted/50 rounded animate-pulse" />
         </div>

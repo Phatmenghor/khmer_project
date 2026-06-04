@@ -29,7 +29,7 @@ export function PageSizeSelectField({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`flex items-center gap-1.5 ${className}`}>
+    <div className={`flex items-center gap-1 ${className}`}>
       {label && (
         <span className="text-xs sm:text-xs text-muted-foreground font-semibold whitespace-nowrap">
           {label}
@@ -41,7 +41,7 @@ export function PageSizeSelectField({
             variant="outline"
             role="combobox"
             className={cn(
-              "justify-between gap-1.5 min-w-[80px] h-7 px-2 transition-colors",
+              "justify-between gap-1 min-w-[80px] h-7 px-2 transition-colors",
               "hover:bg-accent/50 focus:ring-2 focus:ring-primary focus:ring-offset-2"
             )}
             aria-label={`Select rows per page, currently showing ${pageSize} rows`}
@@ -74,7 +74,7 @@ export function PageSizeSelectField({
                   setOpen(false);
                 }}
                 className={cn(
-                  "w-full flex items-center gap-1.5 px-2 py-1.5 text-xs text-left rounded transition-colors",
+                  "w-full flex items-center gap-1 px-2 py-1 text-xs text-left rounded transition-colors",
                   "hover:bg-accent hover:text-accent-foreground cursor-pointer",
                   pageSize === size
                     ? "bg-accent text-accent-foreground font-medium"

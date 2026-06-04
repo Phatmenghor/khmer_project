@@ -71,7 +71,7 @@ export function ConfirmationModal({
         </VisuallyHidden>
         <div className={`p-4 border-b border-border ${headerBgColor}`}>
           <h2 className="text-xs font-semibold text-foreground">{title}</h2>
-          <p className="text-xs text-muted-foreground mt-1.5">{description}</p>
+          <p className="text-xs text-muted-foreground mt-1">{description}</p>
         </div>
 
         <FormBody>
@@ -79,7 +79,7 @@ export function ConfirmationModal({
             <div className="p-2 bg-muted rounded border border-muted-foreground/20">
               <p className="text-xs">
                 <span className="text-muted-foreground">Item:</span>
-                <span className="font-semibold text-foreground ml-1.5">
+                <span className="font-semibold text-foreground ml-1">
                   "{itemName}"
                 </span>
               </p>
@@ -117,7 +117,7 @@ export function ConfirmationModal({
             variant={actionVariant}
             onClick={handleConfirm}
             disabled={isDisabled}
-            className={`flex-1 sm:flex-initial gap-1.5 ${buttonColor}`}
+            className={`flex-1 sm:flex-initial gap-1 ${buttonColor}`}
           >
             {isProcessing || isSubmitting ? (
               <>

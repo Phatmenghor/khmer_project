@@ -266,9 +266,9 @@ export function CustomDateTimePicker({
           disabled={disabled}
         >
           {mode === "datetime" ? (
-            <Clock className="mr-1.5 h-3 w-3" />
+            <Clock className="mr-1 h-3 w-3" />
           ) : (
-            <Calendar className="mr-1.5 h-3 w-3" />
+            <Calendar className="mr-1 h-3 w-3" />
           )}
           <span className="flex-1">
             {selectedDate ? formatDate(selectedDate) : placeholder}
@@ -294,7 +294,7 @@ export function CustomDateTimePicker({
       <PopoverContent className="w-52 p-0" align="start">
         {}
         <div className="flex items-center justify-between p-2 border-b bg-muted/30">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
@@ -360,7 +360,7 @@ export function CustomDateTimePicker({
 
         {}
         <div className="p-2">
-          <div className="grid grid-cols-7 gap-1 mb-1.5">
+          <div className="grid grid-cols-7 gap-1 mb-1">
             {DAYS.map((day, index) => (
               <div
                 key={index}
@@ -399,7 +399,7 @@ export function CustomDateTimePicker({
         {}
         {mode === "datetime" && (
           <div className="p-2 border-t">
-            <div className="flex items-center justify-center gap-1.5">
+            <div className="flex items-center justify-center gap-1">
               <Clock className="h-3 w-3 text-muted-foreground" />
               <Select value={selectedHour} onValueChange={setSelectedHour}>
                 <SelectTrigger className="h-6 w-11 text-xs border-input hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors">
@@ -443,7 +443,7 @@ export function CustomDateTimePicker({
         )}
 
         {}
-        <div className="p-2 border-t bg-muted/30 flex gap-1.5">
+        <div className="p-2 border-t bg-muted/30 flex gap-1">
           <Button
             variant="outline"
             size="sm"

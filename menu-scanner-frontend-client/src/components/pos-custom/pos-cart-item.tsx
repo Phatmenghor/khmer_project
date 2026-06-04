@@ -80,7 +80,7 @@ export function POSCartItem({
           {}
           {hasPromotion && (
             <div className="absolute top-1 left-1 z-10 pointer-events-none">
-              <Badge variant="destructive" className="text-[9px] font-bold px-1.5 py-0.5 shadow-md">
+              <Badge variant="destructive" className="text-[9px] font-bold px-1 py-0.5 shadow-md">
                 {promotionType === "PERCENTAGE"
                   ? `-${promotionValue}%`
                   : `-${formatCurrency(promotionValue || 0)}`}
@@ -90,21 +90,21 @@ export function POSCartItem({
         </div>
 
         {}
-        <div className="flex-1 min-w-0 flex flex-col justify-between pr-1.5">
+        <div className="flex-1 min-w-0 flex flex-col justify-between pr-1">
           {}
-          <h3 className="font-semibold text-xs leading-tight text-slate-900 line-clamp-1 mb-1.5">
+          <h3 className="font-semibold text-xs leading-tight text-slate-900 line-clamp-1 mb-1">
             {productName}
           </h3>
 
           {}
-          <div className="mb-1.5 flex items-center gap-1.5">
+          <div className="mb-1 flex items-center gap-1">
             {sizeName && (
-              <span className="text-xs font-medium text-primary bg-primary/5 px-1.5.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
+              <span className="text-xs font-medium text-primary bg-primary/5 px-1 py-1 rounded-full border border-primary/30 whitespace-nowrap">
                 {sizeName}
               </span>
             )}
             {customizations && customizations.length > 0 && (
-              <span className="text-xs font-medium text-green-700 bg-green-50 px-1.5 py-1 rounded-full border border-green-200 whitespace-nowrap">
+              <span className="text-xs font-medium text-green-700 bg-green-50 px-1 py-1 rounded-full border border-green-200 whitespace-nowrap">
                 Add-ons ×{customizations.length}
               </span>
             )}
@@ -113,7 +113,7 @@ export function POSCartItem({
           {}
           <div className="flex items-center justify-between gap-2">
             {}
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex items-baseline gap-1">
               <span className="font-bold text-xs text-slate-900">
                 {formatCurrency(finalPrice)}
               </span>
@@ -169,13 +169,13 @@ export function POSCartItem({
       {}
       {hadChangeFromPOS && originalPrice && (
         <div className="mt-3 pt-3 border-t border-slate-200">
-          <div className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+          <div className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
+            <span className="w-1 h-1 rounded-full bg-orange-500"></span>
             POS Audit Trail
           </div>
           <div className="flex items-center justify-between gap-2 text-xs">
             {}
-            <div className="flex-1 bg-slate-50 rounded p-1.5.5 border border-slate-200">
+            <div className="flex-1 bg-slate-50 rounded p-1 border border-slate-200">
               <div className="text-slate-500 font-medium mb-1">Before</div>
               <div className="font-semibold text-slate-900">
                 {formatCurrency(originalPrice)}
@@ -191,7 +191,7 @@ export function POSCartItem({
             <div className="text-slate-400 font-bold">→</div>
 
             {}
-            <div className="flex-1 bg-green-50 rounded p-1.5.5 border border-green-200">
+            <div className="flex-1 bg-green-50 rounded p-1 border border-green-200">
               <div className="text-green-700 font-medium mb-1">After</div>
               <div className="font-semibold text-green-900">
                 {formatCurrency(finalPrice)}

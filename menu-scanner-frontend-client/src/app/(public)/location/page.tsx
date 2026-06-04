@@ -225,7 +225,7 @@ export default function LocationPage() {
           <Button
             onClick={handleAddLocation}
             size="sm"
-            className="gap-1.5 h-6 rounded"
+            className="gap-1 h-6 rounded"
           >
             <Plus className="h-3 w-3" />
             <span className="hidden sm:inline">Add Location</span>
@@ -261,7 +261,7 @@ export default function LocationPage() {
 
           {}
           <div className="flex flex-col items-center justify-center mt-4 py-4">
-            <Loader2 className="h-4 w-4 animate-spin text-primary mb-1.5" />
+            <Loader2 className="h-4 w-4 animate-spin text-primary mb-1" />
             <p className="text-xs sm:text-xs text-muted-foreground">
               Loading more locations...
             </p>

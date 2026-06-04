@@ -85,7 +85,7 @@ export const bulkPromotionTableColumns = ({
       width: "50px",
       minWidth: "10px",
       maxWidth: "120px",
-      className: "pr-1.5",
+      className: "pr-1",
       render: (_, index) => (
         <span className="font-medium text-xs pointer-events-none">
           {indexDisplay(pageNo || 1, pageSize || 10, index + 1)}
@@ -97,9 +97,9 @@ export const bulkPromotionTableColumns = ({
       label: "Actions",
       minWidth: "10px",
       maxWidth: "120px",
-      className: "px-1.5",
+      className: "px-1",
       render: (product) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <CustomCheckbox
             checked={selectedProductIds.has(product.id)}
             onCheckedChange={() => onSelectProduct(product.id)}
@@ -131,7 +131,7 @@ export const bulkPromotionTableColumns = ({
       width: "60px",
       minWidth: "10px",
       maxWidth: "120px",
-      className: "px-1.5",
+      className: "px-1",
       render: (product) => <ProductImagePreview product={product} />,
     },
     {
@@ -183,7 +183,7 @@ export const bulkPromotionTableColumns = ({
         }
 
         return (
-          <div className="flex flex-row gap-1.5 items-center flex-nowrap overflow-x-auto pb-1.5">
+          <div className="flex flex-row gap-1 items-center flex-nowrap overflow-x-auto pb-1">
             {product.sizes.map((size) => {
               const isSelected =
                 selectedSizes.get(product.id)?.has(size.id) || false;
@@ -193,7 +193,7 @@ export const bulkPromotionTableColumns = ({
                 <label
                   key={size.id}
                   className={cn(
-                    "flex items-center gap-1.5 px-1.5 py-1 rounded border text-xs transition-all duration-150 cursor-pointer group whitespace-nowrap flex-shrink-0",
+                    "flex items-center gap-1 px-1 py-1 rounded border text-xs transition-all duration-150 cursor-pointer group whitespace-nowrap flex-shrink-0",
                     isSelected
                       ? "bg-primary/15 border-primary/50 hover:bg-primary/20 hover:border-primary/70 shadow-sm"
                       : "bg-white border-border/50 hover:bg-gray-50 hover:border-border/70",

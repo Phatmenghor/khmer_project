@@ -36,7 +36,7 @@ export function BranchPerformanceCard({ branches, loading }: BranchPerformanceCa
             {[...Array(4)].map((_, i) => (
               <div key={i} className="flex items-center gap-2">
                 <Skeleton className="h-5 w-5 rounded-full shrink-0" />
-                <div className="flex-1 space-y-1.5">
+                <div className="flex-1 space-y-1">
                   <Skeleton className="h-2.5 w-20" />
                   <Skeleton className="h-2 w-14" />
                 </div>
@@ -45,7 +45,7 @@ export function BranchPerformanceCard({ branches, loading }: BranchPerformanceCa
             ))}
           </div>
         ) : !branches?.data?.length ? (
-          <div className="flex flex-col items-center justify-center py-7 text-muted-foreground gap-1.5">
+          <div className="flex flex-col items-center justify-center py-7 text-muted-foreground gap-1">
             <Store className="h-5 w-5 opacity-30" />
             <p className="text-xs">No branch data available</p>
           </div>
@@ -69,9 +69,9 @@ export function BranchPerformanceCard({ branches, loading }: BranchPerformanceCa
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-foreground truncate">{branch.name}</p>
-                    <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="flex items-center gap-1 mt-0.5">
                       <p className="text-xs text-muted-foreground">{branch.orders} orders</p>
-                      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
                         <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
                       </div>
                     </div>

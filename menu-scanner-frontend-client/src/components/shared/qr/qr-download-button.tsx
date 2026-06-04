@@ -28,11 +28,11 @@ function QRDownloadButtonComponent({
   onShare,
 }: QRDownloadButtonProps) {
   return (
-    <div className="flex gap-1.5 w-full flex-wrap justify-center">
+    <div className="flex gap-1 w-full flex-wrap justify-center">
       {showDownload && (
         <Button
           size="sm"
-          className="gap-1.5"
+          className="gap-1"
           onClick={onDownload}
           disabled={downloading || !link}
         >
@@ -44,7 +44,7 @@ function QRDownloadButtonComponent({
         <Button
           size="sm"
           variant="outline"
-          className="gap-1.5"
+          className="gap-1"
           onClick={onCopyUrl}
           disabled={!link}
         >
@@ -60,7 +60,7 @@ function QRDownloadButtonComponent({
         <Button
           size="sm"
           variant="outline"
-          className="gap-1.5"
+          className="gap-1"
           onClick={onShare}
           disabled={!link}
         >

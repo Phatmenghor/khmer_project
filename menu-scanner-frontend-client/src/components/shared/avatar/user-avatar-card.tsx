@@ -42,7 +42,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
   const justOpenedRef = useRef(false);
 
     const sizeClasses = {
-      sm: { avatar: "h-5 w-5", indicator: "w-1.5 h-1.5" },
+      sm: { avatar: "h-5 w-5", indicator: "w-1 h-1" },
       md: { avatar: "h-7 w-7", indicator: "w-2 h-2" },
       lg: { avatar: "h-8 w-8", indicator: "w-2.5 h-2.5" },
       xl: { avatar: "h-11 w-11", indicator: "w-3 h-3" },
@@ -186,7 +186,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
 
   if (collapsed) {
     return (
-      <div className={`border-t border-border/50 p-1.5 ${className}`}>
+      <div className={`border-t border-border/50 p-1 ${className}`}>
         <div className="flex justify-center">{AvatarComponent}</div>
       </div>
     );
@@ -214,7 +214,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
 
       {}
       {isLoading && (
-        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse shadow-sm shadow-yellow-500/50"></div>
+        <div className="w-1 h-1 rounded-full bg-yellow-500 animate-pulse shadow-sm shadow-yellow-500/50"></div>
       )}
     </div>
   );

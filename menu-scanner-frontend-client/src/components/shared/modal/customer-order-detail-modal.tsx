@@ -103,7 +103,7 @@ function statusColor(s?: string) {
 function Section({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   return (
     <div className={cn("rounded border border-border/60 bg-card overflow-hidden", className)}>
-      <div className="px-3 py-1.5.5 border-b border-border/60 bg-muted/30">
+      <div className="px-3 py-1 border-b border-border/60 bg-muted/30">
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</span>
       </div>
       <div className="p-3">{children}</div>
@@ -138,7 +138,7 @@ function OrderBody({ order }: { order: OrderResponse }) {
     : null;
 
   return (
-    <div className="p-3.5 space-y-3.5">
+    <div className="p-3 space-y-3">
 
       {/* ── Overview ── */}
       <Section title="Order Info">
@@ -210,13 +210,13 @@ function OrderBody({ order }: { order: OrderResponse }) {
           {order.deliveryAddress?.note && <Field label="Delivery Note" value={order.deliveryAddress.note} />}
 
           {order.statusHistory && order.statusHistory.length > 0 && (
-            <div className="col-span-2 pt-1.5 border-t border-border/50">
-              <p className="text-xs text-muted-foreground mb-1.5">Status History</p>
+            <div className="col-span-2 pt-1 border-t border-border/50">
+              <p className="text-xs text-muted-foreground mb-1">Status History</p>
               <div className="space-y-1">
                 {order.statusHistory.map((h, idx) => (
-                  <div key={h.id} className="grid grid-cols-3 gap-3 py-1.5 border-b border-border/30 last:border-0 items-start">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-3.5 h-3.5 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground flex-shrink-0">
+                  <div key={h.id} className="grid grid-cols-3 gap-3 py-1 border-b border-border/30 last:border-0 items-start">
+                    <div className="flex items-center gap-1">
+                      <span className="w-3 h-3 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground flex-shrink-0">
                         {idx + 1}
                       </span>
                       <span className="text-xs font-medium text-foreground">{h.statusName}</span>

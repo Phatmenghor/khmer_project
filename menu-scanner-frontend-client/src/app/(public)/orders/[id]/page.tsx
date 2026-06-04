@@ -196,7 +196,7 @@ export default function OrderDetailPage() {
         <div className="mb-4">
           <CustomButton
             variant="ghost"
-            className="gap-1.5 h-7 px-3 rounded"
+            className="gap-1 h-7 px-3 rounded"
             onClick={() => router.back()}
           >
             <ArrowLeft className="h-3 w-3" />
@@ -211,7 +211,7 @@ export default function OrderDetailPage() {
               <h2 className="text-xs font-bold text-red-900 dark:text-red-200">
                 Order Not Found
               </h2>
-              <p className="text-red-800 dark:text-red-300 text-xs mt-1.5">
+              <p className="text-red-800 dark:text-red-300 text-xs mt-1">
                 {state.error || "The order you're looking for doesn't exist."}
               </p>
               <CustomButton
@@ -254,7 +254,7 @@ export default function OrderDetailPage() {
       <div className="mb-4">
         <CustomButton
           variant="ghost"
-          className="gap-1.5 h-7 px-3 rounded"
+          className="gap-1 h-7 px-3 rounded"
           onClick={() => router.back()}
         >
           <ArrowLeft className="h-3 w-3" />
@@ -292,7 +292,7 @@ export default function OrderDetailPage() {
                 <CustomButton
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-2 rounded gap-1.5"
+                  className="h-6 px-2 rounded gap-1"
                   onClick={handleCopyOrderNumber}
                 >
                   <Copy className="h-3 w-3" />
@@ -325,12 +325,12 @@ export default function OrderDetailPage() {
 
               {}
               <div className="pb-3 border-b border-border/50">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                   Payment Status
                 </p>
                 <div
                   className={cn(
-                    "inline-flex items-center gap-1.5 px-2 py-1.5 rounded font-semibold text-xs",
+                    "inline-flex items-center gap-1 px-2 py-1 rounded font-semibold text-xs",
                     order.payment?.paymentStatus === "PAID"
                       ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                       : order.payment?.paymentStatus === "REFUNDED"
@@ -375,7 +375,7 @@ export default function OrderDetailPage() {
 
             {state.statusTimeline.length > 0 ? (
               <div className="overflow-x-auto pb-3">
-                <div className="flex items-flex-start gap-1 min-w-max px-1.5">
+                <div className="flex items-flex-start gap-1 min-w-max px-1">
                   {state.statusTimeline.map((status, index) => {
                     const statusOrder = status.order || 0;
                     const isCompleted = currentStatusPosition >= statusOrder;
@@ -399,9 +399,9 @@ export default function OrderDetailPage() {
                             )}
                           >
                             {isCompleted ? (
-                              <Check className="h-3.5 w-3.5" />
+                              <Check className="h-3 w-3" />
                             ) : isCurrent ? (
-                              <Zap className="h-3.5 w-3.5" />
+                              <Zap className="h-3 w-3" />
                             ) : (
                               status.order
                             )}
@@ -478,7 +478,7 @@ export default function OrderDetailPage() {
 
                     {}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-1.5">
+                      <div className="flex items-start justify-between mb-1">
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-foreground truncate">
                             {item.product?.name || "Unknown Product"}
@@ -490,7 +490,7 @@ export default function OrderDetailPage() {
                           )}
                         </div>
                         {(item as unknown as { hasPromotion?: boolean }).hasPromotion && (
-                          <div className="ml-1.5 px-1.5 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded text-xs font-semibold flex-shrink-0">
+                          <div className="ml-1 px-1 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded text-xs font-semibold flex-shrink-0">
                             Sale
                           </div>
                         )}
@@ -574,8 +574,8 @@ export default function OrderDetailPage() {
         <div className="space-y-4">
           {}
           <div className="rounded border border-border/50 bg-card p-4">
-            <h2 className="text-xs font-bold text-foreground mb-3 flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-primary" />
+            <h2 className="text-xs font-bold text-foreground mb-3 flex items-center gap-1">
+              <MapPin className="h-3 w-3 text-primary" />
               Delivery Address
             </h2>
 
@@ -599,8 +599,8 @@ export default function OrderDetailPage() {
 
           {}
           <div className="rounded border border-border/50 bg-card p-4">
-            <h2 className="text-xs font-bold text-foreground mb-3 flex items-center gap-1.5">
-              <User className="h-3.5 w-3.5 text-primary" />
+            <h2 className="text-xs font-bold text-foreground mb-3 flex items-center gap-1">
+              <User className="h-3 w-3 text-primary" />
               Customer Info
             </h2>
 
@@ -620,7 +620,7 @@ export default function OrderDetailPage() {
                 </p>
                 <a
                   href={`tel:${order.customerPhone}`}
-                  className="text-xs font-semibold text-primary hover:underline flex items-center gap-1.5"
+                  className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
                 >
                   <Phone className="h-3 w-3" />
                   {order.customerPhone}
@@ -632,8 +632,8 @@ export default function OrderDetailPage() {
           {}
           {order.customerNote && (
             <div className="rounded border border-border/50 bg-card p-4">
-              <h2 className="text-xs font-bold text-foreground mb-3 flex items-center gap-1.5">
-                <MessageSquare className="h-3.5 w-3.5 text-primary" />
+              <h2 className="text-xs font-bold text-foreground mb-3 flex items-center gap-1">
+                <MessageSquare className="h-3 w-3 text-primary" />
                 Customer Notes
               </h2>
 
@@ -646,8 +646,8 @@ export default function OrderDetailPage() {
           {}
           {order.businessNote && (
             <div className="rounded border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 p-4">
-              <h2 className="text-xs font-bold text-amber-900 dark:text-amber-200 mb-3 flex items-center gap-1.5">
-                <AlertCircle className="h-3.5 w-3.5" />
+              <h2 className="text-xs font-bold text-amber-900 dark:text-amber-200 mb-3 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
                 Business Notes
               </h2>
 
@@ -663,7 +663,7 @@ export default function OrderDetailPage() {
       {showCancelConfirm && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-3">
           <div className="rounded bg-card border border-border max-w-sm w-full p-4">
-            <h2 className="text-xs font-bold text-foreground mb-1.5">
+            <h2 className="text-xs font-bold text-foreground mb-1">
               Cancel Order?
             </h2>
             <p className="text-xs text-muted-foreground mb-4">

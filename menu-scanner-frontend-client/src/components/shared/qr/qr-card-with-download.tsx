@@ -349,10 +349,10 @@ export function QRCardWithDownload({
 
       {/* Actions */}
       {showActions && (
-        <div className="flex gap-1.5 w-full flex-wrap justify-center">
+        <div className="flex gap-1 w-full flex-wrap justify-center">
           <Button
             size="sm"
-            className="gap-1.5"
+            className="gap-1"
             onClick={handleDownload}
             disabled={downloading || !link}
           >
@@ -362,7 +362,7 @@ export function QRCardWithDownload({
           <Button
             size="sm"
             variant="outline"
-            className="gap-1.5"
+            className="gap-1"
             onClick={handleCopyUrl}
             disabled={!link}
           >
@@ -377,7 +377,7 @@ export function QRCardWithDownload({
             <Button
               size="sm"
               variant="outline"
-              className="gap-1.5"
+              className="gap-1"
               onClick={handleShare}
               disabled={!link}
             >

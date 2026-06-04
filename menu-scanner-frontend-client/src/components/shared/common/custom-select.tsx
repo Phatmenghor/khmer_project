@@ -35,22 +35,22 @@ const CUSTOM_SELECT_SIZES = {
   sm: {
     button: "h-5 text-xs",
     icon: "h-2 w-2",
-    item: "text-xs py-1 px-1.5",
+    item: "text-xs py-1 px-1",
   },
   md: {
     button: "h-6 text-xs",
     icon: "h-3 w-3",
-    item: "text-xs py-1.5 px-2",
+    item: "text-xs py-1 px-2",
   },
   lg: {
     button: "h-7 text-xs",
-    icon: "h-3.5 w-3.5",
-    item: "text-xs py-1.5 px-2",
+    icon: "h-3 w-3",
+    item: "text-xs py-1 px-2",
   },
   xl: {
     button: "h-8 text-xs",
-    icon: "h-3.5 w-3.5",
-    item: "text-xs py-1.5 px-2",
+    icon: "h-3 w-3",
+    item: "text-xs py-1 px-2",
   },
 } as const;
 
@@ -80,7 +80,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 
   const wrapperClass = layout === "vertical"
     ? "flex flex-col gap-1 w-full"
-    : "flex flex-row items-center gap-1.5 w-full";
+    : "flex flex-row items-center gap-1 w-full";
 
   return (
     <div className={wrapperClass}>
@@ -97,7 +97,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             role="combobox"
             disabled={disabled}
             className={cn(
-              "w-full justify-between gap-1.5 transition-all duration-200",
+              "w-full justify-between gap-1 transition-all duration-200",
 
               "border-input",
 
@@ -158,7 +158,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                     }
                   }}
                   className={cn(
-                    "w-full flex items-center gap-1.5 text-left transition-colors",
+                    "w-full flex items-center gap-1 text-left transition-colors",
                     sizeConfig.item,
                     "hover:bg-primary/10 hover:text-primary",
                     value === option.value

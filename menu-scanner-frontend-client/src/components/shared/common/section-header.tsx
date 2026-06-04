@@ -19,8 +19,8 @@ export const SectionHeader = ({
 }: SectionHeaderProps) => {
   return (
     <div className={cn("mb-3 sm:mb-4", className)}>
-      <h2 className="text-xs sm:text-base md:text-xs font-bold tracking-tight flex items-center gap-1.5">
-        {Icon && <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary" />}
+      <h2 className="text-xs sm:text-base md:text-xs font-bold tracking-tight flex items-center gap-1">
+        {Icon && <Icon className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary" />}
         {title}
       </h2>
       {subtitle && (
@@ -59,10 +59,10 @@ export const ViewAllButton = ({
         <Button
           size="default"
           variant="outline"
-          className="gap-1.5 group border-2 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all px-4 sm:px-5"
+          className="gap-1 group border-2 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all px-4 sm:px-5"
         >
           {text}
-          <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 transition-transform group-hover:translate-x-1" />
+          <ArrowRight className="h-3 w-3 sm:h-3 sm:w-3 transition-transform group-hover:translate-x-1" />
         </Button>
       </Link>
     </div>

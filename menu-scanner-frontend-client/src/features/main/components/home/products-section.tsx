@@ -43,7 +43,7 @@ const ProductsSectionComponent = ({
       <SectionWrapper>
         <div className="flex flex-col items-center justify-center py-8">
           <div className="text-base mb-3">⚠️</div>
-          <h3 className="text-xs font-semibold text-foreground mb-1.5">
+          <h3 className="text-xs font-semibold text-foreground mb-1">
             Error Loading Products
           </h3>
           <p className="text-muted-foreground text-center">
@@ -60,7 +60,7 @@ const ProductsSectionComponent = ({
       <SectionWrapper>
         <div className="flex flex-col items-center justify-center py-8">
           <div className="text-base mb-3">📦</div>
-          <h3 className="text-xs font-semibold text-foreground mb-1.5">
+          <h3 className="text-xs font-semibold text-foreground mb-1">
             No Products Available
           </h3>
           <p className="text-muted-foreground text-center">
@@ -96,7 +96,7 @@ const ProductsSectionComponent = ({
           <div className="flex items-center justify-center w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-primary/10 mb-3">
             <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           </div>
-          <h3 className="text-xs sm:text-xs font-semibold mb-1.5 text-center">
+          <h3 className="text-xs sm:text-xs font-semibold mb-1 text-center">
             You've seen it all!
           </h3>
           <p className="text-xs sm:text-xs text-muted-foreground text-center max-w-md">

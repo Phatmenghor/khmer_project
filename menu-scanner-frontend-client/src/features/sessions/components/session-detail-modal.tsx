@@ -138,7 +138,7 @@ export function SessionsDetailModal({
             <DetailRow
               label="Session ID"
               value={
-                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1 py-1 rounded break-all">
                   {sessionData?.id}
                 </span>
               }

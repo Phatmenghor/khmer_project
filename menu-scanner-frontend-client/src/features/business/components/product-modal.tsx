@@ -767,7 +767,7 @@ export default function ProductModal({
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Product Sizes</CardTitle>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         {hasSizes && sizeFields.some((_, idx) => {
                           const sizePromotionType = watch(`sizes.${idx}.promotionType`);
                           return sizePromotionType && sizePromotionType !== "NONE";
@@ -815,7 +815,7 @@ export default function ProductModal({
                           }
                           disabled={isProcessing}
                         >
-                          <Plus className="h-3 w-3 mr-1.5" />
+                          <Plus className="h-3 w-3 mr-1" />
                           Add Size
                         </Button>
                       </div>
@@ -845,11 +845,11 @@ export default function ProductModal({
                               key={field.id}
                               className="border rounded p-3 space-y-3"
                             >
-                              <div className="flex items-center justify-between gap-1.5">
+                              <div className="flex items-center justify-between gap-1">
                                 <h4 className="font-semibold text-foreground">
                                   Size {index + 1}
                                 </h4>
-                                <div className="flex items-center gap-1.5">
+                                <div className="flex items-center gap-1">
                                   {showSizePromotionFields && (
                                     <Button
                                       type="button"
@@ -889,7 +889,7 @@ export default function ProductModal({
                                     onClick={() => removeSize(index)}
                                     disabled={isProcessing}
                                   >
-                                    <Trash2 className="h-3 w-3 mr-1.5" />
+                                    <Trash2 className="h-3 w-3 mr-1" />
                                     Remove
                                   </Button>
                                 </div>
@@ -1039,7 +1039,7 @@ export default function ProductModal({
                         }
                         disabled={isProcessing}
                       >
-                        <Plus className="h-3 w-3 mr-1.5" />
+                        <Plus className="h-3 w-3 mr-1" />
                         Add Customization
                       </Button>
                     </div>
@@ -1058,7 +1058,7 @@ export default function ProductModal({
                             key={field.id}
                             className="border rounded p-3 space-y-3"
                           >
-                            <div className="flex items-center justify-between gap-1.5">
+                            <div className="flex items-center justify-between gap-1">
                               <h4 className="font-semibold text-foreground">
                                 Customization {index + 1}
                               </h4>
@@ -1069,7 +1069,7 @@ export default function ProductModal({
                                 onClick={() => removeCustomization(index)}
                                 disabled={isProcessing}
                               >
-                                <Trash2 className="h-3 w-3 mr-1.5" />
+                                <Trash2 className="h-3 w-3 mr-1" />
                                 Remove
                               </Button>
                             </div>
@@ -1149,7 +1149,7 @@ export default function ProductModal({
                             }
                             disabled={isProcessing}
                           >
-                            <Plus className="h-3 w-3 mr-1.5" />
+                            <Plus className="h-3 w-3 mr-1" />
                             {isProcessingImages ? "Processing..." : "Upload"}
                           </Button>
                         </div>
@@ -1164,7 +1164,7 @@ export default function ProductModal({
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-1.5">
+                      <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-1">
                         {imageFields.map((field, index) => (
                           <div
                             key={field.id}

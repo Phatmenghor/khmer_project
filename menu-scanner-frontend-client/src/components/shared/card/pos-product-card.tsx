@@ -104,8 +104,8 @@ function POSProductCardComponent({
 
         {}
         {product.hasPromotion && (
-          <div className="absolute top-1.5 left-1.5 z-10 pointer-events-none">
-            <Badge variant="destructive" className="text-xs font-bold px-1.5 py-0.5 shadow-md">
+          <div className="absolute top-1 left-1 z-10 pointer-events-none">
+            <Badge variant="destructive" className="text-xs font-bold px-1 py-0.5 shadow-md">
               {product.displayPromotionType === "PERCENTAGE"
                 ? `-${product.displayPromotionValue}%`
                 : `-${formatCurrency(product.displayPromotionValue)}`}
@@ -115,8 +115,8 @@ function POSProductCardComponent({
 
         {}
         {(product.hasSizes || (product.customizations && product.customizations.length > 0)) && (
-          <div className="absolute bottom-1.5 left-1.5 z-10 pointer-events-none">
-            <Badge variant="secondary" className="text-xs font-medium px-1.5 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
+          <div className="absolute bottom-1 left-1 z-10 pointer-events-none">
+            <Badge variant="secondary" className="text-xs font-medium px-1 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
               {product.hasSizes ? (
                 <>
                   <Ruler className="h-2 w-2" />
@@ -137,13 +137,13 @@ function POSProductCardComponent({
       {}
       <div className="p-2 flex flex-col flex-1">
         {}
-        <h3 className="font-medium text-xs line-clamp-2 mb-1.5 leading-snug min-h-[40px]">
+        <h3 className="font-medium text-xs line-clamp-2 mb-1 leading-snug min-h-[40px]">
           {product.name}
         </h3>
 
         <div className="mt-auto">
           {}
-          <div className="flex flex-col mb-1.5.5">
+          <div className="flex flex-col mb-1">
             <span className={cn("text-xs text-muted-foreground line-through", !product.hasPromotion && "invisible")}>
               {formatCurrency(product.displayOriginPrice)}
             </span>
@@ -154,7 +154,7 @@ function POSProductCardComponent({
 
           {}
           {quantity > 0 ? (
-            <div className="flex items-center gap-1.5 w-full">
+            <div className="flex items-center gap-1 w-full">
               <CustomButton
                 size="icon"
                 variant="outline"
@@ -177,7 +177,7 @@ function POSProductCardComponent({
             </div>
           ) : (
             <CustomButton
-              className="w-full gap-1.5 h-5 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="w-full gap-1 h-5 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

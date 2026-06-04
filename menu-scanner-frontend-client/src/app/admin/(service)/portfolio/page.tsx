@@ -347,7 +347,7 @@ export default function PortfolioPage() {
             </div>
 
             {/* Additional Phones */}
-            <div className="border-t pt-3.5 space-y-3">
+            <div className="border-t pt-3 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold">Additional Phone Numbers</p>
@@ -367,11 +367,11 @@ export default function PortfolioPage() {
                 </Button>
               </div>
               {contactPhonesFields.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                   {contactPhonesFields.map((field, index) => (
                     <div key={field.id} className="space-y-1">
                       <Label className="text-xs text-muted-foreground">Phone Number <span className="text-red-500">*</span></Label>
-                      <div className="flex gap-1.5 items-center">
+                      <div className="flex gap-1 items-center">
                         <Input
                           placeholder="+855 12 345 678"
                           {...form.register(`contact.phones.${index}.number`)}
@@ -427,20 +427,20 @@ export default function PortfolioPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute top-1.5 right-1.5 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="absolute top-1 right-1 text-red-500 hover:text-red-700 hover:bg-red-50"
                       onClick={() => removeSocialMedia(index)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <Label className="text-xs font-medium">Platform <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="Facebook, Instagram..."
                           {...form.register(`socialMedia.${index}.name`)}
                         />
                       </div>
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <Label className="text-xs font-medium">URL <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="https://..."
@@ -482,11 +482,11 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             {featuresFields.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
                 {featuresFields.map((field, index) => (
                   <div key={field.id} className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Feature <span className="text-red-500">*</span></Label>
-                    <div className="flex gap-1.5 items-center">
+                    <div className="flex gap-1 items-center">
                       <Input
                         placeholder="Feature name..."
                         {...form.register(`features.${index}.name`)}
@@ -541,20 +541,20 @@ export default function PortfolioPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute top-1.5 right-1.5 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="absolute top-1 right-1 text-red-500 hover:text-red-700 hover:bg-red-50"
                       onClick={() => removeCustomStat(index)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <Label className="text-xs font-medium">Value <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="e.g., 10,000+"
                           {...form.register(`customStats.${index}.value`)}
                         />
                       </div>
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <Label className="text-xs font-medium">Label <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="e.g., Happy Customers"
@@ -602,20 +602,20 @@ export default function PortfolioPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute top-1.5 right-1.5 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="absolute top-1 right-1 text-red-500 hover:text-red-700 hover:bg-red-50"
                       onClick={() => removeBusinessHour(index)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <Label className="text-xs font-medium">Day <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="e.g. Monday"
                           {...form.register(`businessHours.${index}.day`)}
                         />
                       </div>
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <Label className="text-xs font-medium">Open Time</Label>
                         <Controller
                           name={`businessHours.${index}.openTime`}
@@ -629,7 +629,7 @@ export default function PortfolioPage() {
                           )}
                         />
                       </div>
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <Label className="text-xs font-medium">Close Time</Label>
                         <Controller
                           name={`businessHours.${index}.closeTime`}
@@ -696,7 +696,7 @@ export default function PortfolioPage() {
                     />
                     <div className="space-y-1">
                       <Label className="text-xs text-muted-foreground">Caption (optional)</Label>
-                      <div className="flex gap-1.5 items-center">
+                      <div className="flex gap-1 items-center">
                         <Controller
                           name={`gallery.${index}.title`}
                           control={form.control}
@@ -756,20 +756,20 @@ export default function PortfolioPage() {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute top-1.5 right-1.5 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="absolute top-1 right-1 text-red-500 hover:text-red-700 hover:bg-red-50"
                       onClick={() => removeService(index)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
                     <div className="space-y-3">
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <Label className="text-xs font-medium">Service Name <span className="text-red-500">*</span></Label>
                         <Input
                           placeholder="Service name..."
                           {...form.register(`services.${index}.name`)}
                         />
                       </div>
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <Label className="text-xs font-medium">Description</Label>
                         <Controller
                           name={`services.${index}.description`}
@@ -841,9 +841,9 @@ export default function PortfolioPage() {
                         />
                       </div>
 
-                      <div className="flex-1 space-y-1.5 min-w-0">
-                        <div className="flex items-start justify-between gap-1.5">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 flex-1">
+                      <div className="flex-1 space-y-1 min-w-0">
+                        <div className="flex items-start justify-between gap-1">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 flex-1">
                             <div className="space-y-1">
                               <Label className="text-xs text-muted-foreground">Full Name <span className="text-red-500">*</span></Label>
                               <Controller
@@ -922,12 +922,12 @@ export default function PortfolioPage() {
           >
             {isSaving ? (
               <>
-                <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                 Saving...
               </>
             ) : (
               <>
-                <Save className="mr-1.5 h-3 w-3" />
+                <Save className="mr-1 h-3 w-3" />
                 Save Changes
               </>
             )}

@@ -31,11 +31,11 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
 
 
   const avatarSizes = {
-    sm: { avatar: "h-5 w-5", indicator: "w-1.5 h-1.5" },
+    sm: { avatar: "h-5 w-5", indicator: "w-1 h-1" },
     md: { avatar: "h-7 w-7", indicator: "w-2 h-2" },
     lg: { avatar: "h-8 w-8", indicator: "w-2.5 h-2.5" },
     xl: { avatar: "h-11 w-11", indicator: "w-3 h-3" },
-    xxl: { avatar: "h-14 w-14", indicator: "w-3.5 h-3.5" },
+    xxl: { avatar: "h-14 w-14", indicator: "w-3 h-3" },
   };
 
 

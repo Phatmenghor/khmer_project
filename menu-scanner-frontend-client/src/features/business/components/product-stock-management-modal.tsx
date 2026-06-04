@@ -281,7 +281,7 @@ export function StockManagementModal({
               <p className="text-xs text-muted-foreground mt-1">
                 {product?.name}
               </p>
-              <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              <div className="flex items-center gap-1 mt-1 flex-wrap">
                 <Badge variant="outline" className="text-xs">
                   SKU: {product?.sku || "---"}
                 </Badge>
@@ -299,8 +299,8 @@ export function StockManagementModal({
             {}
             <Card ref={formSectionRef}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-1.5">
-                  <Package className="w-3.5 h-3.5" />
+                <CardTitle className="flex items-center gap-1">
+                  <Package className="w-3 h-3" />
                   {editingStock ? "Update Stock" : "Add New Stock"}
                 </CardTitle>
               </CardHeader>
@@ -309,7 +309,7 @@ export function StockManagementModal({
                   {}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <Label className="text-xs font-medium">
                         Quantity On Hand <span className="text-red-500">*</span>
                       </Label>
@@ -339,11 +339,11 @@ export function StockManagementModal({
                     </div>
 
                     {}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <Label className="text-xs font-medium">
                         Unit Price (Cost) <span className="text-red-500">*</span>
                       </Label>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1">
                         <span className="text-xs font-medium text-muted-foreground">$</span>
                         <Input
                           type="text"
@@ -383,7 +383,7 @@ export function StockManagementModal({
                     />
 
                     {}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <Label className="text-xs font-medium">
                         Storage Location
                       </Label>
@@ -405,7 +405,7 @@ export function StockManagementModal({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {}
                           <div className="bg-muted/50 p-3 rounded">
-                            <div className="flex justify-between items-start mb-1.5">
+                            <div className="flex justify-between items-start mb-1">
                               <div>
                                 <p className="text-xs text-muted-foreground">Product Selling Price</p>
                                 <p className="text-xs font-semibold text-foreground">
@@ -421,7 +421,7 @@ export function StockManagementModal({
 
                             {}
                             {product.hasPromotion === true && (
-                              <div className="mt-2 pt-2 border-t border-muted space-y-1.5 text-xs">
+                              <div className="mt-2 pt-2 border-t border-muted space-y-1 text-xs">
                                 <div>
                                   <p className="text-muted-foreground">Promotion Type:</p>
                                   <p className="font-medium">
@@ -447,7 +447,7 @@ export function StockManagementModal({
                                     )}
                                   </p>
                                 </div>
-                                <div className="pt-1.5 border-t">
+                                <div className="pt-1 border-t">
                                   <p className="text-muted-foreground">Final Price:</p>
                                   <p className="text-xs font-semibold text-green-600">
                                     ${product.displayPrice?.toFixed(2) || "0.00"}
@@ -484,7 +484,7 @@ export function StockManagementModal({
                                   ).toFixed(2)}
                                 </span>
                               </div>
-                              <div className="pt-1.5 flex justify-between text-xs text-muted-foreground">
+                              <div className="pt-1 flex justify-between text-xs text-muted-foreground">
                                 <span>Cost Total:</span>
                                 <span>
                                   ${(
@@ -535,12 +535,12 @@ export function StockManagementModal({
           <div className="flex items-center justify-between gap-3">
             {}
             {!editingStock && (
-              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <div className="text-xs text-muted-foreground flex items-center gap-1">
                 {(isCreating || isUpdating) && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                  <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
                 )}
                 {form.formState.isDirty && !isCreating && !isUpdating && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+                  <div className="h-1 w-1 rounded-full bg-orange-500" />
                 )}
                 <span>
                   {isCreating || isUpdating
@@ -572,7 +572,7 @@ export function StockManagementModal({
                   }, 0);
                 }}
                 disabled={isCreating || isUpdating}
-                className="gap-1.5 border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300 transition-all"
+                className="gap-1 border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-300 transition-all"
               >
                 <Edit className="w-3 h-3" />
                 Switch to Add
@@ -582,12 +582,12 @@ export function StockManagementModal({
 
             {}
             {editingStock && (
-              <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <div className="text-xs text-muted-foreground flex items-center gap-1">
                 {isUpdating && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+                  <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
                 )}
                 {form.formState.isDirty && !isUpdating && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+                  <div className="h-1 w-1 rounded-full bg-orange-500" />
                 )}
                 <span>
                   {isUpdating
@@ -600,7 +600,7 @@ export function StockManagementModal({
             )}
 
             {}
-            <div className="flex gap-1.5">
+            <div className="flex gap-1">
                 <CancelButton
                   onClick={() => {
                     setEditingStock(null);

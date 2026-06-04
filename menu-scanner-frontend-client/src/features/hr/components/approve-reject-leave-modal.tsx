@@ -175,12 +175,12 @@ export default function ApproveRejectLeaveModal({
                 <>
                   {isApprove ? (
                     <>
-                      <Check className="w-3 h-3 mr-1.5" />
+                      <Check className="w-3 h-3 mr-1" />
                       Approve
                     </>
                   ) : (
                     <>
-                      <X className="w-3 h-3 mr-1.5" />
+                      <X className="w-3 h-3 mr-1" />
                       Reject
                     </>
                   )}

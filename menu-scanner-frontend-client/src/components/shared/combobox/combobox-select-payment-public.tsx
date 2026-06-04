@@ -142,7 +142,7 @@ export function ComboboxSelectPaymentPublic({
   };
 
   return (
-    <div className="space-y-1.5 w-full">
+    <div className="space-y-1 w-full">
       {label && (
         <Label className="text-xs font-semibold">
           {label}
@@ -156,7 +156,7 @@ export function ComboboxSelectPaymentPublic({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between px-3 py-1.5 h-8 text-xs transition-all duration-200 border-input",
+              "w-full justify-between px-3 py-1 h-8 text-xs transition-all duration-200 border-input",
               !dataSelect && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
@@ -169,7 +169,7 @@ export function ComboboxSelectPaymentPublic({
             <span className="truncate line-clamp-1">
               {dataSelect ? dataSelect.name : placeholder}
             </span>
-            <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent
@@ -195,11 +195,11 @@ export function ComboboxSelectPaymentPublic({
                     value={item.name}
                     onSelect={() => handleSelect(item)}
                     ref={index === data.length - 1 ? ref : null}
-                    className="text-xs py-1.5"
+                    className="text-xs py-1"
                   >
                     <Check
                       className={cn(
-                        "mr-1.5 h-3 w-3 flex-shrink-0",
+                        "mr-1 h-3 w-3 flex-shrink-0",
                         dataSelect?.id === item.id
                           ? "opacity-100"
                           : "opacity-0",
@@ -208,14 +208,14 @@ export function ComboboxSelectPaymentPublic({
                     <span className="truncate line-clamp-1 flex-1">
                       {item.name}
                     </span>
-                    <span className="text-xs text-muted-foreground flex-shrink-0 ml-1.5">
+                    <span className="text-xs text-muted-foreground flex-shrink-0 ml-1">
                       ({item.paymentOptionType})
                     </span>
                   </CommandItem>
                 ))}
               </CommandGroup>
               {loading && (
-                <div className="text-center py-1.5">
+                <div className="text-center py-1">
                   <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
                 </div>
               )}

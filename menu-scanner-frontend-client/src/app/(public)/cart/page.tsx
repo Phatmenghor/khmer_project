@@ -36,9 +36,9 @@ function CartItemSkeleton() {
       <div className="flex gap-2">
         <Skeleton className="w-[72px] h-[72px] rounded flex-shrink-0" />
         <div className="flex-1 space-y-2">
-          <Skeleton className="h-3.5 w-3/4" />
+          <Skeleton className="h-3 w-3/4" />
           <Skeleton className="h-3 w-1/2" />
-          <div className="flex gap-1.5">
+          <div className="flex gap-1">
             <Skeleton className="h-5 w-16" />
             <Skeleton className="h-5 w-14" />
           </div>
@@ -51,9 +51,9 @@ function CartItemSkeleton() {
 function CartPageSkeleton() {
   return (
     <PageContainer className="py-3 sm:py-5 pb-28 sm:pb-5">
-      <div className="mb-4 space-y-1.5">
+      <div className="mb-4 space-y-1">
         <Skeleton className="h-5 w-32" />
-        <Skeleton className="h-3.5 w-44" />
+        <Skeleton className="h-3 w-44" />
       </div>
       <div className="grid lg:grid-cols-3 gap-3 sm:gap-4">
         <div className="lg:col-span-2 space-y-2">
@@ -220,7 +220,7 @@ function CartPage() {
               size="sm"
               onClick={() => setClearCartModalOpen(true)}
               disabled={loading.clear}
-              className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10 text-xs rounded"
+              className="gap-1 text-destructive hover:text-destructive hover:bg-destructive/10 text-xs rounded"
             >
               <Trash2 className="h-2.5 w-2.5" />
               Clear All
@@ -287,18 +287,18 @@ function CartPage() {
 
           {}
           <div className="hidden lg:block lg:col-span-1">
-            <div className="bg-card border rounded p-3.5 sticky top-16">
+            <div className="bg-card border rounded p-3 sticky top-16">
               <h2 className="text-xs font-bold mb-3 flex items-center justify-between">
                 <span>Order Summary</span>
-                <span className="text-xs font-normal text-muted-foreground bg-muted px-1.5 py-1 rounded">
+                <span className="text-xs font-normal text-muted-foreground bg-muted px-1 py-1 rounded">
                   {totalItems} {totalItems === 1 ? 'item' : 'items'}
                 </span>
               </h2>
 
-              <div className="space-y-2 mb-3.5">
+              <div className="space-y-2 mb-3">
                 {}
                 <div className="bg-muted/50 rounded p-2 mb-3">
-                  <div className="text-xs text-muted-foreground mb-1.5">Items Breakdown</div>
+                  <div className="text-xs text-muted-foreground mb-1">Items Breakdown</div>
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-medium">{totalItems} unique {totalItems === 1 ? 'product' : 'products'}</span>
                     <span className="text-xs font-bold text-foreground">{totalQuantity} qty</span>
@@ -312,21 +312,21 @@ function CartPage() {
                 </div>
 
                 {}
-                <div className="flex justify-between text-xs pt-1.5 border-t">
+                <div className="flex justify-between text-xs pt-1 border-t">
                   <span className="text-muted-foreground">Shipping & Fees</span>
                   <span className="text-muted-foreground text-xs">Calculated at checkout</span>
                 </div>
 
                 {}
                 <div className="bg-primary/10 rounded p-2 border border-primary/20">
-                  <div className="flex justify-between items-center mb-1.5">
+                  <div className="flex justify-between items-center mb-1">
                     <span className="font-bold text-foreground">Total Amount</span>
                     <span className="text-base font-bold text-primary">{formatCurrency(finalTotal)}</span>
                   </div>
                 </div>
               </div>
 
-              <CustomButton className="w-full mb-1.5.5 gap-1.5 h-8 rounded" onClick={handleCheckout} disabled={checkoutLoading}>
+              <CustomButton className="w-full mb-1 gap-1 h-8 rounded" onClick={handleCheckout} disabled={checkoutLoading}>
                 {checkoutLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <CreditCard className="h-3 w-3" />}
                 {checkoutLoading ? "Loading..." : "Proceed to Checkout"}
               </CustomButton>
@@ -337,7 +337,7 @@ function CartPage() {
 
       {}
       <div className="fixed bottom-11 left-0 right-0 z-40 lg:hidden bg-background/95 backdrop-blur-sm border-t px-3 py-2">
-        <div className="flex items-center justify-between mb-1.5.5">
+        <div className="flex items-center justify-between mb-1">
           <div className="text-xs">
             <div className="text-muted-foreground font-medium">{totalItems} items • {totalQuantity} qty</div>
           </div>
@@ -346,7 +346,7 @@ function CartPage() {
             <div className="text-xs font-bold text-primary">{formatCurrency(finalTotal)}</div>
           </div>
         </div>
-        <CustomButton className="w-full gap-1.5 h-8 rounded" onClick={handleCheckout} disabled={checkoutLoading}>
+        <CustomButton className="w-full gap-1 h-8 rounded" onClick={handleCheckout} disabled={checkoutLoading}>
           {checkoutLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <CreditCard className="h-3 w-3" />}
           {checkoutLoading ? "Loading..." : "Proceed to Checkout"}
           {!checkoutLoading && <ArrowRight className="h-3 w-3 ml-auto" />}
@@ -359,7 +359,7 @@ function CartPage() {
         onDelete={handleClearCart}
         title="Clear Cart"
         description={`Remove all ${totalItems} ${totalItems === 1 ? "item" : "items"} from your cart? This cannot be undone.`}
-        icon={<PackageX className="h-3.5 w-3.5 text-destructive" />}
+        icon={<PackageX className="h-3 w-3 text-destructive" />}
         confirmButtonText="Clear Cart"
         variant="critical"
       />

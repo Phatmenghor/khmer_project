@@ -84,7 +84,7 @@ export function EmptyState({
       ))}
 
       {}
-      <h3 className={cn("font-semibold text-foreground mb-1.5", styles.title)}>
+      <h3 className={cn("font-semibold text-foreground mb-1", styles.title)}>
         {title}
       </h3>
 

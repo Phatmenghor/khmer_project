@@ -63,7 +63,7 @@ export function HourlySalesCard({ hourlySales, loading, currentHour }: HourlySal
 
   return (
     <Card>
-      <CardHeader className="pb-1.5">
+      <CardHeader className="pb-1">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xs">Hourly Sales Pattern</CardTitle>
@@ -72,7 +72,7 @@ export function HourlySalesCard({ hourlySales, loading, currentHour }: HourlySal
             </CardDescription>
           </div>
           {hourlyData.length > 0 && (
-            <Badge variant="outline" className="gap-1.5 text-xs">
+            <Badge variant="outline" className="gap-1 text-xs">
               <Flame className="h-2 w-2 text-rose-500" />
               Peak: {formatHour(peakHour)}
             </Badge>

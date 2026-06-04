@@ -67,7 +67,7 @@ function GenericCardComponent({
           className
         )}
       >
-        <CardContent className="p-3 sm:p-3.5 flex flex-col items-center justify-center gap-2">
+        <CardContent className="p-3 sm:p-3 flex flex-col items-center justify-center gap-2">
           {/* Image Container */}
           <div className="relative w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
             {!imageError && imageUrl ? (
@@ -104,7 +104,7 @@ function GenericCardComponent({
 
           {/* Count Badge */}
           {showCount && (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground group-hover:text-primary/80 transition-colors">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary/80 transition-colors">
               <ShoppingBag className="h-2 w-2" />
               <span className="font-medium">{displayCount}</span>
               <ArrowRight className="h-2 w-2 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />

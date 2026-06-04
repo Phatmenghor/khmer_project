@@ -91,8 +91,8 @@ export function Footer() {
               <div className="space-y-2 text-xs">
                 {contactAddress && (
                   <div className="flex gap-2 items-start">
-                    <div className="w-3.5 h-3.5 flex items-center justify-center flex-shrink-0 text-white pt-0.5">
-                      <MapPin className="w-3.5 h-3.5" />
+                    <div className="w-3 h-3 flex items-center justify-center flex-shrink-0 text-white pt-0.5">
+                      <MapPin className="w-3 h-3" />
                     </div>
                     <p className="text-white leading-relaxed">
                       {contactAddress}
@@ -101,8 +101,8 @@ export function Footer() {
                 )}
                 {contactPhone && (
                   <div className="flex gap-2 items-center">
-                    <div className="w-3.5 h-3.5 flex items-center justify-center flex-shrink-0 text-white">
-                      <Phone className="w-3.5 h-3.5" />
+                    <div className="w-3 h-3 flex items-center justify-center flex-shrink-0 text-white">
+                      <Phone className="w-3 h-3" />
                     </div>
                     <a href={`tel:${contactPhone}`} className="text-white hover:text-white/80 transition-colors">
                       {contactPhone}
@@ -111,8 +111,8 @@ export function Footer() {
                 )}
                 {contactEmail && (
                   <div className="flex gap-2 items-center">
-                    <div className="w-3.5 h-3.5 flex items-center justify-center flex-shrink-0 text-white">
-                      <Mail className="w-3.5 h-3.5" />
+                    <div className="w-3 h-3 flex items-center justify-center flex-shrink-0 text-white">
+                      <Mail className="w-3 h-3" />
                     </div>
                     <a
                       href={`mailto:${contactEmail}`}
@@ -130,9 +130,9 @@ export function Footer() {
           {businessHours.length > 0 && (
             <div className="space-y-3">
               <h3 className="font-semibold text-white text-xs">Business Hours</h3>
-              <div className="space-y-1.5 text-xs">
+              <div className="space-y-1 text-xs">
                 <div className="flex gap-2">
-                  <Clock className="w-3.5 h-3.5 text-white flex-shrink-0 mt-0.5" />
+                  <Clock className="w-3 h-3 text-white flex-shrink-0 mt-0.5" />
                   <div className="text-white">
                     {businessHours.map((hours, index) => (
                       <p key={index} className="font-medium">
@@ -149,14 +149,14 @@ export function Footer() {
           {socialMedia && socialMedia.length > 0 && (
             <div className="space-y-3">
               <h3 className="font-semibold text-white text-xs">Follow Us</h3>
-              <div className="space-y-1.5 text-xs">
+              <div className="space-y-1 text-xs">
                 {socialMedia.map((social: { name: string; linkUrl: string; imageUrl?: string }) => (
                   <a
                     key={social.name}
                     href={social.linkUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-white hover:text-white/80 transition-colors"
+                    className="flex items-center gap-1 text-white hover:text-white/80 transition-colors"
                   >
                     {social.imageUrl && (
                       <Image

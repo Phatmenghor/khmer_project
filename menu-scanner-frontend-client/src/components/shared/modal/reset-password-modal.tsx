@@ -137,7 +137,7 @@ export default function ResetPasswordModal({
 
             {}
             <div className="space-y-2">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <Key className="h-3 w-3 text-muted-foreground" />
                 <Label className="text-xs font-semibold">New Password</Label>
               </div>
@@ -187,7 +187,7 @@ export default function ResetPasswordModal({
             <Card className="border-orange-200 bg-orange-50/50">
               <CardContent className="pt-4">
                 <div className="flex gap-2">
-                  <AlertTriangle className="h-3.5 w-3.5 text-orange-600 flex-shrink-0 mt-0.5" />
+                  <AlertTriangle className="h-3 w-3 text-orange-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-orange-900">
                       Important Notice
@@ -219,7 +219,7 @@ export default function ResetPasswordModal({
           >
             {isResettingPassword ? (
               <>
-                <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                 Resetting...
               </>
             ) : (

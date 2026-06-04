@@ -53,7 +53,7 @@ export function TelegramLoginModal({
         variant="outline"
         onClick={() => setIsOpen(true)}
         disabled={disabled || loading}
-        className={`inline-flex items-center justify-center gap-1.5 ${className}`}
+        className={`inline-flex items-center justify-center gap-1 ${className}`}
       >
         {loading ? (
           <Loader2 className="h-3 w-3 animate-spin" />
@@ -67,7 +67,7 @@ export function TelegramLoginModal({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-1.5">
+            <DialogTitle className="flex items-center gap-1">
               <div className="w-5 h-5 rounded-full bg-[#0088cc] flex items-center justify-center">
                 <TelegramIcon className="h-3 w-3 text-white" />
               </div>
@@ -79,9 +79,9 @@ export function TelegramLoginModal({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col items-center gap-3 py-1.5">
+          <div className="flex flex-col items-center gap-3 py-1">
             {isAuthLoading ? (
-              <div className="flex flex-col items-center gap-1.5 py-3">
+              <div className="flex flex-col items-center gap-1 py-3">
                 <Loader2 className="h-5 w-5 animate-spin text-[#0088cc]" />
                 <p className="text-xs text-muted-foreground">
                   Authenticating with Telegram...

@@ -258,7 +258,7 @@ export function ProductListPage({
                             className={`h-5 w-5 ${lockedPromotion ? "text-orange-500" : "text-primary"}`}
                           />
                         </div>
-                        <h3 className="text-xs font-semibold mb-1.5">
+                        <h3 className="text-xs font-semibold mb-1">
                           {lockedPromotion
                             ? "All deals loaded!"
                             : "You've seen it all!"}
@@ -281,7 +281,7 @@ export function ProductListPage({
                       <span className="text-xs">📦</span>
                     )}
                   </div>
-                  <h3 className="text-xs font-semibold mb-1.5">
+                  <h3 className="text-xs font-semibold mb-1">
                     {lockedPromotion ? "No deals found" : "No products found"}
                   </h3>
                   <p className="text-muted-foreground">

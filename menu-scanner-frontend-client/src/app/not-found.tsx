@@ -14,12 +14,12 @@ export default function NotFoundPage() {
         <p className="text-base font-bold text-muted-foreground/30">404</p>
         <h1 className="text-xs font-semibold">Page Not Found</h1>
         <p className="text-xs text-muted-foreground">The page you're looking for doesn't exist.</p>
-        <div className="flex gap-2 justify-center pt-1.5">
-          <Button variant="outline" size="sm" onClick={() => router.back()} className="gap-1.5">
+        <div className="flex gap-2 justify-center pt-1">
+          <Button variant="outline" size="sm" onClick={() => router.back()} className="gap-1">
             <ArrowLeft className="h-3 w-3" /> Back
           </Button>
           <Button size="sm" asChild>
-            <Link href="/dashboard" className="gap-1.5 flex items-center">
+            <Link href="/dashboard" className="gap-1 flex items-center">
               <Home className="h-3 w-3" /> Dashboard
             </Link>
           </Button>

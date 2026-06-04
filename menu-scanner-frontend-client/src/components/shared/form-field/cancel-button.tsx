@@ -37,7 +37,7 @@ export function CancelButton({
       disabled={disabled}
       className={cn("transition-all", className)}
     >
-      {showIcon && <X className="mr-1.5 h-3 w-3" />}
+      {showIcon && <X className="mr-1 h-3 w-3" />}
       {text}
     </Button>
   );

@@ -74,11 +74,11 @@ function SizesDisplay({ sizes }: { sizes: { id: string; name: string; finalPrice
   }
 
   return (
-    <div className="flex flex-nowrap gap-1.5 overflow-x-auto pb-1">
+    <div className="flex flex-nowrap gap-1 overflow-x-auto pb-1">
       {sizes.map((size) => (
         <div
           key={size.id}
-          className="px-1.5 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
+          className="px-1 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
           style={{
             border: `0.5px solid ${secondary}`,
           }}
@@ -176,7 +176,7 @@ export const productTableColumns = ({
       maxWidth: "250px",
       render: (product) => (
         <div className="space-y-1">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             {product?.displayOriginPrice && product.displayOriginPrice !== product.displayPrice && (
               <span className="text-xs text-muted-foreground line-through">
                 ${parseFloat(product?.displayOriginPrice?.toString() || "0").toFixed(2)}
@@ -211,7 +211,7 @@ export const productTableColumns = ({
       minWidth: "150px",
       maxWidth: "350px",
       render: (product) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <Switch
             checked={product?.status === "ACTIVE"}
             onCheckedChange={() => {
@@ -244,7 +244,7 @@ export const productTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (brand) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <ActionButton
             icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"

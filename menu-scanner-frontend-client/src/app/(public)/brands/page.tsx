@@ -106,8 +106,8 @@ export default function BrandsPage() {
             </div>
 
             {isLoadingMore && (
-              <div className="flex items-center justify-center py-4 mt-1.5">
-                <div className="flex items-center gap-1.5 text-primary">
+              <div className="flex items-center justify-center py-4 mt-1">
+                <div className="flex items-center gap-1 text-primary">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   <span className="text-xs font-medium">Loading more...</span>
                 </div>
@@ -119,7 +119,7 @@ export default function BrandsPage() {
                 <div className="flex items-center justify-center w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-primary/10 mb-3">
                   <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
-                <h3 className="text-xs sm:text-xs font-semibold mb-1.5 text-center">
+                <h3 className="text-xs sm:text-xs font-semibold mb-1 text-center">
                   You've seen all brands!
                 </h3>
                 <p className="text-xs sm:text-xs text-muted-foreground text-center max-w-md">

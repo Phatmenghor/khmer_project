@@ -83,8 +83,8 @@ export function DataTableWithPagination<T = any>({
       pageButton: "h-6 min-w-6 text-xs",
     },
     lg: {
-      button: "h-7 px-3.5 text-xs",
-      icon: "h-3.5 w-3.5",
+      button: "h-7 px-3 text-xs",
+      icon: "h-3 w-3",
       pageButton: "h-7 min-w-7 text-xs",
     },
   };
@@ -296,14 +296,14 @@ export function DataTableWithPagination<T = any>({
 
           {}
           {totalPages > 1 && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               {}
               <button
                 onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
                 className={`
                 ${classes.button}
-                flex items-center gap-1.5 rounded border font-medium transition-all duration-200
+                flex items-center gap-1 rounded border font-medium transition-all duration-200
                 ${
                   currentPage === 1
                     ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"
@@ -322,7 +322,7 @@ export function DataTableWithPagination<T = any>({
                     return (
                       <span
                         key={`ellipsis-${index}`}
-                        className="px-1.5 text-muted-foreground"
+                        className="px-1 text-muted-foreground"
                       >
                         ...
                       </span>
@@ -335,7 +335,7 @@ export function DataTableWithPagination<T = any>({
                       onClick={() => onPageChange(item)}
                       className={`
                       ${classes.pageButton}
-                      rounded font-medium px-1.5 transition-all duration-200
+                      rounded font-medium px-1 transition-all duration-200
                       ${
                         currentPage === item
                           ? "bg-primary text-primary-foreground border-2 border-primary shadow-md font-bold"
@@ -357,7 +357,7 @@ export function DataTableWithPagination<T = any>({
                 disabled={currentPage === totalPages}
                 className={`
                 ${classes.button}
-                flex items-center gap-1.5 rounded border font-medium transition-all duration-200
+                flex items-center gap-1 rounded border font-medium transition-all duration-200
                 ${
                   currentPage === totalPages
                     ? "opacity-50 cursor-not-allowed text-muted-foreground border-border"

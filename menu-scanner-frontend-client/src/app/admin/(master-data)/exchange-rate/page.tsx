@@ -236,7 +236,7 @@ export default function ExchangeRatePage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1.5">
+    <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
         <CardHeaderSection
           title="Exchange Rate"
@@ -248,7 +248,7 @@ export default function ExchangeRatePage() {
           onSearchChange={handleSearchChange}
           openModal={handleCreateUser}
         >
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1">
             <CustomSelect
               options={EXCHAGE_RATE_FILTER}
               value={filters.isActive}

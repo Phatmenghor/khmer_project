@@ -72,7 +72,7 @@ export default function DashboardLayout({
   if (isFullscreen && isPosPage) {
     return (
       <div className="fixed inset-0 z-40 bg-background flex flex-col">
-        <div className="hidden md:flex h-11 items-center border-b bg-background/95 backdrop-blur px-3.5">
+        <div className="hidden md:flex h-11 items-center border-b bg-background/95 backdrop-blur px-3">
           <Button
             variant="ghost"
             size="icon"
@@ -107,7 +107,7 @@ export default function DashboardLayout({
         />
         <main className={cn(
           "dashboard-main flex-1",
-          isPosPage ? "overflow-hidden" : "p-1.5 md:p-3"
+          isPosPage ? "overflow-hidden" : "p-1 md:p-3"
         )}>
           {children}
         </main>

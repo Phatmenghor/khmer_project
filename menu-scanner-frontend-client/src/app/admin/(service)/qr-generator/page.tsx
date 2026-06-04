@@ -30,7 +30,7 @@ export default function QRGeneratorPage() {
   }, []);
 
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1.5 pb-5">
+    <div className="flex flex-1 flex-col gap-3 px-1 pb-5">
       <CardHeaderSection title="QR Generator" />
 
       {/*

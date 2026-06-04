@@ -327,7 +327,7 @@ export default function ProductsStockPage() {
   }), [filters.search, filters.status, stockStatusFilter, selectedBrand, selectedCategories]);
 
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1.5">
+    <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
         <CollapsibleFilterPanel
           config={filterConfig}

@@ -163,7 +163,7 @@ export function LeaveDetailModal({
             <DetailRow
               label="Leave Type ID"
               value={
-                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1 py-1 rounded break-all">
                   {leaveData?.id}
                 </span>
               }
@@ -193,7 +193,7 @@ export function LeaveDetailModal({
               <Button
                 variant="outline"
                 onClick={handleEdit}
-                className="flex items-center gap-1.5"
+                className="flex items-center gap-1"
               >
                 <Edit className="w-3 h-3" />
                 Edit
@@ -202,7 +202,7 @@ export function LeaveDetailModal({
             {isPending && onApprove && (
               <Button
                 onClick={handleApprove}
-                className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700"
+                className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
               >
                 <Check className="w-3 h-3" />
                 Approve
@@ -212,7 +212,7 @@ export function LeaveDetailModal({
               <Button
                 onClick={handleReject}
                 variant="destructive"
-                className="flex items-center gap-1.5"
+                className="flex items-center gap-1"
               >
                 <X className="w-3 h-3" />
                 Reject

@@ -233,7 +233,7 @@ export default function OrdersPage() {
       <div className="mt-5 mb-4 space-y-3">
         <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-end justify-between w-full">
           <div className="min-w-0 w-full sm:w-auto sm:max-w-xs">
-            <label className="text-xs font-semibold text-foreground mb-1.5 block">
+            <label className="text-xs font-semibold text-foreground mb-1 block">
               Search Orders
             </label>
             <div className="relative">
@@ -264,7 +264,7 @@ export default function OrdersPage() {
 
           <div className="flex flex-shrink-0 gap-2 items-end w-full sm:w-auto">
             <div className="w-auto flex-shrink-0
-              [&>.space-y-1.5]:!w-auto [&>.space-y-1.5]:!flex [&>.space-y-1.5]:!flex-col [&>.space-y-1.5]:!gap-1
+              [&>.space-y-1]:!w-auto [&>.space-y-1]:!flex [&>.space-y-1]:!flex-col [&>.space-y-1]:!gap-1
               [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
               [&_.w-full]:!w-auto">
               <CustomSelect
@@ -281,7 +281,7 @@ export default function OrdersPage() {
             </div>
 
             <div className="w-auto flex-shrink-0
-              [&>.space-y-1.5]:!w-auto [&>.space-y-1.5]:!flex [&>.space-y-1.5]:!flex-col [&>.space-y-1.5]:!gap-1
+              [&>.space-y-1]:!w-auto [&>.space-y-1]:!flex [&>.space-y-1]:!flex-col [&>.space-y-1]:!gap-1
               [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
               [&_.w-full]:!w-auto">
               <CustomSelect
@@ -313,7 +313,7 @@ export default function OrdersPage() {
           <div className="w-11 h-11 rounded bg-primary/10 flex items-center justify-center mx-auto mb-3">
             <ShoppingBag className="h-5 w-5 text-primary" />
           </div>
-          <h3 className="text-xs font-semibold text-foreground mb-1.5">
+          <h3 className="text-xs font-semibold text-foreground mb-1">
             {filters.status ? "No Orders Found" : "No Orders Yet"}
           </h3>
           <p className="text-muted-foreground mb-4">
@@ -514,7 +514,7 @@ function createOrderTableColumns(
       minWidth: "120px",
       maxWidth: "160px",
       render: (order) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <ActionButton
             icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"

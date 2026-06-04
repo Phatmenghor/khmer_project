@@ -42,7 +42,7 @@ export function SignInRequired({
         <div className="flex flex-col gap-2">
           <CustomButton
             onClick={onSignIn}
-            className="w-full gap-1.5 h-8"
+            className="w-full gap-1 h-8"
             size="lg"
           >
             <LogIn className="h-3 w-3" />
@@ -51,7 +51,7 @@ export function SignInRequired({
           <CustomButton
             variant="outline"
             onClick={onBrowse}
-            className="w-full gap-1.5 h-8"
+            className="w-full gap-1 h-8"
             size="lg"
           >
             <ShoppingCart className="h-3 w-3" />

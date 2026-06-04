@@ -33,7 +33,7 @@ function NavbarCartComponent({
   const iconClass = isMobile ? "h-5 w-5" : "h-5 w-5";
 
   return (
-    <div className={cn("flex items-center", isMobile ? "gap-1" : "gap-1.5")}>
+    <div className={cn("flex items-center", isMobile ? "gap-1" : "gap-1")}>
       <CustomButton
         variant="ghost"
         size="icon"
@@ -45,7 +45,7 @@ function NavbarCartComponent({
           <Badge
             variant="destructive"
             className={cn(
-              "absolute -top-1 -right-1 h-3.5 min-w-[20px] max-w-[28px] px-1 flex items-center justify-center text-[11px] font-semibold leading-none transition-transform duration-300",
+              "absolute -top-1 -right-1 h-3 min-w-[20px] max-w-[28px] px-1 flex items-center justify-center text-[11px] font-semibold leading-none transition-transform duration-300",
               favoriteAnimating && "animate-slide-down"
             )}
           >
@@ -64,7 +64,7 @@ function NavbarCartComponent({
         {cartItemCount > 0 && (
           <Badge
             variant="destructive"
-            className="absolute -top-1 -right-1 min-w-[20px] max-w-[28px] h-3.5 px-1 flex items-center justify-center text-xs font-semibold leading-none"
+            className="absolute -top-1 -right-1 min-w-[20px] max-w-[28px] h-3 px-1 flex items-center justify-center text-xs font-semibold leading-none"
           >
             {cartItemCount > 99 ? "99+" : cartItemCount}
           </Badge>

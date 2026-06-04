@@ -66,7 +66,7 @@ function NavbarMenuComponent({
         onClick={() => onOpenChange(!open)}
         title="Menu"
       >
-        <Menu className="h-3.5 w-3.5" />
+        <Menu className="h-3 w-3" />
       </Button>
 
       <Sheet open={open} onOpenChange={onOpenChange}>
@@ -105,7 +105,7 @@ function NavbarMenuComponent({
 
           <div className="flex flex-col h-full overflow-y-auto">
             {/* Navigation */}
-            <nav className="flex flex-col py-1.5">
+            <nav className="flex flex-col py-1">
               {navigationLinks.map((link) => {
                 const active =
                   pathname === link.href ||
@@ -121,7 +121,7 @@ function NavbarMenuComponent({
                         onOpenChange(false);
                       }}
                       className={cn(
-                        "w-full text-left px-3 py-2 mx-1.5 rounded text-xs font-medium transition-all duration-200 flex items-center gap-2",
+                        "w-full text-left px-3 py-2 mx-1 rounded text-xs font-medium transition-all duration-200 flex items-center gap-2",
                         active
                           ? "text-primary bg-primary/10 shadow-sm"
                           : "text-foreground hover:bg-muted/50 active:bg-muted/70"
@@ -129,7 +129,7 @@ function NavbarMenuComponent({
                     >
                       <span className="flex-1">{link.name}</span>
                       {active && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                        <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
                       )}
                     </button>
                   );
@@ -143,7 +143,7 @@ function NavbarMenuComponent({
                       onOpenChange(false);
                     }}
                     className={cn(
-                      "w-full text-left px-3 py-2 mx-1.5 rounded text-xs font-medium transition-all duration-200 flex items-center gap-2",
+                      "w-full text-left px-3 py-2 mx-1 rounded text-xs font-medium transition-all duration-200 flex items-center gap-2",
                       active
                         ? "text-primary bg-primary/10 shadow-sm"
                         : "text-foreground hover:bg-muted/50 active:bg-muted/70"
@@ -151,7 +151,7 @@ function NavbarMenuComponent({
                   >
                     <span className="flex-1">{link.name}</span>
                     {active && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                      <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
                     )}
                   </button>
                 );
@@ -159,12 +159,12 @@ function NavbarMenuComponent({
             </nav>
 
             {/* Divider */}
-            <div className="my-1.5 mx-3 border-t border-border/40" />
+            <div className="my-1 mx-3 border-t border-border/40" />
 
             {/* Footer */}
             {isAuthenticated ? (
               <div className="px-3 py-3 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent">
-                <div className="flex items-center gap-2 mb-3 p-1.5 rounded bg-background/50">
+                <div className="flex items-center gap-2 mb-3 p-1 rounded bg-background/50">
                   <CustomAvatar
                     imageUrl={profileImage || profile?.profileImageUrl}
                     name={fullName || profile?.fullName || "User"}
@@ -188,12 +188,12 @@ function NavbarMenuComponent({
                     onOpenChange(false);
                   }}
                 >
-                  <LogOut className="h-3 w-3 mr-1.5" />
+                  <LogOut className="h-3 w-3 mr-1" />
                   Logout
                 </Button>
               </div>
             ) : (
-              <div className="px-3 py-3 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent flex gap-1.5">
+              <div className="px-3 py-3 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent flex gap-1">
                 <Button
                   variant="outline"
                   size="sm"

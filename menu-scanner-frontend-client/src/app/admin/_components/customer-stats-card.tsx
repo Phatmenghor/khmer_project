@@ -19,8 +19,8 @@ interface CustomerStatsCardProps {
 export function CustomerStatsCard({ customerStats, loading }: CustomerStatsCardProps) {
   return (
     <Card className="flex-1">
-      <CardHeader className="pb-1.5">
-        <div className="flex items-center gap-1.5">
+      <CardHeader className="pb-1">
+        <div className="flex items-center gap-1">
           <Users className="h-3 w-3 text-muted-foreground" />
           <CardTitle className="text-xs">Customers</CardTitle>
         </div>
@@ -47,14 +47,14 @@ export function CustomerStatsCard({ customerStats, loading }: CustomerStatsCardP
                 <span className={cn("text-xs font-semibold tabular-nums", row.color)}>{row.value}</span>
               </div>
             ))}
-            <div className="pt-1.5 border-t">
+            <div className="pt-1 border-t">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Return rate</span>
                 <span className="font-semibold text-emerald-600 dark:text-emerald-400">
                   {customerStats.returnRate?.toFixed(1)}%
                 </span>
               </div>
-              <div className="mt-1.5 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div className="mt-1 h-1 bg-muted rounded-full overflow-hidden">
                 <div
                   className="h-full bg-emerald-500 rounded-full"
                   style={{ width: `${Math.min(customerStats.returnRate, 100)}%` }}

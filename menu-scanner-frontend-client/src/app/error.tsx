@@ -20,11 +20,11 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         <p className="text-base font-bold text-muted-foreground/30">500</p>
         <h1 className="text-xs font-semibold">Something Went Wrong</h1>
         <p className="text-xs text-muted-foreground">An unexpected error occurred. Please try again.</p>
-        <div className="flex gap-2 justify-center pt-1.5">
-          <Button variant="outline" size="sm" onClick={reset} className="gap-1.5">
+        <div className="flex gap-2 justify-center pt-1">
+          <Button variant="outline" size="sm" onClick={reset} className="gap-1">
             <RefreshCw className="h-3 w-3" /> Try Again
           </Button>
-          <Button size="sm" onClick={() => router.push("/dashboard")} className="gap-1.5">
+          <Button size="sm" onClick={() => router.push("/dashboard")} className="gap-1">
             <Home className="h-3 w-3" /> Dashboard
           </Button>
         </div>

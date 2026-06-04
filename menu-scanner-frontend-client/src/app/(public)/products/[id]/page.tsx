@@ -612,26 +612,26 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageContainer className="min-h-screen flex flex-col py-2 sm:py-3.5 lg:py-4">
+      <PageContainer className="min-h-screen flex flex-col py-2 sm:py-3 lg:py-4">
 
         {/* Back */}
         <CustomButton
           variant="ghost"
           size="sm"
           onClick={() => router.back()}
-          className="mb-3 -ml-1 w-fit gap-1.5 text-muted-foreground hover:text-foreground"
+          className="mb-3 -ml-1 w-fit gap-1 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-3 w-3" />
           Back
         </CustomButton>
 
         {/* ── Main grid ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[9fr_11fr] gap-3.5 md:gap-4 lg:gap-7 mb-7 sm:mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[9fr_11fr] gap-3 md:gap-4 lg:gap-7 mb-7 sm:mb-8">
 
           {/* Left: image gallery */}
           <div>
             {/* Thumb strip on left + main image — all screen sizes */}
-            <div className="flex gap-1.5">
+            <div className="flex gap-1">
 
               {/* Vertical thumb strip — all sizes, width scales with screen */}
               {allImages.length > 1 && (
@@ -640,7 +640,7 @@ export default function ProductDetailPage() {
                     onClick={scrollThumbsUp}
                     disabled={!canScrollUp}
                     className={cn(
-                      "w-full h-3.5 sm:h-4 rounded flex items-center justify-center transition-colors",
+                      "w-full h-3 sm:h-4 rounded flex items-center justify-center transition-colors",
                       canScrollUp
                         ? "hover:bg-muted text-foreground cursor-pointer"
                         : "text-muted-foreground/20 cursor-default",
@@ -684,7 +684,7 @@ export default function ProductDetailPage() {
                     onClick={scrollThumbsDown}
                     disabled={!canScrollDown}
                     className={cn(
-                      "w-full h-3.5 sm:h-4 rounded flex items-center justify-center transition-colors",
+                      "w-full h-3 sm:h-4 rounded flex items-center justify-center transition-colors",
                       canScrollDown
                         ? "hover:bg-muted text-foreground cursor-pointer"
                         : "text-muted-foreground/20 cursor-default",
@@ -720,7 +720,7 @@ export default function ProductDetailPage() {
                 {hasDiscount && discountPercent > 0 && (
                   <Badge
                     variant="destructive"
-                    className="absolute top-1.5.5 left-1.5.5 text-xs font-bold px-1.5 py-1 shadow"
+                    className="absolute top-1 left-1 text-xs font-bold px-1 py-1 shadow"
                   >
                     -{discountPercent}%
                   </Badge>
@@ -728,7 +728,7 @@ export default function ProductDetailPage() {
 
                 <button
                   onClick={() => openLightbox(currentImageIndex)}
-                  className="absolute bottom-1.5.5 right-1.5.5 bg-background/75 backdrop-blur-sm rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow cursor-zoom-in hover:bg-background"
+                  className="absolute bottom-1 right-1 bg-background/75 backdrop-blur-sm rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow cursor-zoom-in hover:bg-background"
                 >
                   <ZoomIn className="h-2.5 w-2.5 text-foreground/70" />
                 </button>
@@ -737,13 +737,13 @@ export default function ProductDetailPage() {
                   <>
                     <button
                       onClick={(e) => { e.stopPropagation(); prevImage(); }}
-                      className="absolute left-1.5 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-1.5 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute left-1 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-1 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
                     >
                       <ChevronLeft className="h-3 w-3" />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); nextImage(); }}
-                      className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-1.5 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-1 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
                     >
                       <ChevronRight className="h-3 w-3" />
                     </button>
@@ -751,7 +751,7 @@ export default function ProductDetailPage() {
                 )}
 
                 {allImages.length > 1 && (
-                  <div className="absolute bottom-1.5.5 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-1.5.5 py-0.5 rounded-full text-xs font-medium shadow">
+                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm px-1 py-0.5 rounded-full text-xs font-medium shadow">
                     {currentImageIndex + 1} / {allImages.length}
                   </div>
                 )}
@@ -760,10 +760,10 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Right: product info */}
-          <div className="flex flex-col gap-3 sm:gap-3.5">
+          <div className="flex flex-col gap-3 sm:gap-3">
 
             {/* Badges */}
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1">
               {product.categoryName && (
                 <Badge variant="secondary" className="gap-1 text-xs">
                   <Tag className="h-2 w-2" />
@@ -787,7 +787,7 @@ export default function ProductDetailPage() {
             </h1>
 
             {/* Price */}
-            <div className="flex flex-wrap items-baseline gap-x-1.5.5 gap-y-1">
+            <div className="flex flex-wrap items-baseline gap-x-1 gap-y-1">
               <span className="text-base sm:text-xs font-bold text-primary leading-none">
                 {formatCurrency(displayPrice)}
               </span>
@@ -796,7 +796,7 @@ export default function ProductDetailPage() {
                   <span className="text-xs text-muted-foreground line-through leading-none">
                     {formatCurrency(originalPrice)}
                   </span>
-                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1 py-0.5 rounded-full">
                     Save {formatCurrency(originalPrice - displayPrice)}
                   </span>
                 </>
@@ -814,7 +814,7 @@ export default function ProductDetailPage() {
             {hasSizes && (
               <div className="space-y-2">
                 <h4 className="font-semibold text-xs text-foreground">Choose Size</h4>
-                <div className="flex flex-wrap gap-1.5.5">
+                <div className="flex flex-wrap gap-1">
                   {product.sizes!.map((size) => {
                     const isSelected = selectedSize?.id === size.id;
                     const isModified = modifiedSizes.has(size.id);
@@ -826,7 +826,7 @@ export default function ProductDetailPage() {
                         key={size.id}
                         onClick={() => handleSizeButtonClick(size)}
                         className={cn(
-                          "relative border-2 rounded px-2.5 py-1.5.5 text-left transition-all duration-200 cursor-pointer min-w-[72px]",
+                          "relative border-2 rounded px-2.5 py-1 text-left transition-all duration-200 cursor-pointer min-w-[72px]",
                           isSelected
                             ? "border-primary bg-primary/8 shadow-md ring-2 ring-primary/20"
                             : "border-border hover:border-primary/50 hover:bg-muted/40 hover:shadow-sm",
@@ -834,20 +834,20 @@ export default function ProductDetailPage() {
                         )}
                       >
                         {isSelected && (
-                          <div className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center shadow-sm z-10">
+                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full flex items-center justify-center shadow-sm z-10">
                             <Check className="h-2 w-2 text-white" />
                           </div>
                         )}
                         {totalQty > 0 && (
                           <div className={cn(
-                            "absolute -top-1.5 -left-1.5 min-w-[20px] h-3.5 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1.5 shadow-sm z-10",
+                            "absolute -top-1 -left-1 min-w-[20px] h-3 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1 shadow-sm z-10",
                             badgeAmber ? "bg-amber-500" : "bg-emerald-500",
                           )}>
                             {totalQty}
                           </div>
                         )}
                         <div className="font-semibold text-xs">{size.name}</div>
-                        <div className="flex items-center gap-1.5 mt-1">
+                        <div className="flex items-center gap-1 mt-1">
                           <div className={cn("font-bold text-xs", isSelected ? "text-primary" : "text-foreground")}>
                             {formatCurrency(size.finalPrice)}
                           </div>
@@ -870,7 +870,7 @@ export default function ProductDetailPage() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {hasSizes && selectedSize ? `Quantity — ${selectedSize.name}` : "Quantity"}
                 </p>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <CustomButton
                     size="icon"
                     variant="outline"
@@ -903,7 +903,7 @@ export default function ProductDetailPage() {
                   )}
                   <div className="flex-1" />
                   <CustomButton
-                    className="h-7 px-3.5 rounded font-semibold text-xs bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                    className="h-7 px-3 rounded font-semibold text-xs bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                     onClick={handleApplyCart}
                     disabled={!hasUnsavedChanges}
                   >
@@ -915,10 +915,10 @@ export default function ProductDetailPage() {
 
             {/* Quantity — simple product: card pattern (btn → +/-) */}
             {!isOutOfStock && !hasSizes && !hasCustomizations && (
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quantity</p>
                 {pageQuantity > 0 ? (
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <CustomButton
                       size="icon"
                       variant="outline"
@@ -957,7 +957,7 @@ export default function ProductDetailPage() {
 
             {/* Customizations — selectable, collapsible if >4 */}
             {hasCustomizations && (
-              <div className="space-y-1.5.5">
+              <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Add-ons Available
@@ -980,7 +980,7 @@ export default function ProductDetailPage() {
                         type="button"
                         onClick={() => toggleCustomization(c.id)}
                         className={cn(
-                          "w-full flex items-center gap-2 px-3 py-1.5.5 text-xs text-left transition-colors",
+                          "w-full flex items-center gap-2 px-3 py-1 text-xs text-left transition-colors",
                           idx < arr.length - 1 && "border-b",
                           isSelected ? "bg-primary/5" : "hover:bg-muted/40",
                         )}
@@ -993,13 +993,13 @@ export default function ProductDetailPage() {
                               : "border-border bg-background",
                           )}
                         >
-                          {isSelected && <Check className="h-1.5.5 w-1.5.5 text-primary-foreground" />}
+                          {isSelected && <Check className="h-1 w-1 text-primary-foreground" />}
                         </div>
                         <span className="flex-1 text-foreground/90">{c.name}</span>
                         {c.priceAdjustment !== 0 ? (
                           <span
                             className={cn(
-                              "font-semibold text-xs px-1.5 py-0.5 rounded-full shrink-0",
+                              "font-semibold text-xs px-1 py-0.5 rounded-full shrink-0",
                               isSelected
                                 ? "text-primary bg-primary/10"
                                 : "text-muted-foreground bg-muted/60",
@@ -1028,11 +1028,11 @@ export default function ProductDetailPage() {
             )}
 
             {/* Secondary actions */}
-            <div className="grid grid-cols-2 gap-1.5.5">
+            <div className="grid grid-cols-2 gap-1">
               <CustomButton
                 variant="outline"
                 className={cn(
-                  "h-7 sm:h-8 rounded gap-1.5 font-medium text-xs transition-all duration-200",
+                  "h-7 sm:h-8 rounded gap-1 font-medium text-xs transition-all duration-200",
                   isFavorited
                     ? "bg-rose-50 border-rose-300 text-rose-600 hover:bg-rose-100 hover:border-rose-400 dark:bg-rose-950/30 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-950/50"
                     : "hover:bg-rose-50/80 hover:border-rose-200 hover:text-rose-500 dark:hover:bg-rose-950/20 dark:hover:text-rose-400",
@@ -1054,7 +1054,7 @@ export default function ProductDetailPage() {
               </CustomButton>
               <CustomButton
                 variant="outline"
-                className="h-7 sm:h-8 rounded gap-1.5 font-medium text-xs hover:bg-sky-50 hover:border-sky-200 hover:text-sky-600 dark:hover:bg-sky-950/30 dark:hover:border-sky-800 dark:hover:text-sky-400 transition-all duration-200"
+                className="h-7 sm:h-8 rounded gap-1 font-medium text-xs hover:bg-sky-50 hover:border-sky-200 hover:text-sky-600 dark:hover:bg-sky-950/30 dark:hover:border-sky-800 dark:hover:text-sky-400 transition-all duration-200"
                 onClick={handleShare}
               >
                 <Share2 className="h-3 w-3" />
@@ -1064,12 +1064,12 @@ export default function ProductDetailPage() {
 
             {/* Stats */}
             <div className="flex items-center gap-3 sm:gap-4 pt-2 sm:pt-3 border-t text-muted-foreground">
-              <div className="flex items-center gap-1.5 text-xs">
+              <div className="flex items-center gap-1 text-xs">
                 <Eye className="h-3 w-3" />
                 <span>{product.viewCount.toLocaleString()}</span>
                 <span className="text-xs">views</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs">
+              <div className="flex items-center gap-1 text-xs">
                 <Heart className="h-3 w-3" />
                 <span>{product.favoriteCount.toLocaleString()}</span>
                 <span className="text-xs">saves</span>
@@ -1086,7 +1086,7 @@ export default function ProductDetailPage() {
         {/* Similar products */}
         {(similarLoading || similarProducts.length > 0) && (
           <div className="mb-7 sm:mb-8">
-            <div className="flex items-center gap-1.5 mb-3 sm:mb-3.5">
+            <div className="flex items-center gap-1 mb-3 sm:mb-3">
               <h2 className="text-xs sm:text-xs font-bold">You May Also Like</h2>
             </div>
             <PaginatedProductsGrid
@@ -1116,9 +1116,9 @@ export default function ProductDetailPage() {
             </span>
             <button
               onClick={() => setLightboxOpen(false)}
-              className="bg-white/10 hover:bg-white/20 text-white p-1.5 rounded-full transition-colors"
+              className="bg-white/10 hover:bg-white/20 text-white p-1 rounded-full transition-colors"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-3 w-3" />
             </button>
           </div>
 
@@ -1136,13 +1136,13 @@ export default function ProductDetailPage() {
               <>
                 <button
                   onClick={prevLightbox}
-                  className="absolute left-1.5 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-2 rounded-full transition-colors"
+                  className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-2 rounded-full transition-colors"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button
                   onClick={nextLightbox}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-2 rounded-full transition-colors"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-2 rounded-full transition-colors"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -1151,7 +1151,7 @@ export default function ProductDetailPage() {
           </div>
 
           <div
-            className="w-full flex justify-center gap-1.5 px-3 py-2 overflow-x-auto shrink-0"
+            className="w-full flex justify-center gap-1 px-3 py-2 overflow-x-auto shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
             {allImages.map((img, i) => (
@@ -1181,11 +1181,11 @@ export default function ProductDetailPage() {
 
 function ProductDetailSkeleton() {
   return (
-    <PageContainer className="py-2 sm:py-3.5 lg:py-4">
+    <PageContainer className="py-2 sm:py-3 lg:py-4">
       <Skeleton className="h-5 w-11 mb-3 rounded" />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[9fr_11fr] gap-3.5 md:gap-4 lg:gap-7 mb-7">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[9fr_11fr] gap-3 md:gap-4 lg:gap-7 mb-7">
         {/* Image gallery skeleton */}
-        <div className="flex gap-1.5">
+        <div className="flex gap-1">
           {/* Thumb strip — always visible */}
           <div className="flex flex-col justify-between w-[52px] sm:w-[60px] lg:w-[64px] shrink-0">
             {[1, 2, 3, 4].map((i) => (
@@ -1195,21 +1195,21 @@ function ProductDetailSkeleton() {
           <Skeleton className="flex-1 h-[260px] sm:h-[320px] md:h-[300px] lg:h-[380px] rounded" />
         </div>
         {/* Info skeleton */}
-        <div className="space-y-3 sm:space-y-3.5">
-          <div className="flex gap-1.5">
-            <Skeleton className="h-3.5 w-14 rounded-full" />
-            <Skeleton className="h-3.5 w-11 rounded-full" />
+        <div className="space-y-3 sm:space-y-3">
+          <div className="flex gap-1">
+            <Skeleton className="h-3 w-14 rounded-full" />
+            <Skeleton className="h-3 w-11 rounded-full" />
           </div>
           <Skeleton className="h-5 w-4/5 rounded" />
           <Skeleton className="h-6 w-24 rounded" />
           <Skeleton className="h-10 w-full rounded" />
-          <div className="flex gap-1.5">
+          <div className="flex gap-1">
             {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-[60px] w-[60px] rounded" />
             ))}
           </div>
           <Skeleton className="h-8 w-full rounded" />
-          <div className="grid grid-cols-2 gap-1.5.5">
+          <div className="grid grid-cols-2 gap-1">
             <Skeleton className="h-7 rounded" />
             <Skeleton className="h-7 rounded" />
           </div>

@@ -133,7 +133,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               >
                 <div className="flex w-full items-center">
                   {route.icon && (
-                    <route.icon className="w-3.5 h-3.5 flex-shrink-0 transition-colors duration-200" />
+                    <route.icon className="w-3 h-3 flex-shrink-0 transition-colors duration-200" />
                   )}
                   {!isCollapsed && (
                     <>
@@ -170,12 +170,12 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
                         <div
                           className={cn(
-                            "absolute left-0 top-1/2 w-1.5 h-1.5 rounded-full transform -translate-x-0.5 -translate-y-0.5 z-10 transition-colors duration-200",
+                            "absolute left-0 top-1/2 w-1 h-1 rounded-full transform -translate-x-0.5 -translate-y-0.5 z-10 transition-colors duration-200",
                             isSubItemActive ? "bg-primary" : "bg-gray-400",
                           )}
                         ></div>
 
-                        <div className="absolute left-3 top-1/2 w-1.5 h-px z-0 transition-colors duration-200 bg-gray-200"></div>
+                        <div className="absolute left-3 top-1/2 w-1 h-px z-0 transition-colors duration-200 bg-gray-200"></div>
 
                         <Button
                           variant="ghost"
@@ -188,7 +188,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                         >
                           <Link
                             href={subItem.href}
-                            className="flex items-center gap-1.5"
+                            className="flex items-center gap-1"
                           >
                             <span className="truncate">{subItem.title}</span>
                           </Link>
@@ -215,10 +215,10 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
           >
             <Link
               href={route.href || "#"}
-              className="flex items-center gap-2 px-2 py-1.5"
+              className="flex items-center gap-2 px-2 py-1"
               title={collapsed ? route.title : undefined}
             >
-              {route.icon && <route.icon className="w-3.5 h-3.5 flex-shrink-0" />}
+              {route.icon && <route.icon className="w-3 h-3 flex-shrink-0" />}
               {!collapsed && <span className="truncate">{route.title}</span>}
             </Link>
           </Button>
@@ -296,7 +296,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
         </div>
 
         <ScrollArea className="flex-1 py-4">
-          <div className="px-3 space-y-1.5">{renderNavItems(collapsed)}</div>
+          <div className="px-3 space-y-1">{renderNavItems(collapsed)}</div>
         </ScrollArea>
 
         {profile && (

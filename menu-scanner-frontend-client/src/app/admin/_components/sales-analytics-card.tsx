@@ -25,7 +25,7 @@ function SalesTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-popover border rounded shadow-lg px-3 py-2 text-xs space-y-1">
-      <p className="font-semibold text-foreground mb-1.5">{label}</p>
+      <p className="font-semibold text-foreground mb-1">{label}</p>
       <p className="text-primary">
         Revenue: <span className="font-bold">{formatCurrency(payload[0]?.value ?? 0)}</span>
       </p>
@@ -44,7 +44,7 @@ interface SalesAnalyticsCardProps {
 export function SalesAnalyticsCard({ sales, loading }: SalesAnalyticsCardProps) {
   return (
     <Card className="lg:col-span-2">
-      <CardHeader className="pb-1.5">
+      <CardHeader className="pb-1">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xs">Sales Analytics</CardTitle>

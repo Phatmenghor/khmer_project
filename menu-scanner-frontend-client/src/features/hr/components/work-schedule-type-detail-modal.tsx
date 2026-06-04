@@ -78,7 +78,7 @@ export function WorkScheduleTypeDetailModal({
             <DetailRow
               label="Work Schedule ID"
               value={
-                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1 py-1 rounded break-all">
                   {workScheduleData?.id}
                 </span>
               }

@@ -121,7 +121,7 @@ export function ClickableImageUpload({
   };
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
       <Label className="text-xs font-medium">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -161,7 +161,7 @@ export function ClickableImageUpload({
               />
 
               <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-                <div className="opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-1.5 text-white">
+                <div className="opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-1 text-white">
                   <Upload className="h-5 w-5" />
                   <p className="text-xs font-medium">Click to change image</p>
                 </div>

@@ -139,7 +139,7 @@ function ProductFiltersComponent({
 
 
   const filterContent = (
-    <div className="space-y-3.5">
+    <div className="space-y-3">
       {}
       {!lockedPromotion && (
         <>
@@ -154,7 +154,7 @@ function ProductFiltersComponent({
               updateFilter("hasPromotion", hasPromotion ? "" : "true")
             }
           >
-            <div className="flex items-center gap-1.5.5">
+            <div className="flex items-center gap-1">
               <div
                 className={cn(
                   "flex items-center justify-center w-5 h-5 rounded transition-colors",
@@ -216,7 +216,7 @@ function ProductFiltersComponent({
 
       {}
       <div className="space-y-2">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <div className="flex items-center justify-center w-5 h-5 rounded bg-green-500/10">
             <ListChecks className="h-2.5 w-2.5 text-green-600" />
           </div>
@@ -224,13 +224,13 @@ function ProductFiltersComponent({
           {selectedStatuses.length > 0 && (
             <Badge
               variant="secondary"
-              className="rounded-full h-3.5 w-3.5 p-0 flex items-center justify-center text-[10px] font-bold ml-auto"
+              className="rounded-full h-3 w-3 p-0 flex items-center justify-center text-[10px] font-bold ml-auto"
             >
               {selectedStatuses.length}
             </Badge>
           )}
         </div>
-        <div className="space-y-1.5.5">
+        <div className="space-y-1">
           {PRODUCT_STATUSES.map((status) => (
             <label
               key={status.value}
@@ -253,13 +253,13 @@ function ProductFiltersComponent({
 
       {}
       <div className="space-y-2">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <div className="flex items-center justify-center w-5 h-5 rounded bg-yellow-500/10">
             <DollarSign className="h-2.5 w-2.5 text-yellow-600" />
           </div>
           <label className="text-xs font-semibold">Price Range</label>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <Input
             type="number"
             placeholder="Min"
@@ -278,7 +278,7 @@ function ProductFiltersComponent({
             className="h-6 text-xs"
           />
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1">
           <Button
             size="sm"
             className="flex-1"
@@ -304,12 +304,12 @@ function ProductFiltersComponent({
         <div className="sticky top-16 h-[calc(100vh-7rem)] w-full">
           <div className="bg-card border rounded shadow-sm h-full flex flex-col">
             {}
-            <div className="flex items-center justify-between px-3.5 py-3 border-b border-border/60 flex-shrink-0">
-              <div className="flex items-center gap-1.5.5">
-                <SlidersHorizontal className="h-3.5 w-3.5 text-primary" />
+            <div className="flex items-center justify-between px-3 py-3 border-b border-border/60 flex-shrink-0">
+              <div className="flex items-center gap-1">
+                <SlidersHorizontal className="h-3 w-3 text-primary" />
                 <h3 className="font-bold text-xs">Filters</h3>
                 {activeFiltersCount > 0 && (
-                  <Badge className="rounded-full h-3.5 w-3.5 p-0 flex items-center justify-center text-[10px] font-bold">
+                  <Badge className="rounded-full h-3 w-3 p-0 flex items-center justify-center text-[10px] font-bold">
                     {activeFiltersCount}
                   </Badge>
                 )}
@@ -318,7 +318,7 @@ function ProductFiltersComponent({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-5 px-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1.5 text-xs"
+                  className="h-5 px-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1 text-xs"
                   onClick={clearAllFilters}
                 >
                   <FilterX className="h-2.5 w-2.5" />
@@ -328,7 +328,7 @@ function ProductFiltersComponent({
             </div>
 
             {}
-            <div className="px-3.5 py-2 border-b border-border/40 flex-shrink-0 bg-muted/30">
+            <div className="px-3 py-2 border-b border-border/40 flex-shrink-0 bg-muted/30">
               <p className="text-xs text-muted-foreground">
                 <span className="font-semibold text-foreground">
                   {totalResults.toLocaleString()}
@@ -339,7 +339,7 @@ function ProductFiltersComponent({
 
             {}
             <ScrollArea className="flex-1">
-              <div className="p-3.5">
+              <div className="p-3">
                 {filterContent}
               </div>
             </ScrollArea>
@@ -362,12 +362,12 @@ function ProductFiltersComponent({
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {activeFiltersCount > 0 && (
               <Button
                 variant="outline"
                 size="sm"
-                className="h-6 px-2 text-muted-foreground hover:text-destructive hover:border-destructive/50 gap-1.5 text-xs"
+                className="h-6 px-2 text-muted-foreground hover:text-destructive hover:border-destructive/50 gap-1 text-xs"
                 onClick={clearAllFilters}
               >
                 <FilterX className="h-2.5 w-2.5" />
@@ -376,13 +376,13 @@ function ProductFiltersComponent({
             )}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="default" size="sm" className="h-6 gap-1.5">
+                <Button variant="default" size="sm" className="h-6 gap-1">
                   <SlidersHorizontal className="h-3 w-3" />
                   Filters
                   {activeFiltersCount > 0 && (
                     <Badge
                       variant="secondary"
-                      className="ml-0.5 rounded-full h-3.5 w-3.5 p-0 flex items-center justify-center text-[10px] font-bold bg-white text-primary"
+                      className="ml-0.5 rounded-full h-3 w-3 p-0 flex items-center justify-center text-[10px] font-bold bg-white text-primary"
                     >
                       {activeFiltersCount}
                     </Badge>
@@ -393,13 +393,13 @@ function ProductFiltersComponent({
                 side="left"
                 className="w-56 sm:w-64 p-0 flex flex-col"
               >
-                <SheetHeader className="px-3.5 py-3 border-b border-border/60 flex-shrink-0">
+                <SheetHeader className="px-3 py-3 border-b border-border/60 flex-shrink-0">
                   <div className="flex items-center justify-between">
-                    <SheetTitle className="flex items-center gap-1.5.5">
-                      <SlidersHorizontal className="h-3.5 w-3.5 text-primary" />
+                    <SheetTitle className="flex items-center gap-1">
+                      <SlidersHorizontal className="h-3 w-3 text-primary" />
                       Filters
                       {activeFiltersCount > 0 && (
-                        <Badge className="rounded-full h-3.5 w-3.5 p-0 flex items-center justify-center text-[10px] font-bold">
+                        <Badge className="rounded-full h-3 w-3 p-0 flex items-center justify-center text-[10px] font-bold">
                           {activeFiltersCount}
                         </Badge>
                       )}
@@ -408,7 +408,7 @@ function ProductFiltersComponent({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-5 px-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1.5 text-xs"
+                        className="h-5 px-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1 text-xs"
                         onClick={clearAllFilters}
                       >
                         <FilterX className="h-2.5 w-2.5" />
@@ -424,7 +424,7 @@ function ProductFiltersComponent({
                   </p>
                 </SheetHeader>
                 <ScrollArea className="flex-1">
-                  <div className="p-3.5">
+                  <div className="p-3">
                     {filterContent}
                   </div>
                 </ScrollArea>

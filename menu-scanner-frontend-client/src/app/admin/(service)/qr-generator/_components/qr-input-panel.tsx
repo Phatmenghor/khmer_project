@@ -31,7 +31,7 @@ function FieldRow({
   hint?: string;
 }) {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
       <Label htmlFor={id} className="text-xs font-medium text-foreground">
         {label}
         {required && <span className="text-destructive ml-0.5">*</span>}
@@ -52,7 +52,7 @@ export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
         <CardTitle className="text-xs font-semibold">QR Configuration</CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-3.5">
+      <CardContent className="space-y-3">
         {/* ── QR Type ── */}
         <FieldRow label="QR Type" required>
           <Select
@@ -65,7 +65,7 @@ export function QRInputPanel({ config, onUpdate }: QRInputPanelProps) {
             <SelectContent>
               {QR_TYPE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
-                  <div className="flex items-center gap-1.5 min-w-0">
+                  <div className="flex items-center gap-1 min-w-0">
                     <span className="font-medium text-xs whitespace-nowrap">
                       {option.label}
                     </span>

@@ -22,7 +22,7 @@ export function PromotionValueField<T extends FieldValues = any>({
   const placeholder = promotionType === "PERCENTAGE" ? "0-100" : "Amount";
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
       <Label
         htmlFor={name}
         className="text-xs sm:text-xs font-semibold text-foreground px-0.5"
@@ -45,7 +45,7 @@ export function PromotionValueField<T extends FieldValues = any>({
               min="0"
               max={promotionType === "PERCENTAGE" ? "100" : ""}
               disabled={disabled}
-              className="w-full h-full px-2 sm:px-3 py-1.5 sm:py-1.5.5 border-0 text-xs sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset transition-all bg-background"
+              className="w-full h-full px-2 sm:px-3 py-1 sm:py-1 border-0 text-xs sm:text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset transition-all bg-background"
             />
             {promotionType && (
               <span className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 text-xs sm:text-xs font-semibold text-muted-foreground pointer-events-none">

@@ -232,7 +232,7 @@ export default function UserBusinessPage() {
   const closeDeleteModal = () => setDeleteState({ isOpen: false, user: null });
 
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1.5">
+    <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
         <CardHeaderSection
           title="Business Users"
@@ -244,7 +244,7 @@ export default function UserBusinessPage() {
           onSearchChange={(e) => dispatch(setSearchFilter(e.target.value))}
           openModal={handleCreateUser}
         >
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1">
             <CustomSelect
               options={ACCOUNT_STATUS_FILTER}
               value={filters.accountStatus}

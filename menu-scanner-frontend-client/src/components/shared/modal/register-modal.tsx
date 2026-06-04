@@ -57,7 +57,7 @@ function Divider() {
         <span className="w-full border-t border-border/40" />
       </div>
       <div className="relative flex justify-center">
-        <span className="bg-background px-1.5 text-xs text-muted-foreground">or</span>
+        <span className="bg-background px-1 text-xs text-muted-foreground">or</span>
       </div>
     </div>
   );
@@ -268,13 +268,13 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
           />
 
           {}
-          <DialogFooter className="pt-1.5">
+          <DialogFooter className="pt-1">
             <Button
               type="submit"
               className="w-full h-8 font-semibold"
               disabled={isAnyLoading}
             >
-              {isRegistrationLoading && <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />}
+              {isRegistrationLoading && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
               {isRegistrationLoading
                 ? (isLoading ? "Logging in..." : "Creating account...")
                 : "Create Account"

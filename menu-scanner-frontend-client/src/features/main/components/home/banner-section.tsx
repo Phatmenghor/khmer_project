@@ -121,14 +121,14 @@ const BannerSectionComponent = ({
 
           {banners.length > 1 && (
             <>
-              <CarouselPrevious className="left-1.5 sm:left-3 bg-white/90 hover:bg-white border-none shadow-lg" />
-              <CarouselNext className="right-1.5 sm:right-3 bg-white/90 hover:bg-white border-none shadow-lg" />
+              <CarouselPrevious className="left-1 sm:left-3 bg-white/90 hover:bg-white border-none shadow-lg" />
+              <CarouselNext className="right-1 sm:right-3 bg-white/90 hover:bg-white border-none shadow-lg" />
             </>
           )}
         </Carousel>
 
         {banners.length > 1 && (
-          <div className="absolute bottom-3 left-0 right-0 z-20 flex justify-center gap-1.5 pointer-events-none">
+          <div className="absolute bottom-3 left-0 right-0 z-20 flex justify-center gap-1 pointer-events-none">
             {(() => {
               const maxDots = 12;
               const totalBanners = banners.length;
@@ -144,10 +144,10 @@ const BannerSectionComponent = ({
                       carouselApi?.scrollTo(idx);
                     }}
                     className={cn(
-                      "h-1.5 rounded-full transition-all duration-200 pointer-events-auto",
+                      "h-1 rounded-full transition-all duration-200 pointer-events-auto",
                       current === idx
                         ? "w-5 bg-primary"
-                        : "w-1.5 bg-white/50 hover:bg-white/80",
+                        : "w-1 bg-white/50 hover:bg-white/80",
                     )}
                     aria-label={`Go to slide ${idx + 1}`}
                   />
@@ -175,10 +175,10 @@ const BannerSectionComponent = ({
                       carouselApi?.scrollTo(idx);
                     }}
                     className={cn(
-                      "h-1.5 rounded-full transition-all duration-200 pointer-events-auto",
+                      "h-1 rounded-full transition-all duration-200 pointer-events-auto",
                       current === idx
                         ? "w-5 bg-primary"
-                        : "w-1.5 bg-white/50 hover:bg-white/80",
+                        : "w-1 bg-white/50 hover:bg-white/80",
                     )}
                     aria-label={`Go to slide ${idx + 1}`}
                   />

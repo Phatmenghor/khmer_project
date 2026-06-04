@@ -47,7 +47,7 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
             </CardDescription>
           </div>
           <Link href={ROUTES.ADMIN.ORDERS}>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground">
+            <Button variant="ghost" size="sm" className="gap-1 text-xs text-muted-foreground">
               View all
               <ArrowUpRight className="h-2.5 w-2.5" />
             </Button>
@@ -62,18 +62,18 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
                 <Skeleton className="h-3 w-14" />
                 <Skeleton className="h-3 w-20 flex-1" />
                 <Skeleton className="h-3 w-11" />
-                <Skeleton className="h-3.5 w-14 rounded-full" />
+                <Skeleton className="h-3 w-14 rounded-full" />
               </div>
             ))}
           </div>
         ) : !orders?.data?.length ? (
-          <div className="flex flex-col items-center justify-center py-7 text-muted-foreground gap-1.5">
+          <div className="flex flex-col items-center justify-center py-7 text-muted-foreground gap-1">
             <ShoppingCart className="h-5 w-5 opacity-30" />
             <p className="text-xs">No orders for this period</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-[140px_1fr_100px_120px] gap-3 px-4 py-1.5.5 bg-muted/30 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="grid grid-cols-[140px_1fr_100px_120px] gap-3 px-4 py-1 bg-muted/30 border-b text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               <span>Order</span>
               <span>Customer</span>
               <span className="text-right">Amount</span>
@@ -90,7 +90,7 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
                   <span className="text-xs font-semibold text-foreground tabular-nums text-right">{formatCurrency(order.totalAmount)}</span>
                   <div className="flex justify-center">
                     <span className={cn(
-                      "inline-flex items-center px-1.5.5 py-0.5 rounded-full text-xs font-medium",
+                      "inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium",
                       ORDER_STATUS_STYLE[order.status] ?? "bg-muted text-muted-foreground"
                     )}>
                       {order.status}

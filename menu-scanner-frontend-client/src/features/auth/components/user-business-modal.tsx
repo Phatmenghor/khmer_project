@@ -804,7 +804,7 @@ export default function UserBusinessModal({
                       disabled={isSubmitting}
                       className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                     >
-                      <Plus className="h-3 w-3 mr-1.5" />
+                      <Plus className="h-3 w-3 mr-1" />
                       Add Address
                     </Button>
                   </div>
@@ -953,7 +953,7 @@ export default function UserBusinessModal({
                       disabled={isSubmitting}
                       className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                     >
-                      <Plus className="h-3 w-3 mr-1.5" />
+                      <Plus className="h-3 w-3 mr-1" />
                       Add Contact
                     </Button>
                   </div>
@@ -1011,7 +1011,7 @@ export default function UserBusinessModal({
                                   type="button"
                                   variant="ghost"
                                   size="sm"
-                                  className="absolute top-1.5 right-1.5 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
+                                  className="absolute top-1 right-1 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                                   onClick={() => removeContact(index)}
                                 >
                                   <Trash2 className="h-3 w-3" />
@@ -1045,7 +1045,7 @@ export default function UserBusinessModal({
                         disabled={isSubmitting}
                         className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                       >
-                        <Plus className="h-3 w-3 mr-1.5" />
+                        <Plus className="h-3 w-3 mr-1" />
                         Add Document
                       </Button>
                     </div>
@@ -1066,12 +1066,12 @@ export default function UserBusinessModal({
                                 size="sm"
                                 onClick={() => removeDocument(index)}
                                 disabled={isSubmitting}
-                                className="h-4 w-4 p-0 absolute top-1.5 right-1.5 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
+                                className="h-4 w-4 p-0 absolute top-1 right-1 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                               >
                                 <Trash2 className="h-2 w-2" />
                               </Button>
-                              <div className="space-y-3 pt-1.5">
-                                <div className="grid grid-cols-2 gap-1.5">
+                              <div className="space-y-3 pt-1">
+                                <div className="grid grid-cols-2 gap-1">
                                   <SelectField
                                     control={control}
                                     name={`documents.${index}.type`}
@@ -1149,7 +1149,7 @@ export default function UserBusinessModal({
                         disabled={isSubmitting}
                         className="hover:bg-primary/10 hover:border-primary hover:text-primary"
                       >
-                        <Plus className="h-3 w-3 mr-1.5" />
+                        <Plus className="h-3 w-3 mr-1" />
                         Add Education
                       </Button>
                     </div>
@@ -1169,12 +1169,12 @@ export default function UserBusinessModal({
                                 size="sm"
                                 onClick={() => removeEducation(index)}
                                 disabled={isSubmitting}
-                                className="h-4 w-4 p-0 absolute top-1.5 right-1.5 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
+                                className="h-4 w-4 p-0 absolute top-1 right-1 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                               >
                                 <Trash2 className="h-2 w-2" />
                               </Button>
-                              <div className="space-y-3 pt-1.5">
-                                <div className="grid grid-cols-2 gap-1.5">
+                              <div className="space-y-3 pt-1">
+                                <div className="grid grid-cols-2 gap-1">
                                   <SelectField
                                     control={control}
                                     name={`educations.${index}.level`}

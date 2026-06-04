@@ -150,7 +150,7 @@ export function ComboboxSelectLocation({
 
   if (!hasDefault && data.length === 0 && !loading) {
     return (
-      <div className="space-y-1.5 w-full">
+      <div className="space-y-1 w-full">
         {label && (
           <Label className="text-xs font-semibold">
             {label}
@@ -160,7 +160,7 @@ export function ComboboxSelectLocation({
         <Button
           onClick={() => router.push("/account/addresses")}
           variant="outline"
-          className="w-full h-7 text-xs gap-1.5"
+          className="w-full h-7 text-xs gap-1"
         >
           <Plus className="h-2.5 w-2.5" />
           Add Address
@@ -171,7 +171,7 @@ export function ComboboxSelectLocation({
   }
 
   return (
-    <div className="space-y-1.5 w-full">
+    <div className="space-y-1 w-full">
       {label && (
         <Label className="text-xs font-semibold">
           {label}
@@ -185,7 +185,7 @@ export function ComboboxSelectLocation({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between px-3 py-1.5 h-8 text-xs transition-all duration-200 border-input",
+              "w-full justify-between px-3 py-1 h-8 text-xs transition-all duration-200 border-input",
               !dataSelect && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
@@ -198,7 +198,7 @@ export function ComboboxSelectLocation({
             <span className="truncate line-clamp-1">
               {dataSelect ? dataSelect.fullAddress : placeholder}
             </span>
-            <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent
@@ -216,8 +216,8 @@ export function ComboboxSelectLocation({
               className="text-xs h-8 px-2 border-b"
             />
             <CommandList className="max-h-32 overflow-y-auto">
-              <CommandEmpty className="text-xs py-1.5">
-                <div className="flex flex-col items-center gap-1.5">
+              <CommandEmpty className="text-xs py-1">
+                <div className="flex flex-col items-center gap-1">
                   <span>No address found</span>
                   <Button
                     onClick={() => {
@@ -240,17 +240,17 @@ export function ComboboxSelectLocation({
                     value={item.fullAddress}
                     onSelect={() => handleSelect(item)}
                     ref={index === data.length - 1 ? ref : null}
-                    className="text-xs py-1.5"
+                    className="text-xs py-1"
                   >
                     <Check
                       className={cn(
-                        "mr-1.5 h-3 w-3 flex-shrink-0",
+                        "mr-1 h-3 w-3 flex-shrink-0",
                         dataSelect?.id === item.id ? "opacity-100" : "opacity-0"
                       )}
                     />
                     <span className="truncate line-clamp-1 flex-1">{item.fullAddress}</span>
                     {item.note && (
-                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-1.5">
+                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-1">
                         ({item.note})
                       </span>
                     )}
@@ -258,7 +258,7 @@ export function ComboboxSelectLocation({
                 ))}
               </CommandGroup>
               {loading && (
-                <div className="text-center py-1.5">
+                <div className="text-center py-1">
                   <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
                 </div>
               )}

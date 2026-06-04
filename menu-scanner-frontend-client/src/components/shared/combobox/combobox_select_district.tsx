@@ -155,7 +155,7 @@ export function ComboboxSelectDistrict({
   };
 
   return (
-    <div className="space-y-1.5 w-full">
+    <div className="space-y-1 w-full">
       {label && (
         <Label className="text-xs font-medium">
           {label}
@@ -179,7 +179,7 @@ export function ComboboxSelectDistrict({
             disabled={disabled}
           >
             {dataSelect ? dataSelect.districtEn : resolvedPlaceholder}
-            <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
@@ -209,14 +209,14 @@ export function ComboboxSelectDistrict({
                   >
                     <Check
                       className={cn(
-                        "mr-1.5 h-3 w-3",
+                        "mr-1 h-3 w-3",
                         dataSelect?.id === item.id
                           ? "opacity-100"
                           : "opacity-0"
                       )}
                     />
                     {item.districtEn}
-                    <span className="ml-1.5 text-muted-foreground text-xs">
+                    <span className="ml-1 text-muted-foreground text-xs">
                       {item.districtKh}
                     </span>
                   </CommandItem>
@@ -224,13 +224,13 @@ export function ComboboxSelectDistrict({
               </CommandGroup>
 
               {loading && (
-                <div className="text-center py-1.5">
-                  <Loader2 className="animate-spin text-gray-500 h-3.5 w-3.5 mx-auto" />
+                <div className="text-center py-1">
+                  <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
                 </div>
               )}
 
               {!loading && lastPage && data.length > 0 && (
-                <div className="text-center py-1.5 text-xs text-gray-400">
+                <div className="text-center py-1 text-xs text-gray-400">
                   No more districts
                 </div>
               )}

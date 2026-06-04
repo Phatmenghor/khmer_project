@@ -80,7 +80,7 @@ export function POSOrderSuccessModal({
             <CustomButton
               onClick={() => handlePrintReceipt(order)}
               variant="outline"
-              className="gap-1.5 h-7"
+              className="gap-1 h-7"
               isLoading={isPrinting}
               icon={<Printer className="h-3 w-3" />}
             >
@@ -89,7 +89,7 @@ export function POSOrderSuccessModal({
             <CustomButton
               onClick={() => handleDownloadReceipt(order)}
               variant="outline"
-              className="gap-1.5 h-7"
+              className="gap-1 h-7"
               isLoading={isDownloading}
               icon={<Download className="h-3 w-3" />}
             >

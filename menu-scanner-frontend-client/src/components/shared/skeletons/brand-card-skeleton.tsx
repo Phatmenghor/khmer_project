@@ -5,20 +5,20 @@ import { cn } from "@/lib/utils";
 export const BrandCardSkeleton = () => {
   return (
     <Card className="overflow-hidden border">
-      <CardContent className="p-3 sm:p-3.5 flex flex-col items-center justify-center space-y-2">
+      <CardContent className="p-3 sm:p-3 flex flex-col items-center justify-center space-y-2">
         {}
         <div className="relative w-11 h-11 sm:w-14 sm:h-14 bg-muted/50 rounded overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
         </div>
 
         {}
-        <div className="w-full space-y-1.5 flex flex-col items-center">
+        <div className="w-full space-y-1 flex flex-col items-center">
           <div className="h-2 w-16 bg-muted/50 rounded animate-pulse" />
           <div className="h-2 w-11 bg-muted/50 rounded animate-pulse" />
         </div>
 
         {}
-        <div className="h-1.5.5 w-14 bg-muted/50 rounded animate-pulse" />
+        <div className="h-1 w-14 bg-muted/50 rounded animate-pulse" />
       </CardContent>
     </Card>
   );

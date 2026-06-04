@@ -83,12 +83,12 @@ export function Receipt({
         <div className="receipt-content p-4 max-w-2xl mx-auto">
           {/* Premium Header */}
           <div className="text-center border-b-4 border-gray-900 pb-3 mb-3">
-            <div className="mb-1.5">
+            <div className="mb-1">
               <div className="text-base font-bold text-gray-900">═════════════════════</div>
             </div>
             <h1 className="text-base font-bold text-gray-900 tracking-widest mb-1">RECEIPT</h1>
             <p className="text-gray-600 text-xs">Professional Receipt Document</p>
-            <div className="text-base font-bold text-gray-900 mt-1.5">═════════════════════</div>
+            <div className="text-base font-bold text-gray-900 mt-1">═════════════════════</div>
           </div>
 
           {/* Business & Order Info */}
@@ -110,13 +110,13 @@ export function Receipt({
 
           {/* Items Section */}
           <div className="mb-3 border border-gray-400">
-            <div className="bg-gray-900 text-white px-3 py-1.5 font-bold text-xs">
+            <div className="bg-gray-900 text-white px-3 py-1 font-bold text-xs">
               ITEMS ({items.length})
             </div>
 
             <div className="px-3 py-2">
               {/* Column Headers */}
-              <div className="grid grid-cols-12 gap-1.5 mb-1.5 pb-1.5 border-b-2 border-gray-900 text-xs font-bold">
+              <div className="grid grid-cols-12 gap-1 mb-1 pb-1 border-b-2 border-gray-900 text-xs font-bold">
                 <div className="col-span-6">ITEM DESCRIPTION</div>
                 <div className="col-span-2 text-center">QTY</div>
                 <div className="col-span-2 text-center">PRICE</div>
@@ -141,7 +141,7 @@ export function Receipt({
 
                   return (
                     <div key={item.id} className="pb-2 border-b border-gray-300">
-                      <div className="grid grid-cols-12 gap-1.5 text-xs mb-1.5">
+                      <div className="grid grid-cols-12 gap-1 text-xs mb-1">
                         <div className="col-span-6">
                           <p className="font-bold text-gray-900">{index + 1}. {item.productName || "Product"}</p>
                           {item.sizeName && (
@@ -154,7 +154,7 @@ export function Receipt({
                       </div>
 
                       {promotionLabel && (
-                        <div className="ml-3 bg-green-50 border-l-3 border-green-600 px-1.5 py-1.5 text-xs">
+                        <div className="ml-3 bg-green-50 border-l-3 border-green-600 px-1 py-1 text-xs">
                           <p className="font-bold text-green-700">✓ PROMOTION: {promotionLabel}</p>
                         </div>
                       )}
@@ -164,7 +164,7 @@ export function Receipt({
                           {item.customizations.map((c) => (
                             <div key={c.productCustomizationId} className="flex justify-between leading-tight text-gray-500 min-w-0" style={{fontSize: "0.7rem"}}>
                               <span className="truncate min-w-0">{c.name}</span>
-                              <span className="ml-1.5 shrink-0">{(c.priceAdjustment || 0).toFixed(2)}</span>
+                              <span className="ml-1 shrink-0">{(c.priceAdjustment || 0).toFixed(2)}</span>
                             </div>
                           ))}
                         </div>
@@ -179,8 +179,8 @@ export function Receipt({
           {/* Promotions Summary */}
           {promotionalItems.length > 0 && (
             <div className="mb-3 border-2 border-green-600 px-3 py-2 bg-green-50">
-              <p className="font-bold text-green-900 mb-1.5 text-xs">🎉 PROMOTIONS APPLIED</p>
-              <div className="space-y-1.5">
+              <p className="font-bold text-green-900 mb-1 text-xs">🎉 PROMOTIONS APPLIED</p>
+              <div className="space-y-1">
                 {promotionalItems.map((item, idx) => (
                   <div key={`promo-${idx}`} className="flex justify-between text-xs">
                     <span className="text-green-800">{item.productName || "Product"}</span>
@@ -197,7 +197,7 @@ export function Receipt({
 
           {/* Pricing Summary */}
           <div className="mb-3 border border-gray-400 px-3 py-2 bg-gray-50">
-            <div className="space-y-1.5 text-xs">
+            <div className="space-y-1 text-xs">
               <div className="flex justify-between">
                 <span className="text-gray-700">Subtotal with Add-ons</span>
                 <span className="font-bold text-gray-900">{formatCurrency(subtotalWithAddons)}</span>
@@ -205,7 +205,7 @@ export function Receipt({
 
               {discountAmount > 0 && (
                 <>
-                  <div className="flex justify-between bg-red-50 px-1.5 py-1">
+                  <div className="flex justify-between bg-red-50 px-1 py-1">
                     <span className="text-red-700 font-semibold">Discount (Promotions)</span>
                     <span className="font-bold text-red-700">-{formatCurrency(discountAmount)}</span>
                   </div>
@@ -248,7 +248,7 @@ export function Receipt({
           </div>
 
           {/* Footer */}
-          <div className="text-center border-t-4 border-gray-900 pt-3 space-y-1.5">
+          <div className="text-center border-t-4 border-gray-900 pt-3 space-y-1">
             <div className="font-bold text-gray-900 text-xs">
               ✓ Thank You For Your Order!
             </div>

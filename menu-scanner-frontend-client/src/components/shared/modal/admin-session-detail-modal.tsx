@@ -79,7 +79,7 @@ export function AdminSessionDetailModal({
         <div className="space-y-3 max-h-[70vh] overflow-y-auto">
           {}
           <div className="space-y-2">
-            <h4 className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+            <h4 className="text-xs font-medium text-muted-foreground flex items-center gap-1">
               <User className="h-3 w-3" />
               User Information
             </h4>
@@ -113,7 +113,7 @@ export function AdminSessionDetailModal({
               <h3 className="font-semibold text-foreground">
                 {session.deviceDisplayName || session.deviceName}
               </h3>
-              <div className="flex items-center gap-1.5 mt-1">
+              <div className="flex items-center gap-1 mt-1">
                 {getStatusBadge(session.status)}
                 {session.isCurrentSession && (
                   <Badge className="bg-blue-500">Current</Badge>
@@ -210,7 +210,7 @@ export function AdminSessionDetailModal({
             <>
               <Separator />
               <div className="space-y-2">
-                <h4 className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <h4 className="text-xs font-medium text-muted-foreground flex items-center gap-1">
                   <LogOut className="h-3 w-3" />
                   Logout Information
                 </h4>
@@ -256,7 +256,7 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-1.5 text-muted-foreground">
+      <div className="flex items-center gap-1 text-muted-foreground">
         {icon}
         <span className="text-xs">{label}</span>
       </div>

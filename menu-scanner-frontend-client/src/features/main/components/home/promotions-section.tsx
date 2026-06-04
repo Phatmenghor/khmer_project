@@ -65,9 +65,9 @@ const PromotionsSectionComponent = ({
       )}
 
       <div className="relative">
-        <h2 className="text-xs sm:text-base md:text-xs font-bold tracking-tight flex items-center gap-1.5 mb-1.5">
+        <h2 className="text-xs sm:text-base md:text-xs font-bold tracking-tight flex items-center gap-1 mb-1">
           <Flame
-            className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-red-500 flex-shrink-0"
+            className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-red-500 flex-shrink-0"
             aria-label="Hot deals icon"
           />
           {title}

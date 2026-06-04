@@ -9,7 +9,7 @@ interface DetailSectionProps {
 export function DetailSection({ title, children }: DetailSectionProps) {
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-1.5 mb-2">
+      <div className="flex items-center gap-1 mb-2">
         <div className="w-1 h-4 bg-primary rounded-full"></div>
         <h3 className="text-xs font-semibold">{title}</h3>
       </div>
@@ -27,7 +27,7 @@ interface DetailRowProps {
 export function DetailRow({ label, value, isLast = false }: DetailRowProps) {
   return (
     <div
-      className={`flex items-start justify-between gap-3 py-1.5 ${
+      className={`flex items-start justify-between gap-3 py-1 ${
         !isLast ? "border-b border-border/40" : ""
       }`}
     >

@@ -99,7 +99,7 @@ export function FormDialogBase({
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                     {submitText}ing...
                   </>
                 ) : (

@@ -47,7 +47,7 @@ export function FormHeader({
         )}
 
         {}
-        <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+        <div className="flex flex-col gap-1 flex-1 min-w-0">
           <DialogTitle className="text-xs font-semibold">{title}</DialogTitle>
           {description && (
             <DialogDescription className="text-xs">

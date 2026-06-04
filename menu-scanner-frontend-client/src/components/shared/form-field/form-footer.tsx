@@ -43,12 +43,12 @@ export function FormFooter({
         className
       )}
     >
-      <div className="text-xs text-muted-foreground flex items-center gap-1.5 order-2 sm:order-1">
+      <div className="text-xs text-muted-foreground flex items-center gap-1 order-2 sm:order-1">
         {isSubmitting && (
-          <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+          <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
         )}
         {isDirty && !isSubmitting && (
-          <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+          <div className="h-1 w-1 rounded-full bg-orange-500" />
         )}
         <span>{getStatusMessage()}</span>
       </div>

@@ -12,7 +12,7 @@ interface ProductInfoProps {
 function ProductInfoComponent({ product }: ProductInfoProps) {
   return (
     <div>
-      <h3 className="font-medium text-xs line-clamp-2 mb-1.5 leading-snug min-h-[40px]">
+      <h3 className="font-medium text-xs line-clamp-2 mb-1 leading-snug min-h-[40px]">
         {product.name}
       </h3>
 

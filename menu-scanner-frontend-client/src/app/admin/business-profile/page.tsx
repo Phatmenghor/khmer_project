@@ -68,9 +68,9 @@ export default function BusinessProfileEditorPage() {
             Customize your business portfolio and showcase your brand
           </p>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1">
           <Link href="/business-profile" target="_blank">
-            <Button variant="outline" size="sm" className="gap-1.5">
+            <Button variant="outline" size="sm" className="gap-1">
               <Eye className="w-3 h-3" />
               Preview
             </Button>
@@ -79,7 +79,7 @@ export default function BusinessProfileEditorPage() {
             size="sm"
             onClick={handleSubmit(onSubmit)}
             disabled={!isDirty}
-            className="gap-1.5"
+            className="gap-1"
           >
             <Save className="w-3 h-3" />
             Save Changes
@@ -116,7 +116,7 @@ export default function BusinessProfileEditorPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">
+                  <label className="block text-xs font-medium mb-1">
                     Business Name *
                   </label>
                   <Controller
@@ -135,7 +135,7 @@ export default function BusinessProfileEditorPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">
+                  <label className="block text-xs font-medium mb-1">
                     Tagline
                   </label>
                   <Controller
@@ -149,7 +149,7 @@ export default function BusinessProfileEditorPage() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium mb-1.5">
+                    <label className="block text-xs font-medium mb-1">
                       Business Type *
                     </label>
                     <Controller
@@ -158,7 +158,7 @@ export default function BusinessProfileEditorPage() {
                       render={({ field }) => (
                         <select
                           {...field}
-                          className="w-full border rounded px-2 py-1.5"
+                          className="w-full border rounded px-2 py-1"
                         >
                           {Object.values(BusinessType).map((type) => (
                             <option key={type} value={type}>
@@ -173,7 +173,7 @@ export default function BusinessProfileEditorPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">
+                  <label className="block text-xs font-medium mb-1">
                     About Your Business *
                   </label>
                   <Controller
@@ -208,7 +208,7 @@ export default function BusinessProfileEditorPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">
+                  <label className="block text-xs font-medium mb-1">
                     Email *
                   </label>
                   <Controller
@@ -237,7 +237,7 @@ export default function BusinessProfileEditorPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">
+                  <label className="block text-xs font-medium mb-1">
                     Phone *
                   </label>
                   <Controller
@@ -251,7 +251,7 @@ export default function BusinessProfileEditorPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">
+                  <label className="block text-xs font-medium mb-1">
                     WhatsApp (optional)
                   </label>
                   <Controller
@@ -264,7 +264,7 @@ export default function BusinessProfileEditorPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">
+                  <label className="block text-xs font-medium mb-1">
                     Address *
                   </label>
                   <Controller
@@ -286,7 +286,7 @@ export default function BusinessProfileEditorPage() {
               <CardContent>
                 <div className="space-y-2">
                   {profile.businessHours?.map((hours, index) => (
-                    <div key={hours.day} className="flex flex-wrap items-center gap-1.5">
+                    <div key={hours.day} className="flex flex-wrap items-center gap-1">
                       <div className="w-16 font-medium text-xs">
                         {hours.day.charAt(0) + hours.day.slice(1).toLowerCase()}
                       </div>
@@ -333,11 +333,11 @@ export default function BusinessProfileEditorPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">
+                  <label className="block text-xs font-medium mb-1">
                     Cover Image
                   </label>
                   <div className="border-2 border-dashed rounded p-5 text-center hover:border-orange-500 transition-colors cursor-pointer">
-                    <Upload className="w-5 h-5 mx-auto text-gray-400 mb-1.5" />
+                    <Upload className="w-5 h-5 mx-auto text-gray-400 mb-1" />
                     <p className="text-xs text-gray-600">
                       Click to upload or drag and drop
                     </p>
@@ -348,11 +348,11 @@ export default function BusinessProfileEditorPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium mb-1.5">
+                  <label className="block text-xs font-medium mb-1">
                     Business Logo
                   </label>
                   <div className="border-2 border-dashed rounded p-5 text-center hover:border-orange-500 transition-colors cursor-pointer">
-                    <Upload className="w-5 h-5 mx-auto text-gray-400 mb-1.5" />
+                    <Upload className="w-5 h-5 mx-auto text-gray-400 mb-1" />
                     <p className="text-xs text-gray-600">
                       Click to upload or drag and drop
                     </p>
@@ -368,7 +368,7 @@ export default function BusinessProfileEditorPage() {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Gallery</span>
-                  <Button size="sm" className="gap-1.5">
+                  <Button size="sm" className="gap-1">
                     <Plus className="w-3 h-3" />
                     Add Photo
                   </Button>
@@ -379,7 +379,7 @@ export default function BusinessProfileEditorPage() {
                   {profile.gallery?.map((item, index) => (
                     <div key={item.id} className="relative group aspect-square">
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors rounded flex items-center justify-center">
-                        <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 bg-red-500 rounded-full text-white">
+                        <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-red-500 rounded-full text-white">
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
@@ -408,15 +408,15 @@ export default function BusinessProfileEditorPage() {
             </CardHeader>
             <CardContent className="space-y-3 max-w-2xl">
               <div>
-                <label className="block text-xs font-medium mb-1.5">
+                <label className="block text-xs font-medium mb-1">
                   Website
                 </label>
                 <Controller
                   name="website"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex items-center gap-1.5">
-                      <Globe className="w-3.5 h-3.5 text-gray-400" />
+                    <div className="flex items-center gap-1">
+                      <Globe className="w-3 h-3 text-gray-400" />
                       <Input {...field} placeholder="https://yourwebsite.com" />
                     </div>
                   )}
@@ -424,7 +424,7 @@ export default function BusinessProfileEditorPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1.5">
+                <label className="block text-xs font-medium mb-1">
                   Facebook
                 </label>
                 <Controller
@@ -440,7 +440,7 @@ export default function BusinessProfileEditorPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1.5">
+                <label className="block text-xs font-medium mb-1">
                   Instagram
                 </label>
                 <Controller
@@ -456,7 +456,7 @@ export default function BusinessProfileEditorPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1.5">
+                <label className="block text-xs font-medium mb-1">
                   Twitter
                 </label>
                 <Controller
@@ -472,7 +472,7 @@ export default function BusinessProfileEditorPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium mb-1.5">
+                <label className="block text-xs font-medium mb-1">
                   LinkedIn
                 </label>
                 <Controller
@@ -509,7 +509,7 @@ export default function BusinessProfileEditorPage() {
                     : "team members and customer testimonials"}
                   .
                 </p>
-                <Button className="mt-3 gap-1.5">
+                <Button className="mt-3 gap-1">
                   <Plus className="w-3 h-3" />
                   Add {activeTab === "services" ? "Service" : "Team Member"}
                 </Button>

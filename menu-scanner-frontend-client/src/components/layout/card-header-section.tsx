@@ -57,9 +57,9 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
   return (
     <div>
       <Card>
-        <CardContent className="py-2 sm:py-3.5">
+        <CardContent className="py-2 sm:py-3">
           {}
-          <div className="flex items-center gap-1.5 mb-2">
+          <div className="flex items-center gap-1 mb-2">
             {(back || isMobile) && (
               <ActionButton
                 size="icon"
@@ -75,7 +75,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
           </div>
 
           {}
-          <div className="flex flex-wrap items-end gap-1.5">
+          <div className="flex flex-wrap items-end gap-1">
             {}
             {onSearchChange && (
               <div className="w-full sm:w-auto sm:min-w-[370px] sm:max-w-[430px] flex-shrink-0">
@@ -93,10 +93,10 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
             )}
 
             {}
-            <div className="flex flex-wrap items-end gap-1.5 ml-auto">
+            <div className="flex flex-wrap items-end gap-1 ml-auto">
               {}
               {customSelect && (
-                <div className="flex flex-wrap gap-1.5 items-end
+                <div className="flex flex-wrap gap-1 items-end
                   [&>*]:w-auto [&>*]:flex-shrink-0
                   [&>*>label]:whitespace-nowrap [&>*>label]:text-xs [&>*>label]:font-medium">
                   {customSelect}
@@ -107,7 +107,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
               {children &&
                 React.Children.map(children, (child) => (
                   <div className="w-auto flex-shrink-0
-                    [&>.space-y-1.5]:!w-auto [&>.space-y-1.5]:!flex [&>.space-y-1.5]:!flex-col [&>.space-y-1.5]:!gap-1
+                    [&>.space-y-1]:!w-auto [&>.space-y-1]:!flex [&>.space-y-1]:!flex-col [&>.space-y-1]:!gap-1
                     [&_button[role=combobox]]:!w-auto [&_button[role=combobox]]:min-w-[140px]
                     [&_.w-full]:!w-auto">
                     {child}
@@ -147,7 +147,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                     <TooltipTrigger asChild>
                       <Button
                         variant="default"
-                        className="text-white border-0 flex gap-1.5 font-medium transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/25 group"
+                        className="text-white border-0 flex gap-1 font-medium transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/25 group"
                         onClick={openModal}
                       >
                         {buttonIcon && (

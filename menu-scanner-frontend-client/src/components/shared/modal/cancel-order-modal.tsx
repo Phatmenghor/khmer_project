@@ -112,7 +112,7 @@ export function CancelOrderModal({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">New Status:</span>
-                <span className="text-xs font-semibold px-1.5.5 py-1 rounded bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800">
+                <span className="text-xs font-semibold px-1 py-1 rounded bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800">
                   CANCELLED
                 </span>
               </div>
@@ -127,7 +127,7 @@ export function CancelOrderModal({
             )}
 
             {}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <TextAreaField
                 control={control}
                 name="customerNote"

@@ -152,7 +152,7 @@ export function ProfilePictureModal({
           {}
           <Button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full gap-1.5 bg-primary hover:bg-primary/90"
+            className="w-full gap-1 bg-primary hover:bg-primary/90"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -173,7 +173,7 @@ export function ProfilePictureModal({
             <Button
               onClick={handleDownload}
               variant="outline"
-              className="w-full gap-1.5"
+              className="w-full gap-1"
               disabled={isLoading}
             >
               <Download className="h-3 w-3" />
@@ -186,7 +186,7 @@ export function ProfilePictureModal({
             <Button
               onClick={handleRemoveClick}
               variant="outline"
-              className="w-full gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="w-full gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
               disabled={isLoading}
             >
               <Trash2 className="h-3 w-3" />
@@ -195,7 +195,7 @@ export function ProfilePictureModal({
           )}
 
           {}
-          <div className="flex gap-1.5 pt-1.5">
+          <div className="flex gap-1 pt-1">
             <Button
               onClick={handleCancel}
               variant="outline"
@@ -211,7 +211,7 @@ export function ProfilePictureModal({
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="h-3 w-3 animate-spin mr-1.5" />
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
                   Saving...
                 </>
               ) : (

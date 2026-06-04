@@ -78,7 +78,7 @@ export const exchangeRateTableColumns = ({
       maxWidth: "150px",
       truncate: true,
       render: (parameter) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <Switch
             checked={parameter?.status === "ACTIVE"}
             onCheckedChange={() => handleToggleExchangeRateStatus(parameter)}
@@ -111,7 +111,7 @@ export const exchangeRateTableColumns = ({
         const isOnlyRate = totalRatesCount === 1;
 
         return (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <ActionButton
               icon={<Eye className="w-3 h-3" />}
               tooltip="View Details"

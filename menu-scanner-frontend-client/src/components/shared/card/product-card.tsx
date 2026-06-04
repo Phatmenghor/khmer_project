@@ -361,7 +361,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
             onToggleFavorite={handleToggleFavorite}
           />
 
-          <div className="p-2 pb-1.5 flex flex-col flex-1">
+          <div className="p-2 pb-1 flex flex-col flex-1">
             <ProductInfo product={product} />
           </div>
         </Link>

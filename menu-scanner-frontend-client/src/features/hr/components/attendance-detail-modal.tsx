@@ -174,9 +174,9 @@ export function AttendanceDetailModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <span
-              className={`text-xs px-1.5.5 py-1 rounded-full font-medium ${
+              className={`text-xs px-1 py-1 rounded-full font-medium ${
                 checkIn.checkInType === "START"
                   ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100"
                   : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100"
@@ -243,13 +243,13 @@ export function AttendanceDetailModal({
             )}
 
             {}
-            <div className="flex gap-1.5 flex-wrap">
+            <div className="flex gap-1 flex-wrap">
               {}
               <a
                 href={getGoogleMapsUrl(checkIn.latitude, checkIn.longitude)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+                className="inline-flex items-center gap-1 px-2 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
               >
                 <MapPin size={14} />
                 View on Maps
@@ -262,7 +262,7 @@ export function AttendanceDetailModal({
                   href={directionUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium transition-colors"
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium transition-colors"
                 >
                   <Navigation size={14} />
                   Get Directions
@@ -278,7 +278,7 @@ export function AttendanceDetailModal({
                   );
                   alert("Coordinates copied!");
                 }}
-                className="inline-flex items-center gap-1.5 px-2 py-1.5 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-xs font-medium transition-colors"
+                className="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-xs font-medium transition-colors"
               >
                 📋 Copy Coords
               </button>
@@ -310,7 +310,7 @@ export function AttendanceDetailModal({
               )}
 
             {}
-            <div className="text-xs text-muted-foreground pt-1.5 border-t">
+            <div className="text-xs text-muted-foreground pt-1 border-t">
               <p>ID: {checkIn.id}</p>
             </div>
           </div>
@@ -388,7 +388,7 @@ export function AttendanceDetailModal({
             <DetailSection title="Check-in Details">
               <div className="space-y-2">
                 {loadingAddresses && (
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Loader2 size={16} className="animate-spin" />
                     Loading address information...
                   </div>
@@ -406,7 +406,7 @@ export function AttendanceDetailModal({
             <DetailRow
               label="Attendance ID"
               value={
-                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1 py-1 rounded break-all">
                   {attendanceData?.id}
                 </span>
               }

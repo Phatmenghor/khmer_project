@@ -24,7 +24,7 @@ function ProductActionsComponent({
   return (
     <div>
       {isInCart ? (
-        <div className="flex items-center gap-1.5 w-full">
+        <div className="flex items-center gap-1 w-full">
           <CustomButton
             size="icon"
             variant="outline"
@@ -47,7 +47,7 @@ function ProductActionsComponent({
         </div>
       ) : (
         <CustomButton
-          className="w-full gap-1.5 h-5 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+          className="w-full gap-1 h-5 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
           onClick={onAddToCart}
           disabled={isOutOfStock}
           size="sm"

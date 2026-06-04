@@ -30,7 +30,7 @@ function NavbarSearchComponent({
       {mobileSearchOpen ? (
         <form
           onSubmit={onSearchSubmit}
-          className="lg:hidden flex items-center gap-1.5 w-full h-10"
+          className="lg:hidden flex items-center gap-1 w-full h-10"
         >
           <div className="relative flex-1">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
@@ -50,7 +50,7 @@ function NavbarSearchComponent({
             className="shrink-0"
             onClick={() => onMobileSearchOpen(false)}
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-3 w-3" />
           </Button>
         </form>
       ) : null}

@@ -508,7 +508,7 @@ export function SizePickerModal({
               <h3 className="font-semibold text-xs line-clamp-2 mb-1">
                 {product?.name}
               </h3>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <span className="text-xs font-bold text-primary">
                   {formatCurrency(priceWithCustomizations)}
                 </span>
@@ -566,7 +566,7 @@ export function SizePickerModal({
           )}
 
           {}
-          <div className="bg-muted/30 rounded p-3 border space-y-1.5">
+          <div className="bg-muted/30 rounded p-3 border space-y-1">
             {customizationTotal > 0 ? (
               <>
                 <div className="flex justify-between items-center">
@@ -581,7 +581,7 @@ export function SizePickerModal({
                     +{formatCurrency(customizationTotal)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center border-t pt-1.5">
+                <div className="flex justify-between items-center border-t pt-1">
                   <span className="text-muted-foreground text-xs">Price per item</span>
                   <span className="font-semibold">
                     {formatCurrency(priceWithCustomizations)}
@@ -612,7 +612,7 @@ export function SizePickerModal({
                 </div>
               </>
             )}
-            <div className="flex justify-between items-center border-t pt-1.5">
+            <div className="flex justify-between items-center border-t pt-1">
               <span className="text-muted-foreground font-semibold text-xs">Total</span>
               <span className="text-xs font-bold text-primary">
                 {formatCurrency(priceWithCustomizations * currentQuantity)}

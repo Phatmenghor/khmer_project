@@ -230,7 +230,7 @@ export default function DeliveryOptionsPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1.5">
+    <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
         <CardHeaderSection
           title="Delivery Options Information"
@@ -242,7 +242,7 @@ export default function DeliveryOptionsPage() {
           onSearchChange={handleSearchChange}
           openModal={handleCreateDeliveryOptions}
         >
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1">
             <CustomSelect
               options={DELIVERY_OPTIONS_FILTER}
               value={filters.status}

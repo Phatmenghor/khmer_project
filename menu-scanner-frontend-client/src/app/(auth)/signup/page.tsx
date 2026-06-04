@@ -110,7 +110,7 @@ export default function SignupPage() {
             Management System
           </p>
           <h2 className="text-xs font-bold leading-snug">Admin Control Panel</h2>
-          <p className="text-xs text-white/50 mt-1.5 max-w-xs leading-relaxed">
+          <p className="text-xs text-white/50 mt-1 max-w-xs leading-relaxed">
             Secure access to manage your business operations and team.
           </p>
         </div>
@@ -122,9 +122,9 @@ export default function SignupPage() {
 
           {/* Card header */}
           <div className="bg-primary/5 border-b border-border/50 px-5 pt-5 pb-4">
-            <div className="flex items-center gap-2 mb-3.5">
+            <div className="flex items-center gap-2 mb-3">
               <div className="w-7 h-7 rounded bg-primary flex items-center justify-center shadow-sm">
-                <ShieldCheck className="h-3.5 w-3.5 text-primary-foreground" />
+                <ShieldCheck className="h-3 w-3 text-primary-foreground" />
               </div>
               <span className="text-xs font-semibold uppercase tracking-widest text-primary">
                 Admin Panel
@@ -139,7 +139,7 @@ export default function SignupPage() {
           </div>
 
           {/* Card body */}
-          <CardContent className="px-5 py-5 space-y-3.5 max-h-[calc(100vh-300px)] overflow-y-auto">
+          <CardContent className="px-5 py-5 space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
 
             {/* Registration form */}
             <form onSubmit={form.handleSubmit(handleSignupSubmit)} className="space-y-3">
@@ -207,7 +207,7 @@ export default function SignupPage() {
                 required
               />
 
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 <label className="text-xs font-medium">Enable Stock Management</label>
                 <div className="flex items-center gap-2 p-2 border rounded bg-muted/30">
                   <Switch
@@ -253,7 +253,7 @@ export default function SignupPage() {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                     Creating account...
                   </>
                 ) : (

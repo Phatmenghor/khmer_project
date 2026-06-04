@@ -10,12 +10,12 @@ export function BusinessProfileSkeleton() {
         <div className="container mx-auto px-3 max-w-6xl">
           <div className="relative -mt-8 sm:-mt-11 flex items-end justify-between pb-2">
             <Skeleton className="w-16 h-16 sm:w-24 sm:h-24 rounded" />
-            <div className="flex gap-1.5">
+            <div className="flex gap-1">
               <Skeleton className="h-6 w-14 rounded" />
               <Skeleton className="h-6 w-16 rounded" />
             </div>
           </div>
-          <div className="pb-3.5 space-y-1.5">
+          <div className="pb-3 space-y-1">
             <Skeleton className="h-5 w-44 rounded" />
             <Skeleton className="h-3 w-32 rounded" />
           </div>
@@ -27,7 +27,7 @@ export function BusinessProfileSkeleton() {
         <div className="container mx-auto px-3 max-w-6xl">
           <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-border">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="py-3 px-4 text-center space-y-1.5">
+              <div key={i} className="py-3 px-4 text-center space-y-1">
                 <Skeleton className="h-5 w-11 mx-auto rounded" />
                 <Skeleton className="h-2 w-8 mx-auto rounded" />
               </div>
@@ -44,7 +44,7 @@ export function BusinessProfileSkeleton() {
             {[1, 2, 3].map((i) => (
               <Card key={i}>
                 <CardHeader className="pb-2">
-                  <Skeleton className="h-3.5 w-24 rounded" />
+                  <Skeleton className="h-3 w-24 rounded" />
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Skeleton className="h-3 w-full rounded" />
@@ -55,11 +55,11 @@ export function BusinessProfileSkeleton() {
             ))}
           </div>
           {/* Right col */}
-          <div className="space-y-3.5">
+          <div className="space-y-3">
             {[1, 2].map((i) => (
               <Card key={i}>
                 <CardHeader className="pb-2">
-                  <Skeleton className="h-3.5 w-28 rounded" />
+                  <Skeleton className="h-3 w-28 rounded" />
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Skeleton className="h-3 w-full rounded" />

@@ -240,7 +240,7 @@ export default function PaymentOptionsPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1.5">
+    <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
         <CardHeaderSection
           title="Payment Options Information"
@@ -252,7 +252,7 @@ export default function PaymentOptionsPage() {
           onSearchChange={handleSearchChange}
           openModal={handleCreatePaymentOption}
         >
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1">
             <CustomSelect
               options={STATUS_FILTER}
               value={filters.status}

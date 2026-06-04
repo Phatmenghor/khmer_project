@@ -57,14 +57,14 @@ export function BottomNav() {
                     : router.push(tab.href)
                 }
                 className={cn(
-                  "flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 transition-colors duration-150 active:opacity-70",
+                  "flex-1 flex flex-col items-center justify-center gap-0.5 py-1 transition-colors duration-150 active:opacity-70",
                   active ? "text-primary" : "text-muted-foreground"
                 )}
               >
                 <div className="relative">
                   <Icon
                     className={cn(
-                      "h-3.5 w-3.5 transition-transform duration-150",
+                      "h-3 w-3 transition-transform duration-150",
                       active && "scale-110"
                     )}
                     strokeWidth={active ? 2.5 : 1.8}
@@ -72,7 +72,7 @@ export function BottomNav() {
                   {isCart && cartCount > 0 && (
                     <Badge
                       variant="destructive"
-                      className="absolute -top-1.5 -right-1.5 h-3 min-w-[16px] px-0.5 flex items-center justify-center text-[10px] leading-none"
+                      className="absolute -top-1 -right-1 h-3 min-w-[16px] px-0.5 flex items-center justify-center text-[10px] leading-none"
                     >
                       {cartCount > 99 ? "99+" : cartCount}
                     </Badge>

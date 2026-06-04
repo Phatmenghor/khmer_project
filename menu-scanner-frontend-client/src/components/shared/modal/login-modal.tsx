@@ -136,7 +136,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
         <DialogHeader className="px-4 pt-4 pb-3 border-b flex-shrink-0">
           <div className="flex items-start gap-3">
             <div className="p-2 bg-primary/10 border border-primary/30 rounded shrink-0">
-              <LogIn className="h-3.5 w-3.5 text-primary" />
+              <LogIn className="h-3 w-3 text-primary" />
             </div>
             <div className="flex flex-col gap-1 flex-1 min-w-0">
               <DialogTitle className="text-xs font-semibold">
@@ -226,7 +226,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               <Button type="submit" disabled={isAnyLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                     Signing in...
                   </>
                 ) : (

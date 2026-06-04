@@ -226,7 +226,7 @@ export function ProductDetailModal({
                   <CardTitle>Product Images</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1.5">
+                  <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1">
                     {productData.images.map((image, index) => (
                       <div
                         key={image.id}

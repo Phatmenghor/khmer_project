@@ -124,12 +124,12 @@ function WriteReviewModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-3.5 py-3 border-b border-border">
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-between px-3 py-3 border-b border-border">
+          <div className="flex items-center gap-1">
             <PenLine className="w-3 h-3 text-primary" />
             <span className="font-semibold text-xs text-foreground">Write a Review</span>
           </div>
-          <button onClick={handleClose} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+          <button onClick={handleClose} className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
             <X className="w-3 h-3" />
           </button>
         </div>
@@ -145,16 +145,16 @@ function WriteReviewModal({
                 Your review has been submitted and is pending approval by <span className="font-medium">{businessName}</span>.
               </p>
             </div>
-            <button onClick={handleClose} className="mt-1.5 px-4 py-1.5 rounded bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition-opacity">
+            <button onClick={handleClose} className="mt-1 px-4 py-1 rounded bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition-opacity">
               Close
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="px-3.5 py-3.5 space-y-3">
+          <form onSubmit={handleSubmit} className="px-3 py-3 space-y-3">
             {/* Star rating */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <label className="text-xs font-medium text-foreground">Your Rating <span className="text-destructive">*</span></label>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 {[1,2,3,4,5].map((s) => (
                   <button
                     key={s} type="button"
@@ -179,20 +179,20 @@ function WriteReviewModal({
             </div>
 
             {/* Name */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <label className="text-xs font-medium text-foreground">Your Name <span className="text-destructive">*</span></label>
               <input
                 required
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. Sopheap Chan"
-                className="w-full rounded border border-input bg-background px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                className="w-full rounded border border-input bg-background px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
               />
             </div>
 
 
             {/* Comment */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <label className="text-xs font-medium text-foreground">Your Review <span className="text-destructive">*</span></label>
               <textarea
                 required
@@ -200,7 +200,7 @@ function WriteReviewModal({
                 value={form.comment}
                 onChange={(e) => setForm((f) => ({ ...f, comment: e.target.value }))}
                 placeholder="Share your experience with others..."
-                className="w-full rounded border border-input bg-background px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none"
+                className="w-full rounded border border-input bg-background px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none"
               />
             </div>
 
@@ -210,15 +210,15 @@ function WriteReviewModal({
               Your review will be visible after approval by the business.
             </p>
 
-            <div className="flex gap-1.5 pt-1">
+            <div className="flex gap-1 pt-1">
               <button type="button" onClick={handleClose}
-                className="flex-1 py-1.5 rounded border border-border text-xs font-medium text-foreground hover:bg-muted transition-colors">
+                className="flex-1 py-1 rounded border border-border text-xs font-medium text-foreground hover:bg-muted transition-colors">
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting || !form.rating}
-                className="flex-1 py-1.5 rounded bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+                className="flex-1 py-1 rounded bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
               >
                 {isSubmitting ? (
                   <><span className="w-3 h-3 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />Submitting…</>
@@ -296,13 +296,13 @@ export default function BusinessProfilePage() {
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-1.5 flex-shrink-0 pb-1">
-              <Button size="sm" variant="outline" className="gap-1.5"
+            <div className="flex gap-1 flex-shrink-0 pb-1">
+              <Button size="sm" variant="outline" className="gap-1"
                 onClick={() => { if (typeof navigator !== "undefined" && navigator.share) navigator.share({ title: profile.businessName, url: profileUrl }).catch(() => {}); }}>
                 <Share2 className="w-3 h-3" />
                 Share
               </Button>
-              <Button size="sm" className="gap-1.5" onClick={() => setShowQRModal(true)}>
+              <Button size="sm" className="gap-1" onClick={() => setShowQRModal(true)}>
                 <QrCode className="w-3 h-3" />
                 View QR
               </Button>
@@ -310,12 +310,12 @@ export default function BusinessProfilePage() {
           </div>
 
           {/* Business name + meta */}
-          <div className="pb-3.5 space-y-1.5">
+          <div className="pb-3 space-y-1">
             <h1 className="text-xs sm:text-base font-bold text-foreground tracking-tight leading-snug">
               {profile.businessName}
             </h1>
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <StarRow rating={avg} size={3} />
                 <span className="font-semibold text-foreground text-xs">{avg.toFixed(2)}</span>
                 <span className="text-xs">({total})</span>
@@ -341,9 +341,9 @@ export default function BusinessProfilePage() {
                 const widthClass = itemCount === 1 ? 'w-full' : itemCount === 2 ? 'flex-1 min-w-[50%]' : `flex-1 min-w-[calc(${100/itemCount}%)]`;
 
                 return (
-                  <div key={stat.id} className={`${widthClass} p-3 sm:p-3.5 text-center`}>
+                  <div key={stat.id} className={`${widthClass} p-3 sm:p-3 text-center`}>
                     <p className="text-base sm:text-xs font-bold text-muted-foreground break-words">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{stat.label}</p>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{stat.label}</p>
                   </div>
                 );
               })}
@@ -369,11 +369,11 @@ export default function BusinessProfilePage() {
                   {profile.description}
                 </p>
                 {profile.features?.length ? (
-                  <div className="mt-3.5">
+                  <div className="mt-3">
                     <p className="text-xs font-semibold text-foreground mb-2">Features &amp; Amenities</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
                       {profile.features.map((f) => (
-                        <div key={f.id} className="flex items-center gap-1.5">
+                        <div key={f.id} className="flex items-center gap-1">
                           <Check className="w-2.5 h-2.5 text-primary flex-shrink-0" />
                           <span className="text-xs text-muted-foreground">{f.name}</span>
                         </div>
@@ -433,7 +433,7 @@ export default function BusinessProfilePage() {
             {profile.businessHours?.length ? (
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-xs flex items-center gap-1.5">
+                  <CardTitle className="text-xs flex items-center gap-1">
                     <Clock className="w-3 h-3 text-primary" />
                     Opening Hours
                   </CardTitle>
@@ -444,13 +444,13 @@ export default function BusinessProfilePage() {
                       const isToday = h.day === todayKey;
                       return (
                         <div key={h.day}
-                          className={`flex justify-between items-center py-1.5.5 px-2 rounded -mx-2 ${isToday ? "bg-primary/5" : ""}`}>
-                          <div className="flex items-center gap-1.5">
+                          className={`flex justify-between items-center py-1 px-2 rounded -mx-2 ${isToday ? "bg-primary/5" : ""}`}>
+                          <div className="flex items-center gap-1">
                             <span className={`text-xs font-medium ${isToday ? "text-primary" : "text-foreground"}`}>
                               {getDayLabel(h.day)}
                             </span>
                             {isToday && (
-                              <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20 px-1.5 py-0 h-3">
+                              <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20 px-1 py-0 h-3">
                                 Today
                               </Badge>
                             )}
@@ -473,23 +473,23 @@ export default function BusinessProfilePage() {
             <Card>
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-xs">Customer Reviews</CardTitle>
-                <Button size="sm" variant="outline" className="gap-1.5 shrink-0" onClick={() => setShowReviewModal(true)}>
+                <Button size="sm" variant="outline" className="gap-1 shrink-0" onClick={() => setShowReviewModal(true)}>
                   <PenLine className="w-2.5 h-2.5" />
                   Write a Review
                 </Button>
               </CardHeader>
-              <CardContent className="space-y-3.5">
+              <CardContent className="space-y-3">
                 <div className="flex gap-4 p-3 rounded bg-primary/5 border border-primary/10">
                   <div className="text-center flex-shrink-0">
                     <p className="text-base font-bold text-primary">{avg.toFixed(2)}</p>
                     <StarRow rating={avg} size={4} />
                     <p className="text-xs text-muted-foreground mt-1">{total} reviews</p>
                   </div>
-                  <div className="flex-1 space-y-1.5 min-w-0">
+                  <div className="flex-1 space-y-1 min-w-0">
                     {[5,4,3,2,1].map((r) => (
-                      <div key={r} className="flex items-center gap-1.5">
+                      <div key={r} className="flex items-center gap-1">
                         <span className="text-xs text-muted-foreground w-5 text-right">{r} ★</span>
-                        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
                           <div className="h-full rounded-full bg-yellow-400 transition-all"
                             style={{ width: `${total ? ((dist[r] || 0) / total) * 100 : 0}%` }} />
                         </div>
@@ -505,7 +505,7 @@ export default function BusinessProfilePage() {
             {profile.team?.length ? (
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-xs flex items-center gap-1.5">
+                  <CardTitle className="text-xs flex items-center gap-1">
                     <Users className="w-3 h-3 text-primary" />
                     Meet Our Team
                   </CardTitle>
@@ -524,7 +524,7 @@ export default function BusinessProfilePage() {
                         </div>
                         <p className="text-xs font-semibold text-foreground">{m.name}</p>
                         <p className="text-xs text-primary font-medium mt-0.5">{m.position}</p>
-                        {m.bio && <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{m.bio}</p>}
+                        {m.bio && <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{m.bio}</p>}
                       </div>
                     ))}
                   </div>
@@ -534,7 +534,7 @@ export default function BusinessProfilePage() {
           </div>
 
           {/* ── RIGHT sidebar ─────────────────────────────────────── */}
-          <div className="space-y-3.5">
+          <div className="space-y-3">
 
             {/* Business Information */}
             <Card>
@@ -593,7 +593,7 @@ export default function BusinessProfilePage() {
                 {profile.contact.telegram && (
                   <a href={profile.contact.telegram}
                     target="_blank" rel="noopener noreferrer" className="block">
-                    <Button variant="outline" size="sm" className="w-full gap-1.5 border-sky-200 text-sky-600 hover:bg-sky-50">
+                    <Button variant="outline" size="sm" className="w-full gap-1 border-sky-200 text-sky-600 hover:bg-sky-50">
                       <Send className="w-2.5 h-2.5" />
                       Chat on Telegram
                     </Button>
@@ -604,15 +604,15 @@ export default function BusinessProfilePage() {
 
             {/* QR Code */}
             <Card className="overflow-hidden">
-              <div className="h-1.5 bg-primary" />
+              <div className="h-1 bg-primary" />
               <CardHeader className="pb-2">
-                <CardTitle className="text-xs flex items-center gap-1.5">
+                <CardTitle className="text-xs flex items-center gap-1">
                   <QrCode className="w-3 h-3 text-primary" />
                   Scan &amp; Order
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button className="w-full gap-1.5" onClick={() => setShowQRModal(true)}>
+                <Button className="w-full gap-1" onClick={() => setShowQRModal(true)}>
                   <QrCode className="w-3 h-3" />
                   View QR Code
                 </Button>
@@ -626,7 +626,7 @@ export default function BusinessProfilePage() {
                   <CardTitle className="text-xs">Follow Us</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-1.5">
+                  <div className="grid grid-cols-2 gap-1">
                     {profile.socialMedia.map((social) => (
                       <a key={social.id} href={social.url} target="_blank" rel="noopener noreferrer"
                         className="p-2 rounded border border-border hover:border-primary hover:bg-primary/5 transition-colors">

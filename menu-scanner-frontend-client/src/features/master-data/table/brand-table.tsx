@@ -118,7 +118,7 @@ export const brandTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (brand) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           {handleToggleBrandStatus && (
             <Switch
               checked={brand?.status === "ACTIVE"}
@@ -150,7 +150,7 @@ export const brandTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (brand) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <ActionButton
             icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"

@@ -154,7 +154,7 @@ export const leaveTableColumns = ({
         const isPending = leave.status === "PENDING";
 
         return (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <ActionButton
               icon={<Eye className="w-3 h-3" />}
               tooltip="View Details"

@@ -32,7 +32,7 @@ function CategoryCardComponent({ category, className, loading = "lazy" }: Catego
           className
         )}
       >
-        <CardContent className="p-3 sm:p-3.5 flex flex-col items-center justify-center gap-2">
+        <CardContent className="p-3 sm:p-3 flex flex-col items-center justify-center gap-2">
           {}
           <div className="relative w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
             {!imageError && category.imageUrl ? (
@@ -69,7 +69,7 @@ function CategoryCardComponent({ category, className, loading = "lazy" }: Catego
 
           {}
           {(category.activeProducts ?? 0) > 0 && (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground group-hover:text-primary/80 transition-colors">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary/80 transition-colors">
               <ShoppingBag className="h-2 w-2" />
               <span className="font-medium">
                 {category.activeProducts ?? 0} {(category.activeProducts ?? 0) === 1 ? 'item' : 'items'}

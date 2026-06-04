@@ -88,7 +88,7 @@ export function DeleteConfirmationModal({
         <div className="px-4 pt-4 pb-3 border-b">
           <div className="flex items-start gap-3">
             <div className="p-2 bg-destructive/10 border border-destructive/20 rounded shrink-0">
-              {icon ?? <AlertTriangle className="h-3.5 w-3.5 text-destructive" />}
+              {icon ?? <AlertTriangle className="h-3 w-3 text-destructive" />}
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-xs font-semibold text-foreground">{title}</h2>
@@ -102,7 +102,7 @@ export function DeleteConfirmationModal({
             <div className="p-2 bg-muted rounded border border-muted-foreground/20">
               <p className="text-xs">
                 <span className="text-muted-foreground">Item:</span>
-                <span className="font-semibold text-foreground ml-1.5">"{itemName}"</span>
+                <span className="font-semibold text-foreground ml-1">"{itemName}"</span>
               </p>
             </div>
           )}
@@ -117,7 +117,7 @@ export function DeleteConfirmationModal({
           )}
 
           {requireConfirmation && (
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <Label htmlFor="confirmation" className="text-xs font-medium">
                 Type{" "}
                 <code className="bg-muted px-1 py-0.5 rounded text-destructive font-mono text-xs">

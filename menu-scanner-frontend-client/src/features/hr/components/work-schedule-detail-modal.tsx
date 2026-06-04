@@ -80,7 +80,7 @@ export function WorkScheduleDetailModal({
                       <Badge
                         key={day}
                         variant="secondary"
-                        className="text-xs px-1.5 py-0.5"
+                        className="text-xs px-1 py-0.5"
                       >
                         {day}
                       </Badge>
@@ -144,7 +144,7 @@ export function WorkScheduleDetailModal({
             <DetailRow
               label="Work Schedule ID"
               value={
-                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1 py-1 rounded break-all">
                   {workScheduleData?.id}
                 </span>
               }

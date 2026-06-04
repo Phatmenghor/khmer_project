@@ -135,9 +135,9 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
   return (
     <div className="space-y-2">
       <Card>
-        <CardContent className="py-2 sm:py-3.5 space-y-2">
+        <CardContent className="py-2 sm:py-3 space-y-2">
           {}
-          <div className="flex items-center gap-1.5 mb-0">
+          <div className="flex items-center gap-1 mb-0">
             <h1 className="text-xs sm:text-xs font-bold">{config.title}</h1>
           </div>
 
@@ -158,7 +158,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             </div>
 
             {}
-            <div className="flex flex-wrap items-end gap-2 ml-auto overflow-x-auto max-w-[calc(100vw-330px)] pb-1.5">
+            <div className="flex flex-wrap items-end gap-2 ml-auto overflow-x-auto max-w-[calc(100vw-330px)] pb-1">
               {}
               {essentialFilters.length > 0 && (
                 <div className="grid gap-2 flex-shrink-0"
@@ -176,7 +176,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                   disabled={config.buttonDisabled}
                   variant="default"
                   onClick={config.onButtonClick}
-                  className="gap-1.5 flex-shrink-0 h-7 px-3"
+                  className="gap-1 flex-shrink-0 h-7 px-3"
                 >
                   <Plus className="w-3 h-3" />
                   {config.buttonText}
@@ -192,9 +192,9 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
         <div className="bg-primary/5 rounded border border-primary/20 p-2">
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center justify-between w-full hover:text-primary hover:bg-primary/10 px-1.5 py-1 rounded transition-all duration-200"
+            className="flex items-center justify-between w-full hover:text-primary hover:bg-primary/10 px-1 py-1 rounded transition-all duration-200"
           >
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <span className="text-xs font-bold text-primary">Advanced Filters</span>
               {activeFiltersCount > 0 && (
                 <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border border-primary">

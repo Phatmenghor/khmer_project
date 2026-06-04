@@ -41,7 +41,7 @@ function KpiCard({ title, value, change, icon, iconBg, description }: KpiCardPro
         </div>
         <p className="text-base font-bold text-foreground tracking-tight">{value}</p>
         {change !== undefined && (
-          <div className="flex items-center gap-1 mt-1.5">
+          <div className="flex items-center gap-1 mt-1">
             {isPositive
               ? <TrendingUp className="h-2.5 w-2.5 text-emerald-500" />
               : <TrendingDown className="h-2.5 w-2.5 text-rose-500" />}
@@ -54,7 +54,7 @@ function KpiCard({ title, value, change, icon, iconBg, description }: KpiCardPro
           </div>
         )}
         {description && change === undefined && (
-          <p className="text-xs text-muted-foreground mt-1.5">{description}</p>
+          <p className="text-xs text-muted-foreground mt-1">{description}</p>
         )}
       </CardContent>
     </Card>
@@ -69,7 +69,7 @@ function KpiCardSkeleton() {
           <Skeleton className="h-3 w-16" />
           <Skeleton className="h-6 w-6 rounded" />
         </div>
-        <Skeleton className="h-5 w-24 mb-1.5" />
+        <Skeleton className="h-5 w-24 mb-1" />
         <Skeleton className="h-2 w-20" />
       </CardContent>
     </Card>

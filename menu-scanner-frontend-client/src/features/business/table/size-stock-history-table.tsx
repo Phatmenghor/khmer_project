@@ -76,7 +76,7 @@ export function createSizeStockHistoryColumns(
       key: "quantityOnHand",
       label: "Quantity",
       render: (stock: ProductStockDto) => (
-        <span className="text-xs bg-primary/10 border border-primary text-primary px-1.5 py-1 rounded inline-block font-medium">
+        <span className="text-xs bg-primary/10 border border-primary text-primary px-1 py-1 rounded inline-block font-medium">
           {stock.quantityOnHand} Items
         </span>
       ),

@@ -486,7 +486,7 @@ export default function AdminProfilePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1.5">
+    <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
         {}
         <Card className="mb-4 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5 shadow-md">
@@ -504,7 +504,7 @@ export default function AdminProfilePage() {
                     size="xxl"
                   />
                   {}
-                  <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
+                  <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
                     <Camera className="h-3 w-3 text-white" />
                   </div>
                 </div>
@@ -519,14 +519,14 @@ export default function AdminProfilePage() {
                     <p className="text-primary/70 text-xs font-medium">
                       {userProfile?.email}
                     </p>
-                    <div className="flex items-center gap-1.5 mt-1.5">
+                    <div className="flex items-center gap-1 mt-1">
                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold">
                         {userProfile?.userType}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-1">
                     {isEditing ? (
                       <>
                         <Button
@@ -592,7 +592,7 @@ export default function AdminProfilePage() {
           <button
             onClick={() => setActiveSection("profile")}
             className={cn(
-              "flex-1 flex items-center justify-center gap-1.5.5 py-3 px-4 relative z-10",
+              "flex-1 flex items-center justify-center gap-1 py-3 px-4 relative z-10",
               "text-xs font-semibold transition-all duration-300",
               "border-r border-primary/20",
               activeSection === "profile"
@@ -611,7 +611,7 @@ export default function AdminProfilePage() {
           <button
             onClick={() => setActiveSection("security")}
             className={cn(
-              "flex-1 flex items-center justify-center gap-1.5.5 py-3 px-4 relative z-10",
+              "flex-1 flex items-center justify-center gap-1 py-3 px-4 relative z-10",
               "text-xs font-semibold transition-all duration-300",
               activeSection === "security"
                 ? "text-foreground"
@@ -756,7 +756,7 @@ export default function AdminProfilePage() {
               {userProfile?.businessId && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-1.5">
+                    <CardTitle className="flex items-center gap-1">
                       🏢 Business Information
                     </CardTitle>
                   </CardHeader>
@@ -889,7 +889,7 @@ export default function AdminProfilePage() {
                         }
                         className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
-                        <Plus className="h-3 w-3 mr-1.5" />
+                        <Plus className="h-3 w-3 mr-1" />
                         Add Address
                       </Button>
                     )}
@@ -912,11 +912,11 @@ export default function AdminProfilePage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeAddress(index)}
-                            className="absolute top-1.5 right-1.5 text-red-500 opacity-100"
+                            className="absolute top-1 right-1 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1.5">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
                             <SelectField
                               control={typedControl}
                               name={`addresses.${index}.addressType`}
@@ -1041,7 +1041,7 @@ export default function AdminProfilePage() {
                         }
                         className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
-                        <Plus className="h-3 w-3 mr-1.5" />
+                        <Plus className="h-3 w-3 mr-1" />
                         Add Contact
                       </Button>
                     )}
@@ -1064,11 +1064,11 @@ export default function AdminProfilePage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeContact(index)}
-                            className="absolute top-1.5 right-1.5 text-red-500 opacity-100"
+                            className="absolute top-1 right-1 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1.5">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
                             <TextField
                               control={typedControl}
                               name={`emergencyContacts.${index}.name`}
@@ -1136,7 +1136,7 @@ export default function AdminProfilePage() {
                         }
                         className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
-                        <Plus className="h-3 w-3 mr-1.5" />
+                        <Plus className="h-3 w-3 mr-1" />
                         Add Document
                       </Button>
                     )}
@@ -1159,11 +1159,11 @@ export default function AdminProfilePage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeDocument(index)}
-                            className="absolute top-1.5 right-1.5 text-red-500 opacity-100"
+                            className="absolute top-1 right-1 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
-                          <div className="space-y-3 pt-1.5">
+                          <div className="space-y-3 pt-1">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               <SelectField
                                 control={typedControl}
@@ -1235,7 +1235,7 @@ export default function AdminProfilePage() {
                                 <img
                                   src={field?.fileUrl}
                                   alt="Document"
-                                  className="w-1/2 h-24 object-cover rounded mt-1.5"
+                                  className="w-1/2 h-24 object-cover rounded mt-1"
                                 />
                               </div>
                             )}
@@ -1270,7 +1270,7 @@ export default function AdminProfilePage() {
                         }
                         className="bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary/50"
                       >
-                        <Plus className="h-3 w-3 mr-1.5" />
+                        <Plus className="h-3 w-3 mr-1" />
                         Add Education
                       </Button>
                     )}
@@ -1293,11 +1293,11 @@ export default function AdminProfilePage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeEducation(index)}
-                            className="absolute top-1.5 right-1.5 text-red-500 opacity-100"
+                            className="absolute top-1 right-1 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
-                          <div className="space-y-3 pt-1.5">
+                          <div className="space-y-3 pt-1">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               <SelectField
                                 control={typedControl}
@@ -1428,7 +1428,7 @@ export default function AdminProfilePage() {
                               <img
                                 src={field?.certificateUrl}
                                 alt="Certificate"
-                                className="w-1/2 h-24 object-cover rounded mt-1.5"
+                                className="w-1/2 h-24 object-cover rounded mt-1"
                               />
                             </div>
                           )}
@@ -1468,7 +1468,7 @@ export default function AdminProfilePage() {
           <div className="w-full space-y-3">
             {}
             <div>
-              <h3 className="text-xs font-medium text-primary mb-2 flex items-center gap-1.5 font-semibold">
+              <h3 className="text-xs font-medium text-primary mb-2 flex items-center gap-1 font-semibold">
                 <Link2 className="h-3 w-3" />
                 Connected Accounts
               </h3>
@@ -1493,7 +1493,7 @@ export default function AdminProfilePage() {
                     className="bg-primary hover:bg-primary/90 text-white"
                     onClick={() => setIsChangePasswordModalOpen(true)}
                   >
-                    <Lock className="h-3 w-3 mr-1.5" />
+                    <Lock className="h-3 w-3 mr-1" />
                     Change Password
                   </Button>
                 </div>
@@ -1516,7 +1516,7 @@ export default function AdminProfilePage() {
                     variant="destructive"
                     onClick={() => setIsDeleteDialogOpen(true)}
                   >
-                    <Trash2 className="h-3 w-3 mr-1.5" />
+                    <Trash2 className="h-3 w-3 mr-1" />
                     Delete Account
                   </Button>
                 </div>

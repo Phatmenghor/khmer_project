@@ -254,7 +254,7 @@ export function UserBusinessDetailModal({
                               <img
                                 src={doc.fileUrl}
                                 alt="Document"
-                                className="w-1/2 h-24 object-cover rounded mt-1.5"
+                                className="w-1/2 h-24 object-cover rounded mt-1"
                               />
                             </div>
                           )}
@@ -297,7 +297,7 @@ export function UserBusinessDetailModal({
                               <img
                                 src={edu.certificateUrl}
                                 alt="Certificate"
-                                className="w-1/2 h-24 object-cover rounded mt-1.5"
+                                className="w-1/2 h-24 object-cover rounded mt-1"
                               />
                             </div>
                           )}

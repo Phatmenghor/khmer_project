@@ -80,7 +80,7 @@ export const bannerTableColumns = ({
       minWidth: "120px",
       maxWidth: "180px",
       render: (banner) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <Switch
             checked={banner?.status === "ACTIVE"}
             onCheckedChange={() => handleToggleBannerStatus(banner)}
@@ -110,7 +110,7 @@ export const bannerTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (banner) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <ActionButton
             icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"

@@ -142,7 +142,7 @@ export const userBusinessTableColumns = ({
       maxWidth: "400px",
       truncate: true,
       render: (user) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <Switch
             checked={user?.accountStatus === "ACTIVE"}
             onCheckedChange={() => handleToggleStatus(user)}
@@ -170,7 +170,7 @@ export const userBusinessTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (user) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <ActionButton
             icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"

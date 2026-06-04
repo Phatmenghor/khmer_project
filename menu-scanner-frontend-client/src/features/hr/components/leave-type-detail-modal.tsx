@@ -76,7 +76,7 @@ export function LeaveTypeDetailModal({
             <DetailRow
               label="Leave Type ID"
               value={
-                <span className="text-xs font-mono bg-muted px-1.5 py-1 rounded break-all">
+                <span className="text-xs font-mono bg-muted px-1 py-1 rounded break-all">
                   {leaveTypeData?.id}
                 </span>
               }

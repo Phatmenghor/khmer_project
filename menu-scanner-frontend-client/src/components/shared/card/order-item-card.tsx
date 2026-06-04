@@ -25,7 +25,7 @@ export function OrderItemCard({ item }: OrderItemCardProps) {
           />
           {item.hasPromotion && (
             <div className="absolute top-1 left-1 z-10 pointer-events-none">
-              <Badge variant="destructive" className="text-[9px] font-bold px-1.5 py-0.5 shadow-md">
+              <Badge variant="destructive" className="text-[9px] font-bold px-1 py-0.5 shadow-md">
                 {item.promotionType === "PERCENTAGE"
                   ? `-${item.promotionValue}%`
                   : `-${formatCurrency(item.promotionValue ?? 0)}`}
@@ -35,21 +35,21 @@ export function OrderItemCard({ item }: OrderItemCardProps) {
         </div>
 
         {/* Details */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between pr-1.5">
-          <h3 className="font-semibold text-xs leading-tight text-slate-900 line-clamp-1 mb-1.5">
+        <div className="flex-1 min-w-0 flex flex-col justify-between pr-1">
+          <h3 className="font-semibold text-xs leading-tight text-slate-900 line-clamp-1 mb-1">
             {item.product?.name || "Unknown Product"}
           </h3>
 
           {/* Size + customization pills */}
           {(item.product?.sizeName || (item.customizations && item.customizations.length > 0)) && (
-            <div className="flex flex-wrap gap-1.5 mb-1.5">
+            <div className="flex flex-wrap gap-1 mb-1">
               {item.product?.sizeName && (
-                <span className="text-xs font-medium text-primary bg-primary/5 px-1.5.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
+                <span className="text-xs font-medium text-primary bg-primary/5 px-1 py-1 rounded-full border border-primary/30 whitespace-nowrap">
                   {item.product.sizeName}
                 </span>
               )}
               {item.customizations?.map((c, idx) => (
-                <span key={idx} className="text-xs font-medium text-muted-foreground bg-muted px-1.5.5 py-1 rounded-full border border-border whitespace-nowrap">
+                <span key={idx} className="text-xs font-medium text-muted-foreground bg-muted px-1 py-1 rounded-full border border-border whitespace-nowrap">
                   {c.name}{c.priceAdjustment > 0 ? ` +${formatCurrency(c.priceAdjustment)}` : ""}
                 </span>
               ))}
@@ -58,12 +58,12 @@ export function OrderItemCard({ item }: OrderItemCardProps) {
 
           {/* Price + qty */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex items-baseline gap-1">
               <span className="font-bold text-xs text-slate-900">
                 {formatCurrency(item.finalPrice)}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <span>×{item.quantity}</span>
               <span className="font-bold text-slate-900">{formatCurrency(item.totalPrice)}</span>
             </div>

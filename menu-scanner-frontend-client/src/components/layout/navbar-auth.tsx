@@ -42,7 +42,7 @@ function NavbarAuthComponent({
         className="h-6 w-6 lg:hover:bg-primary/10 lg:hover:text-primary transition-colors"
         onClick={onLoginClick}
       >
-        <User className="h-3.5 w-3.5" />
+        <User className="h-3 w-3" />
       </Button>
     );
   }

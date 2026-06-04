@@ -248,7 +248,7 @@ export default function PublicProfilePage() {
     <PageContainer className="min-h-screen flex flex-col">
       <div className="flex flex-1 flex-col gap-3 py-3">
         {}
-        <div className="w-full mb-1.5">
+        <div className="w-full mb-1">
           <h1 className="text-xs font-bold text-foreground">
             Customer Profile
           </h1>
@@ -273,7 +273,7 @@ export default function PublicProfilePage() {
                       size="xxl"
                     />
                     {}
-                    <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
+                    <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
                       <Camera className="h-3 w-3 text-white" />
                     </div>
                   </div>
@@ -288,14 +288,14 @@ export default function PublicProfilePage() {
                       <p className="text-primary/70 text-xs font-medium">
                         {userProfile?.email}
                       </p>
-                      <div className="flex items-center gap-1.5 mt-1.5">
+                      <div className="flex items-center gap-1 mt-1">
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-semibold">
                           {userProfile?.accountStatus}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1">
                       {isEditing ? (
                         <>
                           <Button
@@ -361,7 +361,7 @@ export default function PublicProfilePage() {
             <button
               onClick={() => setActiveSection("profile")}
               className={cn(
-                "flex-1 flex items-center justify-center gap-1.5.5 py-3 px-4 relative z-10",
+                "flex-1 flex items-center justify-center gap-1 py-3 px-4 relative z-10",
                 "text-xs font-semibold transition-all duration-300",
                 "border-r border-primary/20",
                 activeSection === "profile"
@@ -382,7 +382,7 @@ export default function PublicProfilePage() {
             <button
               onClick={() => setActiveSection("security")}
               className={cn(
-                "flex-1 flex items-center justify-center gap-1.5.5 py-3 px-4 relative z-10",
+                "flex-1 flex items-center justify-center gap-1 py-3 px-4 relative z-10",
                 "text-xs font-semibold transition-all duration-300",
                 activeSection === "security"
                   ? "text-foreground"
@@ -598,7 +598,7 @@ export default function PublicProfilePage() {
                       onClick={() => setIsChangePasswordModalOpen(true)}
                       className="w-full sm:w-auto"
                     >
-                      <Lock className="h-3 w-3 mr-1.5" />
+                      <Lock className="h-3 w-3 mr-1" />
                       Change Password
                     </Button>
                   </div>
@@ -623,7 +623,7 @@ export default function PublicProfilePage() {
                       onClick={() => setIsDeleteDialogOpen(true)}
                       className="w-full sm:w-auto"
                     >
-                      <Trash2 className="h-3 w-3 mr-1.5" />
+                      <Trash2 className="h-3 w-3 mr-1" />
                       Delete Account
                     </Button>
                   </div>

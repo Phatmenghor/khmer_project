@@ -158,7 +158,7 @@ const PaginatedProductsGridComponent = ({
         {}
         {hasMore && (
           <div className="col-span-full flex flex-col items-center justify-center py-5 animate-fade-in-up">
-            <Loader2 className="h-4 w-4 animate-spin text-primary mb-1.5" />
+            <Loader2 className="h-4 w-4 animate-spin text-primary mb-1" />
             <p className="text-xs sm:text-xs text-muted-foreground">
               Loading more products...
             </p>

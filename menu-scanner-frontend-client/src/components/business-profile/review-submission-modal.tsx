@@ -73,9 +73,9 @@ export function ReviewSubmissionModal({
           <h2 className="text-base font-bold">Write a Review</h2>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-3 h-3" />
           </button>
         </div>
 
@@ -92,7 +92,7 @@ export function ReviewSubmissionModal({
             <label className="block text-xs font-medium mb-2">
               Your Rating *
             </label>
-            <div className="flex items-center justify-center gap-1.5">
+            <div className="flex items-center justify-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -123,7 +123,7 @@ export function ReviewSubmissionModal({
             )}
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5">
+            <label className="block text-xs font-medium mb-1">
               Your Name *
             </label>
             <Controller
@@ -141,7 +141,7 @@ export function ReviewSubmissionModal({
             )}
           </div>
           <div>
-            <label className="block text-xs font-medium mb-1.5">
+            <label className="block text-xs font-medium mb-1">
               Tell us about your experience *
             </label>
             <Controller

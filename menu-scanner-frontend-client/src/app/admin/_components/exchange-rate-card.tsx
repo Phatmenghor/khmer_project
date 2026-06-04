@@ -17,12 +17,12 @@ interface ExchangeRateCardProps {
 export function ExchangeRateCard({ activeRate }: ExchangeRateCardProps) {
   return (
     <Card>
-      <CardHeader className="pb-1.5">
+      <CardHeader className="pb-1">
         <CardTitle className="text-xs">Exchange Rates</CardTitle>
       </CardHeader>
       <CardContent>
         {!activeRate ? (
-          <div className="flex flex-col items-center justify-center py-3 text-muted-foreground gap-1.5">
+          <div className="flex flex-col items-center justify-center py-3 text-muted-foreground gap-1">
             <DollarSign className="h-5 w-5 opacity-30" />
             <p className="text-xs">No active rate</p>
           </div>
@@ -40,7 +40,7 @@ export function ExchangeRateCard({ activeRate }: ExchangeRateCardProps) {
                 </span>
               </div>
             ))}
-            <div className="pt-1.5 border-t">
+            <div className="pt-1 border-t">
               <Badge variant="default" className="text-xs bg-emerald-500 text-white border-0">
                 Active
               </Badge>

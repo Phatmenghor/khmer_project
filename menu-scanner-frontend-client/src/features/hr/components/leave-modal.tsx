@@ -284,7 +284,7 @@ export default function LeaveModal({
               updateMessage="Updating leave request..."
             >
               <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   {!isCreate && isPending && onApprove && (
                     <Button
                       type="button"
@@ -292,7 +292,7 @@ export default function LeaveModal({
                       disabled={isSubmitting}
                       className="bg-green-600 hover:bg-green-700"
                     >
-                      <Check className="w-3 h-3 mr-1.5" />
+                      <Check className="w-3 h-3 mr-1" />
                       Approve
                     </Button>
                   )}
@@ -303,12 +303,12 @@ export default function LeaveModal({
                       disabled={isSubmitting}
                       variant="destructive"
                     >
-                      <X className="w-3 h-3 mr-1.5" />
+                      <X className="w-3 h-3 mr-1" />
                       Reject
                     </Button>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <CancelButton onClick={handleClose} disabled={isSubmitting} />
                   <SubmitButton
                     isSubmitting={isSubmitting}

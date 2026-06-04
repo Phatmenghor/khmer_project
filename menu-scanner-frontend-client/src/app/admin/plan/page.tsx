@@ -175,7 +175,7 @@ export default function PlanPage() {
                 <p className="text-xs font-semibold text-muted-foreground uppercase">
                   Start Date
                 </p>
-                <p className="text-xs font-semibold text-foreground mt-1.5">
+                <p className="text-xs font-semibold text-foreground mt-1">
                   {formatDate(currentSubscription.startDate)}
                 </p>
               </div>
@@ -185,7 +185,7 @@ export default function PlanPage() {
                 <p className="text-xs font-semibold text-muted-foreground uppercase">
                   End Date
                 </p>
-                <p className="text-xs font-semibold text-foreground mt-1.5">
+                <p className="text-xs font-semibold text-foreground mt-1">
                   {formatDate(currentSubscription.endDate)}
                 </p>
               </div>
@@ -195,7 +195,7 @@ export default function PlanPage() {
                 <p className="text-xs font-semibold text-muted-foreground uppercase">
                   Duration
                 </p>
-                <p className="text-xs font-semibold text-foreground mt-1.5">
+                <p className="text-xs font-semibold text-foreground mt-1">
                   {currentSubscription.planDurationType === "MONTHLY"
                     ? "Monthly"
                     : currentSubscription.planDurationType === "YEARLY"
@@ -211,7 +211,7 @@ export default function PlanPage() {
                 </p>
                 <p
                   className={cn(
-                    "text-xs font-semibold mt-1.5",
+                    "text-xs font-semibold mt-1",
                     getDaysRemainingColor(currentSubscription.daysRemaining)
                   )}
                 >
@@ -328,7 +328,7 @@ export default function PlanPage() {
                     <TableCell className="py-3">
                       <div
                         className={cn(
-                          "w-fit px-1.5 py-1 rounded text-xs font-medium",
+                          "w-fit px-1 py-1 rounded text-xs font-medium",
                           statusBadge.bg,
                           statusBadge.text
                         )}

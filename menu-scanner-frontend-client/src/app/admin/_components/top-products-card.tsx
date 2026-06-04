@@ -43,7 +43,7 @@ interface TopProductsCardProps {
 export function TopProductsCard({ topProducts, loading }: TopProductsCardProps) {
   return (
     <Card className="lg:col-span-2">
-      <CardHeader className="pb-1.5">
+      <CardHeader className="pb-1">
         <div>
           <CardTitle className="text-xs">Top Selling Products</CardTitle>
           <CardDescription>Best performers this period</CardDescription>

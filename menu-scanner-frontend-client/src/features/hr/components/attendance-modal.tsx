@@ -167,7 +167,7 @@ export default function AttendanceModal({
               isCreate={false}
               updateMessage="Updating remarks..."
             >
-              <div className="flex items-center justify-end w-full gap-1.5">
+              <div className="flex items-center justify-end w-full gap-1">
                 <CancelButton onClick={handleClose} disabled={isUpdating} />
                 <SubmitButton
                   isSubmitting={isUpdating}

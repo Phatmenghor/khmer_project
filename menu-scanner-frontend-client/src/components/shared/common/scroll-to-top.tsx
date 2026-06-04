@@ -41,7 +41,7 @@ export function ScrollToTop() {
       )}
       aria-label="Scroll to top"
     >
-      <ArrowUp className="h-3.5 w-3.5" />
+      <ArrowUp className="h-3 w-3" />
     </Button>
   );
 }

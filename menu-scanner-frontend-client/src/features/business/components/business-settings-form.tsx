@@ -109,7 +109,7 @@ export function BusinessSettingsForm({
         <CardContent className="p-4">
           <p className="text-destructive mb-3">{error}</p>
           <Button onClick={handleRefresh}>
-            <RefreshCw className="w-3 h-3 mr-1.5" />
+            <RefreshCw className="w-3 h-3 mr-1" />
             Retry
           </Button>
         </CardContent>
@@ -131,7 +131,7 @@ export function BusinessSettingsForm({
           variant="outline"
           onClick={handleRefresh}
           disabled={isLoading}
-          className="gap-1.5"
+          className="gap-1"
         >
           <RefreshCw className="w-3 h-3" />
           {isLoading ? "Refreshing..." : "Refresh"}
@@ -215,11 +215,11 @@ export function BusinessSettingsForm({
             />
 
             {/* Action buttons */}
-            <div className="flex gap-1.5 pt-3">
+            <div className="flex gap-1 pt-3">
               <Button
                 type="submit"
                 disabled={isSaving || isLoading}
-                className="gap-1.5"
+                className="gap-1"
               >
                 <Save className="w-3 h-3" />
                 {isSaving ? "Saving..." : "Save Changes"}

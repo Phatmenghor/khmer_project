@@ -126,7 +126,7 @@ export function CustomTimePicker({
             type="button"
             disabled={disabled}
             className={cn(
-              "w-full h-full px-2 text-xs font-normal text-left flex items-center gap-1.5",
+              "w-full h-full px-2 text-xs font-normal text-left flex items-center gap-1",
               "rounded transition-colors min-w-0",
               !disabled && "hover:bg-primary/10 hover:border-primary",
               "focus:outline-none focus:ring-2 focus:ring-primary/30",
@@ -139,7 +139,7 @@ export function CustomTimePicker({
             <span className="flex-1 truncate line-clamp-1">{displayValue || placeholder}</span>
             {value && !disabled && (
               <div
-                className="h-3.5 w-3.5 flex-shrink-0 flex items-center justify-center rounded hover:bg-destructive/10"
+                className="h-3 w-3 flex-shrink-0 flex items-center justify-center rounded hover:bg-destructive/10"
                 onClick={(e) => {
                   e.stopPropagation();
                   clearSelection();
@@ -155,7 +155,7 @@ export function CustomTimePicker({
       </PopoverTrigger>
       <PopoverContent className="w-[95vw] xs:w-64 sm:w-full md:w-[500px] p-0 max-w-[95vw] sm:max-w-2xl" align="start" side="bottom" sideOffset={8}>
         {}
-        <div className="p-1.5 sm:p-2 border-b bg-muted/30 flex items-center justify-between sticky top-0 z-10 gap-1.5">
+        <div className="p-1 sm:p-2 border-b bg-muted/30 flex items-center justify-between sticky top-0 z-10 gap-1">
           <span className="text-xs sm:text-xs font-semibold truncate line-clamp-1">Select Time</span>
           <button
             type="button"
@@ -170,9 +170,9 @@ export function CustomTimePicker({
         {}
         <div className="p-2 sm:p-3 space-y-2 sm:space-y-3">
           {}
-          <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-1.5 xs:gap-1 sm:gap-1.5">
+          <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-1 xs:gap-1 sm:gap-1">
             {/* Hour Selector */}
-            <div className="flex flex-col gap-1.5 flex-1 xs:flex-none xs:min-w-11 min-w-0">
+            <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-11 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Hour</label>
               <Select value={selectedHour} onValueChange={setSelectedHour}>
                 <SelectTrigger className="h-7 w-full xs:w-11 text-xs font-medium border-input">
@@ -189,10 +189,10 @@ export function CustomTimePicker({
             </div>
 
             {/* Separator */}
-            <div className="text-xs sm:text-base font-bold text-muted-foreground xs:mt-3.5 flex-shrink-0">:</div>
+            <div className="text-xs sm:text-base font-bold text-muted-foreground xs:mt-3 flex-shrink-0">:</div>
 
             {/* Minute Selector */}
-            <div className="flex flex-col gap-1.5 flex-1 xs:flex-none xs:min-w-11 min-w-0">
+            <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-11 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Min</label>
               <Select value={selectedMinute} onValueChange={setSelectedMinute}>
                 <SelectTrigger className="h-7 w-full xs:w-11 text-xs font-medium border-input">
@@ -209,7 +209,7 @@ export function CustomTimePicker({
             </div>
 
             {/* Period Selector */}
-            <div className="flex flex-col gap-1.5 flex-1 xs:flex-none xs:min-w-14 min-w-0">
+            <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-14 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Period</label>
               <div className="flex gap-1 border rounded p-1 bg-muted">
                 {["AM", "PM"].map((period) => (
@@ -218,7 +218,7 @@ export function CustomTimePicker({
                     type="button"
                     onClick={() => setSelectedPeriod(period as "AM" | "PM")}
                     className={cn(
-                      "flex-1 px-1.5 sm:px-2 py-1.5 text-xs sm:text-xs font-semibold rounded transition-all truncate",
+                      "flex-1 px-1 sm:px-2 py-1 text-xs sm:text-xs font-semibold rounded transition-all truncate",
                       selectedPeriod === period
                         ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-background text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -241,7 +241,7 @@ export function CustomTimePicker({
         </div>
 
         {}
-        <div className="p-1.5 sm:p-2 border-t bg-muted/30 flex gap-1.5 sticky bottom-0">
+        <div className="p-1 sm:p-2 border-t bg-muted/30 flex gap-1 sticky bottom-0">
           <Button
             variant="outline"
             size="sm"

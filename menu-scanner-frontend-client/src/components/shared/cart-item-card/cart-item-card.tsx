@@ -95,7 +95,7 @@ export function CartItemCard({
           {}
           {hasPromotion && (
             <div className="absolute top-1 left-1 z-10 pointer-events-none">
-              <Badge variant="destructive" className="text-[9px] font-bold px-1.5 py-0.5 shadow-md">
+              <Badge variant="destructive" className="text-[9px] font-bold px-1 py-0.5 shadow-md">
                 {promotionType === "PERCENTAGE"
                   ? `-${promotionValue}%`
                   : `-${formatCurrency(promotionValue || 0)}`}
@@ -105,22 +105,22 @@ export function CartItemCard({
         </div>
 
         {}
-        <div className="flex-1 min-w-0 flex flex-col justify-between pr-1.5">
+        <div className="flex-1 min-w-0 flex flex-col justify-between pr-1">
           {}
-          <h3 className="font-semibold text-xs leading-tight text-slate-900 line-clamp-1 mb-1.5">
+          <h3 className="font-semibold text-xs leading-tight text-slate-900 line-clamp-1 mb-1">
             {productName}
           </h3>
 
           {/* Size + customizations */}
           {(sizeName || (customizations && customizations.length > 0)) && (
-            <div className="flex flex-wrap gap-1.5 mb-1.5">
+            <div className="flex flex-wrap gap-1 mb-1">
               {sizeName && (
-                <span className="text-xs font-medium text-primary bg-primary/5 px-1.5.5 py-1 rounded-full border border-primary/30 whitespace-nowrap">
+                <span className="text-xs font-medium text-primary bg-primary/5 px-1 py-1 rounded-full border border-primary/30 whitespace-nowrap">
                   {sizeName}
                 </span>
               )}
               {customizations?.map((c) => (
-                <span key={c.productCustomizationId} className="text-xs font-medium text-muted-foreground bg-muted px-1.5.5 py-1 rounded-full border border-border whitespace-nowrap">
+                <span key={c.productCustomizationId} className="text-xs font-medium text-muted-foreground bg-muted px-1 py-1 rounded-full border border-border whitespace-nowrap">
                   {c.name}{c.priceAdjustment > 0 ? ` +${formatCurrency(c.priceAdjustment)}` : ""}
                 </span>
               ))}
@@ -131,7 +131,7 @@ export function CartItemCard({
           {showControls && (
             <div className="flex items-center justify-between gap-2">
               {}
-              <div className="flex items-baseline gap-1.5">
+              <div className="flex items-baseline gap-1">
                 <span className="font-bold text-xs text-slate-900">
                   {formatCurrency(finalPrice)}
                 </span>

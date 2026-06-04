@@ -28,17 +28,17 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2",
+        "flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2",
         "py-2 sm:py-3 mb-3 sm:mb-4 border-b",
         className
       )}
     >
       <div className="min-w-0">
-        <div className="flex items-center gap-1.5">
-          {Icon && <Icon className="h-3.5 w-3.5 text-primary shrink-0" />}
+        <div className="flex items-center gap-1">
+          {Icon && <Icon className="h-3 w-3 text-primary shrink-0" />}
           <h1 className="text-xs sm:text-base font-bold truncate">{title}</h1>
           {count !== undefined && count > 0 && (
-            <span className="shrink-0 text-xs font-semibold bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
+            <span className="shrink-0 text-xs font-semibold bg-muted text-muted-foreground px-1 py-0.5 rounded-full">
               {count.toLocaleString()}
             </span>
           )}
@@ -50,7 +50,7 @@ export function PageHeader({
         )}
       </div>
 
-      {actions && <div className="shrink-0 flex items-center gap-1.5">{actions}</div>}
+      {actions && <div className="shrink-0 flex items-center gap-1">{actions}</div>}
     </div>
   );
 }

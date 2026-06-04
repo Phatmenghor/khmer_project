@@ -120,8 +120,8 @@ export function TelegramBusinessLinkCard({
         <CardTitle className="flex items-center justify-between">
           <span>Telegram Group Linking</span>
           {isLinked && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5.5 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-1 py-1 rounded-full">
+              <span className="w-1 h-1 rounded-full bg-emerald-500" />
               Linked
             </span>
           )}
@@ -141,10 +141,10 @@ export function TelegramBusinessLinkCard({
         {/* Current Status */}
         <div className="space-y-2">
           <div>
-            <Label className="text-xs font-semibold mb-1.5 block">
+            <Label className="text-xs font-semibold mb-1 block">
               Current Group Chat ID
             </Label>
-            <div className="flex gap-1.5">
+            <div className="flex gap-1">
               <Input
                 type="text"
                 value={currentChatId}
@@ -176,7 +176,7 @@ export function TelegramBusinessLinkCard({
           <h4 className="font-semibold text-xs text-blue-900">
             How to Link Your Group
           </h4>
-          <ol className="text-xs text-blue-800 space-y-1.5 list-decimal list-inside">
+          <ol className="text-xs text-blue-800 space-y-1 list-decimal list-inside">
             <li>Create a Telegram group or select an existing one</li>
             <li>Add our bot (@{process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME || "YourBotName"}) as admin to the group</li>
             <li>Copy the link command below</li>
@@ -187,9 +187,9 @@ export function TelegramBusinessLinkCard({
 
         {/* Copy Command */}
         {businessId && (
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <Label className="text-xs font-semibold">Link Command</Label>
-            <div className="flex gap-1.5">
+            <div className="flex gap-1">
               <code className="flex-1 p-2 bg-muted rounded font-mono text-xs overflow-auto">
                 /link {businessId}
               </code>
@@ -226,7 +226,7 @@ export function TelegramBusinessLinkCard({
         >
           {isTesting ? (
             <>
-              <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
               Sending Test Message...
             </>
           ) : (

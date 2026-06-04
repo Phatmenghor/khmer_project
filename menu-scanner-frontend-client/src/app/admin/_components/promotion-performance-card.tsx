@@ -31,7 +31,7 @@ export function PromotionPerformanceCard({ promotions, loading }: PromotionPerfo
           </div>
           {activePromoCount > 0 && (
             <Badge variant="outline" className="text-xs text-emerald-600 border-emerald-200 gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+              <span className="w-1 h-1 rounded-full bg-emerald-500 inline-block" />
               {activePromoCount} active
             </Badge>
           )}
@@ -39,27 +39,27 @@ export function PromotionPerformanceCard({ promotions, loading }: PromotionPerfo
       </CardHeader>
       <CardContent className="p-0">
         {loading ? (
-          <div className="p-3.5 space-y-2">
+          <div className="p-3 space-y-2">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="flex items-center gap-2">
-                <div className="flex-1 space-y-1.5">
+                <div className="flex-1 space-y-1">
                   <Skeleton className="h-2.5 w-24" />
                   <Skeleton className="h-2 w-14" />
                 </div>
                 <Skeleton className="h-2.5 w-11" />
-                <Skeleton className="h-3.5 w-10 rounded-full" />
+                <Skeleton className="h-3 w-10 rounded-full" />
               </div>
             ))}
           </div>
         ) : !promotions?.data?.length ? (
-          <div className="flex flex-col items-center justify-center py-7 text-muted-foreground gap-1.5">
+          <div className="flex flex-col items-center justify-center py-7 text-muted-foreground gap-1">
             <Tag className="h-5 w-5 opacity-30" />
             <p className="text-xs">No promotions today</p>
           </div>
         ) : (
           <div className="divide-y">
             {promotions.data.map((promo) => (
-              <div key={promo.id} className="flex items-center gap-2 px-3.5 py-2 hover:bg-muted/30 transition-colors">
+              <div key={promo.id} className="flex items-center gap-2 px-3 py-2 hover:bg-muted/30 transition-colors">
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground truncate">{promo.name}</p>
                   <p className="text-xs text-muted-foreground">{promo.type} · ×{promo.timesUsed} used</p>

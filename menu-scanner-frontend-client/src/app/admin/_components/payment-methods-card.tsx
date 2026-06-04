@@ -43,7 +43,7 @@ interface PaymentMethodsCardProps {
 export function PaymentMethodsCard({ payments, loading }: PaymentMethodsCardProps) {
   return (
     <Card>
-      <CardHeader className="pb-1.5">
+      <CardHeader className="pb-1">
         <CardTitle className="text-xs">Payment Methods</CardTitle>
         <CardDescription>Revenue by payment type</CardDescription>
       </CardHeader>
@@ -70,19 +70,19 @@ export function PaymentMethodsCard({ payments, loading }: PaymentMethodsCardProp
                 <Legend iconSize={8} iconType="circle" formatter={(v) => <span className="text-xs text-muted-foreground">{v}</span>} />
               </PieChart>
             </ResponsiveContainer>
-            <div className="mt-1.5 space-y-1.5">
+            <div className="mt-1 space-y-1">
               {payments.data.map((item) => (
                 <div key={item.method} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <div
-                      className="w-1.5.5 h-1.5.5 rounded-full shrink-0"
+                      className="w-1 h-1 rounded-full shrink-0"
                       style={{ backgroundColor: PAYMENT_COLORS[item.method] ?? "hsl(var(--chart-3))" }}
                     />
                     <span className="text-muted-foreground">{item.method}</span>
                   </div>
                   <div className="text-right">
                     <span className="font-medium text-foreground tabular-nums">{item.percentage?.toFixed(0)}%</span>
-                    <span className="ml-1.5 text-xs text-muted-foreground tabular-nums">{formatCurrency(item.amount)}</span>
+                    <span className="ml-1 text-xs text-muted-foreground tabular-nums">{formatCurrency(item.amount)}</span>
                   </div>
                 </div>
               ))}

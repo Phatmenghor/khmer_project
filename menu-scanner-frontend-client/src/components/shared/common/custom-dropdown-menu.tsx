@@ -181,7 +181,7 @@ export function CustomDropdownMenu({
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleDropdownMouseLeave}
           className={cn(
-            "absolute top-full mt-1.5 w-44 bg-background border border-border rounded shadow-lg overflow-hidden z-50",
+            "absolute top-full mt-1 w-44 bg-background border border-border rounded shadow-lg overflow-hidden z-50",
             "animate-in fade-in-0 zoom-in-95 duration-200",
             align === "right" ? "right-0" : "left-0",
             className
@@ -196,12 +196,12 @@ export function CustomDropdownMenu({
           )}
 
           {}
-          <div className="py-1.5">
+          <div className="py-1">
             {sections.map((section, sectionIndex) => (
               <div key={sectionIndex}>
                 {}
                 {section.label && (
-                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <div className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     {section.label}
                   </div>
                 )}
@@ -212,7 +212,7 @@ export function CustomDropdownMenu({
                     <button
                       onClick={() => handleItemClick(item.onClick)}
                       className={cn(
-                        "w-full flex items-center px-2 py-1.5 text-xs transition-colors cursor-pointer",
+                        "w-full flex items-center px-2 py-1 text-xs transition-colors cursor-pointer",
                         "hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary focus:outline-none",
                         item.variant === "destructive"
                           ? "text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive"

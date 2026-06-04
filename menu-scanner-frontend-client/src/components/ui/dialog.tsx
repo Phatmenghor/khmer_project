@@ -70,7 +70,7 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {}
-      <div className="mx-auto mb-1 h-1.5 w-8 flex-shrink-0 rounded-full bg-muted-foreground/20 sm:hidden" />
+      <div className="mx-auto mb-1 h-1 w-8 flex-shrink-0 rounded-full bg-muted-foreground/20 sm:hidden" />
       {children}
       <DialogPrimitive.Close className={`absolute right-3 top-3 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground ${closeButtonClassName}`}>
         <X className="h-4 w-4" />
@@ -88,7 +88,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left",
+      "flex flex-col space-y-1 text-center sm:text-left",
       className
     )}
     {...props}
@@ -102,7 +102,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-1.5",
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-1",
       className
     )}
     {...props}

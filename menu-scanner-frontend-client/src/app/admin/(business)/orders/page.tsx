@@ -209,7 +209,7 @@ export default function OrdersAdminPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col gap-3 px-1.5">
+    <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
         <CardHeaderSection
           title="Order Management"
@@ -236,7 +236,7 @@ export default function OrdersAdminPage() {
             onValueChange={handlePaymentStatusChange}
             label="Payment Status"
           />
-          <div className="flex gap-1.5">
+          <div className="flex gap-1">
             <div className="flex-1">
               <label className="text-xs font-medium text-foreground mb-1 block">From Date</label>
               <CustomDateTimePicker

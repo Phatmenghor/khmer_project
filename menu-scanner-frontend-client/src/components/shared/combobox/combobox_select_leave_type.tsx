@@ -97,7 +97,7 @@ export function ComboboxSelectLeaveType({
     : value || placeholder;
 
   return (
-    <div className="space-y-1.5 w-full">
+    <div className="space-y-1 w-full">
       {label && (
         <Label className="text-xs font-medium">
           {label}
@@ -122,7 +122,7 @@ export function ComboboxSelectLeaveType({
             disabled={disabled}
           >
             {displayValue}
-            <ChevronsUpDown className="ml-1.5 h-3 w-3 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
@@ -142,8 +142,8 @@ export function ComboboxSelectLeaveType({
             <CommandList className="max-h-44 overflow-y-auto">
               {loading ? (
                 <div className="text-center py-4">
-                  <Loader2 className="animate-spin text-gray-500 h-3.5 w-3.5 mx-auto" />
-                  <p className="text-xs text-muted-foreground mt-1.5">
+                  <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
+                  <p className="text-xs text-muted-foreground mt-1">
                     Loading leave types...
                   </p>
                 </div>
@@ -160,7 +160,7 @@ export function ComboboxSelectLeaveType({
                       >
                         <Check
                           className={cn(
-                            "mr-1.5 h-3 w-3",
+                            "mr-1 h-3 w-3",
                             value === type.enumName
                               ? "opacity-100"
                               : "opacity-0",

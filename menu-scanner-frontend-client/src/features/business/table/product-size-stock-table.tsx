@@ -100,11 +100,11 @@ function SizesDisplay({ sizes }: { sizes: ProductSize[] | undefined }) {
   };
 
   return (
-    <div className="flex flex-nowrap gap-1.5 overflow-x-auto pb-1">
+    <div className="flex flex-nowrap gap-1 overflow-x-auto pb-1">
       {sizes.map((size) => (
         <div
           key={size.id}
-          className="px-1.5 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
+          className="px-1 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
           style={{
             border: `0.5px solid ${getBorderColor(size.totalStock)}`,
           }}
@@ -226,7 +226,7 @@ export const sizeStockTableColumns = ({
       minWidth: "10px",
       maxWidth: "150px",
       render: (product) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           {handleToggleStockStatus && (
             <Switch
               checked={product?.stockStatus === "ENABLED"}
@@ -259,7 +259,7 @@ export const sizeStockTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (product) => (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <ActionButton
             icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"

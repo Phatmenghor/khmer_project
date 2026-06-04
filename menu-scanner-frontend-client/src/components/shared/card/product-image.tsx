@@ -55,8 +55,8 @@ function ProductImageComponent({
 
       {/* Promotion Badge */}
       {product?.hasPromotion && (
-        <div className="absolute top-1.5 left-1.5 z-10 pointer-events-none">
-          <Badge variant="destructive" className="text-xs font-bold px-1.5 py-0.5 shadow-md">
+        <div className="absolute top-1 left-1 z-10 pointer-events-none">
+          <Badge variant="destructive" className="text-xs font-bold px-1 py-0.5 shadow-md">
             {product.displayPromotionType === "PERCENTAGE"
               ? `-${product.displayPromotionValue}%`
               : `-${formatCurrency(product.displayPromotionValue)}`}
@@ -74,7 +74,7 @@ function ProductImageComponent({
       )}
 
       {/* Favorite Button */}
-      <div className="absolute top-1.5 right-1.5 z-20">
+      <div className="absolute top-1 right-1 z-20">
         <CustomButton
           size="icon"
           variant="secondary"
@@ -102,8 +102,8 @@ function ProductImageComponent({
 
       {/* Sizes/Add-ons Badge */}
       {(product.hasSizes || (product.customizations && product.customizations.length > 0)) && (
-        <div className="absolute bottom-1.5 left-1.5 z-10 pointer-events-none">
-          <Badge variant="secondary" className="text-xs font-medium px-1.5 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
+        <div className="absolute bottom-1 left-1 z-10 pointer-events-none">
+          <Badge variant="secondary" className="text-xs font-medium px-1 py-0.5 shadow-sm bg-background/90 backdrop-blur-sm gap-1">
             {product.hasSizes ? (
               <>
                 <Ruler className="h-2 w-2" />

@@ -55,7 +55,7 @@ export function DetailModal({
                 </DialogDescription>
               )}
               {badges && (
-                <div className="flex items-center gap-1.5 mt-1.5">{badges}</div>
+                <div className="flex items-center gap-1 mt-1">{badges}</div>
               )}
             </div>
           </div>

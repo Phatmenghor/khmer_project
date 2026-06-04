@@ -220,7 +220,7 @@ export function OrderDetailModal({
                   : "No order data available"}
               </p>
               {detailError && (
-                <p className="text-xs text-muted-foreground mt-1.5">
+                <p className="text-xs text-muted-foreground mt-1">
                   The order may have been deleted or you may not have permission to view it.
                 </p>
               )}
@@ -249,7 +249,7 @@ export function OrderDetailModal({
           </div>
           <button
             onClick={handleDownloadReceipt}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors"
+            className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors"
             title="Download receipt as PDF"
           >
             <Download className="w-3 h-3" />
@@ -340,7 +340,7 @@ export function OrderDetailModal({
                 <div className="bg-amber-50 border border-amber-200 rounded p-2">
                   <h4 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">Pricing Breakdown</h4>
                   <div className="space-y-2">
-                    <div className="bg-white border border-amber-100 rounded p-2 space-y-1.5">
+                    <div className="bg-white border border-amber-100 rounded p-2 space-y-1">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                         <DisplayField
                           label="Items"
@@ -410,7 +410,7 @@ export function OrderDetailModal({
                             )}
                           </>
                         )}
-                        <div className="md:col-span-2 border-t pt-1.5 mt-1.5">
+                        <div className="md:col-span-2 border-t pt-1 mt-1">
                           <DisplayField
                             label="Final Total"
                             value={
@@ -459,7 +459,7 @@ export function OrderDetailModal({
                           )}
                           {}
                           <div className="flex-1">
-                            <div className="flex items-center justify-between gap-1.5 mb-1">
+                            <div className="flex items-center justify-between gap-1 mb-1">
                               <h4 className="font-semibold text-xs">
                                 #{idx + 1} - {item.product?.name || "Unknown"}
                               </h4>
@@ -512,7 +512,7 @@ export function OrderDetailModal({
                       {}
                       {item.customizations && item.customizations.length > 0 && (
                         <div className="bg-blue-50 border border-blue-200 rounded p-2 mt-2">
-                          <h5 className="text-xs font-bold text-blue-700 uppercase mb-1.5">✨ Add-ons / Customizations</h5>
+                          <h5 className="text-xs font-bold text-blue-700 uppercase mb-1">✨ Add-ons / Customizations</h5>
                           <div className="space-y-1">
                             {item.customizations.map((custom) => (
                               <div key={custom.productCustomizationId} className="flex justify-between text-xs">
@@ -603,7 +603,7 @@ export function OrderDetailModal({
                                   );
                                   showToast.success(Messages.clipboard.addressCopied);
                                 }}
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-1.5 rounded transition-colors font-semibold"
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-1 rounded transition-colors font-semibold"
                                 title="Copy address and note"
                               >
                                 📋 Copy
@@ -616,7 +616,7 @@ export function OrderDetailModal({
                                       const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
                                       window.open(mapsUrl, "_blank");
                                     }}
-                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-1.5 rounded transition-colors font-semibold"
+                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-1 rounded transition-colors font-semibold"
                                     title="View on Google Maps"
                                   >
                                     🗺️ Map

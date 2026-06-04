@@ -98,7 +98,7 @@ export function LocationCard({
           {}
           <div
             className={cn(
-              "p-1.5 rounded shrink-0 mt-0.5",
+              "p-1 rounded shrink-0 mt-0.5",
               isPrimary
                 ? "bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400"
                 : theme
@@ -112,7 +112,7 @@ export function LocationCard({
           {}
           <div className="flex-1 min-w-0">
             {}
-            <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+            <div className="flex items-center gap-1 mb-1 flex-wrap">
               <span
                 className={cn(
                   "text-xs font-semibold leading-tight",
@@ -124,7 +124,7 @@ export function LocationCard({
                 {location.label || "Location"}
               </span>
               {isPrimary && (
-                <Badge className="h-3.5 px-1.5 text-[10px] font-bold tracking-wide bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700/50 shrink-0 flex items-center gap-1">
+                <Badge className="h-3 px-1 text-[10px] font-bold tracking-wide bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-700/50 shrink-0 flex items-center gap-1">
                   <Crown className="h-2 w-2" />
                   Default
                 </Badge>
@@ -151,14 +151,14 @@ export function LocationCard({
           </div>
 
           {}
-          <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+          <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end">
             {!isPrimary && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => onSetPrimary(location)}
                 disabled={isSettingPrimary}
-                className="h-5 text-xs gap-1.5 rounded"
+                className="h-5 text-xs gap-1 rounded"
               >
                 <Star className="h-2.5 w-2.5" />
                 <span className="hidden sm:inline">Default</span>

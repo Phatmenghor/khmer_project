@@ -35,7 +35,7 @@ export function SelectField<T extends FieldValues = any>({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`space-y-1.5 ${className}`}>
+    <div className={`space-y-1 ${className}`}>
       <Label htmlFor={name} className="text-xs font-medium">
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
@@ -83,7 +83,7 @@ export function SelectField<T extends FieldValues = any>({
                       : selectedOption?.label || placeholder}
                   </span>
                   <ChevronDown className={cn(
-                    "ml-1.5 h-3 w-3 shrink-0 transition-all duration-200",
+                    "ml-1 h-3 w-3 shrink-0 transition-all duration-200",
                     !open && "opacity-50",
                     open && "opacity-100 text-primary rotate-180"
                   )} />
@@ -104,7 +104,7 @@ export function SelectField<T extends FieldValues = any>({
                         setOpen(false);
                       }}
                       className={cn(
-                        "w-full flex items-center gap-1.5 px-2 py-1.5 text-xs text-left cursor-pointer transition-colors",
+                        "w-full flex items-center gap-1 px-2 py-1 text-xs text-left cursor-pointer transition-colors",
                         "hover:bg-primary/10 hover:text-primary/50",
                         currentValue === option.value
                           ? "bg-primary/20 text-primary/50 font-medium"

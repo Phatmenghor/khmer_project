@@ -131,14 +131,14 @@ function MultiSelectDaysContent({
   };
 
   return (
-    <div className={`space-y-1.5 ${className}`}>
+    <div className={`space-y-1 ${className}`}>
       <Label className="text-xs font-medium">
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
 
       <div
         className={cn(
-          "flex flex-wrap gap-1.5 p-2 rounded border",
+          "flex flex-wrap gap-1 p-2 rounded border",
           hasError ? "border-red-500 bg-red-50" : "border-input bg-white",
         )}
       >
@@ -152,7 +152,7 @@ function MultiSelectDaysContent({
               onClick={() => handleToggleDay(day.value)}
               disabled={disabled}
               className={cn(
-                "px-2 py-1.5 rounded border text-xs font-medium transition-colors flex items-center gap-1.5",
+                "px-2 py-1 rounded border text-xs font-medium transition-colors flex items-center gap-1",
                 isSelected
                   ? "bg-primary/10 text-primary border-primary"
                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50",
