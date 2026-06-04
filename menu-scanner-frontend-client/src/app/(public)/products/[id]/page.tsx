@@ -456,7 +456,7 @@ export default function ProductDetailPage() {
         </CustomButton>
 
         {/* ── Main grid ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-[9fr_11fr] gap-5 sm:gap-7 lg:gap-10 mb-10 sm:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[9fr_11fr] gap-5 md:gap-6 lg:gap-10 mb-10 sm:mb-12">
 
           {/* Left: image gallery */}
           <div className="space-y-2.5">
@@ -530,7 +530,7 @@ export default function ProductDetailPage() {
               <div
                 className={cn(
                   "relative rounded-xl overflow-hidden bg-muted group shadow-sm flex-1",
-                  "aspect-square sm:aspect-[4/3] lg:aspect-auto lg:h-[380px]",
+                  "aspect-square md:aspect-auto md:h-[300px] lg:h-[380px]",
                 )}
               >
                 {!imageLoaded && <Skeleton className="absolute inset-0 rounded-xl" />}
@@ -589,7 +589,7 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Mobile/tablet: horizontal thumb strip */}
+            {/* Mobile/tablet: horizontal thumb strip (hidden on lg where vertical strip shows) */}
             {allImages.length > 1 && (
               <div className="flex lg:hidden gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-hide">
                 {allImages.map((img, i) => {
