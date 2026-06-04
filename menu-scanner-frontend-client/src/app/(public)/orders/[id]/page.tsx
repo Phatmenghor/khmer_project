@@ -333,9 +333,9 @@ export default function OrderDetailPage() {
                     "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-xs",
                     order.payment?.paymentStatus === "PAID"
                       ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                      : order.payment?.paymentStatus === "PENDING"
-                        ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
-                        : "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400"
+                      : order.payment?.paymentStatus === "REFUNDED"
+                        ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+                        : "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
                   )}
                 >
                   {order.payment?.paymentStatus === "PAID" && (

@@ -76,7 +76,7 @@ export interface CheckoutPayload {
   };
   payment: {
     paymentMethod: PaymentOptionType;
-    paymentStatus: "PENDING";
+    paymentStatus: "UNPAID";
   };
   customerNote: string;
   orderFrom: OrderFromEnum;

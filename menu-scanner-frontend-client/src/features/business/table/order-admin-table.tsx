@@ -43,7 +43,6 @@ const getPaymentVariant = (status: string) => {
     case "PAID":
       return "default";
     case "UNPAID":
-    case "PENDING":
       return "secondary";
     case "REFUNDED":
       return "destructive";
@@ -172,7 +171,6 @@ export const orderAdminTableColumns = ({
             case "PAID":
               return "text-green-600 font-medium";
             case "UNPAID":
-            case "PENDING":
               return "text-orange-600 font-medium";
             case "REFUNDED":
               return "text-red-600 font-medium";

@@ -60,7 +60,7 @@ public class Payment extends BaseUUIDEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private PaymentStatus status = PaymentStatus.PENDING;
+    private PaymentStatus status = PaymentStatus.UNPAID;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_type", nullable = false)
@@ -87,16 +87,16 @@ public class Payment extends BaseUUIDEntity {
         return amountKhr != null ? String.format("៛%.0f", amountKhr) : "៛0";
     }
 
-    public void markAsCompleted() {
-        this.status = PaymentStatus.COMPLETED;
+    public void markAsPaid() {
+        this.status = PaymentStatus.PAID;
     }
 
-    public void markAsFailed() {
-        this.status = PaymentStatus.FAILED;
+    public void markAsUnpaid() {
+        this.status = PaymentStatus.UNPAID;
     }
 
-    public void markAsPending() {
-        this.status = PaymentStatus.PENDING;
+    public void markAsRefunded() {
+        this.status = PaymentStatus.REFUNDED;
     }
 
     public String getBusinessName() {

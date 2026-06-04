@@ -59,7 +59,9 @@ function OrderHeaderComponent({ orderData }: OrderHeaderProps) {
                   className={
                     orderData.payment?.paymentStatus === "PAID"
                       ? "text-green-600 dark:text-green-400 font-medium"
-                      : "text-orange-600 dark:text-orange-400 font-medium"
+                      : orderData.payment?.paymentStatus === "REFUNDED"
+                        ? "text-red-600 dark:text-red-400 font-medium"
+                        : "text-orange-600 dark:text-orange-400 font-medium"
                   }
                 >
                   {orderData.payment?.paymentStatus || "---"}

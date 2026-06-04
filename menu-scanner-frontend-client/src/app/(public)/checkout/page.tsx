@@ -294,7 +294,7 @@ export default function CheckoutPage() {
         },
         payment: {
           paymentMethod: selectedPaymentOption.paymentOptionType,
-          paymentStatus: "PENDING" as const,
+          paymentStatus: "UNPAID" as const,
         },
         customerNote: checkoutState.customerNote,
         orderFrom: OrderFromEnum.CUSTOMER,

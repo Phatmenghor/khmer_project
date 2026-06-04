@@ -63,31 +63,31 @@ public class OrderPayment extends BaseUUIDEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private PaymentStatus status = PaymentStatus.COMPLETED;
+    private PaymentStatus status = PaymentStatus.PAID;
 
     // Customer payment method for POS orders (e.g., "Cash", "Card", "Mobile Payment")
     @Column(name = "customer_payment_method")
     private String customerPaymentMethod;
 
     // Business Methods
-    public void markAsCompleted() {
-        this.status = PaymentStatus.COMPLETED;
+    public void markAsPaid() {
+        this.status = PaymentStatus.PAID;
     }
 
-    public void markAsFailed() {
-        this.status = PaymentStatus.FAILED;
+    public void markAsUnpaid() {
+        this.status = PaymentStatus.UNPAID;
     }
 
-    public void cancel() {
-        this.status = PaymentStatus.CANCELLED;
+    public void markAsRefunded() {
+        this.status = PaymentStatus.REFUNDED;
     }
 
-    public boolean isCompleted() {
-        return PaymentStatus.COMPLETED.equals(status);
+    public boolean isPaid() {
+        return PaymentStatus.PAID.equals(status);
     }
 
-    public boolean isPending() {
-        return PaymentStatus.PENDING.equals(status);
+    public boolean isUnpaid() {
+        return PaymentStatus.UNPAID.equals(status);
     }
 
     public String getFormattedAmount() {

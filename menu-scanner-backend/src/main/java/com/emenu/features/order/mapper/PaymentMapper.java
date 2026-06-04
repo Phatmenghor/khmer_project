@@ -59,7 +59,7 @@ public interface PaymentMapper {
                 .amount(request.getPaymentAmount())
                 .paymentMethod(request.getPaymentMethod())
                 .paymentType(PaymentType.SUBSCRIPTION)
-                .status(PaymentStatus.COMPLETED)
+                .status(PaymentStatus.PAID)
                 .notes("Payment for subscription renewal")
                 .build();
     }
@@ -72,7 +72,7 @@ public interface PaymentMapper {
                 .amount(request.getRefundAmount().negate())
                 .paymentMethod(PaymentMethod.CASH)
                 .paymentType(PaymentType.REFUND)
-                .status(PaymentStatus.COMPLETED)
+                .status(PaymentStatus.PAID)
                 .notes("Refund for cancelled subscription")
                 .build();
     }
@@ -87,7 +87,7 @@ public interface PaymentMapper {
                 .amount(amount)
                 .paymentMethod(method)
                 .paymentType(type)
-                .status(PaymentStatus.COMPLETED)
+                .status(PaymentStatus.PAID)
                 .notes(notes)
                 .build();
     }

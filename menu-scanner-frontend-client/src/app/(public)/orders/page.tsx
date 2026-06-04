@@ -522,7 +522,6 @@ function createOrderTableColumns(
             case "PAID":
               return "bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-300 border border-green-300 dark:border-green-800";
             case "UNPAID":
-            case "PENDING":
               return "bg-orange-100 dark:bg-orange-950/30 text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-800";
             case "REFUNDED":
               return "bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800";

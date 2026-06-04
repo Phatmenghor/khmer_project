@@ -56,7 +56,7 @@ export interface OrderPricingInfo {
 
 export interface OrderPaymentInfo {
   paymentMethod: string;
-  paymentStatus: "PENDING" | "PAID" | "UNPAID" | "REFUNDED" | "PARTIALLY_PAID";
+  paymentStatus: "PAID" | "UNPAID" | "REFUNDED";
 }
 
 export interface OrderItemProductInfo {

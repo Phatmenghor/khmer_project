@@ -11,7 +11,7 @@ export interface SubscriptionHistoryResponse {
   autoRenew: boolean;
   status: "ACTIVE" | "INACTIVE" | "EXPIRED" | "CANCELLED";
   daysRemaining: number;
-  paymentStatus: "PAID" | "PENDING" | "UNPAID" | "PARTIALLY_PAID" | "CANCELLED";
+  paymentStatus: "PAID" | "UNPAID" | "REFUNDED" | "PARTIALLY_PAID";
   totalPaid: number;
   payment?: PaymentItem;
   logoBusinessUrl?: string;

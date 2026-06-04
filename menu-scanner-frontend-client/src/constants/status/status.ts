@@ -119,10 +119,9 @@ export enum ExchangeRateStatus {
 
 export enum PaymentStatus {
   All = "ALL",
-  PENDING = "PENDING",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
-  CANCELLED = "CANCELLED",
+  PAID = "PAID",
+  UNPAID = "UNPAID",
+  REFUNDED = "REFUNDED",
 }
 
 export enum PaymentMethod {

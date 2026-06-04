@@ -25,7 +25,7 @@ public class PaymentCreateRequest {
     @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod;
 
-    private PaymentStatus status = PaymentStatus.PENDING;
+    private PaymentStatus status = PaymentStatus.UNPAID;
     private String referenceNumber;
 
     @Size(max = 1000, message = "Notes cannot exceed 1000 characters")

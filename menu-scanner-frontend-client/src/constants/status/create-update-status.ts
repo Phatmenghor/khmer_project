@@ -52,10 +52,9 @@ export const SUBSCRIPTION_CREATE_UPDATE = [
 ];
 
 export const PAYMENT_STATUS_CREATE_UPDATE = [
-  { value: PaymentStatus.PENDING, label: "Pending" },
-  { value: PaymentStatus.COMPLETED, label: "Completed" },
-  { value: PaymentStatus.FAILED, label: "Failed" },
-  { value: PaymentStatus.CANCELLED, label: "Cancelled" },
+  { value: PaymentStatus.PAID, label: "Paid" },
+  { value: PaymentStatus.UNPAID, label: "Unpaid" },
+  { value: PaymentStatus.REFUNDED, label: "Refunded" },
 ];
 
 export const PAYMENT_METHOD_CREATE_UPDATE = [

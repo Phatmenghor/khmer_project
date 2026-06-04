@@ -22,7 +22,7 @@ public class OrderPaymentCreateRequest {
     @NotNull(message = "Payment method is required")
     private PaymentMethod paymentMethod;
     
-    private PaymentStatus status = PaymentStatus.PENDING;
+    private PaymentStatus status = PaymentStatus.UNPAID;
     private String confirmationImageUrl;
     private String notes;
     private String customerPaymentMethod;
