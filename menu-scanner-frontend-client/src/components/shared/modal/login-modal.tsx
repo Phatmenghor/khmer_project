@@ -131,7 +131,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-xl p-0 flex flex-col gap-0">
+      <DialogContent className="sm:max-w-xs p-0 flex flex-col gap-0">
         {/* Header — matches FormHeader admin style */}
         <DialogHeader className="px-4 pt-4 pb-3 border-b flex-shrink-0">
           <div className="flex items-start gap-3">

@@ -186,7 +186,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-xs">
         {}
         <DialogHeader className="text-left">
           <div>
