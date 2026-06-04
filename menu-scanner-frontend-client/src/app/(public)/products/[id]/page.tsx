@@ -649,12 +649,6 @@ export default function ProductDetailPage() {
                   {hasSizes && selectedSize ? `Quantity — ${selectedSize.name}` : "Quantity"}
                 </p>
                 <div className="flex items-center gap-2">
-                  {pageQuantity > 0 && displayPrice > 0 && (
-                    <span className="text-sm font-semibold text-foreground shrink-0">
-                      {formatCurrency(displayPrice * pageQuantity)}
-                    </span>
-                  )}
-
                   <CustomButton
                     size="icon"
                     variant="outline"
@@ -683,16 +677,24 @@ export default function ProductDetailPage() {
                     <Plus className="h-4 w-4" />
                   </CustomButton>
 
-                  <CustomButton
-                    className={cn(
-                      "shrink-0 min-w-[120px] h-10 rounded-xl gap-1.5 font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200",
-                      totalCartQty > 0 && "shadow-md",
-                    )}
-                    onClick={handleAddToCart}
-                  >
-                    <ShoppingCart className="h-4 w-4 shrink-0" />
-                    {totalCartQty > 0 ? "Update Cart" : "Add to Cart"}
-                  </CustomButton>
+                  {pageQuantity > 0 && displayPrice > 0 && (
+                    <span className="text-sm font-semibold text-foreground shrink-0">
+                      {formatCurrency(displayPrice * pageQuantity)}
+                    </span>
+                  )}
+
+                  {(hasSizes || hasCustomizations) && (
+                    <CustomButton
+                      className={cn(
+                        "shrink-0 min-w-[120px] h-10 rounded-xl gap-1.5 font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200",
+                        totalCartQty > 0 && "shadow-md",
+                      )}
+                      onClick={handleAddToCart}
+                    >
+                      <ShoppingCart className="h-4 w-4 shrink-0" />
+                      {totalCartQty > 0 ? "Update Cart" : "Add to Cart"}
+                    </CustomButton>
+                  )}
                 </div>
               </div>
             )}
