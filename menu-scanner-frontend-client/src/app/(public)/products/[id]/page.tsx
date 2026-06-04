@@ -287,7 +287,29 @@ export default function ProductDetailPage() {
 
   // ─── Derived: sized/customized ────────────────────────────────────────────
 
-  const selectedSizeCustoms = customizationsBySize.get(selectedSize?.id ?? "") ?? new Set<string>();
+  const selectedSizeCustoms = useMemo(() => {
+    if (!selectedSize) return new Set<string>();
+    const sizeId = selectedSize.id;
+
+    // Explicitly tracked customizations (user selected/modified them) take priority
+    const tracked = customizationsBySize.get(sizeId);
+    if (tracked !== undefined) return tracked;
+
+    // If user is actively editing this size, don't fall back — respect their empty selection
+    if (modifiedSizes.has(sizeId)) return new Set<string>();
+
+    // Auto-derive from the first matching cart item so the qty shows correctly on load
+    if (hasCustomizations) {
+      const cartItem = cartItems.find(
+        (item) => item.productId === product?.id && item.productSizeId === sizeId,
+      );
+      if (cartItem?.customizations?.length) {
+        return new Set<string>(cartItem.customizations.map((c) => c.productCustomizationId));
+      }
+    }
+
+    return new Set<string>();
+  }, [selectedSize, customizationsBySize, modifiedSizes, cartItems, product?.id, hasCustomizations]);
 
   // Combo-aware qty lookup (exact match on size + customization set, mirrors modal)
   const getComboQty = useCallback(
