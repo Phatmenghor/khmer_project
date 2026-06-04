@@ -597,11 +597,9 @@ export default function ProductDetailPage() {
 
             {/* Sizes — preview / price exploration */}
             {hasSizes && (
-              <div className="space-y-2.5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Available Sizes
-                </p>
-                <div className="flex flex-wrap gap-3">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm text-foreground">Choose Size</h4>
+                <div className="flex flex-wrap gap-2.5">
                   {product.sizes!.map((size) => {
                     const sizeCartQty = getQuantityForSize(size.id);
                     const isSelected = selectedSize?.id === size.id;
@@ -610,7 +608,7 @@ export default function ProductDetailPage() {
                         key={size.id}
                         onClick={() => setSelectedSize(size)}
                         className={cn(
-                          "relative border-2 rounded-xl px-4 py-3 text-left transition-all duration-200 min-w-[76px]",
+                          "relative border-2 rounded-xl px-3.5 py-2.5 text-left transition-all duration-200 cursor-pointer min-w-[72px]",
                           isSelected
                             ? "border-primary bg-primary/8 shadow-md ring-2 ring-primary/20"
                             : "border-border hover:border-primary/50 hover:bg-muted/40 hover:shadow-sm",
@@ -626,15 +624,17 @@ export default function ProductDetailPage() {
                             {sizeCartQty}
                           </div>
                         )}
-                        <div className="font-semibold text-sm">{size.name}</div>
-                        <div className={cn("font-bold text-xs mt-0.5", isSelected ? "text-primary" : "text-muted-foreground")}>
-                          {formatCurrency(size.finalPrice)}
-                        </div>
-                        {size.hasPromotion && (
-                          <div className="text-[10px] text-muted-foreground/70 line-through mt-0.5">
-                            {formatCurrency(size.price)}
+                        <div className="font-semibold text-xs">{size.name}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className={cn("font-bold text-sm", isSelected ? "text-primary" : "text-foreground")}>
+                            {formatCurrency(size.finalPrice)}
                           </div>
-                        )}
+                          {size.hasPromotion && (
+                            <div className="text-[10px] text-muted-foreground/70 line-through">
+                              {formatCurrency(size.price)}
+                            </div>
+                          )}
+                        </div>
                       </button>
                     );
                   })}
