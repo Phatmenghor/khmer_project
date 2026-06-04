@@ -19,6 +19,7 @@ import {
   addLocalCartItem,
   updateLocalCartItem,
 } from "@/features/main/store/slice/cart-slice";
+import { CartItemCustomization } from "@/features/main/store/models/response/cart-response";
 import { SizePickerModal } from "../modal/size-picker-modal";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
 import {
@@ -265,9 +266,15 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
     (selectedProduct: ProductDetailResponseModel, size: ProductSize | undefined, qty: number | undefined, customizationIds: string[] | undefined) => {
       const timestamp = Date.now();
       const sizeId = size?.id === "__no_size__" ? null : size?.id || null;
-      const quantity = qty ?? 1;
-      const customizations = customizationIds || [];
-      const key = cartItemKey(selectedProduct.id, sizeId, customizations);
+      const quantity = qty ?? 0;
+      const customizationIdList = customizationIds || [];
+      const key = cartItemKey(selectedProduct.id, sizeId, customizationIdList);
+
+      // Build full customization objects for combo-key matching in the cart slice
+      const customizationObjects: CartItemCustomization[] = customizationIdList.map((cid) => {
+        const c = selectedProduct.customizations?.find((pc) => pc.id === cid);
+        return { id: "", productCustomizationId: cid, name: c?.name ?? "", priceAdjustment: c?.priceAdjustment ?? 0 };
+      });
 
       // 1. Optimistic local state update immediately
       if (isEditingProduct) {
@@ -275,8 +282,9 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
           updateLocalCartItem({
             productId: selectedProduct.id,
             productSizeId: sizeId,
-            quantity: quantity,
+            quantity,
             optimisticTimestamp: timestamp,
+            customizationIds: customizationIdList,
           })
         );
       } else if (quantity > 0) {
@@ -284,7 +292,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
           addLocalCartItem({
             productId: selectedProduct.id,
             productSizeId: sizeId,
-            quantity: quantity,
+            quantity,
             productName: selectedProduct.name,
             productImageUrl: selectedProduct.mainImageUrl,
             sizeName: size?.name || null,
@@ -296,6 +304,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
             promotionFromDate: size?.promotionFromDate || selectedProduct.displayPromotionFromDate || null,
             promotionToDate: size?.promotionToDate || selectedProduct.displayPromotionToDate || null,
             optimisticTimestamp: timestamp,
+            customizations: customizationObjects,
           })
         );
       }
@@ -303,7 +312,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
       setSizePickerProduct(null);
 
       // 2. API call in background via debounce (same system as +/- buttons)
-      debouncedUpdate(key, selectedProduct.id, sizeId, quantity, timestamp, customizations);
+      debouncedUpdate(key, selectedProduct.id, sizeId, quantity, timestamp, customizationIdList);
     },
     [cartDispatch, isEditingProduct, debouncedUpdate]
   );
