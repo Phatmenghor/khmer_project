@@ -104,6 +104,7 @@ export default function ProductDetailPage() {
   const [showAllCustomizations, setShowAllCustomizations] = useState(false);
   const [selectedCustomizationIds, setSelectedCustomizationIds] = useState<Set<string>>(new Set());
   const [pageQuantity, setPageQuantity] = useState(0);
+  const [pendingQty, setPendingQty] = useState<number | null>(null);
 
   const isFavoritedFromStore =
     favLoaded && product
@@ -157,6 +158,7 @@ export default function ProductDetailPage() {
   useEffect(() => {
     const sizeId = selectedSize?.id ?? null;
     setPageQuantity(getQuantityForSize(sizeId));
+    setPendingQty(null);
   }, [selectedSize?.id, cartItems, product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const similarPageSize = typeof window !== "undefined" && window.innerWidth >= 1280 ? 36 : 20;
@@ -296,7 +298,18 @@ export default function ProductDetailPage() {
 
   const handleInlineDecrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
-    if (!product || pageQuantity <= 0) return;
+    if (!product) return;
+
+    if (hasSizes || hasCustomizations) {
+      // Sized/customized: only update pending display, no API yet
+      const current = pendingQty !== null ? pendingQty : pageQuantity;
+      if (current <= 0) return;
+      setPendingQty(Math.max(0, current - 1));
+      return;
+    }
+
+    // Simple product: immediate debounce
+    if (pageQuantity <= 0) return;
     const args = buildCartArgs();
     if (!args) return;
     const ts = Date.now();
@@ -304,11 +317,20 @@ export default function ProductDetailPage() {
     cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: args.sizeId, quantity: newQty, optimisticTimestamp: ts }));
     debouncedUpdate(args.key, product.id, args.sizeId, newQty, ts, args.customizationIds);
     setPageQuantity(newQty);
-  }, [isAuthenticated, product, pageQuantity, buildCartArgs, cartDispatch, debouncedUpdate]);
+  }, [isAuthenticated, product, hasSizes, hasCustomizations, pendingQty, pageQuantity, buildCartArgs, cartDispatch, debouncedUpdate]);
 
   const handleInlineIncrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!product) return;
+
+    if (hasSizes || hasCustomizations) {
+      // Sized/customized: only update pending display, no API yet
+      const current = pendingQty !== null ? pendingQty : pageQuantity;
+      setPendingQty(current + 1);
+      return;
+    }
+
+    // Simple product: immediate debounce
     const args = buildCartArgs();
     if (!args) return;
     const ts = Date.now();
@@ -336,13 +358,40 @@ export default function ProductDetailPage() {
       debouncedUpdate(args.key, product.id, args.sizeId, newQty, ts, args.customizationIds);
     }
     setPageQuantity(newQty);
-  }, [isAuthenticated, product, selectedSize, pageQuantity, buildCartArgs, cartDispatch, debouncedUpdate]);
+  }, [isAuthenticated, product, hasSizes, hasCustomizations, selectedSize, pendingQty, pageQuantity, buildCartArgs, cartDispatch, debouncedUpdate]);
 
-  // CTA: adds qty=1 when not in cart; same as increment otherwise
-  const handleAddToCart = useCallback(() => {
+  // CTA for sized/customized: commit pending qty to cart + API
+  const handleApplyCart = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
-    handleInlineIncrement();
-  }, [isAuthenticated, handleInlineIncrement]);
+    if (!product) return;
+    const args = buildCartArgs();
+    if (!args) return;
+    const qty = pendingQty !== null ? pendingQty : (pageQuantity > 0 ? pageQuantity : 1);
+    const ts = Date.now();
+    if (pageQuantity === 0) {
+      cartDispatch(addLocalCartItem({
+        productId: product.id,
+        productSizeId: args.sizeId,
+        quantity: qty,
+        productName: product.name,
+        productImageUrl: product.mainImageUrl,
+        sizeName: selectedSize?.name ?? null,
+        finalPrice: args.finalPrice,
+        currentPrice: selectedSize?.price ?? product.displayOriginPrice ?? args.finalPrice,
+        hasPromotion: selectedSize?.hasPromotion ?? product.hasPromotion,
+        promotionType: selectedSize?.promotionType ?? product.displayPromotionType ?? null,
+        promotionValue: selectedSize?.promotionValue ?? product.displayPromotionValue ?? null,
+        promotionFromDate: selectedSize?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
+        promotionToDate: selectedSize?.promotionToDate ?? product.displayPromotionToDate ?? null,
+        optimisticTimestamp: ts,
+      }));
+    } else {
+      cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: args.sizeId, quantity: qty, optimisticTimestamp: ts }));
+    }
+    debouncedUpdate(args.key, product.id, args.sizeId, qty, ts, args.customizationIds);
+    setPageQuantity(qty);
+    setPendingQty(null);
+  }, [isAuthenticated, product, selectedSize, pendingQty, pageQuantity, buildCartArgs, cartDispatch, debouncedUpdate]);
 
   const handleToggleFavorite = () => {
     if (!product) return;
@@ -603,6 +652,9 @@ export default function ProductDetailPage() {
                   {product.sizes!.map((size) => {
                     const sizeCartQty = getQuantityForSize(size.id);
                     const isSelected = selectedSize?.id === size.id;
+                    const isPendingSelected = isSelected && pendingQty !== null;
+                    const badgeQty = isSelected && pendingQty !== null ? pendingQty : sizeCartQty;
+                    const badgeAmber = isSelected && pendingQty !== null && pendingQty !== sizeCartQty;
                     return (
                       <button
                         key={size.id}
@@ -612,6 +664,7 @@ export default function ProductDetailPage() {
                           isSelected
                             ? "border-primary bg-primary/8 shadow-md ring-2 ring-primary/20"
                             : "border-border hover:border-primary/50 hover:bg-muted/40 hover:shadow-sm",
+                          isPendingSelected && pendingQty !== sizeCartQty && "ring-amber-400/50",
                         )}
                       >
                         {isSelected && (
@@ -619,9 +672,12 @@ export default function ProductDetailPage() {
                             <Check className="h-3 w-3 text-white" />
                           </div>
                         )}
-                        {sizeCartQty > 0 && (
-                          <div className="absolute -top-2 -left-2 min-w-[20px] h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1.5 shadow-sm z-10">
-                            {sizeCartQty}
+                        {badgeQty > 0 && (
+                          <div className={cn(
+                            "absolute -top-2 -left-2 min-w-[20px] h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1.5 shadow-sm z-10",
+                            badgeAmber ? "bg-amber-500" : "bg-emerald-500",
+                          )}>
+                            {badgeQty}
                           </div>
                         )}
                         <div className="font-semibold text-xs">{size.name}</div>
@@ -648,54 +704,79 @@ export default function ProductDetailPage() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {hasSizes && selectedSize ? `Quantity — ${selectedSize.name}` : "Quantity"}
                 </p>
-                <div className="flex items-center gap-2">
-                  <CustomButton
-                    size="icon"
-                    variant="outline"
-                    className={cn(
-                      "h-10 w-10 shrink-0 transition-all duration-150",
-                      pageQuantity > 0
-                        ? "hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
-                        : "opacity-40 cursor-not-allowed",
-                    )}
-                    onClick={handleInlineDecrement}
-                    disabled={pageQuantity <= 0}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </CustomButton>
+                {(() => {
+                  const displayQty = (hasSizes || hasCustomizations)
+                    ? (pendingQty !== null ? pendingQty : pageQuantity)
+                    : pageQuantity;
+                  const isPending = (hasSizes || hasCustomizations) && pendingQty !== null && pendingQty !== pageQuantity;
+                  const decrementDisabled = displayQty <= 0;
+                  const totalPrice = displayPrice > 0
+                    ? (hasSizes || hasCustomizations)
+                      ? displayPrice * displayQty
+                      : displayPrice * pageQuantity
+                    : 0;
+                  return (
+                    <div className="flex items-center gap-2">
+                      <CustomButton
+                        size="icon"
+                        variant="outline"
+                        className={cn(
+                          "h-10 w-10 shrink-0 transition-all duration-150",
+                          !decrementDisabled
+                            ? "hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+                            : "opacity-40 cursor-not-allowed",
+                        )}
+                        onClick={handleInlineDecrement}
+                        disabled={decrementDisabled}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </CustomButton>
 
-                  <div className="w-14 h-10 bg-primary/10 text-primary font-bold text-sm rounded-lg border border-primary/20 flex items-center justify-center select-none shrink-0">
-                    {hasSizes || hasCustomizations ? totalCartQty : pageQuantity}
-                  </div>
+                      <div className={cn(
+                        "w-14 h-10 font-bold text-sm rounded-lg border flex items-center justify-center select-none shrink-0 transition-colors",
+                        isPending
+                          ? "bg-amber-50 text-amber-600 border-amber-300 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-700"
+                          : "bg-primary/10 text-primary border-primary/20",
+                      )}>
+                        {displayQty}
+                      </div>
 
-                  <CustomButton
-                    size="icon"
-                    variant="outline"
-                    className="h-10 w-10 shrink-0 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-150"
-                    onClick={handleInlineIncrement}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </CustomButton>
+                      <CustomButton
+                        size="icon"
+                        variant="outline"
+                        className="h-10 w-10 shrink-0 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-150"
+                        onClick={handleInlineIncrement}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </CustomButton>
 
-                  {pageQuantity > 0 && displayPrice > 0 && (
-                    <span className="text-sm font-semibold text-foreground shrink-0">
-                      {formatCurrency(displayPrice * pageQuantity)}
-                    </span>
-                  )}
-
-                  {(hasSizes || hasCustomizations) && (
-                    <CustomButton
-                      className={cn(
-                        "shrink-0 min-w-[120px] h-10 rounded-xl gap-1.5 font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200",
-                        totalCartQty > 0 && "shadow-md",
+                      {totalPrice > 0 && displayQty > 0 && (
+                        <span className={cn(
+                          "text-sm font-semibold shrink-0 transition-colors",
+                          isPending ? "text-amber-600 dark:text-amber-400" : "text-foreground",
+                        )}>
+                          {formatCurrency(totalPrice)}
+                        </span>
                       )}
-                      onClick={handleAddToCart}
-                    >
-                      <ShoppingCart className="h-4 w-4 shrink-0" />
-                      {totalCartQty > 0 ? "Update Cart" : "Add to Cart"}
-                    </CustomButton>
-                  )}
-                </div>
+
+                      {(hasSizes || hasCustomizations) && (
+                        <CustomButton
+                          className={cn(
+                            "ml-auto shrink-0 h-10 rounded-xl gap-1.5 font-semibold text-sm transition-all duration-200",
+                            isPending
+                              ? "bg-amber-500 hover:bg-amber-600 text-white shadow-md"
+                              : "bg-primary hover:bg-primary/90 text-primary-foreground",
+                            (totalCartQty > 0 || isPending) && "shadow-md",
+                          )}
+                          onClick={handleApplyCart}
+                        >
+                          <ShoppingCart className="h-4 w-4 shrink-0" />
+                          Add to Cart
+                        </CustomButton>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
