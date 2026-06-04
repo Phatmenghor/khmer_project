@@ -2,6 +2,7 @@ package com.emenu.features.order.models;
 
 import com.emenu.enums.payment.PaymentMethod;
 import com.emenu.enums.payment.PaymentStatus;
+import com.emenu.enums.payment.PaymentStatusConverter;
 import com.emenu.enums.payment.PaymentType;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.subscription.models.Subscription;
@@ -58,7 +59,7 @@ public class Payment extends BaseUUIDEntity {
     @Column(name = "payment_method", nullable = false)
     private PaymentMethod paymentMethod;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = PaymentStatusConverter.class)
     @Column(name = "status", nullable = false)
     private PaymentStatus status = PaymentStatus.UNPAID;
 
