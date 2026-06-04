@@ -146,6 +146,11 @@ export function ComboboxSelectVillage({
       showToast.info(Messages.location.selectCommune);
       return;
     }
+    if (newOpen && dataSelect) {
+      setSearchTerm(dataSelect.villageEn);
+    } else if (!newOpen) {
+      setSearchTerm("");
+    }
     setOpen(newOpen);
   };
 

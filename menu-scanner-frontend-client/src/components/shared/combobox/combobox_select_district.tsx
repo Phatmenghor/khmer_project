@@ -146,6 +146,11 @@ export function ComboboxSelectDistrict({
       showToast.info(Messages.location.selectProvince);
       return;
     }
+    if (newOpen && dataSelect) {
+      setSearchTerm(dataSelect.districtEn);
+    } else if (!newOpen) {
+      setSearchTerm("");
+    }
     setOpen(newOpen);
   };
 

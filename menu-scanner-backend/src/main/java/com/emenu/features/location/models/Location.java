@@ -88,6 +88,7 @@ public class Location extends BaseUUIDEntity {
     }
 
     public boolean hasCoordinates() {
-        return latitude != null && longitude != null;
+        return latitude != null && longitude != null &&
+               (latitude.compareTo(BigDecimal.ZERO) != 0 || longitude.compareTo(BigDecimal.ZERO) != 0);
     }
 }

@@ -124,6 +124,15 @@ export function ComboboxSelectProvince({
     setOpen(false);
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen && dataSelect) {
+      setSearchTerm(dataSelect.provinceEn);
+    } else if (!newOpen) {
+      setSearchTerm("");
+    }
+    setOpen(newOpen);
+  };
+
   return (
     <div className="space-y-1.5 w-full">
       {label && (
@@ -132,7 +141,7 @@ export function ComboboxSelectProvince({
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
       )}
-      <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <Popover open={open} onOpenChange={handleOpenChange} modal={true}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"

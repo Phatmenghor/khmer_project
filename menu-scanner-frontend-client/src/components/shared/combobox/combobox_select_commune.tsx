@@ -145,6 +145,11 @@ export function ComboboxSelectCommune({
       showToast.info("Please select a district first");
       return;
     }
+    if (newOpen && dataSelect) {
+      setSearchTerm(dataSelect.communeEn);
+    } else if (!newOpen) {
+      setSearchTerm("");
+    }
     setOpen(newOpen);
   };
 
