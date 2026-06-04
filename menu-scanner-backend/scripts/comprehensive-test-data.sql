@@ -1622,8 +1622,8 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO CUSTOM STATISTICS (All Dynamic - No Fixed Fields)
 -- ============================================================================
 
-INSERT INTO portfolio_custom_stat (id, profile_id, label, value, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.label, v.value, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_custom_stat (id, profile_id, label, stat_value, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.label, v.stat_value, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
   ('bb0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Years In Business',  '8'),
   ('bb0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Happy Customers',    '10,000+'),
@@ -1634,7 +1634,7 @@ FROM (VALUES
   ('bb0e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Happy Customers',    '5,000+'),
   ('bb0e8400-e29b-41d4-a716-446655440008', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Brands Carried',     '100+'),
   ('bb0e8400-e29b-41d4-a716-446655440009', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Styling Sessions',   '1,000+')
-) AS v(id, profile_id, label, value)
+) AS v(id, profile_id, label, stat_value)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_custom_stat WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
