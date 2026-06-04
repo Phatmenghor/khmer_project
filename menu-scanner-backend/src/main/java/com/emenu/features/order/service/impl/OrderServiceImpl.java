@@ -206,7 +206,13 @@ public class OrderServiceImpl implements OrderService {
                 filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection()
         );
 
-        Page<Order> page = orderRepository.findByCustomerIdAndIsDeletedFalseOrderByCreatedAtDesc(currentUser.getId(), pageable);
+        Specification<Order> spec = OrderSpecification.active()
+                .and(OrderSpecification.forCustomer(currentUser.getId()))
+                .and(OrderSpecification.byStatus(filter.getOrderStatus()))
+                .and(OrderSpecification.byPaymentStatus(filter.getPaymentStatus()))
+                .and(OrderSpecification.searchByOrderNumber(filter.getSearch()));
+
+        Page<Order> page = orderRepository.findAll(spec, pageable);
 
         // Eagerly load statusHistory for all orders to prevent lazy loading during mapping
         page.getContent().forEach(order -> {

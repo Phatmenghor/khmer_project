@@ -187,13 +187,6 @@ export default function OrdersPage() {
     setCurrentPage(1);
   };
 
-  const handleClearFilters = () => {
-    setFilters({ status: "", paymentStatus: "", search: "" });
-    setCurrentPage(1);
-  };
-
-  const hasActiveFilters = filters.status || filters.paymentStatus || filters.search;
-
   const tableColumns = useMemo(
     () =>
       createOrderTableColumns(
@@ -301,56 +294,8 @@ export default function OrdersPage() {
               />
             </div>
 
-            {hasActiveFilters && (
-              <CustomButton
-                onClick={handleClearFilters}
-                variant="ghost"
-                className="h-11 px-4 flex items-center gap-2 border border-border/50 flex-shrink-0"
-              >
-                <X className="h-4 w-4" />
-                Clear
-              </CustomButton>
-            )}
           </div>
         </div>
-
-        {hasActiveFilters && (
-          <div className="flex flex-wrap gap-2 pt-2">
-            {filters.status && (
-              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-sm font-medium text-primary">
-                <span>Order: {filters.status}</span>
-                <button
-                  onClick={() => { setFilters((prev) => ({ ...prev, status: "" })); setCurrentPage(1); }}
-                  className="hover:opacity-70"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            )}
-            {filters.paymentStatus && filters.paymentStatus !== "ALL" && (
-              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-sm font-medium text-primary">
-                <span>Payment: {filters.paymentStatus}</span>
-                <button
-                  onClick={() => { setFilters((prev) => ({ ...prev, paymentStatus: "" })); setCurrentPage(1); }}
-                  className="hover:opacity-70"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            )}
-            {filters.search && (
-              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-sm font-medium text-primary">
-                <span>Search: {filters.search}</span>
-                <button
-                  onClick={() => { setFilters((prev) => ({ ...prev, search: "" })); setCurrentPage(1); }}
-                  className="hover:opacity-70"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {error.list ? (
