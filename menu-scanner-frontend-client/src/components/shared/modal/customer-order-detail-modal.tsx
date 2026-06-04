@@ -149,9 +149,11 @@ function OrderBody({ order }: { order: OrderResponse }) {
           <Field
             label="Payment"
             value={
-              <span className="flex flex-col gap-0.5">
-                <span className="font-medium text-foreground">{order.payment?.paymentMethod || "---"}</span>
-                <span className={cn("text-sm", paymentColor(order.payment?.paymentStatus))}>{order.payment?.paymentStatus || "---"}</span>
+              <span className="font-medium">
+                {order.payment?.paymentMethod || "---"}{" "}
+                <span className={cn(paymentColor(order.payment?.paymentStatus))}>
+                  ({order.payment?.paymentStatus || "---"})
+                </span>
               </span>
             }
           />
