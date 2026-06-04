@@ -19,8 +19,8 @@ import {
 } from "@/features/main/store/slice/cart-slice";
 import { toggleFavorite } from "@/features/main/store/thunks/favorite-thunks";
 import { useCartDebounce, cartItemKey } from "@/hooks/use-cart-debounce";
-import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
+import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { SizePickerModal } from "@/components/shared/modal/size-picker-modal";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -92,6 +92,8 @@ export default function ProductDetailPage() {
 
   const [similarProducts, setSimilarProducts] = useState<ProductDetailResponseModel[]>([]);
   const [similarLoading, setSimilarLoading] = useState(false);
+  const [similarHasMore, setSimilarHasMore] = useState(false);
+  const [similarPage, setSimilarPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -165,30 +167,56 @@ export default function ProductDetailPage() {
     setPageQuantity(getQuantityForSize(sizeId));
   }, [selectedSize?.id, cartItems, product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const similarPageSize = typeof window !== "undefined" && window.innerWidth >= 1280 ? 36 : 20;
+
   const fetchedSimilarRef = useRef<string | null>(null);
   useEffect(() => {
     if (!product?.id || fetchedSimilarRef.current === product.id) return;
     fetchedSimilarRef.current = product.id;
     setSimilarLoading(true);
+    setSimilarProducts([]);
+    setSimilarPage(1);
     dispatch(
       fetchPublicProducts({
         pageNo: 1,
-        pageSize: 7,
+        pageSize: similarPageSize,
         categoryId: product.categoryId || undefined,
         statuses: ["ACTIVE"],
       }),
     )
       .unwrap()
       .then((res) => {
-        setSimilarProducts(
-          (res.content as ProductDetailResponseModel[])
-            .filter((p) => p.id !== productId)
-            .slice(0, 6),
-        );
+        setSimilarProducts((res.content as ProductDetailResponseModel[]).filter((p) => p.id !== productId));
+        setSimilarHasMore(!res.last);
       })
       .catch(() => {})
       .finally(() => setSimilarLoading(false));
-  }, [product?.id, product?.categoryId, productId, dispatch]);
+  }, [product?.id, product?.categoryId, productId, dispatch, similarPageSize]);
+
+  const handleLoadMoreSimilar = useCallback(() => {
+    if (!product?.id || similarLoading || !similarHasMore) return;
+    const nextPage = similarPage + 1;
+    setSimilarLoading(true);
+    dispatch(
+      fetchPublicProducts({
+        pageNo: nextPage,
+        pageSize: similarPageSize,
+        categoryId: product.categoryId || undefined,
+        statuses: ["ACTIVE"],
+      }),
+    )
+      .unwrap()
+      .then((res) => {
+        setSimilarProducts((prev) => [
+          ...prev,
+          ...(res.content as ProductDetailResponseModel[]).filter((p) => p.id !== productId),
+        ]);
+        setSimilarHasMore(!res.last);
+        setSimilarPage(nextPage);
+      })
+      .catch(() => {})
+      .finally(() => setSimilarLoading(false));
+  }, [product?.id, product?.categoryId, productId, dispatch, similarLoading, similarHasMore, similarPage, similarPageSize]);
 
   // ─── Image nav ────────────────────────────────────────────────────────────
 
@@ -893,21 +921,15 @@ export default function ProductDetailPage() {
           <div className="mb-10 sm:mb-12">
             <div className="flex items-center gap-2 mb-4 sm:mb-5">
               <h2 className="text-lg sm:text-xl font-bold">You May Also Like</h2>
-              {!similarLoading && (
-                <span className="text-xs font-semibold bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                  {similarProducts.length}
-                </span>
-              )}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-              {similarLoading
-                ? Array.from({ length: 6 }).map((_, i) => (
-                    <ProductCardSkeleton key={`sim-skel-${i}`} />
-                  ))
-                : similarProducts.map((p) => (
-                    <ProductCard key={p.id} product={p} />
-                  ))}
-            </div>
+            <PaginatedProductsGrid
+              products={similarProducts}
+              loading={similarLoading}
+              hasMore={similarHasMore}
+              onLoadMore={handleLoadMoreSimilar}
+              isInitialLoading={similarLoading && similarProducts.length === 0}
+              sectionKey="similar"
+            />
           </div>
         )}
       </PageContainer>
