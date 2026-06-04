@@ -213,37 +213,23 @@ function OrderBody({ order }: { order: OrderResponse }) {
   return (
     <div className="p-5 space-y-5">
 
-      {/* ── Overview chips ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          {
-            label: "Order Number",
-            value: <span className="font-mono text-xs">{order.orderNumber}</span>,
-          },
-          {
-            label: "Date",
-            value: <span className="text-xs">{dateTimeFormat(order.createdAt)}</span>,
-          },
-          {
-            label: "Order Status",
-            value: <span className={cn("font-semibold text-xs", statusColor(order.orderStatus))}>{getOrderStatusLabel(order.orderStatus)}</span>,
-          },
-          {
-            label: "Payment",
-            value: (
+      {/* ── Overview ── */}
+      <Section title="Order Info">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Field label="Order Number" value={<span className="font-mono">{order.orderNumber}</span>} />
+          <Field label="Date" value={dateTimeFormat(order.createdAt)} />
+          <Field label="Order Status" value={<span className={cn("font-medium", statusColor(order.orderStatus))}>{getOrderStatusLabel(order.orderStatus)}</span>} />
+          <Field
+            label="Payment"
+            value={
               <span className="flex flex-col gap-0.5">
-                <span className="text-xs font-medium text-foreground">{order.payment?.paymentMethod || "---"}</span>
-                <span className={cn("text-xs font-semibold", paymentColor(order.payment?.paymentStatus))}>{order.payment?.paymentStatus || "---"}</span>
+                <span className="font-medium text-foreground">{order.payment?.paymentMethod || "---"}</span>
+                <span className={cn("text-sm", paymentColor(order.payment?.paymentStatus))}>{order.payment?.paymentStatus || "---"}</span>
               </span>
-            ),
-          },
-        ].map((item) => (
-          <div key={item.label} className="rounded-xl border border-border/60 bg-card px-4 py-3 space-y-1">
-            <p className="text-xs text-muted-foreground">{item.label}</p>
-            <div className="text-sm font-medium text-foreground">{item.value}</div>
-          </div>
-        ))}
-      </div>
+            }
+          />
+        </div>
+      </Section>
 
       {/* ── Items grid (product-card style) ── */}
       {order.items && order.items.length > 0 && (
