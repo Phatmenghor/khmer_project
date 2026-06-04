@@ -100,7 +100,7 @@ export default function OrdersPage() {
       fetchMyOrdersService({
         pageNo: currentPage,
         pageSize: 15,
-        status: filters.status || undefined,
+        orderStatus: filters.status || undefined,
         paymentStatus:
           filters.paymentStatus && filters.paymentStatus !== "ALL"
             ? filters.paymentStatus
@@ -153,7 +153,7 @@ export default function OrdersPage() {
         fetchMyOrdersService({
           pageNo: currentPage,
           pageSize: 15,
-          status: filters.status || undefined,
+          orderStatus: filters.status || undefined,
           paymentStatus:
             filters.paymentStatus && filters.paymentStatus !== "ALL"
               ? filters.paymentStatus
