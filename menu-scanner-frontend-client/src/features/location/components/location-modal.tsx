@@ -43,7 +43,6 @@ import {
   Upload,
   X,
   ImageIcon,
-  Search,
   LocateFixed,
   Maximize2,
   Minimize2,
@@ -83,13 +82,14 @@ export function loadGoogleMapsScript(): Promise<void> {
     }
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) { reject(new Error("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not configured")); return; }
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    script.async = true; script.defer = true;
-    script.onload = () => {
-      const id = setInterval(() => { if (window.google?.maps?.Map) { clearInterval(id); resolve(); } }, 100);
-      setTimeout(() => { clearInterval(id); if (window.google?.maps?.Map) resolve(); else reject(new Error("Map unavailable")); }, 10000);
+    const callbackName = "__googleMapsReady";
+    (window as Record<string, unknown>)[callbackName] = () => {
+      delete (window as Record<string, unknown>)[callbackName];
+      resolve();
     };
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async&callback=${callbackName}`;
+    script.async = true;
     script.onerror = () => { gmapLoadPromise = null; reject(new Error("Failed to load Google Maps")); };
     document.head.appendChild(script);
   });
@@ -212,8 +212,8 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const fullscreenMapRef = useRef<google.maps.Map | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
-  const fullscreenSearchRef = useRef<HTMLInputElement>(null);
-  const fullscreenAutocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const fullscreenSearchContainerRef = useRef<HTMLDivElement>(null);
+  const fullscreenAutocompleteRef = useRef<google.maps.places.PlaceAutocompleteElement | null>(null);
   const geocodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setValueRef = useRef<typeof setValue>(null!);
 
@@ -228,7 +228,6 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   const [isGeocodingAddress, setIsGeocodingAddress] = useState(false);
   const [geocodedCoords, setGeocodedCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geocodeSuccess, setGeocodeSuccess] = useState(false);
-  const [searchText, setSearchText] = useState("");
 
   const { control, handleSubmit, reset, setValue, watch, getValues, formState: { errors, isDirty } } = useForm<LocationFormData>({
     resolver: zodResolver(createLocationSchema) as any,
@@ -324,24 +323,36 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     });
   }, []);
 
-  const setupAutocomplete = useCallback((input: HTMLInputElement, ref: React.MutableRefObject<google.maps.places.Autocomplete | null>, mapInstance: google.maps.Map) => {
-    if (!mapInstance || !google.maps.places) return;
-    if (ref.current) google.maps.event.clearInstanceListeners(ref.current);
-    const ac = new google.maps.places.Autocomplete(input, { types: ["geocode", "establishment"] });
-    ac.bindTo("bounds", mapInstance);
-    ac.addListener("place_changed", () => {
-      const place = ac.getPlace();
-      if (place.geometry?.location) {
-        mapInstance.setCenter(place.geometry.location);
+  const setupAutocomplete = useCallback((container: HTMLDivElement, ref: React.MutableRefObject<google.maps.places.PlaceAutocompleteElement | null>, mapInstance: google.maps.Map) => {
+    if (!mapInstance || !google.maps.places?.PlaceAutocompleteElement) return;
+    if (ref.current) ref.current.remove();
+    container.innerHTML = "";
+
+    const ac = new google.maps.places.PlaceAutocompleteElement({ types: ["geocode", "establishment"] });
+    container.appendChild(ac as unknown as Node);
+
+    mapInstance.addListener("bounds_changed", () => {
+      const bounds = mapInstance.getBounds();
+      if (bounds) (ac as unknown as { locationBias: google.maps.LatLngBounds }).locationBias = bounds;
+    });
+
+    ac.addEventListener("gmp-placeselect", async (event: Event) => {
+      const place = (event as google.maps.places.PlaceAutocompletePlaceSelectEvent).place;
+      if (!place) return;
+      await place.fetchFields({ fields: ["geometry"] });
+      const location = place.geometry?.location;
+      if (location) {
+        mapInstance.setCenter(location);
         mapInstance.setZoom(17);
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
+        const lat = location.lat();
+        const lng = location.lng();
         setValueRef.current("latitude", lat, { shouldDirty: true });
         setValueRef.current("longitude", lng, { shouldDirty: true });
         if (geocodeTimerRef.current) clearTimeout(geocodeTimerRef.current);
         geocodeTimerRef.current = setTimeout(() => reverseGeocode(lat, lng), 200);
       }
     });
+
     ref.current = ac;
   }, [reverseGeocode]);
 
@@ -425,8 +436,8 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
         google.maps.event.trigger(fullscreenMap, "resize");
         if (center) fullscreenMap.setCenter(center);
         setIsFullScreenMapReady(true);
-        if (fullscreenSearchRef.current && google.maps.places) {
-          setupAutocomplete(fullscreenSearchRef.current, fullscreenAutocompleteRef, fullscreenMap);
+        if (fullscreenSearchContainerRef.current && google.maps.places?.PlaceAutocompleteElement) {
+          setupAutocomplete(fullscreenSearchContainerRef.current, fullscreenAutocompleteRef, fullscreenMap);
         }
       }, 100);
 
@@ -607,7 +618,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
               <LocateFixed className="h-4 w-4" />
               <span className="hidden sm:inline">My Location</span>
             </Button>
-            <Button type="button" variant="default" size="sm" onClick={() => { setIsFullScreen(false); setSearchText(""); }} className="gap-1 h-9">
+            <Button type="button" variant="default" size="sm" onClick={() => { setIsFullScreen(false); }} className="gap-1 h-9">
               <Minimize2 className="h-4 w-4" />
               <span className="hidden sm:inline">Done</span>
             </Button>
@@ -616,33 +627,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
         {}
         <div className="px-4 py-3 border-b bg-background/95 backdrop-blur shrink-0">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <Input
-              ref={fullscreenSearchRef}
-              type="text"
-              placeholder="Search for a place, address…"
-              className="pl-9 pr-9 h-10 rounded-lg text-sm w-full"
-              autoComplete="off"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
-            {searchText && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchText("");
-                  if (fullscreenSearchRef.current) {
-                    fullscreenSearchRef.current.value = "";
-                    fullscreenSearchRef.current.focus();
-                  }
-                }}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+          <div ref={fullscreenSearchContainerRef} className="gmap-autocomplete-container w-full" />
         </div>
 
         {}
@@ -684,8 +669,8 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
         className="p-0 overflow-hidden flex flex-col w-full sm:max-w-3xl lg:max-w-5xl max-h-[95dvh] rounded-2xl"
-        onInteractOutside={(e) => { if ((e.target as HTMLElement).closest(".pac-container")) e.preventDefault(); }}
-        onPointerDownOutside={(e) => { if ((e.target as HTMLElement).closest(".pac-container")) e.preventDefault(); }}
+        onInteractOutside={(e) => { const t = e.target as HTMLElement; if (t.closest(".pac-container") || t.closest("gmp-placeautocomplete")) e.preventDefault(); }}
+        onPointerDownOutside={(e) => { const t = e.target as HTMLElement; if (t.closest(".pac-container") || t.closest("gmp-placeautocomplete")) e.preventDefault(); }}
       >
         <FormHeader
           title={isCreate ? "Add Location" : "Edit Location"}

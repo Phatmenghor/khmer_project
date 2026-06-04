@@ -1059,3 +1059,26 @@ body:has([data-state="open"]) .pac-container {
 .pac-matched {
   font-weight: 600 !important;
 }
+
+/* PlaceAutocompleteElement container and element styling */
+.gmap-autocomplete-container {
+  display: block;
+  width: 100%;
+}
+
+.gmap-autocomplete-container gmp-placeautocomplete {
+  display: block;
+  width: 100%;
+}
+
+/* Style the PlaceAutocompleteElement to match the app input design */
+gmp-placeautocomplete {
+  --gmpx-color-surface: hsl(var(--background));
+  --gmpx-color-on-surface: hsl(var(--foreground));
+  --gmpx-color-on-surface-variant: hsl(var(--muted-foreground));
+  --gmpx-color-primary: hsl(var(--primary));
+  --gmpx-font-family-base: inherit;
+  --gmpx-font-size-base: 0.875rem;
+  display: block;
+  width: 100%;
+}
