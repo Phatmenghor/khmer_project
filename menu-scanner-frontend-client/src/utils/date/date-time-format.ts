@@ -6,14 +6,13 @@ export function dateTimeFormat(timestamp: string | null | undefined): string {
 
   const date = new Date(timestamp);
 
-  return date.toLocaleString("en-US", {
+  return date.toLocaleString("en-GB", {
     timeZone: "Asia/Phnom_Penh",
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    second: "2-digit",
     hour12: true,
   });
 }
