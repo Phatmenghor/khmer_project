@@ -101,8 +101,12 @@ export default function ProductDetailPage() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [thumbOffset, setThumbOffset] = useState(0);
   const [showAllCustomizations, setShowAllCustomizations] = useState(false);
-  const [selectedCustomizationIds, setSelectedCustomizationIds] = useState<Set<string>>(new Set());
+  // Simple product qty (immediate debounce)
   const [pageQuantity, setPageQuantity] = useState(0);
+  // Sized/customized product state — mirrors modal behavior
+  const [pendingQuantities, setPendingQuantities] = useState<Map<string, number>>(new Map());
+  const [modifiedSizes, setModifiedSizes] = useState<Set<string>>(new Set());
+  const [customizationsBySize, setCustomizationsBySize] = useState<Map<string, Set<string>>>(new Map());
 
   const isFavoritedFromStore =
     favLoaded && product
@@ -147,16 +151,21 @@ export default function ProductDetailPage() {
     setSelectedImage(sanitizeImageUrl(product.mainImageUrl, appImages.NoImage));
     setCurrentImageIndex(0);
     setImageLoaded(false);
-    setSelectedSize(product.hasSizes && product.sizes?.length ? product.sizes[0] : null);
     setThumbOffset(0);
     setShowAllCustomizations(false);
-    setSelectedCustomizationIds(new Set());
-  }, [product?.id]);
+    setPendingQuantities(new Map());
+    setModifiedSizes(new Set());
+    setCustomizationsBySize(new Map());
+    const firstSize = product.hasSizes && product.sizes?.length ? product.sizes[0] : null;
+    setSelectedSize(firstSize);
+  }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Sync simple-product qty from cart
   useEffect(() => {
-    const sizeId = selectedSize?.id ?? null;
-    setPageQuantity(getQuantityForSize(sizeId));
-  }, [selectedSize?.id, cartItems, product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!hasSizes && !hasCustomizations) {
+      setPageQuantity(getQuantityForSize(null));
+    }
+  }, [cartItems, product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const similarPageSize = typeof window !== "undefined" && window.innerWidth >= 1280 ? 36 : 20;
 
@@ -264,80 +273,159 @@ export default function ProductDetailPage() {
 
   const { debouncedUpdate } = useCartDebounce(cartDispatch);
 
+  // ─── Derived: sized/customized ────────────────────────────────────────────
+
+  // Current display qty for selected size (pending takes priority over cart)
+  const selectedSizeCustoms = customizationsBySize.get(selectedSize?.id ?? "") ?? new Set<string>();
+  const currentSizedQty = selectedSize
+    ? (pendingQuantities.has(selectedSize.id) ? pendingQuantities.get(selectedSize.id)! : getQuantityForSize(selectedSize.id))
+    : 0;
+  const hasUnsavedChanges = modifiedSizes.size > 0;
+
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
-  const toggleCustomization = useCallback((id: string) => {
-    setSelectedCustomizationIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+  // Select a size — load its cart customizations if any
+  const handleSizeButtonClick = useCallback((size: ProductSize) => {
+    setSelectedSize(size);
+    if (!product?.customizations?.length) return;
+    // Only load from cart if we haven't loaded for this size yet
+    setCustomizationsBySize((prev) => {
+      if (prev.has(size.id)) return prev;
+      const cartItem = cartItems.find((item) => item.productId === product.id && item.productSizeId === size.id);
+      if (!cartItem?.customizations?.length) return prev;
+      const next = new Map(prev);
+      next.set(size.id, new Set(cartItem.customizations.map((c: { productCustomizationId: string }) => c.productCustomizationId)));
       return next;
     });
-  }, []);
+  }, [product, cartItems]);
 
-  // Build cart args from current page-level selections (size, customizations)
-  const buildCartArgs = useCallback(() => {
-    if (!product) return null;
-    const sizeId = selectedSize?.id ?? null;
-    const customizationIds = Array.from(selectedCustomizationIds);
-    const finalPrice = selectedSize?.finalPrice ?? product.displayPrice;
-    return {
-      sizeId,
-      customizationIds,
-      finalPrice,
-      key: cartItemKey(product.id, sizeId, customizationIds),
-    };
-  }, [product, selectedSize, selectedCustomizationIds]);
+  const toggleCustomization = useCallback((id: string) => {
+    if (!selectedSize) return;
+    const sizeId = selectedSize.id;
+    setCustomizationsBySize((prev) => {
+      const next = new Map(prev);
+      const current = new Set(prev.get(sizeId) ?? []);
+      if (current.has(id)) current.delete(id); else current.add(id);
+      if (current.size > 0) next.set(sizeId, current); else next.delete(sizeId);
+      return next;
+    });
+    // Any customization change marks this size as modified
+    setModifiedSizes((prev) => {
+      const next = new Set(prev);
+      next.add(sizeId);
+      return next;
+    });
+  }, [selectedSize]);
 
+  // Sized/customized: update pending qty only — no API yet
+  const handleSizedDecrement = useCallback(() => {
+    if (!isAuthenticated) { setShowLoginModal(true); return; }
+    if (!selectedSize) return;
+    const sizeId = selectedSize.id;
+    const current = pendingQuantities.has(sizeId) ? pendingQuantities.get(sizeId)! : getQuantityForSize(sizeId);
+    if (current <= 0) return;
+    const newQty = current - 1;
+    const cartQty = getQuantityForSize(sizeId);
+    setPendingQuantities((prev) => { const next = new Map(prev); next.set(sizeId, newQty); return next; });
+    setModifiedSizes((prev) => { const next = new Set(prev); if (newQty === cartQty) next.delete(sizeId); else next.add(sizeId); return next; });
+  }, [isAuthenticated, selectedSize, pendingQuantities, getQuantityForSize]);
+
+  const handleSizedIncrement = useCallback(() => {
+    if (!isAuthenticated) { setShowLoginModal(true); return; }
+    if (!selectedSize) return;
+    const sizeId = selectedSize.id;
+    const current = pendingQuantities.has(sizeId) ? pendingQuantities.get(sizeId)! : getQuantityForSize(sizeId);
+    const newQty = current + 1;
+    const cartQty = getQuantityForSize(sizeId);
+    setPendingQuantities((prev) => { const next = new Map(prev); next.set(sizeId, newQty); return next; });
+    setModifiedSizes((prev) => { const next = new Set(prev); if (newQty === cartQty) next.delete(sizeId); else next.add(sizeId); return next; });
+  }, [isAuthenticated, selectedSize, pendingQuantities, getQuantityForSize]);
+
+  // Commit all modified sizes to cart + API at once (mirrors modal's handleSelectSize)
+  const handleApplyCart = useCallback(() => {
+    if (!isAuthenticated) { setShowLoginModal(true); return; }
+    if (!product || !hasUnsavedChanges) return;
+    const ts = Date.now();
+    modifiedSizes.forEach((sizeId) => {
+      const pendingQty = pendingQuantities.get(sizeId) ?? 0;
+      const cartQty = getQuantityForSize(sizeId);
+      const size = product.sizes?.find((s) => s.id === sizeId) ?? null;
+      const finalPrice = size?.finalPrice ?? product.displayPrice;
+      const customizationIds = Array.from(customizationsBySize.get(sizeId) ?? new Set());
+      const key = cartItemKey(product.id, sizeId, customizationIds);
+      if (cartQty === 0 && pendingQty > 0) {
+        cartDispatch(addLocalCartItem({
+          productId: product.id,
+          productSizeId: sizeId,
+          quantity: pendingQty,
+          productName: product.name,
+          productImageUrl: product.mainImageUrl,
+          sizeName: size?.name ?? null,
+          finalPrice,
+          currentPrice: size?.price ?? product.displayOriginPrice ?? finalPrice,
+          hasPromotion: size?.hasPromotion ?? product.hasPromotion,
+          promotionType: size?.promotionType ?? product.displayPromotionType ?? null,
+          promotionValue: size?.promotionValue ?? product.displayPromotionValue ?? null,
+          promotionFromDate: size?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
+          promotionToDate: size?.promotionToDate ?? product.displayPromotionToDate ?? null,
+          optimisticTimestamp: ts,
+        }));
+      } else {
+        cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: sizeId, quantity: pendingQty, optimisticTimestamp: ts }));
+      }
+      debouncedUpdate(key, product.id, sizeId, pendingQty, ts, customizationIds);
+    });
+    setPendingQuantities(new Map());
+    setModifiedSizes(new Set());
+  }, [isAuthenticated, product, hasUnsavedChanges, modifiedSizes, pendingQuantities, getQuantityForSize, customizationsBySize, cartDispatch, debouncedUpdate]);
+
+  // Simple product: immediate dispatch + debounce (matches product card)
   const handleAddToCart = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!product) return;
-    const args = buildCartArgs();
-    if (!args) return;
     const ts = Date.now();
+    const key = cartItemKey(product.id, null);
     cartDispatch(addLocalCartItem({
       productId: product.id,
-      productSizeId: args.sizeId,
+      productSizeId: null,
       quantity: 1,
       productName: product.name,
       productImageUrl: product.mainImageUrl,
-      sizeName: selectedSize?.name ?? null,
-      finalPrice: args.finalPrice,
-      currentPrice: selectedSize?.price ?? product.displayOriginPrice ?? args.finalPrice,
-      hasPromotion: selectedSize?.hasPromotion ?? product.hasPromotion,
-      promotionType: selectedSize?.promotionType ?? product.displayPromotionType ?? null,
-      promotionValue: selectedSize?.promotionValue ?? product.displayPromotionValue ?? null,
-      promotionFromDate: selectedSize?.promotionFromDate ?? product.displayPromotionFromDate ?? null,
-      promotionToDate: selectedSize?.promotionToDate ?? product.displayPromotionToDate ?? null,
+      sizeName: null,
+      finalPrice: product.displayPrice,
+      currentPrice: product.displayOriginPrice ?? product.displayPrice,
+      hasPromotion: product.hasPromotion,
+      promotionType: product.displayPromotionType ?? null,
+      promotionValue: product.displayPromotionValue ?? null,
+      promotionFromDate: product.displayPromotionFromDate ?? null,
+      promotionToDate: product.displayPromotionToDate ?? null,
       optimisticTimestamp: ts,
     }));
-    debouncedUpdate(args.key, product.id, args.sizeId, 1, ts, args.customizationIds);
+    debouncedUpdate(key, product.id, null, 1, ts);
     setPageQuantity(1);
-  }, [isAuthenticated, product, selectedSize, buildCartArgs, cartDispatch, debouncedUpdate]);
+  }, [isAuthenticated, product, cartDispatch, debouncedUpdate]);
 
   const handleInlineDecrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!product || pageQuantity <= 0) return;
-    const args = buildCartArgs();
-    if (!args) return;
     const ts = Date.now();
     const newQty = pageQuantity - 1;
-    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: args.sizeId, quantity: newQty, optimisticTimestamp: ts }));
-    debouncedUpdate(args.key, product.id, args.sizeId, newQty, ts, args.customizationIds);
+    const key = cartItemKey(product.id, null);
+    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+    debouncedUpdate(key, product.id, null, newQty, ts);
     setPageQuantity(newQty);
-  }, [isAuthenticated, product, pageQuantity, buildCartArgs, cartDispatch, debouncedUpdate]);
+  }, [isAuthenticated, product, pageQuantity, cartDispatch, debouncedUpdate]);
 
   const handleInlineIncrement = useCallback(() => {
     if (!isAuthenticated) { setShowLoginModal(true); return; }
     if (!product) return;
-    const args = buildCartArgs();
-    if (!args) return;
     const ts = Date.now();
     const newQty = pageQuantity + 1;
-    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: args.sizeId, quantity: newQty, optimisticTimestamp: ts }));
-    debouncedUpdate(args.key, product.id, args.sizeId, newQty, ts, args.customizationIds);
+    const key = cartItemKey(product.id, null);
+    cartDispatch(updateLocalCartItem({ productId: product.id, productSizeId: null, quantity: newQty, optimisticTimestamp: ts }));
+    debouncedUpdate(key, product.id, null, newQty, ts);
     setPageQuantity(newQty);
-  }, [isAuthenticated, product, pageQuantity, buildCartArgs, cartDispatch, debouncedUpdate]);
+  }, [isAuthenticated, product, pageQuantity, cartDispatch, debouncedUpdate]);
 
   const handleToggleFavorite = () => {
     if (!product) return;
@@ -590,7 +678,7 @@ export default function ProductDetailPage() {
               </p>
             )}
 
-            {/* Sizes — preview / price exploration */}
+            {/* Sizes */}
             {hasSizes && (
               <div className="space-y-3">
                 <h4 className="font-semibold text-sm text-foreground">Choose Size</h4>
@@ -598,15 +686,20 @@ export default function ProductDetailPage() {
                   {product.sizes!.map((size) => {
                     const sizeCartQty = getQuantityForSize(size.id);
                     const isSelected = selectedSize?.id === size.id;
+                    const isModified = modifiedSizes.has(size.id);
+                    const pendingQty = pendingQuantities.get(size.id);
+                    const badgeQty = isModified && pendingQty !== undefined ? pendingQty : sizeCartQty;
+                    const badgeAmber = isModified && pendingQty !== sizeCartQty;
                     return (
                       <button
                         key={size.id}
-                        onClick={() => setSelectedSize(size)}
+                        onClick={() => handleSizeButtonClick(size)}
                         className={cn(
                           "relative border-2 rounded-xl px-3.5 py-2.5 text-left transition-all duration-200 cursor-pointer min-w-[72px]",
                           isSelected
                             ? "border-primary bg-primary/8 shadow-md ring-2 ring-primary/20"
                             : "border-border hover:border-primary/50 hover:bg-muted/40 hover:shadow-sm",
+                          isModified && !isSelected && "ring-2 ring-amber-400/50",
                         )}
                       >
                         {isSelected && (
@@ -614,9 +707,12 @@ export default function ProductDetailPage() {
                             <Check className="h-3 w-3 text-white" />
                           </div>
                         )}
-                        {sizeCartQty > 0 && (
-                          <div className="absolute -top-2 -left-2 min-w-[20px] h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1.5 shadow-sm z-10">
-                            {sizeCartQty}
+                        {badgeQty > 0 && (
+                          <div className={cn(
+                            "absolute -top-2 -left-2 min-w-[20px] h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1.5 shadow-sm z-10",
+                            badgeAmber ? "bg-amber-500" : "bg-emerald-500",
+                          )}>
+                            {badgeQty}
                           </div>
                         )}
                         <div className="font-semibold text-xs">{size.name}</div>
@@ -637,12 +733,58 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* Quantity row — matches product card pattern */}
-            {!isOutOfStock && (
-              <div className="space-y-2">
+            {/* Quantity — sized/customized: pending model like modal */}
+            {!isOutOfStock && (hasSizes || hasCustomizations) && (
+              <div className="space-y-3">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {hasSizes && selectedSize ? `Quantity — ${selectedSize.name}` : "Quantity"}
                 </p>
+                <div className="flex items-center gap-2">
+                  <CustomButton
+                    size="icon"
+                    variant="outline"
+                    className={cn(
+                      "h-10 w-10 shrink-0 transition-all duration-150",
+                      currentSizedQty > 0
+                        ? "hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+                        : "opacity-40 cursor-not-allowed",
+                    )}
+                    onClick={handleSizedDecrement}
+                    disabled={currentSizedQty <= 0}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </CustomButton>
+                  <div className="w-14 h-10 bg-primary/10 text-primary font-bold text-sm rounded-lg border border-primary/20 flex items-center justify-center select-none shrink-0">
+                    {currentSizedQty}
+                  </div>
+                  <CustomButton
+                    size="icon"
+                    variant="outline"
+                    className="h-10 w-10 shrink-0 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-150"
+                    onClick={handleSizedIncrement}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </CustomButton>
+                  {currentSizedQty > 0 && displayPrice > 0 && (
+                    <span className="text-sm font-semibold text-foreground shrink-0">
+                      {formatCurrency(displayPrice * currentSizedQty)}
+                    </span>
+                  )}
+                </div>
+                <CustomButton
+                  className="h-10 px-6 rounded-xl font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleApplyCart}
+                  disabled={!hasUnsavedChanges}
+                >
+                  Add to Cart
+                </CustomButton>
+              </div>
+            )}
+
+            {/* Quantity — simple product: card pattern (btn → +/-) */}
+            {!isOutOfStock && !hasSizes && !hasCustomizations && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quantity</p>
                 {pageQuantity > 0 ? (
                   <div className="flex items-center gap-2">
                     <CustomButton
@@ -688,9 +830,9 @@ export default function ProductDetailPage() {
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Add-ons Available
                   </p>
-                  {selectedCustomizationIds.size > 0 && (
+                  {selectedSizeCustoms.size > 0 && (
                     <span className="text-xs text-primary font-medium">
-                      {selectedCustomizationIds.size} selected
+                      {selectedSizeCustoms.size} selected
                     </span>
                   )}
                 </div>
@@ -699,7 +841,7 @@ export default function ProductDetailPage() {
                     ? product.customizations
                     : product.customizations.slice(0, CUSTOMIZATION_LIMIT)
                   ).map((c, idx, arr) => {
-                    const isSelected = selectedCustomizationIds.has(c.id);
+                    const isSelected = selectedSizeCustoms.has(c.id);
                     return (
                       <button
                         key={c.id}
