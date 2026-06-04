@@ -35,9 +35,9 @@ function OrderHeaderComponent({ orderData }: OrderHeaderProps) {
             <DisplayField
               label="Order Type"
               value={
-                orderData.source === "PUBLIC"
-                  ? "Customer (Public)"
-                  : "Business (POS)"
+                orderData.source === "POS"
+                  ? "Business (POS)"
+                  : "Customer (Checkout)"
               }
             />
             <DisplayField
