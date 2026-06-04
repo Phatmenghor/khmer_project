@@ -1895,9 +1895,9 @@ BEGIN
 
   INSERT INTO subscription_plans (id, name, description, price, status, duration_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
   VALUES
-    (week_plan_id,  '1 Week',  '1-week subscription plan',  0.00, 'ACTIVE', 'WEEKLY',  0, false, NOW(), NOW(), 'admin', 'admin'),
-    (month_plan_id, '1 Month', '1-month subscription plan', 0.00, 'ACTIVE', 'MONTHLY', 0, false, NOW(), NOW(), 'admin', 'admin'),
-    (year_plan_id,  '1 Year',  '1-year subscription plan',  0.00, 'ACTIVE', 'YEARLY',  0, false, NOW(), NOW(), 'admin', 'admin')
+    (week_plan_id,  '1 Week',  '1-week subscription plan',  0.00, 'PUBLIC', 'WEEKLY',  0, false, NOW(), NOW(), 'admin', 'admin'),
+    (month_plan_id, '1 Month', '1-month subscription plan', 0.00, 'PUBLIC', 'MONTHLY', 0, false, NOW(), NOW(), 'admin', 'admin'),
+    (year_plan_id,  '1 Year',  '1-year subscription plan',  0.00, 'PUBLIC', 'YEARLY',  0, false, NOW(), NOW(), 'admin', 'admin')
   ON CONFLICT (id) DO NOTHING;
 
   -- If plans already existed with different IDs, resolve by name instead
