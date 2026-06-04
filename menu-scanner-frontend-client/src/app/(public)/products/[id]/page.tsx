@@ -913,45 +913,42 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* Quantity — simple product: card pattern (btn → +/-) */}
+            {/* Quantity — simple product: always show +/- starting at 0 */}
             {!isOutOfStock && !hasSizes && !hasCustomizations && (
               <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quantity</p>
-                {pageQuantity > 0 ? (
-                  <div className="flex items-center gap-1">
-                    <CustomButton
-                      size="icon"
-                      variant="outline"
-                      className="h-7 w-7 shrink-0 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-all duration-150"
-                      onClick={handleInlineDecrement}
-                    >
-                      <Minus className="h-3 w-3" />
-                    </CustomButton>
-                    <div className="w-10 h-7 bg-primary/10 text-primary font-bold text-xs rounded border border-primary/20 flex items-center justify-center select-none shrink-0">
-                      {pageQuantity}
-                    </div>
-                    <CustomButton
-                      size="icon"
-                      variant="outline"
-                      className="h-7 w-7 shrink-0 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-150"
-                      onClick={handleInlineIncrement}
-                    >
-                      <Plus className="h-3 w-3" />
-                    </CustomButton>
-                    {displayPrice > 0 && (
-                      <span className="text-xs font-semibold text-foreground shrink-0">
-                        {formatCurrency(displayPrice * pageQuantity)}
-                      </span>
-                    )}
-                  </div>
-                ) : (
+                <div className="flex items-center gap-1">
                   <CustomButton
-                    className="h-7 px-4 rounded font-semibold text-xs bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200"
-                    onClick={handleAddToCart}
+                    size="icon"
+                    variant="outline"
+                    className={cn(
+                      "h-7 w-7 shrink-0 transition-all duration-150",
+                      pageQuantity > 0
+                        ? "hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+                        : "opacity-40 cursor-not-allowed",
+                    )}
+                    onClick={handleInlineDecrement}
+                    disabled={pageQuantity <= 0}
                   >
-                    Add to Cart
+                    <Minus className="h-3 w-3" />
                   </CustomButton>
-                )}
+                  <div className="w-10 h-7 bg-primary/10 text-primary font-bold text-xs rounded border border-primary/20 flex items-center justify-center select-none shrink-0">
+                    {pageQuantity}
+                  </div>
+                  <CustomButton
+                    size="icon"
+                    variant="outline"
+                    className="h-7 w-7 shrink-0 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-150"
+                    onClick={pageQuantity === 0 ? handleAddToCart : handleInlineIncrement}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </CustomButton>
+                  {pageQuantity > 0 && displayPrice > 0 && (
+                    <span className="text-xs font-semibold text-foreground shrink-0">
+                      {formatCurrency(displayPrice * pageQuantity)}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
 
