@@ -679,15 +679,13 @@ export default function ProductDetailPage() {
 
                   <CustomButton
                     className={cn(
-                      "flex-1 h-10 rounded-xl gap-1.5 font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200",
+                      "shrink-0 min-w-[120px] h-10 rounded-xl gap-1.5 font-semibold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200",
                       totalCartQty > 0 && "shadow-md",
                     )}
                     onClick={handleAddToCart}
                   >
                     <ShoppingCart className="h-4 w-4 shrink-0" />
-                    <span className="truncate">
-                      {totalCartQty > 0 ? "Update Cart" : "Add to Cart"}
-                    </span>
+                    {totalCartQty > 0 ? "Update Cart" : "Add to Cart"}
                   </CustomButton>
                 </div>
               </div>
