@@ -753,12 +753,14 @@ export default function ProductDetailPage() {
                 <h4 className="font-semibold text-sm text-foreground">Choose Size</h4>
                 <div className="flex flex-wrap gap-2.5">
                   {product.sizes!.map((size) => {
-                    const sizeCartQty = getQuantityForSize(size.id);
                     const isSelected = selectedSize?.id === size.id;
                     const isModified = modifiedSizes.has(size.id);
                     const pendingQty = pendingQuantities.get(size.id);
-                    const badgeQty = isModified && pendingQty !== undefined ? pendingQty : sizeCartQty;
-                    const badgeAmber = isModified && pendingQty !== sizeCartQty;
+                    // Use combo-aware qty for badge — exactly like modal's getDisplayQuantity
+                    const sizeComboCustoms = customizationsBySize.get(size.id) ?? new Set<string>();
+                    const committedQty = getComboQty(size.id, sizeComboCustoms);
+                    const displayQty = pendingQty !== undefined ? pendingQty : committedQty;
+                    const badgeAmber = isModified && displayQty !== committedQty;
                     return (
                       <button
                         key={size.id}
@@ -776,12 +778,12 @@ export default function ProductDetailPage() {
                             <Check className="h-3 w-3 text-white" />
                           </div>
                         )}
-                        {badgeQty > 0 && (
+                        {displayQty > 0 && (
                           <div className={cn(
                             "absolute -top-2 -left-2 min-w-[20px] h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1.5 shadow-sm z-10",
                             badgeAmber ? "bg-amber-500" : "bg-emerald-500",
                           )}>
-                            {badgeQty}
+                            {displayQty}
                           </div>
                         )}
                         <div className="font-semibold text-xs">{size.name}</div>
