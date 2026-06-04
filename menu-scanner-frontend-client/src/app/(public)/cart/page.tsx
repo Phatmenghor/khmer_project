@@ -8,6 +8,7 @@ import {
   ShoppingBag,
   CreditCard,
   LogIn,
+  Loader2,
   ShoppingCart,
   ArrowRight,
   PackageX,
@@ -87,6 +88,7 @@ function CartPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [clearCartModalOpen, setClearCartModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("q")?.trim() ?? "";
@@ -163,6 +165,7 @@ function CartPage() {
   };
 
   const handleCheckout = () => {
+    setCheckoutLoading(true);
     router.push("/checkout");
   };
 
@@ -323,9 +326,9 @@ function CartPage() {
                 </div>
               </div>
 
-              <CustomButton className="w-full mb-2.5 gap-2 h-11 rounded-xl" onClick={handleCheckout}>
-                <CreditCard className="h-4 w-4" />
-                Proceed to Checkout
+              <CustomButton className="w-full mb-2.5 gap-2 h-11 rounded-xl" onClick={handleCheckout} disabled={checkoutLoading}>
+                {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+                {checkoutLoading ? "Loading..." : "Proceed to Checkout"}
               </CustomButton>
             </div>
           </div>
@@ -343,10 +346,10 @@ function CartPage() {
             <div className="text-xl font-bold text-primary">{formatCurrency(finalTotal)}</div>
           </div>
         </div>
-        <CustomButton className="w-full gap-2 h-11 rounded-xl" onClick={handleCheckout}>
-          <CreditCard className="h-4 w-4" />
-          Proceed to Checkout
-          <ArrowRight className="h-4 w-4 ml-auto" />
+        <CustomButton className="w-full gap-2 h-11 rounded-xl" onClick={handleCheckout} disabled={checkoutLoading}>
+          {checkoutLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+          {checkoutLoading ? "Loading..." : "Proceed to Checkout"}
+          {!checkoutLoading && <ArrowRight className="h-4 w-4 ml-auto" />}
         </CustomButton>
       </div>
 
