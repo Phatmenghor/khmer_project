@@ -497,7 +497,7 @@ export default function ProductDetailPage() {
 
               {/* Vertical thumb strip — all sizes, width scales with screen */}
               {allImages.length > 1 && (
-                <div className="flex flex-col items-center gap-1 sm:gap-1.5 w-[52px] sm:w-[60px] lg:w-[64px] shrink-0">
+                <div className="flex flex-col items-center justify-between w-[52px] sm:w-[60px] lg:w-[64px] shrink-0">
                   <button
                     onClick={scrollThumbsUp}
                     disabled={!canScrollUp}
@@ -1030,7 +1030,7 @@ function ProductDetailSkeleton() {
         {/* Image gallery skeleton */}
         <div className="flex gap-2">
           {/* Thumb strip — always visible */}
-          <div className="flex flex-col gap-1 sm:gap-1.5 w-[52px] sm:w-[60px] lg:w-[64px] shrink-0">
+          <div className="flex flex-col justify-between w-[52px] sm:w-[60px] lg:w-[64px] shrink-0">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="w-full h-[52px] sm:h-[60px] lg:h-[64px] rounded-lg" />
             ))}
