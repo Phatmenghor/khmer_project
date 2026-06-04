@@ -309,14 +309,6 @@ function CartPage() {
                 </div>
 
                 {}
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-sm bg-red-50/30 dark:bg-red-950/20 p-2.5 rounded-lg border border-red-200/50 dark:border-red-800/30">
-                    <span className="text-red-700 dark:text-red-400 font-medium">Discount Applied</span>
-                    <span className="font-bold text-red-600 dark:text-red-500">-{formatCurrency(discountAmount)}</span>
-                  </div>
-                )}
-
-                {}
                 <div className="flex justify-between text-sm pt-2 border-t">
                   <span className="text-muted-foreground">Shipping & Fees</span>
                   <span className="text-muted-foreground text-xs">Calculated at checkout</span>
@@ -328,11 +320,6 @@ function CartPage() {
                     <span className="font-bold text-foreground">Total Amount</span>
                     <span className="text-2xl font-bold text-primary">{formatCurrency(finalTotal)}</span>
                   </div>
-                  {discountAmount > 0 && (
-                    <div className="text-xs text-red-600 dark:text-red-400 text-right pt-2 border-t border-primary/10">
-                      You save <span className="font-bold">{formatCurrency(discountAmount)}</span>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -350,11 +337,6 @@ function CartPage() {
         <div className="flex items-center justify-between mb-2.5">
           <div className="text-xs">
             <div className="text-muted-foreground font-medium">{totalItems} items • {totalQuantity} qty</div>
-            {discountAmount > 0 && (
-              <div className="text-red-600 dark:text-red-400 font-semibold mt-0.5">
-                Save {formatCurrency(discountAmount)}
-              </div>
-            )}
           </div>
           <div className="text-right">
             <div className="text-xs text-muted-foreground">Total</div>
