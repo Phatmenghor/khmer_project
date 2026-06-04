@@ -202,7 +202,8 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   } = usePublicLocationState();
 
   const { isCreating, isUpdating } = operations;
-  const isSubmitting = isCreate ? isCreating : isUpdating;
+  const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
+  const isSubmitting = isLocalSubmitting || (isCreate ? isCreating : isUpdating);
 
   const [selectionMode, setSelectionMode] = useState<SelectionMode>("map");
 
@@ -547,8 +548,9 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   }, [watch, setValue]);
 
   const onSubmit = async (data: LocationFormData) => {
+    if (isSubmitting) return;
+    setIsLocalSubmitting(true);
     try {
-
       const processedImages = await Promise.all(
         (data.locationImages ?? []).map(async (img) => {
           let imageUrl = img.imageUrl;
@@ -576,12 +578,16 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
       if (isCreate) { await create(payload).unwrap(); showToast.success(Messages.location.created); }
       else { await update({ locationId: editData!.id, locationData: payload }).unwrap(); showToast.success(Messages.location.updated); }
       handleClose();
-    } catch (error: unknown) { showToast.error((error as { message?: string })?.message ?? `Failed to ${isCreate ? "create" : "update"} location`); }
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message ?? `Failed to ${isCreate ? "create" : "update"} location`);
+    } finally {
+      setIsLocalSubmitting(false);
+    }
   };
 
   const handleClose = useCallback(() => {
     setIsFullScreen(false); setSelectionMode("map"); setSelectedVillage(null);
-    setGeocodedCoords(null); setGeocodeSuccess(false);
+    setGeocodedCoords(null); setGeocodeSuccess(false); setIsLocalSubmitting(false);
     resetPublicLocation(); reset(); clearError(); onClose();
   }, [reset, clearError, onClose, resetPublicLocation]);
 
