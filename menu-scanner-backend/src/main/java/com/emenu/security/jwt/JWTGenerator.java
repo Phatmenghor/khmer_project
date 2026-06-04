@@ -1,6 +1,7 @@
 package com.emenu.security.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -28,313 +29,138 @@ public class JWTGenerator {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
+    // ─── Core signing key ──────────────────────────────────────────────────────
+
     private SecretKey getSigningKey() {
-        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    /**
-     * Generate access token from Authentication object (legacy method - kept for backward compatibility)
-     *
-     * @param authentication the authentication object
-     * @param userType the user type
-     * @return JWT access token
-     */
+    // ─── Access token generation ────────────────────────────────────────────────
+
     public String generateAccessToken(Authentication authentication, String userType) {
-        String username = authentication.getName();
-        Date currentDate = new Date();
-        Date expiryDate = new Date(currentDate.getTime() + jwtExpiration);
-
         String roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-
-        return Jwts.builder()
-                .subject(username)
-                .claim("roles", roles)
-                .claim("type", "access")
-                .claim("userType", userType)
-                .issuedAt(currentDate)
-                .expiration(expiryDate)
-                .signWith(getSigningKey(), Jwts.SIG.HS512)
-                .compact();
+        return buildAccessToken(authentication.getName(), roles, userType, null, null);
     }
 
-    /**
-     * Generate access token from Authentication object (legacy - kept for backward compatibility)
-     * @deprecated Use generateAccessToken(Authentication, String userType) instead
-     */
-    @Deprecated
-    public String generateAccessToken(Authentication authentication) {
-        String username = authentication.getName();
-        Date currentDate = new Date();
-        Date expiryDate = new Date(currentDate.getTime() + jwtExpiration);
-
-        String roles = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
-        return Jwts.builder()
-                .subject(username)
-                .claim("roles", roles)
-                .claim("type", "access")
-                .issuedAt(currentDate)
-                .expiration(expiryDate)
-                .signWith(getSigningKey(), Jwts.SIG.HS512)
-                .compact();
-    }
-
-    /**
-     * Generate access token from username and roles (used during token refresh)
-     *
-     * @param username the username
-     * @param roles list of roles
-     * @param userType the user type (PLATFORM_USER, BUSINESS_USER, CUSTOMER)
-     * @return JWT access token
-     */
     public String generateAccessTokenFromUsername(String username, List<String> roles, String userType) {
-        Date currentDate = new Date();
-        Date expiryDate = new Date(currentDate.getTime() + jwtExpiration);
-
-        String rolesString = String.join(",", roles);
-
-        return Jwts.builder()
-                .subject(username)
-                .claim("roles", rolesString)
-                .claim("type", "access")
-                .claim("userType", userType)
-                .issuedAt(currentDate)
-                .expiration(expiryDate)
-                .signWith(getSigningKey(), Jwts.SIG.HS512)
-                .compact();
+        return buildAccessToken(username, String.join(",", roles), userType, null, null);
     }
 
-    /**
-     * Generate access token from username, roles, and userIdentifier
-     *
-     * @param username the username
-     * @param roles list of roles
-     * @param userType the user type (PLATFORM_USER, BUSINESS_USER, CUSTOMER)
-     * @param userIdentifier the user identifier
-     * @return JWT access token
-     */
-    public String generateAccessTokenFromUsername(String username, List<String> roles, String userType, String userIdentifier) {
-        Date currentDate = new Date();
-        Date expiryDate = new Date(currentDate.getTime() + jwtExpiration);
-
-        String rolesString = String.join(",", roles);
-
-        return Jwts.builder()
-                .subject(username)
-                .claim("roles", rolesString)
-                .claim("type", "access")
-                .claim("userType", userType)
-                .claim("userIdentifier", userIdentifier)
-                .issuedAt(currentDate)
-                .expiration(expiryDate)
-                .signWith(getSigningKey(), Jwts.SIG.HS512)
-                .compact();
+    public String generateAccessTokenFromUsername(String username, List<String> roles, String userType,
+                                                   String userIdentifier) {
+        return buildAccessToken(username, String.join(",", roles), userType, null, userIdentifier);
     }
 
-    /**
-     * Generate access token from username, roles, userId and userIdentifier
-     *
-     * @param username the username
-     * @param roles list of roles
-     * @param userType the user type (PLATFORM_USER, BUSINESS_USER, CUSTOMER)
-     * @param userId the user ID (UUID as string)
-     * @param userIdentifier the user identifier
-     * @return JWT access token
-     */
-    public String generateAccessTokenFromUsername(String username, List<String> roles, String userType, String userId, String userIdentifier) {
-        Date currentDate = new Date();
-        Date expiryDate = new Date(currentDate.getTime() + jwtExpiration);
-
-        String rolesString = String.join(",", roles);
-
-        return Jwts.builder()
-                .subject(username)
-                .claim("roles", rolesString)
-                .claim("type", "access")
-                .claim("userType", userType)
-                .claim("userId", userId)
-                .claim("userIdentifier", userIdentifier)
-                .issuedAt(currentDate)
-                .expiration(expiryDate)
-                .signWith(getSigningKey(), Jwts.SIG.HS512)
-                .compact();
+    public String generateAccessTokenFromUsername(String username, List<String> roles, String userType,
+                                                   String userId, String userIdentifier) {
+        return buildAccessToken(username, String.join(",", roles), userType, userId, userIdentifier);
     }
 
-    /**
-     * Generate refresh token for a user
-     *
-     * @param username the username
-     * @param userType the user type (PLATFORM_USER, BUSINESS_USER, CUSTOMER)
-     * @param businessId the business ID (nullable, required for BUSINESS_USER)
-     * @return JWT refresh token
-     */
+    private String buildAccessToken(String username, String roles, String userType,
+                                    String userId, String userIdentifier) {
+        Date now = new Date();
+        JwtBuilder builder = Jwts.builder()
+                .subject(username)
+                .claim("roles", roles)
+                .claim("type", "access")
+                .claim("userType", userType)
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + jwtExpiration));
+
+        if (userId != null) builder.claim("userId", userId);
+        if (userIdentifier != null) builder.claim("userIdentifier", userIdentifier);
+
+        return builder.signWith(getSigningKey(), Jwts.SIG.HS512).compact();
+    }
+
+    // ─── Refresh token generation ───────────────────────────────────────────────
+
     public String generateRefreshToken(String username, String userType, String businessId) {
-        Date currentDate = new Date();
-        Date expiryDate = new Date(currentDate.getTime() + refreshTokenExpiration);
+        return buildRefreshToken(username, userType, businessId, null, null);
+    }
 
-        var builder = Jwts.builder()
+    public String generateRefreshToken(String username, String userType, String businessId,
+                                       String userIdentifier) {
+        return buildRefreshToken(username, userType, businessId, null, userIdentifier);
+    }
+
+    public String generateRefreshToken(String username, String userType, String businessId,
+                                       String userId, String userIdentifier) {
+        return buildRefreshToken(username, userType, businessId, userId, userIdentifier);
+    }
+
+    private String buildRefreshToken(String username, String userType, String businessId,
+                                     String userId, String userIdentifier) {
+        Date now = new Date();
+        JwtBuilder builder = Jwts.builder()
                 .subject(username)
                 .claim("type", "refresh")
                 .claim("userType", userType)
-                .issuedAt(currentDate)
-                .expiration(expiryDate);
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + refreshTokenExpiration));
 
-        // Add businessId claim only if it's not null
-        if (businessId != null) {
-            builder.claim("businessId", businessId);
-        }
+        if (businessId != null) builder.claim("businessId", businessId);
+        if (userId != null) builder.claim("userId", userId);
+        if (userIdentifier != null) builder.claim("userIdentifier", userIdentifier);
 
-        return builder.signWith(getSigningKey(), Jwts.SIG.HS512)
-                .compact();
+        return builder.signWith(getSigningKey(), Jwts.SIG.HS512).compact();
     }
 
-    /**
-     * Generate refresh token for a user with userIdentifier
-     *
-     * @param username the username
-     * @param userType the user type (PLATFORM_USER, BUSINESS_USER, CUSTOMER)
-     * @param businessId the business ID (nullable, required for BUSINESS_USER)
-     * @param userIdentifier the user identifier
-     * @return JWT refresh token
-     */
-    public String generateRefreshToken(String username, String userType, String businessId, String userIdentifier) {
-        Date currentDate = new Date();
-        Date expiryDate = new Date(currentDate.getTime() + refreshTokenExpiration);
-
-        var builder = Jwts.builder()
-                .subject(username)
-                .claim("type", "refresh")
-                .claim("userType", userType)
-                .claim("userIdentifier", userIdentifier)
-                .issuedAt(currentDate)
-                .expiration(expiryDate);
-
-        // Add businessId claim only if it's not null
-        if (businessId != null) {
-            builder.claim("businessId", businessId);
-        }
-
-        return builder.signWith(getSigningKey(), Jwts.SIG.HS512)
-                .compact();
-    }
-
-    /**
-     * Generate refresh token for a user with userId and userIdentifier
-     *
-     * @param username the username
-     * @param userType the user type (PLATFORM_USER, BUSINESS_USER, CUSTOMER)
-     * @param businessId the business ID (nullable, required for BUSINESS_USER)
-     * @param userId the user ID (UUID as string)
-     * @param userIdentifier the user identifier
-     * @return JWT refresh token
-     */
-    public String generateRefreshToken(String username, String userType, String businessId, String userId, String userIdentifier) {
-        Date currentDate = new Date();
-        Date expiryDate = new Date(currentDate.getTime() + refreshTokenExpiration);
-
-        var builder = Jwts.builder()
-                .subject(username)
-                .claim("type", "refresh")
-                .claim("userType", userType)
-                .claim("userId", userId)
-                .claim("userIdentifier", userIdentifier)
-                .issuedAt(currentDate)
-                .expiration(expiryDate);
-
-        // Add businessId claim only if it's not null
-        if (businessId != null) {
-            builder.claim("businessId", businessId);
-        }
-
-        return builder.signWith(getSigningKey(), Jwts.SIG.HS512)
-                .compact();
-    }
-
-    /**
-     * Get refresh token expiration date
-     *
-     * @return expiration date
-     */
     public Date getRefreshTokenExpiryDate() {
         return new Date(System.currentTimeMillis() + refreshTokenExpiration);
     }
 
+    // ─── Token parsing ──────────────────────────────────────────────────────────
+
     public String getUsernameFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.getSubject();
+        return parseClaims(token).getSubject();
     }
 
     public String getUserTypeFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("userType", String.class);
+        return parseClaims(token).get("userType", String.class);
     }
 
     public String getBusinessIdFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("businessId", String.class);
+        return parseClaims(token).get("businessId", String.class);
     }
 
     public String getUserIdFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("userId", String.class);
+        return parseClaims(token).get("userId", String.class);
     }
 
     public String getUserIdentifierFromJWT(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("userIdentifier", String.class);
+        return parseClaims(token).get("userIdentifier", String.class);
     }
 
     public Date getExpirationDateFromJWT(String token) {
-        Claims claims = Jwts.parser()
+        return parseClaims(token).getExpiration();
+    }
+
+    private Claims parseClaims(String token) {
+        return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return claims.getExpiration();
     }
+
+    // ─── Token validation ───────────────────────────────────────────────────────
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
+            parseClaims(token);
             return true;
         } catch (Exception e) {
-            log.error("JWT validation error: {}", e.getMessage());
+            log.warn("JWT validation failed: {}", e.getMessage());
             return false;
         }
     }
 
     public boolean isTokenExpired(String token) {
         try {
-            Date expiration = getExpirationDateFromJWT(token);
-            return expiration.before(new Date());
+            return getExpirationDateFromJWT(token).before(new Date());
         } catch (Exception e) {
             return true;
         }

@@ -21,22 +21,53 @@ spring:
           batch_size: 50
           time_zone: Asia/Phnom_Penh
 
-  # Cache
+  # Cache — named caches managed by CacheConfig bean
   cache:
     type: caffeine
-    caffeine:
-      spec: maximumSize=1000,expireAfterWrite=1h
 
 # Server
 server:
   port: 7070
   max-http-request-header-size: 65536
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/plain
+    min-response-size: 2048
 
 # JWT
 jwt:
-  secret: da2bd42bef8f9f957d647ed13571d35b59c7055fb723eacdb05154878da17d77d3180385fc232cab38bded0fc7dbda0d439cc275e91164ade266d64d50633bc7
-  expiration: 9999999999
-  refresh-token-expiration: 9999999999
+  secret: "${JWT_SECRET:da2bd42bef8f9f957d647ed13571d35b59c7055fb723eacdb05154878da17d77d3180385fc232cab38bded0fc7dbda0d439cc275e91164ade266d64d50633bc7}"
+  expiration: "${JWT_EXPIRATION:86400000}"           # 24 hours (ms)
+  refresh-token-expiration: "${JWT_REFRESH_EXPIRATION:604800000}" # 7 days (ms)
+
+# Actuator & Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,caches,loggers,env
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    version: "1.0.0"
+    description: "Restaurant Management Platform for Cambodia"
 
 # Swagger / OpenAPI
 springdoc:

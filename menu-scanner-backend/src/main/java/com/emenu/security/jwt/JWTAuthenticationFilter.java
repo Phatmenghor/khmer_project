@@ -1,7 +1,5 @@
 package com.emenu.security.jwt;
 
-import com.emenu.features.auth.models.User;
-import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -21,7 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -31,71 +27,74 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final JWTGenerator jwtGenerator;
     private final CustomUserDetailsService customUserDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
-    private final UserRepository userRepository;
 
-    // ThreadLocal to store authenticated user info for audit logging
-    public static final ThreadLocal<Map<String, String>> AUTHENTICATED_USER = ThreadLocal.withInitial(HashMap::new);
+    public static final ThreadLocal<Map<String, String>> AUTHENTICATED_USER =
+            ThreadLocal.withInitial(HashMap::new);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
-            String token = getJWTFromRequest(request);
-
+            String token = extractBearerToken(request);
             if (StringUtils.hasText(token)) {
-                if (tokenBlacklistService.isTokenBlacklisted(token)) {
-                    log.warn("Blacklisted token attempted: {}", token.substring(0, 20));
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is blacklisted");
-                    return;
-                }
-
-                if (jwtGenerator.validateToken(token)) {
-                    String username = jwtGenerator.getUsernameFromJWT(token);
-                    String userType = jwtGenerator.getUserTypeFromJWT(token);
-
-                    UserDetails userDetails;
-                    if (userType != null) {
-                        userDetails = customUserDetailsService.loadUserByUsernameAndUserType(username, userType);
-                    } else {
-                        userDetails = customUserDetailsService.loadUserByUsername(username);
-                    }
-
-                    UsernamePasswordAuthenticationToken authenticationToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-                    // Store user info from token claims in ThreadLocal for audit logging
-                    try {
-                        String userId = jwtGenerator.getUserIdFromJWT(token);
-                        String userIdentifier = jwtGenerator.getUserIdentifierFromJWT(token);
-                        var authMap = AUTHENTICATED_USER.get();
-                        if (userId != null) {
-                            authMap.put("userId", userId);
-                        }
-                        authMap.put("userIdentifier", userIdentifier);
-                        authMap.put("userType", userType);
-                    } catch (Exception e) {
-                        // Failed to extract optional user info, continue
-                    }
-                }
+                authenticateFromToken(request, response, token);
+                if (response.isCommitted()) return;
             }
         } catch (Exception e) {
-            log.error("Cannot set user authentication: {}", e.getMessage(), e);
+            log.error("Cannot set user authentication: {}", e.getMessage());
+        } finally {
+            AUTHENTICATED_USER.remove(); // prevent ThreadLocal memory leak
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private String getJWTFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+    private void authenticateFromToken(HttpServletRequest request,
+                                       HttpServletResponse response,
+                                       String token) throws IOException {
+        if (tokenBlacklistService.isTokenBlacklisted(token)) {
+            log.warn("Blacklisted token attempted from ip={}", request.getRemoteAddr());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has been revoked");
+            return;
+        }
+
+        if (!jwtGenerator.validateToken(token)) {
+            return;
+        }
+
+        String username = jwtGenerator.getUsernameFromJWT(token);
+        String userType = jwtGenerator.getUserTypeFromJWT(token);
+
+        UserDetails userDetails = (userType != null)
+                ? customUserDetailsService.loadUserByUsernameAndUserType(username, userType)
+                : customUserDetailsService.loadUserByUsername(username);
+
+        var authToken = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
+        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        populateThreadLocalContext(token, userType);
+    }
+
+    private void populateThreadLocalContext(String token, String userType) {
+        try {
+            Map<String, String> ctx = AUTHENTICATED_USER.get();
+            String userId = jwtGenerator.getUserIdFromJWT(token);
+            String userIdentifier = jwtGenerator.getUserIdentifierFromJWT(token);
+            if (userId != null) ctx.put("userId", userId);
+            if (userIdentifier != null) ctx.put("userIdentifier", userIdentifier);
+            if (userType != null) ctx.put("userType", userType);
+        } catch (Exception e) {
+            log.debug("Could not populate auth context: {}", e.getMessage());
+        }
+    }
+
+    private String extractBearerToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
+            return header.substring(7);
         }
         return null;
     }

@@ -1,20 +1,22 @@
 package com.emenu.shared.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @MappedSuperclass
-@Data
+@Getter
+@Setter
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseUUIDEntity {
 
@@ -53,45 +55,45 @@ public abstract class BaseUUIDEntity {
     private String deletedBy;
 
     @PrePersist
-    public void prePersist() {
+    protected void prePersist() {
         if (isDeleted == null) {
             isDeleted = false;
         }
-        // Ensure version is never null
         if (version == null) {
             version = 0L;
         }
     }
 
     @PreUpdate
-    public void preUpdate() {
-        // Ensure version is never null during updates
+    protected void preUpdate() {
         if (version == null) {
             version = 0L;
         }
     }
 
-    @Autowired
-    @Transient // Don't persist this
-    private transient AuditorAware<String> auditorAware;
-
-    public void softDelete(String user) {
+    public void softDelete(String deletedByUser) {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
-        this.deletedBy = user;
+        this.deletedBy = deletedByUser;
     }
 
     public void softDelete() {
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
-        if (auditorAware != null) {
-            auditorAware.getCurrentAuditor().ifPresent(user -> this.deletedBy = user);
-        }
+        this.deletedBy = resolveCurrentUser();
     }
 
     public void restore() {
         this.isDeleted = false;
         this.deletedAt = null;
         this.deletedBy = null;
+    }
+
+    private String resolveCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return "SYSTEM";
+        }
+        return auth.getName();
     }
 }

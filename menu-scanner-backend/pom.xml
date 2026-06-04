@@ -13,18 +13,20 @@
 	<artifactId>cambodia-emenu-platform</artifactId>
 	<version>1.0.0</version>
 	<name>cambodia-emenu-platform</name>
-	<description>Cambodia E-Menu Platform - Clean Architecture</description>
+	<description>Cambodia E-Menu Platform - Restaurant Management System</description>
 
 	<properties>
 		<java.version>21</java.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<springdoc.version>2.7.0</springdoc.version>
 		<jwt.version>0.12.6</jwt.version>
-		<lombok.version>1.18.30</lombok.version>
+		<lombok.version>1.18.36</lombok.version>
+		<commons-lang3.version>3.17.0</commons-lang3.version>
+		<logstash-logback.version>8.0</logstash-logback.version>
 	</properties>
 
 	<dependencies>
-		<!-- Spring Boot Starters -->
+		<!-- ===== Spring Boot Starters ===== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -54,32 +56,32 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
-		<!-- OAuth2 Social Login Dependencies -->
+		<!-- ===== Social Login ===== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-client</artifactId>
 		</dependency>
 
-		<!-- WebFlux for HTTP Client (Telegram API & Google OAuth2) -->
+		<!-- ===== Async HTTP Client (Telegram API & Google OAuth2) ===== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 
-		<!-- WebSocket / STOMP for real-time push -->
+		<!-- ===== WebSocket / STOMP real-time push ===== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 
-		<!-- Database -->
+		<!-- ===== Database ===== -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- JWT -->
+		<!-- ===== JWT ===== -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -98,7 +100,7 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- MapStruct -->
+		<!-- ===== Mapping ===== -->
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
@@ -111,27 +113,54 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- Lombok -->
+		<!-- ===== Lombok ===== -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
 
-		<!-- OpenAPI Documentation -->
+		<!-- ===== API Documentation ===== -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>${springdoc.version}</version>
 		</dependency>
 
-		<!-- Caffeine Caching -->
+		<!-- ===== Caching ===== -->
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
 		</dependency>
 
-		<!-- Testing -->
+		<!-- ===== Monitoring — Micrometer Prometheus ===== -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+
+		<!-- ===== Utilities ===== -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${commons-lang3.version}</version>
+		</dependency>
+
+		<!-- ===== Structured Logging (JSON for production) ===== -->
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>${logstash-logback.version}</version>
+		</dependency>
+
+		<!-- ===== Spring Configuration Processor (IDE metadata) ===== -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- ===== Testing ===== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -145,6 +174,7 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -184,6 +214,10 @@
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
 							<version>${mapstruct.version}</version>
+						</path>
+						<path>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-configuration-processor</artifactId>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>

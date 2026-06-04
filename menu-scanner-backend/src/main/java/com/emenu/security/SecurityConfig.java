@@ -3,7 +3,6 @@ package com.emenu.security;
 import com.emenu.security.jwt.JWTAuthenticationFilter;
 import com.emenu.security.jwt.JwtAuthEntryPoint;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -65,6 +63,8 @@ public class SecurityConfig {
 
                         // ===== ACTUATOR ENDPOINTS =====
                         .requestMatchers("/actuator/health/**").permitAll()
+                        .requestMatchers("/actuator/info").permitAll()
+                        .requestMatchers("/actuator/prometheus").permitAll()
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
@@ -76,15 +76,16 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        config.setExposedHeaders(List.of("Authorization", "Content-Disposition", "Content-Type"));
+        config.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration() {{
-            setAllowedOriginPatterns(List.of("*")); // matches all origins
-            setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-            setAllowedHeaders(List.of("*"));
-            setAllowCredentials(true); // allow cookies / auth headers
-            setExposedHeaders(List.of("Authorization", "Content-Disposition", "Content-Type"));
-            setMaxAge(3600L);
-        }});
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 
