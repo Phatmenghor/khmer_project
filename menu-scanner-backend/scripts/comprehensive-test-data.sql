@@ -1884,23 +1884,26 @@ BEGIN
 
   -- ==========================================================================
   -- A. SUBSCRIPTION PLANS
-  --    DataInitializationService creates exactly 3 plans on every app startup:
-  --      "1 Week"  (WEEKLY,  $0)
-  --      "1 Month" (MONTHLY, $0)
-  --      "1 Year"  (YEARLY,  $0)
-  --    We must NOT insert them here — doing so creates duplicates because the
-  --    ON CONFLICT only guards against duplicate IDs, not duplicate names.
-  --    Instead, resolve the IDs by name so the rest of the script can use them.
+  --    Insert the 3 standard plans if they do not already exist, then resolve
+  --    their IDs so the rest of the script can use them.
   -- ==========================================================================
-  RAISE NOTICE 'A. Resolving subscription plan IDs by name (created by DataInitializationService)...';
+  RAISE NOTICE 'A. Ensuring subscription plans exist...';
 
+  week_plan_id  := 'a0000000-0000-0000-0000-000000000001'::UUID;
+  month_plan_id := 'a0000000-0000-0000-0000-000000000002'::UUID;
+  year_plan_id  := 'a0000000-0000-0000-0000-000000000003'::UUID;
+
+  INSERT INTO subscription_plans (id, name, description, price, status, duration_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
+  VALUES
+    (week_plan_id,  '1 Week',  '1-week subscription plan',  0.00, 'ACTIVE', 'WEEKLY',  0, false, NOW(), NOW(), 'admin', 'admin'),
+    (month_plan_id, '1 Month', '1-month subscription plan', 0.00, 'ACTIVE', 'MONTHLY', 0, false, NOW(), NOW(), 'admin', 'admin'),
+    (year_plan_id,  '1 Year',  '1-year subscription plan',  0.00, 'ACTIVE', 'YEARLY',  0, false, NOW(), NOW(), 'admin', 'admin')
+  ON CONFLICT (id) DO NOTHING;
+
+  -- If plans already existed with different IDs, resolve by name instead
   SELECT id INTO week_plan_id  FROM subscription_plans WHERE name = '1 Week'  AND is_deleted = false LIMIT 1;
   SELECT id INTO month_plan_id FROM subscription_plans WHERE name = '1 Month' AND is_deleted = false LIMIT 1;
   SELECT id INTO year_plan_id  FROM subscription_plans WHERE name = '1 Year'  AND is_deleted = false LIMIT 1;
-
-  IF week_plan_id IS NULL OR month_plan_id IS NULL OR year_plan_id IS NULL THEN
-    RAISE EXCEPTION 'Subscription plans not found. Start the application first so DataInitializationService can create them, then re-run this script.';
-  END IF;
 
   RAISE NOTICE 'Plan IDs resolved — week: %, month: %, year: %', week_plan_id, month_plan_id, year_plan_id;
 
