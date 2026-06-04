@@ -132,8 +132,8 @@ public class AuditLogServiceImpl implements AuditLogService {
         try {
             AuditLog auditLog = auditLogMapper.createFromHelper(helper);
             auditLogRepository.save(auditLog);
-            log.info("Audit log saved successfully: endpoint={}, userIdentifier={}, userEmail={}, statusCode={}, responseTime={}ms",
-                helper.getEndpoint(), helper.getUserIdentifier(), helper.getUserEmail(), helper.getStatusCode(), helper.getResponseTimeMs());
+            log.info("Audit log saved successfully: endpoint={}, userIdentifier={}, statusCode={}, responseTime={}ms",
+                helper.getEndpoint(), helper.getUserIdentifier(), helper.getStatusCode(), helper.getResponseTimeMs());
         } catch (Exception e) {
             log.error("Failed to save audit log: endpoint={}, error={}", helper.getEndpoint(), e.getMessage(), e);
         }
