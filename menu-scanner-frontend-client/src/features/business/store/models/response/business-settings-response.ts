@@ -11,8 +11,8 @@ export interface SocialMedia {
 export interface BusinessHours {
   id?: string;
   day: string;
-  openingTime: string;
-  closingTime: string;
+  openTime: string;
+  closeTime: string;
 }
 
 export interface BusinessSettingsResponse {
