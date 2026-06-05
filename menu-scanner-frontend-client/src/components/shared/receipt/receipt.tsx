@@ -98,7 +98,7 @@ export function Receipt({
       </div>
 
       {/* Column headers + Items in one table for perfect column alignment */}
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8px", marginBottom: "8px" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8px", marginBottom: "8px", border: "none" }}>
         <colgroup>
           <col style={{ width: "auto" }} />
           <col style={{ width: "24px" }} />
@@ -108,11 +108,11 @@ export function Receipt({
         </colgroup>
         <thead>
           <tr style={{ borderBottom: "1px solid #111", fontWeight: 700 }}>
-            <td style={{ padding: "0", paddingBottom: "3px" }}>ITEM</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>QTY</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>PRICE</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>DISC</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>TOTAL</td>
+            <td style={{ padding: "0", paddingBottom: "3px", border: "none" }}>ITEM</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px", border: "none" }}>QTY</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px", border: "none" }}>PRICE</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px", border: "none" }}>DISC</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px", border: "none" }}>TOTAL</td>
           </tr>
         </thead>
         <tbody>
@@ -168,23 +168,23 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
   return (
     <>
       <tr style={{ verticalAlign: "top" }}>
-        <td style={{ wordBreak: "break-word", padding: "2px 0", paddingRight: "4px", fontWeight: 500 }}>
+        <td style={{ wordBreak: "break-word", padding: "2px 0", paddingRight: "4px", fontWeight: 500, border: "none" }}>
           {item.name}
         </td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px" }}>{item.quantity}</td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px" }}>{formatCurrency(item.finalPrice)}</td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px" }}>{discLabel}</td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", fontWeight: 600 }}>{formatAmount(item.totalPrice)}</td>
+        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none" }}>{item.quantity}</td>
+        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none" }}>{formatCurrency(item.finalPrice)}</td>
+        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none" }}>{discLabel}</td>
+        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", fontWeight: 600, border: "none" }}>{formatAmount(item.totalPrice)}</td>
       </tr>
       {item.sizeName && (
         <tr>
-          <td colSpan={5} style={{ fontSize: "7px", color: "#777", padding: "0 0 2px 0" }}>Size: {item.sizeName}</td>
+          <td colSpan={5} style={{ fontSize: "7px", color: "#777", padding: "0 0 2px 0", border: "none" }}>Size: {item.sizeName}</td>
         </tr>
       )}
       {item.customizations?.map((c) => (
         <tr key={c.id}>
-          <td style={{ fontSize: "7px", color: "#777", padding: "0 0 1px 0" }}>+ {c.name}</td>
-          <td colSpan={4} style={{ fontSize: "7px", color: "#777", textAlign: "right", padding: "0 0 1px 0" }}>
+          <td style={{ fontSize: "7px", color: "#777", padding: "0 0 1px 0", border: "none" }}>+ {c.name}</td>
+          <td colSpan={4} style={{ fontSize: "7px", color: "#777", textAlign: "right", padding: "0 0 1px 0", border: "none" }}>
             {(c.priceAdjustment ?? 0) > 0 ? `+${formatCurrency(c.priceAdjustment)}` : ""}
           </td>
         </tr>
