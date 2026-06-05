@@ -41,13 +41,13 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 authenticateFromToken(request, response, token);
                 if (response.isCommitted()) return;
             }
+            filterChain.doFilter(request, response);
         } catch (Exception e) {
             log.error("Cannot set user authentication: {}", e.getMessage());
+            filterChain.doFilter(request, response);
         } finally {
             AUTHENTICATED_USER.remove(); // prevent ThreadLocal memory leak
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private void authenticateFromToken(HttpServletRequest request,
