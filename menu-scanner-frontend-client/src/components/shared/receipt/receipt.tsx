@@ -297,7 +297,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
     item.hasPromotion && item.promotionType
       ? item.promotionType === "PERCENTAGE"
         ? `${item.promotionValue}%`
-        : formatAmount(item.promotionValue ?? 0)
+        : `$${formatAmount(item.promotionValue ?? 0)}`
       : "0%";
 
   return (
