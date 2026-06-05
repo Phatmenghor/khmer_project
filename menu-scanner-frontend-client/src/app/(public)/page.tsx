@@ -110,19 +110,15 @@ export default function HomePage() {
         return; // snapshot covers all sections
       }
 
-      // No snapshot — always re-fetch missing sections.
-      // Covers both bfcache (persisted=true) and Router-Cache (persisted=false)
-      // restores where useEffect([]) did not re-run.
+      // No snapshot — re-fetch missing sections sequentially.
       const pageSize = getPageSize();
-      const fetches: Promise<unknown>[] = [];
-      if (!s.bannersLoaded) fetches.push(dispatch(fetchHomeBanners({})) as Promise<unknown>);
-      if (!s.categoriesLoaded) fetches.push(dispatch(fetchHomeCategories({ pageSize: 12 })) as Promise<unknown>);
-      if (!s.promotionsLoaded) fetches.push(dispatch(fetchHomePromotionProducts({ pageSize: 24 })) as Promise<unknown>);
-      if (!s.featuredLoaded) fetches.push(dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize })) as Promise<unknown>);
-
-      if (fetches.length > 0) {
-        Promise.allSettled(fetches).then(() => dispatch(setInitialLoadComplete()));
-      }
+      (async () => {
+        if (!s.bannersLoaded) await dispatch(fetchHomeBanners({}));
+        if (!sectionsRef.current.categoriesLoaded) await dispatch(fetchHomeCategories({ pageSize: 12 }));
+        if (!sectionsRef.current.promotionsLoaded) await dispatch(fetchHomePromotionProducts({ pageSize: 24 }));
+        if (!sectionsRef.current.featuredLoaded) await dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize }));
+        dispatch(setInitialLoadComplete());
+      })();
     };
 
     window.addEventListener("pageshow", handlePageShow);
@@ -159,44 +155,33 @@ export default function HomePage() {
   }, []); // only on mount
 
   const isBannerLoading = !mounted || !bannersSection.loaded;
-  const isCategoryLoading = !mounted || ((categoriesSection.loading || !categoriesSection.loaded) && categories.length === 0);
-  const isPromotionLoading = !mounted || ((promotionProductsSection.loading || !promotionProductsSection.loaded) && promotionProducts.length === 0);
-  const isInitialFeaturedLoading = !mounted || ((featuredProductsSection.loading || !featuredProductsSection.loaded) && featuredProducts.length === 0);
 
-  // ── normal data fetch ────────────────────────────────────────────────────
+  // ── sequential waterfall fetch ───────────────────────────────────────────
+  // Fetch banner → categories → promotions → featured one at a time so each
+  // section's skeleton appears only after the previous section has resolved.
+  // sectionsRef stays current across awaits so we can skip already-loaded sections.
   useEffect(() => {
-    const loadData = async () => {
-      const promises = [];
+    const run = async () => {
       const pageSize = getPageSize();
 
-      if (!bannersSection.loaded && !bannersSection.loading) {
-        promises.push(dispatch(fetchHomeBanners({})));
+      if (!sectionsRef.current.bannersLoaded) {
+        await dispatch(fetchHomeBanners({}));
       }
-      if (!categoriesSection.loaded && !categoriesSection.loading) {
-        promises.push(dispatch(fetchHomeCategories({ pageSize: 12 })));
+      if (!sectionsRef.current.categoriesLoaded) {
+        await dispatch(fetchHomeCategories({ pageSize: 12 }));
       }
-      if (!promotionProductsSection.loaded && !promotionProductsSection.loading) {
-        promises.push(dispatch(fetchHomePromotionProducts({ pageSize: 24 })));
+      if (!sectionsRef.current.promotionsLoaded) {
+        await dispatch(fetchHomePromotionProducts({ pageSize: 24 }));
       }
-      if (!featuredProductsSection.loaded && !featuredProductsSection.loading) {
-        promises.push(dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize })));
+      if (!sectionsRef.current.featuredLoaded) {
+        await dispatch(fetchHomeFeaturedProducts({ pageNo: 1, pageSize }));
       }
-
-      if (promises.length > 0) {
-        await Promise.allSettled(promises);
-        dispatch(setInitialLoadComplete());
-      }
+      dispatch(setInitialLoadComplete());
     };
 
-    loadData();
-  }, [
-    dispatch,
-    getPageSize,
-    bannersSection.loaded,
-    categoriesSection.loaded,
-    promotionProductsSection.loaded,
-    featuredProductsSection.loaded,
-  ]);
+    run();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount — sectionsRef provides live state across awaits
 
   // ── persist snapshot ─────────────────────────────────────────────────────
   // Save as soon as banners + categories are loaded — don't wait for all
@@ -240,6 +225,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* 1. Banner — always rendered, skeleton until loaded */}
       <div className="relative">
         <PageContainer className="pt-2 sm:pt-4">
           <BannerSection
@@ -250,43 +236,52 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      <div className="relative py-4 sm:py-7 bg-muted/5">
-        <PageContainer>
-          <CategoriesSection
-            categories={categories}
-            loading={isCategoryLoading}
-            error={categoriesSection.error}
-            title="Shop by Category"
-          />
-        </PageContainer>
-      </div>
+      {/* 2. Categories — only appears (with skeleton) after banner resolves */}
+      {bannersSection.loaded && (
+        <div className="relative py-4 sm:py-7 bg-muted/5">
+          <PageContainer>
+            <CategoriesSection
+              categories={categories}
+              loading={!categoriesSection.loaded}
+              error={categoriesSection.error}
+              title="Shop by Category"
+            />
+          </PageContainer>
+        </div>
+      )}
 
-      <div className="relative py-4 sm:py-7 bg-amber-50/30 dark:bg-amber-950/10">
-        <PageContainer>
-          <PromotionsSection
-            products={promotionProducts}
-            loading={isPromotionLoading}
-            error={promotionProductsSection.error}
-            title="Hot Deals & Promotions"
-          />
-        </PageContainer>
-      </div>
+      {/* 3. Promotions — only appears after categories resolve */}
+      {categoriesSection.loaded && (
+        <div className="relative py-4 sm:py-7 bg-amber-50/30 dark:bg-amber-950/10">
+          <PageContainer>
+            <PromotionsSection
+              products={promotionProducts}
+              loading={!promotionProductsSection.loaded}
+              error={promotionProductsSection.error}
+              title="Hot Deals & Promotions"
+            />
+          </PageContainer>
+        </div>
+      )}
 
-      <div className="relative py-4 sm:py-7">
-        <PageContainer>
-          <ProductsSection
-            products={featuredProducts}
-            loading={featuredProductsSection.loading}
-            error={featuredProductsSection.error}
-            title="Featured Products"
-            subtitle="Handpicked products just for you"
-            hasMore={featuredPagination.hasMore}
-            onLoadMore={handleLoadMoreFeatured}
-            isInitialLoading={isInitialFeaturedLoading}
-            imageLoading="eager"
-          />
-        </PageContainer>
-      </div>
+      {/* 4. Featured products — only appears after promotions resolve */}
+      {promotionProductsSection.loaded && (
+        <div className="relative py-4 sm:py-7">
+          <PageContainer>
+            <ProductsSection
+              products={featuredProducts}
+              loading={featuredProductsSection.loading}
+              error={featuredProductsSection.error}
+              title="Featured Products"
+              subtitle="Handpicked products just for you"
+              hasMore={featuredPagination.hasMore}
+              onLoadMore={handleLoadMoreFeatured}
+              isInitialLoading={!featuredProductsSection.loaded}
+              imageLoading="eager"
+            />
+          </PageContainer>
+        </div>
+      )}
     </div>
   );
 }
