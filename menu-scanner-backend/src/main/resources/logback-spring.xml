@@ -55,7 +55,7 @@
             <appender-ref ref="ERROR_FILE"/>
         </root>
         <logger name="com.emenu" level="DEBUG"/>
-        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="WARN"/>
         <logger name="org.springframework.security" level="INFO"/>
     </springProfile>
 
