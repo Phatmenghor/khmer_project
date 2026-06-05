@@ -20,8 +20,9 @@ import { Loading } from "@/components/shared/common/loading";
 import { DisplayField } from "@/components/shared/form-field/display-field";
 import { showToast } from "@/components/shared/common/show-toast";
 import { Download } from "lucide-react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+// html2canvas + jspdf are loaded lazily inside the download handler so
+// they stay out of the admin route bundle until the user actually clicks
+// "Download receipt".
 
 interface OrderDetailModalProps {
   orderId?: string;
@@ -168,6 +169,11 @@ export function OrderDetailModal({
       `;
 
       document.body.appendChild(element);
+
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
 
       const canvas = await html2canvas(element, {
         scale: 2,

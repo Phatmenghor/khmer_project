@@ -48,11 +48,12 @@ export default function PublicLayout({
   ]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen-dvh flex flex-col bg-background">
       <Navbar />
 
-      {}
-      <main className="flex-1 pb-11 sm:pb-0">
+      {/* Bottom padding accounts for the fixed BottomNav (h-11) +
+          iPhone home indicator / Telegram bottom chrome. */}
+      <main className="flex-1 pb-[calc(2.75rem+env(safe-area-inset-bottom))] sm:pb-0">
         <Suspense>{children}</Suspense>
       </main>
 

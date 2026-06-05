@@ -3,18 +3,23 @@
 import { useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { showToast } from "@/components/shared/common/show-toast";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
-import { Receipt, orderResponseToReceiptProps } from "@/components/shared/receipt/receipt";
+import {
+  Receipt,
+  orderResponseToReceiptProps,
+} from "@/components/shared/receipt/receipt";
 
 export function useDownloadReceipt() {
-  const [downloadingOrderId, setDownloadingOrderId] = useState<string | null>(null);
+  const [downloadingOrderId, setDownloadingOrderId] = useState<string | null>(
+    null
+  );
   const [printingOrderId, setPrintingOrderId] = useState<string | null>(null);
 
   const buildHTML = (order: OrderResponse) =>
-    renderToStaticMarkup(createElement(Receipt, orderResponseToReceiptProps(order)));
+    renderToStaticMarkup(
+      createElement(Receipt, orderResponseToReceiptProps(order))
+    );
 
   const handleDownloadReceipt = async (
     order: OrderResponse,
@@ -24,6 +29,14 @@ export function useDownloadReceipt() {
     setDownloadingOrderId(order.id);
 
     try {
+      // Dynamic imports keep html2canvas (~200 KB gz) and jspdf (~80 KB gz)
+      // out of the main + public route bundles. They are only fetched when
+      // a user actually clicks "Download receipt".
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+
       const element = document.createElement("div");
       element.style.position = "absolute";
       element.style.left = "-9999px";
@@ -45,14 +58,28 @@ export function useDownloadReceipt() {
       if (format === "pdf") {
         const pdfWidth = 80;
         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [pdfWidth, pdfHeight] });
-        pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pdfWidth, pdfHeight);
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: [pdfWidth, pdfHeight],
+        });
+        pdf.addImage(
+          canvas.toDataURL("image/png"),
+          "PNG",
+          0,
+          0,
+          pdfWidth,
+          pdfHeight
+        );
         pdf.save(`receipt-${order.orderNumber}.pdf`);
         showToast.success("Receipt downloaded as PDF");
       } else {
         await new Promise<void>((resolve) => {
           canvas.toBlob((blob) => {
-            if (!blob) { resolve(); return; }
+            if (!blob) {
+              resolve();
+              return;
+            }
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
@@ -68,8 +95,7 @@ export function useDownloadReceipt() {
       }
 
       document.body.removeChild(element);
-    } catch (error) {
-      console.error("Receipt download error:", error);
+    } catch {
       showToast.error("Failed to generate receipt");
     } finally {
       setDownloadingOrderId(null);
@@ -94,13 +120,17 @@ export function useDownloadReceipt() {
         win.print();
         win.close();
       }
-    } catch (error) {
-      console.error("Receipt print error:", error);
+    } catch {
       showToast.error("Failed to print receipt");
     } finally {
       setPrintingOrderId(null);
     }
   };
 
-  return { handleDownloadReceipt, handlePrintReceipt, downloadingOrderId, printingOrderId };
+  return {
+    handleDownloadReceipt,
+    handlePrintReceipt,
+    downloadingOrderId,
+    printingOrderId,
+  };
 }

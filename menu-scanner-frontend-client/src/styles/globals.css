@@ -686,6 +686,21 @@
     @apply border-border;
   }
 
+  /* Telegram Mini App: SDK sets --tg-viewport-stable-height on the html
+     element. Provide a sensible fallback so the same utilities work
+     outside Telegram. */
+  :root {
+    --tg-viewport-stable-height: 100dvh;
+    --tg-viewport-height: 100dvh;
+  }
+
+  html,
+  body {
+    /* Prevent rubber-band scroll from bleeding into parent (Telegram
+       container) or pulling-to-refresh inside modals. */
+    overscroll-behavior-y: contain;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family:
@@ -695,6 +710,18 @@
       "rlig" 1,
       "calt" 1;
     line-height: 1.5;
+    /* Faster tap response on mobile; prevents accidental zoom on
+       double-tap without disabling pinch-zoom for accessibility. */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth-momentum scrolling for any overflowing region (modals,
+     tables, scroll areas) on iOS. */
+  .overflow-y-auto,
+  .overflow-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
   }
 
   ::-webkit-scrollbar {

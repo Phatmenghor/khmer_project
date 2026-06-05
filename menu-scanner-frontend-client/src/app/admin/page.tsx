@@ -23,18 +23,37 @@ import {
   fetchDashboardPromotionsService,
 } from "@/features/dashboard/store/thunks/dashboard-thunks";
 import { DashboardPeriod } from "@/features/dashboard/store/models/response/dashboard-response";
+import dynamic from "next/dynamic";
+import { ChartSkeleton } from "./_components/chart-skeleton";
 import { DashboardHeader } from "./_components/dashboard-header";
 import { KpiSection } from "./_components/kpi-section";
-import { SalesAnalyticsCard } from "./_components/sales-analytics-card";
-import { PaymentMethodsCard } from "./_components/payment-methods-card";
-import { TopProductsCard } from "./_components/top-products-card";
 import { ExchangeRateCard } from "./_components/exchange-rate-card";
 import { CustomerStatsCard } from "./_components/customer-stats-card";
-import { HourlySalesCard } from "./_components/hourly-sales-card";
 import { PromotionPerformanceCard } from "./_components/promotion-performance-card";
 import { BranchPerformanceCard } from "./_components/branch-performance-card";
 import { RecentOrdersCard } from "./_components/recent-orders-card";
 import { InventoryStatusCard } from "./_components/inventory-status-card";
+
+// Recharts-based cards are lazy-loaded so the recharts bundle
+// (~85 KB gz) ships only for the admin dashboard route and only
+// after the initial paint. ssr:false avoids hydrating the chart
+// on the server where it can't measure its container anyway.
+const SalesAnalyticsCard = dynamic(
+  () => import("./_components/sales-analytics-card").then((m) => m.SalesAnalyticsCard),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const PaymentMethodsCard = dynamic(
+  () => import("./_components/payment-methods-card").then((m) => m.PaymentMethodsCard),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const TopProductsCard = dynamic(
+  () => import("./_components/top-products-card").then((m) => m.TopProductsCard),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const HourlySalesCard = dynamic(
+  () => import("./_components/hourly-sales-card").then((m) => m.HourlySalesCard),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
 
 export default function AdminDashboardPage() {
   useAdminCleanup(resetState);

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { ClientProviders } from "@/providers/client-provider";
 import { getMessages } from "next-intl/server";
@@ -42,6 +42,21 @@ const geistMono = localFont({
 export const metadata: Metadata = buildMetadata(
   BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
 );
+
+// Mobile-first viewport: cover the safe area on iPhones (notch + home
+// indicator), prefer the dynamic small viewport on iOS (so dvh-based
+// modals don't crop), and let the layout resize when the soft keyboard
+// opens — critical for Telegram Mini App + iOS Safari form UX.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0b0b" },
+  ],
+  interactiveWidget: "resizes-content",
+};
 
 export default async function RootLayout({
   children,
