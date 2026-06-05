@@ -130,12 +130,6 @@ export function Receipt({
         {customerName && <InfoRow label="Customer" value={customerName} />}
         {customerPhone && <InfoRow label="Phone" value={customerPhone} />}
         {orderStatus && <InfoRow label="Status" value={orderStatus} bold />}
-        {(paymentMethod || paymentStatus) && (
-          <InfoRow
-            label="Payment"
-            value={[paymentMethod, paymentStatus].filter(Boolean).join(" · ")}
-          />
-        )}
       </div>
 
       {/* Column headers + Items in one table for perfect column alignment */}
@@ -157,7 +151,14 @@ export function Receipt({
         </colgroup>
         <thead>
           <tr style={{ borderBottom: "1px solid #111", fontWeight: 700 }}>
-            <td style={{ padding: "0", paddingBottom: "3px", border: "none" }}>
+            <td
+              style={{
+                padding: "0",
+                paddingBottom: "3px",
+                border: "none",
+                fontSize: "13px",
+              }}
+            >
               ITEM
             </td>
             <td
@@ -168,6 +169,7 @@ export function Receipt({
                 paddingLeft: "4px",
                 paddingBottom: "3px",
                 border: "none",
+                fontSize: "13px",
               }}
             >
               QTY
@@ -180,6 +182,7 @@ export function Receipt({
                 paddingLeft: "4px",
                 paddingBottom: "3px",
                 border: "none",
+                fontSize: "13px",
               }}
             >
               PRICE
@@ -192,6 +195,7 @@ export function Receipt({
                 paddingLeft: "4px",
                 paddingBottom: "3px",
                 border: "none",
+                fontSize: "13px",
               }}
             >
               DISC
@@ -204,6 +208,7 @@ export function Receipt({
                 paddingLeft: "4px",
                 paddingBottom: "3px",
                 border: "none",
+                fontSize: "13px",
               }}
             >
               TOTAL
@@ -264,7 +269,7 @@ export function Receipt({
           display: "flex",
           justifyContent: "space-between",
           fontWeight: 700,
-          fontSize: "10px",
+          fontSize: "14px",
         }}
       >
         <span>TOTAL AMOUNT</span>
@@ -367,7 +372,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
       </tr>
 
       {item.customizations?.map((c) => (
-        <tr key={c.id} style={{ lineHeight: "0.8" }}>
+        <tr key={c.id} style={{ lineHeight: "0.6" }}>
           <td
             style={{
               fontSize: "8px",
@@ -384,7 +389,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
               fontSize: "8px",
               color: "#777",
               textAlign: "right",
-              padding: "0 0 0.5px 0",
+              padding: "0 0 0 0",
               border: "none",
             }}
           >
@@ -408,7 +413,13 @@ function InfoRow({
   bold?: boolean;
 }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        fontSize: "11px",
+      }}
+    >
       <span>{label}</span>
       <span style={bold ? { fontWeight: 700 } : undefined}>{value}</span>
     </div>
@@ -429,6 +440,7 @@ function SummaryRow({
       style={{
         display: "flex",
         justifyContent: "space-between",
+        fontSize: "12px",
         marginBottom: "2px",
       }}
     >
