@@ -17,6 +17,7 @@ import {
 import { addToCart } from "@/features/main/store/thunks/cart-thunks";
 import { ProductCard } from "@/components/shared/card/product-card";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
+import { GridPageSkeleton } from "@/components/shared/skeletons/grid-page-skeleton";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { LoginModal } from "@/components/shared/modal/login-modal";
@@ -161,16 +162,7 @@ export default function FavoritesPage() {
 
 
   if (!mounted || !authReady || (loading.fetch && !loaded)) {
-    return (
-      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
-        <div className="h-5 w-28 bg-muted rounded mb-3 animate-pulse" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <ProductCardSkeleton key={i} />
-          ))}
-        </div>
-      </PageContainer>
-    );
+    return <GridPageSkeleton card={<ProductCardSkeleton />} count={skeletonCount} />;
   }
 
 

@@ -3,10 +3,10 @@
 
 export const BUSINESS_SETTINGS_DEFAULTS = {
 
-  BUSINESS_NAME: "Emen Cambodia",
+  BUSINESS_NAME: null,
 
 
-  PRIMARY_COLOR: "#57823D",
+  PRIMARY_COLOR: null,
 
 
   TAX_PERCENTAGE: 0,

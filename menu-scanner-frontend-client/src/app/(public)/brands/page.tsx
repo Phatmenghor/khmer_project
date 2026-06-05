@@ -6,6 +6,7 @@ import { usePublicBrandsState } from "@/features/main/store/state/public-brands-
 import { Store, Loader2, CheckCircle2 } from "lucide-react";
 import { BrandCard } from "@/components/shared/card/brand-card";
 import { BrandCardSkeleton } from "@/components/shared/skeletons/brand-card-skeleton";
+import { GridPageSkeleton } from "@/components/shared/skeletons/grid-page-skeleton";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { useSkeletonCount, SkeletonPresets } from "@/hooks/use-skeleton-count";
@@ -62,6 +63,10 @@ export default function BrandsPage() {
     isLoading: isLoadingMore,
   });
 
+  if (isInitialLoading) {
+    return <GridPageSkeleton card={<BrandCardSkeleton />} count={skeletonCount} />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
@@ -70,16 +75,13 @@ export default function BrandsPage() {
           icon={Store}
           count={totalBrands}
           subtitle={
-            isInitialLoading
-              ? "Loading brands..."
-              : totalBrands > 0
+            totalBrands > 0
               ? `${totalBrands} brands available`
               : "Discover our brands"
           }
         />
 
-        {}
-        {!isInitialLoading && brands.length === 0 && (
+        {brands.length === 0 && (
           <PageState
             type="empty"
             title="No brands available"
@@ -88,14 +90,13 @@ export default function BrandsPage() {
           />
         )}
 
-        {}
-        {(brands.length > 0 || isInitialLoading) && (
+        {brands.length > 0 && (
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {brands.map((brand) => (
                 <BrandCard key={brand.id} brand={brand} />
               ))}
-              {(isInitialLoading || isLoadingMore) &&
+              {isLoadingMore &&
                 Array.from({ length: skeletonCount }).map((_, i) => (
                   <BrandCardSkeleton key={`skeleton-${i}`} />
                 ))}
@@ -124,7 +125,6 @@ export default function BrandsPage() {
               </div>
             )}
 
-            {}
             {hasMore && !isLoadingMore && (
               <div ref={observerTarget} className="h-3" />
             )}

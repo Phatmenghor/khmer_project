@@ -50,13 +50,13 @@ function convertResponseToFormData(
 ): BusinessSettingsFormData {
   return {
     businessName:
-      response.businessName || BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
+      response.businessName || "",
     taxPercentage: response.taxPercentage?.toString() || "",
     logoBusinessUrl: response.logoBusinessUrl || "",
     enableStock: response.enableStock || "DISABLED",
     socialMedia: response.socialMedia || [],
     primaryColor:
-      response.primaryColor || BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+      response.primaryColor || "",
     contactAddress: response.contactAddress || "",
     contactPhone: response.contactPhone || "",
     contactEmail: response.contactEmail || "",
@@ -84,12 +84,12 @@ export default function BusinessSettingsPage() {
     resolver: zodResolver(businessSettingsSchema),
     mode: "onChange",
     defaultValues: {
-      businessName: BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
+      businessName: "",
       taxPercentage: "",
       logoBusinessUrl: "",
       enableStock: "DISABLED",
       socialMedia: [],
-      primaryColor: BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR,
+      primaryColor: "",
       contactAddress: "",
       contactPhone: "",
       contactEmail: "",
@@ -521,8 +521,7 @@ export default function BusinessSettingsPage() {
                   <input
                     type="color"
                     value={
-                      form.watch("primaryColor") ||
-                      BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR
+                      form.watch("primaryColor") || ""
                     }
                     onChange={(e) =>
                       form.setValue("primaryColor", e.target.value, {
@@ -533,10 +532,9 @@ export default function BusinessSettingsPage() {
                     className="w-14 h-7 cursor-pointer rounded border border-input"
                   />
                   <input
-                    placeholder={BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR}
+                    placeholder=""
                     value={
-                      form.watch("primaryColor") ||
-                      BUSINESS_SETTINGS_DEFAULTS.PRIMARY_COLOR
+                      form.watch("primaryColor") || ""
                     }
                     onChange={(e) =>
                       form.setValue("primaryColor", e.target.value, {

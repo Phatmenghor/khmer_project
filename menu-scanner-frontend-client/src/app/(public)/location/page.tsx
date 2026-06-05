@@ -16,6 +16,7 @@ import { LocationCard } from "@/features/location/components/location-card";
 import { PageState } from "@/components/shared/page-state";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GridPageSkeleton } from "@/components/shared/skeletons/grid-page-skeleton";
 
 export default function LocationPage() {
   const {
@@ -190,14 +191,11 @@ export default function LocationPage() {
 
   if (isInitialLoading) {
     return (
-      <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
-        <div className="h-5 w-32 bg-muted rounded mb-4 animate-pulse" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-32 rounded" />
-          ))}
-        </div>
-      </PageContainer>
+      <GridPageSkeleton
+        card={<Skeleton className="h-32 rounded" />}
+        count={6}
+        gridClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+      />
     );
   }
 

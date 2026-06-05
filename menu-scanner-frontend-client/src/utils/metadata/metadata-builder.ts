@@ -3,56 +3,58 @@ import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 
 export const buildMetadata = (
-  businessName: string = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
+  businessName: string | null = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
 ): Metadata => {
+  const name = businessName ?? "";
   return {
-    title: {
-      template: `%s | ${businessName}`,
-      default: businessName,
-    },
-    description: `${businessName} - Manage your restaurant operations`,
-    keywords: [businessName, "restaurant", "menu", "management", "scanner"],
-    authors: [{ name: businessName }],
-    creator: businessName,
+    title: name
+      ? { template: `%s | ${name}`, default: name }
+      : undefined,
+    description: name ? `${name} - Manage your restaurant operations` : undefined,
+    keywords: name ? [name, "restaurant", "menu", "management", "scanner"] : undefined,
+    authors: name ? [{ name }] : undefined,
+    creator: name ?? undefined,
   };
 };
 
 
 export const buildAdminMetadata = (
-  businessName: string = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
+  businessName: string | null = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
 ): Metadata => {
+  const name = businessName ?? "";
   return {
-    title: {
-      template: `%s | ${businessName} Admin`,
-      default: `${businessName} Admin`,
-    },
-    description: `${businessName} Admin Panel - Manage your restaurant operations`,
-    keywords: [businessName, "admin", "restaurant", "menu", "management"],
+    title: name
+      ? { template: `%s | ${name} Admin`, default: `${name} Admin` }
+      : undefined,
+    description: name ? `${name} Admin Panel - Manage your restaurant operations` : undefined,
+    keywords: name ? [name, "admin", "restaurant", "menu", "management"] : undefined,
   };
 };
 
 
 export const buildAuthMetadata = (
-  businessName: string = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
+  businessName: string | null = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
 ): Metadata => {
+  const name = businessName ?? "";
   return {
-    title: `Sign In | ${businessName}`,
-    description: `Sign in to ${businessName}`,
+    title: name ? `Sign In | ${name}` : "Sign In",
+    description: name ? `Sign in to ${name}` : undefined,
   };
 };
 
 
 export const buildPublicMetadata = (
-  businessName: string = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
+  businessName: string | null = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME,
   pageName?: string
 ): Metadata => {
+  const name = businessName ?? "";
   const title = pageName
-    ? `${pageName} | ${businessName}`
-    : businessName;
+    ? name ? `${pageName} | ${name}` : pageName
+    : name || undefined;
 
   return {
     title,
-    description: `Explore ${businessName} menu and place orders`,
-    keywords: [businessName, "menu", "order", "restaurant"],
+    description: name ? `Explore ${name} menu and place orders` : undefined,
+    keywords: name ? [name, "menu", "order", "restaurant"] : undefined,
   };
 };

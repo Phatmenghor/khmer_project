@@ -6,6 +6,7 @@ import { usePublicCategoriesState } from "@/features/main/store/state/public-cat
 import { LayoutGrid, Loader2, CheckCircle2 } from "lucide-react";
 import { CategoryCard } from "@/components/shared/card/category-card";
 import { CategoryCardSkeleton } from "@/components/shared/skeletons/category-card-skeleton";
+import { GridPageSkeleton } from "@/components/shared/skeletons/grid-page-skeleton";
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { useSkeletonCount, SkeletonPresets } from "@/hooks/use-skeleton-count";
@@ -60,6 +61,10 @@ export default function CategoriesPage() {
     isLoading: isLoadingMore,
   });
 
+  if (isInitialLoading) {
+    return <GridPageSkeleton card={<CategoryCardSkeleton />} count={skeletonCount} />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <PageContainer className="min-h-screen flex flex-col py-3 sm:py-5">
@@ -68,16 +73,13 @@ export default function CategoriesPage() {
           icon={LayoutGrid}
           count={totalCategories}
           subtitle={
-            isInitialLoading
-              ? "Loading categories..."
-              : totalCategories > 0
+            totalCategories > 0
               ? `${totalCategories} categories available`
               : "Browse all categories"
           }
         />
 
-        {}
-        {!isInitialLoading && categories.length === 0 && (
+        {categories.length === 0 && (
           <PageState
             type="empty"
             title="No categories found"
@@ -86,14 +88,13 @@ export default function CategoriesPage() {
           />
         )}
 
-        {}
-        {(categories.length > 0 || isInitialLoading) && (
+        {categories.length > 0 && (
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {categories.map((category) => (
                 <CategoryCard key={category.id} category={category} />
               ))}
-              {(isInitialLoading || isLoadingMore) &&
+              {isLoadingMore &&
                 Array.from({ length: skeletonCount }).map((_, i) => (
                   <CategoryCardSkeleton key={`skeleton-${i}`} />
                 ))}
@@ -122,7 +123,6 @@ export default function CategoriesPage() {
               </div>
             )}
 
-            {}
             {hasMore && !isLoadingMore && (
               <div ref={observerTarget} className="h-3" />
             )}
