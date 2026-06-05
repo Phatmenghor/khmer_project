@@ -155,7 +155,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
   return (
     <div style={{ borderBottom: "1px dashed #ccc", paddingBottom: "4px", marginBottom: "4px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 28px 56px 44px 56px", gap: "0 4px", fontSize: "12px" }}>
-        <span style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span style={{ fontWeight: 600, wordBreak: "break-word" }}>
           {index + 1}. {item.name}
         </span>
         <span style={{ textAlign: "center" }}>{item.quantity}</span>
