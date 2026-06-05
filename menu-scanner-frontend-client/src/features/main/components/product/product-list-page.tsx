@@ -44,11 +44,11 @@ export function ProductListPage({
   hero,
   scrollKey = "products",
 }: ProductListPageProps) {
-  const [isMounted, setIsMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    setIsMounted(true);
+    setMounted(true);
   }, []);
 
   const { dispatch, products, pagination, loading, loadedFilters } =
@@ -196,7 +196,7 @@ export function ProductListPage({
     }
   }, [currentFilters, loadedFilters, products.length, dispatch, loading.list]);
 
-  const isInitialLoad = products.length === 0 && loading.list;
+  const isInitialLoad = !mounted || (products.length === 0 && loading.list);
   const noSearch = lockedPromotion ? undefined : search;
 
   return (

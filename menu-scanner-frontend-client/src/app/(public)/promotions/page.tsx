@@ -1,13 +1,16 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Flame, Zap } from "lucide-react";
 import { useAppSelector } from "@/store";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { ProductListPage } from "@/features/main/components/product/product-list-page";
 
 function PromotionsHero() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const businessSettings = useAppSelector(selectBusinessSettings);
-  const primaryColor = businessSettings?.primaryColor || "#57823D";
+  const primaryColor = (mounted ? businessSettings?.primaryColor : null) || "#57823D";
 
   return (
     <div 
