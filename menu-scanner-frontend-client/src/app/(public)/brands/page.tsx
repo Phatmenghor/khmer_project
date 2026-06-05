@@ -77,7 +77,7 @@ export default function BrandsPage() {
         />
 
         {}
-        {(!mounted || isInitialLoading) && (
+        {(isInitialLoading || (!mounted && brands.length === 0)) && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
             {Array.from({ length: skeletonCount }).map((_, i) => (
               <BrandCardSkeleton key={i} />
@@ -96,13 +96,13 @@ export default function BrandsPage() {
         )}
 
         {}
-        {mounted && !isInitialLoading && brands.length > 0 && (
+        {!isInitialLoading && brands.length > 0 && (
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {brands.map((brand) => (
                 <BrandCard key={brand.id} brand={brand} />
               ))}
-              {isLoadingMore &&
+              {(isLoadingMore || !mounted) &&
                 Array.from({ length: skeletonCount }).map((_, i) => (
                   <BrandCardSkeleton key={`more-${i}`} />
                 ))}
