@@ -94,14 +94,14 @@ export function Receipt({
       </div>
 
       {/* Column headers */}
-      <table style={{ width: "100%", borderCollapse: "collapse", fontWeight: 700, fontSize: "11px", borderBottom: "1px solid #111", paddingBottom: "4px", marginBottom: "4px" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontWeight: 700, fontSize: "10px", borderBottom: "1px solid #111", paddingBottom: "3px", marginBottom: "3px" }}>
         <tbody>
           <tr>
-            <td style={{ paddingBottom: "4px" }}>ITEM</td>
-            <td style={{ textAlign: "center", whiteSpace: "nowrap", width: "28px", paddingBottom: "4px" }}>QTY</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "56px", paddingLeft: "4px", paddingBottom: "4px" }}>PRICE</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "44px", paddingLeft: "4px", paddingBottom: "4px" }}>DISC</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "56px", paddingLeft: "4px", paddingBottom: "4px" }}>TOTAL</td>
+            <td style={{ paddingBottom: "3px" }}>ITEM</td>
+            <td style={{ textAlign: "center", whiteSpace: "nowrap", width: "24px", paddingBottom: "3px" }}>QTY</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "52px", paddingLeft: "4px", paddingBottom: "3px" }}>PRICE</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "40px", paddingLeft: "4px", paddingBottom: "3px" }}>DISC</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "52px", paddingLeft: "4px", paddingBottom: "3px" }}>TOTAL</td>
           </tr>
         </tbody>
       </table>
@@ -158,11 +158,11 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
 
   return (
     <div style={{ borderBottom: "1px dashed #ccc", paddingBottom: "4px", marginBottom: "4px" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
         <tbody>
           <tr style={{ verticalAlign: "top" }}>
-            <td style={{ fontWeight: 600, wordBreak: "break-word", paddingRight: "4px" }}>
-              {index + 1}. {item.name}
+            <td style={{ fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "0", width: "100%", paddingRight: "4px" }}>
+              {item.name}
             </td>
             <td style={{ textAlign: "center", whiteSpace: "nowrap", width: "28px" }}>{item.quantity}</td>
             <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "56px", paddingLeft: "4px" }}>{formatCurrency(item.finalPrice)}</td>
@@ -172,10 +172,10 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
         </tbody>
       </table>
       {item.sizeName && (
-        <div style={{ fontSize: "10px", color: "#555", paddingLeft: "12px" }}>Size: {item.sizeName}</div>
+        <div style={{ fontSize: "9px", color: "#555", paddingLeft: "8px" }}>Size: {item.sizeName}</div>
       )}
       {item.customizations?.map((c) => (
-        <div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#555", paddingLeft: "12px" }}>
+        <div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "9px", color: "#555", paddingLeft: "8px" }}>
           <span>+ {c.name}</span>
           {(c.priceAdjustment ?? 0) > 0 && <span>+{formatCurrency(c.priceAdjustment)}</span>}
         </div>
