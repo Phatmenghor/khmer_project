@@ -106,12 +106,11 @@ import {
 } from "@/features/business/store/thunks/pos-page-thunks";
 import { fetchAllDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
 import { fetchAllPaymentOptionsService } from "@/features/master-data/store/thunks/payment-options-thunks";
-import { AppDispatch, RootState } from "@/store";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { fetchBusinessSettingsThunk } from "@/features/business/store/thunks/business-settings-thunks";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@/store";
 
 
 type CartItemEditData = {
@@ -198,10 +197,10 @@ type POSCheckoutPayload = {
 };
 
 export default function PosPage() {
-  const dispatch = useAppDispatch() as AppDispatch;
+  const dispatch = useAppDispatch();
 
 
-  const businessSettings = useSelector((state: RootState) => selectBusinessSettings(state));
+  const businessSettings = useAppSelector(selectBusinessSettings);
 
 
   const {

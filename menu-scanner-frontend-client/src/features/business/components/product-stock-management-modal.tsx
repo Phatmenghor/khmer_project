@@ -2,10 +2,9 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useState, useRef } from "react";
-import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   Dialog,
   DialogContent,
@@ -38,7 +37,6 @@ import {
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { ProductStockDto, ProductStockItemDto } from "../store/models/response/stock-response";
 import { createStockHistoryColumns } from "../table/product-stock-history-table";
-import { useAppSelector } from "@/store";
 
 interface StockFormData {
   quantityOnHand?: number;
@@ -60,7 +58,7 @@ export function StockManagementModal({
 }: StockManagementModalProps) {
   const dispatch = useAppDispatch();
   const { history, isLoading, isCreating, isUpdating, isDeleting, error, successMessage } =
-    useSelector((state: any) => state.stockManagement);
+    useAppSelector((state) => state.stockManagement);
   const [historyPageNo, setHistoryPageNo] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(10);
   const [editingStock, setEditingStock] = useState<ProductStockDto | null>(null);

@@ -1,9 +1,8 @@
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 
 export const useFavoriteState = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const favorites = useSelector((state: RootState) => state.favorites);
+  const dispatch = useAppDispatch();
+  const favorites = useAppSelector((state) => state.favorites);
 
   return {
     dispatch,

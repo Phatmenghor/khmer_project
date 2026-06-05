@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@/store";
 import { ShoppingCart, Plus, Minus, Ruler, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,6 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { CustomButton } from "../button/custom-button";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
 import { selectPOSProductQuantity } from "@/features/business/store/selectors/pos-cart-selectors";
-import { RootState } from "@/store";
 
 interface POSProductCardProps {
   product: ProductDetailResponseModel;
@@ -25,7 +24,7 @@ function POSProductCardComponent({
 
   const productId = product?.id;
 
-  const quantity = useSelector((state: RootState) =>
+  const quantity = useAppSelector((state) =>
     selectPOSProductQuantity(state, productId || "")
   );
   const handleIncrement = useCallback((e: React.MouseEvent) => {

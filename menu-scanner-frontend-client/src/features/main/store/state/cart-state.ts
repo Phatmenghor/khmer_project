@@ -1,12 +1,11 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { fetchCart } from "../thunks/cart-thunks";
 import { showToast } from "@/components/shared/common/show-toast";
 
 export const useCartState = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const cart = useSelector((state: RootState) => state.cart);
+  const dispatch = useAppDispatch();
+  const cart = useAppSelector((state) => state.cart);
 
   // Auto-rollback: when a mutation fails, refetch to restore true server state
   useEffect(() => {

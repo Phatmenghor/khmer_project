@@ -2,9 +2,8 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useState, useRef } from "react";
-import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   Dialog,
   DialogContent,
@@ -64,7 +63,7 @@ export function SizeStockManagementModal({
 }: SizeStockManagementModalProps) {
   const dispatch = useAppDispatch();
   const { history, isLoading, isCreating, isUpdating, isDeleting, error, successMessage } =
-    useSelector((state: any) => state.stockManagement);
+    useAppSelector((state) => state.stockManagement);
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [historyPageNo, setHistoryPageNo] = useState(1);
   const [historyPageSize, setHistoryPageSize] = useState(10);

@@ -1,49 +1,46 @@
-import { Middleware } from "@reduxjs/toolkit";
+import type { Middleware, UnknownAction } from "@reduxjs/toolkit";
 
-const isDev = process.env.NODE_ENV !== "production";
-const enableLogging = process.env.NEXT_PUBLIC_REDUX_LOGGING === "true" || isDev;
-
-export const authLoggingMiddleware: Middleware =
-  () => (next) => (action: unknown) => {
-    const a = action as { type?: string };
-    if (!enableLogging || !a?.type) return next(action);
-    if (String(a.type).startsWith("auth/")) {
-
-    }
-    return next(action);
-  };
-
-export const userLoggingMiddleware: Middleware =
-  () => (next) => (action: unknown) => next(action);
-
-export const errorLoggingMiddleware: Middleware =
-  () => (next) => (action: unknown) => {
-    const a = action as { type?: string };
-    if (!a?.type) return next(action);
-    return next(action);
-  };
-
-let profileFetchTriggered = false;
+/**
+ * On the first `auth/setUser` action after sign-in, kick off a profile
+ * fetch unless one already happened. The "did we fetch?" flag lives in
+ * Redux (auth.profileFetched) so HMR resets, multi-tab sessions, and
+ * server snapshots all behave consistently. No module-level state.
+ *
+ * Typed without referencing RootState/AppDispatch from "." to avoid a
+ * circular-type recursion through configureStore's inferred dispatch.
+ */
+interface AuthSlice {
+  profile: unknown;
+  profileFetched: boolean;
+}
 
 export const autoFetchProfileMiddleware: Middleware =
-  (storeAPI) => (next) => (action: unknown) => {
+  (storeAPI) =>
+  (next) =>
+  (action) => {
     const result = next(action);
-    const a = action as { type?: string };
+    const type = (action as UnknownAction)?.type;
 
-    if (a.type === "auth/setUser" && !profileFetchTriggered) {
-      profileFetchTriggered = true;
-      const state = storeAPI.getState();
+    if (type !== "auth/setUser") return result;
 
-      if (!state.auth.profile) {
-        import("@/features/auth/store/thunks/auth-thunks").then(
-          ({ getProfileService }) => {
-            storeAPI.dispatch(getProfileService() as any).catch(() => {
-              profileFetchTriggered = false;
-            });
-          }
-        );
+    const state = storeAPI.getState() as { auth: AuthSlice };
+    if (state.auth.profileFetched || state.auth.profile) return result;
+
+    import("@/features/auth/store/thunks/auth-thunks").then(
+      ({ getProfileService }) => {
+        const promise = storeAPI.dispatch(getProfileService() as never) as {
+          unwrap: () => Promise<unknown>;
+        };
+        promise.unwrap().catch(() => {
+          // On failure, leave profileFetched false so a later setUser can retry.
+          import("@/features/auth/store/slice/auth-slice").then(
+            ({ setProfileFetched }) => {
+              storeAPI.dispatch(setProfileFetched(false));
+            }
+          );
+        });
       }
-    }
+    );
 
     return result;
   };

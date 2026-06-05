@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@/store";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,6 @@ import {
   selectProductQuantityInCart,
   selectProductTotalQuantity,
 } from "@/features/main/store/selectors/optimized-cart-selectors";
-import { RootState } from "@/store";
 import { buildQuantityMap } from "@/utils/common/customization-utils";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 import { ProductImage } from "./product-image";
@@ -54,8 +53,8 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
   const [localQuantity, setLocalQuantity] = useState<number | null>(null);
 
 
-  const quantity = useSelector((state: RootState) => selectProductQuantityInCart(state, product.id, null));
-  const totalQuantity = useSelector((state: RootState) => selectProductTotalQuantity(state, product.id));
+  const quantity = useAppSelector((state) => selectProductQuantityInCart(state, product.id, null));
+  const totalQuantity = useAppSelector((state) => selectProductTotalQuantity(state, product.id));
 
 
   const displayQuantityValue = localQuantity !== null ? localQuantity : quantity;

@@ -41,6 +41,7 @@ interface ExtendedAuthState extends AuthState {
   isSocialLoading: boolean;
   isLoadingSocialSync: boolean;
   isNewUser: boolean;
+  profileFetched: boolean;
 }
 
 
@@ -56,6 +57,7 @@ const initialState: ExtendedAuthState = {
   isSocialLoading: false,
   isLoadingSocialSync: false,
   isNewUser: false,
+  profileFetched: false,
 };
 
 
@@ -76,6 +78,10 @@ const authSlice = createSlice({
       state.authReady = true;
     },
 
+    setProfileFetched: (state, action: PayloadAction<boolean>) => {
+      state.profileFetched = action.payload;
+    },
+
 
     logout: (state) => {
       state.isAuthenticated = false;
@@ -84,6 +90,7 @@ const authSlice = createSlice({
       state.error = null;
       state.socialSync = null;
       state.isNewUser = false;
+      state.profileFetched = false;
       clearAllTokens();
       clearUserInfo();
       clearAdminTokens();
@@ -139,6 +146,7 @@ const authSlice = createSlice({
       .addCase(getProfileService.fulfilled, (state, action) => {
         state.isProfileLoading = false;
         state.profile = action.payload;
+        state.profileFetched = true;
       })
       .addCase(getProfileService.rejected, (state, action) => {
         state.isProfileLoading = false;
@@ -352,6 +360,7 @@ const authSlice = createSlice({
         state.profile = null;
         state.socialSync = null;
         state.isNewUser = false;
+        state.profileFetched = false;
       })
       .addCase(logoutService.rejected, (state) => {
 
@@ -384,6 +393,7 @@ const authSlice = createSlice({
 export const {
   setUser,
   setAuthReady,
+  setProfileFetched,
   logout,
   clearError,
   setSocialSync,

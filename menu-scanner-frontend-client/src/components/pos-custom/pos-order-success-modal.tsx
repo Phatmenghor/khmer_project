@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { useSelector } from "react-redux";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
-import { RootState } from "@/store";
+import { useAppSelector } from "@/store";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 
 interface POSOrderSuccessModalProps {
@@ -22,9 +21,7 @@ export function POSOrderSuccessModal({
   onClose,
   order,
 }: POSOrderSuccessModalProps) {
-  const businessSettings = useSelector((state: RootState) =>
-    selectBusinessSettings(state)
-  );
+  const businessSettings = useAppSelector(selectBusinessSettings);
   const primaryColor = businessSettings?.primaryColor || "#000000";
 
   const { handleDownloadReceipt, handlePrintReceipt, downloadingOrderId, printingOrderId } = useDownloadReceipt();

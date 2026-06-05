@@ -13,7 +13,7 @@ declare global {
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useSelector, useDispatch } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useFavoriteState } from "@/features/main/store/state/favorite-state";
@@ -50,7 +50,7 @@ export function Navbar() {
 
   const router = useRouter();
   const pathname = usePathname();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { isAuthenticated, profile, fullName, email, profileImage } =
     useAuthState();
@@ -58,9 +58,9 @@ export function Navbar() {
   const { totalItems: favoriteItemCount } = useFavoriteState();
   const { logout: handleLogout } = useLogout();
 
-  const reduxBusinessName = useSelector(selectBusinessName);
-  const reduxBusinessLogoUrl = useSelector(selectBusinessLogo);
-  const isBusinessLoading = useSelector(selectBusinessSettingsLoading);
+  const reduxBusinessName = useAppSelector(selectBusinessName);
+  const reduxBusinessLogoUrl = useAppSelector(selectBusinessLogo);
+  const isBusinessLoading = useAppSelector(selectBusinessSettingsLoading);
 
   const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
   const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
