@@ -5,9 +5,7 @@ import java.util.List;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public final class FilterUtils {
-
-    private FilterUtils() {}
+public class FilterUtils {
 
     public static <T> List<T> nullIfEmpty(Collection<T> collection) {
         if (collection == null || collection.isEmpty()) {

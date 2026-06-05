@@ -38,6 +38,5 @@ public interface UserProfileMapper {
     @Mapping(target = "isDeleted", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "deletedBy", ignore = true)
-    @Mapping(target = "auditorAware", ignore = true)
     void updateFromRequest(UserUpdateRequest request, @MappingTarget UserProfile profile);
 }
