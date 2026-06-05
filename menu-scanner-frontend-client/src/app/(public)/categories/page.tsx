@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useCallback, useRef, useState } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { usePublicCategoriesState } from "@/features/main/store/state/public-categories-state";
 import { LayoutGrid, Loader2, CheckCircle2 } from "lucide-react";
 import { CategoryCard } from "@/components/shared/card/category-card";
@@ -14,9 +14,6 @@ import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 
 export default function CategoriesPage() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
   const isLoadingRef = useRef(false);
   const searchParams = useSearchParams();
   const search = searchParams.get("q") || "";
@@ -66,7 +63,7 @@ export default function CategoriesPage() {
           icon={LayoutGrid}
           count={totalCategories}
           subtitle={
-            !mounted || isInitialLoading
+            isInitialLoading
               ? "Loading categories..."
               : totalCategories > 0
               ? `${totalCategories} categories available`
@@ -75,7 +72,7 @@ export default function CategoriesPage() {
         />
 
         {}
-        {(!mounted || isInitialLoading) && (
+        {isInitialLoading && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
             {Array.from({ length: skeletonCount }).map((_, i) => (
               <CategoryCardSkeleton key={i} />
@@ -84,7 +81,7 @@ export default function CategoriesPage() {
         )}
 
         {}
-        {mounted && !isInitialLoading && categories.length === 0 && (
+        {!isInitialLoading && categories.length === 0 && (
           <PageState
             type="empty"
             title="No categories found"
@@ -94,7 +91,7 @@ export default function CategoriesPage() {
         )}
 
         {}
-        {mounted && !isInitialLoading && categories.length > 0 && (
+        {!isInitialLoading && categories.length > 0 && (
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {categories.map((category) => (

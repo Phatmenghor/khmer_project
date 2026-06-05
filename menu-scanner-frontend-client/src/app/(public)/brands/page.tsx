@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef, useState } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePublicBrandsState } from "@/features/main/store/state/public-brands-state";
 import { Store, Loader2, CheckCircle2 } from "lucide-react";
@@ -15,9 +15,6 @@ import { PageHeader } from "@/components/shared/common/page-header";
 
 
 export default function BrandsPage() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
   const isLoadingRef = useRef(false);
   const searchParams = useSearchParams();
   const search = searchParams.get("q") || "";
@@ -68,7 +65,7 @@ export default function BrandsPage() {
           icon={Store}
           count={totalBrands}
           subtitle={
-            !mounted || isInitialLoading
+            isInitialLoading
               ? "Loading brands..."
               : totalBrands > 0
               ? `${totalBrands} brands available`
@@ -77,7 +74,7 @@ export default function BrandsPage() {
         />
 
         {}
-        {(!mounted || isInitialLoading) && (
+        {isInitialLoading && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
             {Array.from({ length: skeletonCount }).map((_, i) => (
               <BrandCardSkeleton key={i} />
@@ -86,7 +83,7 @@ export default function BrandsPage() {
         )}
 
         {}
-        {mounted && !isInitialLoading && brands.length === 0 && (
+        {!isInitialLoading && brands.length === 0 && (
           <PageState
             type="empty"
             title="No brands available"
@@ -96,7 +93,7 @@ export default function BrandsPage() {
         )}
 
         {}
-        {mounted && !isInitialLoading && brands.length > 0 && (
+        {!isInitialLoading && brands.length > 0 && (
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {brands.map((brand) => (
