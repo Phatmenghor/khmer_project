@@ -6,7 +6,7 @@ import { OrderStatus } from "@/enums/order-status.enum";
 import { OrderFromEnum } from "@/enums/order.enum";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { MapPin, CreditCard, MessageSquare, Lock, Loader2, AlertCircle, Check } from "lucide-react";
+import { MapPin, CreditCard, MessageSquare, Lock, AlertCircle } from "lucide-react";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useCartState } from "@/features/main/store/state/cart-state";
 import { useLocationState } from "@/features/location/store/state/location-state";
@@ -642,17 +642,7 @@ export default function CheckoutPage() {
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >
-              {checkoutState.isProcessing ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Processing Order
-                </>
-              ) : (
-                <>
-                  <Check className="h-3 w-3" />
-                  Place Order
-                </>
-              )}
+              {checkoutState.isProcessing ? "Processing Order" : "Place Order"}
             </CustomButton>
 
             <p className="text-xs text-muted-foreground text-center font-medium">
@@ -780,17 +770,7 @@ export default function CheckoutPage() {
                 !canCheckout && "opacity-50 cursor-not-allowed"
               )}
             >
-              {checkoutState.isProcessing ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Processing Order
-                </>
-              ) : (
-                <>
-                  <Check className="h-3 w-3" />
-                  Place Order
-                </>
-              )}
+              {checkoutState.isProcessing ? "Processing Order" : "Place Order"}
             </CustomButton>
 
             <p className="text-xs text-muted-foreground text-center">
