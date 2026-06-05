@@ -1,29 +1,21 @@
+import { toast } from "sonner";
 
-import { toast, ToastOptions } from "react-toastify";
-
-const defaultOptions: ToastOptions = {
-  position: "top-right",
-  autoClose: 4000,
-  hideProgressBar: false,
-  closeOnClick: true,
-  pauseOnHover: true,
-  draggable: true,
-};
+const DURATION_MS = 4000;
 
 export const showToast = {
   success: (message: string) => {
-    toast.success(message, defaultOptions);
+    toast.success(message, { duration: DURATION_MS });
   },
 
   error: (message: string) => {
-    toast.error(message, defaultOptions);
+    toast.error(message, { duration: DURATION_MS });
   },
 
   warning: (message: string) => {
-    toast.warning(message, defaultOptions);
+    toast.warning(message, { duration: DURATION_MS });
   },
 
   info: (message: string) => {
-    toast.info(message, defaultOptions);
+    toast.info(message, { duration: DURATION_MS });
   },
 };

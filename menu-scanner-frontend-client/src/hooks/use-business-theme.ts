@@ -11,6 +11,7 @@ import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { BusinessSettingsResponse } from "@/features/business/store/services/business-settings-service";
 import { getCachedThemeColors, cacheThemeColors, hasThemeChanged } from "@/utils/common/theme-cache";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { writeBusinessCache } from "@/lib/business-cache";
 
 
 const DEFAULT_COLORS = {
@@ -61,14 +62,12 @@ function syncWindowCache(settings: {
   primaryColor?: string;
   taxPercentage?: number | null;
 }) {
-  if (typeof window !== "undefined") {
-    window.__cachedBusinessData = {
-      businessName: settings.businessName,
-      logoBusinessUrl: settings.logoBusinessUrl,
-      primaryColor: settings.primaryColor,
-      taxPercentage: settings.taxPercentage ?? undefined,
-    };
-  }
+  writeBusinessCache({
+    businessName: settings.businessName,
+    logoBusinessUrl: settings.logoBusinessUrl,
+    primaryColor: settings.primaryColor,
+    taxPercentage: settings.taxPercentage ?? undefined,
+  });
 }
 
 function applyColors(primaryColor?: string) {

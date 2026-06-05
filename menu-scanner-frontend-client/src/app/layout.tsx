@@ -15,18 +15,6 @@ import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
-
-declare global {
-  interface Window {
-    __cachedBusinessData?: {
-      businessName?: string;
-      logoBusinessUrl?: string;
-      primaryColor?: string;
-      taxPercentage?: number;
-    };
-  }
-}
-
 const geistSans = localFont({
   src: "../../public/fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -77,19 +65,6 @@ export default async function RootLayout({
     >
       <head>
         <link rel="icon" href="/favicon.ico" />
-        {/* Store cached business data but don't apply colors — avoid color flash */}
-        <script
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{
-var bid='550cad56-cafd-4aba-baef-c4dcd53940d0';
-var cached=null;
-try{var v=localStorage.getItem('theme_colors_'+bid);if(v)cached=JSON.parse(v);}catch(e){}
-if(!cached){try{var cs=document.cookie.split(';');for(var i=0;i<cs.length;i++){var c=cs[i].trim();var k='theme_colors_'+bid+'=';if(c.indexOf(k)===0){cached=JSON.parse(decodeURIComponent(c.substring(k.length)));break;}}}catch(e){}}
-if(cached)window.__cachedBusinessData={businessName:cached.businessName,logoBusinessUrl:cached.logoBusinessUrl,primaryColor:cached.primaryColor,taxPercentage:cached.taxPercentage};
-}catch(e){}})();`,
-          }}
-        />
       </head>
       <body className="antialiased">
         {/* Google Analytics — only loads when NEXT_PUBLIC_GA_MEASUREMENT_ID is set */}

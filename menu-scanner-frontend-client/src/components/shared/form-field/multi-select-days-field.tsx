@@ -27,11 +27,11 @@ const DEFAULT_WORK_DAYS = [
   DayOfWeek.FRIDAY,
 ];
 
-interface MultiSelectDaysFieldPropsWithDefaults<T extends FieldValues = any> extends MultiSelectDaysFieldProps<T> {
+interface MultiSelectDaysFieldPropsWithDefaults<T extends FieldValues = FieldValues> extends MultiSelectDaysFieldProps<T> {
   defaultDays?: DayOfWeek[];
 }
 
-export function MultiSelectDaysField<T extends FieldValues = any>({
+export function MultiSelectDaysField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,

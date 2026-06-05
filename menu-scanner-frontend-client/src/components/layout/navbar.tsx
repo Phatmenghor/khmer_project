@@ -1,17 +1,7 @@
 "use client";
 
-declare global {
-  interface Window {
-    __cachedBusinessData?: {
-      businessName?: string;
-      logoBusinessUrl?: string;
-      primaryColor?: string;
-      taxPercentage?: number;
-    };
-  }
-}
-
 import { useState, useEffect, useRef } from "react";
+import { readBusinessCache } from "@/lib/business-cache";
 import { useRouter, usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
@@ -65,17 +55,19 @@ export function Navbar() {
   const [cachedBusinessName, setCachedBusinessName] = useState<string | undefined>();
   const [cachedLogoUrl, setCachedLogoUrl] = useState<string | undefined>();
 
-  // Read window cache on mount, on route change, and on bfcache restoration
+  // Read the brand cache on mount, on route change, and on bfcache
+  // restoration. Redux remains the source of truth once it loads.
   useEffect(() => {
-    const readWindowCache = () => {
-      if (typeof window !== "undefined" && window.__cachedBusinessData) {
-        setCachedBusinessName(window.__cachedBusinessData.businessName);
-        setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
+    const applyCache = () => {
+      const cache = readBusinessCache();
+      if (cache) {
+        setCachedBusinessName(cache.businessName);
+        setCachedLogoUrl(cache.logoBusinessUrl);
       }
     };
-    readWindowCache();
+    applyCache();
     const handlePageShow = (e: PageTransitionEvent) => {
-      if (e.persisted) readWindowCache();
+      if (e.persisted) applyCache();
     };
     window.addEventListener("pageshow", handlePageShow);
     return () => window.removeEventListener("pageshow", handlePageShow);

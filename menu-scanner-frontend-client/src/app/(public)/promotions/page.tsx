@@ -10,7 +10,7 @@ function PromotionsHero() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   const businessSettings = useAppSelector(selectBusinessSettings);
-  const primaryColor = mounted ? (businessSettings?.primaryColor ?? null) : null;
+  const primaryColor = mounted ? (businessSettings?.primaryColor ?? undefined) : undefined;
 
   return (
     <div 

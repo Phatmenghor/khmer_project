@@ -33,17 +33,24 @@ export function useDashboardWebSocket({
 
     const wsUrl = `${window.location.origin}/ws`;
 
+    const devLog = (...args: unknown[]) => {
+      if (process.env.NODE_ENV !== "production") {
+        // eslint-disable-next-line no-console
+        console.log(...args);
+      }
+    };
+
     const client = new Client({
       webSocketFactory: () => new SockJS(wsUrl),
       reconnectDelay: 5000,
       onConnect: () => {
         setIsConnected(true);
-        console.log("[WS] Connected to /ws — subscribing to business topics:", businessId);
+        devLog("[WS] Connected to /ws — subscribing to business topics:", businessId);
 
         client.subscribe(`/topic/${businessId}/orders`, (message) => {
           try {
             const event = JSON.parse(message.body);
-            console.log("[WS] Order event received:", event);
+            devLog("[WS] Order event received:", event);
             onOrderEventRef.current(event.type);
           } catch {
             // ignore malformed messages
@@ -53,7 +60,7 @@ export function useDashboardWebSocket({
         client.subscribe(`/topic/${businessId}/stock`, (message) => {
           try {
             const event = JSON.parse(message.body);
-            console.log("[WS] Stock event received:", event);
+            devLog("[WS] Stock event received:", event);
             onStockEventRef.current(event.type);
           } catch {
             // ignore malformed messages
@@ -62,7 +69,7 @@ export function useDashboardWebSocket({
       },
       onDisconnect: () => {
         setIsConnected(false);
-        console.log("[WS] Disconnected");
+        devLog("[WS] Disconnected");
       },
       onStompError: (frame) => {
         setIsConnected(false);

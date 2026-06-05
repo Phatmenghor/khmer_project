@@ -1,11 +1,9 @@
 "use client";
 
-import "react-toastify/dist/ReactToastify.css";
 import { ReactNode, StrictMode, useEffect } from "react";
 import { Provider } from "react-redux";
 import { Toaster } from "sonner";
 import store from "@/store";
-import { ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useBusinessTheme } from "@/hooks/use-business-theme";
 
@@ -44,19 +42,7 @@ export function ClientProviders({ children }: ClientProvidersProps) {
       <ThemeInitializer />
       <BfcacheRefreshHandler />
       {children}
-      <Toaster />
-      <ToastContainer
-        position="top-right"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <Toaster position="top-right" richColors closeButton />
     </Provider>
   );
 

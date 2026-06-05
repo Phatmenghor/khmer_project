@@ -7,6 +7,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { axiosClient } from "@/utils/axios";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,33 +56,28 @@ export default function SignupPage() {
   async function handleSignupSubmit(values: FormData) {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/v1/public/register-business-owner", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ownerUserIdentifier: values.ownerUserIdentifier,
-          ownerFullName: values.ownerFullName,
-          ownerEmail: values.ownerEmail,
-          ownerPassword: values.ownerPassword,
-          businessName: values.businessName,
-          businessEmail: values.businessEmail,
-          planId: values.planId,
-          enableStockManagement: values.enableStockManagement,
-          primaryColor: values.primaryColor,
-        }),
+      await axiosClient.post("/api/v1/public/register-business-owner", {
+        ownerUserIdentifier: values.ownerUserIdentifier,
+        ownerFullName: values.ownerFullName,
+        ownerEmail: values.ownerEmail,
+        ownerPassword: values.ownerPassword,
+        businessName: values.businessName,
+        businessEmail: values.businessEmail,
+        planId: values.planId,
+        enableStockManagement: values.enableStockManagement,
+        primaryColor: values.primaryColor,
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error?.message || "Registration failed");
-      }
 
       showToast.success("Registration successful! You can now login.");
       setTimeout(() => {
         router.push("/(auth)/login");
       }, 1000);
-    } catch (err: any) {
-      const errorMessage = err?.message || "Registration failed";
+    } catch (err: unknown) {
+      const errorMessage =
+        (err as { response?: { data?: { message?: string } }; message?: string })
+          ?.response?.data?.message ||
+        (err as { message?: string })?.message ||
+        "Registration failed";
       showToast.error(errorMessage);
     } finally {
       setIsLoading(false);

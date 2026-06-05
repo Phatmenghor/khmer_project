@@ -8,6 +8,7 @@ import {
 import {
   CartResponseModel,
   CartItemModel,
+  CartItemCustomization,
 } from "../models/response/cart-response";
 
 interface CartState {

@@ -7,18 +7,7 @@ import { MapPin, Phone, Clock, Mail } from "lucide-react";
 import { PageContainer } from "../shared/common/page-container";
 import { useAppSelector } from "@/store";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
-
-
-declare global {
-  interface Window {
-    __cachedBusinessData?: {
-      businessName?: string;
-      logoBusinessUrl?: string;
-      primaryColor?: string;
-      taxPercentage?: number;
-    };
-  }
-}
+import { readBusinessCache } from "@/lib/business-cache";
 
 export function Footer() {
   const businessSettings = useAppSelector(selectBusinessSettings);
@@ -29,9 +18,10 @@ export function Footer() {
 
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.__cachedBusinessData) {
-      setCachedBusinessName(window.__cachedBusinessData.businessName);
-      setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
+    const cache = readBusinessCache();
+    if (cache) {
+      setCachedBusinessName(cache.businessName);
+      setCachedLogoUrl(cache.logoBusinessUrl);
     }
   }, []);
 
@@ -136,7 +126,7 @@ export function Footer() {
                   <div className="text-white">
                     {businessHours.map((hours, index) => (
                       <p key={index} className="font-medium">
-                        {hours.day}: {hours.openTime} - {hours.closeTime}
+                        {hours.day}: {hours.openingTime} - {hours.closingTime}
                       </p>
                     ))}
                   </div>

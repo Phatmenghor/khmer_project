@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+import { axiosClient } from "@/utils/axios";
 
 export interface BusinessSettingsResponse {
   id: string;
@@ -39,27 +39,15 @@ export interface BusinessSettingsResponse {
 }
 
 export const businessSettingsApi = {
-  fetchBusinessSettings: async (businessId: string): Promise<BusinessSettingsResponse> => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/v1/public/business-settings/${businessId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch business settings: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.data || data;
-    } catch (error) {
-      throw error;
-    }
+  fetchBusinessSettings: async (
+    businessId: string
+  ): Promise<BusinessSettingsResponse> => {
+    const response = await axiosClient.get<{
+      data?: BusinessSettingsResponse;
+    } & Partial<BusinessSettingsResponse>>(
+      `/api/v1/public/business-settings/${businessId}`
+    );
+    return (response.data.data ?? (response.data as BusinessSettingsResponse));
   },
 
 

@@ -46,20 +46,13 @@ function initializeTheme() {
 
     if (!cachedColors) return;
 
-    window.__cachedBusinessData = {
-      businessName: cachedColors.businessName,
-      logoBusinessUrl: cachedColors.logoBusinessUrl,
-      primaryColor: cachedColors.primaryColor,
-      taxPercentage: cachedColors.taxPercentage,
-    };
-
     if (cachedColors.businessName) {
       document.title = cachedColors.businessName;
     }
 
     applyThemeColorsSync(cachedColors.primaryColor);
-  } catch (e) {
-
+  } catch {
+    // localStorage / cookie / JSON parsing may fail in private mode; ignore.
   }
 }
 

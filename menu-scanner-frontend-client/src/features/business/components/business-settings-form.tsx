@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { useAppDispatch, useAppSelector } from "@/redux/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   fetchBusinessSettingsThunk,
   updateBusinessSettingsThunk,
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { showToast } from "@/components/shared/common/show-toast";
-import Loading from "@/components/shared/common/loading";
+import { Loading } from "@/components/shared/common/loading";
 import { RefreshCw, Save } from "lucide-react";
 
 interface BusinessSettingsFormProps {

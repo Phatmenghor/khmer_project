@@ -28,7 +28,7 @@ export type { GenericCardProps } from "./card/generic-card";
 export { FormDialogBase, FormDialogBaseWithCustomActions } from "./modal/form-dialog-base";
 export { LoginModal } from "./modal/login-modal";
 export { RegisterModal } from "./modal/register-modal";
-export { ChangePasswordModal } from "./modal/change-password-modal";
+export { default as ChangePasswordModal } from "./modal/change-password-modal";
 export { DeleteConfirmationModal } from "./modal/delete-confirmation-modal";
 export type { FormDialogBaseProps } from "./modal/form-dialog-base";
 

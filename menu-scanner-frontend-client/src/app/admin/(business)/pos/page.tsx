@@ -753,7 +753,6 @@ export default function PosPage() {
         totalQuantity: cartSummary.totalQuantity,
         subtotal: cartSummary.subtotal,
         customizationTotal: cartSummary.customizationTotal,
-        totalDiscount: cartSummary.discountAmount,
         finalTotal: cartSummary.finalTotal,
       },
 

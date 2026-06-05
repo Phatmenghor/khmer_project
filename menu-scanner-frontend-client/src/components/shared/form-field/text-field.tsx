@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { TextFormFieldProps } from "./form-field-types";
 
-export function TextField<T extends FieldValues = any>({
+export function TextField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,

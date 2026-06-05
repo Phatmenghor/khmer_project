@@ -134,6 +134,7 @@ export default function PaymentOptionsPage() {
           payload: {
             name: paymentOption.name,
             paymentOptionType: paymentOption.paymentOptionType,
+            imageUrl: paymentOption.imageUrl ?? "",
             status: newStatus,
           },
         }),

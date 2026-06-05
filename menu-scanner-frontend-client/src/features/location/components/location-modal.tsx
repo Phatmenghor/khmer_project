@@ -89,8 +89,8 @@ export function loadGoogleMapsScript(): Promise<void> {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) { reject(new Error("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not configured")); return; }
     const callbackName = "__googleMapsReady";
-    (window as Record<string, unknown>)[callbackName] = () => {
-      delete (window as Record<string, unknown>)[callbackName];
+    (window as unknown as Record<string, unknown>)[callbackName] = () => {
+      delete (window as unknown as Record<string, unknown>)[callbackName];
       resolve();
     };
     const script = document.createElement("script");
@@ -377,7 +377,12 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     if (ref.current) ref.current.remove();
     container.innerHTML = "";
 
-    const ac = new google.maps.places.PlaceAutocompleteElement({ types: ["geocode", "establishment"] });
+    // @types/google.maps doesn't yet model PlaceAutocompleteElement's
+    // `types` option or the `gmp-placeselect` event payload. We narrow
+    // through unknown rather than reach for any.
+    const ac = new google.maps.places.PlaceAutocompleteElement(
+      { types: ["geocode", "establishment"] } as unknown as google.maps.places.PlaceAutocompleteElementOptions
+    );
     container.appendChild(ac as unknown as Node);
 
     mapInstance.addListener("bounds_changed", () => {
@@ -386,7 +391,11 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
     });
 
     ac.addEventListener("gmp-placeselect", async (event: Event) => {
-      const place = (event as google.maps.places.PlaceAutocompletePlaceSelectEvent).place;
+      // @types/google.maps lags the new Place class — narrow shape locally.
+      type PlaceWithGeometry = google.maps.places.Place & {
+        geometry?: { location?: google.maps.LatLng };
+      };
+      const place = (event as unknown as { place?: PlaceWithGeometry }).place;
       if (!place) return;
       await place.fetchFields({ fields: ["geometry"] });
       const location = place.geometry?.location;

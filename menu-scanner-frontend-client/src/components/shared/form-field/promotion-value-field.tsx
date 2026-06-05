@@ -8,7 +8,7 @@ import {
 import { PromoValueFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
 
-export function PromotionValueField<T extends FieldValues = any>({
+export function PromotionValueField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,

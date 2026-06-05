@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { TextareaFormFieldProps } from "./form-field-types";
 
-export function TextareaField<T extends FieldValues = any>({
+export function TextareaField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,

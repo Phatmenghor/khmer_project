@@ -561,7 +561,7 @@ export default function UserBusinessModal({
                         disabled={isSubmitting || roleOptions.length === 0}
                         error={getArrayFieldError(errors.roles)}
                         onValueChange={(value) => {
-                          setValue("roles", [value], {
+                          setValue("roles", [String(value)], {
                             shouldDirty: true,
                             shouldValidate: true,
                           });
@@ -602,7 +602,7 @@ export default function UserBusinessModal({
                           disabled={isSubmitting || roleOptions.length === 0}
                           error={getArrayFieldError(errors.roles)}
                           onValueChange={(value) => {
-                            setValue("roles", [value], {
+                            setValue("roles", [String(value)], {
                               shouldDirty: true,
                               shouldValidate: true,
                             });

@@ -10,7 +10,7 @@ import { DatePickerFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
 import { CustomDateTimePicker } from "../common/custom-date-picker";
 
-export function DateTimePickerField<T extends FieldValues = any>({
+export function DateTimePickerField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,

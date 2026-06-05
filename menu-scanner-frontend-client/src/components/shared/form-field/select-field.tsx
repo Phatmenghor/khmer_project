@@ -13,12 +13,12 @@ import {
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface SelectFieldProps<T extends FieldValues = any> extends SelectFormFieldProps<T> {
+interface SelectFieldProps<T extends FieldValues = FieldValues> extends SelectFormFieldProps<T> {
   loading?: boolean;
   loadingPlaceholder?: string;
 }
 
-export function SelectField<T extends FieldValues = any>({
+export function SelectField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,

@@ -9,6 +9,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, Copy, Check, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { showToast } from "@/components/shared/common/show-toast";
+import { axiosClientWithAuth } from "@/utils/axios";
+
+interface TelegramStatus {
+  isLinked: boolean;
+  chatId?: string;
+}
 
 interface TelegramBusinessLinkCardProps {
   businessId?: string;
@@ -24,10 +30,9 @@ export function TelegramBusinessLinkCard({
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [telegramStatus, setTelegramStatus] = useState<{
-    isLinked: boolean;
-    chatId?: string;
-  } | null>(null);
+  const [telegramStatus, setTelegramStatus] = useState<TelegramStatus | null>(
+    null
+  );
 
   const isLinked = currentChatId && currentChatId.trim() !== "";
 
@@ -41,20 +46,12 @@ export function TelegramBusinessLinkCard({
     if (!businessId) return;
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `/api/v1/telegram/status/${businessId}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
+      const response = await axiosClientWithAuth.get<{ data: TelegramStatus }>(
+        `/api/v1/telegram/status/${businessId}`
       );
-
-      if (response.ok) {
-        const data = await response.json();
-        setTelegramStatus(data.data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch Telegram status:", error);
+      setTelegramStatus(response.data.data);
+    } catch {
+      // Status fetch is best-effort; the UI degrades to "not linked".
     } finally {
       setIsLoading(false);
     }
@@ -70,19 +67,8 @@ export function TelegramBusinessLinkCard({
 
     try {
       setIsTesting(true);
-      const response = await fetch(
-        `/api/v1/telegram/test/${businessId}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      if (response.ok) {
-        showToast.success("Test message sent to Telegram group!");
-      } else {
-        showToast.error("Failed to send test message");
-      }
+      await axiosClientWithAuth.post(`/api/v1/telegram/test/${businessId}`);
+      showToast.success("Test message sent to Telegram group!");
     } catch (error) {
       showToast.error(
         `Error: ${error instanceof Error ? error.message : "Unknown error"}`

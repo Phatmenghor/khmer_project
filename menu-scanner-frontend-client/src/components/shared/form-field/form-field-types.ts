@@ -1,11 +1,12 @@
-import { Control, FieldError, FieldValues } from "react-hook-form";
+import { Control, FieldError, FieldValues, Path } from "react-hook-form";
 
 /**
- * Base props for all form field components
- * Using Control<any> is necessary until we know the exact form shape at component level
+ * Base props for all form field components.
+ * `name` is typed as Path<T> so react-hook-form's Controller accepts it
+ * without widening to string.
  */
-export interface BaseFormFieldProps<T extends FieldValues = any> {
-  name: string;
+export interface BaseFormFieldProps<T extends FieldValues = FieldValues> {
+  name: Path<T>;
   label: string;
   control: Control<T>;
   error?: FieldError;
@@ -18,7 +19,7 @@ export interface BaseFormFieldProps<T extends FieldValues = any> {
 /**
  * Extended props for text-based form fields
  */
-export interface TextFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
+export interface TextFormFieldProps<T extends FieldValues = FieldValues> extends BaseFormFieldProps<T> {
   type?:
     | "text"
     | "email"
@@ -26,7 +27,8 @@ export interface TextFormFieldProps<T extends FieldValues = any> extends BaseFor
     | "password"
     | "number"
     | "url"
-    | "datetime-local";
+    | "datetime-local"
+    | "color";
   valueAsNumber?: boolean;
   min?: number;
   max?: number;
@@ -39,14 +41,14 @@ export interface TextFormFieldProps<T extends FieldValues = any> extends BaseFor
 /**
  * Extended props for textarea form fields
  */
-export interface TextareaFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
+export interface TextareaFormFieldProps<T extends FieldValues = FieldValues> extends BaseFormFieldProps<T> {
   rows?: number;
 }
 
 /**
  * Extended props for select/combobox form fields
  */
-export interface SelectFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
+export interface SelectFormFieldProps<T extends FieldValues = FieldValues> extends BaseFormFieldProps<T> {
   options: Array<{ label: string; value: string | number }>;
   multiple?: boolean;
   searchable?: boolean;
@@ -56,7 +58,7 @@ export interface SelectFormFieldProps<T extends FieldValues = any> extends BaseF
 /**
  * Extended props for time picker form fields
  */
-export interface TimePickerFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
+export interface TimePickerFormFieldProps<T extends FieldValues = FieldValues> extends BaseFormFieldProps<T> {
   value?: string;
   onChange?: (value: string) => void;
 }
@@ -64,7 +66,7 @@ export interface TimePickerFormFieldProps<T extends FieldValues = any> extends B
 /**
  * Extended props for date picker form fields
  */
-export interface DatePickerFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
+export interface DatePickerFormFieldProps<T extends FieldValues = FieldValues> extends BaseFormFieldProps<T> {
   mode?: "date" | "datetime";
   minDate?: Date;
   maxDate?: Date;
@@ -73,7 +75,7 @@ export interface DatePickerFormFieldProps<T extends FieldValues = any> extends B
 /**
  * Extended props for password form fields
  */
-export interface PasswordFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
+export interface PasswordFormFieldProps<T extends FieldValues = FieldValues> extends BaseFormFieldProps<T> {
   showPassword?: boolean;
   onTogglePassword?: () => void;
 }
@@ -81,14 +83,14 @@ export interface PasswordFormFieldProps<T extends FieldValues = any> extends Bas
 /**
  * Extended props for promotion value form fields
  */
-export interface PromoValueFormFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
+export interface PromoValueFormFieldProps<T extends FieldValues = FieldValues> extends BaseFormFieldProps<T> {
   promotionType?: "FIXED_AMOUNT" | "PERCENTAGE";
 }
 
 /**
  * Extended props for multi-select days form fields
  */
-export interface MultiSelectDaysFieldProps<T extends FieldValues = any> extends BaseFormFieldProps<T> {
+export interface MultiSelectDaysFieldProps<T extends FieldValues = FieldValues> extends BaseFormFieldProps<T> {
   defaultDays?: string[];
 }
 

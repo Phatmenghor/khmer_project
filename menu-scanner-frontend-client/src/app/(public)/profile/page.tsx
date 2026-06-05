@@ -56,8 +56,6 @@ const customerProfileSchema = z.object({
 
 type CustomerProfileFormData = z.infer<typeof customerProfileSchema>;
 
-type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
-
 export default function PublicProfilePage() {
   const dispatch = useAppDispatch();
   const router = useRouter();

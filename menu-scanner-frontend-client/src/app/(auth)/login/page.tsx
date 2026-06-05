@@ -67,9 +67,6 @@ export default function LoginPage() {
     } catch (err: any) {
       let errorMessage: string = Messages.auth.loginFailed;
 
-      // Debug: Log error structure
-      console.log('Login error:', err, typeof err);
-
       // Handle different error formats from Redux thunk
       if (typeof err === 'string') {
         errorMessage = err;
@@ -83,7 +80,6 @@ export default function LoginPage() {
         }
       }
 
-      console.log('Final error message:', errorMessage);
       showToast.error(errorMessage);
     }
   }

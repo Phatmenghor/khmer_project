@@ -1,6 +1,6 @@
 "use client";
 
-import { Receipt, ReceiptProps } from "@/components/shared/receipt/receipt";
+import { Receipt as SharedReceipt, ReceiptProps } from "@/components/shared/receipt/receipt";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 
 interface PosReceiptProps {
@@ -59,5 +59,5 @@ export function Receipt({
     paymentMethod,
   };
 
-  return <Receipt {...props} />;
+  return <SharedReceipt {...props} />;
 }

@@ -65,7 +65,7 @@ export interface PricingInfo {
   taxAmount: number;
 
   discountAmount: number;
-  discountType?: "fixed" | "percentage" | null;
+  discountType?: "FIXED_AMOUNT" | "PERCENTAGE" | null;
   discountReason?: string | null;
 
   finalTotal: number;

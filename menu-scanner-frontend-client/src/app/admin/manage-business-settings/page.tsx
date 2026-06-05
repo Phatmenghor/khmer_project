@@ -62,8 +62,8 @@ function convertResponseToFormData(
     contactEmail: response.contactEmail || "",
     businessHours: (response.businessHours || []).map((hour) => ({
       day: hour.day || "",
-      openingTime: hour.openTime || "",
-      closingTime: hour.closeTime || "",
+      openingTime: hour.openingTime || "",
+      closingTime: hour.closingTime || "",
     })),
     useBrands: response.useBrands ?? false,
     lowStockThreshold:
@@ -203,18 +203,27 @@ export default function BusinessSettingsPage() {
         }),
       );
 
-      // Filter out empty business hours entries
-      const filteredBusinessHours = (data.businessHours || []).filter(
-        (bh) => bh.day && bh.openingTime && bh.closingTime,
-      );
+      // Filter out empty business hours entries and reshape to the
+      // backend-required shape (required string fields, not optional).
+      const filteredBusinessHours = (data.businessHours || [])
+        .filter((bh) => bh.day && bh.openingTime && bh.closingTime)
+        .map((bh) => ({
+          day: bh.day as string,
+          openingTime: bh.openingTime as string,
+          closingTime: bh.closingTime as string,
+        }));
 
-      // Filter out empty social media entries
-      const filteredSocialMedia = uploadedSocialMedia.filter(
-        (sm) => sm.name && sm.linkUrl,
-      );
+      // Filter out empty social media entries and reshape similarly.
+      const filteredSocialMedia: SocialMedia[] = uploadedSocialMedia
+        .filter((sm) => Boolean(sm.name) && Boolean(sm.linkUrl))
+        .map((sm) => ({
+          name: sm.name as string,
+          linkUrl: sm.linkUrl as string,
+          imageUrl: sm.imageUrl,
+        }));
 
       const payload = {
-        businessName: data.businessName || null,
+        businessName: data.businessName || undefined,
         taxPercentage: data.taxPercentage
           ? parseFloat(data.taxPercentage)
           : null,
@@ -222,9 +231,9 @@ export default function BusinessSettingsPage() {
         enableStock: data.enableStock,
         socialMedia: filteredSocialMedia,
         primaryColor: data.primaryColor,
-        contactAddress: data.contactAddress || null,
-        contactPhone: data.contactPhone || null,
-        contactEmail: data.contactEmail || null,
+        contactAddress: data.contactAddress || undefined,
+        contactPhone: data.contactPhone || undefined,
+        contactEmail: data.contactEmail || undefined,
         businessHours: filteredBusinessHours,
         useBrands: data.useBrands,
         lowStockThreshold:
@@ -769,11 +778,11 @@ export default function BusinessSettingsPage() {
             <div>
               <h3 className="text-xs font-semibold">Social Media Accounts</h3>
               <p className="text-xs text-muted-foreground">
-                {form.watch("socialMedia")?.length > 0
-                  ? `${form.watch("socialMedia").length} account${
-                      form.watch("socialMedia").length > 1 ? "s" : ""
-                    } added`
-                  : "No social media accounts added"}
+                {(() => {
+                  const list = form.watch("socialMedia") ?? [];
+                  if (list.length === 0) return "No social media accounts added";
+                  return `${list.length} account${list.length > 1 ? "s" : ""} added`;
+                })()}
               </p>
             </div>
             <Button

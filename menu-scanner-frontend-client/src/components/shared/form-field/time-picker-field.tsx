@@ -5,7 +5,7 @@ import type { TimePickerFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
 
-export function TimePickerField<T extends FieldValues = any>({
+export function TimePickerField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,

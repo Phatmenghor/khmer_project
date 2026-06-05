@@ -6,6 +6,7 @@ import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
 export interface SocialMedia {
   name: string;
   linkUrl: string;
+  imageUrl?: string;
 }
 
 export interface BusinessHours {

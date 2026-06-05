@@ -9,9 +9,12 @@ import {
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { clearBusinessSettings } from "../slice/business-settings-slice";
 
-export const fetchBusinessSettingsThunk = createAsyncThunk(
+export const fetchBusinessSettingsThunk = createAsyncThunk<
+  BusinessSettingsResponse,
+  string | undefined
+>(
   "businessSettings/fetch",
-  async (businessIdParam?: string, { rejectWithValue }) => {
+  async (businessIdParam, { rejectWithValue }) => {
     try {
       const businessId = businessIdParam || AppDefault.BUSINESS_ID;
       const settings = await fetchBusinessSettingsByBusinessId(businessId);

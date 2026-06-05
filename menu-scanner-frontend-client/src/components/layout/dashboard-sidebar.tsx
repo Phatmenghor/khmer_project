@@ -6,18 +6,7 @@ import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
-
-
-declare global {
-  interface Window {
-    __cachedBusinessData?: {
-      businessName?: string;
-      logoBusinessUrl?: string;
-      primaryColor?: string;
-      taxPercentage?: number;
-    };
-  }
-}
+import { readBusinessCache } from "@/lib/business-cache";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ROUTES, SIDEBAR_MENU } from "@/constants/app-routes/routes";
 import Image from "next/image";
@@ -55,9 +44,10 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.__cachedBusinessData) {
-      setCachedBusinessName(window.__cachedBusinessData.businessName);
-      setCachedLogoUrl(window.__cachedBusinessData.logoBusinessUrl);
+    const cache = readBusinessCache();
+    if (cache) {
+      setCachedBusinessName(cache.businessName);
+      setCachedLogoUrl(cache.logoBusinessUrl);
     }
   }, []);
 

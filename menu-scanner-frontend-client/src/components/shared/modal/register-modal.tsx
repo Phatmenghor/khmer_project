@@ -104,7 +104,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             loginService({
               userIdentifier: values.userIdentifier,
               password: values.password,
-              businessId: null,
+              businessId: undefined,
               userType: "CUSTOMER",
             }),
           ).unwrap();

@@ -454,7 +454,9 @@ export function SizePickerModal({
 
   const displayPrice = selectedSize?.finalPrice || product?.displayPrice || 0;
 
-  const selectedSizeCustoms = selectedSize ? (customizationsBySize.get(selectedSize.id) ?? new Set()) : new Set();
+  const selectedSizeCustoms: Set<string> = selectedSize
+    ? (customizationsBySize.get(selectedSize.id) ?? new Set<string>())
+    : new Set<string>();
   const customizationTotal = Array.from(selectedSizeCustoms).reduce((sum: number, customId) => {
     const custom = product?.customizations?.find((c) => c.id === customId);
     return sum + (custom?.priceAdjustment || 0);
