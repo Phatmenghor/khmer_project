@@ -155,9 +155,6 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // only on mount
 
-  const isCategoryLoading        = !mounted || !categoriesSection.loaded;
-  const isPromotionLoading       = !mounted || !promotionProductsSection.loaded;
-  const isInitialFeaturedLoading = !mounted || !featuredProductsSection.loaded;
 
   // ── sequential waterfall fetch ───────────────────────────────────────────
   // Fetch banner → categories → promotions → featured one at a time so each
@@ -250,43 +247,52 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      <div className="relative py-4 sm:py-7 bg-muted/5">
-        <PageContainer>
-          <CategoriesSection
-            categories={categories}
-            loading={isCategoryLoading}
-            error={categoriesSection.error}
-            title="Shop by Category"
-          />
-        </PageContainer>
-      </div>
+      {/* Categories — appears only after banner resolves, shows skeleton while fetching */}
+      {bannersSection.loaded && (
+        <div className="relative py-4 sm:py-7 bg-muted/5">
+          <PageContainer>
+            <CategoriesSection
+              categories={categories}
+              loading={!categoriesSection.loaded}
+              error={categoriesSection.error}
+              title="Shop by Category"
+            />
+          </PageContainer>
+        </div>
+      )}
 
-      <div className="relative py-4 sm:py-7 bg-amber-50/30 dark:bg-amber-950/10">
-        <PageContainer>
-          <PromotionsSection
-            products={promotionProducts}
-            loading={isPromotionLoading}
-            error={promotionProductsSection.error}
-            title="Hot Deals & Promotions"
-          />
-        </PageContainer>
-      </div>
+      {/* Promotions — appears only after categories resolve */}
+      {categoriesSection.loaded && (
+        <div className="relative py-4 sm:py-7 bg-amber-50/30 dark:bg-amber-950/10">
+          <PageContainer>
+            <PromotionsSection
+              products={promotionProducts}
+              loading={!promotionProductsSection.loaded}
+              error={promotionProductsSection.error}
+              title="Hot Deals & Promotions"
+            />
+          </PageContainer>
+        </div>
+      )}
 
-      <div className="relative py-4 sm:py-7">
-        <PageContainer>
-          <ProductsSection
-            products={featuredProducts}
-            loading={featuredProductsSection.loading}
-            error={featuredProductsSection.error}
-            title="Featured Products"
-            subtitle="Handpicked products just for you"
-            hasMore={featuredPagination.hasMore}
-            onLoadMore={handleLoadMoreFeatured}
-            isInitialLoading={isInitialFeaturedLoading}
-            imageLoading="eager"
-          />
-        </PageContainer>
-      </div>
+      {/* Featured products — appears only after promotions resolve */}
+      {promotionProductsSection.loaded && (
+        <div className="relative py-4 sm:py-7">
+          <PageContainer>
+            <ProductsSection
+              products={featuredProducts}
+              loading={featuredProductsSection.loading}
+              error={featuredProductsSection.error}
+              title="Featured Products"
+              subtitle="Handpicked products just for you"
+              hasMore={featuredPagination.hasMore}
+              onLoadMore={handleLoadMoreFeatured}
+              isInitialLoading={!featuredProductsSection.loaded}
+              imageLoading="eager"
+            />
+          </PageContainer>
+        </div>
+      )}
     </div>
   );
 }
