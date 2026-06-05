@@ -9,7 +9,7 @@ import { CategoryCardSkeleton } from "@/components/shared/skeletons/category-car
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { useSkeletonCount, SkeletonPresets } from "@/hooks/use-skeleton-count";
-import { EmptyState } from "@/components/shared/empty-state";
+import { PageState } from "@/components/shared/page-state";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 
@@ -82,10 +82,10 @@ export default function CategoriesPage() {
 
         {}
         {!isInitialLoading && categories.length === 0 && (
-          <EmptyState
-            icon={LayoutGrid}
+          <PageState
+            type="empty"
             title="No categories found"
-            description="There are no categories available at this time"
+            description="There are no categories available at this time."
             size="lg"
           />
         )}

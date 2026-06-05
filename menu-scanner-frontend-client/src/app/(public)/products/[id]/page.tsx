@@ -30,6 +30,7 @@ import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-produc
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { showToast } from "@/components/shared/common/show-toast";
 import { Button } from "@/components/ui/button";
+import { PageState } from "@/components/shared/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -596,9 +597,17 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <PageContainer className="min-h-screen flex flex-col py-11 text-center">
-        <h2 className="text-xs font-bold mb-3">Product Not Found</h2>
-        <Button onClick={() => router.back()}>Go Back</Button>
+      <PageContainer className="min-h-screen flex flex-col py-11">
+        <PageState
+          type="not-found"
+          title="Product Not Found"
+          description="The product you're looking for doesn't exist or is no longer available."
+          actionLabel="Go Back"
+          onAction={() => router.back()}
+          secondaryActionLabel="Browse Products"
+          secondaryActionHref="/products"
+          size="lg"
+        />
       </PageContainer>
     );
   }

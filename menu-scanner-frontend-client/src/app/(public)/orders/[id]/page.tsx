@@ -18,6 +18,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { cn } from "@/lib/utils";
+import { PageState } from "@/components/shared/page-state";
 
 const STATUS_COLORS: Record<
   string,
@@ -193,36 +194,16 @@ export default function OrderDetailPage() {
   if (state.error || !state.order) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-4 sm:py-5">
-        <div className="mb-4">
-          <CustomButton
-            variant="ghost"
-            className="gap-1 h-7 px-3 rounded"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-3 w-3" />
-            Back
-          </CustomButton>
-        </div>
-
-        <div className="rounded border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-5">
-          <div className="flex items-start gap-3 max-w-md mx-auto text-center">
-            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mx-auto" />
-            <div>
-              <h2 className="text-xs font-bold text-red-900 dark:text-red-200">
-                Order Not Found
-              </h2>
-              <p className="text-red-800 dark:text-red-300 text-xs mt-1">
-                {state.error || "The order you're looking for doesn't exist."}
-              </p>
-              <CustomButton
-                onClick={() => router.push("/orders")}
-                className="mt-4 w-full h-8 rounded"
-              >
-                Back to Orders
-              </CustomButton>
-            </div>
-          </div>
-        </div>
+        <PageState
+          type={state.error ? "error" : "not-found"}
+          title={state.error ? "Error Loading Order" : "Order Not Found"}
+          description={state.error || "The order you're looking for doesn't exist."}
+          actionLabel="Back to Orders"
+          onAction={() => router.push("/orders")}
+          secondaryActionLabel="Go Back"
+          onSecondaryAction={() => router.back()}
+          size="md"
+        />
       </PageContainer>
     );
   }

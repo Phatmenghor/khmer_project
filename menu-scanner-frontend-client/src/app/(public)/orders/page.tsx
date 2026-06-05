@@ -4,7 +4,6 @@ import { Messages } from "@/constants/messages";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
-  AlertCircle,
   Search,
   Eye,
   X,
@@ -40,6 +39,7 @@ import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
+import { PageState } from "@/components/shared/page-state";
 
 type Order = OrderResponse;
 
@@ -299,35 +299,41 @@ export default function OrdersPage() {
       </div>
 
       {error.list ? (
-        <div className="rounded border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-4">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-red-900 dark:text-red-200">Error Loading Orders</h3>
-              <p className="text-red-800 dark:text-red-300 text-xs mt-1">{error.list}</p>
-            </div>
-          </div>
-        </div>
+        <PageState
+          type="error"
+          title="Error Loading Orders"
+          description={error.list}
+          actionLabel="Try again"
+          onAction={() =>
+            dispatch(
+              fetchMyOrdersService({
+                pageNo: currentPage,
+                pageSize: 15,
+                orderStatus: filters.status || undefined,
+                paymentStatus:
+                  filters.paymentStatus && filters.paymentStatus !== "ALL"
+                    ? filters.paymentStatus
+                    : undefined,
+                search: debouncedSearch || undefined,
+                businessId: profile?.businessId || AppDefault.BUSINESS_ID,
+              })
+            )
+          }
+          size="md"
+        />
       ) : orders.length === 0 && !loading.list ? (
-        <div className="rounded border border-dashed border-border bg-card p-8 text-center">
-          <div className="w-11 h-11 rounded bg-primary/10 flex items-center justify-center mx-auto mb-3">
-            <ShoppingBag className="h-5 w-5 text-primary" />
-          </div>
-          <h3 className="text-xs font-semibold text-foreground mb-1">
-            {filters.status ? "No Orders Found" : "No Orders Yet"}
-          </h3>
-          <p className="text-muted-foreground mb-4">
-            {filters.status
+        <PageState
+          type={filters.status || filters.paymentStatus ? "no-results" : "empty"}
+          title={filters.status ? "No Orders Found" : "No Orders Yet"}
+          description={
+            filters.status
               ? `No orders with ${filters.status.toLowerCase()} status. Try a different filter.`
-              : "You haven't placed any orders yet. Start shopping now!"}
-          </p>
-          <CustomButton
-            onClick={() => router.push("/menu")}
-            className="rounded h-8 px-4"
-          >
-            Browse Menu
-          </CustomButton>
-        </div>
+              : "You haven't placed any orders yet. Start shopping now!"
+          }
+          actionLabel="Browse Menu"
+          onAction={() => router.push("/menu")}
+          size="md"
+        />
       ) : (
         <DataTableWithPagination
           data={orders}

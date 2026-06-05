@@ -22,7 +22,7 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { PageContainer } from "@/components/shared/common/page-container";
-import { EmptyState } from "@/components/shared/empty-state/empty-state";
+import { PageState } from "@/components/shared/page-state";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 
 export default function FavoritesPage() {
@@ -194,14 +194,12 @@ export default function FavoritesPage() {
   if (items.length === 0) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
-        <EmptyState
-          icon={Heart}
+        <PageState
+          type="empty"
           title="No Favorites Yet"
           description="Save your favorite items to find them quickly later."
-          action={{
-            label: "Start Shopping",
-            onClick: () => router.push("/products"),
-          }}
+          actionLabel="Start Shopping"
+          onAction={() => router.push("/products")}
           size="lg"
         />
       </PageContainer>

@@ -9,7 +9,7 @@ import { BrandCardSkeleton } from "@/components/shared/skeletons/brand-card-skel
 import { useInfiniteScroll } from "@/components/shared/common/use-infinite-scroll";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { useSkeletonCount, SkeletonPresets } from "@/hooks/use-skeleton-count";
-import { EmptyState } from "@/components/shared/empty-state";
+import { PageState } from "@/components/shared/page-state";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 
@@ -84,10 +84,10 @@ export default function BrandsPage() {
 
         {}
         {!isInitialLoading && brands.length === 0 && (
-          <EmptyState
-            icon={Store}
+          <PageState
+            type="empty"
             title="No brands available"
-            description="There are no brands available at this time"
+            description="There are no brands available at this time."
             size="lg"
           />
         )}

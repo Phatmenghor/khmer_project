@@ -27,7 +27,7 @@ import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confir
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card";
-import { EmptyState } from "@/components/shared/empty-state/empty-state";
+import { PageState } from "@/components/shared/page-state";
 import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 
 function CartItemSkeleton() {
@@ -191,14 +191,12 @@ function CartPage() {
   if (items.length === 0 && loaded) {
     return (
       <PageContainer className="min-h-screen flex flex-col py-8 sm:py-14">
-        <EmptyState
-          icon={ShoppingCart}
+        <PageState
+          type="empty"
           title="Your Cart is Empty"
           description="Add some items to get started!"
-          action={{
-            label: "Browse Products",
-            onClick: () => router.push("/products"),
-          }}
+          actionLabel="Browse Products"
+          onAction={() => router.push("/products")}
           size="lg"
         />
       </PageContainer>
@@ -245,13 +243,12 @@ function CartPage() {
             )}
 
             {!isSearching && displayItems.length === 0 && searchQuery ? (
-              <div className="flex flex-col items-center justify-center py-11 text-center">
-                <ShoppingCart className="h-8 w-8 text-muted-foreground/30 mb-3" />
-                <p className="text-xs font-medium text-foreground mb-1">No items found</p>
-                <p className="text-xs text-muted-foreground">
-                  No cart items match &ldquo;{searchQuery}&rdquo;
-                </p>
-              </div>
+              <PageState
+                type="no-results"
+                title="No items found"
+                description={`No cart items match "${searchQuery}"`}
+                size="sm"
+              />
             ) : !isSearching ? (
               displayItems.map((item, index) => {
                 const uniqueKey = `cart-${item.id}-${index}`;

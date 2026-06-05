@@ -13,7 +13,7 @@ import { useLocationState } from "@/features/location/store/state/location-state
 import { LocationResponseModel } from "@/features/location/store/models/response/location-response";
 import LocationModal from "@/features/location/components/location-modal";
 import { LocationCard } from "@/features/location/components/location-card";
-import { LocationEmptyState } from "@/features/location/components/location-empty-state";
+import { PageState } from "@/components/shared/page-state";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -200,9 +200,17 @@ export default function LocationPage() {
   if (locations.length === 0) {
     return (
       <>
-        <LocationEmptyState onAdd={handleAddLocation} />
+        <div className="min-h-screen flex flex-col items-center justify-center">
+          <PageState
+            type="empty"
+            title="No Saved Locations"
+            description="Save your favourite delivery spots to make checkout faster."
+            actionLabel="Add Your First Location"
+            onAction={handleAddLocation}
+            size="lg"
+          />
+        </div>
 
-        {}
         <LocationModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
