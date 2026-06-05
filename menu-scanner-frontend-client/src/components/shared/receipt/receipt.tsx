@@ -70,7 +70,7 @@ export function Receipt({
   const dateStr = dt.toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" });
   const timeStr = dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
 
-  const s: React.CSSProperties = { fontFamily: FONT, fontSize: "10px", lineHeight: "1.5" };
+  const s: React.CSSProperties = { fontFamily: FONT, fontSize: "8px", lineHeight: "1.4" };
 
   return (
     <div style={{ ...s, width: "100%", maxWidth: "380px", margin: "0 auto", background: "#fff", padding: "16px 10px", color: "#111" }}>
@@ -78,14 +78,14 @@ export function Receipt({
 
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "8px" }}>
-        <div style={{ fontWeight: 700, fontSize: "13px", letterSpacing: "2px", marginBottom: "2px" }}>
+        <div style={{ fontWeight: 700, fontSize: "11px", letterSpacing: "2px", marginBottom: "2px" }}>
           {businessName.toUpperCase()}
         </div>
-        <div style={{ fontSize: "10px", color: "#555" }}>POS Receipt</div>
+        <div style={{ fontSize: "8px", color: "#555" }}>POS Receipt</div>
       </div>
 
       {/* Order info */}
-      <div style={{ borderTop: "2px solid #111", borderBottom: "1px dashed #999", padding: "6px 0", marginBottom: "8px", fontSize: "10px" }}>
+      <div style={{ borderTop: "2px solid #111", borderBottom: "1px dashed #999", padding: "4px 0", marginBottom: "6px", fontSize: "8px" }}>
         <InfoRow label="Order#" value={orderNumber} bold />
         <InfoRow label="Date" value={dateStr} />
         <InfoRow label="Time" value={timeStr} />
@@ -118,7 +118,7 @@ export function Receipt({
       </div>
 
       {/* Summary */}
-      <div style={{ borderTop: "1px dashed #999", fontSize: "10px", paddingTop: "6px" }}>
+      <div style={{ borderTop: "1px dashed #999", fontSize: "8px", paddingTop: "4px" }}>
         <SummaryRow label="Subtotal" value={formatCurrency(pricing.subtotal)} />
         {(pricing.customizationTotal ?? 0) > 0 && (
           <SummaryRow label="Add-ons" value={`+${formatCurrency(pricing.customizationTotal!)}`} />
@@ -136,13 +136,13 @@ export function Receipt({
       </div>
 
       {/* Total */}
-      <div style={{ borderTop: "2px solid #111", borderBottom: "2px solid #111", margin: "6px 0", padding: "6px 0", display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "12px" }}>
+      <div style={{ borderTop: "2px solid #111", borderBottom: "2px solid #111", margin: "4px 0", padding: "4px 0", display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "10px" }}>
         <span>TOTAL AMOUNT</span>
         <span>{formatCurrency(pricing.finalTotal)}</span>
       </div>
 
       {/* Footer */}
-      <div style={{ textAlign: "center", fontSize: "9px", color: "#555", paddingTop: "8px" }}>
+      <div style={{ textAlign: "center", fontSize: "7px", color: "#555", paddingTop: "6px" }}>
         <div>Thank you for your order!</div>
         <div>Please visit again</div>
         <div style={{ marginTop: "4px" }}>{dateStr} {timeStr}</div>
