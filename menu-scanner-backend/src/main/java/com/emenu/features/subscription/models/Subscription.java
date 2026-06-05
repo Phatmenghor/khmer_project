@@ -16,9 +16,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "subscriptions",
         indexes = {
-                @Index(name = "idx_subscriptions_business_id", columnList = "business_id"),
-                @Index(name = "idx_subscriptions_end_date",    columnList = "end_date"),
-                @Index(name = "idx_subscriptions_plan_id",     columnList = "plan_id")
+                @Index(name = "idx_subscriptions_biz_end_date", columnList = "business_id,end_date"),
+                @Index(name = "idx_subscriptions_end_date",     columnList = "end_date"),
+                @Index(name = "idx_subscriptions_plan_id",      columnList = "plan_id")
         }
 )
 @Data

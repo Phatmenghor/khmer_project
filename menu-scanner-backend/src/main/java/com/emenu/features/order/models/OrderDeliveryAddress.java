@@ -15,7 +15,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_delivery_addresses")
+@Table(name = "order_delivery_addresses",
+        indexes = {
+                @Index(name = "idx_order_delivery_addresses_order_id", columnList = "order_id")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true, exclude = {"order", "location"})
 @NoArgsConstructor

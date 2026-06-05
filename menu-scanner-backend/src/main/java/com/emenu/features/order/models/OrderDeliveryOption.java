@@ -11,7 +11,11 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "order_delivery_options")
+@Table(name = "order_delivery_options",
+        indexes = {
+                @Index(name = "idx_order_delivery_options_order_id", columnList = "order_id")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true, exclude = "order")
 @NoArgsConstructor

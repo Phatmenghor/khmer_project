@@ -16,7 +16,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Entity
-@Table(name = "product_sizes")
+@Table(name = "product_sizes",
+        indexes = {
+                @Index(name = "idx_product_sizes_product_id", columnList = "product_id")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
