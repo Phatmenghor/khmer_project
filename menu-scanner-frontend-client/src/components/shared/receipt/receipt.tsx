@@ -98,7 +98,7 @@ export function Receipt({
       </div>
 
       {/* Column headers */}
-      <table style={{ width: "100%", borderCollapse: "collapse", fontWeight: 700, fontSize: "9px", borderBottom: "1px solid #111", paddingBottom: "3px", marginBottom: "3px" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontWeight: 700, fontSize: "8px", borderBottom: "1px solid #111", paddingBottom: "3px", marginBottom: "3px" }}>
         <tbody>
           <tr>
             <td style={{ padding: "0", paddingBottom: "3px" }}>ITEM</td>
@@ -162,7 +162,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
 
   return (
     <div style={{ marginBottom: "2px" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8px" }}>
         <tbody>
           <tr style={{ verticalAlign: "top" }}>
             <td style={{ wordBreak: "break-word", width: "100%", padding: "0", paddingRight: "4px", fontWeight: 500 }}>
@@ -176,10 +176,10 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
         </tbody>
       </table>
       {item.sizeName && (
-        <div style={{ fontSize: "8px", color: "#777", paddingLeft: "4px" }}>Size: {item.sizeName}</div>
+        <div style={{ fontSize: "7px", color: "#777", paddingLeft: "4px" }}>Size: {item.sizeName}</div>
       )}
       {item.customizations?.map((c) => (
-        <div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "8px", color: "#777", paddingLeft: "4px" }}>
+        <div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "7px", color: "#777", paddingLeft: "4px" }}>
           <span>+ {c.name}</span>
           {(c.priceAdjustment ?? 0) > 0 && <span>+{formatCurrency(c.priceAdjustment)}</span>}
         </div>
