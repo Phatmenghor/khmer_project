@@ -181,19 +181,10 @@ export function PageState({
   const PrimaryIcon = DEFAULT_ACTION_ICONS[type];
 
   const isLoading = type === "loading";
+  const isEmpty = type === "empty";
 
-  return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center text-center",
-        "animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
-        s.container,
-        className
-      )}
-      role={isLoading ? "status" : "region"}
-      aria-label={resolvedTitle}
-      aria-live={isLoading ? "polite" : undefined}
-    >
+  const inner = (
+    <>
       {/* Illustration or icon */}
       {illustration ?? (
         <div
@@ -276,6 +267,41 @@ export function PageState({
           )}
         </div>
       )}
+    </>
+  );
+
+  if (isEmpty) {
+    return (
+      <div
+        className={cn(
+          "w-full rounded-lg border border-dashed border-border bg-card",
+          "flex flex-col items-center justify-center text-center",
+          "animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+          "px-6",
+          s.container,
+          className
+        )}
+        role="region"
+        aria-label={resolvedTitle}
+      >
+        {inner}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center text-center",
+        "animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+        s.container,
+        className
+      )}
+      role={isLoading ? "status" : "region"}
+      aria-label={resolvedTitle}
+      aria-live={isLoading ? "polite" : undefined}
+    >
+      {inner}
     </div>
   );
 }
