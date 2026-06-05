@@ -21,6 +21,7 @@ import { CategoriesSection } from "@/features/main/components/home/categories-se
 import { PromotionsSection } from "@/features/main/components/home/promotions-section";
 import { ProductsSection } from "@/features/main/components/home/products-section";
 import { PageContainer } from "@/components/shared/common/page-container";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { saveHomeSnapshot, loadHomeSnapshot } from "@/utils/common/home-cache";
 
@@ -154,9 +155,8 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // only on mount
 
-  const isBannerLoading         = !mounted || !bannersSection.loaded;
-  const isCategoryLoading       = !mounted || !categoriesSection.loaded;
-  const isPromotionLoading      = !mounted || !promotionProductsSection.loaded;
+  const isCategoryLoading        = !mounted || !categoriesSection.loaded;
+  const isPromotionLoading       = !mounted || !promotionProductsSection.loaded;
   const isInitialFeaturedLoading = !mounted || !featuredProductsSection.loaded;
 
   // ── sequential waterfall fetch ───────────────────────────────────────────
@@ -233,11 +233,20 @@ export default function HomePage() {
           → promotions → featured) so data fills in top-to-bottom. */}
       <div className="relative">
         <PageContainer className="pt-2 sm:pt-4">
-          <BannerSection
-            banners={banners}
-            loading={isBannerLoading}
-            error={bannersSection.error}
-          />
+          {/* BannerSection uses embla Autoplay which touches `window` on init.
+              Render a plain skeleton before mount to avoid SSR blank, then
+              hand off to BannerSection once the client is ready. */}
+          {!mounted ? (
+            <div className="w-full mb-3 sm:mb-5">
+              <Skeleton className="w-full h-[180px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded" />
+            </div>
+          ) : (
+            <BannerSection
+              banners={banners}
+              loading={!bannersSection.loaded}
+              error={bannersSection.error}
+            />
+          )}
         </PageContainer>
       </div>
 
