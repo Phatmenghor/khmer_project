@@ -91,7 +91,7 @@ public interface CartMapper {
     @Mapping(target = "subtotalBeforeDiscount", expression = "java(calculateSubtotalBeforeDiscount(cart))")
     @Mapping(target = "subtotal", expression = "java(cart.getSubtotal())")
     @Mapping(target = "totalDiscount", expression = "java(cart.getTotalDiscount())")
-    @Mapping(target = "finalTotal", expression = "java(cart.getSubtotal())")
+    @Mapping(target = "finalTotal", expression = "java(cart.getSubtotal().subtract(cart.getTotalDiscount()))")
     @Mapping(target = "unavailableItems", expression = "java(cart.getUnavailableItemsCount())")
     CartResponse toResponse(Cart cart);
 
@@ -107,7 +107,7 @@ public interface CartMapper {
     @Mapping(target = "subtotalBeforeDiscount", expression = "java(calculateSubtotalBeforeDiscount(cart))")
     @Mapping(target = "subtotal", expression = "java(cart.getSubtotal())")
     @Mapping(target = "totalDiscount", expression = "java(cart.getTotalDiscount())")
-    @Mapping(target = "finalTotal", expression = "java(cart.getSubtotal())")
+    @Mapping(target = "finalTotal", expression = "java(cart.getSubtotal().subtract(cart.getTotalDiscount()))")
     CartSummaryResponse toSummaryResponse(Cart cart);
 
     @AfterMapping

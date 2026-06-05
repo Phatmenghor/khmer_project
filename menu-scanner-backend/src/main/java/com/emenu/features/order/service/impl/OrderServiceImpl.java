@@ -601,16 +601,15 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(totalAmount);
 
         // Store order-level pricing audit trail if provided
+        // Note: finalTotal is intentionally NOT overridden from pricingInfo — it is always
+        // recalculated server-side as subtotal - discount + delivery + tax to prevent
+        // client-sent wrong values from being persisted.
         if (pricingInfo != null) {
-            // Extract pricing fields from simplified structure
-            if (pricingInfo.getSubtotal() != null) {
-                order.setSubtotal(pricingInfo.getSubtotal());
-            }
             if (pricingInfo.getDeliveryFee() != null) {
                 order.setDeliveryFee(pricingInfo.getDeliveryFee());
-            }
-            if (pricingInfo.getFinalTotal() != null) {
-                order.setTotalAmount(pricingInfo.getFinalTotal());
+                // Recalculate totalAmount if delivery fee was overridden
+                order.setTotalAmount(order.getSubtotal().subtract(discountAmount)
+                        .add(pricingInfo.getDeliveryFee()).add(taxAmount));
             }
         }
 
