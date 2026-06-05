@@ -310,19 +310,19 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
             paddingRight: "4px",
             fontWeight: 500,
             border: "none",
-            fontSize: "10px",
+            fontSize: "11px",
           }}
         >
           {`${index + 1}.${item.name} (${item.sizeName})`}
         </td>
         <td
           style={{
-            textAlign: "right",
+            textAlign: "left",
             whiteSpace: "nowrap",
             padding: "2px 0",
             paddingLeft: "4px",
             border: "none",
-            fontSize: "10px",
+            fontSize: "11px",
           }}
         >
           {item.quantity}
@@ -334,7 +334,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
             padding: "2px 0",
             paddingLeft: "4px",
             border: "none",
-            fontSize: "10px",
+            fontSize: "11px",
           }}
         >
           {formatAmount(item.finalPrice)}
@@ -346,7 +346,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
             padding: "2px 0",
             paddingLeft: "4px",
             border: "none",
-            fontSize: "10px",
+            fontSize: "11px",
           }}
         >
           {discLabel}
@@ -359,7 +359,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
             paddingLeft: "4px",
             fontWeight: 600,
             border: "none",
-            fontSize: "10px",
+            fontSize: "11px",
           }}
         >
           {formatAmount(item.totalPrice)}
