@@ -367,7 +367,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
       </tr>
 
       {item.customizations?.map((c) => (
-        <tr key={c.id}>
+        <tr key={c.id} style={{ lineHeight: "1" }}>
           <td
             style={{
               fontSize: "7px",
