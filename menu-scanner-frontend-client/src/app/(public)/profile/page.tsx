@@ -36,7 +36,6 @@ import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { isBase64Image, uploadImage } from "@/utils/common/upload-image";
 import { clearToken } from "@/utils/local-storage/token";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
-import { Loading } from "@/components/shared/common/loading";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { GENDER_OPTIONS } from "@/constants/form-options";
@@ -75,6 +74,7 @@ export default function PublicProfilePage() {
   const [activeSection, setActiveSection] = useState("profile");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const {
     control,
@@ -97,6 +97,10 @@ export default function PublicProfilePage() {
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!userProfile && !isProfileLoading) {
@@ -240,8 +244,8 @@ export default function PublicProfilePage() {
 
 
 
-  if (isProfileLoading && !userProfile) {
-    return <Loading />;
+  if (!mounted || (isProfileLoading && !userProfile)) {
+    return <ProfilePageSkeleton />;
   }
 
   return (
@@ -664,6 +668,58 @@ export default function PublicProfilePage() {
             currentImageUrl={watch("profileImageUrl") || userProfile?.profileImageUrl}
             userName={userProfile?.fullName}
           />
+        </div>
+      </div>
+    </PageContainer>
+  );
+}
+
+function ProfilePageSkeleton() {
+  return (
+    <PageContainer className="min-h-screen flex flex-col">
+      <div className="flex flex-1 flex-col gap-3 py-3">
+        <div className="w-full mb-1">
+          <div className="h-3 w-32 bg-muted animate-pulse rounded" />
+          <div className="h-3 w-64 bg-muted animate-pulse rounded mt-2" />
+        </div>
+        <div className="space-y-3 w-full">
+          <Card className="mb-4 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-14 w-14 rounded-full bg-muted animate-pulse shrink-0" />
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <div className="h-3 w-28 bg-muted animate-pulse rounded" />
+                      <div className="h-3 w-40 bg-muted animate-pulse rounded" />
+                      <div className="h-5 w-16 bg-muted animate-pulse rounded-full" />
+                    </div>
+                    <div className="h-7 w-14 bg-muted animate-pulse rounded" />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <div className="flex gap-0 mb-5 w-full border border-primary/30 rounded overflow-hidden">
+            <div className="flex-1 h-10 bg-muted/30 animate-pulse" />
+            <div className="w-px bg-primary/20" />
+            <div className="flex-1 h-10 bg-muted/20 animate-pulse" />
+          </div>
+          <Card>
+            <CardHeader>
+              <div className="h-3 w-36 bg-muted animate-pulse rounded" />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="space-y-1">
+                    <div className="h-2.5 w-20 bg-muted animate-pulse rounded" />
+                    <div className="h-8 w-full bg-muted/70 animate-pulse rounded" />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </PageContainer>

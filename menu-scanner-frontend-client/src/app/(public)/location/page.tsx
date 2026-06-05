@@ -29,6 +29,7 @@ export default function LocationPage() {
     fetchAllWithPagination,
   } = useLocationState();
 
+  const [mounted, setMounted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] =
     useState<LocationResponseModel | null>(null);
@@ -49,6 +50,10 @@ export default function LocationPage() {
   }, []);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     calculateSkeletonCount();
     window.addEventListener("resize", calculateSkeletonCount);
     return () => window.removeEventListener("resize", calculateSkeletonCount);
@@ -65,9 +70,8 @@ export default function LocationPage() {
   }, []);
 
   const isInitialLoading =
-    isLoading.fetch &&
-    locations.length === 0 &&
-    !locationPagination.isInitialLoaded;
+    !mounted ||
+    (locations.length === 0 && !locationPagination.isInitialLoaded);
 
   useEffect(() => {
     if (!navigator.geolocation) return;

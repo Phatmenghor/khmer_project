@@ -33,6 +33,7 @@ import { CartItemCard } from "@/components/shared/cart-item-card/cart-item-card"
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { SignInRequired } from "@/components/shared/auth/sign-in-required";
 import { LoginModal } from "@/components/shared/modal/login-modal";
+import { PageState } from "@/components/shared/page-state";
 
 interface CheckoutState {
   selectedAddressId: string | null;
@@ -343,23 +344,16 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <PageContainer className="py-8">
-        <div className="max-w-sm mx-auto text-center">
-          <div className="w-11 h-11 rounded bg-primary/10 flex items-center justify-center mx-auto mb-3">
-            <AlertCircle className="h-5 w-5 text-primary" />
-          </div>
-          <h1 className="text-xs font-bold mb-1">Cart is Empty</h1>
-          <p className="text-muted-foreground mb-4">
-            Add items to your cart before checking out.
-          </p>
-          <CustomButton
-            onClick={() => router.push("/products")}
-            className="w-full h-8 rounded"
-          >
-            Browse Products
-          </CustomButton>
-        </div>
-      </PageContainer>
+      <div className="min-h-screen flex items-center justify-center">
+        <PageState
+          type="empty"
+          title="Cart is Empty"
+          description="Add items to your cart before checking out."
+          actionLabel="Browse Products"
+          onAction={() => router.push("/products")}
+          size="lg"
+        />
+      </div>
     );
   }
 
