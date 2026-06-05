@@ -49,7 +49,10 @@ export interface ReceiptProps {
 const FONT = "'Courier New', 'Courier', monospace";
 
 function formatAmount(n: number) {
-  return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 /* ── component ───────────────────────────────────────────────────────────── */
@@ -67,25 +70,62 @@ export function Receipt({
   customerPhone,
 }: ReceiptProps) {
   const dt = date ? new Date(date) : new Date();
-  const dateStr = dt.toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" });
-  const timeStr = dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  const dateStr = dt.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const timeStr = dt.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 
-  const s: React.CSSProperties = { fontFamily: FONT, fontSize: "8px", lineHeight: "1.4" };
+  const s: React.CSSProperties = {
+    fontFamily: FONT,
+    fontSize: "8px",
+    lineHeight: "1.4",
+  };
 
   return (
-    <div style={{ ...s, width: "100%", maxWidth: "380px", margin: "0 auto", background: "#fff", padding: "16px 10px", color: "#111" }}>
+    <div
+      style={{
+        ...s,
+        width: "100%",
+        maxWidth: "380px",
+        margin: "0 auto",
+        background: "#fff",
+        padding: "16px 10px",
+        color: "#111",
+      }}
+    >
       <style>{`@media print { body { margin:0 } }`}</style>
 
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "8px" }}>
-        <div style={{ fontWeight: 700, fontSize: "11px", letterSpacing: "2px", marginBottom: "2px" }}>
+        <div
+          style={{
+            fontWeight: 700,
+            fontSize: "11px",
+            letterSpacing: "2px",
+            marginBottom: "2px",
+          }}
+        >
           {businessName.toUpperCase()}
         </div>
         <div style={{ fontSize: "8px", color: "#555" }}>POS Receipt</div>
       </div>
 
       {/* Order info */}
-      <div style={{ borderTop: "2px solid #111", borderBottom: "1px dashed #999", padding: "4px 0", marginBottom: "6px", fontSize: "8px" }}>
+      <div
+        style={{
+          borderTop: "2px solid #111",
+          borderBottom: "1px dashed #999",
+          padding: "4px 0",
+          marginBottom: "6px",
+          fontSize: "8px",
+        }}
+      >
         <InfoRow label="Order#" value={orderNumber} bold />
         <InfoRow label="Date" value={dateStr} />
         <InfoRow label="Time" value={timeStr} />
@@ -93,12 +133,23 @@ export function Receipt({
         {customerPhone && <InfoRow label="Phone" value={customerPhone} />}
         {orderStatus && <InfoRow label="Status" value={orderStatus} bold />}
         {(paymentMethod || paymentStatus) && (
-          <InfoRow label="Payment" value={[paymentMethod, paymentStatus].filter(Boolean).join(" · ")} />
+          <InfoRow
+            label="Payment"
+            value={[paymentMethod, paymentStatus].filter(Boolean).join(" · ")}
+          />
         )}
       </div>
 
       {/* Column headers + Items in one table for perfect column alignment */}
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "8px", marginBottom: "8px", border: "none" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          fontSize: "8px",
+          marginBottom: "8px",
+          border: "none",
+        }}
+      >
         <colgroup>
           <col style={{ width: "auto" }} />
           <col style={{ width: "24px" }} />
@@ -108,11 +159,57 @@ export function Receipt({
         </colgroup>
         <thead>
           <tr style={{ borderBottom: "1px solid #111", fontWeight: 700 }}>
-            <td style={{ padding: "0", paddingBottom: "3px", border: "none" }}>ITEM</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px", border: "none" }}>QTY</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px", border: "none" }}>PRICE</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px", border: "none" }}>DISC</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "0", paddingLeft: "4px", paddingBottom: "3px", border: "none" }}>TOTAL</td>
+            <td style={{ padding: "0", paddingBottom: "3px", border: "none" }}>
+              ITEM
+            </td>
+            <td
+              style={{
+                textAlign: "right",
+                whiteSpace: "nowrap",
+                padding: "0",
+                paddingLeft: "4px",
+                paddingBottom: "3px",
+                border: "none",
+              }}
+            >
+              QTY
+            </td>
+            <td
+              style={{
+                textAlign: "right",
+                whiteSpace: "nowrap",
+                padding: "0",
+                paddingLeft: "4px",
+                paddingBottom: "3px",
+                border: "none",
+              }}
+            >
+              PRICE
+            </td>
+            <td
+              style={{
+                textAlign: "right",
+                whiteSpace: "nowrap",
+                padding: "0",
+                paddingLeft: "4px",
+                paddingBottom: "3px",
+                border: "none",
+              }}
+            >
+              DISC
+            </td>
+            <td
+              style={{
+                textAlign: "right",
+                whiteSpace: "nowrap",
+                padding: "0",
+                paddingLeft: "4px",
+                paddingBottom: "3px",
+                border: "none",
+              }}
+            >
+              TOTAL
+            </td>
           </tr>
         </thead>
         <tbody>
@@ -123,34 +220,73 @@ export function Receipt({
       </table>
 
       {/* Summary */}
-      <div style={{ borderTop: "1px dashed #999", fontSize: "8px", paddingTop: "4px" }}>
+      <div
+        style={{
+          borderTop: "1px dashed #999",
+          fontSize: "8px",
+          paddingTop: "4px",
+        }}
+      >
         <SummaryRow label="Subtotal" value={formatCurrency(pricing.subtotal)} />
         {(pricing.customizationTotal ?? 0) > 0 && (
-          <SummaryRow label="Add-ons" value={`+${formatCurrency(pricing.customizationTotal!)}`} />
+          <SummaryRow
+            label="Add-ons"
+            value={`+${formatCurrency(pricing.customizationTotal!)}`}
+          />
         )}
         {(pricing.discountAmount ?? 0) > 0 && (
-          <SummaryRow label="Discount" value={`-${formatCurrency(pricing.discountAmount!)}`} color="#dc2626" />
+          <SummaryRow
+            label="Discount"
+            value={`-${formatCurrency(pricing.discountAmount!)}`}
+            color="#dc2626"
+          />
         )}
         {(pricing.taxAmount ?? 0) > 0 && (
-          <SummaryRow label={`Tax (${pricing.taxPercentage ?? 0}%)`} value={`+${formatCurrency(pricing.taxAmount!)}`} />
+          <SummaryRow
+            label={`Tax (${pricing.taxPercentage ?? 0}%)`}
+            value={`+${formatCurrency(pricing.taxAmount!)}`}
+          />
         )}
         {(pricing.deliveryFee ?? 0) > 0 && (
-          <SummaryRow label="Delivery" value={`+${formatCurrency(pricing.deliveryFee!)}`} />
+          <SummaryRow
+            label="Delivery"
+            value={`+${formatCurrency(pricing.deliveryFee!)}`}
+          />
         )}
         {paymentMethod && <SummaryRow label="Payment" value={paymentMethod} />}
       </div>
 
       {/* Total */}
-      <div style={{ borderTop: "2px solid #111", borderBottom: "2px solid #111", margin: "4px 0", padding: "4px 0", display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "10px" }}>
+      <div
+        style={{
+          borderTop: "2px solid #111",
+          borderBottom: "2px solid #111",
+          margin: "4px 0",
+          padding: "4px 0",
+          display: "flex",
+          justifyContent: "space-between",
+          fontWeight: 700,
+          fontSize: "10px",
+        }}
+      >
         <span>TOTAL AMOUNT</span>
         <span>{formatCurrency(pricing.finalTotal)}</span>
       </div>
 
       {/* Footer */}
-      <div style={{ textAlign: "center", fontSize: "7px", color: "#555", paddingTop: "6px" }}>
+      <div
+        style={{
+          textAlign: "center",
+          fontSize: "7px",
+          color: "#555",
+          paddingTop: "6px",
+        }}
+      >
         <div>Thank you for your order!</div>
         <div>Please visit again</div>
-        <div style={{ marginTop: "4px" }}>{dateStr} {timeStr}</div>
+        <div style={{ marginTop: "4px" }}>
+          {dateStr} {timeStr}
+        </div>
       </div>
     </div>
   );
@@ -159,33 +295,118 @@ export function Receipt({
 /* ── sub-components ──────────────────────────────────────────────────────── */
 
 function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
-  const discLabel = item.hasPromotion && item.promotionType
-    ? item.promotionType === "PERCENTAGE"
-      ? `${item.promotionValue}%`
-      : formatCurrency(item.promotionValue ?? 0)
-    : "0%";
+  const discLabel =
+    item.hasPromotion && item.promotionType
+      ? item.promotionType === "PERCENTAGE"
+        ? `${item.promotionValue}%`
+        : formatCurrency(item.promotionValue ?? 0)
+      : "0%";
 
   return (
     <>
       <tr style={{ verticalAlign: "top" }}>
-        <td style={{ wordBreak: "break-word", padding: "2px 0", paddingRight: "4px", fontWeight: 500, border: "none" }}>
+        <td
+          style={{
+            wordBreak: "break-word",
+            padding: "2px 0",
+            paddingRight: "4px",
+            fontWeight: 500,
+            border: "none",
+            fontSize: "10px",
+          }}
+        >
           {item.name}
         </td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none", fontSize: "6px" }}>{item.quantity}</td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none", fontSize: "6px" }}>{formatCurrency(item.finalPrice)}</td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none", fontSize: "6px" }}>{discLabel}</td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", fontWeight: 600, border: "none", fontSize: "6px" }}>{formatAmount(item.totalPrice)}</td>
+        <td
+          style={{
+            textAlign: "right",
+            whiteSpace: "nowrap",
+            padding: "2px 0",
+            paddingLeft: "4px",
+            border: "none",
+            fontSize: "10px",
+          }}
+        >
+          {item.quantity}
+        </td>
+        <td
+          style={{
+            textAlign: "right",
+            whiteSpace: "nowrap",
+            padding: "2px 0",
+            paddingLeft: "4px",
+            border: "none",
+            fontSize: "10px",
+          }}
+        >
+          {formatCurrency(item.finalPrice)}
+        </td>
+        <td
+          style={{
+            textAlign: "right",
+            whiteSpace: "nowrap",
+            padding: "2px 0",
+            paddingLeft: "4px",
+            border: "none",
+            fontSize: "10px",
+          }}
+        >
+          {discLabel}
+        </td>
+        <td
+          style={{
+            textAlign: "right",
+            whiteSpace: "nowrap",
+            padding: "2px 0",
+            paddingLeft: "4px",
+            fontWeight: 600,
+            border: "none",
+            fontSize: "10px",
+          }}
+        >
+          {formatAmount(item.totalPrice)}
+        </td>
       </tr>
       {item.sizeName && (
         <tr>
-          <td colSpan={5} style={{ fontSize: "7px", color: "#777", padding: "0 0 2px 0", border: "none" }}>Size: {item.sizeName}</td>
+          <td
+            colSpan={5}
+            style={{
+              fontSize: "7px",
+              color: "#777",
+              padding: "0 0 2px 0",
+              border: "none",
+            }}
+          >
+            Size: {item.sizeName}
+          </td>
         </tr>
       )}
       {item.customizations?.map((c) => (
         <tr key={c.id}>
-          <td style={{ fontSize: "7px", color: "#777", padding: "0 0 1px 0", border: "none" }}>+ {c.name}</td>
-          <td colSpan={4} style={{ fontSize: "7px", color: "#777", textAlign: "right", padding: "0 0 1px 0", border: "none" }}>
-            {(c.priceAdjustment ?? 0) > 0 ? `+${formatCurrency(c.priceAdjustment)}` : ""}
+          <td
+            style={{
+              fontSize: "7px",
+              color: "#777",
+              padding: "0 0 1px 0",
+              border: "none",
+            }}
+          >
+            + {c.name}
+          </td>
+          <td
+            colSpan={4}
+            style={{
+              fontSize: "7px",
+              color: "#777",
+              textAlign: "right",
+              padding: "0 0 1px 0",
+              border: "none",
+            }}
+          >
+            {(c.priceAdjustment ?? 0) > 0
+              ? `+${formatCurrency(c.priceAdjustment)}`
+              : ""}
           </td>
         </tr>
       ))}
@@ -193,7 +414,15 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
   );
 }
 
-function InfoRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+function InfoRow({
+  label,
+  value,
+  bold,
+}: {
+  label: string;
+  value: string;
+  bold?: boolean;
+}) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between" }}>
       <span>{label}</span>
@@ -202,18 +431,36 @@ function InfoRow({ label, value, bold }: { label: string; value: string; bold?: 
   );
 }
 
-function SummaryRow({ label, value, color }: { label: string; value: string; color?: string }) {
+function SummaryRow({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: string;
+  color?: string;
+}) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        marginBottom: "2px",
+      }}
+    >
       <span style={{ color: "#444" }}>{label}</span>
-      <span style={{ fontWeight: 600, ...(color ? { color } : {}) }}>{value}</span>
+      <span style={{ fontWeight: 600, ...(color ? { color } : {}) }}>
+        {value}
+      </span>
     </div>
   );
 }
 
 /* ── mapper helpers (used by thin wrappers) ──────────────────────────────── */
 
-export function orderResponseToReceiptProps(order: import("@/features/main/store/models/response/order-response").OrderResponse): ReceiptProps {
+export function orderResponseToReceiptProps(
+  order: import("@/features/main/store/models/response/order-response").OrderResponse,
+): ReceiptProps {
   return {
     businessName: order.businessName || "",
     orderNumber: order.orderNumber || "",
