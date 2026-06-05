@@ -94,10 +94,11 @@ export function Receipt({
       </div>
 
       {/* Column headers */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 32px 64px 64px", gap: "0 4px", fontWeight: 700, fontSize: "11px", borderBottom: "1px solid #111", paddingBottom: "4px", marginBottom: "4px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 28px 56px 44px 56px", gap: "0 4px", fontWeight: 700, fontSize: "11px", borderBottom: "1px solid #111", paddingBottom: "4px", marginBottom: "4px" }}>
         <span>ITEM</span>
         <span style={{ textAlign: "center" }}>QTY</span>
         <span style={{ textAlign: "right" }}>PRICE</span>
+        <span style={{ textAlign: "right" }}>DISC</span>
         <span style={{ textAlign: "right" }}>TOTAL</span>
       </div>
 
@@ -145,20 +146,21 @@ export function Receipt({
 /* ── sub-components ──────────────────────────────────────────────────────── */
 
 function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
-  const promoLabel = item.hasPromotion && item.promotionType
+  const discLabel = item.hasPromotion && item.promotionType
     ? item.promotionType === "PERCENTAGE"
-      ? `${item.promotionValue}% OFF`
-      : `-${formatCurrency(item.promotionValue ?? 0)}`
-    : null;
+      ? `${item.promotionValue}%`
+      : formatCurrency(item.promotionValue ?? 0)
+    : "0%";
 
   return (
     <div style={{ borderBottom: "1px dashed #ccc", paddingBottom: "4px", marginBottom: "4px" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 32px 64px 64px", gap: "0 4px", fontSize: "12px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 28px 56px 44px 56px", gap: "0 4px", fontSize: "12px" }}>
         <span style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {index + 1}. {item.name}
         </span>
         <span style={{ textAlign: "center" }}>{item.quantity}</span>
         <span style={{ textAlign: "right" }}>{formatCurrency(item.finalPrice)}</span>
+        <span style={{ textAlign: "right", color: item.hasPromotion ? "#dc2626" : "#999" }}>{discLabel}</span>
         <span style={{ textAlign: "right", fontWeight: 700 }}>{formatCurrency(item.totalPrice)}</span>
       </div>
       {item.sizeName && (
@@ -170,11 +172,6 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
           {(c.priceAdjustment ?? 0) > 0 && <span>+{formatCurrency(c.priceAdjustment)}</span>}
         </div>
       ))}
-      {promoLabel && (
-        <div style={{ fontSize: "10px", color: "#16a34a", paddingLeft: "12px", fontWeight: 600 }}>
-          ✓ Promo: {promoLabel}
-        </div>
-      )}
     </div>
   );
 }
