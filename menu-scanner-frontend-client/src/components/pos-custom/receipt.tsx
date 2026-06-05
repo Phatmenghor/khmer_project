@@ -164,7 +164,9 @@ export function Receipt({
                           {item.customizations.map((c) => (
                             <div key={c.productCustomizationId} className="flex justify-between leading-tight text-gray-500 min-w-0" style={{fontSize: "0.7rem"}}>
                               <span className="truncate min-w-0">{c.name}</span>
-                              <span className="ml-1 shrink-0">{(c.priceAdjustment || 0).toFixed(2)}</span>
+                              {(c.priceAdjustment ?? 0) > 0 && (
+                                <span className="ml-1 shrink-0">+{(c.priceAdjustment).toFixed(2)}</span>
+                              )}
                             </div>
                           ))}
                         </div>
