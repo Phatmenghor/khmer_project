@@ -48,11 +48,9 @@ export interface ReceiptProps {
 
 const FONT = "'Courier New', 'Courier', monospace";
 
-function formatAmount(n: number) {
-  return n.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+function formatAmount(n: number): string {
+  if (n % 1 === 0) return String(n);
+  return n.toFixed(2);
 }
 
 /* ── component ───────────────────────────────────────────────────────────── */
@@ -299,7 +297,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
     item.hasPromotion && item.promotionType
       ? item.promotionType === "PERCENTAGE"
         ? `${item.promotionValue}%`
-        : formatCurrency(item.promotionValue ?? 0)
+        : formatAmount(item.promotionValue ?? 0)
       : "0%";
 
   return (
@@ -339,7 +337,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
             fontSize: "10px",
           }}
         >
-          {formatCurrency(item.finalPrice)}
+          {formatAmount(item.finalPrice)}
         </td>
         <td
           style={{
