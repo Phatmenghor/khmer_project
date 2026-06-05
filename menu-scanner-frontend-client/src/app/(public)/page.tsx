@@ -158,7 +158,7 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // only on mount
 
-  const isBannerLoading = !mounted || ((bannersSection.loading || !bannersSection.loaded) && banners.length === 0);
+  const isBannerLoading = !mounted || !bannersSection.loaded;
   const isCategoryLoading = !mounted || ((categoriesSection.loading || !categoriesSection.loaded) && categories.length === 0);
   const isPromotionLoading = !mounted || ((promotionProductsSection.loading || !promotionProductsSection.loaded) && promotionProducts.length === 0);
   const isInitialFeaturedLoading = !mounted || ((featuredProductsSection.loading || !featuredProductsSection.loaded) && featuredProducts.length === 0);
