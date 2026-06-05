@@ -48,6 +48,10 @@ export interface ReceiptProps {
 
 const FONT = "'Courier New', 'Courier', monospace";
 
+function formatAmount(n: number) {
+  return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 /* ── component ───────────────────────────────────────────────────────────── */
 
 export function Receipt({
@@ -66,7 +70,7 @@ export function Receipt({
   const dateStr = dt.toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" });
   const timeStr = dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
 
-  const s: React.CSSProperties = { fontFamily: FONT, fontSize: "12px", lineHeight: "1.5" };
+  const s: React.CSSProperties = { fontFamily: FONT, fontSize: "10px", lineHeight: "1.5" };
 
   return (
     <div style={{ ...s, width: "100%", maxWidth: "380px", margin: "0 auto", background: "#fff", padding: "16px 12px", color: "#111" }}>
@@ -74,14 +78,14 @@ export function Receipt({
 
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "8px" }}>
-        <div style={{ fontWeight: 700, fontSize: "15px", letterSpacing: "2px", marginBottom: "2px" }}>
+        <div style={{ fontWeight: 700, fontSize: "13px", letterSpacing: "2px", marginBottom: "2px" }}>
           {businessName.toUpperCase()}
         </div>
-        <div style={{ fontSize: "11px", color: "#555" }}>POS Receipt</div>
+        <div style={{ fontSize: "10px", color: "#555" }}>POS Receipt</div>
       </div>
 
       {/* Order info */}
-      <div style={{ borderTop: "2px solid #111", borderBottom: "1px dashed #999", padding: "6px 0", marginBottom: "8px", fontSize: "11px" }}>
+      <div style={{ borderTop: "2px solid #111", borderBottom: "1px dashed #999", padding: "6px 0", marginBottom: "8px", fontSize: "10px" }}>
         <InfoRow label="Order#" value={orderNumber} bold />
         <InfoRow label="Date" value={dateStr} />
         <InfoRow label="Time" value={timeStr} />
@@ -94,14 +98,14 @@ export function Receipt({
       </div>
 
       {/* Column headers */}
-      <table style={{ width: "100%", borderCollapse: "collapse", fontWeight: 700, fontSize: "10px", borderBottom: "1px solid #111", paddingBottom: "3px", marginBottom: "3px" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontWeight: 700, fontSize: "9px", borderBottom: "1px solid #111", paddingBottom: "3px", marginBottom: "3px" }}>
         <tbody>
           <tr>
             <td style={{ paddingBottom: "3px" }}>ITEM</td>
-            <td style={{ textAlign: "center", whiteSpace: "nowrap", width: "24px", paddingBottom: "3px" }}>QTY</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "52px", paddingLeft: "4px", paddingBottom: "3px" }}>PRICE</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "40px", paddingLeft: "4px", paddingBottom: "3px" }}>DISC</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "52px", paddingLeft: "4px", paddingBottom: "3px" }}>TOTAL</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "22px", paddingLeft: "4px", paddingBottom: "3px" }}>QTY</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", paddingLeft: "4px", paddingBottom: "3px" }}>PRICE</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "36px", paddingLeft: "4px", paddingBottom: "3px" }}>DISC</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", paddingLeft: "4px", paddingBottom: "3px" }}>TOTAL</td>
           </tr>
         </tbody>
       </table>
@@ -114,7 +118,7 @@ export function Receipt({
       </div>
 
       {/* Summary */}
-      <div style={{ borderTop: "1px dashed #999", paddingTop: "6px", fontSize: "12px" }}>
+      <div style={{ borderTop: "1px dashed #999", paddingTop: "6px", fontSize: "10px" }}>
         <SummaryRow label="Subtotal" value={formatCurrency(pricing.subtotal)} />
         {(pricing.customizationTotal ?? 0) > 0 && (
           <SummaryRow label="Add-ons" value={`+${formatCurrency(pricing.customizationTotal!)}`} />
@@ -132,13 +136,13 @@ export function Receipt({
       </div>
 
       {/* Total */}
-      <div style={{ borderTop: "2px solid #111", borderBottom: "2px solid #111", margin: "6px 0", padding: "6px 0", display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "14px" }}>
+      <div style={{ borderTop: "2px solid #111", borderBottom: "2px solid #111", margin: "6px 0", padding: "6px 0", display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "12px" }}>
         <span>TOTAL AMOUNT</span>
         <span>{formatCurrency(pricing.finalTotal)}</span>
       </div>
 
       {/* Footer */}
-      <div style={{ textAlign: "center", fontSize: "11px", color: "#555", paddingTop: "8px" }}>
+      <div style={{ textAlign: "center", fontSize: "9px", color: "#555", paddingTop: "8px" }}>
         <div>Thank you for your order!</div>
         <div>Please visit again</div>
         <div style={{ marginTop: "4px" }}>{dateStr} {timeStr}</div>
@@ -157,25 +161,25 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
     : "0%";
 
   return (
-    <div style={{ borderBottom: "1px dashed #ccc", paddingBottom: "4px", marginBottom: "4px" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
+    <div style={{ borderBottom: "1px dashed #ccc", paddingBottom: "3px", marginBottom: "3px" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
         <tbody>
-          <tr style={{ verticalAlign: "top" }}>
+          <tr style={{ verticalAlign: "middle" }}>
             <td style={{ fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "0", width: "100%", paddingRight: "4px" }}>
               {item.name}
             </td>
-            <td style={{ textAlign: "center", whiteSpace: "nowrap", width: "28px" }}>{item.quantity}</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "56px", paddingLeft: "4px" }}>{formatCurrency(item.finalPrice)}</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "44px", paddingLeft: "4px", color: item.hasPromotion ? "#dc2626" : "#999" }}>{discLabel}</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "56px", paddingLeft: "4px", fontWeight: 700 }}>{formatCurrency(item.totalPrice)}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "22px", paddingLeft: "4px" }}>{item.quantity}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", paddingLeft: "4px" }}>{formatCurrency(item.finalPrice)}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "36px", paddingLeft: "4px", color: item.hasPromotion ? "#dc2626" : "#999" }}>{discLabel}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", paddingLeft: "4px", fontWeight: 700 }}>{formatAmount(item.totalPrice)}</td>
           </tr>
         </tbody>
       </table>
       {item.sizeName && (
-        <div style={{ fontSize: "9px", color: "#555", paddingLeft: "8px" }}>Size: {item.sizeName}</div>
+        <div style={{ fontSize: "8px", color: "#777", paddingLeft: "4px" }}>Size: {item.sizeName}</div>
       )}
       {item.customizations?.map((c) => (
-        <div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "9px", color: "#555", paddingLeft: "8px" }}>
+        <div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "8px", color: "#777", paddingLeft: "4px" }}>
           <span>+ {c.name}</span>
           {(c.priceAdjustment ?? 0) > 0 && <span>+{formatCurrency(c.priceAdjustment)}</span>}
         </div>
