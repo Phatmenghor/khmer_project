@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { createElement } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { generateReceiptHTML } from "@/utils/receipt/receipt-template";
 import { showToast } from "@/components/shared/common/show-toast";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
+import { Receipt, orderResponseToReceiptProps } from "@/components/shared/receipt/receipt";
 
 export function useDownloadReceipt() {
   const [downloadingOrderId, setDownloadingOrderId] = useState<string | null>(null);
   const [printingOrderId, setPrintingOrderId] = useState<string | null>(null);
+
+  const buildHTML = (order: OrderResponse) =>
+    renderToStaticMarkup(createElement(Receipt, orderResponseToReceiptProps(order)));
 
   const handleDownloadReceipt = async (
     order: OrderResponse,
@@ -22,10 +27,8 @@ export function useDownloadReceipt() {
       const element = document.createElement("div");
       element.style.position = "absolute";
       element.style.left = "-9999px";
-      element.style.width = "305px";
-      element.style.margin = "0";
-      element.style.padding = "0";
-      element.innerHTML = generateReceiptHTML(order);
+      element.style.width = "380px";
+      element.innerHTML = buildHTML(order);
       document.body.appendChild(element);
 
       const canvas = await html2canvas(element, {
@@ -33,55 +36,16 @@ export function useDownloadReceipt() {
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
-        width: 305,
-        windowWidth: 305,
+        width: 380,
+        windowWidth: 380,
         windowHeight: element.scrollHeight,
         logging: false,
-        onclone: (clonedDoc) => {
-          const style = clonedDoc.createElement("style");
-          style.textContent = `
-            * {
-              font-family: 'Courier New', monospace !important;
-              box-sizing: border-box;
-            }
-            body {
-              background: white !important;
-              margin: 0;
-              padding: 0;
-            }
-            #receipt-wrapper {
-              font-size: 10px !important;
-              line-height: 1.3 !important;
-              color: black !important;
-              background: white !important;
-            }
-            table {
-              border-collapse: collapse;
-              width: 100%;
-            }
-            th, td {
-              background: transparent !important;
-              background-color: transparent !important;
-              border-color: #000 !important;
-              color: black !important;
-            }
-            tr {
-              background: transparent !important;
-              background-color: transparent !important;
-            }
-          `;
-          clonedDoc.head.appendChild(style);
-        },
       });
 
       if (format === "pdf") {
         const pdfWidth = 80;
         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        const pdf = new jsPDF({
-          orientation: "portrait",
-          unit: "mm",
-          format: [pdfWidth, pdfHeight],
-        });
+        const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: [pdfWidth, pdfHeight] });
         pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pdfWidth, pdfHeight);
         pdf.save(`receipt-${order.orderNumber}.pdf`);
         showToast.success("Receipt downloaded as PDF");
@@ -89,14 +53,14 @@ export function useDownloadReceipt() {
         await new Promise<void>((resolve) => {
           canvas.toBlob((blob) => {
             if (!blob) { resolve(); return; }
-            const dlUrl = URL.createObjectURL(blob);
+            const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
-            a.href = dlUrl;
+            a.href = url;
             a.download = `receipt-${order.orderNumber}.png`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(dlUrl);
+            URL.revokeObjectURL(url);
             showToast.success("Receipt downloaded as PNG");
             resolve();
           }, "image/png");
@@ -117,23 +81,18 @@ export function useDownloadReceipt() {
     setPrintingOrderId(order.id);
 
     try {
-      const printWindow = window.open("", "", "width=400,height=600");
-      if (printWindow) {
-        printWindow.document.write(`
+      const win = window.open("", "", "width=420,height=650");
+      if (win) {
+        win.document.write(`
           <html>
-            <head>
-              <style>
-                * { font-family: 'Courier New', monospace; box-sizing: border-box; }
-                body { margin: 0; padding: 0; background: white; }
-              </style>
-            </head>
-            <body>${generateReceiptHTML(order)}</body>
+            <head><style>* { font-family: 'Courier New', monospace; box-sizing: border-box; } body { margin:0; padding:0; background:white; }</style></head>
+            <body>${buildHTML(order)}</body>
           </html>
         `);
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-        printWindow.close();
+        win.document.close();
+        win.focus();
+        win.print();
+        win.close();
       }
     } catch (error) {
       console.error("Receipt print error:", error);
