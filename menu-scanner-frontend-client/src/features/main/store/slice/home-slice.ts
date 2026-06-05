@@ -148,24 +148,29 @@ const homeSlice = createSlice({
       }>
     ) => {
       const p = action.payload;
-      state.banners = p.banners;
-      state.categories = p.categories;
-      state.promotionProducts = p.promotionProducts;
-      state.featuredProducts = p.featuredProducts;
-      state.brands = p.brands;
-      state.featuredPagination = p.featuredPagination;
-      // Mark sections as loaded and clear any stale error/loading state so
-      // that components render snapshot data rather than returning null.
-      const applySection = (key: keyof HomePageState["sections"], hasData: boolean) => {
-        state.sections[key].loaded = hasData;
+      // Only restore a section if it hasn't been loaded yet.
+      // This prevents the pageshow handler (which fires after a fast banner
+      // fetch completes) from overwriting freshly-loaded data with stale/empty
+      // snapshot data, which was causing the banner to disappear on refresh.
+      const tryRestore = (
+        key: keyof HomePageState["sections"],
+        data: unknown[],
+        apply: () => void,
+      ) => {
+        if (state.sections[key].loaded) return; // keep live data
+        apply();
+        state.sections[key].loaded = data.length > 0;
         state.sections[key].loading = false;
         state.sections[key].error = null;
       };
-      applySection("banners", p.banners.length > 0);
-      applySection("categories", p.categories.length > 0);
-      applySection("promotionProducts", p.promotionProducts.length > 0);
-      applySection("featuredProducts", p.featuredProducts.length > 0);
-      applySection("brands", p.brands.length > 0);
+      tryRestore("banners", p.banners, () => { state.banners = p.banners; });
+      tryRestore("categories", p.categories, () => { state.categories = p.categories; });
+      tryRestore("promotionProducts", p.promotionProducts, () => { state.promotionProducts = p.promotionProducts; });
+      tryRestore("featuredProducts", p.featuredProducts, () => {
+        state.featuredProducts = p.featuredProducts;
+        state.featuredPagination = p.featuredPagination;
+      });
+      tryRestore("brands", p.brands, () => { state.brands = p.brands; });
     },
   },
 
