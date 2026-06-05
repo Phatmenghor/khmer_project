@@ -1,174 +1,115 @@
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 
-/**
- * Generate responsive receipt for 80mm thermal printer
- * Uses flexible CSS layout instead of character counting
- */
 export function generateReceiptHTML(order: OrderResponse): string {
-  const date = new Date(order.createdAt);
-  const formattedDate = date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-  const formattedTime = date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+  const dt = order.createdAt ? new Date(order.createdAt) : new Date();
+  const dateStr = dt.toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" });
+  const timeStr = dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
 
-  const subtotal = order.pricing?.subtotal || 0;
-  const discount = order.pricing?.discountAmount || 0;
-  const tax = order.pricing?.taxAmount || 0;
-  const delivery = order.pricing?.deliveryFee || 0;
-  const customizationTotal = order.pricing?.customizationTotal || 0;
-  const total = order.pricing?.finalTotal || 0;
+  const p = order.pricing;
+  const fmt = (v: number) => `$${(v ?? 0).toFixed(2)}`;
 
-  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+  const itemsHTML = (order.items || []).map((item, i) => {
+    const name = item.product?.name || item.productName || "Product";
+    const size = item.product?.sizeName || item.sizeName || "";
+    const itemTotal = (item.finalPrice ?? 0) * item.quantity;
 
-  // Generate items rows
-  const itemsRows = order.items
-    .map((item) => {
-      const productName = item.product?.name || item.productName || "Product";
-      const sizeName = item.product?.sizeName || item.sizeName;
-      const itemTotal = (item.finalPrice || 0) * item.quantity;
+    const sizeRow = size
+      ? `<div style="padding-left:12px;font-size:10px;color:#555;">Size: ${size}</div>`
+      : "";
 
-      let discount = "0%";
-      if (item.hasPromotion && item.promotionType) {
-        discount = item.promotionType === "PERCENTAGE"
-          ? `${item.promotionValue}%`
-          : `${(item.promotionValue || 0).toFixed(2)}`;
-      }
+    const customRows = (item.customizations || []).map((c) => {
+      const price = (c.priceAdjustment ?? 0) > 0 ? `<span style="float:right">+${fmt(c.priceAdjustment)}</span>` : "";
+      return `<div style="padding-left:12px;font-size:10px;color:#555;overflow:hidden;">+ ${c.name}${price}</div>`;
+    }).join("");
 
-      const displayName = sizeName
-        ? `${productName} ${sizeName}`
-        : productName;
+    const promoRow = item.hasPromotion && item.promotionType
+      ? `<div style="padding-left:12px;font-size:10px;color:#16a34a;font-weight:600;">✓ Promo: ${item.promotionType === "PERCENTAGE" ? `${item.promotionValue}% OFF` : `-${fmt(item.promotionValue ?? 0)}`}</div>`
+      : "";
 
-      const customizationRows = item.customizations?.length > 0
-        ? item.customizations.map((c) => {
-            const truncated = c.name.length > 38 ? c.name.slice(0, 38) + "..." : c.name;
-            const price = (c.priceAdjustment || 0).toFixed(2);
-            return `
-        <tr class="custom-row">
-          <td colspan="4" style="padding: 1px 0 1px 12px; font-size: 0.78em; color: #666; white-space: nowrap; line-height: 1.1;">${truncated}</td>
-          <td style="text-align: right; padding: 1px 4px 1px 0; font-size: 0.78em; color: #666; white-space: nowrap; line-height: 1.1;">${price}</td>
-        </tr>`;
-          }).join("")
-        : "";
+    return `
+      <div style="border-bottom:1px dashed #ccc;padding-bottom:4px;margin-bottom:4px;">
+        <div style="display:grid;grid-template-columns:1fr 28px 60px 56px;gap:0 4px;font-size:12px;">
+          <span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${i + 1}. ${name}</span>
+          <span style="text-align:center;">${item.quantity}</span>
+          <span style="text-align:right;">${fmt(item.finalPrice ?? 0)}</span>
+          <span style="text-align:right;font-weight:700;">${fmt(itemTotal)}</span>
+        </div>
+        ${sizeRow}${customRows}${promoRow}
+      </div>`;
+  }).join("");
 
-      return `
-        <tr style="height: 20px; line-height: 1;">
-          <td style="max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 0;">${displayName}</td>
-          <td style="text-align: right; padding: 0 4px; white-space: nowrap;">${(item.finalPrice || 0).toFixed(2)}</td>
-          <td style="text-align: center; padding: 0 4px;">${item.quantity}</td>
-          <td style="text-align: right; padding: 0 4px; white-space: nowrap;">${discount}</td>
-          <td style="text-align: right; padding-right: 4px; white-space: nowrap;">${itemTotal.toFixed(2)}</td>
-        </tr>${customizationRows}
-        <tr style="height: 6px;"><td colspan="5"></td></tr>`;
-    })
-    .join("");
+  const summaryRows = [
+    ["Subtotal", fmt(p?.subtotal ?? 0)],
+    ...(( p?.customizationTotal ?? 0) > 0 ? [["Add-ons", `+${fmt(p!.customizationTotal)}`]] : []),
+    ...((p?.discountAmount ?? 0) > 0 ? [["Discount", `-${fmt(p!.discountAmount)}`, "#dc2626"]] : []),
+    ...((p?.taxAmount ?? 0) > 0 ? [[`Tax (${p?.taxPercentage ?? 0}%)`, `+${fmt(p!.taxAmount)}`]] : []),
+    ...((p?.deliveryFee ?? 0) > 0 ? [["Delivery", `+${fmt(p!.deliveryFee)}`]] : []),
+    ["Payment", order.payment?.paymentMethod || "—"],
+  ].map(([label, value, color]) =>
+    `<div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+      <span style="color:#444;">${label}</span>
+      <span style="font-weight:600;${color ? `color:${color};` : ""}">${value}</span>
+    </div>`
+  ).join("");
 
-  const summaryRows = `
-        <tr style="border: none; height: 14px;">
-          <td colspan="4" style="text-align: left; border: none; padding: 1px 0;">Subtotal</td>
-          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${formatPrice(subtotal + customizationTotal)}</td>
-        </tr>
-        ${discount > 0 ? `
-        <tr style="border: none; height: 14px;">
-          <td colspan="4" style="text-align: left; border: none; padding: 1px 0;">Discount</td>
-          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${formatPrice(discount)}</td>
-        </tr>
-        <tr style="border: none; height: 14px;">
-          <td colspan="4" style="text-align: left; border: none; padding: 1px 0;">After Discount</td>
-          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${formatPrice(subtotal + customizationTotal - discount)}</td>
-        </tr>` : ""}
-        <tr style="border: none; height: 14px;">
-          <td colspan="4" style="text-align: left; border: none; padding: 1px 0;">Tax (${order.pricing?.taxPercentage || 0}%)</td>
-          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${formatPrice(tax)}</td>
-        </tr>
-        ${delivery > 0 ? `
-        <tr style="border: none; height: 14px;">
-          <td colspan="4" style="text-align: left; border: none; padding: 1px 0;">Delivery Fee</td>
-          <td style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${formatPrice(delivery)}</td>
-        </tr>` : ""}
-        <tr style="border: none; height: 14px;">
-          <td style="text-align: left; border: none; padding: 1px 0;">Payment</td>
-          <td colspan="4" style="text-align: right; padding-right: 4px; border: none; padding-top: 1px; padding-bottom: 1px;">${order.payment?.paymentMethod || "N/A"}</td>
-        </tr>
-        <tr style="border-top: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; height: 24px;">
-          <td colspan="4" style="text-align: left; padding-left: 0;">TOTAL AMOUNT</td>
-          <td style="text-align: right; padding-right: 4px;">${formatPrice(total)}</td>
-        </tr>`;
+  const customerInfo = order.customerName
+    ? `<div style="display:flex;justify-content:space-between;"><span>Customer</span><span>${order.customerName}</span></div>
+       ${order.customerPhone ? `<div style="display:flex;justify-content:space-between;"><span>Phone</span><span>${order.customerPhone}</span></div>` : ""}`
+    : "";
 
   return `
-    <div id="receipt-wrapper" style="
-      width: 100%;
-      max-width: 305px;
-      margin: 0 auto;
-      background: white;
-      padding: 8px;
-      box-sizing: border-box;
-      font-family: 'Courier New', monospace;
-      font-size: clamp(9px, 2vw, 10px);
-      line-height: 1.3;
-      color: black;
-    ">
-      <style>
-        #receipt-wrapper table tr { border: none !important; border-top: none !important; border-bottom: none !important; }
-        #receipt-wrapper table td { border: none !important; }
-        #receipt-wrapper table th { border: none !important; }
-        #receipt-wrapper .custom-row td { padding-top: 1px !important; padding-bottom: 1px !important; line-height: 1.1 !important; }
-      </style>
-      <div style="border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 8px 0; text-align: center; font-weight: bold; font-size: 1.2em; margin-bottom: 8px;">
-        RECEIPT
+    <div style="width:100%;max-width:305px;margin:0 auto;background:#fff;padding:16px 12px;box-sizing:border-box;font-family:'Courier New',monospace;font-size:12px;line-height:1.5;color:#111;">
+
+      <!-- Header -->
+      <div style="text-align:center;margin-bottom:8px;">
+        <div style="font-weight:700;font-size:15px;letter-spacing:2px;margin-bottom:2px;">${(order.businessName || "").toUpperCase()}</div>
+        <div style="font-size:11px;color:#555;">POS Receipt</div>
       </div>
 
-      <div style="margin-bottom: 12px; font-size: 0.95em;">
-        <div>Order ID: #${order.orderNumber}</div>
-        <div>Date: ${formattedDate} ${formattedTime}</div>
-        <div>Shop: ${(order.businessName || "Business").substring(0, 32)}</div>
+      <!-- Order info -->
+      <div style="border-top:2px solid #111;border-bottom:1px dashed #999;padding:6px 0;margin-bottom:8px;font-size:11px;">
+        <div style="display:flex;justify-content:space-between;"><span>Order#</span><span style="font-weight:700;">${order.orderNumber}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>Date</span><span>${dateStr}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>Time</span><span>${timeStr}</span></div>
+        ${customerInfo}
+        <div style="display:flex;justify-content:space-between;"><span>Status</span><span style="font-weight:600;">${order.orderStatus || ""}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span>Payment</span><span>${order.payment?.paymentMethod || "—"} · ${order.payment?.paymentStatus || "Pending"}</span></div>
       </div>
 
-      <div style="border-bottom: 1px solid #000; padding: 4px 0; margin: 4px 0;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
-          <thead>
-            <tr style="border-bottom: 1px solid #000; height: 24px; background-color: #f0f0f0;">
-              <th style="text-align: left; padding: 0; background-color: #f0f0f0; font-weight: bold; font-size: 0.9em;">NAME</th>
-              <th style="text-align: right; padding: 0 4px; width: 15%; background-color: #f0f0f0; font-weight: bold; font-size: 0.9em;">PRICE</th>
-              <th style="text-align: center; padding: 0 4px; width: 12%; background-color: #f0f0f0; font-weight: bold; font-size: 0.9em;">QTY</th>
-              <th style="text-align: right; padding: 0 4px; width: 15%; background-color: #f0f0f0; font-weight: bold; font-size: 0.9em;">DISC</th>
-              <th style="text-align: right; padding-right: 4px; width: 18%; background-color: #f0f0f0; font-weight: bold; font-size: 0.9em;">TOTAL</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsRows}
-          </tbody>
-        </table>
+      <!-- Column headers -->
+      <div style="display:grid;grid-template-columns:1fr 28px 60px 56px;gap:0 4px;font-weight:700;font-size:11px;border-bottom:1px solid #111;padding-bottom:4px;margin-bottom:4px;">
+        <span>ITEM</span>
+        <span style="text-align:center;">QTY</span>
+        <span style="text-align:right;">PRICE</span>
+        <span style="text-align:right;">TOTAL</span>
       </div>
 
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 0.85em; border: none;">
-        <tbody>
-          ${summaryRows}
-        </tbody>
-      </table>
+      <!-- Items -->
+      <div style="margin-bottom:8px;">${itemsHTML}</div>
 
-      <div style="text-align: center; font-size: 0.9em; line-height: 1.6; border-top: 2px solid #000; padding-top: 8px;">
+      <!-- Summary -->
+      <div style="border-top:1px dashed #999;padding-top:6px;font-size:12px;">${summaryRows}</div>
+
+      <!-- Total -->
+      <div style="border-top:2px solid #111;border-bottom:2px solid #111;margin:6px 0;padding:6px 0;display:flex;justify-content:space-between;font-weight:700;font-size:14px;">
+        <span>TOTAL AMOUNT</span>
+        <span>${fmt(p?.finalTotal ?? 0)}</span>
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align:center;font-size:11px;color:#555;padding-top:8px;">
         <div>Thank you for your order!</div>
         <div>Please visit again</div>
-        <div>${formattedDate} ${formattedTime}</div>
+        <div style="margin-top:4px;">${dateStr} ${timeStr}</div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
-/**
- * Receipt configuration
- */
 export const RECEIPT_STYLES = {
   paperWidth: "80mm",
   width: "100%",
   maxWidth: 305,
-  font: "Courier New, monospace",
-  fontSize: "clamp(9px, 2vw, 10px)",
-  padding: "8px",
+  font: "'Courier New', monospace",
+  fontSize: "12px",
+  padding: "16px 12px",
 };
