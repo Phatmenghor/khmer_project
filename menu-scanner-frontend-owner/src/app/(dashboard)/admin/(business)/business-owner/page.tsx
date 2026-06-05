@@ -31,6 +31,7 @@ import {
   setPageNo,
   setSearchFilter,
   setSubscriptionStatusFilter,
+  updateBusinessOwnerDataSilently,
 } from "@/redux/features/auth/store/slice/business-owner-slice";
 import {
   deleteBusinessOwnerService,

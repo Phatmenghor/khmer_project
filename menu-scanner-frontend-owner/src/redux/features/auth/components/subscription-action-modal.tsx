@@ -63,13 +63,13 @@ export default function SubscriptionActionModal({
   // --- Renew form ---
   const renewForm = useForm<RenewSubscriptionData>({
     resolver: zodResolver(renewSubscriptionSchema),
-    defaultValues: { newPlanId: "", paymentAmount: undefined, paymentMethod: "", paymentReference: "", paymentNotes: "" },
+    defaultValues: { newPlanId: "", paymentAmount: undefined, paymentMethod: "", paymentReference: "" },
   });
 
   // --- Change Plan form ---
   const changePlanForm = useForm<ChangePlanData>({
     resolver: zodResolver(changePlanSchema),
-    defaultValues: { newPlanId: "", paymentAmount: undefined, paymentMethod: "", paymentReference: "", paymentNotes: "" },
+    defaultValues: { newPlanId: "", paymentAmount: undefined, paymentMethod: "", paymentReference: "" },
   });
 
   // --- Cancel form ---

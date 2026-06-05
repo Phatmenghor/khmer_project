@@ -114,7 +114,10 @@ export function PaymentDetailModal({
               label="Subscription Display Name"
               value={paymentData?.subscriptionDisplayName || "---"}
             />
-            <DetailRow label="Remark" value={paymentData?.notes || "---"} />
+            <DetailRow
+              label="Remark"
+              value={paymentData?.referenceNumber || "---"}
+            />
           </DetailSection>
 
           {/* System Information */}

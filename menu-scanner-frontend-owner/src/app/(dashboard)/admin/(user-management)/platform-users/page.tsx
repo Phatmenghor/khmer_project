@@ -280,6 +280,8 @@ export default function UserPage() {
       isOpen: false,
       userId: "",
       userName: "",
+      profileImageUrl: undefined,
+      roles: [],
     });
   };
 

@@ -24,12 +24,19 @@ export function usePlatformWebSocket() {
   const connect = useCallback(() => {
     const wsUrl = `${window.location.origin}/ws`;
 
+    const devLog = (...args: unknown[]) => {
+      if (process.env.NODE_ENV !== "production") {
+        // eslint-disable-next-line no-console
+        console.log(...args);
+      }
+    };
+
     const client = new Client({
       webSocketFactory: () => new SockJS(wsUrl),
       reconnectDelay: 5000,
       onConnect: () => {
         setIsConnected(true);
-        console.log("[WS] Platform WebSocket connected — subscribing to /topic/platform");
+        devLog("[WS] Platform WebSocket connected — subscribing to /topic/platform");
 
         client.subscribe("/topic/platform", (message) => {
           try {
@@ -38,7 +45,7 @@ export function usePlatformWebSocket() {
             if (resource) {
               // Bump version - pages will use this to decide if they should refresh
               dispatch(bumpVersion(resource));
-              console.log(`[WS] Platform event: ${event.type} → bumped ${resource}`);
+              devLog(`[WS] Platform event: ${event.type} → bumped ${resource}`);
             }
           } catch {
             // ignore malformed messages
@@ -47,7 +54,7 @@ export function usePlatformWebSocket() {
       },
       onDisconnect: () => {
         setIsConnected(false);
-        console.log("[WS] Platform WebSocket disconnected");
+        devLog("[WS] Platform WebSocket disconnected");
       },
       onStompError: (frame) => {
         setIsConnected(false);

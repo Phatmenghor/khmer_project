@@ -10,7 +10,7 @@ import {
   DetailSection,
 } from "@/components/shared/modal/detail-section";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import { clearSelectedBusiness } from "../store/slice/business-slice";
+import { clearSelectedExchangeRate } from "../store/slice/exchage-rate-slice";
 import { fetchExchangeRateByIdService } from "../store/thunks/exchange-rate-thunks";
 import {
   selectIsFetchingDetail,
@@ -52,7 +52,7 @@ export function ExchangeRateDetailModal({
   }, [exchangeId, isOpen, dispatch]);
 
   const handleClose = () => {
-    dispatch(clearSelectedBusiness());
+    dispatch(clearSelectedExchangeRate());
     onClose();
   };
 

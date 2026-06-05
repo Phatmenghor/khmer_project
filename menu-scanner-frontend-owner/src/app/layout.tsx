@@ -1,4 +1,5 @@
 // src/app/layout.tsx
+import type { Viewport } from "next";
 import localFont from "next/font/local";
 import "../styles/globals.css";
 import { ReactNode } from "react";
@@ -50,6 +51,19 @@ export const metadata = {
     index: false, // Since this is a private dashboard
     follow: false,
   },
+};
+
+// Mobile-first viewport: respect iPhone safe area + let layout resize
+// when the soft keyboard opens.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0b0b" },
+  ],
+  interactiveWidget: "resizes-content",
 };
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;

@@ -106,7 +106,7 @@ export function ComboboxSelectProvince({
       } else {
         setData((prev) => {
           const existingIds = new Set(prev.map((i) => i.id));
-          return [...prev, ...result.content.filter((i) => !existingIds.has(i.id))];
+          return [...prev, ...result.content.filter((i: ProvinceResponseModel) => !existingIds.has(i.id))];
         });
       }
 

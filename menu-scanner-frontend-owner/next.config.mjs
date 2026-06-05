@@ -2,10 +2,6 @@
 const nextConfig = {
   output: "standalone",
 
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-
   allowedDevOrigins: ["d9b7-203-147-140-218.ngrok-free.app"],
 
   trailingSlash: false,

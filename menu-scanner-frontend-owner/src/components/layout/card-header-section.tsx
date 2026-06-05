@@ -32,6 +32,8 @@ interface CardHeaderSectionProps {
   tabs?: React.ReactNode;
   children?: React.ReactNode;
   children1?: React.ReactNode;
+  /** Optional breadcrumb trail rendered by callers above the card title. */
+  breadcrumbs?: Array<{ label: string; href: string }>;
 }
 
 export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({

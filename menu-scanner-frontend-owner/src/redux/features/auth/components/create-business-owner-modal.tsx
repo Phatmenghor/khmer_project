@@ -91,7 +91,7 @@ export default function CreateBusinessOwnerModal({ isOpen, onClose }: Props) {
     try {
       const result = await dispatch(
         createBusinessOwnerService({
-          ownerUserIdentifier: data.userIdentifier,
+          userIdentifier: data.userIdentifier,
           ownerEmail: data.ownerEmail,
           ownerPassword: data.ownerPassword,
           ownerFullName: data.ownerFullName,

@@ -1,23 +1,12 @@
 "use client";
 
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Controller, FieldValues } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TextFieldProps } from ".";
 
-interface TextFieldProps {
-  name: string;
-  label: string;
-  control: any;
-  error?: any;
-  disabled?: boolean;
-  required?: boolean;
-  type?: "text" | "email" | "tel" | "password" | "number";
-  placeholder?: string;
-  className?: string;
-}
-
-export function TextField({
+export function TextField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,
@@ -27,7 +16,7 @@ export function TextField({
   type = "text",
   placeholder = "",
   className = "",
-}: TextFieldProps) {
+}: TextFieldProps<T>) {
   return (
     <div className={`space-y-1 ${className}`}>
       <Label htmlFor={name} className="text-xs sm:text-xs font-semibold text-foreground">

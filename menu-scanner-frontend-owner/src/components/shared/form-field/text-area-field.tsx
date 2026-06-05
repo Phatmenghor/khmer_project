@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Controller, FieldValues } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TextareaFieldProps } from ".";
 
-export function TextareaField({
+export function TextareaField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,
@@ -16,7 +16,7 @@ export function TextareaField({
   placeholder = "",
   rows = 3,
   className = "",
-}: TextareaFieldProps) {
+}: TextareaFieldProps<T>) {
   return (
     <div className={`space-y-1 ${className}`}>
       <Label htmlFor={name} className="text-xs sm:text-xs font-semibold text-foreground">

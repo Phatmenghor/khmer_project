@@ -7,6 +7,9 @@ import roleReducer from "../features/auth/store/slice/role-slice";
 
 import exchangeRateReducer from "../features/master-data/store/slice/exchage-rate-slice";
 import subscriptionPlanReducer from "../features/master-data/store/slice/subscription-plan-slice";
+import paymentReducer from "../features/master-data/store/slice/payment-slice";
+
+import notificationReducer from "../features/notification/store/slice/notification-slice";
 
 import communeReducer from "../features/location/store/slice/commune-slice";
 import provinceReducer from "../features/location/store/slice/province-slice";
@@ -25,6 +28,8 @@ export const reducers = {
   roles: roleReducer,
   exchangeRate: exchangeRateReducer,
   subscriptionPlan: subscriptionPlanReducer,
+  payment: paymentReducer,
+  notification: notificationReducer,
   commune: communeReducer,
   province: provinceReducer,
   district: districtReducer,

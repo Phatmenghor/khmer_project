@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Controller, FieldValues } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { SelectFieldProps } from ".";
 
-export function SelectField({
+export function SelectField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,
@@ -23,7 +23,7 @@ export function SelectField({
   placeholder = "Select an option",
   onValueChange,
   className = "",
-}: SelectFieldProps) {
+}: SelectFieldProps<T>) {
   return (
     <div className={`space-y-1 ${className}`}>
       <Label htmlFor={name} className="text-xs sm:text-xs font-semibold text-foreground">

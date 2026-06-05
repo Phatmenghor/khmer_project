@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Controller, FieldValues } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { PasswordFieldProps } from ".";
 
-export function PasswordField({
+export function PasswordField<T extends FieldValues = FieldValues>({
   name,
   label,
   control,
@@ -18,7 +18,7 @@ export function PasswordField({
   onTogglePassword,
   showPassword = false,
   className = "",
-}: PasswordFieldProps) {
+}: PasswordFieldProps<T>) {
   return (
     <div className={`space-y-1 ${className}`}>
       <Label htmlFor={name} className="text-xs sm:text-xs font-semibold text-foreground">

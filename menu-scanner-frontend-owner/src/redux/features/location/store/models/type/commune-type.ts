@@ -1,4 +1,3 @@
-import { BusinessFilters } from "@/redux/features/master-data/store/models/type/business-type";
 import {
   AllCommuneResponseModel,
   CommuneResponseModel,

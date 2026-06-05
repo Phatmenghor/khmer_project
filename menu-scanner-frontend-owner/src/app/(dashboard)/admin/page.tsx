@@ -15,13 +15,24 @@ import {
   fetchOwnerDashboardUserTrendsService,
   fetchOwnerDashboardPaymentTrendsService,
 } from "@/redux/features/owner-dashboard/store/thunks/owner-dashboard-thunks";
+import dynamic from "next/dynamic";
+import { ChartSkeleton } from "./_components/chart-skeleton";
 import { DashboardHeader } from "./_components/dashboard-header";
 import { KpiSection } from "./_components/kpi-section";
-import { SubscriptionTrendsCard } from "./_components/subscription-trends-card";
 import { SubscriptionStatusCard } from "./_components/subscription-status-card";
 import { RecentOwnersCard } from "./_components/recent-owners-card";
 import { PlanBreakdownCard } from "./_components/plan-breakdown-card";
-import { DailyTrendsCard } from "./_components/daily-trends-card";
+
+// Recharts (~85 KB gz) is loaded only after the dashboard shell paints
+// so the admin landing route stays light.
+const SubscriptionTrendsCard = dynamic(
+  () => import("./_components/subscription-trends-card").then((m) => m.SubscriptionTrendsCard),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const DailyTrendsCard = dynamic(
+  () => import("./_components/daily-trends-card").then((m) => m.DailyTrendsCard),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
 
 export default function AdminDashboardPage() {
   const {
