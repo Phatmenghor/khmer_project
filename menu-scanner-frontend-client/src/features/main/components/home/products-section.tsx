@@ -10,6 +10,7 @@ import {
 } from "@/components/shared/common/section-header";
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
+import { PageState } from "@/components/shared/page-state";
 
 interface ProductsSectionProps {
   products: ProductDetailResponseModel[];
@@ -41,32 +42,25 @@ const ProductsSectionComponent = ({
   if (error) {
     return (
       <SectionWrapper>
-        <div className="flex flex-col items-center justify-center py-8">
-          <div className="text-xs mb-3">⚠️</div>
-          <h3 className="text-xs font-semibold text-foreground mb-1">
-            Error Loading Products
-          </h3>
-          <p className="text-muted-foreground text-center">
-            There was an error loading products. Please try again later.
-          </p>
-        </div>
+        <PageState
+          type="error"
+          title="Error Loading Products"
+          description="There was an error loading products. Please try again later."
+          size="sm"
+        />
       </SectionWrapper>
     );
   }
 
-
   if (products.length === 0 && !loading && !isInitialLoading) {
     return (
       <SectionWrapper>
-        <div className="flex flex-col items-center justify-center py-8">
-          <div className="text-xs mb-3">📦</div>
-          <h3 className="text-xs font-semibold text-foreground mb-1">
-            No Products Available
-          </h3>
-          <p className="text-muted-foreground text-center">
-            There are no products available at this time. Please check back later.
-          </p>
-        </div>
+        <PageState
+          type="empty"
+          title="No Products Available"
+          description="There are no products available at this time. Please check back later."
+          size="sm"
+        />
       </SectionWrapper>
     );
   }

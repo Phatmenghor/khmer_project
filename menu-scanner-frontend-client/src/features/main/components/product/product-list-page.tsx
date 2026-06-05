@@ -10,11 +10,12 @@ import {
 } from "@/features/main/store/slice/public-product-slice";
 import { usePublicProductState } from "@/features/main/store/state/public-product-state";
 import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
-import { CheckCircle2, Flame } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
+import { PageState } from "@/components/shared/page-state";
 
 
 const ProductFilters = dynamic(
@@ -272,26 +273,18 @@ export function ProductListPage({
                     )}
                 </>
               ) : (
-
-                <div className="text-center py-11">
-                  <div className="flex items-center justify-center w-11 h-11 rounded-full bg-muted mb-3 mx-auto">
-                    {lockedPromotion ? (
-                      <Flame className="h-5 w-5 text-muted-foreground" />
-                    ) : (
-                      <span className="text-xs">📦</span>
-                    )}
-                  </div>
-                  <h3 className="text-xs font-semibold mb-1">
-                    {lockedPromotion ? "No deals found" : "No products found"}
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {noSearch
+                <PageState
+                  type={noSearch ? "no-results" : "empty"}
+                  title={lockedPromotion ? "No deals found" : "No products found"}
+                  description={
+                    noSearch
                       ? `No results for "${noSearch}". Try different keywords.`
                       : lockedPromotion
                         ? "Try adjusting your filters or check back later for new promotions."
-                        : "Try adjusting your filters or check back later"}
-                  </p>
-                </div>
+                        : "Try adjusting your filters or check back later."
+                  }
+                  size="md"
+                />
               )}
             </div>
           </div>
