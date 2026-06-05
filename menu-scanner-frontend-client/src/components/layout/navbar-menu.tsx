@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { LogOut, Menu } from "lucide-react";
+import { LogOut, Menu, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -179,6 +179,18 @@ function NavbarMenuComponent({
                     </p>
                   </div>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full mb-1 transition-all duration-200"
+                  onClick={() => {
+                    onNavigate("/orders");
+                    onOpenChange(false);
+                  }}
+                >
+                  <ShoppingBag className="h-3 w-3 mr-1" />
+                  My Orders
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"

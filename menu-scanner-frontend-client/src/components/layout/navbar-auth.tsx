@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { useRouter } from "next/navigation";
-import { User, LogOut, MapPin } from "lucide-react";
+import { User, LogOut, MapPin, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
@@ -54,6 +54,11 @@ function NavbarAuthComponent({
           label: "My Profile",
           icon: <User className="h-3 w-3" />,
           onClick: () => router.push("/profile"),
+        },
+        {
+          label: "My Orders",
+          icon: <ShoppingBag className="h-3 w-3" />,
+          onClick: () => router.push("/orders"),
         },
         {
           label: "Location",
