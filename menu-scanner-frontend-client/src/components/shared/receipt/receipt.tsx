@@ -101,11 +101,11 @@ export function Receipt({
       <table style={{ width: "100%", borderCollapse: "collapse", fontWeight: 700, fontSize: "9px", borderBottom: "1px solid #111", paddingBottom: "3px", marginBottom: "3px" }}>
         <tbody>
           <tr>
-            <td style={{ paddingBottom: "3px" }}>ITEM</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "22px", paddingLeft: "4px", paddingBottom: "3px" }}>QTY</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", paddingLeft: "4px", paddingBottom: "3px" }}>PRICE</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "36px", paddingLeft: "4px", paddingBottom: "3px" }}>DISC</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", paddingLeft: "4px", paddingBottom: "3px" }}>TOTAL</td>
+            <td style={{ padding: "0", paddingBottom: "3px" }}>ITEM</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "22px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>QTY</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>PRICE</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "36px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>DISC</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>TOTAL</td>
           </tr>
         </tbody>
       </table>
@@ -165,13 +165,13 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
         <tbody>
           <tr style={{ verticalAlign: "middle" }}>
-            <td style={{ fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "0", width: "100%", paddingRight: "4px" }}>
+            <td style={{ fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "0", width: "100%", padding: "0", paddingRight: "4px" }}>
               {item.name}
             </td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "22px", paddingLeft: "4px" }}>{item.quantity}</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", paddingLeft: "4px" }}>{formatCurrency(item.finalPrice)}</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "36px", paddingLeft: "4px", color: item.hasPromotion ? "#dc2626" : "#999" }}>{discLabel}</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", paddingLeft: "4px", fontWeight: 700 }}>{formatAmount(item.totalPrice)}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "22px", padding: "0", paddingLeft: "4px" }}>{item.quantity}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", padding: "0", paddingLeft: "4px" }}>{formatCurrency(item.finalPrice)}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "36px", padding: "0", paddingLeft: "4px", color: item.hasPromotion ? "#dc2626" : "#999" }}>{discLabel}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", padding: "0", paddingLeft: "4px", fontWeight: 700 }}>{formatAmount(item.totalPrice)}</td>
           </tr>
         </tbody>
       </table>
