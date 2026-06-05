@@ -649,7 +649,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setBarcode(item.getBarcode() != null ? item.getBarcode() : product.getBarcode());
 
             orderItem.setQuantity(item.getQuantity());
-            orderItem.setCurrentPrice(item.getFinalPrice());
+            orderItem.setCurrentPrice(item.getCurrentPrice() != null ? item.getCurrentPrice() : item.getFinalPrice());
             orderItem.setUnitPrice(item.getFinalPrice());
             orderItem.setFinalPrice(item.getFinalPrice());
             orderItem.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() :
@@ -685,14 +685,18 @@ public class OrderServiceImpl implements OrderService {
             order.getItems().add(orderItem);
         }
 
+        BigDecimal computedCustomizationTotal = order.getItems().stream()
+                .map(oi -> oi.getCustomizationTotal() != null ? oi.getCustomizationTotal() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         order.setSubtotal(subtotal);
-        order.setCustomizationTotal(customizationTotal);
+        order.setCustomizationTotal(computedCustomizationTotal);
         order.setDiscountAmount(discountAmount);
         order.setHadOrderLevelChangeFromPOS(false);
 
         BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
         BigDecimal taxAmount = order.getTaxAmount() != null ? order.getTaxAmount() : BigDecimal.ZERO;
-        BigDecimal totalAmount = subtotal.add(customizationTotal).add(deliveryFee).add(taxAmount).subtract(discountAmount);
+        BigDecimal totalAmount = subtotal.add(computedCustomizationTotal).add(deliveryFee).add(taxAmount).subtract(discountAmount);
         order.setTotalAmount(totalAmount);
 
         // Save order and items first

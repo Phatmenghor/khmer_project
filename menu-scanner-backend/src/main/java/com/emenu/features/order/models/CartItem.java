@@ -84,7 +84,8 @@ public class CartItem extends BaseUUIDEntity {
 
     public BigDecimal getTotalPrice() {
         BigDecimal basePrice = getFinalPrice().multiply(BigDecimal.valueOf(quantity));
-        return basePrice.add(getTotalCustomizationPrice());
+        BigDecimal customizationTotal = getTotalCustomizationPrice().multiply(BigDecimal.valueOf(quantity));
+        return basePrice.add(customizationTotal);
     }
 
     public Boolean hasDiscount() {
