@@ -154,7 +154,10 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // only on mount
 
-  const isBannerLoading = !mounted || !bannersSection.loaded;
+  const isBannerLoading         = !mounted || !bannersSection.loaded;
+  const isCategoryLoading       = !mounted || !categoriesSection.loaded;
+  const isPromotionLoading      = !mounted || !promotionProductsSection.loaded;
+  const isInitialFeaturedLoading = !mounted || !featuredProductsSection.loaded;
 
   // ── sequential waterfall fetch ───────────────────────────────────────────
   // Fetch banner → categories → promotions → featured one at a time so each
@@ -225,7 +228,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* 1. Banner — always rendered, skeleton until loaded */}
+      {/* All sections render immediately — each shows its own skeleton until
+          its data arrives. API fetches happen sequentially (banner → categories
+          → promotions → featured) so data fills in top-to-bottom. */}
       <div className="relative">
         <PageContainer className="pt-2 sm:pt-4">
           <BannerSection
@@ -236,52 +241,43 @@ export default function HomePage() {
         </PageContainer>
       </div>
 
-      {/* 2. Categories — only appears (with skeleton) after banner resolves */}
-      {bannersSection.loaded && (
-        <div className="relative py-4 sm:py-7 bg-muted/5">
-          <PageContainer>
-            <CategoriesSection
-              categories={categories}
-              loading={!categoriesSection.loaded}
-              error={categoriesSection.error}
-              title="Shop by Category"
-            />
-          </PageContainer>
-        </div>
-      )}
+      <div className="relative py-4 sm:py-7 bg-muted/5">
+        <PageContainer>
+          <CategoriesSection
+            categories={categories}
+            loading={isCategoryLoading}
+            error={categoriesSection.error}
+            title="Shop by Category"
+          />
+        </PageContainer>
+      </div>
 
-      {/* 3. Promotions — only appears after categories resolve */}
-      {categoriesSection.loaded && (
-        <div className="relative py-4 sm:py-7 bg-amber-50/30 dark:bg-amber-950/10">
-          <PageContainer>
-            <PromotionsSection
-              products={promotionProducts}
-              loading={!promotionProductsSection.loaded}
-              error={promotionProductsSection.error}
-              title="Hot Deals & Promotions"
-            />
-          </PageContainer>
-        </div>
-      )}
+      <div className="relative py-4 sm:py-7 bg-amber-50/30 dark:bg-amber-950/10">
+        <PageContainer>
+          <PromotionsSection
+            products={promotionProducts}
+            loading={isPromotionLoading}
+            error={promotionProductsSection.error}
+            title="Hot Deals & Promotions"
+          />
+        </PageContainer>
+      </div>
 
-      {/* 4. Featured products — only appears after promotions resolve */}
-      {promotionProductsSection.loaded && (
-        <div className="relative py-4 sm:py-7">
-          <PageContainer>
-            <ProductsSection
-              products={featuredProducts}
-              loading={featuredProductsSection.loading}
-              error={featuredProductsSection.error}
-              title="Featured Products"
-              subtitle="Handpicked products just for you"
-              hasMore={featuredPagination.hasMore}
-              onLoadMore={handleLoadMoreFeatured}
-              isInitialLoading={!featuredProductsSection.loaded}
-              imageLoading="eager"
-            />
-          </PageContainer>
-        </div>
-      )}
+      <div className="relative py-4 sm:py-7">
+        <PageContainer>
+          <ProductsSection
+            products={featuredProducts}
+            loading={featuredProductsSection.loading}
+            error={featuredProductsSection.error}
+            title="Featured Products"
+            subtitle="Handpicked products just for you"
+            hasMore={featuredPagination.hasMore}
+            onLoadMore={handleLoadMoreFeatured}
+            isInitialLoading={isInitialFeaturedLoading}
+            imageLoading="eager"
+          />
+        </PageContainer>
+      </div>
     </div>
   );
 }
