@@ -10,7 +10,13 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "audit_logs")
+@Table(name = "audit_logs",
+        indexes = {
+                @Index(name = "idx_audit_logs_user_id",    columnList = "user_id"),
+                @Index(name = "idx_audit_logs_created_at", columnList = "created_at"),
+                @Index(name = "idx_audit_logs_ip_address", columnList = "ip_address")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

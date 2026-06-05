@@ -12,7 +12,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "leaves")
+@Table(name = "leaves",
+        indexes = {
+                @Index(name = "idx_leaves_user_id",     columnList = "user_id"),
+                @Index(name = "idx_leaves_business_id", columnList = "business_id")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder

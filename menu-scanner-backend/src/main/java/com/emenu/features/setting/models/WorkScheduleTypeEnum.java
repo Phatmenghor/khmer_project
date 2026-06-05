@@ -10,7 +10,11 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "work_schedule_type_enum")
+@Table(name = "work_schedule_type_enum",
+        indexes = {
+                @Index(name = "idx_work_schedule_type_enum_business_id", columnList = "business_id")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Builder

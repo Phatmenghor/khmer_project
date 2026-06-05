@@ -6,7 +6,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "user_educations")
+@Table(name = "user_educations",
+        indexes = {
+                @Index(name = "idx_user_educations_user_id", columnList = "user_id")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true, exclude = "user")
 @ToString(exclude = "user")

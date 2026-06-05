@@ -8,7 +8,13 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "stock_movements")
+@Table(name = "stock_movements",
+        indexes = {
+                @Index(name = "idx_stock_movements_product_stock_id", columnList = "product_stock_id"),
+                @Index(name = "idx_stock_movements_business_id",      columnList = "business_id"),
+                @Index(name = "idx_stock_movements_order_id",         columnList = "order_id")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

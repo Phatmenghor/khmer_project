@@ -12,7 +12,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "portfolio_profile")
+@Table(name = "portfolio_profile",
+        indexes = {
+                @Index(name = "idx_portfolio_profile_business_id", columnList = "business_id")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

@@ -11,6 +11,9 @@ import lombok.EqualsAndHashCode;
 @Table(name = "location_district_cbc",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_district_code", columnNames = "district_code")
+        },
+        indexes = {
+                @Index(name = "idx_district_province_code", columnList = "province_code")
         }
 )
 public class District extends BaseUUIDEntity {
