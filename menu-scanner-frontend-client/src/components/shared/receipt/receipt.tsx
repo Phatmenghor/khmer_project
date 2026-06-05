@@ -97,24 +97,24 @@ export function Receipt({
         )}
       </div>
 
-      {/* Column headers */}
-      <table style={{ width: "100%", borderCollapse: "collapse", fontWeight: 700, fontSize: "7px", borderBottom: "1px solid #111", paddingBottom: "3px", marginBottom: "3px" }}>
-        <tbody>
-          <tr>
-            <td style={{ padding: "0", paddingBottom: "3px" }}>ITEM</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "22px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>QTY</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>PRICE</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "36px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>DISC</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>TOTAL</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Items */}
-      <div style={{ marginBottom: "8px" }}>
-        {items.map((item, i) => (
-          <ItemRow key={item.id} item={item} index={i} />
-        ))}
+      {/* Column headers + Items — zoomed to 70% to bypass browser minimum font size */}
+      <div style={{ zoom: 0.7 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontWeight: 700, fontSize: "10px", borderBottom: "1px solid #111", paddingBottom: "3px", marginBottom: "3px" }}>
+          <tbody>
+            <tr>
+              <td style={{ padding: "0", paddingBottom: "3px" }}>ITEM</td>
+              <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "24px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>QTY</td>
+              <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "52px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>PRICE</td>
+              <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "40px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>DISC</td>
+              <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "52px", padding: "0", paddingLeft: "4px", paddingBottom: "3px" }}>TOTAL</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style={{ marginBottom: "8px" }}>
+          {items.map((item, i) => (
+            <ItemRow key={item.id} item={item} index={i} />
+          ))}
+        </div>
       </div>
 
       {/* Summary */}
@@ -162,24 +162,24 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
 
   return (
     <div style={{ marginBottom: "2px" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "7px" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
         <tbody>
           <tr style={{ verticalAlign: "top" }}>
-            <td style={{ fontWeight: 600, wordBreak: "break-word", width: "100%", padding: "0", paddingRight: "4px" }}>
+            <td style={{ wordBreak: "break-word", width: "100%", padding: "0", paddingRight: "4px" }}>
               {item.name}
             </td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "22px", padding: "0", paddingLeft: "4px" }}>{item.quantity}</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", padding: "0", paddingLeft: "4px" }}>{formatCurrency(item.finalPrice)}</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "36px", padding: "0", paddingLeft: "4px" }}>{discLabel}</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", padding: "0", paddingLeft: "4px", fontWeight: 700 }}>{formatAmount(item.totalPrice)}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "24px", padding: "0", paddingLeft: "4px" }}>{item.quantity}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "52px", padding: "0", paddingLeft: "4px" }}>{formatCurrency(item.finalPrice)}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "40px", padding: "0", paddingLeft: "4px" }}>{discLabel}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "52px", padding: "0", paddingLeft: "4px", fontWeight: 700 }}>{formatAmount(item.totalPrice)}</td>
           </tr>
         </tbody>
       </table>
       {item.sizeName && (
-        <div style={{ fontSize: "6px", color: "#777", paddingLeft: "4px" }}>Size: {item.sizeName}</div>
+        <div style={{ fontSize: "9px", color: "#777", paddingLeft: "4px" }}>Size: {item.sizeName}</div>
       )}
       {item.customizations?.map((c) => (
-        <div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "6px", color: "#777", paddingLeft: "4px" }}>
+        <div key={c.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "9px", color: "#777", paddingLeft: "4px" }}>
           <span>+ {c.name}</span>
           {(c.priceAdjustment ?? 0) > 0 && <span>+{formatCurrency(c.priceAdjustment)}</span>}
         </div>
