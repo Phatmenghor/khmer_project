@@ -1,0 +1,295 @@
+.
+├── a_git_push.sh
+├── b_build.sh
+├── c_git_pull.sh
+├── components.json
+├── files.txt
+├── next-env.d.ts
+├── next.config.mjs
+├── package-lock.json
+├── package.json
+├── pm2.config.js
+├── postcss.config.mjs
+├── public
+│   ├── assets
+│   │   ├── favicon.ico
+│   │   ├── icons
+│   │   │   ├── excel.png
+│   │   │   ├── facebook.svg
+│   │   │   ├── instagram.svg
+│   │   │   └── telegram.svg
+│   │   └── image
+│   │       ├── cpbank.png
+│   │       └── no-image.png
+│   ├── flags
+│   │   ├── kh.svg
+│   │   ├── usa.svg
+│   │   └── zh-CN.svg
+│   └── fonts
+│       ├── GeistMonoVF.woff
+│       └── GeistVF.woff
+├── README.md
+├── src
+│   ├── app
+│   │   ├── (auth)
+│   │   │   ├── layout.tsx
+│   │   │   ├── login
+│   │   │   └── signup
+│   │   ├── (profile)
+│   │   │   ├── business-profile
+│   │   │   └── layout.tsx
+│   │   ├── (public)
+│   │   │   ├── brands
+│   │   │   ├── cart
+│   │   │   ├── categories
+│   │   │   ├── checkout
+│   │   │   ├── favorites
+│   │   │   ├── layout.tsx
+│   │   │   ├── location
+│   │   │   ├── orders
+│   │   │   ├── page.tsx
+│   │   │   ├── products
+│   │   │   ├── profile
+│   │   │   └── promotions
+│   │   ├── admin
+│   │   │   ├── _components
+│   │   │   ├── (business)
+│   │   │   ├── (master-data)
+│   │   │   ├── (service)
+│   │   │   ├── admin-sessions
+│   │   │   ├── business-profile
+│   │   │   ├── hr
+│   │   │   ├── layout.tsx
+│   │   │   ├── manage-business-settings
+│   │   │   ├── manage-stock
+│   │   │   ├── page.tsx
+│   │   │   ├── plan
+│   │   │   ├── profile
+│   │   │   └── users
+│   │   ├── error.tsx
+│   │   ├── layout.tsx
+│   │   └── not-found.tsx
+│   ├── components
+│   │   ├── business-profile
+│   │   │   └── review-submission-modal.tsx
+│   │   ├── layout
+│   │   │   ├── admin-footer.tsx
+│   │   │   ├── bottom-nav.tsx
+│   │   │   ├── card-header-section.tsx
+│   │   │   ├── dashboard-layout.tsx
+│   │   │   ├── dashboard-sidebar.tsx
+│   │   │   ├── footer.tsx
+│   │   │   ├── navbar-auth.tsx
+│   │   │   ├── navbar-cart.tsx
+│   │   │   ├── navbar-links.tsx
+│   │   │   ├── navbar-menu.tsx
+│   │   │   ├── navbar-search.tsx
+│   │   │   ├── navbar.tsx
+│   │   │   └── topbar.tsx
+│   │   ├── pos-custom
+│   │   │   ├── pos-cart-item.tsx
+│   │   │   ├── pos-edit-cart-item-modal.tsx
+│   │   │   ├── pos-more-options-modal.tsx
+│   │   │   ├── pos-order-success-modal.tsx
+│   │   │   └── receipt.tsx
+│   │   ├── shared
+│   │   │   ├── auth
+│   │   │   ├── avatar
+│   │   │   ├── button
+│   │   │   ├── card
+│   │   │   ├── cart-item-card
+│   │   │   ├── combobox
+│   │   │   ├── common
+│   │   │   ├── empty-state
+│   │   │   ├── form-field
+│   │   │   ├── grid
+│   │   │   ├── index.ts
+│   │   │   ├── input
+│   │   │   ├── modal
+│   │   │   ├── page-state
+│   │   │   ├── progress
+│   │   │   ├── qr
+│   │   │   ├── receipt
+│   │   │   ├── skeletons
+│   │   │   ├── telegram
+│   │   │   └── theme
+│   │   └── ui
+│   │       ├── alert-dialog.tsx
+│   │       ├── alert.tsx
+│   │       ├── avatar.tsx
+│   │       ├── badge.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── carousel.tsx
+│   │       ├── checkbox.tsx
+│   │       ├── command.tsx
+│   │       ├── dialog.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── popover.tsx
+│   │       ├── scroll-area.tsx
+│   │       ├── select.tsx
+│   │       ├── separator.tsx
+│   │       ├── sheet.tsx
+│   │       ├── skeleton.tsx
+│   │       ├── switch.tsx
+│   │       ├── table.tsx
+│   │       ├── textarea.tsx
+│   │       └── tooltip.tsx
+│   ├── constants
+│   │   ├── alert-messages.ts
+│   │   ├── app-resource
+│   │   │   ├── default
+│   │   │   └── icons
+│   │   ├── app-routes
+│   │   │   └── routes.ts
+│   │   ├── business-settings.ts
+│   │   ├── cookie-keys.ts
+│   │   ├── defaults
+│   │   │   └── business-settings-default.json
+│   │   ├── form-options.ts
+│   │   ├── messages.ts
+│   │   └── status
+│   │       ├── create-update-status.ts
+│   │       ├── filter-status.ts
+│   │       ├── status.ts
+│   │       ├── type.ts
+│   │       └── user-enums.ts
+│   ├── data
+│   │   ├── business-profile-template.ts
+│   │   └── business-profile.mock.json
+│   ├── enums
+│   │   ├── order-source.enum.ts
+│   │   ├── order-status.enum.ts
+│   │   └── order.enum.ts
+│   ├── features
+│   │   ├── auth
+│   │   │   ├── components
+│   │   │   ├── store
+│   │   │   └── table
+│   │   ├── business
+│   │   │   ├── components
+│   │   │   ├── store
+│   │   │   └── table
+│   │   ├── dashboard
+│   │   │   └── store
+│   │   ├── hr
+│   │   │   ├── components
+│   │   │   ├── store
+│   │   │   └── table
+│   │   ├── location
+│   │   │   ├── components
+│   │   │   ├── store
+│   │   │   └── utils
+│   │   ├── main
+│   │   │   ├── components
+│   │   │   └── store
+│   │   ├── master-data
+│   │   │   ├── components
+│   │   │   ├── store
+│   │   │   └── table
+│   │   ├── portfolio
+│   │   │   ├── components
+│   │   │   ├── store
+│   │   │   └── table
+│   │   └── sessions
+│   │       ├── components
+│   │       ├── store
+│   │       └── table
+│   ├── hooks
+│   │   ├── use-auth-init.ts
+│   │   ├── use-bulk-promotion-sizes-storage-sync.ts
+│   │   ├── use-bulk-promotion-storage-sync.ts
+│   │   ├── use-business-colors.ts
+│   │   ├── use-business-theme.ts
+│   │   ├── use-cart-debounce.ts
+│   │   ├── use-cleanup-on-unmount.ts
+│   │   ├── use-dashboard-websocket.ts
+│   │   ├── use-download-receipt.ts
+│   │   ├── use-filter-url-sync.ts
+│   │   ├── use-local-storage-sync.ts
+│   │   ├── use-logout.ts
+│   │   ├── use-mobile.tsx
+│   │   ├── use-pagination-load-more.ts
+│   │   ├── use-pagination.tsx
+│   │   ├── use-scroll-restoration.ts
+│   │   └── use-skeleton-count.ts
+│   ├── i18n
+│   │   └── request.ts
+│   ├── lib
+│   │   └── utils.ts
+│   ├── messages
+│   │   ├── en.json
+│   │   ├── kh.json
+│   │   └── zh-CN.json
+│   ├── providers
+│   │   ├── auth-provider.tsx
+│   │   ├── client-provider.tsx
+│   │   └── locale-provider.tsx
+│   ├── services
+│   │   ├── image-service.ts
+│   │   └── stock-management-service.ts
+│   ├── store
+│   │   ├── index.ts
+│   │   ├── middleware.ts
+│   │   ├── reducers.ts
+│   │   ├── selectors
+│   │   │   └── global-settings-selectors.ts
+│   │   └── slices
+│   │       └── global-settings-slice.ts
+│   ├── styles
+│   │   └── globals.css
+│   ├── types
+│   │   ├── business-profile.ts
+│   │   ├── index.ts
+│   │   └── subscription.ts
+│   └── utils
+│       ├── axios
+│       │   ├── api-wrapper.ts
+│       │   └── index.ts
+│       ├── common
+│       │   ├── common.ts
+│       │   ├── currency-format.ts
+│       │   ├── customization-utils.ts
+│       │   ├── error-handler.ts
+│       │   ├── get-all-request.ts
+│       │   ├── get-field-error.ts
+│       │   ├── home-cache.ts
+│       │   ├── pagination.ts
+│       │   ├── parse-work-days.tsx
+│       │   ├── quantity-utils.ts
+│       │   ├── theme-cache.ts
+│       │   └── upload-image.ts
+│       ├── date
+│       │   └── date-time-format.ts
+│       ├── debounce
+│       │   └── debounce.ts
+│       ├── format
+│       │   ├── enum-formatter.ts
+│       │   ├── exchange-rate-formatter.ts
+│       │   └── product-count-formatter.ts
+│       ├── local-storage
+│       │   ├── token.ts
+│       │   └── userInfo.ts
+│       ├── location
+│       │   └── geocoding.ts
+│       ├── metadata
+│       │   └── metadata-builder.ts
+│       ├── persistence
+│       │   ├── IMPLEMENTATION_STATUS.md
+│       │   ├── PERSISTENCE_GUIDE.md
+│       │   ├── use-local-storage.ts
+│       │   ├── use-pos-persistence.ts
+│       │   └── use-url-params.ts
+│       ├── scroll
+│       │   └── scroll-manager.ts
+│       └── storage
+│           └── business-settings-storage.ts
+├── start-remove-git.sh
+├── structure.txt
+├── tailwind.config.ts
+├── tsconfig.json
+└── yarn.lock
+
+129 directories, 164 files
