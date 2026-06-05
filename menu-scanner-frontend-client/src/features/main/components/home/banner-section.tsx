@@ -38,13 +38,12 @@ const BannerSectionComponent = ({
   );
 
 
+  // Guard against SSR — Autoplay accesses `window` on init, so only
+  // create it on the client. The ref stays stable across re-renders.
   const autoplayPlugin = useRef(
-    Autoplay({
-      delay: 5000,
-      stopOnInteraction: false,
-      stopOnMouseEnter: false,
-      playOnInit: true,
-    }),
+    typeof window !== "undefined"
+      ? Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: false, playOnInit: true })
+      : null,
   );
 
   useEffect(() => {
@@ -84,7 +83,7 @@ const BannerSectionComponent = ({
       <div className="relative">
         <Carousel
           setApi={setCarouselApi}
-          plugins={[autoplayPlugin.current]}
+          plugins={autoplayPlugin.current ? [autoplayPlugin.current] : []}
           className="w-full"
           opts={{
             loop: true,

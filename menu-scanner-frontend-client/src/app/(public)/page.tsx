@@ -21,7 +21,6 @@ import { CategoriesSection } from "@/features/main/components/home/categories-se
 import { PromotionsSection } from "@/features/main/components/home/promotions-section";
 import { ProductsSection } from "@/features/main/components/home/products-section";
 import { PageContainer } from "@/components/shared/common/page-container";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { saveHomeSnapshot, loadHomeSnapshot } from "@/utils/common/home-cache";
 
@@ -225,25 +224,14 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* All sections render immediately — each shows its own skeleton until
-          its data arrives. API fetches happen sequentially (banner → categories
-          → promotions → featured) so data fills in top-to-bottom. */}
+      {/* All sections always in DOM — each shows its own skeleton until loaded */}
       <div className="relative">
         <PageContainer className="pt-2 sm:pt-4">
-          {/* BannerSection uses embla Autoplay which touches `window` on init.
-              Render a plain skeleton before mount to avoid SSR blank, then
-              hand off to BannerSection once the client is ready. */}
-          {!mounted ? (
-            <div className="w-full mb-3 sm:mb-5">
-              <Skeleton className="w-full h-[180px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded" />
-            </div>
-          ) : (
-            <BannerSection
-              banners={banners}
-              loading={!bannersSection.loaded}
-              error={bannersSection.error}
-            />
-          )}
+          <BannerSection
+            banners={banners}
+            loading={!mounted || !bannersSection.loaded}
+            error={bannersSection.error}
+          />
         </PageContainer>
       </div>
 
