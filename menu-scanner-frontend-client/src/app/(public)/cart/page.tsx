@@ -169,8 +169,7 @@ function CartPage() {
     router.push("/checkout");
   };
 
-  if (!mounted || !authReady) return <CartPageSkeleton />;
-  if (loading.fetch && !loaded) return <CartPageSkeleton />;
+  if (!mounted || !authReady || (loading.fetch && !loaded)) return <CartPageSkeleton />;
 
   if (!isAuthenticated) {
     return (

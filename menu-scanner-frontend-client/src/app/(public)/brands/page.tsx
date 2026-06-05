@@ -27,7 +27,7 @@ export default function BrandsPage() {
     pagination,
     fetchBrands,
     hasMore,
-    isInitialLoading,
+    isInitialLoading: stateIsLoading,
     isLoadingMore,
     totalBrands,
   } = usePublicBrandsState();
@@ -35,6 +35,8 @@ export default function BrandsPage() {
   const skeletonCount = useSkeletonCount(SkeletonPresets.categoryGrid);
 
   useScrollRestoration({ enabled: true, restoreOnMount: true, customKey: "brands" });
+
+  const isInitialLoading = !mounted || stateIsLoading;
 
   useEffect(() => {
     fetchBrands({ pageNo: 1, status: "ACTIVE", search });
@@ -77,7 +79,7 @@ export default function BrandsPage() {
         />
 
         {}
-        {mounted && !isInitialLoading && brands.length === 0 && (
+        {!isInitialLoading && brands.length === 0 && (
           <PageState
             type="empty"
             title="No brands available"
@@ -87,13 +89,13 @@ export default function BrandsPage() {
         )}
 
         {}
-        {(brands.length > 0 || isInitialLoading || !mounted) && (
+        {(brands.length > 0 || isInitialLoading) && (
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {brands.map((brand) => (
                 <BrandCard key={brand.id} brand={brand} />
               ))}
-              {(isInitialLoading || isLoadingMore || !mounted) &&
+              {(isInitialLoading || isLoadingMore) &&
                 Array.from({ length: skeletonCount }).map((_, i) => (
                   <BrandCardSkeleton key={`skeleton-${i}`} />
                 ))}

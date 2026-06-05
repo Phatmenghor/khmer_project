@@ -25,7 +25,7 @@ export default function CategoriesPage() {
     categories,
     pagination,
     hasMore,
-    isInitialLoading,
+    isInitialLoading: stateIsLoading,
     isLoadingMore,
     totalCategories,
     fetchCategories,
@@ -34,6 +34,8 @@ export default function CategoriesPage() {
   const skeletonCount = useSkeletonCount(SkeletonPresets.categoryGrid);
 
   useScrollRestoration({ enabled: true, restoreOnMount: true, customKey: "categories" });
+
+  const isInitialLoading = !mounted || stateIsLoading;
 
   useEffect(() => {
     fetchCategories({ pageNo: 1, status: "ACTIVE", search });
@@ -75,7 +77,7 @@ export default function CategoriesPage() {
         />
 
         {}
-        {mounted && !isInitialLoading && categories.length === 0 && (
+        {!isInitialLoading && categories.length === 0 && (
           <PageState
             type="empty"
             title="No categories found"
@@ -85,13 +87,13 @@ export default function CategoriesPage() {
         )}
 
         {}
-        {(categories.length > 0 || isInitialLoading || !mounted) && (
+        {(categories.length > 0 || isInitialLoading) && (
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {categories.map((category) => (
                 <CategoryCard key={category.id} category={category} />
               ))}
-              {(isInitialLoading || isLoadingMore || !mounted) &&
+              {(isInitialLoading || isLoadingMore) &&
                 Array.from({ length: skeletonCount }).map((_, i) => (
                   <CategoryCardSkeleton key={`skeleton-${i}`} />
                 ))}
