@@ -9,7 +9,6 @@ import {
   setLoadedFilters,
 } from "@/features/main/store/slice/public-product-slice";
 import { usePublicProductState } from "@/features/main/store/state/public-product-state";
-import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-skeleton";
 import { CheckCircle2 } from "lucide-react";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
@@ -225,54 +224,7 @@ export function ProductListPage({
             <div className="flex-1 min-w-0">
 
               {}
-              {isInitialLoad ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-                  {Array.from({ length: 12 }).map((_, i) => (
-                    <ProductCardSkeleton key={`skeleton-initial-${i}`} />
-                  ))}
-                </div>
-              ) : products.length > 0 ? (
-                <>
-                  <PaginatedProductsGrid
-                    products={products}
-                    loading={loading.list}
-                    hasMore={pagination.hasMore}
-                    onLoadMore={debouncedLoadMore}
-                    isInitialLoading={false}
-                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3"
-                    sectionKey={lockedPromotion ? "promotions" : "products"}
-                  />
-
-                  {}
-                  {!pagination.hasMore &&
-                    products.length > 0 &&
-                    !loading.list && (
-                      <div className="flex flex-col items-center justify-center mt-7 py-5">
-                        <div
-                          className={`flex items-center justify-center w-11 h-11 rounded-full mb-3 ${
-                            lockedPromotion
-                              ? "bg-orange-500/10"
-                              : "bg-primary/10"
-                          }`}
-                        >
-                          <CheckCircle2
-                            className={`h-5 w-5 ${lockedPromotion ? "text-orange-500" : "text-primary"}`}
-                          />
-                        </div>
-                        <h3 className="text-xs font-semibold mb-1">
-                          {lockedPromotion
-                            ? "All deals loaded!"
-                            : "You've seen it all!"}
-                        </h3>
-                        <p className="text-xs text-muted-foreground text-center max-w-md">
-                          {lockedPromotion
-                            ? "You've seen all current promotions. Check back later for new deals!"
-                            : "You've reached the end of products. Check back later for new arrivals!"}
-                        </p>
-                      </div>
-                    )}
-                </>
-              ) : (
+              {mounted && !loading.list && products.length === 0 && (
                 <PageState
                   type={noSearch ? "no-results" : "empty"}
                   title={lockedPromotion ? "No deals found" : "No products found"}
@@ -285,6 +237,44 @@ export function ProductListPage({
                   }
                   size="md"
                 />
+              )}
+
+              {}
+              {(products.length > 0 || isInitialLoad) && (
+                <>
+                  <PaginatedProductsGrid
+                    products={products}
+                    loading={loading.list}
+                    hasMore={pagination.hasMore}
+                    onLoadMore={debouncedLoadMore}
+                    isInitialLoading={isInitialLoad}
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3"
+                    sectionKey={lockedPromotion ? "promotions" : "products"}
+                  />
+
+                  {}
+                  {!pagination.hasMore && products.length > 0 && !loading.list && (
+                    <div className="flex flex-col items-center justify-center mt-7 py-5">
+                      <div
+                        className={`flex items-center justify-center w-11 h-11 rounded-full mb-3 ${
+                          lockedPromotion ? "bg-orange-500/10" : "bg-primary/10"
+                        }`}
+                      >
+                        <CheckCircle2
+                          className={`h-5 w-5 ${lockedPromotion ? "text-orange-500" : "text-primary"}`}
+                        />
+                      </div>
+                      <h3 className="text-xs font-semibold mb-1">
+                        {lockedPromotion ? "All deals loaded!" : "You've seen it all!"}
+                      </h3>
+                      <p className="text-xs text-muted-foreground text-center max-w-md">
+                        {lockedPromotion
+                          ? "You've seen all current promotions. Check back later for new deals!"
+                          : "You've reached the end of products. Check back later for new arrivals!"}
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
