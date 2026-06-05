@@ -329,7 +329,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
         </td>
         <td
           style={{
-            textAlign: "right",
+            textAlign: "left",
             whiteSpace: "nowrap",
             padding: "2px 0",
             paddingLeft: "4px",
@@ -341,7 +341,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
         </td>
         <td
           style={{
-            textAlign: "right",
+            textAlign: "left",
             whiteSpace: "nowrap",
             padding: "2px 0",
             paddingLeft: "4px",
