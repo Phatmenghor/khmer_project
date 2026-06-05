@@ -73,11 +73,11 @@ export function Receipt({
   const s: React.CSSProperties = { fontFamily: FONT, fontSize: "10px", lineHeight: "1.5" };
 
   return (
-    <div style={{ ...s, width: "100%", maxWidth: "380px", margin: "0 auto", background: "#fff", padding: "16px 0", color: "#111" }}>
+    <div style={{ ...s, width: "100%", maxWidth: "380px", margin: "0 auto", background: "#fff", padding: "16px 10px", color: "#111" }}>
       <style>{`@media print { body { margin:0 } }`}</style>
 
       {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: "8px", padding: "0 10px" }}>
+      <div style={{ textAlign: "center", marginBottom: "8px" }}>
         <div style={{ fontWeight: 700, fontSize: "13px", letterSpacing: "2px", marginBottom: "2px" }}>
           {businessName.toUpperCase()}
         </div>
@@ -85,7 +85,7 @@ export function Receipt({
       </div>
 
       {/* Order info */}
-      <div style={{ borderTop: "2px solid #111", borderBottom: "1px dashed #999", padding: "6px 10px", marginBottom: "8px", fontSize: "10px" }}>
+      <div style={{ borderTop: "2px solid #111", borderBottom: "1px dashed #999", padding: "6px 0", marginBottom: "8px", fontSize: "10px" }}>
         <InfoRow label="Order#" value={orderNumber} bold />
         <InfoRow label="Date" value={dateStr} />
         <InfoRow label="Time" value={timeStr} />
@@ -118,7 +118,7 @@ export function Receipt({
       </div>
 
       {/* Summary */}
-      <div style={{ borderTop: "1px dashed #999", fontSize: "10px", padding: "6px 10px 0" }}>
+      <div style={{ borderTop: "1px dashed #999", fontSize: "10px", paddingTop: "6px" }}>
         <SummaryRow label="Subtotal" value={formatCurrency(pricing.subtotal)} />
         {(pricing.customizationTotal ?? 0) > 0 && (
           <SummaryRow label="Add-ons" value={`+${formatCurrency(pricing.customizationTotal!)}`} />
@@ -136,13 +136,13 @@ export function Receipt({
       </div>
 
       {/* Total */}
-      <div style={{ borderTop: "2px solid #111", borderBottom: "2px solid #111", margin: "6px 0", padding: "6px 10px", display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "12px" }}>
+      <div style={{ borderTop: "2px solid #111", borderBottom: "2px solid #111", margin: "6px 0", padding: "6px 0", display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "12px" }}>
         <span>TOTAL AMOUNT</span>
         <span>{formatCurrency(pricing.finalTotal)}</span>
       </div>
 
       {/* Footer */}
-      <div style={{ textAlign: "center", fontSize: "9px", color: "#555", padding: "8px 10px 0" }}>
+      <div style={{ textAlign: "center", fontSize: "9px", color: "#555", paddingTop: "8px" }}>
         <div>Thank you for your order!</div>
         <div>Please visit again</div>
         <div style={{ marginTop: "4px" }}>{dateStr} {timeStr}</div>
