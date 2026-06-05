@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { BannerResponseModel } from "@/features/master-data/store/models/response/banner-response";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Carousel,
   CarouselContent,
@@ -69,7 +68,9 @@ const BannerSectionComponent = ({
   if (loading) {
     return (
       <div className="w-full mb-3 sm:mb-5">
-        <Skeleton className="w-full h-[180px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded" />
+        <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded overflow-hidden bg-muted">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+        </div>
       </div>
     );
   }
