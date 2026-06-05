@@ -1,6 +1,8 @@
 package com.emenu.shared.ratelimit;
 
 import com.emenu.shared.utils.ClientIpUtils;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.FilterChain;
@@ -19,9 +21,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Per-IP/user rate limiter using Bucket4j with Caffeine-backed bucket storage.
+ * Caffeine auto-expires idle buckets after 2 minutes, preventing memory leaks
+ * from unique IP addresses accumulating in a plain ConcurrentHashMap.
+ *
+ * Limits:
+ *   - Auth endpoints (/api/v1/auth/**): 10 requests / minute
+ *   - All other endpoints:              50 requests / minute
+ */
 @Component
 @Order(2)
 @Slf4j
@@ -29,9 +38,19 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final int GENERAL_LIMIT = 50;
     private static final int AUTH_LIMIT    = 10;
+    private static final Duration WINDOW   = Duration.ofMinutes(1);
+    // Expire bucket entries 2 min after last access → memory-safe for high-IP-churn
+    private static final Duration BUCKET_IDLE_TTL = Duration.ofMinutes(2);
 
-    private final Map<String, Bucket> generalBuckets = new ConcurrentHashMap<>();
-    private final Map<String, Bucket> authBuckets    = new ConcurrentHashMap<>();
+    private final Cache<String, Bucket> generalBuckets = Caffeine.newBuilder()
+            .expireAfterAccess(BUCKET_IDLE_TTL)
+            .maximumSize(50_000)
+            .build();
+
+    private final Cache<String, Bucket> authBuckets = Caffeine.newBuilder()
+            .expireAfterAccess(BUCKET_IDLE_TTL)
+            .maximumSize(10_000)
+            .build();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -41,8 +60,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         boolean isAuthPath = request.getRequestURI().startsWith("/api/v1/auth/");
 
         Bucket bucket = isAuthPath
-                ? authBuckets.computeIfAbsent(key, k -> buildBucket(AUTH_LIMIT))
-                : generalBuckets.computeIfAbsent(key, k -> buildBucket(GENERAL_LIMIT));
+                ? authBuckets.get(key, k -> buildBucket(AUTH_LIMIT))
+                : generalBuckets.get(key, k -> buildBucket(GENERAL_LIMIT));
 
         if (bucket.tryConsume(1)) {
             chain.doFilter(request, response);
@@ -51,7 +70,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write(
-                    "{\"status\":\"error\",\"message\":\"Too many requests. Please slow down.\",\"timestamp\":\"" + Instant.now() + "\"}");
+                    "{\"status\":\"error\",\"message\":\"Too many requests. Please slow down and try again.\",\"timestamp\":\"" + Instant.now() + "\"}");
         }
     }
 
@@ -63,11 +82,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return "ip:" + ClientIpUtils.getClientIp(request);
     }
 
-    private Bucket buildBucket(int requestsPerMinute) {
+    private Bucket buildBucket(int requestsPerWindow) {
         return Bucket.builder()
                 .addLimit(Bandwidth.builder()
-                        .capacity(requestsPerMinute)
-                        .refillGreedy(requestsPerMinute, Duration.ofMinutes(1))
+                        .capacity(requestsPerWindow)
+                        .refillGreedy(requestsPerWindow, WINDOW)
                         .build())
                 .build();
     }

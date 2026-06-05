@@ -1,6 +1,9 @@
 package com.emenu.features.main.service.impl;
 
 import com.emenu.exception.custom.NotFoundException;
+import com.emenu.shared.constants.CacheNames;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.BrandFilterRequest;
@@ -41,6 +44,7 @@ public class BrandServiceImpl implements BrandService {
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
 
     @Override
+    @CacheEvict(value = CacheNames.BRANDS, allEntries = true)
     public BrandResponse createBrand(BrandCreateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
         if (currentUser.getBusinessId() == null) {
@@ -147,6 +151,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.BRANDS, key = "'list:' + #filter.businessId + ':' + #filter.status")
     public List<BrandResponse> getAllListBrands(BrandAllFilterRequest filter) {
         Specification<Brand> spec = BrandSpecification.filterBrands(
                 filter.getBusinessId(),
@@ -167,6 +172,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.BRANDS, allEntries = true)
     public BrandResponse updateBrand(UUID id, BrandUpdateRequest request) {
         Brand brand = findBrandById(id);
 
@@ -185,6 +191,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.BRANDS, allEntries = true)
     public BrandResponse deleteBrand(UUID id) {
         Brand brand = findBrandById(id);
 

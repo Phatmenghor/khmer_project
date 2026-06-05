@@ -1,6 +1,9 @@
 package com.emenu.features.main.service.impl;
 
 import com.emenu.exception.custom.NotFoundException;
+import com.emenu.shared.constants.CacheNames;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.CategoryAllFilterRequest;
@@ -38,6 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
 
     @Override
+    @CacheEvict(value = CacheNames.CATEGORIES, allEntries = true)
     public CategoryResponse createCategory(CategoryCreateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
         if (currentUser.getBusinessId() == null) {
@@ -141,6 +145,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.CATEGORIES, key = "'list:' + #filter.businessId + ':' + #filter.status")
     public List<CategoryResponse> getAllItemCategories(CategoryAllFilterRequest filter) {
         List<Category> categories = categoryRepository.findAllWithFilters(
                 filter.getBusinessId(),
@@ -159,6 +164,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.CATEGORIES, allEntries = true)
     public CategoryResponse updateCategory(UUID id, CategoryUpdateRequest request) {
         Category category = findCategoryById(id);
 
@@ -177,6 +183,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.CATEGORIES, allEntries = true)
     public CategoryResponse deleteCategory(UUID id) {
         Category category = findCategoryById(id);
 

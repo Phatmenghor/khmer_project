@@ -30,24 +30,6 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Login successful", loginResponse));
     }
 
-    @GetMapping("/business-token")
-    public ResponseEntity<String> tokenBusiness() {
-        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGF0bWVuZ2hvcjIwQGdtYWlsLmNvbSIsInJvbGVzIjoiQlVTSU5FU1NfT1dORVIiLCJ0eXBlIjoiYWNjZXNzIiwidXNlclR5cGUiOiJCVVNJTkVTU19VU0VSIiwiaWF0IjoxNzc5NDM4NDU4LCJleHAiOjE3ODk0Mzg0NTh9.QRca-X421eDANkMi0IM0j3kLhzjQectM69xEfG0Zcdj4B4B4FNg7AXZrGVr5cKobfLzqwcHbWmRgHN3P6AuUcg";
-        return ResponseEntity.ok(token);
-    }
-
-    @GetMapping("/customer-token")
-    public ResponseEntity<String> tokenCustomer() {
-        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGF0bWVuZ2hvcjIxQGdtYWlsLmNvbSIsInJvbGVzIjoiQ1VTVE9NRVIiLCJ0eXBlIjoiYWNjZXNzIiwidXNlclR5cGUiOiJDVVNUT01FUiIsImlhdCI6MTc3OTY4MDAxOSwiZXhwIjoxNzg5NjgwMDE5fQ.5ompVJIxjGuOcMuxKi1qsN2yv-mOecD0tDWthPxdxBGyI_Lx8b0LAV0sA7BMjCrMSbRAWNHaBo6Qo237aTLvOQ";
-        return ResponseEntity.ok(token);
-    }
-
-    @GetMapping("/platform-token")
-    public ResponseEntity<String> tokenFlatform() {
-        String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJwaGF0bWVuZ2hvcjE5QGdtYWlsLmNvbSIsInJvbGVzIjoiUExBVEZPUk1fT1dORVIiLCJ0eXBlIjoiYWNjZXNzIiwidXNlclR5cGUiOiJQTEFURk9STV9VU0VSIiwiaWF0IjoxNzc5Nzg2NTUwLCJleHAiOjE3ODk3ODY1NTB9.2cIqRNy2sbjpDDYmNYd5FeFkiy91n3KR-QKN92LIydqT6DMPAuenU835RAJDE4U2uSVJvKLFotAU2CY_vglE9w";
-        return ResponseEntity.ok(token);
-    }
-
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest registrationRequestData) {

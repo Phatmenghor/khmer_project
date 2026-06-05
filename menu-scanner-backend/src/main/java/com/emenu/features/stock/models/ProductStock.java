@@ -12,7 +12,6 @@ import java.util.UUID;
 @Table(name = "product_stock",
         indexes = {
                 @Index(name = "idx_product_stock_product_id",        columnList = "product_id"),
-                @Index(name = "idx_product_stock_business_id",        columnList = "business_id"),
                 @Index(name = "idx_product_stock_biz_product",        columnList = "business_id,product_id"),
                 @Index(name = "idx_product_stock_biz_product_size",   columnList = "business_id,product_id,product_size_id"),
                 @Index(name = "idx_product_stock_expiry_date",        columnList = "expiry_date")

@@ -1,6 +1,9 @@
 package com.emenu.features.main.service.impl;
 
 import com.emenu.exception.custom.NotFoundException;
+import com.emenu.shared.constants.CacheNames;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.models.User;
 import com.emenu.features.main.dto.filter.BannerFilterRequest;
@@ -40,6 +43,7 @@ public class BannerServiceImpl implements BannerService {
     private final com.emenu.shared.mapper.PaginationMapper paginationMapper;
 
     @Override
+    @CacheEvict(value = CacheNames.BANNERS, allEntries = true)
     public BannerResponse createBanner(BannerCreateRequest request) {
         User currentUser = securityUtils.getCurrentUser();
         if (currentUser.getBusinessId() == null) {
@@ -73,6 +77,7 @@ public class BannerServiceImpl implements BannerService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.BANNERS, key = "'list:' + #filter.businessId + ':' + #filter.status")
     public List<BannerResponse> getAllItemBanners(BannerAllFilterRequest filter) {
         Specification<Banner> spec = BannerSpecification.filterBanners(
                 filter.getBusinessId(),
@@ -94,6 +99,7 @@ public class BannerServiceImpl implements BannerService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.BANNERS, allEntries = true)
     public BannerResponse updateBanner(UUID id, BannerUpdateRequest request) {
         Banner banner = bannerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Banner not found"));
@@ -106,6 +112,7 @@ public class BannerServiceImpl implements BannerService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.BANNERS, allEntries = true)
     public BannerResponse deleteBanner(UUID id) {
         Banner banner = bannerRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Banner not found"));

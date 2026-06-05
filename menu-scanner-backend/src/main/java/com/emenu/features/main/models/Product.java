@@ -26,7 +26,6 @@ import java.util.UUID;
         indexes = {
                 @Index(name = "idx_products_business_id",  columnList = "business_id"),
                 @Index(name = "idx_products_category_id",  columnList = "category_id"),
-                @Index(name = "idx_products_status",       columnList = "status"),
                 @Index(name = "idx_products_biz_category", columnList = "business_id,category_id"),
                 @Index(name = "idx_products_brand_id",           columnList = "brand_id"),
                 @Index(name = "idx_products_biz_status",         columnList = "business_id,status")
