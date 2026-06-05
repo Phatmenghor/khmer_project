@@ -370,9 +370,9 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
         <tr key={c.id}>
           <td
             style={{
-              fontSize: "8px",
+              fontSize: "7px",
               color: "#777",
-              padding: "0 0 0.5px 0",
+              padding: "0",
               border: "none",
             }}
           >
