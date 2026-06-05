@@ -94,13 +94,17 @@ export function Receipt({
       </div>
 
       {/* Column headers */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 28px 56px 44px 56px", gap: "0 4px", fontWeight: 700, fontSize: "11px", borderBottom: "1px solid #111", paddingBottom: "4px", marginBottom: "4px" }}>
-        <span>ITEM</span>
-        <span style={{ textAlign: "center" }}>QTY</span>
-        <span style={{ textAlign: "right" }}>PRICE</span>
-        <span style={{ textAlign: "right" }}>DISC</span>
-        <span style={{ textAlign: "right" }}>TOTAL</span>
-      </div>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontWeight: 700, fontSize: "11px", borderBottom: "1px solid #111", paddingBottom: "4px", marginBottom: "4px" }}>
+        <tbody>
+          <tr>
+            <td style={{ paddingBottom: "4px" }}>ITEM</td>
+            <td style={{ textAlign: "center", whiteSpace: "nowrap", width: "28px", paddingBottom: "4px" }}>QTY</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "56px", paddingLeft: "4px", paddingBottom: "4px" }}>PRICE</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "44px", paddingLeft: "4px", paddingBottom: "4px" }}>DISC</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "56px", paddingLeft: "4px", paddingBottom: "4px" }}>TOTAL</td>
+          </tr>
+        </tbody>
+      </table>
 
       {/* Items */}
       <div style={{ marginBottom: "8px" }}>
@@ -154,15 +158,19 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
 
   return (
     <div style={{ borderBottom: "1px dashed #ccc", paddingBottom: "4px", marginBottom: "4px" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 28px 56px 44px 56px", gap: "0 4px", fontSize: "12px" }}>
-        <span style={{ fontWeight: 600, wordBreak: "break-word" }}>
-          {index + 1}. {item.name}
-        </span>
-        <span style={{ textAlign: "center" }}>{item.quantity}</span>
-        <span style={{ textAlign: "right" }}>{formatCurrency(item.finalPrice)}</span>
-        <span style={{ textAlign: "right", color: item.hasPromotion ? "#dc2626" : "#999" }}>{discLabel}</span>
-        <span style={{ textAlign: "right", fontWeight: 700 }}>{formatCurrency(item.totalPrice)}</span>
-      </div>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+        <tbody>
+          <tr style={{ verticalAlign: "top" }}>
+            <td style={{ fontWeight: 600, wordBreak: "break-word", paddingRight: "4px" }}>
+              {index + 1}. {item.name}
+            </td>
+            <td style={{ textAlign: "center", whiteSpace: "nowrap", width: "28px" }}>{item.quantity}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "56px", paddingLeft: "4px" }}>{formatCurrency(item.finalPrice)}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "44px", paddingLeft: "4px", color: item.hasPromotion ? "#dc2626" : "#999" }}>{discLabel}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "56px", paddingLeft: "4px", fontWeight: 700 }}>{formatCurrency(item.totalPrice)}</td>
+          </tr>
+        </tbody>
+      </table>
       {item.sizeName && (
         <div style={{ fontSize: "10px", color: "#555", paddingLeft: "12px" }}>Size: {item.sizeName}</div>
       )}
