@@ -171,10 +171,10 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
         <td style={{ wordBreak: "break-word", padding: "2px 0", paddingRight: "4px", fontWeight: 500, border: "none" }}>
           {item.name}
         </td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none" }}>{item.quantity}</td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none" }}>{formatCurrency(item.finalPrice)}</td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none" }}>{discLabel}</td>
-        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", fontWeight: 600, border: "none" }}>{formatAmount(item.totalPrice)}</td>
+        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none", fontSize: "6px" }}>{item.quantity}</td>
+        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none", fontSize: "6px" }}>{formatCurrency(item.finalPrice)}</td>
+        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", border: "none", fontSize: "6px" }}>{discLabel}</td>
+        <td style={{ textAlign: "right", whiteSpace: "nowrap", padding: "2px 0", paddingLeft: "4px", fontWeight: 600, border: "none", fontSize: "6px" }}>{formatAmount(item.totalPrice)}</td>
       </tr>
       {item.sizeName && (
         <tr>
