@@ -17,6 +17,9 @@ interface ReceiptProps {
   paymentMethod: string;
 }
 
+const DASH = "--------------------------------";
+const FONT = "'Courier New', 'Courier', monospace";
+
 export function Receipt({
   orderNumber,
   date,
@@ -30,242 +33,131 @@ export function Receipt({
   totalAmount,
   paymentMethod,
 }: ReceiptProps) {
-  const formattedDate = new Date(date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
+  const dt = new Date(date);
+  const dateStr = dt.toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" });
+  const timeStr = dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
 
-  const formattedTime = new Date(date).toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
-
-  const promotionalItems = items.filter((item) => item.hasPromotion);
+  const s: React.CSSProperties = { fontFamily: FONT, fontSize: "12px", lineHeight: "1.5" };
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white">
-      <style>{`
-        @media print {
-          * {
-            margin: 0 !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
-          }
-          body, html {
-            width: 100% !important;
-            height: 100% !important;
-          }
-          .receipt-wrapper {
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-          .receipt-content {
-            width: 100% !important;
-            page-break-inside: avoid;
-          }
-        }
+    <div style={{ ...s, width: "100%", maxWidth: "380px", margin: "0 auto", background: "#fff", padding: "16px 12px", color: "#111" }}>
+      <style>{`@media print { body { margin:0 } }`}</style>
 
-        .receipt-wrapper {
-          width: 100%;
-          font-family: 'Courier New', monospace;
-          background: white;
-          padding: 0;
-          margin: 0;
-        }
-      `}</style>
+      {/* Header */}
+      <div style={{ textAlign: "center", marginBottom: "8px" }}>
+        <div style={{ fontWeight: 700, fontSize: "15px", letterSpacing: "2px", marginBottom: "2px" }}>
+          {businessName.toUpperCase()}
+        </div>
+        <div style={{ fontSize: "11px", color: "#555" }}>POS Receipt</div>
+      </div>
 
-      <div className="receipt-wrapper">
-        <div className="receipt-content p-4 max-w-2xl mx-auto">
-          {/* Premium Header */}
-          <div className="text-center border-b-4 border-gray-900 pb-3 mb-3">
-            <div className="mb-1">
-              <div className="text-xs font-bold text-gray-900">═════════════════════</div>
-            </div>
-            <h1 className="text-xs font-bold text-gray-900 tracking-widest mb-1">RECEIPT</h1>
-            <p className="text-gray-600 text-xs">Professional Receipt Document</p>
-            <div className="text-xs font-bold text-gray-900 mt-1">═════════════════════</div>
-          </div>
-
-          {/* Business & Order Info */}
-          <div className="mb-3 px-3 py-2 border border-gray-400">
-            <p className="text-gray-900 font-bold text-center text-xs mb-2">{businessName}</p>
-
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <p className="text-gray-700 font-semibold">ORDER NUMBER</p>
-                <p className="text-gray-900 font-bold text-xs">{orderNumber}</p>
-              </div>
-              <div>
-                <p className="text-gray-700 font-semibold">DATE & TIME</p>
-                <p className="text-gray-900 font-bold">{formattedDate}</p>
-                <p className="text-gray-900 font-bold">{formattedTime}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Items Section */}
-          <div className="mb-3 border border-gray-400">
-            <div className="bg-gray-900 text-white px-3 py-1 font-bold text-xs">
-              ITEMS ({items.length})
-            </div>
-
-            <div className="px-3 py-2">
-              {/* Column Headers */}
-              <div className="grid grid-cols-12 gap-1 mb-1 pb-1 border-b-2 border-gray-900 text-xs font-bold">
-                <div className="col-span-6">ITEM DESCRIPTION</div>
-                <div className="col-span-2 text-center">QTY</div>
-                <div className="col-span-2 text-center">PRICE</div>
-                <div className="col-span-2 text-right">TOTAL</div>
-              </div>
-
-              {/* Items */}
-              <div className="space-y-2">
-                {items.map((item, index) => {
-                  const itemTotal = item.finalPrice * item.quantity;
-                  const getPromotionLabel = () => {
-                    if (!item.hasPromotion || !item.promotionType) return null;
-                    if (item.promotionType === "PERCENTAGE") {
-                      return `${item.promotionValue}% OFF`;
-                    } else if (item.promotionType === "FIXED") {
-                      return `${formatCurrency(item.promotionValue)} OFF`;
-                    }
-                    return null;
-                  };
-
-                  const promotionLabel = getPromotionLabel();
-
-                  return (
-                    <div key={item.id} className="pb-2 border-b border-gray-300">
-                      <div className="grid grid-cols-12 gap-1 text-xs mb-1">
-                        <div className="col-span-6">
-                          <p className="font-bold text-gray-900">{index + 1}. {item.productName || "Product"}</p>
-                          {item.sizeName && (
-                            <p className="text-gray-600 text-xs">Size: {item.sizeName}</p>
-                          )}
-                        </div>
-                        <div className="col-span-2 text-center font-bold text-gray-900">{item.quantity}</div>
-                        <div className="col-span-2 text-center text-gray-900">{formatCurrency(item.finalPrice)}</div>
-                        <div className="col-span-2 text-right font-bold text-gray-900">{formatCurrency(itemTotal)}</div>
-                      </div>
-
-                      {promotionLabel && (
-                        <div className="ml-3 bg-green-50 border-l-3 border-green-600 px-1 py-1 text-xs">
-                          <p className="font-bold text-green-700">✓ PROMOTION: {promotionLabel}</p>
-                        </div>
-                      )}
-
-                      {item.customizations && item.customizations.length > 0 && (
-                        <div className="ml-3 mt-0">
-                          {item.customizations.map((c) => (
-                            <div key={c.productCustomizationId} className="flex justify-between leading-tight text-gray-500 min-w-0" style={{fontSize: "0.7rem"}}>
-                              <span className="truncate min-w-0">{c.name}</span>
-                              {(c.priceAdjustment ?? 0) > 0 && (
-                                <span className="ml-1 shrink-0">+{(c.priceAdjustment).toFixed(2)}</span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Promotions Summary */}
-          {promotionalItems.length > 0 && (
-            <div className="mb-3 border-2 border-green-600 px-3 py-2 bg-green-50">
-              <p className="font-bold text-green-900 mb-1 text-xs">🎉 PROMOTIONS APPLIED</p>
-              <div className="space-y-1">
-                {promotionalItems.map((item, idx) => (
-                  <div key={`promo-${idx}`} className="flex justify-between text-xs">
-                    <span className="text-green-800">{item.productName || "Product"}</span>
-                    <span className="font-bold text-green-900">
-                      {item.promotionType === "PERCENTAGE"
-                        ? `-${item.promotionValue}%`
-                        : `-${formatCurrency(item.promotionValue)}`}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Pricing Summary */}
-          <div className="mb-3 border border-gray-400 px-3 py-2 bg-gray-50">
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-700">Subtotal with Add-ons</span>
-                <span className="font-bold text-gray-900">{formatCurrency(subtotalWithAddons)}</span>
-              </div>
-
-              {discountAmount > 0 && (
-                <>
-                  <div className="flex justify-between bg-red-50 px-1 py-1">
-                    <span className="text-red-700 font-semibold">Discount (Promotions)</span>
-                    <span className="font-bold text-red-700">-{formatCurrency(discountAmount)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">Subtotal After Discount</span>
-                    <span className="font-bold text-gray-900">{formatCurrency(subtotalAfterDiscount)}</span>
-                  </div>
-                </>
-              )}
-
-              {taxAmount > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-gray-700">Tax</span>
-                  <span className="font-bold text-gray-900">+{formatCurrency(taxAmount)}</span>
-                </div>
-              )}
-
-              {deliveryFee > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-gray-700">Delivery Fee</span>
-                  <span className="font-bold text-gray-900">+{formatCurrency(deliveryFee)}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Total Amount */}
-          <div className="mb-3 border-4 border-gray-900 px-3 py-3 bg-gray-900 text-white">
-            <p className="text-xs font-semibold mb-1">FINAL AMOUNT DUE</p>
-            <div className="flex justify-between items-baseline">
-              <span className="text-xs font-bold">TOTAL:</span>
-              <span className="text-xs font-bold">{formatCurrency(totalAmount)}</span>
-            </div>
-          </div>
-
-          {/* Payment Method */}
-          <div className="mb-3 border border-gray-400 px-3 py-2 bg-gray-50">
-            <p className="text-gray-700 font-semibold text-xs">PAYMENT METHOD</p>
-            <p className="text-gray-900 font-bold text-xs">{paymentMethod}</p>
-          </div>
-
-          {/* Footer */}
-          <div className="text-center border-t-4 border-gray-900 pt-3 space-y-1">
-            <div className="font-bold text-gray-900 text-xs">
-              ✓ Thank You For Your Order!
-            </div>
-            <p className="text-xs text-gray-700">
-              Please keep this receipt for your records.
-            </p>
-            <p className="text-xs text-gray-600">
-              We appreciate your business!
-            </p>
-            <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-400">
-              <p>Generated: {formattedDate} at {formattedTime}</p>
-            </div>
-          </div>
+      <div style={{ borderTop: "2px solid #111", borderBottom: "1px dashed #999", padding: "6px 0", marginBottom: "8px", fontSize: "11px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span>Order#</span><span style={{ fontWeight: 700 }}>{orderNumber}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span>Date</span><span>{dateStr}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span>Time</span><span>{timeStr}</span>
         </div>
       </div>
+
+      {/* Column headers */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 32px 64px 64px", gap: "0 4px", fontWeight: 700, fontSize: "11px", borderBottom: "1px solid #111", paddingBottom: "4px", marginBottom: "4px" }}>
+        <span>ITEM</span>
+        <span style={{ textAlign: "center" }}>QTY</span>
+        <span style={{ textAlign: "right" }}>PRICE</span>
+        <span style={{ textAlign: "right" }}>TOTAL</span>
+      </div>
+
+      {/* Items */}
+      <div style={{ marginBottom: "8px" }}>
+        {items.map((item, i) => {
+          const itemTotal = item.finalPrice * item.quantity;
+          const promoLabel = item.hasPromotion
+            ? item.promotionType === "PERCENTAGE"
+              ? `${item.promotionValue}% OFF`
+              : `-${formatCurrency(item.promotionValue)}`
+            : null;
+
+          return (
+            <div key={item.id} style={{ borderBottom: "1px dashed #ccc", paddingBottom: "4px", marginBottom: "4px" }}>
+              {/* Main row */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 32px 64px 64px", gap: "0 4px", fontSize: "12px" }}>
+                <span style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {i + 1}. {item.productName}
+                </span>
+                <span style={{ textAlign: "center" }}>{item.quantity}</span>
+                <span style={{ textAlign: "right" }}>{formatCurrency(item.finalPrice)}</span>
+                <span style={{ textAlign: "right", fontWeight: 700 }}>{formatCurrency(itemTotal)}</span>
+              </div>
+
+              {/* Size */}
+              {item.sizeName && (
+                <div style={{ fontSize: "10px", color: "#555", paddingLeft: "12px" }}>
+                  Size: {item.sizeName}
+                </div>
+              )}
+
+              {/* Customizations */}
+              {item.customizations && item.customizations.length > 0 && (
+                <div style={{ paddingLeft: "12px" }}>
+                  {item.customizations.map((c) => (
+                    <div key={c.productCustomizationId} style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#555" }}>
+                      <span>+ {c.name}</span>
+                      {(c.priceAdjustment ?? 0) > 0 && <span>+{formatCurrency(c.priceAdjustment)}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Promotion */}
+              {promoLabel && (
+                <div style={{ fontSize: "10px", color: "#16a34a", paddingLeft: "12px", fontWeight: 600 }}>
+                  ✓ Promo: {promoLabel}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Summary */}
+      <div style={{ borderTop: "1px dashed #999", paddingTop: "6px", fontSize: "12px" }}>
+        <Row label="Subtotal" value={formatCurrency(subtotalWithAddons)} />
+        {discountAmount > 0 && (
+          <>
+            <Row label="Discount" value={`-${formatCurrency(discountAmount)}`} valueStyle={{ color: "#dc2626" }} />
+            <Row label="After Discount" value={formatCurrency(subtotalAfterDiscount)} />
+          </>
+        )}
+        {taxAmount > 0 && <Row label="Tax" value={`+${formatCurrency(taxAmount)}`} />}
+        {deliveryFee > 0 && <Row label="Delivery" value={`+${formatCurrency(deliveryFee)}`} />}
+        <Row label="Payment" value={paymentMethod} />
+      </div>
+
+      {/* Total */}
+      <div style={{ borderTop: "2px solid #111", borderBottom: "2px solid #111", margin: "6px 0", padding: "6px 0", display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "14px" }}>
+        <span>TOTAL AMOUNT</span>
+        <span>{formatCurrency(totalAmount)}</span>
+      </div>
+
+      {/* Footer */}
+      <div style={{ textAlign: "center", fontSize: "11px", color: "#555", paddingTop: "8px" }}>
+        <div>Thank you for your order!</div>
+        <div>Please visit again</div>
+        <div style={{ marginTop: "4px" }}>{dateStr} {timeStr}</div>
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value, valueStyle }: { label: string; value: string; valueStyle?: React.CSSProperties }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "2px" }}>
+      <span style={{ color: "#444" }}>{label}</span>
+      <span style={{ fontWeight: 600, ...valueStyle }}>{value}</span>
     </div>
   );
 }
