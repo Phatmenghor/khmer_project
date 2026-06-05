@@ -10,39 +10,48 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { cn } from "@/lib/utils";
+import type { FormDialogProps, ModalSize } from "./modal.types";
 
-export interface FormDialogBaseProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  description?: string;
-  children: ReactNode;
-  onSubmit?: (e?: React.FormEvent) => void | Promise<void>;
-  isLoading?: boolean;
-  submitText?: string;
-  cancelText?: string;
-  submitVariant?: "default" | "destructive";
-  showActions?: boolean;
-  size?: "default" | "sm" | "lg";
-}
+export type {
+  FormDialogProps as FormDialogBaseProps,
+  ModalSize,
+  SubmitVariant,
+  BaseModalProps,
+} from "./modal.types";
+
+const SIZE_CLASSES: Record<ModalSize, string> = {
+  sm: "sm:max-w-sm",
+  default: "sm:max-w-md",
+  lg: "sm:max-w-2xl",
+  xl: "sm:max-w-3xl",
+  "2xl": "sm:max-w-4xl",
+  full: "sm:max-w-[95vw]",
+};
 
 /**
- * Base FormDialog component to standardize 36+ modal forms
+ * Standard form/dialog shell.
  *
- * Replaces boilerplate dialog + form + action buttons pattern
+ * - Mobile-first: inherits bottom-sheet behavior from ui/dialog (<sm) and
+ *   centered modal (>=sm). Uses dvh, not vh, so iOS keyboards don't crop.
+ * - Safe-area aware: footer respects env(safe-area-inset-bottom) for
+ *   iPhone home indicator and Telegram Mini App bottom chrome.
+ * - Back-compat: original FormDialogBase props are preserved.
+ * - Slots: headerSlot replaces the default header; customFooter replaces
+ *   the default Cancel/Submit row; noForm renders content without a
+ *   <form> wrapper (for confirmations / detail views).
  *
  * Usage:
- * <FormDialogBase
- *   isOpen={isOpen}
- *   onClose={onClose}
- *   title="Edit Profile"
- *   onSubmit={handleSubmit}
- *   isLoading={isSaving}
- * >
- *   <form className="space-y-3">
- *     {/* form fields */}
- *   </form>
- * </FormDialogBase>
+ *   <FormDialogBase
+ *     isOpen={isOpen}
+ *     onClose={onClose}
+ *     title="Edit Profile"
+ *     onSubmit={handleSubmit}
+ *     isLoading={isSaving}
+ *   >
+ *     ...form fields...
+ *   </FormDialogBase>
  */
 export function FormDialogBase({
   isOpen,
@@ -57,65 +66,118 @@ export function FormDialogBase({
   submitVariant = "default",
   showActions = true,
   size = "default",
-}: FormDialogBaseProps) {
+  hideCloseButton = false,
+  contentClassName,
+  bodyClassName,
+  headerSlot,
+  customFooter,
+  noForm = false,
+  submitDisabled = false,
+  hideTitle = false,
+}: FormDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit?.(e);
   };
 
+  const header =
+    headerSlot ?? (
+      <DialogHeader>
+        {hideTitle ? (
+          <VisuallyHidden asChild>
+            <DialogTitle>{title}</DialogTitle>
+          </VisuallyHidden>
+        ) : (
+          <DialogTitle>{title}</DialogTitle>
+        )}
+        {description && <DialogDescription>{description}</DialogDescription>}
+      </DialogHeader>
+    );
+
+  const body = (
+    <div
+      className={cn(
+        "flex-1 min-h-0 overflow-y-auto",
+        "max-h-[70dvh] sm:max-h-[60dvh]",
+        bodyClassName
+      )}
+    >
+      {children}
+    </div>
+  );
+
+  const defaultFooter = showActions && (
+    <div
+      className={cn(
+        "flex gap-2 justify-end border-t pt-3 px-3 pb-3",
+        "pb-[max(env(safe-area-inset-bottom),0.75rem)]",
+        "bg-background sticky bottom-0"
+      )}
+    >
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onClose}
+        disabled={isLoading}
+      >
+        {cancelText}
+      </Button>
+      <Button
+        type={noForm ? "button" : "submit"}
+        variant={submitVariant}
+        disabled={isLoading || submitDisabled}
+        onClick={noForm ? () => onSubmit?.() : undefined}
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+            {submitText}ing...
+          </>
+        ) : (
+          submitText
+        )}
+      </Button>
+    </div>
+  );
+
+  const footer = customFooter ?? defaultFooter;
+
+  const inner = (
+    <>
+      {header}
+      {body}
+      {footer}
+    </>
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className={
-          size === "sm"
-            ? "max-w-sm"
-            : size === "lg"
-              ? "max-w-2xl"
-              : "max-w-md"
-        }
+        className={cn(
+          "flex flex-col gap-2 p-0",
+          SIZE_CLASSES[size],
+          contentClassName
+        )}
+        closeButtonClassName={hideCloseButton ? "hidden" : ""}
       >
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="max-h-[60vh] overflow-y-auto">{children}</div>
-
-          {showActions && (
-            <div className="flex gap-2 justify-end border-t pt-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={isLoading}
-              >
-                {cancelText}
-              </Button>
-              <Button
-                type="submit"
-                variant={submitVariant}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                    {submitText}ing...
-                  </>
-                ) : (
-                  submitText
-                )}
-              </Button>
-            </div>
-          )}
-        </form>
+        {noForm ? (
+          <div className="flex flex-col gap-2 px-3 pt-3">{inner}</div>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-2 px-3 pt-3"
+          >
+            {inner}
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
 }
 
 /**
- * Extended version with custom actions
+ * Back-compat alias for prior call sites. Prefer FormDialogBase with
+ * customFooter / headerSlot props.
  */
 export function FormDialogBaseWithCustomActions({
   isOpen,
@@ -125,29 +187,38 @@ export function FormDialogBaseWithCustomActions({
   children,
   actions,
   size = "default",
-}: Omit<FormDialogBaseProps, "onSubmit" | "submitText" | "cancelText"> & {
+  contentClassName,
+  bodyClassName,
+  headerSlot,
+}: Omit<FormDialogProps, "onSubmit" | "submitText" | "cancelText"> & {
   actions?: ReactNode;
 }) {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className={
-          size === "sm"
-            ? "max-w-sm"
-            : size === "lg"
-              ? "max-w-2xl"
-              : "max-w-md"
-        }
-      >
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
-        </DialogHeader>
-
-        <div className="max-h-[60vh] overflow-y-auto">{children}</div>
-
-        {actions && <div className="flex gap-2 justify-end border-t pt-3">{actions}</div>}
-      </DialogContent>
-    </Dialog>
+    <FormDialogBase
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      description={description}
+      size={size}
+      contentClassName={contentClassName}
+      bodyClassName={bodyClassName}
+      headerSlot={headerSlot}
+      noForm
+      customFooter={
+        actions ? (
+          <div
+            className={cn(
+              "flex gap-2 justify-end border-t pt-3 px-3 pb-3",
+              "pb-[max(env(safe-area-inset-bottom),0.75rem)]",
+              "bg-background sticky bottom-0"
+            )}
+          >
+            {actions}
+          </div>
+        ) : null
+      }
+    >
+      {children}
+    </FormDialogBase>
   );
 }
