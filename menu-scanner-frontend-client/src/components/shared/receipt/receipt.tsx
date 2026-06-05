@@ -161,7 +161,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
     : "0%";
 
   return (
-    <div style={{ borderBottom: "1px dashed #ccc", paddingBottom: "3px", marginBottom: "3px" }}>
+    <div style={{ marginBottom: "2px" }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9px" }}>
         <tbody>
           <tr style={{ verticalAlign: "middle" }}>
@@ -170,7 +170,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
             </td>
             <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "22px", padding: "0", paddingLeft: "4px" }}>{item.quantity}</td>
             <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", padding: "0", paddingLeft: "4px" }}>{formatCurrency(item.finalPrice)}</td>
-            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "36px", padding: "0", paddingLeft: "4px", color: item.hasPromotion ? "#dc2626" : "#999" }}>{discLabel}</td>
+            <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "36px", padding: "0", paddingLeft: "4px" }}>{discLabel}</td>
             <td style={{ textAlign: "right", whiteSpace: "nowrap", width: "48px", padding: "0", paddingLeft: "4px", fontWeight: 700 }}>{formatAmount(item.totalPrice)}</td>
           </tr>
         </tbody>
