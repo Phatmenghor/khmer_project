@@ -306,7 +306,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
         <td
           style={{
             wordBreak: "break-word",
-            padding: "2px 0",
+            padding: "0",
             paddingRight: "4px",
             fontWeight: 500,
             border: "none",
@@ -319,7 +319,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
           style={{
             textAlign: "left",
             whiteSpace: "nowrap",
-            padding: "2px 0",
+            padding: "0",
             paddingLeft: "4px",
             border: "none",
             fontSize: "11px",
@@ -331,7 +331,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
           style={{
             textAlign: "left",
             whiteSpace: "nowrap",
-            padding: "2px 0",
+            padding: "0",
             paddingLeft: "4px",
             border: "none",
             fontSize: "11px",
@@ -343,7 +343,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
           style={{
             textAlign: "left",
             whiteSpace: "nowrap",
-            padding: "2px 0",
+            padding: "0",
             paddingLeft: "4px",
             border: "none",
             fontSize: "11px",
@@ -355,7 +355,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
           style={{
             textAlign: "right",
             whiteSpace: "nowrap",
-            padding: "2px 0",
+            padding: "0",
             paddingLeft: "4px",
             fontWeight: 600,
             border: "none",
