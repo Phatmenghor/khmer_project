@@ -77,15 +77,6 @@ export default function BrandsPage() {
         />
 
         {}
-        {(isInitialLoading || (!mounted && brands.length === 0)) && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-            {Array.from({ length: skeletonCount }).map((_, i) => (
-              <BrandCardSkeleton key={i} />
-            ))}
-          </div>
-        )}
-
-        {}
         {mounted && !isInitialLoading && brands.length === 0 && (
           <PageState
             type="empty"
@@ -96,15 +87,15 @@ export default function BrandsPage() {
         )}
 
         {}
-        {!isInitialLoading && brands.length > 0 && (
+        {(brands.length > 0 || isInitialLoading || !mounted) && (
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
               {brands.map((brand) => (
                 <BrandCard key={brand.id} brand={brand} />
               ))}
-              {(isLoadingMore || !mounted) &&
+              {(isInitialLoading || isLoadingMore || !mounted) &&
                 Array.from({ length: skeletonCount }).map((_, i) => (
-                  <BrandCardSkeleton key={`more-${i}`} />
+                  <BrandCardSkeleton key={`skeleton-${i}`} />
                 ))}
             </div>
 

@@ -32,11 +32,11 @@ export function useSkeletonCount(
     return counts.xlarge!;
   };
 
-  const [skeletonCount, setSkeletonCount] = useState(() =>
-    typeof window !== "undefined" ? getSkeletonCount(window.innerWidth) : counts.desktop!
-  );
+  const [skeletonCount, setSkeletonCount] = useState(counts.desktop!);
 
   useEffect(() => {
+    setSkeletonCount(getSkeletonCount(window.innerWidth));
+
     const handleResize = () => {
       setSkeletonCount(getSkeletonCount(window.innerWidth));
     };
