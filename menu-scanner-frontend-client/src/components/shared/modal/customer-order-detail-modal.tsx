@@ -162,13 +162,16 @@ function OrderBody({ order }: { order: OrderResponse }) {
 
       {/* ── Items grid (product-card style) ── */}
       {order.items && order.items.length > 0 && (
-        <Section title={`Items · ${order.items.length}`}>
-          <div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Items · {order.items.length}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {order.items.map((item) => (
               <OrderItemCard key={item.id} item={item} />
             ))}
           </div>
-        </Section>
+        </div>
       )}
 
       {/* ── Pricing · Customer · Delivery · Status History (one section, grid-2) ── */}
