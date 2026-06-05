@@ -315,7 +315,7 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
             fontSize: "10px",
           }}
         >
-          {item.name}
+          {`${index + 1}.${item.name} (${item.sizeName})`}
         </td>
         <td
           style={{
@@ -367,28 +367,14 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
           {formatAmount(item.totalPrice)}
         </td>
       </tr>
-      {item.sizeName && (
-        <tr>
-          <td
-            colSpan={5}
-            style={{
-              fontSize: "7px",
-              color: "#777",
-              padding: "0 0 2px 0",
-              border: "none",
-            }}
-          >
-            Size: {item.sizeName}
-          </td>
-        </tr>
-      )}
+
       {item.customizations?.map((c) => (
         <tr key={c.id}>
           <td
             style={{
-              fontSize: "7px",
+              fontSize: "8px",
               color: "#777",
-              padding: "0 0 1px 0",
+              padding: "0 0 0.5px 0",
               border: "none",
             }}
           >
@@ -397,10 +383,10 @@ function ItemRow({ item, index }: { item: ReceiptItem; index: number }) {
           <td
             colSpan={4}
             style={{
-              fontSize: "7px",
+              fontSize: "8px",
               color: "#777",
               textAlign: "right",
-              padding: "0 0 1px 0",
+              padding: "0 0 0.5px 0",
               border: "none",
             }}
           >
