@@ -23,6 +23,7 @@
 		<lombok.version>1.18.36</lombok.version>
 		<commons-lang3.version>3.17.0</commons-lang3.version>
 		<logstash-logback.version>8.0</logstash-logback.version>
+		<bucket4j.version>8.10.1</bucket4j.version>
 	</properties>
 
 	<dependencies>
@@ -81,6 +82,19 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- ===== Redis (Cache + Rate Limiting) ===== -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
+		<!-- ===== Bucket4j Rate Limiting ===== -->
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j-core</artifactId>
+			<version>${bucket4j.version}</version>
+		</dependency>
+
 		<!-- ===== JWT ===== -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -127,7 +141,7 @@
 			<version>${springdoc.version}</version>
 		</dependency>
 
-		<!-- ===== Caching ===== -->
+		<!-- ===== Local Cache (L1 — Caffeine) ===== -->
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>
 			<artifactId>caffeine</artifactId>
