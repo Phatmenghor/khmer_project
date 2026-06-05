@@ -1,6 +1,9 @@
 package com.emenu.features.auth.service.impl;
 
 import com.emenu.enums.user.UserType;
+import com.emenu.shared.constants.CacheNames;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import com.emenu.exception.custom.ResourceNotFoundException;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.dto.filter.RoleFilterRequest;
@@ -51,6 +54,7 @@ public class RoleServiceImpl implements RoleService {
     private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
+    @CacheEvict(value = CacheNames.ROLES, allEntries = true)
     public RoleResponse createRole(RoleCreateRequest request) {
         log.info("Role creation initiated: name={}, type={}, business_id={}",
                 request.getName(), request.getUserType(), request.getBusinessId());
@@ -136,6 +140,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.ROLES, key = "'list:' + #request.businessId + ':' + #request.userTypes")
     public List<RoleResponse> getAllRolesList(RoleFilterRequest request) {
         List<UserType> userTypes = FilterUtils.nullIfEmpty(request.getUserTypes());
         Boolean includeAll = request.getIncludeAll() != null && request.getIncludeAll();
@@ -181,6 +186,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.ROLES, allEntries = true)
     public RoleResponse updateRole(UUID roleId, RoleUpdateRequest request) {
         log.info("Role update initiated: id={}, name={}", roleId, request.getName());
 
@@ -226,6 +232,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.ROLES, allEntries = true)
     public RoleResponse deleteRole(UUID roleId) {
         log.info("Role deletion initiated: id={}", roleId);
 

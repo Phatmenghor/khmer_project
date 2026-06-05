@@ -22,7 +22,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "products")
+@Table(name = "products",
+        indexes = {
+                @Index(name = "idx_products_business_id",  columnList = "business_id"),
+                @Index(name = "idx_products_category_id",  columnList = "category_id"),
+                @Index(name = "idx_products_status",       columnList = "status"),
+                @Index(name = "idx_products_biz_category", columnList = "business_id,category_id")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

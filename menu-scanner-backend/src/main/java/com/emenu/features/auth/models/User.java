@@ -12,10 +12,17 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_platform_user_identifier", columnNames = {"user_identifier", "user_type"}),
-        @UniqueConstraint(name = "uk_business_user_identifier", columnNames = {"user_identifier", "business_id"})
-})
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_platform_user_identifier", columnNames = {"user_identifier", "user_type"}),
+                @UniqueConstraint(name = "uk_business_user_identifier", columnNames = {"user_identifier", "business_id"})
+        },
+        indexes = {
+                @Index(name = "idx_users_business_id",     columnList = "business_id"),
+                @Index(name = "idx_users_user_type",       columnList = "user_type"),
+                @Index(name = "idx_users_account_status",  columnList = "account_status")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true, exclude = {"profile", "employment", "telegram", "addresses", "emergencyContacts", "documents", "educations"})
 @ToString(exclude = {"profile", "employment", "telegram", "addresses", "emergencyContacts", "documents", "educations"})

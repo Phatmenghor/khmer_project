@@ -1,6 +1,9 @@
 package com.emenu.features.location.service.impl;
 
 import com.emenu.exception.custom.ValidationException;
+import com.emenu.shared.constants.CacheNames;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import com.emenu.features.location.dto.filter.ProvinceFilterRequest;
 import com.emenu.features.location.dto.request.ProvinceRequest;
 import com.emenu.features.location.dto.response.ProvinceResponse;
@@ -34,6 +37,7 @@ public class ProvinceServiceImpl implements ProvinceService {
     private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
+    @CacheEvict(value = CacheNames.PROVINCES, allEntries = true)
     public ProvinceResponse createProvince(ProvinceRequest request) {
         validateProvinceCodeNotDuplicate(request.getProvinceCode());
 
@@ -47,6 +51,7 @@ public class ProvinceServiceImpl implements ProvinceService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.PROVINCES, key = "'all:' + #request.pageNo + ':' + #request.pageSize + ':' + #request.search")
     public PaginationResponse<ProvinceResponse> getAllProvinces(ProvinceFilterRequest request) {
         Pageable pageable = PaginationUtils.createPageable(
             request.getPageNo(), request.getPageSize(),
@@ -87,6 +92,7 @@ public class ProvinceServiceImpl implements ProvinceService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.PROVINCES, allEntries = true)
     public ProvinceResponse updateProvince(UUID id, ProvinceRequest request) {
         Province province = findProvinceById(id);
         provinceMapper.updateEntity(request, province);
@@ -97,6 +103,7 @@ public class ProvinceServiceImpl implements ProvinceService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.PROVINCES, allEntries = true)
     public void deleteProvince(UUID id) {
         Province province = findProvinceById(id);
         province.softDelete();

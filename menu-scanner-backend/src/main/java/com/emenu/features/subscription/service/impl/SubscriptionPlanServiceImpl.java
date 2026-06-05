@@ -1,6 +1,9 @@
 package com.emenu.features.subscription.service.impl;
 
 import com.emenu.enums.sub_scription.SubscriptionPlanStatus;
+import com.emenu.shared.constants.CacheNames;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import com.emenu.features.subscription.dto.filter.SubscriptionPlanFilterRequest;
 import com.emenu.features.subscription.dto.request.SubscriptionPlanCreateRequest;
 import com.emenu.features.subscription.dto.response.SubscriptionPlanResponse;
@@ -40,6 +43,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
+    @CacheEvict(value = CacheNames.SUBSCRIPTION_PLANS, allEntries = true)
     public SubscriptionPlanResponse createPlan(SubscriptionPlanCreateRequest request) {
         log.info("Creating subscription plan: {}", request.getName());
 
@@ -85,6 +89,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.SUBSCRIPTION_PLANS, allEntries = true)
     public SubscriptionPlanResponse updatePlan(UUID planId, SubscriptionPlanUpdateRequest request) {
         log.info("Updating subscription plan: {}", planId);
 
@@ -107,6 +112,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.SUBSCRIPTION_PLANS, allEntries = true)
     public void deletePlan(UUID planId) {
         log.info("Deleting subscription plan: {}", planId);
 
@@ -139,6 +145,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.SUBSCRIPTION_PLANS, key = "'active'")
     public List<SubscriptionPlanResponse> getAllActivePlans() {
         List<SubscriptionPlan> plans = planRepository.findAllActivePlans();
         return planMapper.toResponseList(plans);

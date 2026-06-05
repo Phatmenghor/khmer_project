@@ -1,6 +1,9 @@
 package com.emenu.features.auth.service.impl;
 
 import com.emenu.exception.custom.ValidationException;
+import com.emenu.shared.constants.CacheNames;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import com.emenu.features.auth.dto.request.BusinessSettingCreateRequest;
 import com.emenu.features.auth.dto.response.BusinessSettingResponse;
 import com.emenu.features.auth.dto.update.BusinessSettingUpdateRequest;
@@ -50,6 +53,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheNames.BUSINESS_SETTINGS, key = "#businessId")
     public BusinessSettingResponse getBusinessSettingByBusinessId(UUID businessId) {
         BusinessSetting businessSetting = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .orElseThrow(() -> new ValidationException("Business setting not found"));
@@ -57,6 +61,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
     }
 
     @Override
+    @CacheEvict(value = CacheNames.BUSINESS_SETTINGS, key = "#businessId")
     public BusinessSettingResponse updateBusinessSetting(UUID businessId, BusinessSettingUpdateRequest request) {
         log.info("Business setting update initiated: business_id={}", businessId);
 

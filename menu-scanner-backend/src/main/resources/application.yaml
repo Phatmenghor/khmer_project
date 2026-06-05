@@ -21,9 +21,18 @@ spring:
           batch_size: 50
           time_zone: Asia/Phnom_Penh
 
-  # Cache — named caches managed by CacheConfig bean
+  # Cache — set type=none; CacheConfig/RedisConfig manage the beans directly
   cache:
-    type: caffeine
+    type: none
+
+  # Redis (only used when app.cache.provider=redis)
+  data:
+    redis:
+      host: "${REDIS_HOST:localhost}"
+      port: "${REDIS_PORT:6379}"
+      password: "${REDIS_PASSWORD:}"
+      database: "${REDIS_DATABASE:0}"
+      timeout: 2000ms
 
 # Server
 server:
@@ -100,6 +109,9 @@ app:
   subscription:
     expiry-soon-days: 7   # days before end date to flag as expiring-soon
     # Run directly in pgAdmin for instant data population with Freepik images
+  cache:
+    # "caffeine" (default, in-process) or "redis" (distributed, requires Redis)
+    provider: "${CACHE_PROVIDER:caffeine}"
   security:
     token-cleanup:
       enabled: true

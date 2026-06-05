@@ -14,7 +14,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Entity
-@Table(name = "subscriptions")
+@Table(name = "subscriptions",
+        indexes = {
+                @Index(name = "idx_subscriptions_business_id", columnList = "business_id"),
+                @Index(name = "idx_subscriptions_end_date",    columnList = "end_date")
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

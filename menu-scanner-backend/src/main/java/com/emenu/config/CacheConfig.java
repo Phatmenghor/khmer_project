@@ -1,6 +1,8 @@
 package com.emenu.config;
 
+import com.emenu.shared.constants.CacheNames;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCache;
@@ -13,32 +15,26 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableCaching
+@ConditionalOnProperty(name = "app.cache.provider", havingValue = "caffeine", matchIfMissing = true)
 public class CacheConfig {
-
-    // ─── Cache name constants ───────────────────────────────────────────────────
-    public static final String CACHE_BUSINESS_SETTINGS = "businessSettings";
-    public static final String CACHE_PRODUCTS          = "products";
-    public static final String CACHE_CATEGORIES        = "categories";
-    public static final String CACHE_MENUS             = "menus";
-    public static final String CACHE_PROMOTIONS        = "promotions";
-    public static final String CACHE_ROLES             = "roles";
-    public static final String CACHE_USERS             = "users";
-    public static final String CACHE_SUBSCRIPTIONS     = "subscriptions";
-    public static final String CACHE_TOKEN_BLACKLIST   = "tokenBlacklist";
 
     @Bean
     public CacheManager cacheManager() {
         SimpleCacheManager manager = new SimpleCacheManager();
         manager.setCaches(List.of(
-                buildCache(CACHE_BUSINESS_SETTINGS, 500,  1, TimeUnit.HOURS),
-                buildCache(CACHE_PRODUCTS,          2000, 30, TimeUnit.MINUTES),
-                buildCache(CACHE_CATEGORIES,        500,  1, TimeUnit.HOURS),
-                buildCache(CACHE_MENUS,             200,  30, TimeUnit.MINUTES),
-                buildCache(CACHE_PROMOTIONS,        500,  15, TimeUnit.MINUTES),
-                buildCache(CACHE_ROLES,             200,  2, TimeUnit.HOURS),
-                buildCache(CACHE_USERS,             1000, 15, TimeUnit.MINUTES),
-                buildCache(CACHE_SUBSCRIPTIONS,     500,  30, TimeUnit.MINUTES),
-                buildCache(CACHE_TOKEN_BLACKLIST,   5000, 24, TimeUnit.HOURS)
+                buildCache(CacheNames.BUSINESS_SETTINGS,  500,  1,  TimeUnit.HOURS),
+                buildCache(CacheNames.PRODUCTS,           2000, 30, TimeUnit.MINUTES),
+                buildCache(CacheNames.CATEGORIES,         500,  1,  TimeUnit.HOURS),
+                buildCache(CacheNames.MENUS,              200,  30, TimeUnit.MINUTES),
+                buildCache(CacheNames.PROMOTIONS,         500,  15, TimeUnit.MINUTES),
+                buildCache(CacheNames.ROLES,              200,  2,  TimeUnit.HOURS),
+                buildCache(CacheNames.SUBSCRIPTION_PLANS, 200,  6,  TimeUnit.HOURS),
+                buildCache(CacheNames.PROVINCES,          200,  24, TimeUnit.HOURS),
+                buildCache(CacheNames.DISTRICTS,          500,  24, TimeUnit.HOURS),
+                buildCache(CacheNames.COMMUNES,           1000, 24, TimeUnit.HOURS),
+                buildCache(CacheNames.VILLAGES,           2000, 24, TimeUnit.HOURS),
+                buildCache(CacheNames.BANNERS,            200,  30, TimeUnit.MINUTES),
+                buildCache(CacheNames.BRANDS,             200,  1,  TimeUnit.HOURS)
         ));
         return manager;
     }
