@@ -348,7 +348,7 @@ export function OrderDetailModal({
                     </span>
                   </div>
                 ) : (
-                  <div className="flex items-start gap-3 overflow-x-auto px-2 py-2">
+                  <div className="flex items-start overflow-x-auto px-2 py-2">
                     {ORDER_STEPS.map((step, idx) => {
                       const isDone = currentStep >= STEP_ORDER[step];
                       const isCurrent = currentStep === STEP_ORDER[step];
@@ -356,11 +356,9 @@ export function OrderDetailModal({
                         (h) => h.statusName === step
                       );
                       return (
-                        <div
-                          key={step}
-                          className="flex flex-col items-center flex-shrink-0"
-                        >
-                          <div className="flex items-center gap-1">
+                        <div key={step} className="flex items-start flex-shrink-0">
+                          {/* Step column */}
+                          <div className="flex flex-col items-center w-20">
                             <div
                               className={cn(
                                 "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ring-2 ring-offset-1 transition-all",
@@ -371,40 +369,36 @@ export function OrderDetailModal({
                                     : "bg-muted text-muted-foreground ring-muted"
                               )}
                             >
-                              {isDone ? (
-                                <Check className="h-3 w-3" />
-                              ) : (
-                                idx + 1
-                              )}
+                              {isDone ? <Check className="h-3 w-3" /> : idx + 1}
                             </div>
-                            {idx < ORDER_STEPS.length - 1 && (
-                              <div
-                                className={cn(
-                                  "w-8 h-0.5 transition-colors",
-                                  currentStep > STEP_ORDER[step]
-                                    ? "bg-green-300"
-                                    : "bg-muted"
-                                )}
-                              />
-                            )}
-                          </div>
-                          <div className="mt-1.5 text-center min-w-[64px]">
-                            <span className="text-xs font-semibold text-foreground block">
+                            <span className="text-xs font-semibold text-foreground text-center mt-1.5 w-full">
                               {getOrderStatusLabel(step)}
                             </span>
                             {history ? (
-                              <span className="text-xs text-muted-foreground block">
-                                {new Date(history.changedAt).toLocaleDateString(
-                                  [],
-                                  { month: "short", day: "numeric" }
-                                )}
+                              <span className="text-xs text-muted-foreground text-center block mt-0.5">
+                                {new Date(history.changedAt).toLocaleDateString([], {
+                                  month: "short",
+                                  day: "numeric",
+                                })}
                               </span>
                             ) : (
-                              <span className="text-xs text-muted-foreground/50 block">
+                              <span className="text-xs text-muted-foreground/40 text-center block mt-0.5">
                                 —
                               </span>
                             )}
                           </div>
+
+                          {/* Connector between steps */}
+                          {idx < ORDER_STEPS.length - 1 && (
+                            <div
+                              className={cn(
+                                "flex-shrink-0 mt-4 w-8 h-0.5 transition-colors",
+                                currentStep > STEP_ORDER[step]
+                                  ? "bg-green-300"
+                                  : "bg-muted"
+                              )}
+                            />
+                          )}
                         </div>
                       );
                     })}
