@@ -158,6 +158,14 @@ export function ProductDetailModal({
                         : "No items"
                     }
                   />
+                  <DisplayField
+                    label="View Count"
+                    value={productData.viewCount ? productData.viewCount.toLocaleString() : "0"}
+                  />
+                  <DisplayField
+                    label="Favorite Count"
+                    value={productData.favoriteCount ? productData.favoriteCount.toLocaleString() : "0"}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -202,16 +210,12 @@ export function ProductDetailModal({
                         }
                       />
                       <DisplayField
-                        label="Promotion Valid From"
-                        value={dateFormatLocal(
-                          productData.displayPromotionFromDate ?? "",
-                        )}
-                      />
-                      <DisplayField
-                        label="Promotion Valid Until"
-                        value={dateFormatLocal(
-                          productData.displayPromotionToDate ?? "",
-                        )}
+                        label="Promotion Period"
+                        value={
+                          productData.displayPromotionFromDate && productData.displayPromotionToDate
+                            ? `${dateFormatLocal(productData.displayPromotionFromDate)} - ${dateFormatLocal(productData.displayPromotionToDate)}`
+                            : "---"
+                        }
                       />
                     </>
                   )}
@@ -303,16 +307,12 @@ export function ProductDetailModal({
                                   }
                                 />
                                 <DisplayField
-                                  label="Promotion From"
-                                  value={dateFormatLocal(
-                                    size.promotionFromDate ?? "",
-                                  )}
-                                />
-                                <DisplayField
-                                  label="Promotion To"
-                                  value={dateFormatLocal(
-                                    size.promotionToDate ?? "",
-                                  )}
+                                  label="Promotion Period"
+                                  value={
+                                    size.promotionFromDate && size.promotionToDate
+                                      ? `${dateFormatLocal(size.promotionFromDate)} - ${dateFormatLocal(size.promotionToDate)}`
+                                      : "---"
+                                  }
                                 />
                               </>
                             )}
@@ -402,33 +402,6 @@ export function ProductDetailModal({
                   </CardContent>
                 </Card>
               )}
-
-            {}
-            <Card>
-              <CardHeader>
-                <CardTitle>Engagement Statistics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField
-                    label="View Count"
-                    value={
-                      productData.viewCount
-                        ? productData.viewCount.toLocaleString()
-                        : "0"
-                    }
-                  />
-                  <DisplayField
-                    label="Favorite Count"
-                    value={
-                      productData.favoriteCount
-                        ? productData.favoriteCount.toLocaleString()
-                        : "0"
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
 
             {}
             <Card>
