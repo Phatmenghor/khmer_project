@@ -111,8 +111,6 @@ export function DeliveryOptionsDetailModal({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Delivery Options ID" value={deliveryOptions.id} />
-                  <DisplayField label="Business ID" value={deliveryOptions.businessId || "---"} />
                   <DisplayField
                     label="Created At"
                     value={dateTimeFormat(deliveryOptions.createdAt ?? "")}

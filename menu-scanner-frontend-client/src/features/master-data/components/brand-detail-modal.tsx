@@ -105,7 +105,6 @@ export function BrandDetailModal({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Brand ID" value={brand.id} />
                   <DisplayField label="Created At" value={dateTimeFormat(brand.createdAt ?? "")} />
                   <DisplayField label="Created By" value={brand.createdBy || "---"} />
                   <DisplayField label="Last Updated" value={dateTimeFormat(brand.updatedAt ?? "")} />

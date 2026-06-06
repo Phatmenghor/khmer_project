@@ -89,7 +89,6 @@ export function ExchangeRateDetailModal({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Exchange Rate ID" value={exchangeRate.id} />
                   <DisplayField label="Business Name" value={exchangeRate.businessName || "---"} />
                   <DisplayField
                     label="Created At"

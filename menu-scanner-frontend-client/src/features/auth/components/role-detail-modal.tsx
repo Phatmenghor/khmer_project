@@ -84,7 +84,6 @@ export function RoleDetailModal({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Role ID" value={roleData.id} />
                   <DisplayField label="Created At" value={dateTimeFormat(roleData.createdAt ?? "")} />
                   <DisplayField label="Created By" value={roleData.createdBy || "-"} />
                   <DisplayField label="Last Updated" value={dateTimeFormat(roleData.updatedAt ?? "")} />

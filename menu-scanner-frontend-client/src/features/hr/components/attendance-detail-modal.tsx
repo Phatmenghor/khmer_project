@@ -404,14 +404,6 @@ export function AttendanceDetailModal({
           {}
           <DetailSection title="System Information">
             <DetailRow
-              label="Attendance ID"
-              value={
-                <span className="text-xs font-mono bg-muted px-1 py-1 rounded break-all">
-                  {attendanceData?.id}
-                </span>
-              }
-            />
-            <DetailRow
               label="Created At"
               value={dateTimeFormat(attendanceData?.createdAt ?? "")}
             />

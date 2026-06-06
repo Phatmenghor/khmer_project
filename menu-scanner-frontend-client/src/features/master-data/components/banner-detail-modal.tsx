@@ -93,7 +93,6 @@ export function BannerDetailModal({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Banner ID" value={banner.id} />
                   <DisplayField label="Created At" value={dateTimeFormat(banner.createdAt ?? "")} />
                   <DisplayField label="Created By" value={banner.createdBy || "---"} />
                   <DisplayField label="Last Updated" value={dateTimeFormat(banner.updatedAt ?? "")} />

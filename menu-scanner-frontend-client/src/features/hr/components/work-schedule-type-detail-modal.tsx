@@ -76,14 +76,6 @@ export function WorkScheduleTypeDetailModal({
           {}
           <DetailSection title="System Information">
             <DetailRow
-              label="Work Schedule ID"
-              value={
-                <span className="text-xs font-mono bg-muted px-1 py-1 rounded break-all">
-                  {workScheduleData?.id}
-                </span>
-              }
-            />
-            <DetailRow
               label="Created At"
               value={dateTimeFormat(workScheduleData?.createdAt ?? "")}
             />

@@ -81,7 +81,6 @@ export function PortfolioReviewDetailModal({ review, isOpen, onClose }: Props) {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Review ID" value={review?.id} />
                   <DisplayField label="Submitted At" value={dateTimeFormat(review?.createdAt ?? "")} />
                   <DisplayField label="Last Updated" value={dateTimeFormat(review?.updatedAt ?? "")} />
                 </div>

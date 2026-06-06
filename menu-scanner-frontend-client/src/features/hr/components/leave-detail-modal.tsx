@@ -161,14 +161,6 @@ export function LeaveDetailModal({
           {}
           <DetailSection title="System Information">
             <DetailRow
-              label="Leave Type ID"
-              value={
-                <span className="text-xs font-mono bg-muted px-1 py-1 rounded break-all">
-                  {leaveData?.id}
-                </span>
-              }
-            />
-            <DetailRow
               label="Created At"
               value={dateTimeFormat(leaveData?.createdAt ?? "")}
             />

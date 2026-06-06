@@ -91,8 +91,6 @@ export function PaymentOptionDetailModal({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Payment Option ID" value={paymentOption.id} />
-                  <DisplayField label="Business ID" value={paymentOption.businessId} />
                   <DisplayField label="Created At" value={dateTimeFormat(paymentOption.createdAt ?? "")} />
                   <DisplayField label="Last Updated" value={dateTimeFormat(paymentOption.updatedAt ?? "")} />
                 </div>

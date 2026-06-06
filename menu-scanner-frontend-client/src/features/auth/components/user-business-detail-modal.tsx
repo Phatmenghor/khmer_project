@@ -328,7 +328,6 @@ export function UserBusinessDetailModal({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="User ID" value={userData.id} />
                   <DisplayField label="User Type" value={formatEnumValue(userData.userType)} />
                   <DisplayField label="Business" value={userData.businessName} />
                   <DisplayField label="Created At" value={dateTimeFormat(userData.createdAt ?? "")} />

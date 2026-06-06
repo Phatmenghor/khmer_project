@@ -105,7 +105,6 @@ export function CategoriesDetailModal({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Category ID" value={categories.id} />
                   <DisplayField label="Created At" value={dateTimeFormat(categories.createdAt ?? "")} />
                   <DisplayField label="Created By" value={categories.createdBy || "---"} />
                   <DisplayField label="Last Updated" value={dateTimeFormat(categories.updatedAt ?? "")} />
