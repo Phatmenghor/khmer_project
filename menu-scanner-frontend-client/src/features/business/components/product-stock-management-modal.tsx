@@ -377,7 +377,7 @@ export function StockManagementModal({
                       label="Expiry Date"
                       mode="date"
                       error={form.formState.errors.expiryDate}
-                      inputClassName="h-9"
+                      inputClassName="h-[26px]"
                     />
 
                     {/* Location */}
