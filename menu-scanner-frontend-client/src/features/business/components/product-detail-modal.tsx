@@ -116,37 +116,20 @@ export function ProductDetailModal({
 
         {/* ── Header ── */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
-          <div className="relative flex-shrink-0 w-14 h-14 rounded overflow-hidden bg-muted border border-border/50">
+          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
             {productData.mainImageUrl ? (
               <img
                 src={productData.mainImageUrl}
                 alt={productData.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain p-1.5"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Package className="h-5 w-5 text-muted-foreground" />
-              </div>
-            )}
-            {hasPromo && (
-              <div
-                className="absolute bottom-0 left-0 right-0 bg-red-500/85 text-white text-center font-bold leading-none py-0.5"
-                style={{ fontSize: "7px" }}
-              >
-                SALE
-              </div>
+              <Package className="h-5 w-5 text-muted-foreground" />
             )}
           </div>
-
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground truncate">
-              {productData.name}
-            </p>
-            {productData.businessName && (
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {productData.businessName}
-              </p>
-            )}
+            <p className="text-sm font-bold text-foreground">Product</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Manage products for your business</p>
           </div>
         </div>
 
