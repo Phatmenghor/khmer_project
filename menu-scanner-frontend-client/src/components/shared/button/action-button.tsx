@@ -37,7 +37,7 @@ export const ActionButton = ({
           size={size}
           disabled={disabled || loading}
           className={cn(
-            "h-[18px] w-[18px] p-0",
+            "h-6 w-auto min-w-6 px-1.5 py-0 gap-1",
             variant === "outline" &&
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
             variant === "secondary" &&
