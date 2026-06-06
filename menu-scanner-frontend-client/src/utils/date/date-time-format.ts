@@ -6,15 +6,17 @@ export function dateTimeFormat(timestamp: string | null | undefined): string {
 
   const date = new Date(timestamp);
 
-  return date.toLocaleString("en-GB", {
-    timeZone: "Asia/Phnom_Penh",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+  return date
+    .toLocaleString("en-GB", {
+      timeZone: "Asia/Phnom_Penh",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase());
 }
 
 export function formatDate(dateStr: string | null | undefined): string {
@@ -44,12 +46,14 @@ export function formatTime(time: string | null | undefined): string {
   const date = new Date();
   date.setHours(Number(hour), Number(minute), 0, 0);
 
-  return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: "Asia/Phnom_Penh",
-  });
+  return date
+    .toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Phnom_Penh",
+    })
+    .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase());
 }
 
 export function dateFormatLocal(timestamp: string | null | undefined): string {

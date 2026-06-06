@@ -69,11 +69,13 @@ export function OrderDetailModal({
         month: "2-digit",
         day: "2-digit",
       });
-      const formattedTime = date.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
+      const formattedTime = date
+        .toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+        .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase());
 
       const subtotal = orderData.pricing?.subtotal || 0;
       const discount = orderData.pricing?.discountAmount || 0;

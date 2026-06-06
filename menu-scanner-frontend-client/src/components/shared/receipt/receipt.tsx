@@ -73,11 +73,13 @@ export function Receipt({
     month: "2-digit",
     day: "2-digit",
   });
-  const timeStr = dt.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+  const timeStr = dt
+    .toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(/\b(am|pm)\b/i, (m) => m.toUpperCase());
 
   const s: React.CSSProperties = {
     fontFamily: FONT,
