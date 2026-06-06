@@ -173,6 +173,14 @@ export default function PendingOrdersAdminPage() {
     setDetailModalState({ isOpen: false, orderId: "" });
   };
 
+  const handleUpdateOrderFromDetail = () => {
+    const orderId = detailModalState.orderId;
+    if (orderId) {
+      closeDetailModal();
+      setUpdateModalState({ isOpen: true, orderId });
+    }
+  };
+
   const closeUpdateModal = () => {
     setUpdateModalState({ isOpen: false, orderId: "" });
   };
@@ -227,6 +235,7 @@ export default function PendingOrdersAdminPage() {
         orderId={detailModalState.orderId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
+        onUpdateOrder={handleUpdateOrderFromDetail}
       />
 
       <OrderUpdateModal

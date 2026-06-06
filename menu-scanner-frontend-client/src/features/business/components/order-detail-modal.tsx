@@ -447,88 +447,104 @@ export function OrderDetailModal({
                     Order Items ({orderData.items.length})
                   </SectionTitle>
                   <div className="space-y-2">
-                    {orderData.items.map((item, idx) => (
-                      <div
-                        key={item.id}
-                        className="flex gap-3 p-2.5 rounded border border-border/50 bg-muted/20"
-                      >
-                        {/* Image */}
-                        <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50">
-                          {item.product?.imageUrl ? (
-                            <img
-                              src={item.product.imageUrl}
-                              alt={item.product.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Package className="h-4 w-4 text-muted-foreground" />
-                            </div>
-                          )}
-                        </div>
+                    {orderData.items.map((item) => {
+                      const name =
+                        item.product?.name || item.productName || "Unknown";
+                      const sizeName =
+                        item.product?.sizeName || item.sizeName;
+                      const sku = item.product?.sku;
+                      const promotionLabel = item.hasPromotion
+                        ? item.promotionType === "PERCENTAGE"
+                          ? `${item.promotionValue}% OFF`
+                          : item.promotionType === "FIXED"
+                            ? `${formatCurrency(item.promotionValue ?? 0)} OFF`
+                            : "Sale"
+                        : null;
 
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-1 mb-1">
-                            <div className="min-w-0">
-                              <p className="text-xs font-semibold text-foreground truncate">
-                                {item.product?.name ||
-                                  item.productName ||
-                                  "Unknown"}
-                              </p>
-                              <div className="flex flex-wrap gap-2 mt-0.5">
-                                {item.product?.sizeName && (
-                                  <span className="text-xs text-muted-foreground">
-                                    Size: {item.product.sizeName}
-                                  </span>
-                                )}
-                                {item.product?.sku && (
-                                  <span className="text-xs text-muted-foreground font-mono">
-                                    SKU: {item.product.sku}
-                                  </span>
-                                )}
+                      return (
+                        <div
+                          key={item.id}
+                          className="flex gap-2.5 p-2 rounded border border-border/50 bg-muted/20"
+                        >
+                          {/* Image */}
+                          <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted border border-border/50">
+                            {item.product?.imageUrl ? (
+                              <img
+                                src={item.product.imageUrl}
+                                alt={name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Package className="h-4 w-4 text-muted-foreground" />
                               </div>
-                            </div>
-                            <div className="flex items-center gap-1 flex-shrink-0">
-                              {item.hasPromotion && (
-                                <span className="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-semibold">
-                                  Sale
+                            )}
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            {/* Name + promotion badge */}
+                            <div className="flex items-start justify-between gap-1 mb-0.5">
+                              <p className="text-xs font-semibold text-foreground leading-tight truncate">
+                                {name}
+                              </p>
+                              {promotionLabel && (
+                                <span className="flex-shrink-0 px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold leading-none">
+                                  {promotionLabel}
                                 </span>
                               )}
                             </div>
-                          </div>
 
-                          {/* Pricing row */}
-                          <div className="flex items-center justify-between text-xs mt-1">
-                            <span className="text-muted-foreground">
-                              {formatCurrency(item.finalPrice)} ×{" "}
-                              {item.quantity}
-                            </span>
-                            <span className="font-bold text-foreground">
-                              {formatCurrency(item.totalPrice)}
-                            </span>
-                          </div>
-
-                          {/* Customizations */}
-                          {item.customizations &&
-                            item.customizations.length > 0 && (
-                              <div className="mt-1.5 pt-1.5 border-t border-border/40 space-y-0.5">
-                                {item.customizations.map((c) => (
-                                  <div
-                                    key={c.productCustomizationId}
-                                    className="flex justify-between text-xs text-muted-foreground"
-                                  >
-                                    <span>+ {c.name}</span>
-                                    <span className="text-blue-600 font-medium">
-                                      +{formatCurrency(c.priceAdjustment)}
-                                    </span>
-                                  </div>
-                                ))}
+                            {/* Size / SKU chips */}
+                            {(sizeName || sku) && (
+                              <div className="flex flex-wrap gap-1 mb-1">
+                                {sizeName && (
+                                  <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                                    {sizeName}
+                                  </span>
+                                )}
+                                {sku && (
+                                  <span className="text-xs text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">
+                                    {sku}
+                                  </span>
+                                )}
                               </div>
                             )}
+
+                            {/* Customizations as inline chips */}
+                            {item.customizations &&
+                              item.customizations.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mb-1">
+                                  {item.customizations.map((c) => (
+                                    <span
+                                      key={c.productCustomizationId}
+                                      className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-xs"
+                                    >
+                                      +{c.name}
+                                      {c.priceAdjustment > 0 && (
+                                        <span className="font-medium">
+                                          &nbsp;+{formatCurrency(c.priceAdjustment)}
+                                        </span>
+                                      )}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
+                            {/* Price × qty → total */}
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">
+                                {formatCurrency(item.finalPrice)} ×{" "}
+                                {item.quantity}
+                              </span>
+                              <span className="font-bold text-foreground">
+                                {formatCurrency(item.totalPrice)}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

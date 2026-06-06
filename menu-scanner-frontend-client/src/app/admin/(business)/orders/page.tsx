@@ -186,8 +186,10 @@ export default function OrdersAdminPage() {
   };
 
   const handleUpdateOrderFromDetail = () => {
-    if (detailModalState.orderId) {
-      setUpdateModalState({ isOpen: true, orderId: detailModalState.orderId });
+    const orderId = detailModalState.orderId;
+    if (orderId) {
+      closeDetailModal();
+      setUpdateModalState({ isOpen: true, orderId });
     }
   };
 
