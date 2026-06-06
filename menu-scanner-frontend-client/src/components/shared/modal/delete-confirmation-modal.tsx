@@ -91,17 +91,17 @@ export function DeleteConfirmationModal({
         <div className="flex flex-col flex-1 overflow-hidden">
           <FormBody>
             {description && (
-              <p className="text-sm text-foreground leading-relaxed">
+              <p className="text-xs text-foreground leading-relaxed">
                 {description}
               </p>
             )}
 
             {itemName && (
-              <div className="px-3 py-2 bg-muted/60 rounded-md border border-border">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+              <div className="px-2.5 py-2 bg-muted/60 rounded border border-border">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
                   Item
                 </p>
-                <p className="text-sm font-semibold text-foreground mt-0.5 truncate">
+                <p className="text-xs font-semibold text-foreground mt-0.5 truncate">
                   {itemName}
                 </p>
               </div>
@@ -109,7 +109,7 @@ export function DeleteConfirmationModal({
 
             {isCritical && (
               <Alert className="border-destructive/30 bg-destructive/5 py-2">
-                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
                 <AlertDescription className="text-xs text-destructive font-medium">
                   This action cannot be undone.
                 </AlertDescription>
@@ -139,7 +139,7 @@ export function DeleteConfirmationModal({
 
             {(error || errorMessage) && (
               <Alert variant="destructive" className="py-2">
-                <AlertTriangle className="h-4 w-4" />
+                <AlertTriangle className="h-3.5 w-3.5" />
                 <AlertDescription className="text-xs">
                   {error || errorMessage}
                 </AlertDescription>
