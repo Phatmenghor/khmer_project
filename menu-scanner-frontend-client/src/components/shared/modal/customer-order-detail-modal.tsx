@@ -76,7 +76,7 @@ function InfoRow({
       <span className="text-xs font-semibold text-muted-foreground">
         {label}
       </span>
-      <span className="text-xs text-foreground">{value || "---"}</span>
+      <span className="text-xs text-foreground">{value || "-"}</span>
     </div>
   );
 }
@@ -514,7 +514,7 @@ export function CustomerOrderDetailModal({
                   />
                   <InfoRow
                     label="Payment Method"
-                    value={order.payment?.paymentMethod || "---"}
+                    value={order.payment?.paymentMethod || "-"}
                   />
                   <InfoRow
                     label="Payment Status"
@@ -529,7 +529,7 @@ export function CustomerOrderDetailModal({
                               : "text-amber-600"
                         )}
                       >
-                        {order.payment?.paymentStatus || "---"}
+                        {order.payment?.paymentStatus || "-"}
                       </span>
                     }
                   />

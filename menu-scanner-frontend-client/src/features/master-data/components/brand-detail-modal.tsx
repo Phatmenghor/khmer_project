@@ -34,7 +34,7 @@ function InfoRow({
   return (
     <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
       <span className="text-xs font-semibold text-muted-foreground">{label}</span>
-      <span className="text-xs text-foreground break-words">{value || "---"}</span>
+      <span className="text-xs text-foreground break-words">{value || "-"}</span>
     </div>
   );
 }
@@ -94,16 +94,16 @@ export function BrandDetailModal({
               <div className="rounded border border-border/50 bg-card p-3">
                 <SectionTitle>Brand Information</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-                  <InfoRow label="Name" value={brand.name || "---"} />
+                  <InfoRow label="Name" value={brand.name || "-"} />
                   <InfoRow
                     label="Status"
                     value={
                       <span className={cn("font-semibold", isActive ? "text-green-700" : "text-gray-500")}>
-                        {brand.status ? formatEnumValue(brand.status) : "---"}
+                        {brand.status ? formatEnumValue(brand.status) : "-"}
                       </span>
                     }
                   />
-                  <InfoRow label="Description" value={brand.description || "---"} fullWidth />
+                  <InfoRow label="Description" value={brand.description || "-"} fullWidth />
                 </div>
               </div>
 
@@ -132,9 +132,9 @@ export function BrandDetailModal({
               <div className="rounded border border-border/50 bg-card p-3">
                 <SectionTitle>System Info</SectionTitle>
                 <div className="space-y-2.5">
-<InfoRow label="Created By" value={brand.createdBy || "---"} />
+<InfoRow label="Created By" value={brand.createdBy || "-"} />
                   <InfoRow label="Created At" value={dateTimeFormat(brand.createdAt ?? "")} />
-                  <InfoRow label="Updated By" value={brand.updatedBy || "---"} />
+                  <InfoRow label="Updated By" value={brand.updatedBy || "-"} />
                   <InfoRow label="Last Updated" value={dateTimeFormat(brand.updatedAt ?? "")} />
                 </div>
               </div>

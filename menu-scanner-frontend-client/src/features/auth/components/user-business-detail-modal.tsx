@@ -45,7 +45,7 @@ function InfoRow({
       <span className="text-xs font-semibold text-muted-foreground">
         {label}
       </span>
-      <span className="text-xs text-foreground break-words">{value || "---"}</span>
+      <span className="text-xs text-foreground break-words">{value || "-"}</span>
     </div>
   );
 }
@@ -148,7 +148,7 @@ export function UserBusinessDetailModal({
 
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground truncate">
-              {userData.fullName || userData.userIdentifier || "---"}
+              {userData.fullName || userData.userIdentifier || "-"}
             </p>
             <div className="flex flex-wrap gap-2 mt-0.5">
               {userData.email && (
@@ -181,7 +181,7 @@ export function UserBusinessDetailModal({
                         <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", statusColor(userData.accountStatus))}>
                           {formatEnumValue(userData.accountStatus)}
                         </span>
-                      ) : "---"
+                      ) : "-"
                     }
                   />
                   <InfoRow
@@ -195,19 +195,19 @@ export function UserBusinessDetailModal({
                             </span>
                           ))}
                         </div>
-                      ) : "---"
+                      ) : "-"
                     }
                   />
-                  <InfoRow label="First Name" value={userData.firstName || "---"} />
-                  <InfoRow label="Last Name" value={userData.lastName || "---"} />
-                  <InfoRow label="Nickname" value={userData.nickname || "---"} />
-                  <InfoRow label="Phone" value={userData.phoneNumber || "---"} />
+                  <InfoRow label="First Name" value={userData.firstName || "-"} />
+                  <InfoRow label="Last Name" value={userData.lastName || "-"} />
+                  <InfoRow label="Nickname" value={userData.nickname || "-"} />
+                  <InfoRow label="Phone" value={userData.phoneNumber || "-"} />
                   <InfoRow
                     label="Gender"
-                    value={userData.gender ? formatEnumValue(userData.gender) : "---"}
+                    value={userData.gender ? formatEnumValue(userData.gender) : "-"}
                   />
-                  <InfoRow label="Date of Birth" value={userData.dateOfBirth || "---"} />
-                  <InfoRow label="Email" value={userData.email || "---"} fullWidth />
+                  <InfoRow label="Date of Birth" value={userData.dateOfBirth || "-"} />
+                  <InfoRow label="Email" value={userData.email || "-"} fullWidth />
                 </div>
               </div>
 
@@ -216,19 +216,19 @@ export function UserBusinessDetailModal({
                 <div className="rounded border border-border/50 bg-card p-3">
                   <SectionTitle>Employment</SectionTitle>
                   <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                    <InfoRow label="Employee ID" value={userData.employeeId || "---"} />
-                    <InfoRow label="Position" value={userData.position || "---"} />
-                    <InfoRow label="Department" value={userData.department || "---"} />
+                    <InfoRow label="Employee ID" value={userData.employeeId || "-"} />
+                    <InfoRow label="Position" value={userData.position || "-"} />
+                    <InfoRow label="Department" value={userData.department || "-"} />
                     <InfoRow
                       label="Type"
                       value={
                         userData.employmentType
                           ? formatEnumValue(userData.employmentType)
-                          : "---"
+                          : "-"
                       }
                     />
-                    <InfoRow label="Join Date" value={userData.joinDate || "---"} />
-                    <InfoRow label="Leave Date" value={userData.leaveDate || "---"} />
+                    <InfoRow label="Join Date" value={userData.joinDate || "-"} />
+                    <InfoRow label="Leave Date" value={userData.leaveDate || "-"} />
                     <InfoRow label="Shift" value={userData.shift} />
                   </div>
                 </div>
@@ -257,12 +257,12 @@ export function UserBusinessDetailModal({
                           )}
                         </div>
                         <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                          <InfoRow label="House No" value={addr.houseNo || "---"} />
-                          <InfoRow label="Street" value={addr.street || "---"} />
-                          <InfoRow label="Village" value={addr.village || "---"} />
-                          <InfoRow label="Commune" value={addr.commune || "---"} />
-                          <InfoRow label="District" value={addr.district || "---"} />
-                          <InfoRow label="Province" value={addr.province || "---"} />
+                          <InfoRow label="House No" value={addr.houseNo || "-"} />
+                          <InfoRow label="Street" value={addr.street || "-"} />
+                          <InfoRow label="Village" value={addr.village || "-"} />
+                          <InfoRow label="Commune" value={addr.commune || "-"} />
+                          <InfoRow label="District" value={addr.district || "-"} />
+                          <InfoRow label="Province" value={addr.province || "-"} />
                           <InfoRow label="Country" value={addr.country} />
                         </div>
                       </div>
@@ -286,14 +286,14 @@ export function UserBusinessDetailModal({
                         >
                           <div className="min-w-0">
                             <p className="text-xs font-semibold text-foreground">
-                              {c.name || "---"}
+                              {c.name || "-"}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {c.relationship || "---"}
+                              {c.relationship || "-"}
                             </p>
                           </div>
                           <span className="text-xs text-foreground font-mono flex-shrink-0">
-                            {c.phone || "---"}
+                            {c.phone || "-"}
                           </span>
                         </div>
                       ))}
@@ -324,10 +324,10 @@ export function UserBusinessDetailModal({
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-semibold text-foreground">
-                            {doc.type ? formatEnumValue(doc.type) : "---"}
+                            {doc.type ? formatEnumValue(doc.type) : "-"}
                           </p>
                           <p className="text-xs text-muted-foreground font-mono">
-                            {doc.number || "---"}
+                            {doc.number || "-"}
                           </p>
                         </div>
                       </div>
@@ -360,19 +360,19 @@ export function UserBusinessDetailModal({
                         <div className="flex-1 min-w-0 grid grid-cols-2 gap-x-3 gap-y-1">
                           <InfoRow
                             label="Level"
-                            value={edu.level ? formatEnumValue(edu.level) : "---"}
+                            value={edu.level ? formatEnumValue(edu.level) : "-"}
                           />
-                          <InfoRow label="School" value={edu.schoolName || "---"} />
+                          <InfoRow label="School" value={edu.schoolName || "-"} />
                           <InfoRow
                             label="Field"
-                            value={edu.fieldOfStudy || "---"}
+                            value={edu.fieldOfStudy || "-"}
                           />
                           <InfoRow
                             label="Period"
                             value={
                               edu.startYear && edu.endYear
                                 ? `${edu.startYear} – ${edu.endYear}`
-                                : edu.startYear || "---"
+                                : edu.startYear || "-"
                             }
                           />
                           <InfoRow
@@ -414,13 +414,13 @@ export function UserBusinessDetailModal({
                 <div className="rounded border border-border/50 bg-card p-3">
                   <SectionTitle>Telegram</SectionTitle>
                   <div className="space-y-2">
-                    <InfoRow label="ID" value={userData.telegramId || "---"} />
+                    <InfoRow label="ID" value={userData.telegramId || "-"} />
                     <InfoRow
                       label="Username"
                       value={
                         userData.telegramUsername
                           ? `@${userData.telegramUsername}`
-                          : "---"
+                          : "-"
                       }
                     />
                     <InfoRow
@@ -428,7 +428,7 @@ export function UserBusinessDetailModal({
                       value={
                         [userData.telegramFirstName, userData.telegramLastName]
                           .filter(Boolean)
-                          .join(" ") || "---"
+                          .join(" ") || "-"
                       }
                     />
                     <div className="flex items-center justify-between">
@@ -460,15 +460,15 @@ export function UserBusinessDetailModal({
                     value={
                       userData.userType
                         ? formatEnumValue(userData.userType)
-                        : "---"
+                        : "-"
                     }
                   />
-<InfoRow label="Created By" value={userData.createdBy || "---"} />
+<InfoRow label="Created By" value={userData.createdBy || "-"} />
                   <InfoRow
                     label="Created At"
                     value={dateTimeFormat(userData.createdAt ?? "")}
                   />
-                  <InfoRow label="Updated By" value={userData.updatedBy || "---"} />
+                  <InfoRow label="Updated By" value={userData.updatedBy || "-"} />
                   <InfoRow
                     label="Last Updated"
                     value={dateTimeFormat(userData.updatedAt ?? "")}

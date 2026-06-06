@@ -45,7 +45,7 @@ function InfoRow({
       <span className="text-xs font-semibold text-muted-foreground">
         {label}
       </span>
-      <span className="text-xs text-foreground break-words">{value || "---"}</span>
+      <span className="text-xs text-foreground break-words">{value || "-"}</span>
     </div>
   );
 }
@@ -163,10 +163,10 @@ export function ProductDetailModal({
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                   <InfoRow label="Name" value={productData.name} fullWidth />
                   <InfoRow label="Description" value={productData.description} fullWidth />
-                  <InfoRow label="Category" value={productData.categoryName || "---"} />
-                  <InfoRow label="Brand" value={productData.brandName || "---"} />
-                  <InfoRow label="SKU" value={productData.sku || "---"} />
-                  <InfoRow label="Barcode" value={productData.barcode || "---"} />
+                  <InfoRow label="Category" value={productData.categoryName || "-"} />
+                  <InfoRow label="Brand" value={productData.brandName || "-"} />
+                  <InfoRow label="SKU" value={productData.sku || "-"} />
+                  <InfoRow label="Barcode" value={productData.barcode || "-"} />
                   <InfoRow label="Has Sizes" value={productData.hasSizes ? "Yes" : "No"} />
                   <InfoRow
                     label="Items"
@@ -188,7 +188,7 @@ export function ProductDetailModal({
                     value={
                       productData.price
                         ? formatCurrency(parseFloat(productData.price) || 0)
-                        : "---"
+                        : "-"
                     }
                   />
                   <InfoRow
@@ -221,7 +221,7 @@ export function ProductDetailModal({
                       />
                       <InfoRow
                         label="Promo Type"
-                        value={productData.displayPromotionType || "---"}
+                        value={productData.displayPromotionType || "-"}
                       />
                       <InfoRow
                         label="Promo Period"
@@ -229,7 +229,7 @@ export function ProductDetailModal({
                           productData.displayPromotionFromDate &&
                           productData.displayPromotionToDate
                             ? `${dateFormatLocal(productData.displayPromotionFromDate)} – ${dateFormatLocal(productData.displayPromotionToDate)}`
-                            : "---"
+                            : "-"
                         }
                         fullWidth
                       />
@@ -298,7 +298,7 @@ export function ProductDetailModal({
 
                             {/* SKU / Stock row */}
                             <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                              <InfoRow label="SKU" value={size.sku || "---"} />
+                              <InfoRow label="SKU" value={size.sku || "-"} />
                               <InfoRow
                                 label="Stock"
                                 value={
@@ -414,7 +414,7 @@ export function ProductDetailModal({
                           : "bg-gray-100 text-gray-500"
                       )}
                     >
-                      {productData.stockStatus || "---"}
+                      {productData.stockStatus || "-"}
                     </span>
                   </div>
 
@@ -462,12 +462,12 @@ export function ProductDetailModal({
               <div className="rounded border border-border/50 bg-card p-3">
                 <SectionTitle>System Info</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <InfoRow label="Created By" value={productData.createdBy || "---"} />
+                  <InfoRow label="Created By" value={productData.createdBy || "-"} />
                   <InfoRow
                     label="Created At"
                     value={dateTimeFormat(productData.createdAt ?? "")}
                   />
-                  <InfoRow label="Updated By" value={productData.updatedBy || "---"} />
+                  <InfoRow label="Updated By" value={productData.updatedBy || "-"} />
                   <InfoRow
                     label="Last Updated"
                     value={dateTimeFormat(productData.updatedAt ?? "")}

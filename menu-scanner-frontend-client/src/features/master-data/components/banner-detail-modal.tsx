@@ -32,7 +32,7 @@ function InfoRow({
   return (
     <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
       <span className="text-xs font-semibold text-muted-foreground">{label}</span>
-      <span className="text-xs text-foreground">{value || "---"}</span>
+      <span className="text-xs text-foreground">{value || "-"}</span>
     </div>
   );
 }
@@ -98,13 +98,13 @@ export function BannerDetailModal({
                         isActive ? "text-green-700" : "text-gray-500"
                       )}
                     >
-                      {banner.status ? formatEnumValue(banner.status) : "---"}
+                      {banner.status ? formatEnumValue(banner.status) : "-"}
                     </span>
                   }
                 />
 <InfoRow
                   label="Description"
-                  value={banner.description || "---"}
+                  value={banner.description || "-"}
                   fullWidth
                 />
               </div>
@@ -114,9 +114,9 @@ export function BannerDetailModal({
             <div className="rounded border border-border/50 bg-card p-3">
               <SectionTitle>System Info</SectionTitle>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-                <InfoRow label="Created By" value={banner.createdBy || "---"} />
+                <InfoRow label="Created By" value={banner.createdBy || "-"} />
                 <InfoRow label="Created At" value={dateTimeFormat(banner.createdAt ?? "")} />
-                <InfoRow label="Updated By" value={banner.updatedBy || "---"} />
+                <InfoRow label="Updated By" value={banner.updatedBy || "-"} />
                 <InfoRow label="Last Updated" value={dateTimeFormat(banner.updatedAt ?? "")} />
               </div>
             </div>

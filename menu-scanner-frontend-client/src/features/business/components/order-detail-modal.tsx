@@ -97,7 +97,7 @@ function InfoRow({
       <span className="text-xs font-semibold text-muted-foreground">
         {label}
       </span>
-      <span className="text-xs text-foreground">{value || "---"}</span>
+      <span className="text-xs text-foreground">{value || "-"}</span>
     </div>
   );
 }
@@ -651,11 +651,11 @@ export function OrderDetailModal({
                   />
                   <InfoRow
                     label="Business"
-                    value={orderData.businessName || "---"}
+                    value={orderData.businessName || "-"}
                   />
                   <InfoRow
                     label="Payment Method"
-                    value={orderData.payment?.paymentMethod || "---"}
+                    value={orderData.payment?.paymentMethod || "-"}
                   />
                   <InfoRow
                     label="Payment Status"
@@ -670,7 +670,7 @@ export function OrderDetailModal({
                               : "text-amber-600"
                         )}
                       >
-                        {orderData.payment?.paymentStatus || "---"}
+                        {orderData.payment?.paymentStatus || "-"}
                       </span>
                     }
                   />
@@ -802,12 +802,12 @@ export function OrderDetailModal({
               <div className="rounded border border-border/50 bg-card p-3">
                 <SectionTitle>System Info</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <InfoRow label="Created By" value={orderData.createdBy || "---"} />
+                  <InfoRow label="Created By" value={orderData.createdBy || "-"} />
                   <InfoRow
                     label="Created At"
                     value={dateTimeFormat(orderData.createdAt)}
                   />
-                  <InfoRow label="Updated By" value={orderData.updatedBy || "---"} />
+                  <InfoRow label="Updated By" value={orderData.updatedBy || "-"} />
                   <InfoRow
                     label="Last Updated"
                     value={dateTimeFormat(orderData.updatedAt)}

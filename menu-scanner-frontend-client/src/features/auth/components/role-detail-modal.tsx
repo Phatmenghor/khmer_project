@@ -26,7 +26,7 @@ function InfoRow({ label, value, fullWidth }: { label: string; value: React.Reac
   return (
     <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
       <span className="text-xs font-semibold text-muted-foreground">{label}</span>
-      <span className="text-xs text-foreground">{value || "---"}</span>
+      <span className="text-xs text-foreground">{value || "-"}</span>
     </div>
   );
 }
@@ -81,7 +81,7 @@ export function RoleDetailModal({
               <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
                 <InfoRow label="Role Name" value={displayName} />
                 <InfoRow label="User Type" value={formatEnumValue(roleData.userType)} />
-                <InfoRow label="Description" value={roleData.description || "---"} fullWidth />
+                <InfoRow label="Description" value={roleData.description || "-"} fullWidth />
               </div>
             </div>
 
@@ -89,9 +89,9 @@ export function RoleDetailModal({
             <div className="rounded border border-border/50 bg-card p-3">
               <SectionTitle>System Info</SectionTitle>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-                <InfoRow label="Created By" value={roleData.createdBy ?? "---"} />
+                <InfoRow label="Created By" value={roleData.createdBy ?? "-"} />
                 <InfoRow label="Created At" value={dateTimeFormat(roleData.createdAt ?? "")} />
-                <InfoRow label="Updated By" value={roleData.updatedBy ?? "---"} />
+                <InfoRow label="Updated By" value={roleData.updatedBy ?? "-"} />
                 <InfoRow label="Last Updated" value={dateTimeFormat(roleData.updatedAt ?? "")} />
               </div>
             </div>
