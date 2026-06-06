@@ -300,7 +300,7 @@ export function UserBusinessDetailModal({
                             <img
                               src={doc.fileUrl}
                               alt="Document"
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain p-1.5"
                             />
                           </div>
                         )}
@@ -335,7 +335,7 @@ export function UserBusinessDetailModal({
                             <img
                               src={edu.certificateUrl}
                               alt="Certificate"
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain p-1.5"
                             />
                           </div>
                         )}

@@ -322,7 +322,7 @@ export function ProductDetailModal({
                         <img
                           src={image.imageUrl}
                           alt={`Image ${idx + 1}`}
-                          className="object-cover w-full h-full"
+                          className="object-contain p-1.5 w-full h-full"
                         />
                       </div>
                     ))}
