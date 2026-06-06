@@ -203,7 +203,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
                 {}
                 <div className="border-t pt-4">
                   <h3 className="text-xs font-semibold text-foreground mb-3">
-                    Banner Details
+                    Brand Details
                   </h3>
 
                   {}
@@ -211,8 +211,8 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
                     <TextField
                       control={control}
                       name="name"
-                      label="Name Brand"
-                      placeholder="Enter name brand"
+                      label="Brand Name"
+                      placeholder="Enter brand name"
                       disabled={isProcessing}
                       error={errors.name}
                     />
