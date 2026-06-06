@@ -3,6 +3,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { getAdminToken, getToken } from "@/utils/local-storage/token";
 
 interface UseDashboardWebSocketOptions {
   businessId: string | null | undefined;
@@ -40,8 +41,15 @@ export function useDashboardWebSocket({
       }
     };
 
+    const token =
+      (typeof window !== "undefined" &&
+        window.location.pathname.startsWith("/admin")
+        ? getAdminToken()
+        : getToken()) || "";
+
     const client = new Client({
       webSocketFactory: () => new SockJS(wsUrl),
+      connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
       reconnectDelay: 5000,
       onConnect: () => {
         setIsConnected(true);
@@ -73,7 +81,15 @@ export function useDashboardWebSocket({
       },
       onStompError: (frame) => {
         setIsConnected(false);
-        console.error("[WS] STOMP error:", frame);
+        console.error(
+          "[WS] STOMP error:",
+          frame?.headers?.message || "(no message)",
+          frame?.body || "",
+        );
+      },
+      onWebSocketError: (event) => {
+        setIsConnected(false);
+        console.error("[WS] socket error:", event);
       },
     });
 
