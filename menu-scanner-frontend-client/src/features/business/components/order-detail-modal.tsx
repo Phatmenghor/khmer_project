@@ -363,7 +363,7 @@ export function OrderDetailModal({
                     </span>
                   </div>
                 ) : (
-                  <div className="flex items-start gap-1 overflow-x-auto pb-1">
+                  <div className="flex items-start gap-3 overflow-x-auto px-2 py-2">
                     {ORDER_STEPS.map((step, idx) => {
                       const isDone = currentStep >= STEP_ORDER[step];
                       const isCurrent = currentStep === STEP_ORDER[step];
