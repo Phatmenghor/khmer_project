@@ -6,6 +6,7 @@ import { formatKhrRate } from "@/utils/format/exchange-rate-formatter";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { ExchangeRateResponseModel } from "../store/models/response/exchange-rate-response";
 import { cn } from "@/lib/utils";
+import { TrendingUp } from "lucide-react";
 
 interface DetailModalProps {
   exchangeRate: ExchangeRateResponseModel | null;
@@ -63,8 +64,16 @@ export function ExchangeRateDetailModal({
       <DialogTitle className="sr-only">Exchange Rate Details</DialogTitle>
       <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
-          <p className="text-sm font-bold text-foreground">{formatKhrRate(exchangeRate.usdToKhrRate)}</p>
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
+          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+            <TrendingUp className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-foreground">{formatKhrRate(exchangeRate.usdToKhrRate)}</p>
+            {exchangeRate.notes && (
+              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{exchangeRate.notes}</p>
+            )}
+          </div>
         </div>
 
         {/* Body */}
@@ -84,7 +93,12 @@ export function ExchangeRateDetailModal({
                       </span>
                     }
                   />
-                  <InfoRow label="Notes" value={exchangeRate.notes} fullWidth />
+                  <div className="col-span-2 flex flex-col gap-0.5">
+                    <span className="text-xs font-semibold text-muted-foreground">Notes</span>
+                    <p className="text-xs text-foreground whitespace-pre-wrap break-words leading-relaxed">
+                      {exchangeRate.notes || "-"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
