@@ -33,12 +33,9 @@ import {
   clearError,
   clearSelectedExchangeRate,
   updateExchangeRateInList,
-  addExchangeRateToList,
 } from "../store/slice/exchange-rate-slice";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
-import { Loading } from "@/components/shared/common/loading";
 import { ExchangeRateResponseModel } from "../store/models/response/exchange-rate-response";
-import { selectSelectedExchangeRate } from "../store/selectors/exchange-rate-selector";
 
 type Props = {
   mode: ModalMode;
@@ -56,7 +53,6 @@ export default function ExchangeRateModal({
   const isCreate = mode === ModalMode.CREATE_MODE;
 
   const dispatch = useAppDispatch();
-
   const operations = useAppSelector(selectOperations);
   const reduxError = useAppSelector(selectError);
   const { isCreating, isUpdating } = operations;
@@ -67,9 +63,7 @@ export default function ExchangeRateModal({
     reset,
     formState: { errors, isDirty },
   } = useForm<ExchangeRateFormData>({
-    resolver: zodResolver(
-      isCreate ? createExchangeRateSchema : updateExchangeRateSchema,
-    ),
+    resolver: zodResolver(isCreate ? createExchangeRateSchema : updateExchangeRateSchema),
     defaultValues: {
       usdToKhrRate: undefined,
       status: "ACTIVE",
@@ -77,7 +71,6 @@ export default function ExchangeRateModal({
     },
     mode: "onChange",
   });
-
 
   useEffect(() => {
     if (!isOpen) return;
@@ -97,7 +90,6 @@ export default function ExchangeRateModal({
     }
   }, [isOpen, isCreate, exchangeRate, reset]);
 
-
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
@@ -113,10 +105,8 @@ export default function ExchangeRateModal({
       };
 
       if (isCreate) {
-
         showToast.success(Messages.exchangeRate.created);
         handleClose();
-
 
         dispatch(createExchangeRateService(payload))
           .unwrap()
@@ -126,7 +116,6 @@ export default function ExchangeRateModal({
             );
           });
       } else {
-
         if (exchangeRate) {
           const updatedRate: ExchangeRateResponseModel = {
             ...exchangeRate,
@@ -134,20 +123,13 @@ export default function ExchangeRateModal({
             status: (data.status || exchangeRate.status) as "ACTIVE" | "INACTIVE",
             notes: data.notes || exchangeRate.notes,
           };
-
           dispatch(updateExchangeRateInList(updatedRate));
         }
 
         showToast.success(Messages.exchangeRate.updated);
         handleClose();
 
-
-        dispatch(
-          updateExchangeRateService({
-            id: exchangeRate?.id!,
-            payload,
-          }),
-        )
+        dispatch(updateExchangeRateService({ id: exchangeRate?.id!, payload }))
           .unwrap()
           .catch((error: unknown) => {
             showToast.error(
@@ -158,7 +140,7 @@ export default function ExchangeRateModal({
     } catch (error: unknown) {
       showToast.error(
         (error as { message?: string })?.message ||
-          `Failed to ${isCreate ? "create" : "update"} exchange rate`,
+          `Failed to ${isCreate ? "create" : "update"} exchange rate`
       );
     }
   };
@@ -179,33 +161,26 @@ export default function ExchangeRateModal({
           title={isCreate ? "Create New Exchange Rate" : "Edit Exchange Rate"}
           description={
             isCreate
-              ? "Configure exchange rates for different currencies"
+              ? "Configure the USD to KHR exchange rate"
               : "Update exchange rate information below"
           }
           isCreate={isCreate}
         />
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-hidden"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
           <FormBody>
-            {}
             {reduxError && (
               <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
-                <p className="text-xs text-destructive font-medium">
-                  {reduxError}
-                </p>
+                <p className="text-xs text-destructive font-medium">{reduxError}</p>
               </div>
             )}
 
-            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <TextField
                 control={control as any}
                 name="usdToKhrRate"
-                label="USD To KHR Rate"
-                placeholder="Enter USD to KHR rate"
+                label="🇰🇭 USD To KHR Rate"
+                placeholder="e.g. 4100"
                 type="number"
                 valueAsNumber
                 disabled={isSubmitting}
@@ -228,13 +203,12 @@ export default function ExchangeRateModal({
               )}
             </div>
 
-            {}
             <TextareaField
               control={control as any}
               name="notes"
-              label="Remark"
+              label="Notes / Remark"
               placeholder="Enter any additional notes (optional)"
-              rows={5}
+              rows={4}
               disabled={isSubmitting}
               error={errors.notes}
             />

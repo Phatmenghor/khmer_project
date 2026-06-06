@@ -236,8 +236,9 @@ export default function DeliveryOptionsModal({
                     <TextField
                       control={control}
                       name="name"
-                      label="Name Delivery Options"
-                      placeholder="Enter name delivery options"
+                      label="Delivery Name"
+                      placeholder="e.g. Standard Delivery"
+                      required
                       disabled={isProcessing}
                       error={errors.name}
                     />
@@ -245,8 +246,8 @@ export default function DeliveryOptionsModal({
                     <TextField
                       control={control}
                       name="price"
-                      label="Delivery Options Price"
-                      placeholder="Enter delivery options price (optional)"
+                      label="Price (USD)"
+                      placeholder="e.g. 2.50"
                       type="number"
                       valueAsNumber
                       disabled={isProcessing}
@@ -269,8 +270,8 @@ export default function DeliveryOptionsModal({
                     control={control}
                     name="description"
                     label="Description"
-                    placeholder="Enter any additional description (optional)"
-                    rows={5}
+                    placeholder="Describe this delivery option (optional)"
+                    rows={4}
                     disabled={isProcessing}
                     error={errors.description}
                   />

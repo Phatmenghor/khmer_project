@@ -145,12 +145,12 @@ export default function PaymentOptionsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-xl max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title={isCreate ? "Create New Payment Option" : "Edit Payment Option"}
           description={
             isCreate
-              ? "Fill out the form to create a new payment option"
+              ? "Add a payment method your customers can use at checkout"
               : "Update payment option information below"
           }
           isCreate={isCreate}
@@ -166,48 +166,55 @@ export default function PaymentOptionsModal({
               </div>
             )}
 
-            <div className="space-y-3">
-              <TextField
-                control={control}
-                name="name"
-                label="Payment Method Name"
-                placeholder="e.g., Cash, ABA, ACE, Khmer Bank"
-                required
-                disabled={isSubmitting}
-                error={errors.name}
-              />
-
-              <SelectField
-                control={control}
-                name="paymentOptionType"
-                label="Type"
-                placeholder="Select type"
-                options={PAYMENT_OPTION_TYPE_OPTIONS}
-                required
-                disabled={isSubmitting}
-                error={errors.paymentOptionType}
-              />
-
-              <SelectField
-                control={control}
-                name="status"
-                label="Status"
-                placeholder="Select status"
-                options={STATUS_OPTIONS}
-                required
-                disabled={isSubmitting}
-                error={errors.status}
-              />
-
+            <div className="space-y-2">
+              {/* Image upload */}
               <ClickableImageUpload
-                label="QR Code / Payment Method Image"
+                label="QR Code / Payment Image"
                 value={imageUrl}
                 onChange={(base64) => setValue("imageUrl", base64, { shouldDirty: true })}
                 disabled={isSubmitting}
                 placeholder="Click to upload QR code or payment method image"
-                helperText="PNG, JPG, GIF up to 10MB"
+                helperText="Square image works best — e.g. bank QR code (500×500)"
                 aspectRatio="square"
               />
+
+              {/* Payment details */}
+              <div className="border-t pt-4">
+                <h3 className="text-xs font-semibold text-foreground mb-3">Payment Details</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <TextField
+                    control={control}
+                    name="name"
+                    label="Payment Method Name"
+                    placeholder="e.g. ABA Bank, Cash, Wing"
+                    required
+                    disabled={isSubmitting}
+                    error={errors.name}
+                  />
+
+                  <SelectField
+                    control={control}
+                    name="paymentOptionType"
+                    label="Payment Type"
+                    placeholder="Select type"
+                    options={PAYMENT_OPTION_TYPE_OPTIONS}
+                    required
+                    disabled={isSubmitting}
+                    error={errors.paymentOptionType}
+                  />
+
+                  <SelectField
+                    control={control}
+                    name="status"
+                    label="Status"
+                    placeholder="Select status"
+                    options={STATUS_OPTIONS}
+                    required
+                    disabled={isSubmitting}
+                    error={errors.status}
+                  />
+                </div>
+              </div>
             </div>
           </FormBody>
 
