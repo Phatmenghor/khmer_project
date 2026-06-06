@@ -34,7 +34,7 @@ export function PromotionValueField<T extends FieldValues = FieldValues>({
         name={name}
         render={({ field }) => (
           <div
-            className={`relative h-7 overflow-hidden rounded border border-border hover:border-primary/50 transition-colors duration-200 ${className}`}
+            className={`relative h-6 overflow-hidden rounded border border-border hover:border-primary/50 transition-colors duration-200 ${className}`}
           >
             <input
               {...field}

@@ -35,7 +35,7 @@ export function CancelButton({
       variant={variant}
       onClick={onClick}
       disabled={disabled}
-      className={cn("transition-all", className)}
+      className={cn("h-6 transition-all", className)}
     >
       {showIcon && <X className="mr-1 h-3 w-3" />}
       {text}

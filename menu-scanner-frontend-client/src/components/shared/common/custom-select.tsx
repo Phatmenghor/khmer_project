@@ -43,7 +43,7 @@ const CUSTOM_SELECT_SIZES = {
     item: "text-xs py-1 px-2",
   },
   lg: {
-    button: "h-7 text-xs",
+    button: "h-6 text-xs",
     icon: "h-3 w-3",
     item: "text-xs py-1 px-2",
   },

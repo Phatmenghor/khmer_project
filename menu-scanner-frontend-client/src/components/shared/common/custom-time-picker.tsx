@@ -114,7 +114,7 @@ export function CustomTimePicker({
       <PopoverTrigger asChild>
         <div
           className={cn(
-            "relative w-full h-7 rounded border border-input bg-background",
+            "relative w-full h-6 rounded border border-input bg-background",
             "transition-all duration-200",
             !value && "text-muted-foreground",
             isOpen && "bg-primary/20 border-primary",
@@ -175,7 +175,7 @@ export function CustomTimePicker({
             <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-11 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Hour</label>
               <Select value={selectedHour} onValueChange={setSelectedHour}>
-                <SelectTrigger className="h-7 w-full xs:w-11 text-xs font-medium border-input">
+                <SelectTrigger className="h-6 w-full xs:w-11 text-xs font-medium border-input">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-32 min-w-8">
@@ -195,7 +195,7 @@ export function CustomTimePicker({
             <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-11 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Min</label>
               <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                <SelectTrigger className="h-7 w-full xs:w-11 text-xs font-medium border-input">
+                <SelectTrigger className="h-6 w-full xs:w-11 text-xs font-medium border-input">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-32 min-w-8">

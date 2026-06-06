@@ -36,7 +36,7 @@ export function PasswordField<T extends FieldValues = FieldValues>({
               placeholder={placeholder}
               disabled={disabled}
               autoComplete="new-password"
-              className={`h-7 pr-8 transition-all duration-200 ${
+              className={`h-6 pr-8 transition-all duration-200 ${
                 error
                   ? "border-red-500 focus:border-red-500"
                   : "focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/30"
