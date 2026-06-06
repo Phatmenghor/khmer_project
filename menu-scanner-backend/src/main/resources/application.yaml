@@ -93,10 +93,10 @@ springdoc:
 telegram:
   bot:
     token: "${TELEGRAM_BOT_TOKEN:disabled}"
-    enabled: false
+    enabled: true
     group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:0}"
     webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
-    auto-setup: false
+    auto-setup: true
 
 # ── Application ───────────────────────────────────────────────────────────────
 app:
@@ -119,7 +119,8 @@ app:
   social:
     telegram:
       bot-token: "${TELEGRAM_BOT_TOKEN:disabled}"
-      enabled: false
+      group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:0}"
+      enabled: true
     google:
       client-id: "${GOOGLE_CLIENT_ID:disabled}"
       client-secret: "${GOOGLE_CLIENT_SECRET:disabled}"

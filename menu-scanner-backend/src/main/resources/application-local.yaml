@@ -28,6 +28,16 @@ spring:
 
 jwt:
   secret: "${JWT_SECRET:local-dev-secret-replace-in-production-with-minimum-64-char-random-string-xyz}"
+  expiration: "${JWT_EXPIRATION:86400000}"
+  refresh-token-expiration: "${JWT_REFRESH_EXPIRATION:604800000}"
+
+telegram:
+  bot:
+    token: "${TELEGRAM_BOT_TOKEN:disabled}"
+    enabled: true
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:0}"
+    webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
+    auto-setup: true
 
 app:
   cache:
@@ -39,12 +49,6 @@ app:
     create-admin: true
     admin-email: "${APP_ADMIN_EMAIL:admin@emenu.local}"
     admin-password: "${APP_ADMIN_PASSWORD:Admin@123456}"
-
-telegram:
-  bot:
-    token: "${TELEGRAM_BOT_TOKEN:disabled}"
-    enabled: false
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:0}"
 
 logging:
   level:
