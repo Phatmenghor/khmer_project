@@ -30,7 +30,7 @@ import {
 import { productTableColumns } from "@/features/business/table/product-table";
 import ProductModal from "@/features/business/components/product-modal";
 import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
-import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
+import { PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
@@ -130,8 +130,8 @@ export default function ProductPage() {
         search: debouncedSearch,
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
-        statuses:
-          filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
+        // Page always shows ACTIVE products only — no status filter in UI.
+        statuses: [ProductStatus.ACTIVE],
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasSize,
@@ -143,7 +143,6 @@ export default function ProductPage() {
     dispatch,
     debouncedSearch,
     filters.pageNo,
-    filters.status,
     globalPageSize,
     selectedBrand,
     selectedCategories,
@@ -313,10 +312,6 @@ export default function ProductPage() {
     });
   };
 
-  const handleProductStatusChange = (status: ProductStatus) => {
-    dispatch(selectProductStatus(status));
-  };
-
   const handleSizeFilterChange = (value: string | number | boolean | null | undefined) => {
     setSizeFilter(String(value ?? ""));
   };
@@ -361,15 +356,6 @@ export default function ProductPage() {
     onButtonClick: handleCreateBrand,
     onClearAll: handleClearAllFilters,
     filters: [
-      {
-        id: "status",
-        type: "select",
-        label: "Product Status",
-        placeholder: "All Status",
-        value: filters.status,
-        onChange: (value) => handleProductStatusChange(value as ProductStatus),
-        options: PRODUCT_STATUS_FILTER,
-      },
       {
         id: "size",
         type: "select",
@@ -423,7 +409,7 @@ export default function ProductPage() {
       <div className="space-y-3">
         <CollapsibleFilterPanel
           config={filterConfig}
-          essentialFilterIds={["size", "status"]}
+          essentialFilterIds={["size", "brand"]}
         />
 
         {}
