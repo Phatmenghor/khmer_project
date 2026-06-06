@@ -293,9 +293,9 @@ export function SizeStockManagementModal({
                   <form id="size-stock-form" onSubmit={form.handleSubmit(handleCreateStock)}>
                     {/* Size selector */}
                     <div className="space-y-1.5 mb-3">
-                      <Label className="text-xs font-semibold text-foreground">
+                      <label className="text-xs font-semibold text-foreground">
                         Select Size <span className="text-destructive">*</span>
-                      </Label>
+                      </label>
                       <Select
                         value={selectedSize?.id}
                         onValueChange={(id) => {
@@ -320,60 +320,29 @@ export function SizeStockManagementModal({
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {/* Quantity */}
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-foreground">
-                          Quantity On Hand <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          type="number"
-                          min="0"
-                          step="1"
-                          placeholder="Enter quantity"
-                          {...form.register("quantityOnHand", {
-                            required: "Quantity is required",
-                            validate: (value) => {
-                              if (value === undefined || value === null) return "Quantity is required";
-                              if (value < 0) return "Quantity must be >= 0";
-                              return true;
-                            },
-                          })}
-                        />
-                        {form.formState.errors.quantityOnHand && (
-                          <p className="text-xs text-destructive">{form.formState.errors.quantityOnHand.message}</p>
-                        )}
-                      </div>
+                      <TextField
+                        control={form.control}
+                        name="quantityOnHand"
+                        label="Quantity On Hand"
+                        type="number"
+                        placeholder="Enter quantity"
+                        required
+                        min={0}
+                        step="1"
+                        valueAsNumber={true}
+                        allowZero={true}
+                        error={form.formState.errors.quantityOnHand}
+                      />
 
-                      {/* Unit Price */}
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-foreground">
-                          Unit Price (Cost) <span className="text-destructive">*</span>
-                        </Label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground pointer-events-none">$</span>
-                          <Input
-                            type="text"
-                            placeholder="0.00"
-                            inputMode="decimal"
-                            className="pl-6"
-                            {...form.register("priceIn", {
-                              required: "Price is required",
-                              validate: (value) => {
-                                if (!value) return "Price is required";
-                                const num = parseFloat(value);
-                                if (isNaN(num)) return "Must be a valid number";
-                                if (num <= 0) return "Price must be greater than 0";
-                                return true;
-                              },
-                            })}
-                          />
-                        </div>
-                        {form.formState.errors.priceIn && (
-                          <p className="text-xs text-destructive">{form.formState.errors.priceIn.message}</p>
-                        )}
-                      </div>
+                      <TextField
+                        control={form.control}
+                        name="priceIn"
+                        label="Unit Price ($)"
+                        placeholder="0.00"
+                        required
+                        error={form.formState.errors.priceIn}
+                      />
 
-                      {/* Expiry Date */}
                       <DateTimePickerField
                         control={form.control}
                         name="expiryDate"
@@ -383,14 +352,13 @@ export function SizeStockManagementModal({
                         inputClassName="h-[26px]"
                       />
 
-                      {/* Storage Location */}
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-semibold text-foreground">Storage Location</Label>
-                        <Input
-                          placeholder="e.g., Warehouse A, Shelf 3"
-                          {...form.register("location")}
-                        />
-                      </div>
+                      <TextField
+                        control={form.control}
+                        name="location"
+                        label="Storage Location"
+                        placeholder="e.g., Warehouse A, Shelf 3"
+                        error={form.formState.errors.location}
+                      />
                     </div>
 
                     {/* Sales Preview */}

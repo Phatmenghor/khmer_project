@@ -1,8 +1,9 @@
 "use client";
 
-import { Messages } from "@/constants/messages";
 import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -12,12 +13,11 @@ import {
 } from "@/components/ui/dialog";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { showToast } from "@/components/shared/common/show-toast";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
+import { TextField } from "@/components/shared/form-field/text-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { Package, Edit } from "lucide-react";
@@ -35,12 +35,19 @@ import {
 import { ProductStockItemDto, ProductStockDto } from "../store/models/response/stock-response";
 import { createStockHistoryColumns } from "../table/product-stock-history-table";
 
-interface StockFormData {
-  quantityOnHand?: number;
-  priceIn?: string;
-  expiryDate?: string;
-  location?: string;
-}
+const stockFormSchema = z.object({
+  quantityOnHand: z.number({
+    required_error: "Quantity is required",
+    invalid_type_error: "Quantity is required",
+  }).min(0, "Must be >= 0"),
+  priceIn: z.string({ required_error: "Price is required" })
+    .min(1, "Price is required")
+    .refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) > 0, "Must be greater than 0"),
+  expiryDate: z.string().optional(),
+  location: z.string().optional(),
+});
+
+type StockFormData = z.infer<typeof stockFormSchema>;
 
 interface StockItemManagementModalProps {
   isOpen: boolean;
@@ -66,7 +73,14 @@ export function StockItemManagementModal({
   const formSectionRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<StockFormData>({
+    resolver: zodResolver(stockFormSchema),
     mode: "onChange",
+    defaultValues: {
+      quantityOnHand: undefined as unknown as number,
+      priceIn: "",
+      expiryDate: "",
+      location: "",
+    },
   });
 
 
@@ -85,10 +99,10 @@ export function StockItemManagementModal({
       dispatch(clearSuccess());
       setEditingStock(null);
       form.reset({
-        quantityOnHand: undefined,
-        priceIn: undefined,
-        expiryDate: undefined,
-        location: undefined,
+        quantityOnHand: undefined as unknown as number,
+        priceIn: "",
+        expiryDate: "",
+        location: "",
       });
     }
   }, [successMessage, dispatch, form]);
@@ -118,57 +132,35 @@ export function StockItemManagementModal({
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        quantityOnHand: undefined,
-        priceIn: undefined,
-        expiryDate: undefined,
-        location: undefined,
+        quantityOnHand: undefined as unknown as number,
+        priceIn: "",
+        expiryDate: "",
+        location: "",
       });
     } else {
       setEditingStock(null);
       form.reset({
-        quantityOnHand: undefined,
-        priceIn: undefined,
-        expiryDate: undefined,
-        location: undefined,
+        quantityOnHand: undefined as unknown as number,
+        priceIn: "",
+        expiryDate: "",
+        location: "",
       });
     }
   }, [isOpen, form]);
 
   const handleCreateStock = async (data: StockFormData) => {
-    if (editingStock) {
-      return handleUpdateStock(data);
-    }
-
+    if (editingStock) return handleUpdateStock(data);
     if (!stockItem) return;
-
-    const quantity = Number(data.quantityOnHand);
-    if (isNaN(quantity) || quantity < 0) {
-      showToast.error(Messages.product.invalidQuantity);
-      return;
-    }
-
-    const price = parseFloat(data.priceIn || "");
-    if (isNaN(price) || price <= 0) {
-      showToast.error(Messages.product.invalidPrice);
-      return;
-    }
-
-    let formattedExpiryDate: string | undefined;
-    if (data.expiryDate) {
-      if (data.expiryDate.length === 10) {
-        formattedExpiryDate = `${data.expiryDate}T00:00:00`;
-      } else {
-        formattedExpiryDate = data.expiryDate;
-      }
-    }
-
+    const formattedExpiryDate = data.expiryDate
+      ? (data.expiryDate.length === 10 ? `${data.expiryDate}T00:00:00` : data.expiryDate)
+      : undefined;
     dispatch(
       createProductStockService({
         productId: stockItem.productId,
         productSizeId: stockItem.type === "SIZE" ? stockItem.productSizeId : undefined,
-        quantityOnHand: quantity,
-        priceIn: price,
-        expiryDate: formattedExpiryDate || undefined,
+        quantityOnHand: data.quantityOnHand,
+        priceIn: parseFloat(data.priceIn),
+        expiryDate: formattedExpiryDate,
         location: data.location || undefined,
       })
     );
@@ -210,35 +202,16 @@ export function StockItemManagementModal({
 
   const handleUpdateStock = async (data: StockFormData) => {
     if (!editingStock) return;
-
-    const quantity = Number(data.quantityOnHand);
-    if (isNaN(quantity) || quantity < 0) {
-      showToast.error(Messages.product.invalidQuantity);
-      return;
-    }
-
-    const price = parseFloat(data.priceIn || "");
-    if (isNaN(price) || price <= 0) {
-      showToast.error(Messages.product.invalidPrice);
-      return;
-    }
-
-    let formattedExpiryDate: string | undefined;
-    if (data.expiryDate) {
-      if (data.expiryDate.length === 10) {
-        formattedExpiryDate = `${data.expiryDate}T00:00:00`;
-      } else {
-        formattedExpiryDate = data.expiryDate;
-      }
-    }
-
+    const formattedExpiryDate = data.expiryDate
+      ? (data.expiryDate.length === 10 ? `${data.expiryDate}T00:00:00` : data.expiryDate)
+      : undefined;
     dispatch(
       updateProductStockService({
         stockId: editingStock.id,
         request: {
-          quantityOnHand: quantity,
-          priceIn: price,
-          expiryDate: formattedExpiryDate || undefined,
+          quantityOnHand: data.quantityOnHand,
+          priceIn: parseFloat(data.priceIn),
+          expiryDate: formattedExpiryDate,
           location: data.location || undefined,
         },
       })
@@ -314,60 +287,29 @@ export function StockItemManagementModal({
               <CardContent>
                 <form id="stock-item-form" onSubmit={form.handleSubmit(handleCreateStock)}>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {/* Quantity */}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-foreground">
-                        Quantity On Hand <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="1"
-                        placeholder="Enter quantity"
-                        {...form.register("quantityOnHand", {
-                          required: "Quantity is required",
-                          validate: (value) => {
-                            if (value === undefined || value === null) return "Quantity is required";
-                            if (value < 0) return "Quantity must be >= 0";
-                            return true;
-                          },
-                        })}
-                      />
-                      {form.formState.errors.quantityOnHand && (
-                        <p className="text-xs text-destructive">{form.formState.errors.quantityOnHand.message}</p>
-                      )}
-                    </div>
+                    <TextField
+                      control={form.control}
+                      name="quantityOnHand"
+                      label="Quantity On Hand"
+                      type="number"
+                      placeholder="Enter quantity"
+                      required
+                      min={0}
+                      step="1"
+                      valueAsNumber={true}
+                      allowZero={true}
+                      error={form.formState.errors.quantityOnHand}
+                    />
 
-                    {/* Unit Price */}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-foreground">
-                        Unit Price (Cost) <span className="text-destructive">*</span>
-                      </Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground pointer-events-none">$</span>
-                        <Input
-                          type="text"
-                          placeholder="0.00"
-                          inputMode="decimal"
-                          className="pl-6"
-                          {...form.register("priceIn", {
-                            required: "Price is required",
-                            validate: (value) => {
-                              if (!value) return "Price is required";
-                              const num = parseFloat(value);
-                              if (isNaN(num)) return "Must be a valid number";
-                              if (num <= 0) return "Price must be greater than 0";
-                              return true;
-                            },
-                          })}
-                        />
-                      </div>
-                      {form.formState.errors.priceIn && (
-                        <p className="text-xs text-destructive">{form.formState.errors.priceIn.message}</p>
-                      )}
-                    </div>
+                    <TextField
+                      control={form.control}
+                      name="priceIn"
+                      label="Unit Price ($)"
+                      placeholder="0.00"
+                      required
+                      error={form.formState.errors.priceIn}
+                    />
 
-                    {/* Expiry Date */}
                     <DateTimePickerField
                       control={form.control}
                       name="expiryDate"
@@ -377,14 +319,13 @@ export function StockItemManagementModal({
                       inputClassName="h-[26px]"
                     />
 
-                    {/* Storage Location */}
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-foreground">Storage Location</Label>
-                      <Input
-                        placeholder="e.g., Warehouse A, Shelf 3"
-                        {...form.register("location")}
-                      />
-                    </div>
+                    <TextField
+                      control={form.control}
+                      name="location"
+                      label="Storage Location"
+                      placeholder="e.g., Warehouse A, Shelf 3"
+                      error={form.formState.errors.location}
+                    />
                   </div>
 
                   {/* Sales Preview */}
