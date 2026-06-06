@@ -135,8 +135,7 @@ export function CategoriesDetailModal({
               <div className="rounded border border-border/50 bg-card p-3">
                 <SectionTitle>System Info</SectionTitle>
                 <div className="space-y-2.5">
-                  <InfoRow label="Business" value={categories.businessName || "---"} />
-                  <InfoRow label="Created By" value={categories.createdBy || "---"} />
+<InfoRow label="Created By" value={categories.createdBy || "---"} />
                   <InfoRow label="Created At" value={dateTimeFormat(categories.createdAt ?? "")} />
                   <InfoRow label="Updated By" value={categories.updatedBy || "---"} />
                   <InfoRow label="Last Updated" value={dateTimeFormat(categories.updatedAt ?? "")} />

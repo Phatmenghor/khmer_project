@@ -132,8 +132,7 @@ export function BrandDetailModal({
               <div className="rounded border border-border/50 bg-card p-3">
                 <SectionTitle>System Info</SectionTitle>
                 <div className="space-y-2.5">
-                  <InfoRow label="Business" value={brand.businessName || "---"} />
-                  <InfoRow label="Created By" value={brand.createdBy || "---"} />
+<InfoRow label="Created By" value={brand.createdBy || "---"} />
                   <InfoRow label="Created At" value={dateTimeFormat(brand.createdAt ?? "")} />
                   <InfoRow label="Updated By" value={brand.updatedBy || "---"} />
                   <InfoRow label="Last Updated" value={dateTimeFormat(brand.updatedAt ?? "")} />

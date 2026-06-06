@@ -472,8 +472,7 @@ export function UserBusinessDetailModal({
                         : "---"
                     }
                   />
-                  <InfoRow label="Business" value={userData.businessName || "---"} />
-                  <InfoRow label="Created By" value={userData.createdBy || "---"} />
+<InfoRow label="Created By" value={userData.createdBy || "---"} />
                   <InfoRow
                     label="Created At"
                     value={dateTimeFormat(userData.createdAt ?? "")}

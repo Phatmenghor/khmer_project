@@ -102,8 +102,7 @@ export function BannerDetailModal({
                     </span>
                   }
                 />
-                <InfoRow label="Business" value={banner.businessName || "---"} />
-                <InfoRow
+<InfoRow
                   label="Description"
                   value={banner.description || "---"}
                   fullWidth
