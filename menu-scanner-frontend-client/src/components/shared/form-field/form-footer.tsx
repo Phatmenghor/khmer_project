@@ -38,12 +38,12 @@ export function FormFooter({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 px-3 py-3 border-t bg-muted/30 flex-shrink-0",
-        "sm:flex-row sm:items-center sm:justify-between sm:px-4",
+        "flex flex-col gap-1.5 px-2.5 py-2 border-t bg-muted/30 flex-shrink-0",
+        "sm:flex-row sm:items-center sm:justify-between sm:px-3",
         className
       )}
     >
-      <div className="text-xs text-muted-foreground flex items-center gap-1 order-2 sm:order-1">
+      <div className="text-[11px] text-muted-foreground flex items-center gap-1 order-2 sm:order-1">
         {isSubmitting && (
           <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
         )}

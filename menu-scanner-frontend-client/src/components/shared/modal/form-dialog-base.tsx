@@ -22,12 +22,12 @@ export type {
 } from "./modal.types";
 
 const SIZE_CLASSES: Record<ModalSize, string> = {
-  sm: "sm:max-w-sm",
-  default: "sm:max-w-md",
-  lg: "sm:max-w-2xl",
-  xl: "sm:max-w-3xl",
-  "2xl": "sm:max-w-4xl",
-  full: "sm:max-w-[95vw]",
+  sm: "sm:max-w-xs",
+  default: "sm:max-w-sm",
+  lg: "sm:max-w-xl",
+  xl: "sm:max-w-2xl",
+  "2xl": "sm:max-w-3xl",
+  full: "sm:max-w-[85vw]",
 };
 
 /**

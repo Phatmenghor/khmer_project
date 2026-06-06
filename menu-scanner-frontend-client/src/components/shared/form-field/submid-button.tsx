@@ -58,7 +58,7 @@ export function SubmitButton({
       disabled={isDisabled}
       variant={variant}
       size={size}
-      className={cn("min-w-[120px] transition-all", className)}
+      className={cn("min-w-[96px] transition-all", className)}
     >
       {isSubmitting ? (
         <>

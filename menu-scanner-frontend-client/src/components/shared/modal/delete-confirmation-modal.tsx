@@ -80,7 +80,7 @@ export function DeleteConfirmationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-md p-0 flex flex-col">
+      <DialogContent className="w-full max-w-sm p-0 flex flex-col">
         <FormHeader
           title={title}
           description="Confirm deletion"

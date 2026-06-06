@@ -45,21 +45,21 @@ export function FormHeader({
 
   return (
     <DialogHeader
-      className={cn("px-4 pt-4 pb-3 border-b flex-shrink-0", className)}
+      className={cn("px-3 pt-3 pb-2 border-b flex-shrink-0", className)}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {}
         {showAvatar ? (
           <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
         ) : (
           <div
             className={cn(
-              "p-2 border rounded-md shrink-0",
+              "p-1.5 border rounded shrink-0",
               iconBoxClass,
             )}
           >
             <Icon
-              className={cn("h-5 w-5", iconColorClass)}
+              className={cn("h-4 w-4", iconColorClass)}
               strokeWidth={2.25}
             />
           </div>
@@ -67,11 +67,11 @@ export function FormHeader({
 
         {}
         <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-          <DialogTitle className="text-sm font-semibold leading-tight">
+          <DialogTitle className="text-xs font-semibold leading-tight">
             {title}
           </DialogTitle>
           {description && (
-            <DialogDescription className="text-xs leading-snug">
+            <DialogDescription className="text-[11px] leading-snug">
               {description}
             </DialogDescription>
           )}
