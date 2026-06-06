@@ -32,7 +32,7 @@ export function TextareaField<T extends FieldValues = FieldValues>({
             placeholder={placeholder}
             disabled={disabled}
             rows={rows}
-            className={`transition-colors resize-none ${
+            className={`transition-colors resize-none !text-sm md:!text-sm leading-relaxed px-3 py-2 ${
               error ? "border-red-500 focus:border-red-500" : ""
             }`}
           />

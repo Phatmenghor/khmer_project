@@ -1,14 +1,27 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { Loader2, Plus, Trash2, Save } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Trash2,
+  Save,
+  Building2,
+  Image as ImageIcon,
+  Phone,
+  Share2,
+  Sparkles,
+  BarChart3,
+  Clock,
+  GalleryHorizontal,
+  Briefcase,
+  Users,
+} from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
@@ -31,7 +44,6 @@ import {
   portfolioFormSchema,
   type PortfolioFormData,
 } from "./schema/portfolio-form.schema";
-
 
 function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
   const contact = p.contact || {};
@@ -89,6 +101,40 @@ const emptyForm = (): PortfolioFormData => ({
   services: [],
   team: [],
 });
+
+// Shared section card title — unified style across the page
+function SectionTitle({
+  icon: Icon,
+  title,
+  subtitle,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 min-w-0">
+      <div className="shrink-0 p-1.5 rounded-md bg-primary/10 text-primary">
+        <Icon className="w-4 h-4" />
+      </div>
+      <div className="min-w-0">
+        <CardTitle className="text-sm font-semibold leading-tight">{title}</CardTitle>
+        {subtitle && (
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ message, hint }: { message: string; hint?: string }) {
+  return (
+    <div className="text-center py-6 border-2 border-dashed rounded-md bg-muted/20">
+      <p className="text-sm text-muted-foreground">{message}</p>
+      {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
+    </div>
+  );
+}
 
 export default function PortfolioPage() {
   const dispatch = useAppDispatch();
@@ -203,28 +249,33 @@ export default function PortfolioPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-5 h-5 animate-spin text-primary" />
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-3 py-4">
+    <div className="flex flex-1 flex-col gap-5 px-4 py-5">
+      {/* Page header */}
       <div className="space-y-1">
-        <h1 className="text-xs font-bold">Portfolio Profile</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-xl font-bold tracking-tight">Portfolio Profile</h1>
+        <p className="text-sm text-muted-foreground">
           Manage your public business profile — services, team, gallery, and more
         </p>
       </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
 
         {/* Basic Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
+            <SectionTitle
+              icon={Building2}
+              title="Basic Information"
+              subtitle="The core identity of your business"
+            />
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-4">
             <TextField<PortfolioFormData>
               control={form.control}
               name="businessName"
@@ -238,7 +289,7 @@ export default function PortfolioPage() {
               name="description"
               label="Business Description"
               placeholder="Describe your business in detail — what you offer, your values, and what makes you unique..."
-              rows={5}
+              rows={6}
               required
               error={form.formState.errors.description}
             />
@@ -248,7 +299,11 @@ export default function PortfolioPage() {
         {/* Branding Images */}
         <Card>
           <CardHeader>
-            <CardTitle>Branding Images</CardTitle>
+            <SectionTitle
+              icon={ImageIcon}
+              title="Branding Images"
+              subtitle="Logo and cover image shown on your public page"
+            />
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -261,7 +316,7 @@ export default function PortfolioPage() {
                     value={field.value || ""}
                     onChange={(v) => { field.onChange(v); showToast.success("Logo selected"); }}
                     aspectRatio="square"
-                    height="h-32"
+                    height="h-40"
                     placeholder="Click to upload logo"
                     helperText="Square image recommended (PNG, JPG)"
                     maxSize={5}
@@ -277,7 +332,7 @@ export default function PortfolioPage() {
                     value={field.value || ""}
                     onChange={(v) => { field.onChange(v); showToast.success("Cover image selected"); }}
                     aspectRatio="video"
-                    height="h-32"
+                    height="h-40"
                     placeholder="Click to upload cover"
                     helperText="Wide banner image recommended (PNG, JPG)"
                     maxSize={5}
@@ -291,7 +346,11 @@ export default function PortfolioPage() {
         {/* Contact Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
+            <SectionTitle
+              icon={Phone}
+              title="Contact Information"
+              subtitle="How customers can reach you"
+            />
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -347,10 +406,10 @@ export default function PortfolioPage() {
             </div>
 
             {/* Additional Phones */}
-            <div className="border-t pt-3 space-y-3">
+            <div className="border-t pt-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold">Additional Phone Numbers</p>
+                  <p className="text-sm font-semibold">Additional Phone Numbers</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {contactPhonesFields.length > 0
                       ? `${contactPhonesFields.length} number${contactPhonesFields.length > 1 ? "s" : ""} added`
@@ -363,36 +422,37 @@ export default function PortfolioPage() {
                   variant="outline"
                   onClick={() => appendContactPhone({ id: "", number: "" })}
                 >
-                  <Plus className="w-3 h-3 mr-1" /> Add Phone
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Add Phone
                 </Button>
               </div>
               {contactPhonesFields.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {contactPhonesFields.map((field, index) => (
-                    <div key={field.id} className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Phone Number <span className="text-red-500">*</span></Label>
-                      <div className="flex gap-1 items-center">
-                        <Input
+                    <div key={field.id} className="flex gap-2 items-start">
+                      <div className="flex-1">
+                        <TextField<PortfolioFormData>
+                          control={form.control}
+                          name={`contact.phones.${index}.number`}
+                          label="Phone Number"
                           placeholder="+855 12 345 678"
-                          {...form.register(`contact.phones.${index}.number`)}
+                          required
+                          error={form.formState.errors.contact?.phones?.[index]?.number}
                         />
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => removeContactPhone(index)}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
                       </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="mt-6 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => removeContactPhone(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-3 border-2 border-dashed rounded">
-                  <p className="text-xs text-muted-foreground">No additional phone numbers added</p>
-                </div>
+                <EmptyState message="No additional phone numbers added" />
               )}
             </div>
           </CardContent>
@@ -400,223 +460,230 @@ export default function PortfolioPage() {
 
         {/* Social Media */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Social Media</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                {socialMediaFields.length > 0
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <SectionTitle
+              icon={Share2}
+              title="Social Media"
+              subtitle={
+                socialMediaFields.length > 0
                   ? `${socialMediaFields.length} account${socialMediaFields.length > 1 ? "s" : ""} connected`
-                  : "No social media accounts added yet"}
-              </p>
-            </div>
+                  : "No social media accounts added yet"
+              }
+            />
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendSocialMedia({ id: "", name: "", url: "" })}
             >
-              <Plus className="w-3 h-3 mr-1" /> Add Account
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Account
             </Button>
           </CardHeader>
           <CardContent>
             {socialMediaFields.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {socialMediaFields.map((field, index) => (
-                  <div key={field.id} className="border rounded p-3 relative hover:shadow-sm transition-shadow">
+                  <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute top-1 right-1 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
                       onClick={() => removeSocialMedia(index)}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs font-medium">Platform <span className="text-red-500">*</span></Label>
-                        <Input
-                          placeholder="Facebook, Instagram..."
-                          {...form.register(`socialMedia.${index}.name`)}
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs font-medium">URL <span className="text-red-500">*</span></Label>
-                        <Input
-                          placeholder="https://..."
-                          {...form.register(`socialMedia.${index}.url`)}
-                        />
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
+                      <TextField<PortfolioFormData>
+                        control={form.control}
+                        name={`socialMedia.${index}.name`}
+                        label="Platform"
+                        placeholder="Facebook, Instagram..."
+                        required
+                        error={form.formState.errors.socialMedia?.[index]?.name}
+                      />
+                      <TextField<PortfolioFormData>
+                        control={form.control}
+                        name={`socialMedia.${index}.url`}
+                        label="URL"
+                        placeholder="https://..."
+                        required
+                        error={form.formState.errors.socialMedia?.[index]?.url}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-5 border-2 border-dashed rounded">
-                <p className="text-xs text-muted-foreground">No social media accounts added</p>
-                <p className="text-xs text-muted-foreground mt-1">Click &quot;Add Account&quot; to get started</p>
-              </div>
+              <EmptyState
+                message="No social media accounts added"
+                hint='Click "Add Account" to get started'
+              />
             )}
           </CardContent>
         </Card>
 
         {/* Features & Amenities */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Features &amp; Amenities</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                {featuresFields.length > 0
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <SectionTitle
+              icon={Sparkles}
+              title="Features & Amenities"
+              subtitle={
+                featuresFields.length > 0
                   ? `${featuresFields.length} feature${featuresFields.length > 1 ? "s" : ""} listed`
-                  : "No features added yet"}
-              </p>
-            </div>
+                  : "No features added yet"
+              }
+            />
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendFeature({ id: "", name: "" })}
             >
-              <Plus className="w-3 h-3 mr-1" /> Add Feature
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Feature
             </Button>
           </CardHeader>
           <CardContent>
             {featuresFields.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {featuresFields.map((field, index) => (
-                  <div key={field.id} className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">Feature <span className="text-red-500">*</span></Label>
-                    <div className="flex gap-1 items-center">
-                      <Input
+                  <div key={field.id} className="flex gap-2 items-start">
+                    <div className="flex-1">
+                      <TextField<PortfolioFormData>
+                        control={form.control}
+                        name={`features.${index}.name`}
+                        label="Feature"
                         placeholder="Feature name..."
-                        {...form.register(`features.${index}.name`)}
+                        required
+                        error={form.formState.errors.features?.[index]?.name}
                       />
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => removeFeature(index)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
                     </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="mt-6 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => removeFeature(index)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-3 border-2 border-dashed rounded">
-                <p className="text-xs text-muted-foreground">No features added</p>
-              </div>
+              <EmptyState message="No features added" />
             )}
           </CardContent>
         </Card>
 
         {/* Business Statistics */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Business Statistics</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                {customStatsFields.length > 0
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <SectionTitle
+              icon={BarChart3}
+              title="Business Statistics"
+              subtitle={
+                customStatsFields.length > 0
                   ? `${customStatsFields.length} stat${customStatsFields.length > 1 ? "s" : ""} configured`
-                  : "No stats added yet"}
-              </p>
-            </div>
+                  : "No stats added yet"
+              }
+            />
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendCustomStat({ id: "", label: "", value: "" })}
             >
-              <Plus className="w-3 h-3 mr-1" /> Add Stat
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Stat
             </Button>
           </CardHeader>
           <CardContent>
             {customStatsFields.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {customStatsFields.map((field, index) => (
-                  <div key={field.id} className="border rounded p-3 relative hover:shadow-sm transition-shadow">
+                  <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute top-1 right-1 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
                       onClick={() => removeCustomStat(index)}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs font-medium">Value <span className="text-red-500">*</span></Label>
-                        <Input
-                          placeholder="e.g., 10,000+"
-                          {...form.register(`customStats.${index}.value`)}
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs font-medium">Label <span className="text-red-500">*</span></Label>
-                        <Input
-                          placeholder="e.g., Happy Customers"
-                          {...form.register(`customStats.${index}.label`)}
-                        />
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
+                      <TextField<PortfolioFormData>
+                        control={form.control}
+                        name={`customStats.${index}.value`}
+                        label="Value"
+                        placeholder="e.g., 10,000+"
+                        required
+                        error={form.formState.errors.customStats?.[index]?.value}
+                      />
+                      <TextField<PortfolioFormData>
+                        control={form.control}
+                        name={`customStats.${index}.label`}
+                        label="Label"
+                        placeholder="e.g., Happy Customers"
+                        required
+                        error={form.formState.errors.customStats?.[index]?.label}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-3 border-2 border-dashed rounded">
-                <p className="text-xs text-muted-foreground">No statistics added</p>
-              </div>
+              <EmptyState message="No statistics added" />
             )}
           </CardContent>
         </Card>
 
         {/* Business Hours */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Business Hours</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                {businessHoursFields.length > 0
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <SectionTitle
+              icon={Clock}
+              title="Business Hours"
+              subtitle={
+                businessHoursFields.length > 0
                   ? `${businessHoursFields.length} day${businessHoursFields.length > 1 ? "s" : ""} configured`
-                  : "No hours configured yet"}
-              </p>
-            </div>
+                  : "No hours configured yet"
+              }
+            />
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendBusinessHour({ id: "", day: "", openTime: "08:00", closeTime: "18:00" })}
             >
-              <Plus className="w-3 h-3 mr-1" /> Add Hours
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Hours
             </Button>
           </CardHeader>
           <CardContent>
             {businessHoursFields.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {businessHoursFields.map((field, index) => (
-                  <div key={field.id} className="border rounded p-3 relative hover:shadow-sm transition-shadow">
+                  <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute top-1 right-1 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
                       onClick={() => removeBusinessHour(index)}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs font-medium">Day <span className="text-red-500">*</span></Label>
-                        <Input
-                          placeholder="e.g. Monday"
-                          {...form.register(`businessHours.${index}.day`)}
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs font-medium">Open Time</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pr-10">
+                      <TextField<PortfolioFormData>
+                        control={form.control}
+                        name={`businessHours.${index}.day`}
+                        label="Day"
+                        placeholder="e.g. Monday"
+                        required
+                      />
+                      <div className="flex flex-col gap-1 w-full">
+                        <Label className="text-xs font-medium text-foreground">Open Time</Label>
                         <Controller
                           name={`businessHours.${index}.openTime`}
                           control={form.control}
@@ -629,8 +696,8 @@ export default function PortfolioPage() {
                           )}
                         />
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs font-medium">Close Time</Label>
+                      <div className="flex flex-col gap-1 w-full">
+                        <Label className="text-xs font-medium text-foreground">Close Time</Label>
                         <Controller
                           name={`businessHours.${index}.closeTime`}
                           control={form.control}
@@ -648,182 +715,184 @@ export default function PortfolioPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-3 border-2 border-dashed rounded">
-                <p className="text-xs text-muted-foreground">No business hours added</p>
-              </div>
+              <EmptyState message="No business hours added" />
             )}
           </CardContent>
         </Card>
 
         {/* Photo Gallery */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Photo Gallery</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                {galleryFields.length > 0
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <SectionTitle
+              icon={GalleryHorizontal}
+              title="Photo Gallery"
+              subtitle={
+                galleryFields.length > 0
                   ? `${galleryFields.length} image${galleryFields.length > 1 ? "s" : ""} in gallery`
-                  : "No gallery images added yet"}
-              </p>
-            </div>
+                  : "No gallery images added yet"
+              }
+            />
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendGallery({ id: "", url: "", title: "" })}
             >
-              <Plus className="w-3 h-3 mr-1" /> Add Image
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Image
             </Button>
           </CardHeader>
           <CardContent>
             {galleryFields.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {galleryFields.map((field, index) => (
-                  <div key={field.id} className="border rounded p-3 space-y-2 hover:shadow-sm transition-shadow">
+                  <div key={field.id} className="border rounded-md p-3 space-y-3 hover:shadow-sm transition-shadow">
                     <Controller
                       name={`gallery.${index}.url`}
                       control={form.control}
                       render={({ field: f }) => (
                         <ClickableImageUpload
-                          label=""
+                          label={`Image ${index + 1}`}
                           value={f.value}
                           onChange={f.onChange}
-                          height="h-24"
+                          height="h-40"
+                          aspectRatio="landscape"
                           placeholder="Click to upload"
                           maxSize={5}
                         />
                       )}
                     />
-                    <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Caption (optional)</Label>
-                      <div className="flex gap-1 items-center">
-                        <Controller
-                          name={`gallery.${index}.title`}
+                    <div className="flex gap-2 items-start">
+                      <div className="flex-1">
+                        <TextField<PortfolioFormData>
                           control={form.control}
-                          render={({ field: f }) => (
-                            <Input placeholder="e.g., Store Entrance" {...f} />
-                          )}
+                          name={`gallery.${index}.title`}
+                          label="Caption (optional)"
+                          placeholder="e.g., Store Entrance"
                         />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0"
-                          onClick={() => removeGallery(index)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
                       </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="mt-6 text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0"
+                        onClick={() => removeGallery(index)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-7 border-2 border-dashed rounded">
-                <p className="text-xs text-muted-foreground">No gallery images</p>
-                <p className="text-xs text-muted-foreground mt-1">Showcase your store, products, or events</p>
-              </div>
+              <EmptyState
+                message="No gallery images"
+                hint="Showcase your store, products, or events"
+              />
             )}
           </CardContent>
         </Card>
 
         {/* Services */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Services</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                {servicesFields.length > 0
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <SectionTitle
+              icon={Briefcase}
+              title="Services"
+              subtitle={
+                servicesFields.length > 0
                   ? `${servicesFields.length} service${servicesFields.length > 1 ? "s" : ""} listed`
-                  : "No services added yet"}
-              </p>
-            </div>
+                  : "No services added yet"
+              }
+            />
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendService({ id: "", name: "", description: "" })}
             >
-              <Plus className="w-3 h-3 mr-1" /> Add Service
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Service
             </Button>
           </CardHeader>
           <CardContent>
             {servicesFields.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {servicesFields.map((field, index) => (
-                  <div key={field.id} className="border rounded p-3 relative hover:shadow-sm transition-shadow">
+                  <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute top-1 right-1 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
                       onClick={() => removeService(index)}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
-                    <div className="space-y-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs font-medium">Service Name <span className="text-red-500">*</span></Label>
-                        <Input
-                          placeholder="Service name..."
-                          {...form.register(`services.${index}.name`)}
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs font-medium">Description</Label>
-                        <Controller
-                          name={`services.${index}.description`}
-                          control={form.control}
-                          render={({ field: f }) => (
-                            <Textarea
-                              placeholder="Describe what this service includes..."
-                              rows={2}
-                              className="resize-none text-xs"
-                              {...f}
-                            />
-                          )}
-                        />
-                      </div>
+                    <div className="space-y-3 pr-10">
+                      <TextField<PortfolioFormData>
+                        control={form.control}
+                        name={`services.${index}.name`}
+                        label="Service Name"
+                        placeholder="Service name..."
+                        required
+                        error={form.formState.errors.services?.[index]?.name}
+                      />
+                      <TextareaField<PortfolioFormData>
+                        control={form.control}
+                        name={`services.${index}.description`}
+                        label="Description"
+                        placeholder="Describe what this service includes..."
+                        rows={3}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-7 border-2 border-dashed rounded">
-                <p className="text-xs text-muted-foreground">No services listed</p>
-                <p className="text-xs text-muted-foreground mt-1">e.g., In-Store Shopping, Online Ordering, Gift Wrapping</p>
-              </div>
+              <EmptyState
+                message="No services listed"
+                hint="e.g., In-Store Shopping, Online Ordering, Gift Wrapping"
+              />
             )}
           </CardContent>
         </Card>
 
         {/* Team Members */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Team Members</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                {teamFields.length > 0
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <SectionTitle
+              icon={Users}
+              title="Team Members"
+              subtitle={
+                teamFields.length > 0
                   ? `${teamFields.length} member${teamFields.length > 1 ? "s" : ""} on the team`
-                  : "No team members added yet"}
-              </p>
-            </div>
+                  : "No team members added yet"
+              }
+            />
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendTeam({ id: "", name: "", position: "", bio: "", photoUrl: "" })}
             >
-              <Plus className="w-3 h-3 mr-1" /> Add Member
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Member
             </Button>
           </CardHeader>
           <CardContent>
             {teamFields.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {teamFields.map((field, index) => (
-                  <div key={field.id} className="border rounded p-3 hover:shadow-sm transition-shadow">
-                    <div className="flex gap-3">
-                      <div className="shrink-0 w-20">
+                  <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="absolute top-2 right-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => removeTeam(index)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                    <div className="space-y-4 pr-10">
+                      <div className="w-32">
                         <Controller
                           name={`team.${index}.photoUrl`}
                           control={form.control}
@@ -833,79 +902,56 @@ export default function PortfolioPage() {
                               value={f.value || ""}
                               onChange={f.onChange}
                               aspectRatio="square"
-                              height="h-20"
+                              height="h-32"
                               placeholder="Upload"
                               maxSize={5}
+                              showPreviewText={false}
                             />
                           )}
                         />
                       </div>
 
-                      <div className="flex-1 space-y-1 min-w-0">
-                        <div className="flex items-start justify-between gap-1">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 flex-1">
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Full Name <span className="text-red-500">*</span></Label>
-                              <Controller
-                                name={`team.${index}.name`}
-                                control={form.control}
-                                render={({ field: f }) => (
-                                  <Input placeholder="John Doe" className="text-xs font-semibold" {...f} />
-                                )}
-                              />
-                            </div>
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Position / Title <span className="text-red-500">*</span></Label>
-                              <Controller
-                                name={`team.${index}.position`}
-                                control={form.control}
-                                render={({ field: f }) => (
-                                  <Input placeholder="Store Manager" className="text-xs" {...f} />
-                                )}
-                              />
-                            </div>
-                          </div>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10 h-5 w-5 p-0 shrink-0"
-                            onClick={() => removeTeam(index)}
-                          >
-                            <Trash2 className="w-2.5 h-2.5" />
-                          </Button>
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">Bio</Label>
-                          <Controller
-                            name={`team.${index}.bio`}
-                            control={form.control}
-                            render={({ field: f }) => (
-                              <Textarea
-                                placeholder="Short bio about this team member..."
-                                rows={4}
-                                className="resize-none text-xs"
-                                {...f}
-                              />
-                            )}
-                          />
-                        </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <TextField<PortfolioFormData>
+                          control={form.control}
+                          name={`team.${index}.name`}
+                          label="Full Name"
+                          placeholder="John Doe"
+                          required
+                          error={form.formState.errors.team?.[index]?.name}
+                        />
+                        <TextField<PortfolioFormData>
+                          control={form.control}
+                          name={`team.${index}.position`}
+                          label="Position / Title"
+                          placeholder="Store Manager"
+                          required
+                          error={form.formState.errors.team?.[index]?.position}
+                        />
                       </div>
+
+                      <TextareaField<PortfolioFormData>
+                        control={form.control}
+                        name={`team.${index}.bio`}
+                        label="Bio"
+                        placeholder="Short bio about this team member..."
+                        rows={4}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-7 border-2 border-dashed rounded">
-                <p className="text-xs text-muted-foreground">No team members added</p>
-                <p className="text-xs text-muted-foreground mt-1">Introduce your team to build trust with customers</p>
-              </div>
+              <EmptyState
+                message="No team members added"
+                hint="Introduce your team to build trust with customers"
+              />
             )}
           </CardContent>
         </Card>
 
         {/* Save / Cancel */}
-        <div className="flex gap-2 justify-end pt-3 border-t">
+        <div className="flex gap-2 justify-end pt-4 border-t">
           <Button
             type="button"
             variant="outline"
@@ -922,12 +968,12 @@ export default function PortfolioPage() {
           >
             {isSaving ? (
               <>
-                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...
               </>
             ) : (
               <>
-                <Save className="mr-1 h-3 w-3" />
+                <Save className="mr-2 h-4 w-4" />
                 Save Changes
               </>
             )}
