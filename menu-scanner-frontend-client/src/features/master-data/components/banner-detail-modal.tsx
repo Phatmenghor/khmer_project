@@ -33,7 +33,7 @@ export function BannerDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogTitle className="sr-only">Banner Details - {banner?.businessName}</DialogTitle>
+      <DialogTitle className="sr-only">Banner Details</DialogTitle>
       <DialogContent className="w-full sm:max-w-xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
@@ -56,40 +56,32 @@ export function BannerDetailModal({
                 <CardTitle>Banner Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {}
-                <div className="flex flex-col md:flex-row gap-4">
-                  {}
-                  <div className="w-full md:w-1/2">
-                    <p className="text-xs font-medium text-foreground">Business Name</p>
-                  </div>
-                  {}
-                  {banner.imageUrl && (
-                    <div className="w-full md:w-1/2">
-                      <p className="text-xs font-medium text-foreground">Banner Image</p>
+                {banner.imageUrl && (
+                  <div className="w-full">
+                    <p className="text-xs font-medium text-foreground mb-1">
+                      Banner Image
+                    </p>
+                    <div className="w-full h-28 rounded overflow-hidden bg-muted border border-border">
+                      <img
+                        src={banner.imageUrl}
+                        alt={banner.description || "Banner"}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  )}
-                </div>
-
-                {}
-                <div className="flex flex-col md:flex-row gap-4">
-                  {}
-                  <div className="w-full md:w-1/2 space-y-3">
-                    <p className="text-foreground">{banner.businessName || "---"}</p>
-                    <DisplayField label="Status" value={banner.status ? formatEnumValue(banner.status) : "---"} />
                   </div>
+                )}
 
-                  {}
-                  {banner.imageUrl && (
-                    <div className="w-full md:w-1/2">
-                      <div className="max-w-md h-28 rounded overflow-hidden bg-muted border border-border">
-                        <img
-                          src={banner.imageUrl}
-                          alt={banner.businessName}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <DisplayField
+                    label="Status"
+                    value={
+                      banner.status ? formatEnumValue(banner.status) : "---"
+                    }
+                  />
+                  <DisplayField
+                    label="Description"
+                    value={banner.description || "---"}
+                  />
                 </div>
               </CardContent>
             </Card>
