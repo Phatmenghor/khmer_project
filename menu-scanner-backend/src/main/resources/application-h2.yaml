@@ -1,7 +1,7 @@
 # ============================================================
 # application-h2.yaml — unified profile (local/dev/h2/prod identical)
-# Only profile-specific overrides live here. Everything else is in
-# application.yaml (base) or environment variables.
+# All dynamic config (tokens, auth, telegram, admin, CORS, social) lives
+# here so it's easy to change per environment.
 # ============================================================
 spring:
   datasource:
@@ -24,6 +24,48 @@ spring:
     properties:
       hibernate:
         format_sql: false
+
+# ── JWT / Auth ────────────────────────────────────────────────────────────────
+jwt:
+  secret: "${JWT_SECRET:default-dev-secret-please-change-in-production-min-64-chars-xxxxxxxxxx}"
+  expiration: "${JWT_EXPIRATION:86400000}"
+  refresh-token-expiration: "${JWT_REFRESH_EXPIRATION:604800000}"
+
+# ── Telegram ──────────────────────────────────────────────────────────────────
+telegram:
+  bot:
+    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
+    enabled: true
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
+    webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
+    auto-setup: true
+
+# ── App dynamic config ────────────────────────────────────────────────────────
+app:
+  init:
+    create-admin: true
+    admin-email: "${APP_ADMIN_EMAIL:phatmenghor19@gmail.com}"
+    admin-password: "${APP_ADMIN_PASSWORD:88889999}"
+  cache:
+    provider: "${CACHE_PROVIDER:caffeine}"
+  security:
+    cors:
+      allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:4173}"
+    token-cleanup:
+      enabled: true
+  social:
+    telegram:
+      bot-token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
+      group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
+      enabled: true
+    google:
+      client-id: "${GOOGLE_CLIENT_ID:disabled}"
+      client-secret: "${GOOGLE_CLIENT_SECRET:disabled}"
+      enabled: false
+    facebook:
+      app-id: "${FACEBOOK_APP_ID:disabled}"
+      app-secret: "${FACEBOOK_APP_SECRET:disabled}"
+      enabled: false
 
 logging:
   level:
