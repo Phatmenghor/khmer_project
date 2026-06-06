@@ -76,15 +76,9 @@ export function DeleteConfirmationModal({
       : "Delete";
 
   const headerSlot = (
-    <div className="px-4 pt-4 pb-3 border-b bg-destructive/[0.03]">
+    <div className="px-4 pt-4 pb-3 border-b">
       <div className="flex items-center gap-3">
-        <div
-          className={
-            "relative p-2.5 rounded-lg shrink-0 " +
-            "bg-destructive/10 border border-destructive/30 " +
-            "ring-4 ring-destructive/5"
-          }
-        >
+        <div className="p-2 bg-destructive/10 border border-destructive/30 rounded-md shrink-0">
           {icon ?? (
             <AlertTriangle
               className="h-5 w-5 text-destructive"
@@ -96,8 +90,8 @@ export function DeleteConfirmationModal({
           <h2 className="text-sm font-semibold leading-tight text-foreground">
             {title}
           </h2>
-          <p className="text-xs leading-snug text-muted-foreground mt-1">
-            {description}
+          <p className="text-xs leading-snug text-muted-foreground mt-0.5">
+            Confirm deletion
           </p>
         </div>
       </div>
@@ -138,6 +132,10 @@ export function DeleteConfirmationModal({
       headerSlot={headerSlot}
       customFooter={customFooter}
     >
+      {description && (
+        <p className="text-sm text-foreground leading-relaxed">{description}</p>
+      )}
+
       {itemName && (
         <div className="px-3 py-2 bg-muted/60 rounded-md border border-border">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
