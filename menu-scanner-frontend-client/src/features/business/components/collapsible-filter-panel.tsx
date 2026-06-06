@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
@@ -20,6 +19,12 @@ interface CollapsibleFilterPanelProps {
   essentialFilterIds?: string[];
 }
 
+function isFilterActive(f: FilterConfig): boolean {
+  const v = f.value;
+  if (v === undefined || v === null) return false;
+  if (typeof v === "string" && (v === "" || v === "ALL")) return false;
+  return true;
+}
 
 export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
   config,
@@ -35,12 +40,8 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
     (f) => !essentialFilterIds.includes(f.id),
   );
 
-  const activeFiltersCount = advancedFilters.filter((f) => {
-    if (f.value === undefined || f.value === null) return false;
-    if (typeof f.value === "string" && f.value === "ALL") return false;
-    if (typeof f.value === "string" && f.value === "") return false;
-    return true;
-  }).length;
+  const advancedActiveCount = advancedFilters.filter(isFilterActive).length;
+  const anyFilterActive = config.filters.some(isFilterActive);
 
   const renderFilter = (filter: FilterConfig): React.ReactNode => {
     switch (filter.type) {
@@ -150,96 +151,126 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
   };
 
   return (
-    <div className="space-y-2">
-      <Card>
-        <CardContent className="py-2 sm:py-3 space-y-2">
-          {}
-          <div className="flex items-center gap-1 mb-0">
-            <h1 className="text-xs sm:text-xs font-bold">{config.title}</h1>
-          </div>
-
-          {}
-          <div className="flex flex-wrap items-end gap-2">
-            {}
-            <div className="w-[300px] h-7">
-              <div className="relative w-full h-full group">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" />
-                <Input
-                  type="search"
-                  placeholder={config.searchPlaceholder}
-                  className="pl-7 w-full h-full placeholder:text-gray-500 focus:border-primary focus:ring-primary/30 hover:border-primary transition-all duration-200"
-                  value={config.searchValue}
-                  onChange={config.onSearchChange}
-                />
-              </div>
-            </div>
-
-            {}
-            <div className="flex flex-wrap items-end gap-2 ml-auto overflow-x-auto max-w-[calc(100vw-330px)] pb-1">
-              {}
-              {essentialFilters.length > 0 && (
-                <div className="grid gap-2 flex-shrink-0"
-                  style={{
-                    gridTemplateColumns: 'repeat(2, minmax(120px, 1fr))',
-                    maxWidth: '300px',
-                  }}>
-                  {essentialFilters.map((filter) => renderFilter(filter))}
-                </div>
-              )}
-
-              {}
-              {config.buttonText && (
-                <Button
-                  disabled={config.buttonDisabled}
-                  variant="default"
-                  onClick={config.onButtonClick}
-                  className="gap-1 flex-shrink-0 h-7 px-3"
-                >
-                  <Plus className="w-3 h-3" />
-                  {config.buttonText}
-                </Button>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {}
-      {advancedFilters.length > 0 && (
-        <div className="bg-primary/5 rounded border border-primary/20 p-2">
-          <button
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center justify-between w-full hover:text-primary hover:bg-primary/10 px-1 py-1 rounded transition-all duration-200"
-          >
-            <div className="flex items-center gap-1">
-              <span className="text-xs font-bold text-primary">Advanced Filters</span>
-              {activeFiltersCount > 0 && (
-                <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border border-primary">
-                  {activeFiltersCount} active
+    <Card>
+      <CardContent className="py-3 sm:py-4 space-y-3">
+        {/* Title row — page header lives here */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-semibold tracking-tight">
+                {config.title}
+              </h1>
+              {typeof config.totalCount === "number" && (
+                <Badge variant="secondary" className="text-xs">
+                  {config.totalCount.toLocaleString()}
                 </Badge>
               )}
             </div>
-            <ChevronDown
-              className={`w-3 h-3 transition-transform ${
-                showAdvanced ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {}
-          {showAdvanced && (
-            <div className="mt-2 pt-2 border-t border-primary/20">
-              <div
-                className="grid gap-2 w-full"
-                style={{
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                }}>
-                {advancedFilters.map((filter) => renderFilter(filter))}
-              </div>
-            </div>
-          )}
+            {config.subtitle && (
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {config.subtitle}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {config.extraActions}
+            {config.buttonText && (
+              <Button
+                disabled={config.buttonDisabled}
+                variant="default"
+                onClick={config.onButtonClick}
+                className="gap-1 flex-shrink-0 h-8 px-3"
+                title={config.buttonTooltip}
+              >
+                <Plus className="w-3.5 h-3.5" />
+                {config.buttonText}
+              </Button>
+            )}
+          </div>
         </div>
-      )}
-    </div>
+
+        {/* Search + essential filters row */}
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="w-full sm:w-[300px] h-8">
+            <div className="relative w-full h-full">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
+              <Input
+                type="search"
+                placeholder={config.searchPlaceholder}
+                className="pl-7 w-full h-full placeholder:text-gray-500 focus:border-primary focus:ring-primary/30 hover:border-primary transition-all duration-200"
+                value={config.searchValue}
+                onChange={config.onSearchChange}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-end gap-2 ml-auto pb-1">
+            {essentialFilters.length > 0 && (
+              <div
+                className="grid gap-2 flex-shrink-0"
+                style={{
+                  gridTemplateColumns:
+                    "repeat(auto-fit, minmax(140px, 1fr))",
+                  maxWidth: "360px",
+                }}
+              >
+                {essentialFilters.map((filter) => renderFilter(filter))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Advanced filters — inline collapsible inside the same card */}
+        {advancedFilters.length > 0 && (
+          <div className="border-t pt-3">
+            <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex items-center gap-2 text-xs font-semibold text-foreground/80 hover:text-foreground transition-colors"
+              >
+                Advanced Filters
+                {advancedActiveCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-primary/10 text-primary border border-primary/30"
+                  >
+                    {advancedActiveCount} active
+                  </Badge>
+                )}
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform ${
+                    showAdvanced ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {anyFilterActive && config.onClearAll && (
+                <button
+                  type="button"
+                  onClick={config.onClearAll}
+                  className="text-xs font-medium text-primary hover:underline"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            {showAdvanced && (
+              <div className="mt-3 pt-3 border-t border-dashed">
+                <div
+                  className="grid gap-2 w-full"
+                  style={{
+                    gridTemplateColumns:
+                      "repeat(auto-fit, minmax(140px, 1fr))",
+                  }}
+                >
+                  {advancedFilters.map((filter) => renderFilter(filter))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };

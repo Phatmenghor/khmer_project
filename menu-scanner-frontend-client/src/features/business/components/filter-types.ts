@@ -62,12 +62,21 @@ export type FilterConfig =
 
 export interface FilterPanelConfig {
   title: string;
+  /** Optional total-count chip rendered next to the title (e.g., 248 products). */
+  totalCount?: number;
+  /** Optional sentence rendered below the title. */
+  subtitle?: string;
   searchValue: string;
   searchPlaceholder: string;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   filters: FilterConfig[];
+  /** Primary action button (right of the title row). */
   buttonText?: string;
   buttonDisabled?: boolean;
   buttonTooltip?: string;
   onButtonClick?: () => void;
+  /** Extra action buttons rendered before the primary button. */
+  extraActions?: React.ReactNode;
+  /** Called when the user clicks "Clear all" — invoked only when at least one filter is active. */
+  onClearAll?: () => void;
 }

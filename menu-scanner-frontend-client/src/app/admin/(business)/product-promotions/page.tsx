@@ -10,6 +10,7 @@ import { FilterPanelConfig } from "@/features/business/components/filter-types";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ConfirmationModal } from "@/components/shared/modal/confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
+import { Button } from "@/components/ui/button";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, ProductStatus, Status } from "@/constants/status/status";
 import { usePagination } from "@/hooks/use-pagination";
@@ -400,14 +401,58 @@ export default function ProductPromotionPage() {
     setSortDirection(String(value ?? ""));
   };
 
+  const handleClearAllFilters = () => {
+    dispatch(setSearchFilter(""));
+    dispatch(selectProductStatus(ProductStatus.ALL));
+    setSelectedBrand(null);
+    setSelectedCategories(null);
+    setSizeFilter("ALL");
+    setSortBy("");
+    setSortDirection("");
+  };
+
+  const selectedRowCount = useMemo(
+    () => productContent?.filter((p) => p.isSelected).length ?? 0,
+    [productContent],
+  );
+
+  const extraActions = (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="h-8 px-3 text-amber-700 border-amber-300 hover:bg-amber-50"
+        disabled={selectedRowCount === 0 || operations.isDeleting}
+        onClick={handleResetTablePromotions}
+      >
+        Reset Selected{selectedRowCount > 0 ? ` (${selectedRowCount})` : ""}
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="h-8 px-3 text-rose-700 border-rose-300 hover:bg-rose-50"
+        disabled={operations.isDeleting}
+        onClick={handleResetAllPromotions}
+      >
+        Reset All
+      </Button>
+    </>
+  );
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Product Promotions",
+    subtitle: "Products with active promotional discounts",
+    totalCount: pagination.totalElements,
     searchValue: filters.search,
     searchPlaceholder: "Search product...",
     onSearchChange: handleSearchChange,
     buttonText: "Create Promotion",
     buttonDisabled: false,
     onButtonClick: handleCreatePromotion,
+    onClearAll: handleClearAllFilters,
+    extraActions,
     filters: [
       {
         id: "status",
@@ -417,6 +462,15 @@ export default function ProductPromotionPage() {
         value: filters.status,
         onChange: (value) => handleProductStatusChange(value as ProductStatus),
         options: PRODUCT_STATUS_FILTER,
+      },
+      {
+        id: "size",
+        type: "select",
+        label: "Product Size",
+        placeholder: "All Products",
+        value: sizeFilter,
+        onChange: handleSizeFilterChange,
+        options: PRODUCT_SIZE_FILTER,
       },
       {
         id: "brand",
@@ -437,15 +491,6 @@ export default function ProductPromotionPage() {
         showAllOption: true,
       },
       {
-        id: "size",
-        type: "select",
-        label: "Product Size",
-        placeholder: "All Products",
-        value: sizeFilter,
-        onChange: handleSizeFilterChange,
-        options: PRODUCT_SIZE_FILTER,
-      },
-      {
         id: "sortBy",
         type: "select",
         label: "Sort By",
@@ -464,7 +509,7 @@ export default function ProductPromotionPage() {
         options: SORT_DIRECTION_OPTIONS,
       },
     ],
-  }), [filters, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection]);
+  }), [filters, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection, pagination.totalElements, selectedRowCount, operations.isDeleting]);
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">

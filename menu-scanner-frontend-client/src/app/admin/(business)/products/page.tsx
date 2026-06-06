@@ -339,15 +339,46 @@ export default function ProductPage() {
     setSortDirection(String(value ?? ""));
   };
 
+  const handleClearAllFilters = () => {
+    dispatch(setSearchFilter(""));
+    dispatch(selectProductStatus(ProductStatus.ALL));
+    setSelectedBrand(null);
+    setSelectedCategories(null);
+    setSizeFilter("ALL");
+    setSortBy("");
+    setSortDirection("");
+  };
+
   const filterConfig = useMemo((): FilterPanelConfig => ({
-    title: "Product Information",
+    title: "Products",
+    subtitle: "Manage your catalog, brands, categories, and pricing",
+    totalCount: pagination.totalElements,
     searchValue: filters.search,
     searchPlaceholder: "Search product...",
     onSearchChange: handleSearchChange,
-    buttonText: "New",
+    buttonText: "New Product",
     buttonDisabled: false,
     onButtonClick: handleCreateBrand,
+    onClearAll: handleClearAllFilters,
     filters: [
+      {
+        id: "status",
+        type: "select",
+        label: "Product Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => handleProductStatusChange(value as ProductStatus),
+        options: PRODUCT_STATUS_FILTER,
+      },
+      {
+        id: "size",
+        type: "select",
+        label: "Product Size",
+        placeholder: "All Products",
+        value: sizeFilter,
+        onChange: handleSizeFilterChange,
+        options: PRODUCT_SIZE_FILTER,
+      },
       {
         id: "brand",
         type: "combobox-brand",
@@ -367,23 +398,6 @@ export default function ProductPage() {
         showAllOption: true,
       },
       {
-        id: "size",
-        type: "select",
-        label: "Product Size",
-        placeholder: "All Products",
-        value: sizeFilter,
-        onChange: handleSizeFilterChange,
-        options: PRODUCT_SIZE_FILTER,
-      },
-      {
-        id: "status",
-        type: "select",
-        label: "Product Status",
-        placeholder: "All Status",
-        value: filters.status,
-        onChange: (value) => handleProductStatusChange(value as ProductStatus),
-        options: PRODUCT_STATUS_FILTER,      },
-      {
         id: "sortBy",
         type: "select",
         label: "Sort By",
@@ -402,7 +416,7 @@ export default function ProductPage() {
         options: SORT_DIRECTION_OPTIONS,
       }
     ],
-  }), [filters, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection]);
+  }), [filters, selectedBrand, selectedCategories, sizeFilter, sortBy, sortDirection, pagination.totalElements]);
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
