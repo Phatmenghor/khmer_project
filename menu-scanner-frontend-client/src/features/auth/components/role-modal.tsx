@@ -194,6 +194,12 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
                 pattern="[a-zA-Z ]"
               />
 
+              {watch("name") && (
+                <p className="text-xs text-muted-foreground -mt-2 pl-0.5">
+                  Stored as: <span className="font-mono font-semibold">{watch("name").toUpperCase().replace(/\s+/g, "_")}</span>
+                </p>
+              )}
+
               <TextareaField
                 control={control}
                 name="description"

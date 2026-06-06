@@ -2,10 +2,10 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
+import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/features/business/components/filter-types";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -145,6 +145,17 @@ export default function RolesPage() {
     dispatch(setPageNo(1));
   };
 
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Roles Management",
+    searchValue: filters.search,
+    searchPlaceholder: "Search roles...",
+    onSearchChange: handleSearchChange,
+    buttonText: "Create Role",
+    buttonDisabled: false,
+    onButtonClick: handleCreate,
+    filters: [],
+  }), [filters.search]);
+
   const handleDelete = async () => {
     if (!deleteState.roles?.id) return;
 
@@ -192,16 +203,7 @@ export default function RolesPage() {
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
-        <CardHeaderSection
-          title="Roles Management"
-          searchValue={filters.search}
-          searchPlaceholder="Search roles..."
-          buttonText="Create Role"
-          buttonIcon={<Plus className="w-2 h-2" />}
-          buttonTooltip="Create a new role"
-          openModal={handleCreate}
-          onSearchChange={handleSearchChange}
-        ></CardHeaderSection>
+        <CollapsibleFilterPanel config={filterConfig} />
 
         {}
         <DataTableWithPagination

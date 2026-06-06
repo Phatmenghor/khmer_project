@@ -2,11 +2,10 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
-import { CustomSelect } from "@/components/shared/common/custom-select";
+import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/features/business/components/filter-types";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { userBusinessTableColumns } from "@/features/auth/table/users-business-table";
@@ -196,6 +195,36 @@ export default function UserBusinessPage() {
     dispatch(setPageNo(1));
   };
 
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Business Users",
+    searchValue: filters.search,
+    searchPlaceholder: "Search users business...",
+    onSearchChange: (e) => dispatch(setSearchFilter(e.target.value)),
+    buttonText: "New User",
+    buttonDisabled: false,
+    onButtonClick: handleCreateUser,
+    filters: [
+      {
+        id: "accountStatus",
+        type: "select",
+        label: "Account Status",
+        placeholder: "All Status",
+        value: filters.accountStatus,
+        onChange: (value) => dispatch(setAccountStatusFilter(value as AccountStatus)),
+        options: ACCOUNT_STATUS_FILTER,
+      },
+      {
+        id: "role",
+        type: "select",
+        label: "Business Role",
+        placeholder: "All Roles",
+        value: filters.role,
+        onChange: (value) => dispatch(setRoleFilter(value as UserRole)),
+        options: roleFilterOptions,
+      },
+    ],
+  }), [filters.search, filters.accountStatus, filters.role, roleFilterOptions]);
+
   const handleDelete = async () => {
     if (!deleteState.user?.id) return;
     try {
@@ -234,37 +263,7 @@ export default function UserBusinessPage() {
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
-        <CardHeaderSection
-          title="Business Users"
-          searchValue={filters.search}
-          searchPlaceholder="Search users business..."
-          buttonTooltip="Create a new users"
-          buttonIcon={<Plus className="w-2 h-2" />}
-          buttonText="New"
-          onSearchChange={(e) => dispatch(setSearchFilter(e.target.value))}
-          openModal={handleCreateUser}
-        >
-          <div className="flex flex-wrap items-center gap-1">
-            <CustomSelect
-              options={ACCOUNT_STATUS_FILTER}
-              value={filters.accountStatus}
-              placeholder="All Status"
-              onValueChange={(value) =>
-                dispatch(setAccountStatusFilter(value as AccountStatus))
-              }
-              label="Account Status"
-            />
-            <CustomSelect
-              options={roleFilterOptions}
-              value={filters.role}
-              placeholder="All Roles"
-              onValueChange={(value) =>
-                dispatch(setRoleFilter(value as UserRole))
-              }
-              label="Business Role"
-            />
-          </div>
-        </CardHeaderSection>
+        <CollapsibleFilterPanel config={filterConfig} essentialFilterIds={["accountStatus", "role"]} />
 
         <DataTableWithPagination
           data={usersContent}
