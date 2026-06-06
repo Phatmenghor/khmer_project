@@ -18,10 +18,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { showToast } from "@/components/shared/common/show-toast";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { TextField } from "@/components/shared/form-field/text-field";
-import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
-import { ActionButton } from "@/components/shared/button/action-button";
 import { Package, Edit } from "lucide-react";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import {
@@ -35,7 +33,7 @@ import {
   clearSuccess,
 } from "../store/slice/stock-management-slice";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
-import { ProductStockDto, ProductStockItemDto } from "../store/models/response/stock-response";
+import { ProductStockDto } from "../store/models/response/stock-response";
 import { createStockHistoryColumns } from "../table/product-stock-history-table";
 
 const stockFormSchema = z.object({
@@ -507,13 +505,17 @@ export function StockManagementModal({
             <div className="flex gap-1">
                 <CancelButton
                   onClick={() => {
-                    setEditingStock(null);
-                    form.reset({
-                      quantityOnHand: undefined,
-                      priceIn: "",
-                      expiryDate: "",
-                      location: "",
-                    });
+                    if (editingStock) {
+                      setEditingStock(null);
+                      form.reset({
+                        quantityOnHand: undefined as unknown as number,
+                        priceIn: "",
+                        expiryDate: "",
+                        location: "",
+                      });
+                    } else {
+                      onClose();
+                    }
                   }}
                   disabled={isCreating || isUpdating}
                   text={editingStock ? "Cancel" : "Close"}

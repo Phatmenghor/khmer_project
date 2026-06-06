@@ -503,13 +503,17 @@ export function StockItemManagementModal({
             <div className="flex gap-1">
               <CancelButton
                 onClick={() => {
-                  setEditingStock(null);
-                  form.reset({
-                    quantityOnHand: undefined,
-                    priceIn: "",
-                    expiryDate: "",
-                    location: "",
-                  });
+                  if (editingStock) {
+                    setEditingStock(null);
+                    form.reset({
+                      quantityOnHand: undefined as unknown as number,
+                      priceIn: "",
+                      expiryDate: "",
+                      location: "",
+                    });
+                  } else {
+                    onClose();
+                  }
                 }}
                 disabled={isCreating || isUpdating}
                 text={editingStock ? "Cancel" : "Close"}
