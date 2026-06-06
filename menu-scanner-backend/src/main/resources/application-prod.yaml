@@ -26,6 +26,20 @@ spring:
       hibernate:
         format_sql: false
 
+# Swagger / OpenAPI — disabled in production
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+
+# Actuator — tighten health detail in production
+management:
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
+
 # Telegram
 telegram:
   bot:

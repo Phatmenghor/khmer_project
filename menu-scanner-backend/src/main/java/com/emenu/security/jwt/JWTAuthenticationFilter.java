@@ -61,6 +61,13 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        String tokenType = jwtGenerator.getTokenTypeFromJWT(token);
+        if (!"access".equals(tokenType)) {
+            log.warn("Rejected non-access token (type={}) from ip={}", tokenType, request.getRemoteAddr());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token type");
+            return;
+        }
+
         String username = jwtGenerator.getUsernameFromJWT(token);
         String userType = jwtGenerator.getUserTypeFromJWT(token);
 

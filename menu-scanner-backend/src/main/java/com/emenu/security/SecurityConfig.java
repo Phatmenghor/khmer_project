@@ -46,8 +46,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/business-owners/register").permitAll()
                         .requestMatchers("/api/images/**").permitAll()
 
-                        .requestMatchers("/api/v1/users/admin/reset-password").permitAll()
-
                         // ===== TELEGRAM WEBHOOK =====
                         .requestMatchers("/api/v1/telegram/webhook").permitAll()
 

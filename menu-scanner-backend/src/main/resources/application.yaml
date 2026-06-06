@@ -9,8 +9,8 @@
 spring:
   application:
     name: cambodia-emenu-platform
-  profiles:
-    active: local # change to "local" or "dev" as needed
+  # IMPORTANT: Set SPRING_PROFILES_ACTIVE env var to 'local', 'dev', or 'prod' before starting.
+  # Do NOT rely on this base config's default. Production MUST use 'prod'.
 
   # JPA - common settings (ddl-auto overridden per profile)
   jpa:
@@ -43,9 +43,9 @@ server:
     mime-types: application/json,application/xml,text/html,text/plain
     min-response-size: 2048
 
-# JWT
+# JWT — JWT_SECRET MUST be set via environment variable in production (min 64 chars)
 jwt:
-  secret: "${JWT_SECRET:da2bd42bef8f9f957d647ed13571d35b59c7055fb723eacdb05154878da17d77d3180385fc232cab38bded0fc7dbda0d439cc275e91164ade266d64d50633bc7}"
+  secret: "${JWT_SECRET}"
   expiration: "${JWT_EXPIRATION:86400000}"           # 24 hours (ms)
   refresh-token-expiration: "${JWT_REFRESH_EXPIRATION:604800000}" # 7 days (ms)
 
@@ -54,7 +54,8 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus,caches,loggers,env
+        # 'env' removed — it can expose secrets from environment variables
+        include: health,info,metrics,prometheus,caches,loggers
       base-path: /actuator
   endpoint:
     health:
@@ -87,12 +88,12 @@ springdoc:
     path: /v3/api-docs
     enabled: true
 
-# Telegram
+# Telegram — token MUST be provided via TELEGRAM_BOT_TOKEN environment variable
 telegram:
   bot:
-    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
+    token: "${TELEGRAM_BOT_TOKEN:}"
     enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:}"
     webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
     auto-setup: true
 
@@ -103,8 +104,9 @@ app:
   description: "Restaurant Management Platform for Cambodia"
   init:
     create-admin: true
-    admin-email: "phatmenghor19@gmail.com"
-    admin-password: "88889999"
+    # SECURITY: Set admin credentials via environment variables — never hardcode here
+    admin-email: "${APP_ADMIN_EMAIL:}"
+    admin-password: "${APP_ADMIN_PASSWORD:}"
     # Test data now generated via SQL script: test-data-with-freepik-urls.sql
   subscription:
     expiry-soon-days: 7   # days before end date to flag as expiring-soon
@@ -117,7 +119,7 @@ app:
       enabled: true
   social:
     telegram:
-      bot-token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
+      bot-token: "${TELEGRAM_BOT_TOKEN:}"
       enabled: true
     google:
       client-id: "${GOOGLE_CLIENT_ID:}"

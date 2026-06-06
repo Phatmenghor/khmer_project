@@ -9,7 +9,8 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:e_menu_platform}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:Hour1819}
+    # SECURITY: Set DB_PASSWORD env var; never commit real passwords here
+    password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -27,6 +28,10 @@ spring:
       hibernate:
         format_sql: false
 
+# Local-only JWT secret (DEV ONLY — generate a fresh one for prod via openssl rand -hex 64)
+jwt:
+  secret: "${JWT_SECRET:local-dev-secret-replace-in-production-with-min-64-char-random-string-x9z}"
+
 logging:
   level:
     root: INFO
@@ -37,9 +42,9 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 
-# Telegram (Local Development)
+# Telegram (Local Development) — set TELEGRAM_BOT_TOKEN in .env or env vars
 telegram:
   bot:
-    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
+    token: "${TELEGRAM_BOT_TOKEN:}"
     enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:}"

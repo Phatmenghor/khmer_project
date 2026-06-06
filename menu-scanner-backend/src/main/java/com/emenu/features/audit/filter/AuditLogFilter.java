@@ -57,7 +57,7 @@ public class AuditLogFilter extends OncePerRequestFilter {
             }
 
             String requestBody = null;
-            if (shouldLogBodies(request.getMethod())) {
+            if (shouldLogBodies(request.getMethod(), uri)) {
                 requestBody = getContentAsString(wrappedRequest.getContentAsByteArray());
             }
 
@@ -95,7 +95,15 @@ public class AuditLogFilter extends OncePerRequestFilter {
                uri.endsWith(".ico");
     }
 
-    private boolean shouldLogBodies(String httpMethod) {
+    private boolean shouldLogBodies(String httpMethod, String uri) {
+        // Skip body logging for endpoints that carry credentials to prevent password leakage in audit logs
+        if (uri.contains("/auth/login") ||
+            uri.contains("/auth/register") ||
+            uri.contains("/change-password") ||
+            uri.contains("/reset-password") ||
+            uri.contains("/social/authenticate")) {
+            return false;
+        }
         return "POST".equalsIgnoreCase(httpMethod) ||
                "PUT".equalsIgnoreCase(httpMethod) ||
                "PATCH".equalsIgnoreCase(httpMethod) ||

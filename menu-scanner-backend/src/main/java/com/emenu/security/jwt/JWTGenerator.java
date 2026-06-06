@@ -134,6 +134,10 @@ public class JWTGenerator {
         return parseClaims(token).get("userIdentifier", String.class);
     }
 
+    public String getTokenTypeFromJWT(String token) {
+        return parseClaims(token).get("type", String.class);
+    }
+
     public Date getExpirationDateFromJWT(String token) {
         return parseClaims(token).getExpiration();
     }

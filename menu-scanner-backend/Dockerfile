@@ -27,6 +27,16 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
-EXPOSE 8080
+# App listens on port 7070 (see server.port in application.yaml)
+EXPOSE 7070
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Respect container memory limits; use up to 75% of available RAM for heap
+ENTRYPOINT ["java", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-XX:+UseG1GC", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
+  CMD wget -q --spider http://localhost:7070/actuator/health || exit 1
