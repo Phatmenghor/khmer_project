@@ -20,7 +20,8 @@ export function DateTimePickerField<T extends FieldValues = FieldValues>({
   placeholder = "Select date",
   className = "",
   mode = "date",
-}: DatePickerFormFieldProps<T>) {
+  inputClassName = "",
+}: DatePickerFormFieldProps<T> & { inputClassName?: string }) {
   return (
     <div className={`flex flex-col gap-1 w-full ${className}`}>
       <Label
@@ -34,7 +35,7 @@ export function DateTimePickerField<T extends FieldValues = FieldValues>({
         name={name as Path<T>}
         render={({ field }) => (
           <CustomDateTimePicker
-            className={className}
+            className={inputClassName}
             id={name}
             value={field.value || ""}
             onChange={field.onChange}

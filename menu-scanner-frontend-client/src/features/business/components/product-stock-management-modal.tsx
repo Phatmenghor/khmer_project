@@ -294,29 +294,33 @@ export function StockManagementModal({
         {}
         <div className="flex-1 overflow-y-auto">
           <div className="p-2.5 space-y-2">
-            {}
             <Card ref={formSectionRef}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-1">
-                  <Package className="w-3 h-3" />
-                  {editingStock ? "Update Stock" : "Add New Stock"}
-                </CardTitle>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-1.5 text-sm">
+                    <Package className="w-3.5 h-3.5" />
+                    {editingStock ? "Update Stock" : "Add New Stock"}
+                  </CardTitle>
+                  {editingStock && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
+                      Editing
+                    </span>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
-                <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-2">
-                  {}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {}
-                    <div className="space-y-1">
-                      <Label className="text-xs font-medium">
-                        Quantity On Hand <span className="text-red-500">*</span>
+                <form id="stock-form" onSubmit={form.handleSubmit(handleCreateStock)}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Quantity */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground">
+                        Quantity On Hand <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         type="number"
                         min="0"
                         step="1"
                         placeholder="Enter quantity"
-                        className="h-6"
                         {...form.register("quantityOnHand", {
                           required: "Quantity is required",
                           validate: (value) => {
@@ -331,29 +335,28 @@ export function StockManagementModal({
                           {form.formState.errors.quantityOnHand.message}
                         </p>
                       )}
-                      <p className="text-xs text-muted-foreground">
-                        Total quantity available in stock
-                      </p>
                     </div>
 
-                    {}
-                    <div className="space-y-1">
-                      <Label className="text-xs font-medium">
-                        Unit Price (Cost) <span className="text-red-500">*</span>
+                    {/* Unit Price */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground">
+                        Unit Price (Cost) <span className="text-destructive">*</span>
                       </Label>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs font-medium text-muted-foreground">$</span>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground pointer-events-none">
+                          $
+                        </span>
                         <Input
                           type="text"
                           placeholder="0.00"
-                          className="h-6 flex-1"
                           inputMode="decimal"
+                          className="pl-6"
                           {...form.register("priceIn", {
                             required: "Price is required",
                             validate: (value) => {
                               if (!value) return "Price is required";
                               const num = parseFloat(value);
-                              if (isNaN(num)) return "Price must be a valid number";
+                              if (isNaN(num)) return "Must be a valid number";
                               if (num <= 0) return "Price must be greater than 0";
                               return true;
                             },
@@ -365,138 +368,117 @@ export function StockManagementModal({
                           {form.formState.errors.priceIn.message}
                         </p>
                       )}
-                      <p className="text-xs text-muted-foreground">
-                        Cost per unit for inventory tracking (e.g., 0.25, 10.50, 0.323)
-                      </p>
                     </div>
 
-                    {}
+                    {/* Expiry Date */}
                     <DateTimePickerField
                       control={form.control}
-                      className="h-6"
                       name="expiryDate"
                       label="Expiry Date"
                       mode="date"
                       error={form.formState.errors.expiryDate}
+                      inputClassName="h-9"
                     />
 
-                    {}
-                    <div className="space-y-1">
-                      <Label className="text-xs font-medium">
+                    {/* Location */}
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground">
                         Storage Location
                       </Label>
                       <Input
                         placeholder="e.g., Warehouse A, Shelf 3"
-                        className="h-6"
                         {...form.register("location")}
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Physical location in your warehouse/storage
-                      </p>
                     </div>
                   </div>
 
-                  {}
+                  {/* Sales Preview */}
                   {product && product.displayPrice && (
-                    <div className="border-t pt-4">
-                        <h3 className="text-xs font-semibold mb-2">Sales Preview</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {}
-                          <div className="bg-muted/50 p-3 rounded">
-                            <div className="flex justify-between items-start mb-1">
-                              <div>
-                                <p className="text-xs text-muted-foreground">Product Selling Price</p>
-                                <p className="text-xs font-semibold text-foreground">
-                                  ${(product.price as unknown as number).toFixed(2)}
-                                </p>
-                              </div>
-                              {product.hasPromotion === true && (
-                                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
-                                  On Sale
-                                </Badge>
-                              )}
-                            </div>
-
-                            {}
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs font-semibold text-foreground mb-2">Sales Preview</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {/* Selling price / promotion */}
+                        <div className="rounded border border-border/50 bg-muted/30 p-2.5 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Selling Price</span>
                             {product.hasPromotion === true && (
-                              <div className="mt-2 pt-2 border-t border-muted space-y-1 text-xs">
-                                <div>
-                                  <p className="text-muted-foreground">Promotion Type:</p>
-                                  <p className="font-medium">
-                                    {product.displayPromotionType === "PERCENTAGE" ? "Percentage" : "Fixed Amount"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">Discount:</p>
-                                  <p className="font-medium">
-                                    {product.displayPromotionType === "PERCENTAGE"
-                                      ? `${product.displayPromotionValue}%`
-                                      : `$${(product.displayPromotionValue || 0).toFixed(2)}`}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">Valid Period:</p>
-                                  <p className="font-medium text-xs">
-                                    {product.displayPromotionFromDate && product.displayPromotionToDate && (
-                                      <>
-                                        {dateTimeFormat(product.displayPromotionFromDate)} →{" "}
-                                        {dateTimeFormat(product.displayPromotionToDate)}
-                                      </>
-                                    )}
-                                  </p>
-                                </div>
-                                <div className="pt-1 border-t">
-                                  <p className="text-muted-foreground">Final Price:</p>
-                                  <p className="text-xs font-semibold text-green-600">
-                                    ${product.displayPrice?.toFixed(2) || "0.00"}
-                                  </p>
-                                </div>
-                              </div>
+                              <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">On Sale</span>
                             )}
                           </div>
-
-                          {}
-                          <div className="bg-muted/50 p-3 rounded">
-                            <p className="text-xs text-muted-foreground mb-2">Total Revenue (if sold all)</p>
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-xs">
-                                <span className="text-muted-foreground">Quantity:</span>
+                          <p className="text-sm font-bold text-foreground">
+                            ${(product.price as unknown as number).toFixed(2)}
+                          </p>
+                          {product.hasPromotion === true && (
+                            <div className="pt-1.5 border-t border-border/40 space-y-1 text-xs">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Type</span>
                                 <span className="font-medium">
-                                  {form.watch("quantityOnHand") || 0} units
+                                  {product.displayPromotionType === "PERCENTAGE" ? "Percentage" : "Fixed"}
                                 </span>
                               </div>
-                              <div className="flex justify-between text-xs">
-                                <span className="text-muted-foreground">Selling Price (each):</span>
-                                <span className="font-medium">
-                                  ${(product.hasPromotion === true ? product.displayPrice : (product.price as unknown as number)).toFixed(2)}
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Discount</span>
+                                <span className="font-medium text-red-600">
+                                  {product.displayPromotionType === "PERCENTAGE"
+                                    ? `${product.displayPromotionValue}%`
+                                    : `$${(product.displayPromotionValue || 0).toFixed(2)}`}
                                 </span>
                               </div>
-                              <div className="pt-2 border-t border-muted flex justify-between">
-                                <span className="font-semibold">Total Revenue:</span>
-                                <span className="text-xs font-bold text-green-600">
-                                  ${(
-                                    (form.watch("quantityOnHand") || 0) *
-                                    (product.hasPromotion === true
-                                      ? product.displayPrice
-                                      : (product.price as unknown as number))
-                                  ).toFixed(2)}
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Final</span>
+                                <span className="font-bold text-green-600">
+                                  ${product.displayPrice?.toFixed(2)}
                                 </span>
                               </div>
-                              <div className="pt-1 flex justify-between text-xs text-muted-foreground">
-                                <span>Cost Total:</span>
-                                <span>
-                                  ${(
-                                    (form.watch("quantityOnHand") || 0) *
-                                    (parseFloat(form.watch("priceIn") || "0") || 0)
-                                  ).toFixed(2)}
-                                </span>
-                              </div>
+                              {product.displayPromotionFromDate && product.displayPromotionToDate && (
+                                <div className="flex justify-between text-muted-foreground">
+                                  <span>Period</span>
+                                  <span className="text-right">
+                                    {dateTimeFormat(product.displayPromotionFromDate)} → {dateTimeFormat(product.displayPromotionToDate)}
+                                  </span>
+                                </div>
+                              )}
                             </div>
+                          )}
+                        </div>
+
+                        {/* Revenue estimate */}
+                        <div className="rounded border border-border/50 bg-muted/30 p-2.5 space-y-1.5">
+                          <span className="text-xs text-muted-foreground">Revenue Estimate</span>
+                          <div className="space-y-1 text-xs">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Qty</span>
+                              <span className="font-medium">{form.watch("quantityOnHand") || 0} units</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Price / unit</span>
+                              <span className="font-medium">
+                                ${(product.hasPromotion === true ? product.displayPrice : (product.price as unknown as number)).toFixed(2)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Cost total</span>
+                              <span className="font-medium">
+                                ${((form.watch("quantityOnHand") || 0) * (parseFloat(form.watch("priceIn") || "0") || 0)).toFixed(2)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="pt-1.5 border-t border-border/40 flex justify-between text-xs">
+                            <span className="font-semibold">Total Revenue</span>
+                            <span className="font-bold text-green-600">
+                              ${(
+                                (form.watch("quantityOnHand") || 0) *
+                                (product.hasPromotion === true
+                                  ? product.displayPrice
+                                  : (product.price as unknown as number))
+                              ).toFixed(2)}
+                            </span>
                           </div>
                         </div>
                       </div>
-                    )}
-                  </form>
+                    </div>
+                  )}
+                </form>
               </CardContent>
             </Card>
 
@@ -620,6 +602,7 @@ export function StockManagementModal({
                   updateText="Update Stock"
                   submittingCreateText="Creating..."
                   submittingUpdateText="Updating..."
+                  onClick={() => form.handleSubmit(handleCreateStock)()}
                 />
               </div>
             </div>
