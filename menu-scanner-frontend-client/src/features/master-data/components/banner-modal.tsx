@@ -160,7 +160,7 @@ export default function BannerModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-3xl max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title={isCreate ? "Create New Banner" : "Edit Banner"}
           description={
@@ -186,52 +186,36 @@ export default function BannerModal({
               )}
 
               <div className="space-y-2">
-                {}
-                <div className="space-y-2">
-                  <ClickableImageUpload
-                    label="Banner Image"
-                    value={imageUrl}
-                    onChange={(base64) => setValue("imageUrl", base64)}
-                    aspectRatio="banner"
-                    required
-                    error={errors.imageUrl}
-                    placeholder="Click to upload banner image"
-                  />
-                </div>
+                <ClickableImageUpload
+                  label="Banner Image"
+                  value={imageUrl}
+                  onChange={(base64) => setValue("imageUrl", base64)}
+                  aspectRatio="banner"
+                  required
+                  error={errors.imageUrl}
+                  placeholder="Click to upload banner image"
+                />
 
-                {}
-                <div className="border-t pt-4">
-                  <h3 className="text-xs font-semibold text-foreground mb-3">
-                    Banner Details
-                  </h3>
+                <TextAreaField
+                  control={control}
+                  name="description"
+                  label="Description"
+                  placeholder="Enter banner description (optional)"
+                  disabled={isProcessing}
+                  error={errors.description}
+                  rows={3}
+                />
 
-                  {}
-                  <div className="grid grid-cols-1 gap-3 mb-3">
-                    <TextAreaField
-                      control={control}
-                      name="description"
-                      label="Description"
-                      placeholder="Enter banner description (optional)"
-                      disabled={isProcessing}
-                      error={errors.description}
-                      rows={3}
-                    />
-                  </div>
-
-                  {}
-                  <div className="grid grid-cols-1 gap-3">
-                    <SelectField
-                      control={control}
-                      name="status"
-                      label="Status"
-                      placeholder="Select status"
-                      options={BANNER_STATUS_CREATE_UPDATE}
-                      required
-                      disabled={isProcessing}
-                      error={errors.status}
-                    />
-                  </div>
-                </div>
+                <SelectField
+                  control={control}
+                  name="status"
+                  label="Status"
+                  placeholder="Select status"
+                  options={BANNER_STATUS_CREATE_UPDATE}
+                  required
+                  disabled={isProcessing}
+                  error={errors.status}
+                />
               </div>
             </FormBody>
 
