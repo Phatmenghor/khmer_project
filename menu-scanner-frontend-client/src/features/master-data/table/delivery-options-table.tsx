@@ -6,6 +6,7 @@ import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { Switch } from "@/components/ui/switch";
+import { TableImage } from "@/components/shared/table/table-image";
 import {
   AllDeliveryOptionsResponseModel,
   DeliveryOptionsResponseModel,
@@ -55,21 +56,11 @@ export const deliveryOptionsTableColumns = ({
       maxWidth: "400px",
       render: (deliveryOptions) => {
         return (
-          <div className="h-8 w-8 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
-            {deliveryOptions.imageUrl ? (
-              <img
-                src={deliveryOptions.imageUrl}
-                alt={deliveryOptions?.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
-                <span className="text-xs font-semibold text-primary">
-                  {deliveryOptions?.name?.charAt(0)?.toUpperCase() || "D"}
-                </span>
-              </div>
-            )}
-          </div>
+          <TableImage
+            src={deliveryOptions.imageUrl}
+            alt={deliveryOptions?.name}
+            fallbackText={deliveryOptions?.name || "D"}
+          />
         );
       },
     },

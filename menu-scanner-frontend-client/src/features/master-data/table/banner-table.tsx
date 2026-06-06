@@ -2,6 +2,7 @@ import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
+import { TableImage } from "@/components/shared/table/table-image";
 import {
   AllBannerResponseModel,
   BannerResponseModel,
@@ -50,16 +51,12 @@ export const bannerTableColumns = ({
       maxWidth: "280px",
       render: (banner) => {
         return (
-          <div className="flex-shrink-0 w-44 h-24 rounded overflow-hidden bg-muted border border-border shadow-sm">
-            <img
-              src={banner.imageUrl}
-              alt="Banner"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = "/assets/image/no-image.png";
-              }}
-            />
-          </div>
+          <TableImage
+            src={banner.imageUrl}
+            alt="Banner"
+            fallbackText="B"
+            className="w-44 h-24"
+          />
         );
       },
     },

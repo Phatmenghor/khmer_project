@@ -5,6 +5,7 @@ import { TableColumn } from "@/components/shared/common/data-table";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { Switch } from "@/components/ui/switch";
+import { TableImage } from "@/components/shared/table/table-image";
 import {
   AllPaymentOptionResponseModel,
   PaymentOptionResponse,
@@ -47,21 +48,11 @@ export const paymentOptionsTableColumns = ({
       maxWidth: "400px",
       render: (option) => {
         return (
-          <div className="h-7 w-7 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
-            {option.imageUrl ? (
-              <img
-                src={option.imageUrl}
-                alt={option?.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
-                <span className="text-xs font-semibold text-primary">
-                  {option?.name?.charAt(0)?.toUpperCase() || "P"}
-                </span>
-              </div>
-            )}
-          </div>
+          <TableImage
+            src={option.imageUrl}
+            alt={option?.name}
+            fallbackText={option?.name || "P"}
+          />
         );
       },
     },

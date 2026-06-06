@@ -6,6 +6,7 @@ import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { Switch } from "@/components/ui/switch";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
+import { TableImage } from "@/components/shared/table/table-image";
 import {
   AllBrandResponseModel,
   BrandResponseModel,
@@ -53,21 +54,11 @@ export const brandTableColumns = ({
       maxWidth: "400px",
       render: (brand) => {
         return (
-          <div className="h-8 w-8 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
-            {brand.imageUrl ? (
-              <img
-                src={brand.imageUrl}
-                alt={brand?.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
-                <span className="text-xs font-semibold text-primary">
-                  {brand?.name?.charAt(0)?.toUpperCase() || "B"}
-                </span>
-              </div>
-            )}
-          </div>
+          <TableImage
+            src={brand.imageUrl}
+            alt={brand?.name}
+            fallbackText={brand?.name || "B"}
+          />
         );
       },
     },

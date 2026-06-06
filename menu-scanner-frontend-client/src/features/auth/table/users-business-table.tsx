@@ -1,8 +1,8 @@
 import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Eye, RotateCw, Trash } from "lucide-react";
-import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { TableColumn } from "@/components/shared/common/data-table";
+import { TableImage } from "@/components/shared/table/table-image";
 import {
   AllUserResponseModel,
   UserResponseModel,
@@ -53,25 +53,14 @@ export const userBusinessTableColumns = ({
       label: "Avatar",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (user) => {
-        return (
-          <div className="h-8 w-8 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
-            {user.profileImageUrl ? (
-              <img
-                src={user.profileImageUrl}
-                alt={user?.firstName}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
-                <span className="text-xs font-semibold text-primary">
-                  {user?.firstName?.charAt(0)?.toUpperCase() || "U"}
-                </span>
-              </div>
-            )}
-          </div>
-        );
-      },
+      render: (user) => (
+        <TableImage
+          src={user.profileImageUrl}
+          alt={user?.firstName}
+          fallbackText={user?.firstName || "U"}
+          className="h-8 w-8"
+        />
+      ),
     },
     {
       key: "userIdentifier",
