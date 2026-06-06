@@ -65,7 +65,11 @@ export function DeliveryOptionsDetailModal({
         {/* Header */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
           <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
-            <Truck className="h-5 w-5 text-muted-foreground" />
+            {deliveryOptions.imageUrl ? (
+              <img src={deliveryOptions.imageUrl} alt={deliveryOptions.name} className="w-full h-full object-cover" />
+            ) : (
+              <Truck className="h-5 w-5 text-muted-foreground" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground">Delivery Options</p>
