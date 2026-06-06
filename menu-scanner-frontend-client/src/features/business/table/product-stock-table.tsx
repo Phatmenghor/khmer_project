@@ -4,10 +4,7 @@ import { TableColumn } from "@/components/shared/common/data-table";
 import { ActionButton } from "@/components/shared/button/action-button";
 import { Switch } from "@/components/ui/switch";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
-import Image from "next/image";
-import { useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { TableImage } from "@/components/shared/table/table-image";
 import { getStockStatusLabel, getProductStatusLabel } from "@/constants/status/status";
 import {
   AllProductResponseModel,
@@ -26,42 +23,6 @@ interface StockTableOptions {
 }
 
 
-function ProductImagePreview({
-  product,
-}: {
-  product: ProductDetailResponseModel;
-}) {
-  const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  return (
-    <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
-      {!imageError && product?.mainImageUrl ? (
-        <>
-          {!imageLoaded && (
-            <Skeleton className="absolute inset-0 w-full h-full rounded" />
-          )}
-          <Image
-            src={product.mainImageUrl}
-            alt={product.name}
-            width={56}
-            height={56}
-            className={cn(
-              "w-full h-full object-cover transition-all duration-300 hover:scale-105",
-              imageLoaded ? "opacity-100" : "opacity-0",
-            )}
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-          />
-        </>
-      ) : (
-        <span className="text-xs font-bold text-primary/80 hover:text-primary transition-colors">
-          {product?.name?.charAt(0).toUpperCase() || "P"}
-        </span>
-      )}
-    </div>
-  );
-}
 
 
 function StockStatusBadge({
@@ -110,9 +71,9 @@ export const stockTableColumns = ({
       label: "Image",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (product) => {
-        return <ProductImagePreview product={product} />;
-      },
+      render: (product) => (
+        <TableImage src={product.mainImageUrl} alt={product.name} fallbackText={product.name} />
+      ),
     },
 
     {

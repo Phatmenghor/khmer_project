@@ -1,10 +1,8 @@
 import { indexDisplay } from "@/utils/common/common";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
-import Image from "next/image";
-import { useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { TableImage } from "@/components/shared/table/table-image";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { Badge } from "@/components/ui/badge";
 import { Eye, RotateCcw } from "lucide-react";
@@ -24,43 +22,6 @@ interface BulkPromotionTableOptions {
   onViewDetails?: (product: ProductDetailResponseModel) => void;
   onEditProduct?: (product: ProductDetailResponseModel) => void;
   onResetPromotion?: (product: ProductDetailResponseModel) => void;
-}
-
-function ProductImagePreview({
-  product,
-}: {
-  product: ProductDetailResponseModel;
-}) {
-  const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  return (
-    <div className="relative w-8 h-8 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 transition-all duration-300">
-      {!imageError && product?.mainImageUrl ? (
-        <>
-          {!imageLoaded && (
-            <Skeleton className="absolute inset-0 w-full h-full rounded" />
-          )}
-          <Image
-            src={product.mainImageUrl}
-            alt={product.name}
-            width={48}
-            height={48}
-            className={cn(
-              "w-full h-full object-cover transition-all duration-300 hover:scale-105",
-              imageLoaded ? "opacity-100" : "opacity-0",
-            )}
-            onLoad={() => setImageLoaded(true)}
-            onError={() => setImageError(true)}
-          />
-        </>
-      ) : (
-        <span className="text-xs font-bold text-primary/80 hover:text-primary transition-colors">
-          {product?.name?.charAt(0).toUpperCase() || "P"}
-        </span>
-      )}
-    </div>
-  );
 }
 
 export const bulkPromotionTableColumns = ({
@@ -132,7 +93,9 @@ export const bulkPromotionTableColumns = ({
       minWidth: "10px",
       maxWidth: "120px",
       className: "px-1",
-      render: (product) => <ProductImagePreview product={product} />,
+      render: (product) => (
+        <TableImage src={product.mainImageUrl} alt={product.name} fallbackText={product.name} />
+      ),
     },
     {
       key: "name",
