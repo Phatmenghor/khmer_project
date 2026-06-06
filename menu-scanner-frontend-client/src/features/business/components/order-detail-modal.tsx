@@ -467,7 +467,7 @@ export function OrderDetailModal({
                           className="flex gap-2.5 p-2 rounded border border-border/50 bg-muted/20"
                         >
                           {/* Image */}
-                          <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted border border-border/50">
+                          <div className="relative flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted border border-border/50">
                             {item.product?.imageUrl ? (
                               <img
                                 src={item.product.imageUrl}
@@ -477,6 +477,11 @@ export function OrderDetailModal({
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
                                 <Package className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            )}
+                            {promotionLabel && (
+                              <div className="absolute bottom-0 left-0 right-0 bg-red-500/85 text-white text-center font-bold leading-none py-0.5" style={{ fontSize: "7px" }}>
+                                SALE
                               </div>
                             )}
                           </div>
