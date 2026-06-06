@@ -1163,43 +1163,29 @@ export default function ProductModal({
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-1">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                         {imageFields.map((field, index) => (
-                          <div
-                            key={field.id}
-                            className="relative aspect-square rounded overflow-hidden border bg-muted"
-                          >
-                            <div className="w-full h-full">
-                              <ClickableImageUpload
-                                label=""
-                                value={
-                                  watch(`images.${index}.imageUrl`) || ""
+                          <div key={field.id}>
+                            <ClickableImageUpload
+                              label=""
+                              value={watch(`images.${index}.imageUrl`) || ""}
+                              onChange={(base64) => {
+                                if (base64 === "") {
+                                  removeImage(index);
+                                } else {
+                                  setValue(
+                                    `images.${index}.imageUrl`,
+                                    base64,
+                                    { shouldDirty: true },
+                                  );
                                 }
-                                onChange={(base64) => {
-                                  if (base64 === "") {
-
-                                    removeImage(index);
-                                  } else {
-
-                                    setValue(
-                                      `images.${index}.imageUrl`,
-                                      base64,
-                                      {
-                                        shouldDirty: true,
-                                      },
-                                    );
-                                  }
-                                }}
-                                aspectRatio="square"
-                                height="h-full"
-                                maxSize={5}
-                                disabled={isProcessing}
-                                error={
-                                  errors.images?.[index]?.imageUrl as any
-                                }
-                                showPreviewText={false}
-                              />
-                            </div>
+                              }}
+                              aspectRatio="square"
+                              maxSize={5}
+                              disabled={isProcessing}
+                              error={errors.images?.[index]?.imageUrl as any}
+                              showPreviewText={false}
+                            />
                           </div>
                         ))}
                       </div>

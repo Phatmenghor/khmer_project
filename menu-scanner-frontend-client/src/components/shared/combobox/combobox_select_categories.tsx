@@ -75,7 +75,7 @@ export function ComboboxSelectCategories({
 
   const sizeClasses = {
     sm: "h-5 text-xs",
-    md: "h-6 text-xs",
+    md: "h-[26px] text-xs",
     lg: "h-7 text-xs",
   };
 

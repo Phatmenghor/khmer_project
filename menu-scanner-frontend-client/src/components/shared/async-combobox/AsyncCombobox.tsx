@@ -22,7 +22,7 @@ import type { AsyncComboboxProps, ComboboxSize } from "./types";
 
 const SIZE_CLASSES: Record<ComboboxSize, string> = {
   sm: "h-5 text-xs",
-  md: "h-6 text-xs",
+  md: "h-[26px] text-xs",
   lg: "h-7 text-xs",
 };
 
