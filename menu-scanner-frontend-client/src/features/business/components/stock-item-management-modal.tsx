@@ -267,7 +267,7 @@ export function StockItemManagementModal({
                 <img
                   src={stockItem.mainImageUrl}
                   alt={getTitle()}
-                  className="w-full h-full object-contain p-1.5"
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">

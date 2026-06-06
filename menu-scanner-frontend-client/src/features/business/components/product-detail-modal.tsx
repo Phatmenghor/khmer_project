@@ -121,7 +121,7 @@ export function ProductDetailModal({
               <img
                 src={productData.mainImageUrl}
                 alt={productData.name}
-                className="w-full h-full object-contain p-1.5"
+                className="w-full h-full object-cover"
               />
             ) : (
               <Package className="h-5 w-5 text-muted-foreground" />
@@ -322,7 +322,7 @@ export function ProductDetailModal({
                         <img
                           src={image.imageUrl}
                           alt={`Image ${idx + 1}`}
-                          className="object-contain p-1.5 w-full h-full"
+                          className="object-cover w-full h-full"
                         />
                       </div>
                     ))}
