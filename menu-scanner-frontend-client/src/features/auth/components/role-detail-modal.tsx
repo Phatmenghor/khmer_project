@@ -35,7 +35,7 @@ export function RoleDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">Role Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="w-full sm:max-w-xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">No role data available</p>
           </div>
@@ -47,7 +47,7 @@ export function RoleDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTitle className="sr-only">Role Details - {roleData.name}</DialogTitle>
-      <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex-1 min-w-0">
@@ -62,7 +62,7 @@ export function RoleDetailModal({
 
         {}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-4">
+          <div className="p-2.5 space-y-2">
             {}
             <Card>
               <CardHeader>

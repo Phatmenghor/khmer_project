@@ -511,7 +511,7 @@ export default function UserBusinessModal({
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {}
                 {isCreate && (
                   <div className="space-y-3">

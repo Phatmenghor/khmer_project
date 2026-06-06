@@ -61,7 +61,7 @@ export function ExchangeRateDetailModal({
 
         {}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-4">
+          <div className="p-2.5 space-y-2">
             {}
             <Card>
               <CardHeader>

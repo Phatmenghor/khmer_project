@@ -276,7 +276,7 @@ export function POSEditCartItemModal({
                   Promo Type
                 </Label>
                 <Select value={promotionType || "NONE"} onValueChange={(value) => setPromotionType(value === "NONE" ? null : value)}>
-                  <SelectTrigger id="promoType" className="text-xs h-7">
+                  <SelectTrigger id="promoType" className="text-xs h-6">
                     <SelectValue placeholder="None">
                       {promotionType === "PERCENTAGE" ? "Percentage (%)" : promotionType === "FIXED_AMOUNT" ? "Fixed Amount" : "None"}
                     </SelectValue>
@@ -301,7 +301,7 @@ export function POSEditCartItemModal({
                     onChange={(e) => setPromotionValue(e.target.value)}
                     step="0.01"
                     min="0"
-                    className="text-xs h-7"
+                    className="text-xs h-6"
                   />
                 </div>
               )}
@@ -331,7 +331,7 @@ export function POSEditCartItemModal({
                   onChange={(e) => setNewPrice(e.target.value)}
                   step="0.01"
                   min="0"
-                  className="text-xs h-7"
+                  className="text-xs h-6"
                 />
               </div>
             </div>
@@ -389,7 +389,7 @@ export function POSEditCartItemModal({
               )}
               <div className="flex justify-between border-t pt-1">
                 <span className="text-muted-foreground font-semibold">Total:</span>
-                <span className="text-sm font-bold text-primary">
+                <span className="text-xs font-bold text-primary">
                   {formatCurrency(calculatedTotal)}
                 </span>
               </div>

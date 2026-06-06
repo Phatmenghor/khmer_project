@@ -159,7 +159,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-3xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title={isCreate ? "Create New Brand" : "Edit Brand"}
           description={
@@ -184,7 +184,7 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {}
                 <div className="space-y-2">
                   <ClickableImageUpload

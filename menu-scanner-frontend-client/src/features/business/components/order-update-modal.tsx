@@ -192,7 +192,7 @@ export function OrderUpdateModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-2xl p-0 flex flex-col">
+      <DialogContent className="w-full max-w-xl p-0 flex flex-col">
         <FormHeader
           title="Update Order"
           description="Update order status, payment, and notes"

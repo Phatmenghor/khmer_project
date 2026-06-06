@@ -88,7 +88,7 @@ export function LeaveDetailModal({
       description={"Detailed information about the selected leave."}
     >
       {leaveData ? (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {}
           <DetailSection title="Leave Information">
             <DetailRow

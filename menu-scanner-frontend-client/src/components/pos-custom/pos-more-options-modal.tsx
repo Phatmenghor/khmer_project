@@ -218,7 +218,7 @@ export function POSMoreOptionsModal({
                       min="0"
                       max={discountType === "percentage" ? "100" : undefined}
                       step={discountType === "fixed" ? "0.01" : "1"}
-                      className="h-7 text-xs pr-5 border border-slate-300 focus:border-primary"
+                      className="h-6 text-xs pr-5 border border-slate-300 focus:border-primary"
                     />
                     {discountType === "fixed" ? (
                       <span className="absolute right-1 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-500">$</span>

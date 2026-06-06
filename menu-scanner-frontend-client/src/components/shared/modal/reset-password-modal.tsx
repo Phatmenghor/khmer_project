@@ -99,7 +99,7 @@ export default function ResetPasswordModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-md max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-sm max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title="Reset Password"
           description="Reset the user's password to the default value"
@@ -157,7 +157,7 @@ export default function ResetPasswordModal({
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="h-5 w-5 p-0"
+                    className="h-4 w-4 p-0"
                     title={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
@@ -171,7 +171,7 @@ export default function ResetPasswordModal({
                     variant="ghost"
                     size="sm"
                     onClick={copyPassword}
-                    className="h-5 w-5 p-0"
+                    className="h-4 w-4 p-0"
                     title="Copy password"
                   >
                     <Copy className="h-3 w-3" />

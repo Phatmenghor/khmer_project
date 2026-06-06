@@ -177,7 +177,7 @@ export default function DeliveryOptionsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-4xl max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-3xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title={
             isCreate ? "Create New Delivery Options" : "Edit Delivery Options"
@@ -210,7 +210,7 @@ export default function DeliveryOptionsModal({
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {}
                 <div className="space-y-2">
                   <ClickableImageUpload

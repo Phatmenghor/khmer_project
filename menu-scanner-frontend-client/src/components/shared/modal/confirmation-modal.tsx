@@ -65,7 +65,7 @@ export function ConfirmationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-lg p-0 flex flex-col shadow-lg shadow-yellow-200">
+      <DialogContent className="w-full max-w-md p-0 flex flex-col shadow-lg shadow-yellow-200">
         <VisuallyHidden asChild>
           <DialogTitle>{title}</DialogTitle>
         </VisuallyHidden>

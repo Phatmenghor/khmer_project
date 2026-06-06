@@ -293,7 +293,7 @@ export function StockManagementModal({
 
         {}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-4">
+          <div className="p-2.5 space-y-2">
             {}
             <Card ref={formSectionRef}>
               <CardHeader>
@@ -303,7 +303,7 @@ export function StockManagementModal({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-2">
                   {}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {}
@@ -316,7 +316,7 @@ export function StockManagementModal({
                         min="0"
                         step="1"
                         placeholder="Enter quantity"
-                        className="h-7"
+                        className="h-6"
                         {...form.register("quantityOnHand", {
                           required: "Quantity is required",
                           validate: (value) => {
@@ -346,7 +346,7 @@ export function StockManagementModal({
                         <Input
                           type="text"
                           placeholder="0.00"
-                          className="h-7 flex-1"
+                          className="h-6 flex-1"
                           inputMode="decimal"
                           {...form.register("priceIn", {
                             required: "Price is required",
@@ -373,7 +373,7 @@ export function StockManagementModal({
                     {}
                     <DateTimePickerField
                       control={form.control}
-                      className="h-7"
+                      className="h-6"
                       name="expiryDate"
                       label="Expiry Date"
                       mode="date"
@@ -387,7 +387,7 @@ export function StockManagementModal({
                       </Label>
                       <Input
                         placeholder="e.g., Warehouse A, Shelf 3"
-                        className="h-7"
+                        className="h-6"
                         {...form.register("location")}
                       />
                       <p className="text-xs text-muted-foreground">

@@ -56,7 +56,7 @@ export function SessionsDetailModal({
       description={sessionData?.deviceName || "Loading session information..."}
     >
       {sessionData ? (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {}
           <DetailSection title="Personal Information">
             <DetailRow

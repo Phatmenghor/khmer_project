@@ -56,7 +56,7 @@ export function LeaveTypeDetailModal({
       description={"Detailed information about the selected leave type."}
     >
       {leaveTypeData ? (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {}
           <DetailSection title="Leave Type Information">
             <DetailRow

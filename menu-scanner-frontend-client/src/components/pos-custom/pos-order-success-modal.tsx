@@ -36,7 +36,7 @@ export function POSOrderSuccessModal({
       <VisuallyHidden>
         <DialogTitle>Order Success</DialogTitle>
       </VisuallyHidden>
-      <DialogContent className="w-full sm:max-w-xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-lg max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export function POSOrderSuccessModal({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-3">
+          <div className="p-2.5 space-y-3">
             <Card>
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
@@ -77,7 +77,7 @@ export function POSOrderSuccessModal({
             <CustomButton
               onClick={() => handlePrintReceipt(order)}
               variant="outline"
-              className="gap-1 h-7"
+              className="gap-1 h-6"
               isLoading={isPrinting}
               icon={<Printer className="h-3 w-3" />}
             >
@@ -86,7 +86,7 @@ export function POSOrderSuccessModal({
             <CustomButton
               onClick={() => handleDownloadReceipt(order)}
               variant="outline"
-              className="gap-1 h-7"
+              className="gap-1 h-6"
               isLoading={isDownloading}
               icon={<Download className="h-3 w-3" />}
             >
@@ -97,7 +97,7 @@ export function POSOrderSuccessModal({
           <CustomButton
             onClick={onClose}
             style={{ backgroundColor: primaryColor, color: "white" }}
-            className="w-full h-8 font-medium hover:opacity-90"
+            className="w-full h-6 font-medium hover:opacity-90"
           >
             Done & Next Order
           </CustomButton>

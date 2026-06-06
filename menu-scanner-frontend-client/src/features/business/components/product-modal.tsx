@@ -513,7 +513,7 @@ export default function ProductModal({
             className="flex flex-col flex-1 overflow-hidden"
           >
             <FormBody>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {reduxError && (
                   <div className="p-3 bg-destructive/10 border border-destructive rounded">
                     <p className="text-xs text-destructive font-medium">

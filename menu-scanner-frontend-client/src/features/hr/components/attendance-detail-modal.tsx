@@ -328,7 +328,7 @@ export function AttendanceDetailModal({
       description={"Detailed information about the selected attendance."}
     >
       {attendanceData ? (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {}
           <DetailSection title="Schedule Information">
             <DetailRow

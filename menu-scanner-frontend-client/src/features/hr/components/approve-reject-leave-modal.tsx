@@ -111,7 +111,7 @@ export default function ApproveRejectLeaveModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title={isApprove ? "Approve Leave Request" : "Reject Leave Request"}
           description={

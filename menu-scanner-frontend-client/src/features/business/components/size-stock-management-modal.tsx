@@ -303,7 +303,7 @@ export function SizeStockManagementModal({
 
         {}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-4">
+          <div className="p-2.5 space-y-2">
 
             {}
             {selectedSize && (
@@ -315,7 +315,7 @@ export function SizeStockManagementModal({
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-4">
+                  <form onSubmit={form.handleSubmit(handleCreateStock)} className="space-y-2">
                     {}
                     <div className="space-y-1">
                       <Label className="text-xs font-medium">
@@ -328,7 +328,7 @@ export function SizeStockManagementModal({
                           if (size) setSelectedSize(size);
                         }}
                       >
-                        <SelectTrigger className="h-7">
+                        <SelectTrigger className="h-6">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -357,7 +357,7 @@ export function SizeStockManagementModal({
                           min="0"
                           step="1"
                           placeholder="Enter quantity"
-                          className="h-7"
+                          className="h-6"
                           {...form.register("quantityOnHand", {
                             required: "Quantity is required",
                             validate: (value) => {
@@ -387,7 +387,7 @@ export function SizeStockManagementModal({
                           <Input
                             type="text"
                             placeholder="0.00"
-                            className="h-7 flex-1"
+                            className="h-6 flex-1"
                             inputMode="decimal"
                             {...form.register("priceIn", {
                               required: "Price is required",
@@ -414,7 +414,7 @@ export function SizeStockManagementModal({
                       {}
                       <DateTimePickerField
                         control={form.control}
-                        className="h-7"
+                        className="h-6"
                         name="expiryDate"
                         label="Expiry Date"
                         mode="date"
@@ -428,7 +428,7 @@ export function SizeStockManagementModal({
                         </Label>
                         <Input
                           placeholder="e.g., Warehouse A, Shelf 3"
-                          className="h-7"
+                          className="h-6"
                           {...form.register("location")}
                         />
                         <p className="text-xs text-muted-foreground">

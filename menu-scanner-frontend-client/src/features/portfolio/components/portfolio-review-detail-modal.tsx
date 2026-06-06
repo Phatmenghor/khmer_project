@@ -31,7 +31,7 @@ export function PortfolioReviewDetailModal({ review, isOpen, onClose }: Props) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTitle className="sr-only">Review Details</DialogTitle>
-      <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 flex-shrink-0 rounded bg-primary/10 flex items-center justify-center">
@@ -49,7 +49,7 @@ export function PortfolioReviewDetailModal({ review, isOpen, onClose }: Props) {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-4">
+          <div className="p-2.5 space-y-2">
             <Card>
               <CardHeader>
                 <CardTitle>Customer Information</CardTitle>

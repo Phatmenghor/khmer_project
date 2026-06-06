@@ -58,7 +58,7 @@ export function WorkScheduleTypeDetailModal({
       description={"Detailed information about the selected work schedule."}
     >
       {workScheduleData ? (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {}
           <DetailSection title="Work Schedule Information">
             <DetailRow

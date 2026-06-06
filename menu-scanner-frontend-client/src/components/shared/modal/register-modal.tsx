@@ -271,7 +271,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
           <DialogFooter className="pt-1">
             <Button
               type="submit"
-              className="w-full h-8 font-semibold"
+              className="w-full h-6 font-semibold"
               disabled={isAnyLoading}
             >
               {isRegistrationLoading && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}

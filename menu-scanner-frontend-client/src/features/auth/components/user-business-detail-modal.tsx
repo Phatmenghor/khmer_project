@@ -111,7 +111,7 @@ export function UserBusinessDetailModal({
 
         {}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-4">
+          <div className="p-2.5 space-y-2">
             {}
             <Card>
               <CardHeader>
@@ -189,7 +189,7 @@ export function UserBusinessDetailModal({
                   <CardTitle>Addresses</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {userData.addresses.map((address: any, index: number) => (
                       <div key={index} className="border-b pb-3">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -216,7 +216,7 @@ export function UserBusinessDetailModal({
                   <CardTitle>Emergency Contacts</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {userData.emergencyContacts.map((contact: any, index: number) => (
                       <div key={index} className="border-b pb-3">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

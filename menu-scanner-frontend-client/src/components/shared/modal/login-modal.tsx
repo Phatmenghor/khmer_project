@@ -194,7 +194,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               onAuth={handleTelegramAuth}
               disabled={isAnyLoading}
               loading={isTelegramLoading}
-              className="w-full h-7"
+              className="w-full h-6"
             />
           </FormBody>
 
