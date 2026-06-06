@@ -50,7 +50,7 @@ export function DetailModal({
                 {title}
               </DialogTitle>
               {description && (
-                <DialogDescription className="text-xs text-muted-foreground">
+                <DialogDescription className="text-[11px] text-muted-foreground">
                   {description}
                 </DialogDescription>
               )}

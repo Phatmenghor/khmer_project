@@ -31,10 +31,10 @@ export function DetailRow({ label, value, isLast = false }: DetailRowProps) {
         !isLast ? "border-b border-border/40" : ""
       }`}
     >
-      <Label className="text-xs font-medium text-muted-foreground whitespace-nowrap flex-shrink-0 min-w-[120px]">
+      <Label className="text-[11px] font-medium text-muted-foreground whitespace-nowrap flex-shrink-0 min-w-[120px]">
         {label}
       </Label>
-      <div className="text-xs text-right flex-1 break-words">{value}</div>
+      <div className="text-[11px] text-right flex-1 break-words">{value}</div>
     </div>
   );
 }
