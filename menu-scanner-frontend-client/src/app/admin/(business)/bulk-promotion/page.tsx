@@ -974,7 +974,6 @@ export default function BulkPromotionPage() {
                   <div className="space-y-2">
                     <DateTimePickerField
                       control={form.control}
-                      className="h-7"
                       name="promotionFromDate"
                       label="Start Date"
                       required
@@ -984,7 +983,6 @@ export default function BulkPromotionPage() {
 
                     <DateTimePickerField
                       control={form.control}
-                      className="h-7"
                       name="promotionToDate"
                       label="End Date"
                       required
