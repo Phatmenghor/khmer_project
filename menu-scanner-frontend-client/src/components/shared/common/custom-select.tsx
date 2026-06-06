@@ -38,17 +38,17 @@ const CUSTOM_SELECT_SIZES = {
     item: "text-xs py-1 px-1",
   },
   md: {
-    button: "h-6 text-xs",
+    button: "h-[26px] text-xs",
     icon: "h-3 w-3",
     item: "text-xs py-1 px-2",
   },
   lg: {
-    button: "h-6 text-xs",
+    button: "h-[26px] text-xs",
     icon: "h-3 w-3",
     item: "text-xs py-1 px-2",
   },
   xl: {
-    button: "h-6 text-xs",
+    button: "h-[26px] text-xs",
     icon: "h-3 w-3",
     item: "text-xs py-1 px-2",
   },

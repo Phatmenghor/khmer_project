@@ -83,7 +83,7 @@ export function TextField<T extends FieldValues = FieldValues>({
               }
             }}
             pattern={pattern}
-            className={`h-6 transition-all duration-200 border ${disabled ? "bg-muted/50" : ""} ${
+            className={`h-[26px] transition-all duration-200 border ${disabled ? "bg-muted/50" : ""} ${
               error
                 ? "border-red-500 focus:border-red-500"
                 : "border-input focus:border-primary focus:ring-2 focus:ring-primary/30"

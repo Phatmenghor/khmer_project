@@ -41,7 +41,7 @@ export function PageSizeSelectField({
             variant="outline"
             role="combobox"
             className={cn(
-              "justify-between gap-1 min-w-[80px] h-6 px-2 transition-colors",
+              "justify-between gap-1 min-w-[80px] h-[26px] px-2 transition-colors",
               "hover:bg-accent/50 focus:ring-2 focus:ring-primary focus:ring-offset-2"
             )}
             aria-label={`Select rows per page, currently showing ${pageSize} rows`}
