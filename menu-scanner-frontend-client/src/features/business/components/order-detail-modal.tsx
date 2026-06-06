@@ -801,6 +801,23 @@ export function OrderDetailModal({
                 </div>
               )}
 
+              {/* System Info */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle>System Info</SectionTitle>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <InfoRow label="Created By" value={orderData.createdBy || "---"} />
+                  <InfoRow
+                    label="Created At"
+                    value={dateTimeFormat(orderData.createdAt)}
+                  />
+                  <InfoRow label="Updated By" value={orderData.updatedBy || "---"} />
+                  <InfoRow
+                    label="Last Updated"
+                    value={dateTimeFormat(orderData.updatedAt)}
+                  />
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
