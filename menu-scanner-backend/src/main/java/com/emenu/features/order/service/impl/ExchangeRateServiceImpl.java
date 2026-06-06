@@ -1,6 +1,7 @@
 package com.emenu.features.order.service.impl;
 
 import com.emenu.exception.custom.NotFoundException;
+import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.order.dto.filter.ExchangeRateFilterRequest;
 import com.emenu.features.order.dto.request.ExchangeRateCreateRequest;
 import com.emenu.features.order.dto.response.ExchangeRateResponse;
@@ -90,7 +91,7 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 
         // Don't allow deletion of the only active rate
         if (exchangeRate.getIsActive() && exchangeRateRepository.countActiveRates() == 1) {
-            throw new RuntimeException("Cannot delete the only active exchange rate. Create a new rate first.");
+            throw new ValidationException("Cannot delete the only active exchange rate. Create a new rate first.");
         }
 
         exchangeRate.softDelete();

@@ -185,6 +185,7 @@ public class GlobalExceptionHandler {
 
         String message = "An unexpected error occurred while processing your request.";
         String errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         Map<String, Object> errorData = new HashMap<>();
 
         if (ex.getMessage() != null) {
@@ -213,6 +214,8 @@ public class GlobalExceptionHandler {
                 message = "A connection error occurred. Please try again later.";
             } else if (exMessage.contains("not found")) {
                 message = "The requested resource could not be found.";
+                errorCode = ErrorCodes.RESOURCE_NOT_FOUND;
+                status = HttpStatus.NOT_FOUND;
             }
         }
 
@@ -220,7 +223,7 @@ public class GlobalExceptionHandler {
         if (!errorData.isEmpty()) {
             response.setData(errorData);
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity.status(status).body(response);
     }
 
     @ExceptionHandler(ValidationException.class)

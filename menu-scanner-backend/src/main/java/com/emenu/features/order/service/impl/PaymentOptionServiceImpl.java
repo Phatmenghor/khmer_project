@@ -2,6 +2,7 @@ package com.emenu.features.order.service.impl;
 
 import com.emenu.enums.common.Status;
 import com.emenu.exception.custom.ResourceNotFoundException;
+import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.order.dto.filter.PaymentOptionFilterRequest;
 import com.emenu.features.order.dto.request.PaymentOptionRequest;
 import com.emenu.features.order.dto.response.PaymentOptionResponse;
@@ -36,7 +37,7 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
         // Check if payment option with same name already exists
         paymentOptionRepository.findByNameAndBusinessId(businessId, request.getName())
                 .ifPresent(existing -> {
-                    throw new RuntimeException("Payment option '" + request.getName() + "' already exists for this business");
+                    throw new ValidationException("Payment option '" + request.getName() + "' already exists for this business");
                 });
 
         PaymentOption paymentOption = PaymentOption.builder()
@@ -75,7 +76,7 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
         if (!option.getName().equals(request.getName())) {
             paymentOptionRepository.findByNameAndBusinessId(businessId, request.getName())
                     .ifPresent(existing -> {
-                        throw new RuntimeException("Payment option '" + request.getName() + "' already exists for this business");
+                        throw new ValidationException("Payment option '" + request.getName() + "' already exists for this business");
                     });
         }
 

@@ -12,6 +12,7 @@ import com.emenu.features.subscription.mapper.SubscriptionPlanMapper;
 import com.emenu.features.subscription.models.SubscriptionPlan;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
+import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.subscription.service.SubscriptionPlanService;
 import com.emenu.features.subscription.specification.SubscriptionPlanSpecification;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
@@ -49,7 +50,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
         // Check if plan with same name already exists
         if (planRepository.existsByNameAndIsDeletedFalse(request.getName())) {
-            throw new RuntimeException("Plan with this name already exists: " + request.getName());
+            throw new ValidationException("Plan with this name already exists: " + request.getName());
         }
 
         SubscriptionPlan plan = planMapper.toEntity(request);
@@ -99,7 +100,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
         // Check if name is being changed and if new name already exists
         if (request.getName() != null && !request.getName().equals(plan.getName())) {
             if (planRepository.existsByNameAndIsDeletedFalse(request.getName())) {
-                throw new RuntimeException("Plan with name '" + request.getName() + "' already exists");
+                throw new ValidationException("Plan with name '" + request.getName() + "' already exists");
             }
         }
 
@@ -121,7 +122,7 @@ public class SubscriptionPlanServiceImpl implements SubscriptionPlanService {
 
         // Check if plan is currently in use
         if (!canDeletePlan(planId)) {
-            throw new RuntimeException("Cannot delete plan that is currently in use by active subscriptions");
+            throw new ValidationException("Cannot delete plan that is currently in use by active subscriptions");
         }
 
         plan.softDelete();

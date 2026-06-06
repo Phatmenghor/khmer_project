@@ -16,6 +16,7 @@ import com.emenu.features.subscription.models.SubscriptionPlan;
 import com.emenu.features.subscription.repository.SubscriptionPaymentRepository;
 import com.emenu.features.subscription.repository.SubscriptionPlanRepository;
 import com.emenu.features.subscription.repository.SubscriptionRepository;
+import com.emenu.exception.custom.NotFoundException;
 import com.emenu.features.subscription.service.SubscriptionService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.dto.PaginationResponse;
@@ -52,7 +53,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public SubscriptionHistoryResponse getSubscriptionById(UUID subscriptionId) {
         log.debug("Getting subscription by ID: {}", subscriptionId);
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
-                .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
+                .orElseThrow(() -> new NotFoundException("Subscription not found: " + subscriptionId));
         subscription = subscriptionRepository.findByIdWithRelationships(subscription.getId()).orElse(subscription);
         return toHistoryResponse(subscription);
     }
@@ -61,11 +62,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public SubscriptionHistoryResponse renewSubscription(UUID subscriptionId, SubscriptionRenewRequest request) {
         log.info("Renewing subscription: {}", subscriptionId);
         Subscription oldSubscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
-                .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
+                .orElseThrow(() -> new NotFoundException("Subscription not found: " + subscriptionId));
 
         UUID newPlanId = request.getNewPlanId() != null ? request.getNewPlanId() : oldSubscription.getPlanId();
         SubscriptionPlan plan = planRepository.findByIdAndIsDeletedFalse(newPlanId)
-                .orElseThrow(() -> new RuntimeException("Subscription plan not found: " + newPlanId));
+                .orElseThrow(() -> new NotFoundException("Subscription plan not found: " + newPlanId));
 
         // Old subscription stays untouched as history
         LocalDateTime newStartDate = oldSubscription.isExpired() ? LocalDateTime.now() : oldSubscription.getEndDate();
@@ -89,7 +90,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public SubscriptionHistoryResponse cancelSubscription(UUID subscriptionId, SubscriptionCancelRequest request) {
         log.info("Cancelling subscription: {} with refund amount: {}", subscriptionId, request.getRefundAmount());
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
-                .orElseThrow(() -> new RuntimeException("Subscription not found: " + subscriptionId));
+                .orElseThrow(() -> new NotFoundException("Subscription not found: " + subscriptionId));
         subscription.cancel();
         subscription.setCancellationReason(request.getReason());
         subscriptionPaymentRepository
