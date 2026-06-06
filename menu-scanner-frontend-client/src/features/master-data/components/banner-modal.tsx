@@ -185,7 +185,7 @@ export default function BannerModal({
                 </div>
               )}
 
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 <ClickableImageUpload
                   label="Banner Image"
                   value={imageUrl}
