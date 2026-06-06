@@ -99,7 +99,7 @@ export default function ResetPasswordModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-lg max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-md max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title="Reset Password"
           description="Reset the user's password to the default value"
@@ -107,7 +107,7 @@ export default function ResetPasswordModal({
         />
 
         <FormBody>
-          <div className="space-y-4">
+          <div className="space-y-2">
             {}
             <Card>
               <CardContent className="pt-4">
@@ -148,7 +148,7 @@ export default function ResetPasswordModal({
                   value={customPassword}
                   onChange={(e) => setCustomPassword(e.target.value)}
                   placeholder="Enter new password"
-                  className="pr-14 font-mono text-xs h-8 py-2"
+                  className="pr-14 font-mono text-xs h-6 py-2"
                   disabled={isResettingPassword}
                 />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">

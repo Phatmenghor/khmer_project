@@ -176,7 +176,7 @@ export function POSEditCartItemModal({
         />
 
         {}
-        <FormBody contentClassName="space-y-4">
+        <FormBody contentClassName="space-y-2">
           {}
           <div className="flex gap-3 p-3 bg-muted/30 rounded border">
             <div className="relative w-14 h-14 rounded overflow-hidden bg-white border flex-shrink-0">

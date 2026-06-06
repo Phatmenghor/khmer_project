@@ -67,7 +67,7 @@ export function ReviewSubmissionModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3">
-      <div className="bg-white rounded max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded max-w-md w-full max-h-[90vh] overflow-y-auto">
         {}
         <div className="sticky top-0 bg-white border-b px-4 py-3 flex items-center justify-between">
           <h2 className="text-xs font-bold">Write a Review</h2>
@@ -80,7 +80,7 @@ export function ReviewSubmissionModal({
         </div>
 
         {}
-        <form onSubmit={handleSubmit(onFormSubmit)} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="p-2.5 space-y-2">
           {}
           <div className="text-center pb-3 border-b">
             <p className="text-gray-600">You're reviewing</p>
