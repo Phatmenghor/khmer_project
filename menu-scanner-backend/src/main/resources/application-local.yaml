@@ -1,14 +1,11 @@
 # ============================================================
 # application-local.yaml — LOCAL DEVELOPMENT
 # ============================================================
-# All values have defaults so the app starts without any env vars.
-# Override via environment variables or .env file as needed.
-# ============================================================
 spring:
   datasource:
     url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:e_menu_platform}"
     username: "${DB_USERNAME:postgres}"
-    password: "${DB_PASSWORD:}"
+    password: "${DB_PASSWORD:postgres}"
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -29,7 +26,6 @@ spring:
   flyway:
     enabled: false
 
-# Local JWT secret — DEV ONLY. Generate for prod: openssl rand -hex 64
 jwt:
   secret: "${JWT_SECRET:local-dev-secret-replace-in-production-with-minimum-64-char-random-string-xyz}"
 
@@ -39,6 +35,16 @@ app:
   security:
     cors:
       allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:4173}"
+  init:
+    create-admin: true
+    admin-email: "${APP_ADMIN_EMAIL:admin@emenu.local}"
+    admin-password: "${APP_ADMIN_PASSWORD:Admin@123456}"
+
+telegram:
+  bot:
+    token: "${TELEGRAM_BOT_TOKEN:disabled}"
+    enabled: false
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:0}"
 
 logging:
   level:

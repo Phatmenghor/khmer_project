@@ -1,8 +1,13 @@
 # ============================================================
-# application-test.yaml — Integration test profile
-# Datasource URL injected dynamically by BaseIntegrationTest via @DynamicPropertySource
+# application-test.yaml — INTEGRATION TESTS
 # ============================================================
 spring:
+  datasource:
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:emenu_test}"
+    username: "${DB_USERNAME:test}"
+    password: "${DB_PASSWORD:test}"
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -19,11 +24,13 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: "${REDIS_HOST:localhost}"
+      port: "${REDIS_PORT:6379}"
+      password: "${REDIS_PASSWORD:}"
+      database: 0
 
 jwt:
-  secret: "test-only-secret-do-not-use-in-production-minimum-64-characters-long-xxxxxxxxxxx"
+  secret: "${JWT_SECRET:test-only-secret-do-not-use-in-production-minimum-64-characters-long-xxxxx}"
   expiration: 3600000
   refresh-token-expiration: 86400000
 
@@ -37,11 +44,14 @@ app:
       enabled: false
   init:
     create-admin: false
+    admin-email: "admin@test.local"
+    admin-password: "Admin@123456"
 
 telegram:
   bot:
+    token: "disabled"
     enabled: false
-    token: ""
+    group-chat-id: "0"
 
 logging:
   level:

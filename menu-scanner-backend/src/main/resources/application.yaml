@@ -5,14 +5,11 @@
 #   local  → localhost PostgreSQL, debug logging
 #   dev    → dev-server PostgreSQL, standard logging
 #   prod   → production DB, no Swagger, minimal logging
-#
-# All sensitive values can be overridden with environment variables.
 # ============================================================
 spring:
   application:
     name: cambodia-emenu-platform
 
-  # JPA — ddl-auto and show-sql are set per profile
   jpa:
     open-in-view: false
     properties:
@@ -25,15 +22,12 @@ spring:
         order_updates: true
         default_batch_fetch_size: 25
 
-  # Flyway — disabled by default; enabled in prod profile only
   flyway:
     enabled: false
 
-  # Cache — beans managed by CacheConfig/RedisConfig directly
   cache:
     type: none
 
-  # Redis
   data:
     redis:
       host: "${REDIS_HOST:localhost}"
@@ -52,9 +46,8 @@ server:
     min-response-size: 2048
 
 # ── JWT ───────────────────────────────────────────────────────────────────────
-# JWT_SECRET is REQUIRED in prod (min 64 chars). Dev profiles provide a default.
 jwt:
-  secret: "${JWT_SECRET}"
+  secret: "${JWT_SECRET:default-dev-secret-please-change-in-production-min-64-chars-xxxxxxxxxx}"
   expiration: "${JWT_EXPIRATION:86400000}"
   refresh-token-expiration: "${JWT_REFRESH_EXPIRATION:604800000}"
 
@@ -99,11 +92,11 @@ springdoc:
 # ── Telegram ──────────────────────────────────────────────────────────────────
 telegram:
   bot:
-    token: "${TELEGRAM_BOT_TOKEN:}"
-    enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:}"
+    token: "${TELEGRAM_BOT_TOKEN:disabled}"
+    enabled: false
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:0}"
     webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
-    auto-setup: true
+    auto-setup: false
 
 # ── Application ───────────────────────────────────────────────────────────────
 app:
@@ -112,26 +105,26 @@ app:
   description: "Restaurant Management Platform for Cambodia"
   init:
     create-admin: true
-    admin-email: "${APP_ADMIN_EMAIL:}"
-    admin-password: "${APP_ADMIN_PASSWORD:}"
+    admin-email: "${APP_ADMIN_EMAIL:admin@emenu.local}"
+    admin-password: "${APP_ADMIN_PASSWORD:Admin@123456}"
   subscription:
     expiry-soon-days: 7
   cache:
     provider: "${CACHE_PROVIDER:caffeine}"
   security:
     cors:
-      allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}"
+      allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:4173}"
     token-cleanup:
       enabled: true
   social:
     telegram:
-      bot-token: "${TELEGRAM_BOT_TOKEN:}"
-      enabled: true
+      bot-token: "${TELEGRAM_BOT_TOKEN:disabled}"
+      enabled: false
     google:
-      client-id: "${GOOGLE_CLIENT_ID:}"
-      client-secret: "${GOOGLE_CLIENT_SECRET:}"
-      enabled: true
+      client-id: "${GOOGLE_CLIENT_ID:disabled}"
+      client-secret: "${GOOGLE_CLIENT_SECRET:disabled}"
+      enabled: false
     facebook:
-      app-id: "${FACEBOOK_APP_ID:}"
-      app-secret: "${FACEBOOK_APP_SECRET:}"
+      app-id: "${FACEBOOK_APP_ID:disabled}"
+      app-secret: "${FACEBOOK_APP_SECRET:disabled}"
       enabled: false
