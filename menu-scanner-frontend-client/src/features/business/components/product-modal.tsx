@@ -522,130 +522,125 @@ export default function ProductModal({
                   </div>
                 )}
 
-                {}
                 <Card>
                   <CardHeader>
                     <CardTitle>Basic Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-max">
-                      <div>
-                        <TextField
-                          control={control}
-                          name="name"
-                          label="Product Name"
-                          placeholder="Enter product name"
+                    <div className="flex gap-3 items-start">
+                      <div className="flex-shrink-0 w-24">
+                        <ClickableImageUpload
+                          label="Image"
+                          value={mainImageUrl}
+                          onChange={(base64) =>
+                            setValue("mainImageUrl", base64, { shouldDirty: true })
+                          }
+                          aspectRatio="square"
+                          height="h-24"
+                          maxSize={5}
                           required
+                          error={errors.mainImageUrl}
+                          showPreviewText={false}
                           disabled={isProcessing}
-                          error={errors.name}
                         />
                       </div>
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-max">
+                        <div>
+                          <TextField
+                            control={control}
+                            name="name"
+                            label="Product Name"
+                            placeholder="Enter product name"
+                            required
+                            disabled={isProcessing}
+                            error={errors.name}
+                          />
+                        </div>
 
-                      <div>
-                        <ComboboxSelectCategories
-                          dataSelect={selectedCategory}
-                          onChangeSelected={(category) => {
-                            setSelectedCategory(category);
-                            setValue("categoryId", category?.id || "", {
-                              shouldDirty: true,
-                            });
-                          }}
-                          label="Category"
-                          placeholder="Select category"
-                          required
-                          disabled={isProcessing}
-                          error={errors.categoryId?.message}
-                          showAllOption={false}
-                        />
-                      </div>
+                        <div>
+                          <ComboboxSelectCategories
+                            dataSelect={selectedCategory}
+                            onChangeSelected={(category) => {
+                              setSelectedCategory(category);
+                              setValue("categoryId", category?.id || "", {
+                                shouldDirty: true,
+                              });
+                            }}
+                            label="Category"
+                            placeholder="Select category"
+                            required
+                            disabled={isProcessing}
+                            error={errors.categoryId?.message}
+                            showAllOption={false}
+                          />
+                        </div>
 
-                      <div>
-                        <ComboboxSelectBrand
-                          dataSelect={selectedBrand}
-                          onChangeSelected={(brand) => {
-                            setSelectedBrand(brand);
-                            setValue("brandId", brand?.id || "", {
-                              shouldDirty: true,
-                            });
-                          }}
-                          label="Brand (Optional)"
-                          placeholder="Select brand"
-                          disabled={isProcessing}
-                          error={errors.brandId?.message}
-                          showAllOption={false}
-                        />
-                      </div>
+                        <div>
+                          <ComboboxSelectBrand
+                            dataSelect={selectedBrand}
+                            onChangeSelected={(brand) => {
+                              setSelectedBrand(brand);
+                              setValue("brandId", brand?.id || "", {
+                                shouldDirty: true,
+                              });
+                            }}
+                            label="Brand (Optional)"
+                            placeholder="Select brand"
+                            disabled={isProcessing}
+                            error={errors.brandId?.message}
+                            showAllOption={false}
+                          />
+                        </div>
 
-                      <div>
-                        <TextField
-                          control={control}
-                          name="sku"
-                          label="SKU"
-                          placeholder="Enter SKU"
-                          disabled={isProcessing}
-                          error={errors.sku}
-                        />
-                      </div>
+                        <div>
+                          <SelectField
+                            control={control}
+                            name="status"
+                            label="Status"
+                            placeholder="Select status"
+                            options={PRODUCT_STATUS_CREATE_UPDATE}
+                            required
+                            disabled={isProcessing}
+                            error={errors.status}
+                          />
+                        </div>
 
-                      <div>
-                        <TextField
-                          control={control}
-                          name="barcode"
-                          label="Barcode"
-                          placeholder="Enter barcode"
-                          disabled={isProcessing}
-                          error={errors.barcode}
-                        />
-                      </div>
+                        <div>
+                          <TextField
+                            control={control}
+                            name="sku"
+                            label="SKU"
+                            placeholder="Enter SKU"
+                            disabled={isProcessing}
+                            error={errors.sku}
+                          />
+                        </div>
 
-                      <div>
-                        <SelectField
-                          control={control}
-                          name="status"
-                          label="Status"
-                          placeholder="Select status"
-                          options={PRODUCT_STATUS_CREATE_UPDATE}
-                          required
-                          disabled={isProcessing}
-                          error={errors.status}
-                        />
-                      </div>
+                        <div>
+                          <TextField
+                            control={control}
+                            name="barcode"
+                            label="Barcode"
+                            placeholder="Enter barcode"
+                            disabled={isProcessing}
+                            error={errors.barcode}
+                          />
+                        </div>
 
-                      <div className="col-span-1 md:col-span-2">
-                        <TextareaField
-                          control={control}
-                          name="description"
-                          label="Description"
-                          placeholder="Enter product description"
-                          rows={1}
-                          required
-                          disabled={isProcessing}
-                          error={errors.description}
-                        />
+                        <div className="col-span-1 md:col-span-2">
+                          <TextareaField
+                            control={control}
+                            name="description"
+                            label="Description"
+                            placeholder="Enter product description"
+                            rows={2}
+                            required
+                            disabled={isProcessing}
+                            error={errors.description}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Product Image</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ClickableImageUpload
-                      label="Main Product Image"
-                      value={mainImageUrl}
-                      onChange={(base64) =>
-                        setValue("mainImageUrl", base64, { shouldDirty: true })
-                      }
-                      aspectRatio="square"
-                      maxSize={5}
-                      required
-                      error={errors.mainImageUrl}
-                      placeholder="Click to upload main product image"
-                      helperText="PNG, JPG up to 5MB"
-                    />
                   </CardContent>
                 </Card>
 
