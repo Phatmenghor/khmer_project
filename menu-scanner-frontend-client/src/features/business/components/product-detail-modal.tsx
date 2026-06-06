@@ -73,7 +73,7 @@ export function ProductDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">Product Details Loading</DialogTitle>
-        <DialogContent className="w-full sm:max-w-5xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-64">
             <Loading />
           </div>
@@ -86,7 +86,7 @@ export function ProductDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">Product Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-5xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-64">
             <p className="text-sm text-muted-foreground">No product data available</p>
           </div>
@@ -112,7 +112,7 @@ export function ProductDetailModal({
         Product Details - {productData.name}
       </DialogTitle>
 
-      <DialogContent className="w-full sm:max-w-5xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
 
         {/* ── Header ── */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">

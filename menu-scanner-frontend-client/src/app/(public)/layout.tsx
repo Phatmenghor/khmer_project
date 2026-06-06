@@ -48,7 +48,7 @@ export default function PublicLayout({
   ]);
 
   return (
-    <div className="min-h-screen-dvh flex flex-col bg-background">
+    <div className="min-h-screen-vh flex flex-col bg-background">
       <Navbar />
 
       {/* Bottom padding accounts for the fixed BottomNav (h-11) +

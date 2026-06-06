@@ -34,7 +34,7 @@ const SIZE_CLASSES: Record<ModalSize, string> = {
  * Standard form/dialog shell.
  *
  * - Mobile-first: inherits bottom-sheet behavior from ui/dialog (<sm) and
- *   centered modal (>=sm). Uses dvh, not vh, so iOS keyboards don't crop.
+ *   centered modal (>=sm). Uses vh, not vh, so iOS keyboards don't crop.
  * - Safe-area aware: footer respects env(safe-area-inset-bottom) for
  *   iPhone home indicator and Telegram Mini App bottom chrome.
  * - Back-compat: original FormDialogBase props are preserved.
@@ -110,7 +110,7 @@ export function FormDialogBase({
     <div
       className={cn(
         "flex-1 min-h-0 overflow-y-auto",
-        "max-h-[70dvh] sm:max-h-[60dvh]",
+        "max-h-[70vh] sm:max-h-[60vh]",
         bodyClassName
       )}
     >

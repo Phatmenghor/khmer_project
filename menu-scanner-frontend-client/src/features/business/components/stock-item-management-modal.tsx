@@ -258,7 +258,7 @@ export function StockItemManagementModal({
       <DialogTitle className="sr-only">
         Stock Management - {getTitle()}
       </DialogTitle>
-      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-7xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-4">

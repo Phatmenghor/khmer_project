@@ -52,7 +52,7 @@ const DialogContent = React.forwardRef<
 
         "fixed z-50 grid w-full bg-background shadow-lg duration-200",
 
-        "bottom-0 left-0 right-0 max-h-[92dvh] rounded-t-2xl border-t",
+        "bottom-0 left-0 right-0 max-h-[92vh] rounded-t-2xl border-t",
 
         "sm:bottom-auto sm:right-auto sm:left-1/2 sm:top-1/2",
         "sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded sm:border",

@@ -47,7 +47,7 @@ export function DeliveryOptionsDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogTitle className="sr-only">Delivery Options Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="w-full sm:max-w-2xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">No delivery options data available</p>
           </div>
@@ -61,7 +61,7 @@ export function DeliveryOptionsDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTitle className="sr-only">Delivery Options Details - {deliveryOptions.name}</DialogTitle>
-      <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-2xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
           <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">

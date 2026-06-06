@@ -32,7 +32,7 @@ export const metadata: Metadata = buildMetadata(
 );
 
 // Mobile-first viewport: cover the safe area on iPhones (notch + home
-// indicator), prefer the dynamic small viewport on iOS (so dvh-based
+// indicator), prefer the dynamic small viewport on iOS (so vh-based
 // modals don't crop), and let the layout resize when the soft keyboard
 // opens — critical for Telegram Mini App + iOS Safari form UX.
 export const viewport: Viewport = {

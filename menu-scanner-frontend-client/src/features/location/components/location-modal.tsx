@@ -735,7 +735,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
-        className="p-0 overflow-hidden flex flex-col w-full sm:max-w-2xl lg:max-w-4xl max-h-[95dvh] rounded"
+        className="p-0 overflow-hidden flex flex-col w-full sm:max-w-2xl lg:max-w-4xl max-h-[95vh] rounded"
         onInteractOutside={(e) => { const t = e.target as HTMLElement; if (t.closest(".pac-container") || t.closest("gmp-placeautocomplete")) e.preventDefault(); }}
         onPointerDownOutside={(e) => { const t = e.target as HTMLElement; if (t.closest(".pac-container") || t.closest("gmp-placeautocomplete")) e.preventDefault(); }}
       >

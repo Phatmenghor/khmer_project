@@ -37,7 +37,7 @@ export function DetailModal({
 }: DetailModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full sm:max-w-6xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full sm:max-w-6xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
         {}
         <DialogHeader className="px-3 py-2 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center gap-2 pr-4">
