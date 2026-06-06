@@ -2,7 +2,7 @@
 
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { formatKhrRate } from "@/utils/format/exchange-rate-formatter";
+import { formatKhrRate, formatCnyRate, formatVndRate } from "@/utils/format/exchange-rate-formatter";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { ExchangeRateResponseModel } from "../store/models/response/exchange-rate-response";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,18 @@ function InfoRow({
     <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
       <span className="text-xs font-semibold text-muted-foreground">{label}</span>
       <span className="text-xs text-foreground break-words">{value || "-"}</span>
+    </div>
+  );
+}
+
+function RateCard({ label, value, flag }: { label: string; value: string; flag: string }) {
+  return (
+    <div className="flex flex-col gap-1 p-3 rounded bg-muted/30 border border-border/40">
+      <div className="flex items-center gap-1.5">
+        <span className="text-base leading-none">{flag}</span>
+        <span className="text-xs font-semibold text-muted-foreground">{label}</span>
+      </div>
+      <span className="text-xs font-bold text-foreground">{value}</span>
     </div>
   );
 }
@@ -79,10 +91,21 @@ export function ExchangeRateDetailModal({
           <div className="p-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
             {/* Left column */}
             <div className="lg:col-span-2 space-y-3">
+
+              {/* Currency Rates */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle>Currency Rates</SectionTitle>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <RateCard label="Cambodian Riel" value={formatKhrRate(exchangeRate.usdToKhrRate)} flag="🇰🇭" />
+                  <RateCard label="Chinese Yuan" value={formatCnyRate(exchangeRate.usdToCnyRate)} flag="🇨🇳" />
+                  <RateCard label="Vietnamese Dong" value={formatVndRate(exchangeRate.usdToVndRate)} flag="🇻🇳" />
+                </div>
+              </div>
+
+              {/* Exchange Rate Info */}
               <div className="rounded border border-border/50 bg-card p-3">
                 <SectionTitle>Exchange Rate Information</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-                  <InfoRow label="USD To KHR Rate" value={formatKhrRate(exchangeRate.usdToKhrRate)} />
                   <InfoRow
                     label="Status"
                     value={
@@ -91,6 +114,7 @@ export function ExchangeRateDetailModal({
                       </span>
                     }
                   />
+                  <InfoRow label="Business" value={exchangeRate.businessName || "-"} />
                   <div className="col-span-2 flex flex-col gap-0.5">
                     <span className="text-xs font-semibold text-muted-foreground">Notes</span>
                     <p className="text-xs text-foreground whitespace-pre-wrap break-words leading-relaxed">
