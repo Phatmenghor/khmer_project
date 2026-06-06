@@ -141,7 +141,7 @@ export function ComboboxSelectProvince({
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
       )}
-      <Popover open={open} onOpenChange={handleOpenChange} modal={true}>
+      <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"

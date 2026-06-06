@@ -104,7 +104,7 @@ export function ComboboxSelectLeaveType({
           {required && <span className="text-red-500 ml-1">*</span>}
         </Label>
       )}
-      <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"

@@ -172,7 +172,7 @@ function ComboboxSelectCategoriesPublicComponent({
           <Label className="text-xs font-medium text-foreground">{label}</Label>
         </div>
       )}
-      <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
