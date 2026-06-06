@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,7 +19,6 @@ import {
   X,
   SlidersHorizontal,
   Flame,
-  ListChecks,
   FilterX,
   DollarSign,
 } from "lucide-react";
@@ -29,11 +27,6 @@ import { usePublicCategoriesState } from "@/features/main/store/state/public-cat
 import { usePublicBrandsState } from "@/features/main/store/state/public-brands-state";
 import { ComboboxSelectBrandPublic } from "@/components/shared/combobox/combobox_select_brand_public";
 import { ComboboxSelectCategoriesPublic } from "@/components/shared/combobox/combobox_select_categories_public";
-
-const PRODUCT_STATUSES = [
-  { value: "ACTIVE", label: "Active" },
-  { value: "OUT_OF_STOCK", label: "Out of Stock" },
-];
 
 interface ProductFiltersProps {
   totalResults: number;
@@ -52,7 +45,6 @@ function ProductFiltersComponent({
 
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [selectedBrand, setSelectedBrand] = useState<any>(null);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [hasPromotion, setHasPromotion] = useState<boolean>(false);
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
@@ -61,9 +53,6 @@ function ProductFiltersComponent({
   useEffect(() => {
     setSelectedCategory(searchParams.get("categoryId") || "");
     setSelectedBrand(searchParams.get("brandId") || "");
-    setSelectedStatuses(
-      searchParams.get("status")?.split(",").filter(Boolean) || [],
-    );
     setHasPromotion(!!searchParams.get("hasPromotion"));
     setMinPrice(searchParams.get("minPrice") || "");
     setMaxPrice(searchParams.get("maxPrice") || "");
@@ -82,21 +71,6 @@ function ProductFiltersComponent({
       const params = new URLSearchParams(searchParams.toString());
       if (value) params.set(key, value);
       else params.delete(key);
-      pushParams(params);
-    },
-    [searchParams, pushParams],
-  );
-
-  const toggleStatus = useCallback(
-    (status: string) => {
-      const current =
-        searchParams.get("status")?.split(",").filter(Boolean) || [];
-      const next = current.includes(status)
-        ? current.filter((s) => s !== status)
-        : [...current, status];
-      const params = new URLSearchParams(searchParams.toString());
-      if (next.length > 0) params.set("status", next.join(","));
-      else params.delete("status");
       pushParams(params);
     },
     [searchParams, pushParams],
@@ -133,7 +107,6 @@ function ProductFiltersComponent({
   const activeFiltersCount =
     (selectedCategory ? 1 : 0) +
     (selectedBrand ? 1 : 0) +
-    selectedStatuses.length +
     (!lockedPromotion && hasPromotion ? 1 : 0) +
     (hasPriceFilter ? 1 : 0);
 
@@ -217,43 +190,6 @@ function ProductFiltersComponent({
       {}
       <div className="space-y-2">
         <div className="flex items-center gap-1">
-          <div className="flex items-center justify-center w-5 h-5 rounded bg-green-500/10">
-            <ListChecks className="h-2.5 w-2.5 text-green-600" />
-          </div>
-          <label className="text-xs font-semibold">Status</label>
-          {selectedStatuses.length > 0 && (
-            <Badge
-              variant="secondary"
-              className="rounded-full h-3 w-3 p-0 flex items-center justify-center text-[10px] font-bold ml-auto"
-            >
-              {selectedStatuses.length}
-            </Badge>
-          )}
-        </div>
-        <div className="space-y-1">
-          {PRODUCT_STATUSES.map((status) => (
-            <label
-              key={status.value}
-              className="flex items-center gap-2 cursor-pointer group"
-            >
-              <Checkbox
-                id={`status-${status.value}`}
-                checked={selectedStatuses.includes(status.value)}
-                onCheckedChange={() => toggleStatus(status.value)}
-              />
-              <span className="text-xs group-hover:text-primary transition-colors select-none">
-                {status.label}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <Separator />
-
-      {}
-      <div className="space-y-2">
-        <div className="flex items-center gap-1">
           <div className="flex items-center justify-center w-5 h-5 rounded bg-yellow-500/10">
             <DollarSign className="h-2.5 w-2.5 text-yellow-600" />
           </div>
@@ -281,14 +217,19 @@ function ProductFiltersComponent({
         <div className="flex gap-1">
           <Button
             size="sm"
-            className="flex-1"
+            className="flex-1 h-6 text-xs"
             onClick={applyPrice}
             disabled={!minPrice && !maxPrice}
           >
             Apply
           </Button>
           {hasPriceFilter && (
-            <Button size="sm" variant="outline" onClick={clearPrice}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-6 px-2"
+              onClick={clearPrice}
+            >
               <X className="h-2.5 w-2.5" />
             </Button>
           )}

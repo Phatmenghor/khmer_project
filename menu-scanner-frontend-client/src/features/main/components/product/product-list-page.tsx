@@ -68,8 +68,8 @@ export function ProductListPage({
   const search = searchParams.get("q");
   const categoryId = searchParams.get("categoryId");
   const brandId = searchParams.get("brandId");
-  const statusParam = searchParams.get("status");
-  const statuses = statusParam?.split(",").filter(Boolean) ?? [];
+  // Public pages always show ACTIVE products only — no status filter in UI.
+  const statuses = ["ACTIVE"];
   const sortBy = searchParams.get("sortBy");
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
@@ -142,7 +142,6 @@ export function ProductListPage({
       searchParams,
       categoryId,
       brandId,
-      statusParam,
       sortBy,
       minPrice,
       maxPrice,
