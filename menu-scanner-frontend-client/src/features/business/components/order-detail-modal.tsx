@@ -830,7 +830,7 @@ export function OrderDetailModal({
         </div>
 
         {/* ── Footer ── */}
-        <div className="flex-shrink-0 px-4 py-3 border-t bg-muted/20 flex items-center justify-between gap-2">
+        <div className="flex-shrink-0 px-4 py-3 border-t bg-muted/20 flex items-center justify-end gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -849,7 +849,7 @@ export function OrderDetailModal({
               className="gap-1.5 h-8"
             >
               <Edit className="h-3 w-3" />
-              Update Order
+              Update Status
             </Button>
           )}
         </div>
