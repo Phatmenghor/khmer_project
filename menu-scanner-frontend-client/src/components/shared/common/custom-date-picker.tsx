@@ -126,39 +126,32 @@ export function CustomDateTimePicker({
     }
 
     setSelectedDate(newDate);
-
-    if (mode === "date") {
-      onChange(formatDateForForm(newDate));
-      setIsOpen(false);
-    }
-  };
-
-
-  const handleTimeChange = () => {
-    if (!selectedDate) return;
-
-    const newDate = new Date(selectedDate);
-    let hours = parseInt(selectedHour);
-
-    if (selectedPeriod === "PM" && hours !== 12) {
-      hours += 12;
-    } else if (selectedPeriod === "AM" && hours === 12) {
-      hours = 0;
-    }
-
-    newDate.setHours(hours);
-    newDate.setMinutes(parseInt(selectedMinute));
-
-    setSelectedDate(newDate);
-    onChange(formatDateForForm(newDate));
   };
 
 
   const applyDateTime = () => {
-    if (selectedDate && mode === "datetime") {
-      handleTimeChange();
-      setIsOpen(false);
+    if (!selectedDate) return;
+
+    if (mode === "datetime") {
+      const newDate = new Date(selectedDate);
+      let hours = parseInt(selectedHour);
+
+      if (selectedPeriod === "PM" && hours !== 12) {
+        hours += 12;
+      } else if (selectedPeriod === "AM" && hours === 12) {
+        hours = 0;
+      }
+
+      newDate.setHours(hours);
+      newDate.setMinutes(parseInt(selectedMinute));
+
+      setSelectedDate(newDate);
+      onChange(formatDateForForm(newDate));
+    } else {
+      onChange(formatDateForForm(selectedDate));
     }
+
+    setIsOpen(false);
   };
 
 
@@ -468,17 +461,15 @@ export function CustomDateTimePicker({
             Now
           </Button>
 
-          {mode === "datetime" && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={applyDateTime}
-              disabled={!selectedDate}
-              className="flex-1 h-5 text-xs bg-primary hover:bg-primary/90"
-            >
-              Apply
-            </Button>
-          )}
+          <Button
+            variant="default"
+            size="sm"
+            onClick={applyDateTime}
+            disabled={!selectedDate}
+            className="flex-1 h-5 text-xs bg-primary hover:bg-primary/90"
+          >
+            Apply
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
