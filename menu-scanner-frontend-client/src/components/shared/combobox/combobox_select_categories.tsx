@@ -246,7 +246,7 @@ export function ComboboxSelectCategories({
           </Command>
         </PopoverContent>
       </Popover>
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      <p className="text-xs text-red-500 min-h-[16px]">{error || ""}</p>
     </div>
   );
 }

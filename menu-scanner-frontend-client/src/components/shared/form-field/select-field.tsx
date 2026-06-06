@@ -126,7 +126,7 @@ export function SelectField<T extends FieldValues = FieldValues>({
           );
         }}
       />
-      {error && <p className="text-xs text-red-600">{error?.message}</p>}
+      <p className="text-xs text-red-600 min-h-[16px]">{error?.message || ""}</p>
     </div>
   );
 }
