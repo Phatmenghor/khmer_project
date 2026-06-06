@@ -159,23 +159,11 @@ export function ProductDetailModal({
                 </span>
               )}
             </div>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {productData.businessName && (
-                <span className="text-xs text-muted-foreground">
-                  {productData.businessName}
-                </span>
-              )}
-              {productData.categoryName && (
-                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                  {productData.categoryName}
-                </span>
-              )}
-              {productData.brandName && (
-                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                  {productData.brandName}
-                </span>
-              )}
-            </div>
+            {productData.businessName && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {productData.businessName}
+              </p>
+            )}
           </div>
         </div>
 
