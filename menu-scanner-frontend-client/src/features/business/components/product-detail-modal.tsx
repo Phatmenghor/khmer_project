@@ -277,7 +277,7 @@ export function ProductDetailModal({
                     <SectionTitle>
                       Sizes ({productData.sizes.length})
                     </SectionTitle>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 gap-2">
                       {productData.sizes.map((size) => {
                         const sizePromoLabel = size.hasPromotion
                           ? size.promotionType === "PERCENTAGE"
@@ -294,23 +294,11 @@ export function ProductDetailModal({
                               <span className="text-xs font-bold text-foreground">
                                 {size.name}
                               </span>
-                              <div className="flex items-center gap-1">
-                                {sizePromoLabel && (
-                                  <span className="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold leading-none">
-                                    {sizePromoLabel}
-                                  </span>
-                                )}
-                                <span
-                                  className={cn(
-                                    "px-1.5 py-0.5 rounded text-xs font-semibold leading-none",
-                                    size.hasPromotion
-                                      ? "bg-red-50 text-red-600"
-                                      : "bg-muted text-muted-foreground"
-                                  )}
-                                >
-                                  {size.hasPromotion ? "On Promo" : "Regular"}
+                              {sizePromoLabel && (
+                                <span className="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold leading-none">
+                                  {sizePromoLabel}
                                 </span>
-                              </div>
+                              )}
                             </div>
 
                             {/* Pricing row */}
@@ -367,31 +355,6 @@ export function ProductDetailModal({
                   </div>
                 )}
 
-              {/* Customizations */}
-              {productData.customizations &&
-                productData.customizations.length > 0 && (
-                  <div className="rounded border border-border/50 bg-card p-3">
-                    <SectionTitle>
-                      Customizations ({productData.customizations.length})
-                    </SectionTitle>
-                    <div className="flex flex-wrap gap-1.5">
-                      {productData.customizations.map((c) => (
-                        <div
-                          key={c.id}
-                          className="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded text-xs"
-                        >
-                          <span className="font-medium">{c.name}</span>
-                          {(c.priceAdjustment ?? 0) > 0 && (
-                            <span className="font-bold">
-                              +{formatCurrency(c.priceAdjustment)}
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
               {/* Images */}
               {productData.images && productData.images.length > 0 && (
                 <div className="rounded border border-border/50 bg-card p-3">
@@ -439,6 +402,31 @@ export function ProductDetailModal({
                   </div>
                 </div>
               </div>
+
+              {/* Customizations */}
+              {productData.customizations &&
+                productData.customizations.length > 0 && (
+                  <div className="rounded border border-border/50 bg-card p-3">
+                    <SectionTitle>
+                      Customizations ({productData.customizations.length})
+                    </SectionTitle>
+                    <div className="space-y-1">
+                      {productData.customizations.map((c) => (
+                        <div
+                          key={c.id}
+                          className="flex items-center justify-between px-2 py-1.5 bg-blue-50 border border-blue-100 rounded text-xs"
+                        >
+                          <span className="font-medium text-blue-700">{c.name}</span>
+                          {(c.priceAdjustment ?? 0) > 0 && (
+                            <span className="font-bold text-blue-700">
+                              +{formatCurrency(c.priceAdjustment)}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
               {/* Stock */}
               <div className="rounded border border-border/50 bg-card p-3">
