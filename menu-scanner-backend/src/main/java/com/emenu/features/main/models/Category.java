@@ -36,7 +36,6 @@ public class Category extends BaseUUIDEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
