@@ -55,7 +55,7 @@ const STEP_ORDER: Record<string, number> = {
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <div className="mb-2.5">
-      <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+      <h3 className="text-xs font-bold text-foreground">
         {children}
       </h3>
     </div>
@@ -73,7 +73,7 @@ function InfoRow({
 }) {
   return (
     <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
-      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+      <span className="text-xs font-semibold text-muted-foreground">
         {label}
       </span>
       <span className="text-xs text-foreground">{value ?? "---"}</span>
@@ -549,7 +549,7 @@ export function CustomerOrderDetailModal({
                 <SectionTitle>Customer</SectionTitle>
                 <div className="space-y-2">
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                    <p className="text-xs font-semibold text-muted-foreground mb-0.5">
                       Name
                     </p>
                     <p className="text-xs font-semibold text-foreground">
@@ -558,7 +558,7 @@ export function CustomerOrderDetailModal({
                   </div>
                   {order.customerPhone && (
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                      <p className="text-xs font-semibold text-muted-foreground mb-0.5">
                         Phone
                       </p>
                       <p className="text-xs font-semibold text-foreground">
@@ -634,7 +634,7 @@ export function CustomerOrderDetailModal({
                   )}
                   {order.deliveryAddress.note && (
                     <div className="mt-2 pt-2 border-t border-border/40">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                      <p className="text-xs font-semibold text-muted-foreground mb-0.5">
                         Delivery Note
                       </p>
                       <p className="text-xs text-foreground">
