@@ -305,41 +305,37 @@ export default function PortfolioPage() {
               subtitle="Logo and cover image shown on your public page"
             />
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Controller
-                name="logoUrl"
-                control={form.control}
-                render={({ field }) => (
-                  <ClickableImageUpload
-                    label="Business Logo"
-                    value={field.value || ""}
-                    onChange={(v) => { field.onChange(v); showToast.success("Logo selected"); }}
-                    aspectRatio="square"
-                    height="h-40"
-                    placeholder="Click to upload logo"
-                    helperText="Square image recommended (PNG, JPG)"
-                    maxSize={5}
-                  />
-                )}
-              />
-              <Controller
-                name="coverImageUrl"
-                control={form.control}
-                render={({ field }) => (
-                  <ClickableImageUpload
-                    label="Cover Image"
-                    value={field.value || ""}
-                    onChange={(v) => { field.onChange(v); showToast.success("Cover image selected"); }}
-                    aspectRatio="video"
-                    height="h-40"
-                    placeholder="Click to upload cover"
-                    helperText="Wide banner image recommended (PNG, JPG)"
-                    maxSize={5}
-                  />
-                )}
-              />
-            </div>
+          <CardContent className="space-y-5">
+            <Controller
+              name="logoUrl"
+              control={form.control}
+              render={({ field }) => (
+                <ClickableImageUpload
+                  label="Business Logo"
+                  value={field.value || ""}
+                  onChange={(v) => { field.onChange(v); showToast.success("Logo selected"); }}
+                  aspectRatio="square"
+                  placeholder="Click to upload logo"
+                  helperText="Square (1:1) image recommended — PNG with transparent background"
+                  maxSize={5}
+                />
+              )}
+            />
+            <Controller
+              name="coverImageUrl"
+              control={form.control}
+              render={({ field }) => (
+                <ClickableImageUpload
+                  label="Cover Image"
+                  value={field.value || ""}
+                  onChange={(v) => { field.onChange(v); showToast.success("Cover image selected"); }}
+                  aspectRatio="square"
+                  placeholder="Click to upload cover"
+                  helperText="Square (1:1) image recommended — PNG, JPG"
+                  maxSize={5}
+                />
+              )}
+            />
           </CardContent>
         </Card>
 
@@ -743,9 +739,18 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             {galleryFields.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-4">
                 {galleryFields.map((field, index) => (
-                  <div key={field.id} className="border rounded-md p-3 space-y-3 hover:shadow-sm transition-shadow">
+                  <div key={field.id} className="border rounded-md p-4 space-y-3 hover:shadow-sm transition-shadow relative">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 z-10 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => removeGallery(index)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                     <Controller
                       name={`gallery.${index}.url`}
                       control={form.control}
@@ -754,32 +759,19 @@ export default function PortfolioPage() {
                           label={`Image ${index + 1}`}
                           value={f.value}
                           onChange={f.onChange}
-                          height="h-40"
-                          aspectRatio="landscape"
+                          aspectRatio="square"
                           placeholder="Click to upload"
+                          helperText="Square (1:1) image recommended — PNG, JPG"
                           maxSize={5}
                         />
                       )}
                     />
-                    <div className="flex gap-2 items-start">
-                      <div className="flex-1">
-                        <TextField<PortfolioFormData>
-                          control={form.control}
-                          name={`gallery.${index}.title`}
-                          label="Caption (optional)"
-                          placeholder="e.g., Store Entrance"
-                        />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="mt-6 text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0"
-                        onClick={() => removeGallery(index)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                    <TextField<PortfolioFormData>
+                      control={form.control}
+                      name={`gallery.${index}.title`}
+                      label="Caption (optional)"
+                      placeholder="e.g., Store Entrance"
+                    />
                   </div>
                 ))}
               </div>
@@ -879,7 +871,7 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             {teamFields.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 {teamFields.map((field, index) => (
                   <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
                     <Button
@@ -892,24 +884,21 @@ export default function PortfolioPage() {
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                     <div className="space-y-4 pr-10">
-                      <div className="w-32">
-                        <Controller
-                          name={`team.${index}.photoUrl`}
-                          control={form.control}
-                          render={({ field: f }) => (
-                            <ClickableImageUpload
-                              label="Photo"
-                              value={f.value || ""}
-                              onChange={f.onChange}
-                              aspectRatio="square"
-                              height="h-32"
-                              placeholder="Upload"
-                              maxSize={5}
-                              showPreviewText={false}
-                            />
-                          )}
-                        />
-                      </div>
+                      <Controller
+                        name={`team.${index}.photoUrl`}
+                        control={form.control}
+                        render={({ field: f }) => (
+                          <ClickableImageUpload
+                            label="Photo"
+                            value={f.value || ""}
+                            onChange={f.onChange}
+                            aspectRatio="square"
+                            placeholder="Click to upload photo"
+                            helperText="Square (1:1) image recommended — PNG, JPG"
+                            maxSize={5}
+                          />
+                        )}
+                      />
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <TextField<PortfolioFormData>
