@@ -791,40 +791,6 @@ export function OrderDetailModal({
                 </div>
               )}
 
-              {/* System Info */}
-              <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle>
-                  System Info
-                </SectionTitle>
-                <div className="space-y-1.5">
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
-                      Order ID
-                    </p>
-                    <p className="text-xs font-mono text-foreground break-all">
-                      {orderData.id}
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <InfoRow
-                      label="Created By"
-                      value={orderData.createdBy || "---"}
-                    />
-                    <InfoRow
-                      label="Updated By"
-                      value={orderData.updatedBy || "---"}
-                    />
-                    <InfoRow
-                      label="Created At"
-                      value={dateTimeFormat(orderData.createdAt)}
-                    />
-                    <InfoRow
-                      label="Updated At"
-                      value={dateTimeFormat(orderData.updatedAt)}
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
