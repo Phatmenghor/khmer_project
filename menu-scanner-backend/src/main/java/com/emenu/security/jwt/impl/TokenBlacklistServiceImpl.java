@@ -4,6 +4,8 @@ import com.emenu.features.auth.models.BlacklistedToken;
 import com.emenu.features.auth.repository.BlacklistedTokenRepository;
 import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.security.jwt.TokenBlacklistService;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -21,10 +24,19 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
     private final BlacklistedTokenRepository blacklistedTokenRepository;
     private final JWTGenerator jwtGenerator;
 
+    // Local write-through cache: avoids a DB round-trip on every authenticated request.
+    // Only stores confirmed-blacklisted (true) entries; non-blacklisted tokens are not cached
+    // here, so a subsequent blacklistToken() call is always visible immediately.
+    private final Cache<String, Boolean> blacklistCache = Caffeine.newBuilder()
+            .maximumSize(10_000)
+            .expireAfterWrite(30, TimeUnit.MINUTES)
+            .build();
+
     @Override
     public void blacklistToken(String token, String userIdentifier, String reason) {
-        if (blacklistedTokenRepository.existsByToken(token)) {
-            log.warn("Token already blacklisted: {}", userIdentifier);
+        if (Boolean.TRUE.equals(blacklistCache.getIfPresent(token))
+                || blacklistedTokenRepository.existsByToken(token)) {
+            log.warn("Token already blacklisted for user: {}", userIdentifier);
             return;
         }
 
@@ -40,10 +52,11 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
             );
 
             blacklistedTokenRepository.save(blacklistedToken);
-            log.info("Token blacklisted: {} - Reason: {}", userIdentifier, reason);
+            blacklistCache.put(token, Boolean.TRUE);
+            log.info("Token blacklisted for user: {} - Reason: {}", userIdentifier, reason);
 
         } catch (Exception e) {
-            log.error("Failed to blacklist token: {}", e.getMessage());
+            log.error("Failed to blacklist token for user {}: {}", userIdentifier, e.getMessage());
         }
     }
 
@@ -59,7 +72,14 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
 
     @Override
     public boolean isTokenBlacklisted(String token) {
-        return blacklistedTokenRepository.existsByToken(token);
+        if (Boolean.TRUE.equals(blacklistCache.getIfPresent(token))) {
+            return true;
+        }
+        boolean blacklisted = blacklistedTokenRepository.existsByToken(token);
+        if (blacklisted) {
+            blacklistCache.put(token, Boolean.TRUE);
+        }
+        return blacklisted;
     }
 
     @Override

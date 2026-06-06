@@ -24,17 +24,21 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
     public void notifyNewOrder(Order order) {
         if (order.getBusinessId() == null) return;
         String businessId = order.getBusinessId().toString();
-        WebSocketEvent event = WebSocketEvent.builder()
-                .type("NEW_ORDER")
-                .businessId(businessId)
-                .payload(Map.of(
-                        "orderId", order.getId().toString(),
-                        "orderNumber", order.getOrderNumber(),
-                        "status", order.getOrderStatus().name()
-                ))
-                .build();
-        messagingTemplate.convertAndSend("/topic/" + businessId + "/orders", event);
-        log.info("[WS] NEW_ORDER sent for business {}", businessId);
+        try {
+            WebSocketEvent event = WebSocketEvent.builder()
+                    .type("NEW_ORDER")
+                    .businessId(businessId)
+                    .payload(Map.of(
+                            "orderId", order.getId().toString(),
+                            "orderNumber", order.getOrderNumber(),
+                            "status", order.getOrderStatus().name()
+                    ))
+                    .build();
+            messagingTemplate.convertAndSend("/topic/" + businessId + "/orders", event);
+            log.info("[WS] NEW_ORDER sent for business {}", businessId);
+        } catch (Exception e) {
+            log.error("[WS] Failed to send NEW_ORDER notification for business {}: {}", businessId, e.getMessage());
+        }
     }
 
     @Override
@@ -42,17 +46,21 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
     public void notifyOrderStatusChanged(Order order) {
         if (order.getBusinessId() == null) return;
         String businessId = order.getBusinessId().toString();
-        WebSocketEvent event = WebSocketEvent.builder()
-                .type("ORDER_STATUS_CHANGED")
-                .businessId(businessId)
-                .payload(Map.of(
-                        "orderId", order.getId().toString(),
-                        "orderNumber", order.getOrderNumber(),
-                        "status", order.getOrderStatus().name()
-                ))
-                .build();
-        messagingTemplate.convertAndSend("/topic/" + businessId + "/orders", event);
-        log.info("[WS] ORDER_STATUS_CHANGED sent for business {}", businessId);
+        try {
+            WebSocketEvent event = WebSocketEvent.builder()
+                    .type("ORDER_STATUS_CHANGED")
+                    .businessId(businessId)
+                    .payload(Map.of(
+                            "orderId", order.getId().toString(),
+                            "orderNumber", order.getOrderNumber(),
+                            "status", order.getOrderStatus().name()
+                    ))
+                    .build();
+            messagingTemplate.convertAndSend("/topic/" + businessId + "/orders", event);
+            log.info("[WS] ORDER_STATUS_CHANGED sent for business {}", businessId);
+        } catch (Exception e) {
+            log.error("[WS] Failed to send ORDER_STATUS_CHANGED notification for business {}: {}", businessId, e.getMessage());
+        }
     }
 
     @Override
@@ -60,19 +68,22 @@ public class WebSocketNotificationServiceImpl implements WebSocketNotificationSe
     public void notifyStockUpdated(UUID businessId, UUID productId) {
         if (businessId == null) return;
         String bid = businessId.toString();
-        WebSocketEvent event = WebSocketEvent.builder()
-                .type("STOCK_UPDATED")
-                .businessId(bid)
-                .payload(Map.of("productId", productId.toString()))
-                .build();
-        messagingTemplate.convertAndSend("/topic/" + bid + "/stock", event);
-        log.info("[WS] STOCK_UPDATED sent for business {}", bid);
+        try {
+            WebSocketEvent event = WebSocketEvent.builder()
+                    .type("STOCK_UPDATED")
+                    .businessId(bid)
+                    .payload(Map.of("productId", productId.toString()))
+                    .build();
+            messagingTemplate.convertAndSend("/topic/" + bid + "/stock", event);
+            log.info("[WS] STOCK_UPDATED sent for business {}", bid);
+        } catch (Exception e) {
+            log.error("[WS] Failed to send STOCK_UPDATED notification for business {}: {}", bid, e.getMessage());
+        }
     }
 
     @Override
     @Async("taskExecutor")
     public void notifyPlatformEvent(String type, Map<String, Object> payload) {
-        // Platform events disabled - frontend no longer uses WebSocket real-time except Dashboard
-        // All platform event broadcasting has been removed (BUSINESS_OWNER_CHANGED, USER_CHANGED, etc)
+        // Platform events disabled — frontend no longer uses WebSocket real-time except Dashboard
     }
 }

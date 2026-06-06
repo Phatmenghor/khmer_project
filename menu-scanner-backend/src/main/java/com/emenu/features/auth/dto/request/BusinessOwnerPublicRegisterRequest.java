@@ -2,6 +2,7 @@ package com.emenu.features.auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class BusinessOwnerPublicRegisterRequest {
     private String ownerEmail;
 
     @NotBlank(message = "Owner password is required")
+    @Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters")
     private String ownerPassword;
 
     @NotBlank(message = "Owner full name is required")

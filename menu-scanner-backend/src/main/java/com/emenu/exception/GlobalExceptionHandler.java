@@ -482,11 +482,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<ApiResponse<Object>> handleSQLException(
             SQLException ex, HttpServletRequest request) {
-        log.error("SQL error in request to {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+        log.error("SQL error in request to {} [sqlState={}]: {}", request.getRequestURI(), ex.getSQLState(), ex.getMessage(), ex);
 
         ApiResponse<Object> response = buildErrorResponse("Database query failed. Please try again.",
             ErrorCodes.DATABASE_ERROR, request);
-        response.setData(Map.of("sqlState", ex.getSQLState()));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
