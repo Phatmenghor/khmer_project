@@ -1,16 +1,41 @@
 "use client";
 
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { formatEnumValue } from "@/utils/format/enum-formatter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { DisplayField } from "@/components/shared/form-field/display-field";
+import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { PaymentOptionResponse } from "../store/models/response/payment-option-response";
+import { cn } from "@/lib/utils";
+import { CreditCard } from "lucide-react";
 
 interface PaymentOptionDetailModalProps {
   paymentOption: PaymentOptionResponse | null;
   isOpen: boolean;
   onClose: () => void;
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-2.5">
+      <h3 className="text-xs font-bold text-foreground">{children}</h3>
+    </div>
+  );
+}
+
+function InfoRow({
+  label,
+  value,
+  fullWidth,
+}: {
+  label: string;
+  value: React.ReactNode;
+  fullWidth?: boolean;
+}) {
+  return (
+    <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
+      <span className="text-xs font-semibold text-muted-foreground">{label}</span>
+      <span className="text-xs text-foreground break-words">{value || "-"}</span>
+    </div>
+  );
 }
 
 export function PaymentOptionDetailModal({
@@ -22,7 +47,7 @@ export function PaymentOptionDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogTitle className="sr-only">Payment Option Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">No payment option data available</p>
           </div>
@@ -31,71 +56,67 @@ export function PaymentOptionDetailModal({
     );
   }
 
+  const isActive = paymentOption.status === "ACTIVE";
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTitle className="sr-only">Payment Option Details - {paymentOption.name}</DialogTitle>
-      <DialogContent className="w-full sm:max-w-xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {}
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+      <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
+          <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50">
+            {paymentOption.imageUrl ? (
+              <img
+                src={paymentOption.imageUrl}
+                alt={paymentOption.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <CreditCard className="h-5 w-5 text-muted-foreground" />
+              </div>
+            )}
+          </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-xs font-semibold text-foreground">
-              Payment Option Details
-            </h2>
-            <p className="text-xs text-foreground mt-1">
-              {paymentOption.name}
-            </p>
+            <p className="text-sm font-bold text-foreground truncate">{paymentOption.name}</p>
           </div>
         </div>
 
-        {}
+        {/* Body */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-2.5 space-y-2">
-            {}
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment Option Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="w-full md:w-1/2 space-y-3">
-                    <DisplayField label="Payment Method Name" value={paymentOption.name || "-"} />
-                    <DisplayField
-                      label="Type"
-                      value={formatEnumValue(paymentOption.paymentOptionType) || "-"}
-                    />
-                    <DisplayField
-                      label="Status"
-                      value={formatEnumValue(paymentOption.status) || "-"}
-                    />
-                  </div>
-                  {paymentOption.imageUrl && (
-                    <div className="w-full md:w-1/2">
-                      <p className="text-xs font-medium text-foreground mb-2">QR Code / Payment Method Image</p>
-                      <div className="h-28 w-28 rounded overflow-hidden bg-muted border border-border flex-shrink-0">
-                        <img
-                          src={paymentOption.imageUrl}
-                          alt={paymentOption.name}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  )}
+          <div className="p-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
+            {/* Left column */}
+            <div className="lg:col-span-2 space-y-3">
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle>Payment Option Information</SectionTitle>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                  <InfoRow label="Payment Method Name" value={paymentOption.name} />
+                  <InfoRow
+                    label="Status"
+                    value={
+                      <span className={cn("font-semibold", isActive ? "text-green-700" : "text-gray-500")}>
+                        {paymentOption.status ? formatEnumValue(paymentOption.status) : "-"}
+                      </span>
+                    }
+                  />
+                  <InfoRow
+                    label="Type"
+                    value={paymentOption.paymentOptionType ? formatEnumValue(paymentOption.paymentOptionType) : "-"}
+                  />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {}
-            <Card>
-              <CardHeader>
-                <CardTitle>System Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Created At" value={dateTimeFormat(paymentOption.createdAt ?? "")} />
-                  <DisplayField label="Last Updated" value={dateTimeFormat(paymentOption.updatedAt ?? "")} />
+            {/* Right sidebar */}
+            <div className="space-y-3">
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle>System Info</SectionTitle>
+                <div className="space-y-2.5">
+                  <InfoRow label="Created At" value={dateTimeFormat(paymentOption.createdAt ?? "")} />
+                  <InfoRow label="Last Updated" value={dateTimeFormat(paymentOption.updatedAt ?? "")} />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </DialogContent>
