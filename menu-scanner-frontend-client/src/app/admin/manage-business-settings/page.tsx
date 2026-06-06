@@ -2,28 +2,33 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useState, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { showToast } from "@/components/shared/common/show-toast";
-import { Loader2, Save, Plus, Trash2, Eye, EyeOff, Send } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Loader2,
+  Save,
+  Plus,
+  Trash2,
+  Send,
+  Building2,
+  Image as ImageIcon,
+  Phone,
+  Palette,
+  Clock,
+  Share2,
+} from "lucide-react";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { type SocialMedia } from "@/features/business/store/services/business-settings-service";
 import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
+import { TextField } from "@/components/shared/form-field/text-field";
+import { TextareaField } from "@/components/shared/form-field/text-area-field";
+import { SelectField } from "@/components/shared/form-field/select-field";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -49,14 +54,12 @@ function convertResponseToFormData(
   response: BusinessSettingsResponse,
 ): BusinessSettingsFormData {
   return {
-    businessName:
-      response.businessName || "",
+    businessName: response.businessName || "",
     taxPercentage: response.taxPercentage?.toString() || "",
     logoBusinessUrl: response.logoBusinessUrl || "",
     enableStock: response.enableStock || "DISABLED",
     socialMedia: response.socialMedia || [],
-    primaryColor:
-      response.primaryColor || "",
+    primaryColor: response.primaryColor || "",
     contactAddress: response.contactAddress || "",
     contactPhone: response.contactPhone || "",
     contactEmail: response.contactEmail || "",
@@ -71,6 +74,40 @@ function convertResponseToFormData(
       BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
     telegramGroupChatId: response.telegramGroupChatId ?? "",
   };
+}
+
+// Shared section card title — unified style across the page (mirrors portfolio)
+function SectionTitle({
+  icon: Icon,
+  title,
+  subtitle,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 min-w-0">
+      <div className="shrink-0 p-1.5 rounded-md bg-primary/10 text-primary">
+        <Icon className="w-4 h-4" />
+      </div>
+      <div className="min-w-0">
+        <CardTitle className="text-sm font-semibold leading-tight">{title}</CardTitle>
+        {subtitle && (
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ message, hint }: { message: string; hint?: string }) {
+  return (
+    <div className="text-center py-6 border-2 border-dashed rounded-md bg-muted/20">
+      <p className="text-sm text-muted-foreground">{message}</p>
+      {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
+    </div>
+  );
 }
 
 export default function BusinessSettingsPage() {
@@ -102,12 +139,10 @@ export default function BusinessSettingsPage() {
 
   const { isDirty, dirtyFields } = form.formState;
 
-  // Load on mount
   useEffect(() => {
     fetchBusinessSettings();
   }, []);
 
-  // Update form when Redux settings change
   useEffect(() => {
     if (!reduxBusinessSettings) return;
     const formData = convertResponseToFormData(reduxBusinessSettings);
@@ -161,9 +196,7 @@ export default function BusinessSettingsPage() {
 
   const handleLogoSelect = useCallback(
     (imageData: string) => {
-      form.setValue("logoBusinessUrl", imageData, {
-        shouldDirty: true,
-      });
+      form.setValue("logoBusinessUrl", imageData, { shouldDirty: true });
       showToast.success(Messages.business.logoSelected);
     },
     [form],
@@ -196,15 +229,10 @@ export default function BusinessSettingsPage() {
               throw error;
             }
           }
-          return {
-            ...social,
-            imageUrl,
-          };
+          return { ...social, imageUrl };
         }),
       );
 
-      // Filter out empty business hours entries and reshape to the
-      // backend-required shape (required string fields, not optional).
       const filteredBusinessHours = (data.businessHours || [])
         .filter((bh) => bh.day && bh.openingTime && bh.closingTime)
         .map((bh) => ({
@@ -213,7 +241,6 @@ export default function BusinessSettingsPage() {
           closingTime: bh.closingTime as string,
         }));
 
-      // Filter out empty social media entries and reshape similarly.
       const filteredSocialMedia: SocialMedia[] = uploadedSocialMedia
         .filter((sm) => Boolean(sm.name) && Boolean(sm.linkUrl))
         .map((sm) => ({
@@ -278,18 +305,25 @@ export default function BusinessSettingsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
     );
   }
 
-  // Debug: Log form state
   const formErrors = form.formState.errors;
   const hasErrors = Object.keys(formErrors).length > 0;
+  const businessHours = form.watch("businessHours") || [];
+  const socialMedia = form.watch("socialMedia") || [];
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-3 py-4">
-      <h1 className="text-xs font-bold">Business Settings</h1>
+    <div className="flex flex-1 flex-col gap-5 px-4 py-5">
+      {/* Page header */}
+      <div className="space-y-1">
+        <h1 className="text-xl font-bold tracking-tight">Business Settings</h1>
+        <p className="text-sm text-muted-foreground">
+          Configure your business profile, branding, hours, and integrations
+        </p>
+      </div>
 
       {hasErrors && (
         <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
@@ -310,9 +344,7 @@ export default function BusinessSettingsPage() {
 
       <form
         onSubmit={form.handleSubmit(
-          (data) => {
-            return onSubmit(data);
-          },
+          (data) => onSubmit(data),
           (errors) => {
             const errorCount = Object.keys(errors).length;
             if (errorCount > 0) {
@@ -325,293 +357,186 @@ export default function BusinessSettingsPage() {
             }
           },
         )}
-        className="space-y-4"
+        className="space-y-5"
       >
-        {}
+        {/* Basic Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
+            <SectionTitle
+              icon={Building2}
+              title="Basic Information"
+              subtitle="The core identity of your business"
+            />
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {}
-              <div className="space-y-1">
-                <Label htmlFor="businessName">Business Name</Label>
-                <Input
-                  id="businessName"
-                  placeholder="Your business name"
-                  {...form.register("businessName")}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Business name displayed to customers
-                </p>
-              </div>
-
-              {}
-              <div className="space-y-1">
-                <Label htmlFor="taxPercentage">Tax Percentage</Label>
-                <div className="relative">
-                  <Input
-                    id="taxPercentage"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    placeholder="0.00"
-                    className="pr-5"
-                    {...form.register("taxPercentage")}
-                  />
-                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
-                    %
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Tax rate applied to all transactions (0-100%)
-                </p>
-              </div>
-
-              {}
-              <div className="space-y-1">
-                <Label htmlFor="enableStock">Stock Management</Label>
-                <Select
-                  value={form.watch("enableStock")}
-                  onValueChange={(value) =>
-                    form.setValue(
-                      "enableStock",
-                      value as "ENABLED" | "DISABLED",
-                      { shouldDirty: true },
-                    )
-                  }
-                >
-                  <SelectTrigger id="enableStock" className="h-7">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ENABLED">
-                      <span className="flex items-center gap-1">
-                        <span className="h-1 w-1 rounded-full bg-green-500" />
-                        Enabled
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="DISABLED">
-                      <span className="flex items-center gap-1">
-                        <span className="h-1 w-1 rounded-full bg-red-500" />
-                        Disabled
-                      </span>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Enable or disable stock management system
-                </p>
-              </div>
-
-              {}
-              <div className="space-y-1">
-                <Label htmlFor="lowStockThreshold">Low Stock Threshold</Label>
-                <Input
-                  id="lowStockThreshold"
-                  type="number"
-                  min="1"
-                  step="1"
-                  className="h-7"
-                  placeholder={String(
-                    BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD,
-                  )}
-                  disabled={
-                    isSaving || form.watch("enableStock") === "DISABLED"
-                  }
-                  value={
-                    form.watch("lowStockThreshold") ??
-                    BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD
-                  }
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    form.setValue(
-                      "lowStockThreshold",
-                      isNaN(val) || val < 1
-                        ? BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD
-                        : val,
-                      { shouldDirty: true },
-                    );
-                  }}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Items with stock below this number are flagged as low stock
-                  (default: {BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD})
-                </p>
-                {form.formState.errors.lowStockThreshold && (
-                  <p className="text-xs text-red-500">
-                    {form.formState.errors.lowStockThreshold.message}
-                  </p>
-                )}
-              </div>
+              <TextField<BusinessSettingsFormData>
+                control={form.control}
+                name="businessName"
+                label="Business Name"
+                placeholder="Your business name"
+              />
+              <TextField<BusinessSettingsFormData>
+                control={form.control}
+                name="taxPercentage"
+                label="Tax Percentage"
+                type="number"
+                min={0}
+                max={100}
+                step={0.01}
+                placeholder="0.00"
+              />
+              <SelectField<BusinessSettingsFormData>
+                control={form.control}
+                name="enableStock"
+                label="Stock Management"
+                options={[
+                  { label: "Enabled", value: "ENABLED" },
+                  { label: "Disabled", value: "DISABLED" },
+                ]}
+              />
+              <TextField<BusinessSettingsFormData>
+                control={form.control}
+                name="lowStockThreshold"
+                label="Low Stock Threshold"
+                type="number"
+                min={1}
+                step={1}
+                valueAsNumber
+                disabled={isSaving || form.watch("enableStock") === "DISABLED"}
+                placeholder={String(BUSINESS_SETTINGS_DEFAULTS.LOW_STOCK_THRESHOLD)}
+                error={form.formState.errors.lowStockThreshold}
+              />
             </div>
+          </CardContent>
+        </Card>
 
-            {}
+        {/* Branding Image */}
+        <Card>
+          <CardHeader>
+            <SectionTitle
+              icon={ImageIcon}
+              title="Branding Image"
+              subtitle="Logo shown across your storefront"
+            />
+          </CardHeader>
+          <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <ClickableImageUpload
-                  label="Business Logo"
-                  value={form.watch("logoBusinessUrl")}
-                  onChange={handleLogoSelect}
-                  disabled={isSaving}
-                  aspectRatio="square"
-                  height="h-32"
-                  placeholder="Click to upload logo"
-                  helperText="Upload a square image (PNG, JPG, etc.)"
-                  maxSize={5}
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Logo will be uploaded when you click Save Changes
-                </p>
-              </div>
-              {}
+              <ClickableImageUpload
+                label="Business Logo"
+                value={form.watch("logoBusinessUrl")}
+                onChange={handleLogoSelect}
+                disabled={isSaving}
+                aspectRatio="square"
+                placeholder="Click to upload logo"
+                helperText="Square (1:1) image recommended — PNG, JPG"
+                maxSize={5}
+              />
               <div />
             </div>
-
-            {}
-            <div className="border-t pt-4">
-              <h4 className="text-xs font-semibold mb-3">
-                Contact Information
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {}
-                <div className="space-y-1 md:col-span-2">
-                  <Label htmlFor="contactAddress">Contact Address</Label>
-                  <textarea
-                    id="contactAddress"
-                    placeholder="123 Street Name, Phnom Penh, Cambodia"
-                    rows={3}
-                    className="w-full px-2 py-1 rounded border border-input bg-background text-foreground placeholder:text-muted-foreground resize-none"
-                    {...form.register("contactAddress")}
-                  />
-                </div>
-
-                {}
-                <div className="space-y-1">
-                  <Label htmlFor="contactPhone">Contact Phone</Label>
-                  <Input
-                    id="contactPhone"
-                    placeholder="+855 12 345 678"
-                    {...form.register("contactPhone")}
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <Label htmlFor="contactEmail">Contact Email</Label>
-                  <Input
-                    id="contactEmail"
-                    type="email"
-                    placeholder="support@example.com"
-                    {...form.register("contactEmail")}
-                  />
-                </div>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
-        {}
+        {/* Contact Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Brand & Features</CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">
-              Customize your brand and configure storefront features
-            </p>
+            <SectionTitle
+              icon={Phone}
+              title="Contact Information"
+              subtitle="How customers can reach you"
+            />
           </CardHeader>
           <CardContent className="space-y-4">
+            <TextareaField<BusinessSettingsFormData>
+              control={form.control}
+              name="contactAddress"
+              label="Contact Address"
+              placeholder="123 Street Name, Phnom Penh, Cambodia"
+              rows={3}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {}
-              <div className="space-y-1">
-                <Label>Primary Color</Label>
-                <input type="hidden" {...form.register("primaryColor")} />
-                <div className="flex gap-2">
-                  <input
-                    type="color"
-                    value={
-                      form.watch("primaryColor") || ""
-                    }
-                    onChange={(e) =>
-                      form.setValue("primaryColor", e.target.value, {
-                        shouldDirty: true,
-                      })
-                    }
-                    disabled={isSaving}
-                    className="w-14 h-7 cursor-pointer rounded border border-input"
-                  />
-                  <input
-                    placeholder=""
-                    value={
-                      form.watch("primaryColor") || ""
-                    }
-                    onChange={(e) =>
-                      form.setValue("primaryColor", e.target.value, {
-                        shouldDirty: true,
-                      })
-                    }
-                    disabled={isSaving}
-                    className={`flex-1 px-2 py-1 border rounded ${form.formState.errors.primaryColor ? "border-red-500" : "border-input"}`}
-                  />
-                </div>
-                {form.formState.errors.primaryColor && (
-                  <p className="text-xs text-red-500">
-                    {form.formState.errors.primaryColor.message}
-                  </p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  Main brand color applied site-wide
-                </p>
-              </div>
-
-              {}
-              {/* <div className="space-y-2 p-3 border rounded bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <Label className="text-xs font-semibold">
-                      Show Brands
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      {form.watch("useBrands")
-                        ? "✓ Product brands are displayed in your storefront"
-                        : "Product brands are hidden from your storefront"}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {form.watch("useBrands") && (
-                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0">
-                        Enabled
-                      </Badge>
-                    )}
-                    <Switch
-                      checked={form.watch("useBrands")}
-                      onCheckedChange={(checked) =>
-                        form.setValue("useBrands", checked, {
-                          shouldDirty: true,
-                        })
-                      }
-                      disabled={isSaving}
-                    />
-                  </div>
-                </div>
-              </div> */}
+              <TextField<BusinessSettingsFormData>
+                control={form.control}
+                name="contactPhone"
+                label="Contact Phone"
+                placeholder="+855 12 345 678"
+              />
+              <TextField<BusinessSettingsFormData>
+                control={form.control}
+                name="contactEmail"
+                label="Contact Email"
+                type="email"
+                placeholder="support@example.com"
+              />
             </div>
           </CardContent>
         </Card>
 
-        {}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xs font-semibold">Business Hours</h3>
-              <p className="text-xs text-muted-foreground">
-                {form.watch("businessHours")?.length
-                  ? `${form.watch("businessHours")?.length ?? 0} day${
-                      (form.watch("businessHours")?.length ?? 0) > 1 ? "s" : ""
-                    } configured`
-                  : "No business hours configured"}
-              </p>
+        {/* Brand Color */}
+        <Card>
+          <CardHeader>
+            <SectionTitle
+              icon={Palette}
+              title="Brand Color"
+              subtitle="Main brand color applied site-wide"
+            />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1 w-full">
+                <Label className="text-xs font-medium text-foreground">
+                  Primary Color <span className="text-red-500 ml-1">*</span>
+                </Label>
+                <Controller
+                  control={form.control}
+                  name="primaryColor"
+                  render={({ field }) => (
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        disabled={isSaving}
+                        className="w-14 h-[26px] cursor-pointer rounded border border-input"
+                      />
+                      <input
+                        placeholder="#000000"
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        disabled={isSaving}
+                        className={`flex h-[26px] w-full rounded border bg-transparent px-2 py-0.5 text-[11px] shadow-sm transition-all duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 ${
+                          form.formState.errors.primaryColor
+                            ? "border-red-500"
+                            : "border-input"
+                        }`}
+                      />
+                    </div>
+                  )}
+                />
+                <p
+                  className={`text-xs text-red-500 ${
+                    form.formState.errors.primaryColor?.message ? "min-h-[16px]" : ""
+                  }`}
+                >
+                  {form.formState.errors.primaryColor?.message || ""}
+                </p>
+              </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Business Hours */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <SectionTitle
+              icon={Clock}
+              title="Business Hours"
+              subtitle={
+                businessHours.length > 0
+                  ? `${businessHours.length} day${businessHours.length > 1 ? "s" : ""} configured`
+                  : "No business hours configured"
+              }
+            />
             <Button
               type="button"
               variant="outline"
@@ -629,329 +554,226 @@ export default function BusinessSettingsPage() {
               }}
               disabled={isSaving}
             >
-              <Plus className="h-3 w-3 mr-1" />
-              Add Day
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Day
             </Button>
-          </div>
-
-          {form.watch("businessHours")?.length === 0 ? (
-            <div className="text-center py-5 border-2 border-dashed rounded">
-              <p className="text-xs text-muted-foreground">
-                No business hours configured
-              </p>
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {form.watch("businessHours")?.map((hours, index) => {
-                    const hourErrors = (
-                      form.formState.errors.businessHours as any
-                    )?.[index];
-                    const hasError = !!hourErrors;
-
-                    return (
-                      <div
-                        key={index}
-                        className={`border rounded p-2 sm:p-3 relative ${
-                          hasError
-                            ? "border-red-500 bg-red-50 dark:bg-red-950/20"
-                            : ""
-                        }`}
+          </CardHeader>
+          <CardContent>
+            {businessHours.length === 0 ? (
+              <EmptyState message="No business hours configured" />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {businessHours.map((_, index) => {
+                  const hourErrors = (
+                    form.formState.errors.businessHours as any
+                  )?.[index];
+                  const hasError = !!hourErrors;
+                  return (
+                    <div
+                      key={index}
+                      className={`border rounded-md p-4 relative hover:shadow-sm transition-shadow ${
+                        hasError
+                          ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                          : ""
+                      }`}
+                    >
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        onClick={() => {
+                          const currentHours =
+                            form.getValues("businessHours") || [];
+                          form.setValue(
+                            "businessHours",
+                            currentHours.filter((_, i) => i !== index),
+                            { shouldDirty: true },
+                          );
+                        }}
+                        disabled={isSaving}
                       >
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-                          <div className="space-y-1 min-w-0">
-                            <Label className="text-xs font-medium truncate line-clamp-1">
-                              Day
-                            </Label>
-                            <Input
-                              placeholder="e.g., Monday"
-                              value={hours.day}
-                              onChange={(e) => {
-                                const updated = [
-                                  ...(form.getValues("businessHours") || []),
-                                ];
-                                updated[index].day = e.target.value;
-                                form.setValue("businessHours", updated, {
-                                  shouldDirty: true,
-                                });
-                              }}
-                              disabled={isSaving}
-                              className={
-                                hourErrors?.day ? "border-red-500" : ""
-                              }
-                            />
-                            {hourErrors?.day && (
-                              <p className="text-xs text-red-500">
-                                {hourErrors.day.message}
-                              </p>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pr-10">
+                        <TextField<BusinessSettingsFormData>
+                          control={form.control}
+                          name={`businessHours.${index}.day`}
+                          label="Day"
+                          placeholder="e.g., Monday"
+                          disabled={isSaving}
+                        />
+                        <div className="flex flex-col gap-1 w-full">
+                          <Label className="text-xs font-medium text-foreground">
+                            Opening Time
+                          </Label>
+                          <Controller
+                            control={form.control}
+                            name={`businessHours.${index}.openingTime`}
+                            render={({ field }) => (
+                              <CustomTimePicker
+                                value={field.value || ""}
+                                onChange={field.onChange}
+                                disabled={isSaving}
+                                placeholder="Open"
+                              />
                             )}
-                          </div>
-                          <div className="space-y-1 min-w-0">
-                            <Label className="text-xs font-medium truncate line-clamp-1">
-                              Opening Time
-                            </Label>
-                            <CustomTimePicker
-                              value={hours.openingTime}
-                              onChange={(time) => {
-                                const updated = [
-                                  ...(form.getValues("businessHours") || []),
-                                ];
-                                updated[index].openingTime = time;
-                                form.setValue("businessHours", updated, {
-                                  shouldDirty: true,
-                                });
-                              }}
-                              disabled={isSaving}
-                              placeholder="Select opening time"
-                            />
-                            {hourErrors?.openingTime && (
-                              <p className="text-xs text-red-500">
-                                {hourErrors.openingTime.message}
-                              </p>
-                            )}
-                          </div>
-                          <div className="space-y-1 min-w-0">
-                            <Label className="text-xs font-medium truncate line-clamp-1">
-                              Closing Time
-                            </Label>
-                            <CustomTimePicker
-                              value={hours.closingTime}
-                              onChange={(time) => {
-                                const updated = [
-                                  ...(form.getValues("businessHours") || []),
-                                ];
-                                updated[index].closingTime = time;
-                                form.setValue("businessHours", updated, {
-                                  shouldDirty: true,
-                                });
-                              }}
-                              disabled={isSaving}
-                              placeholder="Select closing time"
-                            />
-                            {hourErrors?.closingTime && (
-                              <p className="text-xs text-red-500">
-                                {hourErrors.closingTime.message}
-                              </p>
-                            )}
-                          </div>
+                          />
                         </div>
-                        {hasError && !hourErrors?.day && (
-                          <div className="mt-2 p-2 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-xs text-red-700 dark:text-red-200">
-                            {hourErrors.message}
-                          </div>
-                        )}
-                        {!isSaving && (
-                          <div className="absolute top-1 right-1 sm:top-2 sm:right-2">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              className="h-5 w-5 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
-                              onClick={() => {
-                                const currentHours =
-                                  form.getValues("businessHours") || [];
-                                form.setValue(
-                                  "businessHours",
-                                  currentHours.filter((_, i) => i !== index),
-                                  { shouldDirty: true },
-                                );
-                              }}
-                              title="Delete this business hour entry"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        )}
+                        <div className="flex flex-col gap-1 w-full">
+                          <Label className="text-xs font-medium text-foreground">
+                            Closing Time
+                          </Label>
+                          <Controller
+                            control={form.control}
+                            name={`businessHours.${index}.closingTime`}
+                            render={({ field }) => (
+                              <CustomTimePicker
+                                value={field.value || ""}
+                                onChange={field.onChange}
+                                disabled={isSaving}
+                                placeholder="Close"
+                              />
+                            )}
+                          />
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                      {hasError && !hourErrors?.day && hourErrors?.message && (
+                        <p className="mt-2 text-xs text-red-600">
+                          {hourErrors.message}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-        {}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xs font-semibold">Social Media Accounts</h3>
-              <p className="text-xs text-muted-foreground">
-                {(() => {
-                  const list = form.watch("socialMedia") ?? [];
-                  if (list.length === 0) return "No social media accounts added";
-                  return `${list.length} account${list.length > 1 ? "s" : ""} added`;
-                })()}
-              </p>
-            </div>
+        {/* Social Media */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <SectionTitle
+              icon={Share2}
+              title="Social Media"
+              subtitle={
+                socialMedia.length > 0
+                  ? `${socialMedia.length} account${socialMedia.length > 1 ? "s" : ""} added`
+                  : "No social media accounts added"
+              }
+            />
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => {
-                const currentSocialMedia = form.getValues("socialMedia") || [];
+                const current = form.getValues("socialMedia") || [];
                 form.setValue(
                   "socialMedia",
-                  [
-                    ...currentSocialMedia,
-                    { name: "", imageUrl: "", linkUrl: "" },
-                  ],
+                  [...current, { name: "", imageUrl: "", linkUrl: "" }],
                   { shouldDirty: true },
                 );
               }}
               disabled={isSaving}
             >
-              <Plus className="h-3 w-3 mr-1" />
-              Add Account
+              <Plus className="w-3.5 h-3.5 mr-1" /> Add Account
             </Button>
-          </div>
-
-          {form.watch("socialMedia")?.length === 0 ? (
-            <div className="text-center py-5 border-2 border-dashed rounded">
-              <p className="text-xs text-muted-foreground">
-                No social media accounts added
-              </p>
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {form.watch("socialMedia")?.map((social, index) => {
-                    const socialErrors = (
-                      form.formState.errors.socialMedia as any
-                    )?.[index];
-                    const hasError = !!socialErrors;
-                    return (
-                      <div
-                        key={index}
-                        className={`border rounded p-3 relative lg:col-span-2 ${
-                          hasError
-                            ? "border-red-500 bg-red-50 dark:bg-red-950/20"
-                            : ""
-                        }`}
+          </CardHeader>
+          <CardContent>
+            {socialMedia.length === 0 ? (
+              <EmptyState
+                message="No social media accounts added"
+                hint='Click "Add Account" to connect a platform'
+              />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {socialMedia.map((_, index) => {
+                  const socialErrors = (
+                    form.formState.errors.socialMedia as any
+                  )?.[index];
+                  const hasError = !!socialErrors;
+                  return (
+                    <div
+                      key={index}
+                      className={`border rounded-md p-4 relative hover:shadow-sm transition-shadow ${
+                        hasError
+                          ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                          : ""
+                      }`}
+                    >
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        onClick={() => {
+                          const current = form.getValues("socialMedia") || [];
+                          form.setValue(
+                            "socialMedia",
+                            current.filter((_, i) => i !== index),
+                            { shouldDirty: true },
+                          );
+                        }}
+                        disabled={isSaving}
                       >
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                            {}
-                            <div className="space-y-3 flex flex-col justify-between">
-                              {}
-                              <div className="space-y-1">
-                                <Label className="text-xs font-medium">
-                                  Platform Name
-                                </Label>
-                                <Input
-                                  placeholder="e.g., Facebook, Instagram, TikTok"
-                                  value={social.name}
-                                  onChange={(e) => {
-                                    const updated = [
-                                      ...(form.getValues("socialMedia") || []),
-                                    ];
-                                    updated[index].name = e.target.value;
-                                    form.setValue("socialMedia", updated, {
-                                      shouldDirty: true,
-                                    });
-                                  }}
-                                  disabled={isSaving}
-                                />
-                              </div>
-
-                              {}
-                              <div className="space-y-1">
-                                <Label className="text-xs font-medium">
-                                  Profile Link
-                                </Label>
-                                <Input
-                                  placeholder="https://facebook.com/yourprofile"
-                                  value={social.linkUrl}
-                                  onChange={(e) => {
-                                    const updated = [
-                                      ...(form.getValues("socialMedia") || []),
-                                    ];
-                                    updated[index].linkUrl = e.target.value;
-                                    form.setValue("socialMedia", updated, {
-                                      shouldDirty: true,
-                                    });
-                                  }}
-                                  disabled={isSaving}
-                                />
-                              </div>
-                            </div>
-
-                            {}
-                            <div>
-                              <ClickableImageUpload
-                                label="Platform Icon"
-                                value={social.imageUrl || ""}
-                                onChange={(imageData) => {
-                                  const updated = [
-                                    ...(form.getValues("socialMedia") || []),
-                                  ];
-                                  updated[index].imageUrl = imageData;
-                                  form.setValue("socialMedia", updated, {
-                                    shouldDirty: true,
-                                  });
-                                }}
-                                disabled={isSaving}
-                                aspectRatio="square"
-                                height="h-24"
-                                placeholder="Click to upload icon"
-                                maxSize={5}
-                                helperText="Upload platform icon/logo (PNG, JPG)"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        {hasError && (
-                          <div className="mt-2 p-2 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-xs text-red-700 dark:text-red-200">
-                            {socialErrors.message}
-                          </div>
-                        )}
-                        {!isSaving && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute top-1 right-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
-                            onClick={() => {
-                              const currentSocialMedia =
-                                form.getValues("socialMedia") || [];
-                              form.setValue(
-                                "socialMedia",
-                                currentSocialMedia.filter(
-                                  (_, i) => i !== index,
-                                ),
-                                { shouldDirty: true },
-                              );
-                            }}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        )}
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                      <div className="space-y-4 pr-10">
+                        <Controller
+                          control={form.control}
+                          name={`socialMedia.${index}.imageUrl`}
+                          render={({ field }) => (
+                            <ClickableImageUpload
+                              label="Platform Icon"
+                              value={field.value || ""}
+                              onChange={field.onChange}
+                              disabled={isSaving}
+                              aspectRatio="square"
+                              placeholder="Click to upload icon"
+                              maxSize={5}
+                              helperText="Square (1:1) icon recommended — PNG, JPG"
+                            />
+                          )}
+                        />
+                        <TextField<BusinessSettingsFormData>
+                          control={form.control}
+                          name={`socialMedia.${index}.name`}
+                          label="Platform Name"
+                          placeholder="e.g., Facebook, Instagram, TikTok"
+                          disabled={isSaving}
+                        />
+                        <TextField<BusinessSettingsFormData>
+                          control={form.control}
+                          name={`socialMedia.${index}.linkUrl`}
+                          label="Profile Link"
+                          placeholder="https://facebook.com/yourprofile"
+                          disabled={isSaving}
+                        />
                       </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                      {hasError && socialErrors?.message && (
+                        <p className="mt-2 text-xs text-red-600">
+                          {socialErrors.message}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Telegram Monitoring */}
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-1">
-              <Send className="h-3 w-3 text-sky-500" />
-              <CardTitle>Telegram Monitoring</CardTitle>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Receive order alerts and staff notifications in your Telegram
-              group
-            </p>
+            <SectionTitle
+              icon={Send}
+              title="Telegram Monitoring"
+              subtitle="Receive order alerts and staff notifications in your Telegram group"
+            />
           </CardHeader>
           <CardContent className="space-y-3">
-            {/* Setup guide */}
-            <div className="rounded border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 space-y-2">
+            <div className="rounded-md border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20 p-3 space-y-2">
               <p className="text-xs font-semibold text-sky-800 dark:text-sky-300">
                 How to set up (3 steps)
               </p>
@@ -996,8 +818,8 @@ export default function BusinessSettingsPage() {
             </div>
 
             {form.watch("telegramGroupChatId") ? (
-              <div className="flex items-center gap-1 p-2 bg-emerald-50 dark:bg-emerald-950/20 rounded border border-emerald-200 dark:border-emerald-800">
-                <span className="w-1 h-1 rounded-full bg-emerald-500 shrink-0" />
+              <div className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950/20 rounded-md border border-emerald-200 dark:border-emerald-800">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                 <p className="text-xs text-emerald-700 dark:text-emerald-400">
                   Monitoring group linked — chat ID{" "}
                   <span className="font-mono font-medium">
@@ -1006,8 +828,8 @@ export default function BusinessSettingsPage() {
                 </p>
               </div>
             ) : (
-              <div className="flex items-center gap-1 p-2 bg-muted/40 rounded border border-border">
-                <span className="w-1 h-1 rounded-full bg-muted-foreground/40 shrink-0" />
+              <div className="flex items-center gap-2 p-2 bg-muted/40 rounded-md border border-border">
+                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 shrink-0" />
                 <p className="text-xs text-muted-foreground">
                   No group linked yet. Follow the steps above to connect a
                   Telegram group.
@@ -1017,7 +839,8 @@ export default function BusinessSettingsPage() {
           </CardContent>
         </Card>
 
-        <div className="flex gap-2 justify-end pt-3 border-t">
+        {/* Save / Cancel */}
+        <div className="flex gap-2 justify-end pt-4 border-t">
           <CancelButton
             onClick={fetchBusinessSettings}
             disabled={isSaving}
@@ -1029,7 +852,7 @@ export default function BusinessSettingsPage() {
             isCreate={false}
             updateText="Save Changes"
             submittingUpdateText="Saving..."
-            icon={<Save className="h-3 w-3" />}
+            icon={<Save className="h-4 w-4" />}
             className="min-w-[140px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
           />
         </div>
