@@ -38,7 +38,7 @@ import { useRouter } from "next/navigation";
 import ProductModal from "@/features/business/components/product-modal";
 import { ProductDetailModal } from "@/features/business/components/product-detail-modal";
 import { CustomSelect } from "@/components/shared/common/custom-select";
-import { PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
+import { PRODUCT_STATUS_FILTER, PRODUCT_SIZE_FILTER } from "@/constants/status/filter-status";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
@@ -150,8 +150,8 @@ export default function ProductPromotionPage() {
         pageNo: filters.pageNo,
         pageSize: globalPageSize,
         hasPromotion: true,
-        // Page always shows ACTIVE products only — no status filter in UI.
-        statuses: [ProductStatus.ACTIVE],
+        statuses:
+          filters.status && filters.status !== ProductStatus.ALL ? [filters.status] : undefined,
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasSize,
@@ -163,6 +163,7 @@ export default function ProductPromotionPage() {
     dispatch,
     debouncedSearch,
     filters.pageNo,
+    filters.status,
     globalPageSize,
     selectedBrand,
     selectedCategories,
@@ -374,6 +375,10 @@ export default function ProductPromotionPage() {
     }
   };
 
+  const handleProductStatusChange = (status: ProductStatus) => {
+    dispatch(selectProductStatus(status));
+  };
+
   const handleBrandChange = (brand: BrandResponseModel | null) => {
     setSelectedBrand(brand);
   };
@@ -450,6 +455,15 @@ export default function ProductPromotionPage() {
     extraActions,
     filters: [
       {
+        id: "status",
+        type: "select",
+        label: "Product Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => handleProductStatusChange(value as ProductStatus),
+        options: PRODUCT_STATUS_FILTER,
+      },
+      {
         id: "size",
         type: "select",
         label: "Product Size",
@@ -502,7 +516,7 @@ export default function ProductPromotionPage() {
       <div className="space-y-3">
         <CollapsibleFilterPanel
           config={filterConfig}
-          essentialFilterIds={["size", "brand"]}
+          essentialFilterIds={["size", "status"]}
         />
 
         {}
