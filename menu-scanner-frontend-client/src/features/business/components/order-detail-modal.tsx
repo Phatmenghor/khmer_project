@@ -1,10 +1,8 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-
 import { useEffect } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -17,23 +15,113 @@ import { clearSelectedOrder } from "../store/slice/order-admin-slice";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";
 import { Loading } from "@/components/shared/common/loading";
-import { DisplayField } from "@/components/shared/form-field/display-field";
 import { showToast } from "@/components/shared/common/show-toast";
-import { Download } from "lucide-react";
-// html2canvas + jspdf are loaded lazily inside the download handler so
-// they stay out of the admin route bundle until the user actually clicks
-// "Download receipt".
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Download,
+  Edit,
+  Copy,
+  Phone,
+  MapPin,
+  Package,
+  Check,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  User,
+  MessageSquare,
+  AlertCircle,
+  Building2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const STATUS_CONFIG: Record<
+  string,
+  { bg: string; text: string; border: string; badgeBg: string }
+> = {
+  PENDING: {
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
+    badgeBg: "bg-amber-100 text-amber-700",
+  },
+  CONFIRMED: {
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    border: "border-blue-200",
+    badgeBg: "bg-blue-100 text-blue-700",
+  },
+  COMPLETED: {
+    bg: "bg-green-50",
+    text: "text-green-700",
+    border: "border-green-200",
+    badgeBg: "bg-green-100 text-green-700",
+  },
+  CANCELLED: {
+    bg: "bg-red-50",
+    text: "text-red-700",
+    border: "border-red-200",
+    badgeBg: "bg-red-100 text-red-700",
+  },
+};
+
+const ORDER_STEPS = ["PENDING", "CONFIRMED", "COMPLETED"];
+
+const STEP_ORDER: Record<string, number> = {
+  PENDING: 0,
+  CONFIRMED: 1,
+  COMPLETED: 2,
+};
 
 interface OrderDetailModalProps {
   orderId?: string;
   isOpen: boolean;
   onClose: () => void;
+  onUpdateOrder?: () => void;
+}
+
+function SectionTitle({
+  icon,
+  children,
+}: {
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-1.5 mb-2.5">
+      <span className="text-primary">{icon}</span>
+      <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+        {children}
+      </h3>
+    </div>
+  );
+}
+
+function InfoRow({
+  label,
+  value,
+  fullWidth,
+}: {
+  label: string;
+  value: React.ReactNode;
+  fullWidth?: boolean;
+}) {
+  return (
+    <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
+      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        {label}
+      </span>
+      <span className="text-xs text-foreground">{value ?? "---"}</span>
+    </div>
+  );
 }
 
 export function OrderDetailModal({
   orderId,
   isOpen,
   onClose,
+  onUpdateOrder,
 }: OrderDetailModalProps) {
   const dispatch = useAppDispatch();
   const isFetchingDetail = useAppSelector(selectOrderAdminIsFetchingDetail);
@@ -84,104 +172,65 @@ export function OrderDetailModal({
       const delivery = orderData.pricing?.deliveryFee || 0;
       const total = orderData.pricing?.finalTotal || 0;
 
-      const itemsHTML = orderData.items.map(item => {
-        const itemTotal = (item.finalPrice || 0) * item.quantity;
-        return `
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px;">
-            <span style="flex: 1;">${item.productName}</span>
-            <span style="width: 16px; text-align: center;">${item.quantity}</span>
-            <span style="width: 30px; text-align: right;">—</span>
-            <span style="width: 50px; text-align: right;">$${itemTotal.toFixed(2)}</span>
+      const itemsHTML = orderData.items
+        .map((item) => {
+          const itemTotal = (item.finalPrice || 0) * item.quantity;
+          return `
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:11px;">
+            <span style="flex:1;">${item.productName || item.product?.name}</span>
+            <span style="width:16px;text-align:center;">${item.quantity}</span>
+            <span style="width:50px;text-align:right;">$${itemTotal.toFixed(2)}</span>
           </div>
         `;
-      }).join('');
+        })
+        .join("");
 
       element.innerHTML = `
-        <div style="width: 80mm; background: white;">
-          <!-- Header -->
-          <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px;">
-            <div style="font-weight: bold; font-size: 13px; letter-spacing: 1px;">RECEIPT</div>
+        <div style="width:80mm;background:white;">
+          <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:6px;">
+            <div style="font-weight:bold;font-size:13px;letter-spacing:1px;">RECEIPT</div>
           </div>
-
-          <!-- Order Info -->
-          <div style="text-align: center; font-size: 10px; margin-bottom: 6px; border-bottom: 1px solid #666; padding-bottom: 4px;">
+          <div style="text-align:center;font-size:10px;margin-bottom:6px;border-bottom:1px solid #666;padding-bottom:4px;">
             <div>Order #: ${orderData.orderNumber}</div>
             <div>Date: ${formattedDate} • ${formattedTime}</div>
-            <div style="font-weight: bold;">${orderData.businessName || 'Restaurant'}</div>
+            <div style="font-weight:bold;">${orderData.businessName || "Restaurant"}</div>
           </div>
-
-          <!-- Items Section -->
-          <div style="margin-bottom: 6px; border-bottom: 1px solid #666; padding-bottom: 4px;">
-            <div style="text-align: center; font-weight: bold; font-size: 10px; border-bottom: 1px solid #666; padding-bottom: 2px; margin-bottom: 4px;">ITEMS</div>
-            <div style="margin-bottom: 4px;">
-              <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 10px; margin-bottom: 2px;">
-                <span style="flex: 1;">NAME</span>
-                <span style="width: 16px; text-align: center;">QTY</span>
-                <span style="width: 30px; text-align: right;">DSC</span>
-                <span style="width: 50px; text-align: right;">TOTAL</span>
-              </div>
-              <div style="border-bottom: 1px solid #ccc; margin-bottom: 2px;"></div>
-              ${itemsHTML}
+          <div style="margin-bottom:6px;border-bottom:1px solid #666;padding-bottom:4px;">
+            <div style="text-align:center;font-weight:bold;font-size:10px;border-bottom:1px solid #666;padding-bottom:2px;margin-bottom:4px;">ITEMS</div>
+            <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:10px;margin-bottom:2px;">
+              <span style="flex:1;">NAME</span>
+              <span style="width:16px;text-align:center;">QTY</span>
+              <span style="width:50px;text-align:right;">TOTAL</span>
+            </div>
+            <div style="border-bottom:1px solid #ccc;margin-bottom:2px;"></div>
+            ${itemsHTML}
+          </div>
+          <div style="margin-bottom:6px;border-bottom:2px solid #000;padding-bottom:6px;">
+            <div style="font-size:10px;line-height:1.6;">
+              <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span style="font-weight:bold;">$${subtotal.toFixed(2)}</span></div>
+              ${discount > 0 ? `<div style="display:flex;justify-content:space-between;color:#d32f2f;"><span>Discount</span><span style="font-weight:bold;">-$${discount.toFixed(2)}</span></div><div style="display:flex;justify-content:space-between;"><span>After Discount</span><span style="font-weight:bold;">$${subtotalAfterDiscount.toFixed(2)}</span></div>` : ""}
+              <div style="display:flex;justify-content:space-between;"><span>Tax</span><span style="font-weight:bold;">+$${tax.toFixed(2)}</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>Delivery</span><span style="font-weight:bold;">${delivery > 0 ? `+$${delivery.toFixed(2)}` : "Free"}</span></div>
+              <div style="border-top:1px solid #666;padding-top:3px;margin-top:3px;display:flex;justify-content:space-between;font-weight:bold;font-size:11px;"><span>TOTAL</span><span>$${total.toFixed(2)}</span></div>
             </div>
           </div>
-
-          <!-- Order Summary -->
-          <div style="margin-bottom: 6px; border-bottom: 2px solid #000; padding-bottom: 6px;">
-            <div style="text-align: center; font-weight: bold; font-size: 10px; margin-bottom: 4px;">ORDER SUMMARY</div>
-            <div style="font-size: 10px; line-height: 1.6;">
-              <div style="display: flex; justify-content: space-between;">
-                <span>Payment Method</span>
-                <span style="font-weight: bold;">${orderData.payment?.paymentStatus || 'CASH'}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span>Subtotal w/ Add-ons</span>
-                <span style="font-weight: bold;">$${subtotal.toFixed(2)}</span>
-              </div>
-              ${discount > 0 ? `
-              <div style="display: flex; justify-content: space-between; color: #d32f2f;">
-                <span>Discount (Promotions)</span>
-                <span style="font-weight: bold;">-$${discount.toFixed(2)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span>Subtotal After Discount</span>
-                <span style="font-weight: bold;">$${subtotalAfterDiscount.toFixed(2)}</span>
-              </div>
-              ` : ''}
-              <div style="display: flex; justify-content: space-between;">
-                <span>Tax</span>
-                <span style="font-weight: bold;">+$${tax.toFixed(2)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span>Delivery Fee</span>
-                <span style="font-weight: bold;">${delivery > 0 ? `+$${delivery.toFixed(2)}` : 'Free'}</span>
-              </div>
-              <div style="border-top: 1px solid #666; padding-top: 3px; margin-top: 3px; display: flex; justify-content: space-between; font-weight: bold; font-size: 11px;">
-                <span>TOTAL AMOUNT</span>
-                <span>$${total.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div style="text-align: center; font-size: 10px; padding-top: 4px;">
+          <div style="text-align:center;font-size:10px;padding-top:4px;">
             <div>Thank you for your order!</div>
-            <div>Please visit again</div>
           </div>
         </div>
       `;
 
       document.body.appendChild(element);
 
-      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
-      ]);
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all(
+        [import("html2canvas"), import("jspdf")]
+      );
 
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
       });
 
       const pdf = new jsPDF({
@@ -194,10 +243,9 @@ export function OrderDetailModal({
       const imgHeight = (canvas.height * 80) / canvas.width;
       pdf.addImage(imgData, "PNG", 0, 0, 80, imgHeight);
       pdf.save(`receipt-${orderData.orderNumber}.pdf`);
-
       document.body.removeChild(element);
       showToast.success("Receipt downloaded successfully");
-    } catch (error) {
+    } catch {
       showToast.error("Failed to generate receipt");
     }
   };
@@ -206,8 +254,8 @@ export function OrderDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">Order Details Loading</DialogTitle>
-        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-full">
+        <DialogContent className="w-full sm:max-w-5xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-center h-64">
             <Loading />
           </div>
         </DialogContent>
@@ -219,527 +267,610 @@ export function OrderDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">Order Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <p className="text-muted-foreground">
-                {detailError
-                  ? `Error: ${detailError}`
-                  : "No order data available"}
+        <DialogContent className="w-full sm:max-w-5xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-center h-64 flex-col gap-2">
+            <p className="text-sm font-medium text-muted-foreground">
+              {detailError ? `Error: ${detailError}` : "No order data available"}
+            </p>
+            {detailError && (
+              <p className="text-xs text-muted-foreground">
+                The order may have been deleted or you may not have permission.
               </p>
-              {detailError && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  The order may have been deleted or you may not have permission to view it.
-                </p>
-              )}
-            </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
     );
   }
 
+  const statusCfg =
+    STATUS_CONFIG[orderData.orderStatus] || STATUS_CONFIG.PENDING;
+  const currentStep = STEP_ORDER[orderData.orderStatus] ?? -1;
+  const isCancelled = orderData.orderStatus === "CANCELLED";
+
+  const formattedAddress = [
+    orderData.deliveryAddress?.houseNumber,
+    orderData.deliveryAddress?.streetNumber
+      ? `St. ${orderData.deliveryAddress.streetNumber}`
+      : null,
+    orderData.deliveryAddress?.village,
+    orderData.deliveryAddress?.commune,
+    orderData.deliveryAddress?.district,
+    orderData.deliveryAddress?.province,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTitle className="sr-only">
         Order Details - {orderData.orderNumber}
       </DialogTitle>
-      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {}
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center justify-between">
-          <div>
-            <h2 className="text-xs font-semibold text-foreground">
-              Order Details
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              {orderData.orderNumber}
-            </p>
+
+      <DialogContent className="w-full sm:max-w-5xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+        {/* ── Header ── */}
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-bold text-foreground font-mono truncate">
+                  {orderData.orderNumber}
+                </p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(orderData.orderNumber);
+                    showToast.success(Messages.clipboard.addressCopied || "Copied!");
+                  }}
+                  className="p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  title="Copy order number"
+                >
+                  <Copy className="h-3 w-3" />
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {orderData.businessName} •{" "}
+                {orderData.source === "PUBLIC" ? "Customer Order" : "POS Order"}
+              </p>
+            </div>
           </div>
-          <button
-            onClick={handleDownloadReceipt}
-            className="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium transition-colors"
-            title="Download receipt as PDF"
+          <div
+            className={cn(
+              "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0",
+              statusCfg.badgeBg
+            )}
           >
-            <Download className="w-3 h-3" />
-            Receipt
-          </button>
+            {getOrderStatusLabel(orderData.orderStatus)}
+          </div>
         </div>
 
-        {}
+        {/* ── Body ── */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-2.5 space-y-2">
-{}
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
-              <CardHeader className="pb-3 border-b">
-                <CardTitle className="text-xs font-bold text-foreground">📋 Order & Pricing</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 pt-3">
-                {}
-                <div className="bg-primary/5 border border-primary/20 rounded p-2">
-                  <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-2">Order Details</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <DisplayField
-                      label="Order Number"
-                      value={orderData.orderNumber}
-                    />
-                    <DisplayField
-                      label="Order Type"
-                      value={
-                        orderData.source === "PUBLIC"
-                          ? "Customer (Public)"
-                          : "Business (POS)"
-                      }
-                    />
-                    <DisplayField
-                      label="Created At"
-                      value={dateTimeFormat(orderData.createdAt)}
-                    />
-                    <DisplayField
-                      label="Business"
-                      value={orderData.businessName || "---"}
-                    />
-                    <DisplayField
-                      label="Payment Method"
-                      value={orderData.payment?.paymentMethod || "---"}
-                    />
-                    <DisplayField
-                      label="Payment Status"
-                      value={
-                        <span
-                          className={
-                            orderData.payment?.paymentStatus === "PAID"
-                              ? "text-green-600 font-medium"
-                              : "text-orange-600 font-medium"
-                          }
+          <div className="p-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
+
+            {/* ── Left column ── */}
+            <div className="lg:col-span-2 space-y-3">
+
+              {/* Status Timeline */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle icon={<Clock className="h-3 w-3" />}>
+                  Order Progress
+                </SectionTitle>
+                {isCancelled ? (
+                  <div className="flex items-center gap-2 px-2 py-2 rounded bg-red-50 border border-red-200">
+                    <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
+                    <span className="text-xs font-semibold text-red-700">
+                      This order has been cancelled
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-start gap-1 overflow-x-auto pb-1">
+                    {ORDER_STEPS.map((step, idx) => {
+                      const isDone = currentStep >= STEP_ORDER[step];
+                      const isCurrent = currentStep === STEP_ORDER[step];
+                      const history = orderData.statusHistory?.find(
+                        (h) => h.statusName === step
+                      );
+                      return (
+                        <div
+                          key={step}
+                          className="flex flex-col items-center flex-shrink-0"
                         >
-                          {orderData.payment?.paymentStatus || "---"}
-                        </span>
-                      }
-                    />
-                    <DisplayField
-                      label="Customer Name"
-                      value={
-                        <span className="font-semibold text-foreground">
-                          {orderData.customerName || "Walk-in Customer"}
-                        </span>
-                      }
-                    />
-                    <DisplayField
-                      label="Phone Number"
-                      value={
-                        <a
-                          href={`tel:${orderData.customerPhone}`}
-                          className="text-blue-600 hover:text-blue-700 font-medium"
-                        >
-                          {orderData.customerPhone || "---"}
-                        </a>
-                      }
-                    />
-                    {orderData.customerNote && (
-                      <DisplayField
-                        label="Customer Note"
-                        value={orderData.customerNote}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {}
-                <div className="bg-amber-50 border border-amber-200 rounded p-2">
-                  <h4 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">Pricing Breakdown</h4>
-                  <div className="space-y-2">
-                    <div className="bg-white border border-amber-100 rounded p-2 space-y-1">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                        <DisplayField
-                          label="Items"
-                          value={String(orderData.pricing?.totalItems || 0)}
-                        />
-                        <DisplayField
-                          label="Subtotal"
-                          value={
-                            <span className="font-semibold">
-                              {formatCurrency(orderData.pricing?.subtotal || 0)}
-                            </span>
-                          }
-                        />
-                        {(orderData.pricing?.customizationTotal ?? 0) > 0 && (
-                          <DisplayField
-                            label="Customizations/Add-ons"
-                            value={
-                              <span className="text-blue-600 font-semibold">
-                                +{formatCurrency(orderData.pricing!.customizationTotal)}
-                              </span>
-                            }
-                          />
-                        )}
-                        <DisplayField
-                          label="Delivery Fee"
-                          value={formatCurrency(orderData.pricing?.deliveryFee || 0)}
-                        />
-                        {(orderData.pricing?.taxPercentage ?? 0) > 0 && (
-                          <>
-                            <DisplayField
-                              label={`Tax (${orderData.pricing?.taxPercentage}%)`}
-                              value={
-                                <span className="text-green-600 font-semibold">
-                                  +{formatCurrency(orderData.pricing?.taxAmount || 0)}
-                                </span>
-                              }
-                            />
-                          </>
-                        )}
-                        {(orderData.pricing?.discountAmount ?? 0) > 0 && (
-                          <>
-                            <DisplayField
-                              label="Discount"
-                              value={
-                                <span className="text-red-600 font-semibold">
-                                  -{formatCurrency(orderData.pricing!.discountAmount)}
-                                </span>
-                              }
-                            />
-                            {orderData.pricing?.discountType && (
-                              <DisplayField
-                                label="Discount Type"
-                                value={
-                                  <span className="font-medium text-orange-600">
-                                    {orderData.pricing.discountType === "percentage" ? "Percentage" : "Fixed Amount"}
-                                  </span>
-                                }
-                              />
-                            )}
-                            {orderData.pricing?.discountReason && (
-                              <div className="md:col-span-2">
-                                <DisplayField
-                                  label="Discount Reason"
-                                  value={orderData.pricing.discountReason}
-                                />
-                              </div>
-                            )}
-                          </>
-                        )}
-                        <div className="md:col-span-2 border-t pt-1 mt-1">
-                          <DisplayField
-                            label="Final Total"
-                            value={
-                              <span className="text-xs font-bold text-green-600">
-                                {formatCurrency(orderData.pricing?.finalTotal || 0)}
-                              </span>
-                            }
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {}
-            {orderData.items && orderData.items.length > 0 && (
-              <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
-                <CardHeader className="pb-3 border-b">
-                  <CardTitle className="text-xs font-bold text-foreground">
-                    🛒 Order Items ({orderData.items.length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 pt-3">
-                  <div className="bg-green-50 border border-green-200 rounded p-2">
-                    <h4 className="text-xs font-bold text-green-700 uppercase tracking-wider mb-3">Items List</h4>
-                    <div className="space-y-3">
-                  {orderData.items.map((item, idx) => (
-                    <div
-                      key={item.id}
-                      className="p-3 border rounded bg-gray-50 border-gray-200"
-                    >
-                      {}
-                      <div className="mb-2">
-                        <div className="flex items-start gap-2">
-                          {}
-                          {item.product?.imageUrl && (
-                            <div className="flex-shrink-0 rounded overflow-hidden border border-gray-200">
-                              <img
-                                src={item.product.imageUrl}
-                                alt={item.product.name}
-                                className="w-11 h-11 object-cover"
-                              />
-                            </div>
-                          )}
-                          {}
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between gap-1 mb-1">
-                              <h4 className="font-semibold text-xs">
-                                #{idx + 1} - {item.product?.name || "Unknown"}
-                              </h4>
-                            </div>
-                            {}
-                            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                              {item.product?.sizeName && (
-                                <span>Size: <span className="font-medium">{item.product.sizeName}</span></span>
+                          <div className="flex items-center gap-1">
+                            <div
+                              className={cn(
+                                "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ring-2 ring-offset-1 transition-all",
+                                isDone
+                                  ? "bg-green-100 text-green-700 ring-green-200"
+                                  : isCurrent
+                                    ? "bg-primary text-primary-foreground ring-primary/40"
+                                    : "bg-muted text-muted-foreground ring-muted"
                               )}
-                              {item.product?.sku && (
-                                <span>SKU: <span className="font-mono font-medium text-foreground">{item.product.sku}</span></span>
-                              )}
-                              {item.product?.barcode && (
-                                <span>Barcode: <span className="font-mono font-medium text-foreground">{item.product.barcode}</span></span>
+                            >
+                              {isDone ? (
+                                <Check className="h-3 w-3" />
+                              ) : (
+                                idx + 1
                               )}
                             </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {}
-                      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 text-xs border-t pt-2 mt-2">
-                        {}
-                        <div className="space-y-1">
-                          <span className="text-muted-foreground text-xs font-medium">Qty:</span>
-                          <p className="font-bold text-xs">{item.quantity}</p>
-                        </div>
-
-                        {}
-                        <div className="space-y-1">
-                          <span className="text-muted-foreground text-xs font-medium">Unit Price:</span>
-                          <p className="font-bold text-xs">{formatCurrency(item.finalPrice)}</p>
-                        </div>
-
-                        {}
-                        <div className="space-y-1">
-                          <span className="text-muted-foreground text-xs font-medium">Item Total:</span>
-                          <p className="font-bold text-green-600 text-xs">{formatCurrency(item.totalPrice)}</p>
-                        </div>
-
-                        {}
-                        {(item.customizationTotal ?? 0) > 0 && (
-                          <div className="space-y-1">
-                            <span className="text-muted-foreground text-xs font-medium">Add-ons:</span>
-                            <p className="font-bold text-blue-600 text-xs">+{formatCurrency(item.customizationTotal ?? 0)}</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {}
-                      {item.customizations && item.customizations.length > 0 && (
-                        <div className="bg-blue-50 border border-blue-200 rounded p-2 mt-2">
-                          <h5 className="text-xs font-bold text-blue-700 uppercase mb-1">✨ Add-ons / Customizations</h5>
-                          <div className="space-y-1">
-                            {item.customizations.map((custom) => (
-                              <div key={custom.productCustomizationId} className="flex justify-between text-xs">
-                                <span className="text-foreground">{custom.name}</span>
-                                <span className="text-blue-600 font-semibold">+{formatCurrency(custom.priceAdjustment)}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-
-            {}
-            {orderData.deliveryAddress && (
-              <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
-                <CardHeader className="pb-3 border-b">
-                  <CardTitle className="text-xs font-bold text-foreground">📍 Delivery Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 pt-3">
-                  {}
-                  <div className="bg-blue-50 border border-blue-200 rounded p-2">
-                    <h4 className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">Address & Delivery</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      <DisplayField
-                        label="Full Address"
-                        value={
-                          <span className="text-xs">
-                            {(() => {
-                              const parts = [
-                                orderData.deliveryAddress.houseNumber,
-                                orderData.deliveryAddress.streetNumber,
-                                orderData.deliveryAddress.village,
-                                orderData.deliveryAddress.commune,
-                                orderData.deliveryAddress.district,
-                                orderData.deliveryAddress.province,
-                              ].filter(Boolean);
-                              return parts.length > 0
-                                ? parts.join(", ")
-                                : "---";
-                            })()}
-                          </span>
-                        }
-                      />
-                      {orderData.deliveryOption && (
-                        <>
-                          <DisplayField
-                            label="Delivery Method"
-                            value={orderData.deliveryOption.name || "---"}
-                          />
-                          <DisplayField
-                            label="Delivery Fee"
-                            value={formatCurrency(orderData.deliveryOption.price || 0)}
-                          />
-                        </>
-                      )}
-                      {orderData.deliveryAddress.note && (
-                        <div className="md:col-span-2">
-                          <label className="text-xs font-bold text-muted-foreground uppercase block mb-1">
-                            Delivery Note
-                          </label>
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="text-xs text-foreground flex-1">
-                              {orderData.deliveryAddress.note}
-                            </p>
-                            <div className="flex gap-1 flex-shrink-0">
-                              {}
-                              <button
-                                onClick={() => {
-                                  const fullAddress = [
-                                    orderData.deliveryAddress.houseNumber,
-                                    orderData.deliveryAddress.streetNumber,
-                                    orderData.deliveryAddress.village,
-                                    orderData.deliveryAddress.commune,
-                                    orderData.deliveryAddress.district,
-                                    orderData.deliveryAddress.province,
-                                  ]
-                                    .filter(Boolean)
-                                    .join(", ");
-                                  navigator.clipboard.writeText(
-                                    `${fullAddress}\n\nDelivery Note: ${orderData.deliveryAddress.note}`
-                                  );
-                                  showToast.success(Messages.clipboard.addressCopied);
-                                }}
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-1 rounded transition-colors font-semibold"
-                                title="Copy address and note"
-                              >
-                                📋 Copy
-                              </button>
-                              {}
-                              {orderData.deliveryAddress.latitude &&
-                                orderData.deliveryAddress.longitude && (
-                                  <button
-                                    onClick={() => {
-                                      const mapsUrl = `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`;
-                                      window.open(mapsUrl, "_blank");
-                                    }}
-                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-1 rounded transition-colors font-semibold"
-                                    title="View on Google Maps"
-                                  >
-                                    🗺️ Map
-                                  </button>
+                            {idx < ORDER_STEPS.length - 1 && (
+                              <div
+                                className={cn(
+                                  "w-8 h-0.5 transition-colors",
+                                  currentStep > STEP_ORDER[step]
+                                    ? "bg-green-300"
+                                    : "bg-muted"
                                 )}
-                            </div>
+                              />
+                            )}
+                          </div>
+                          <div className="mt-1.5 text-center min-w-[64px]">
+                            <span className="text-xs font-semibold text-foreground block">
+                              {getOrderStatusLabel(step)}
+                            </span>
+                            {history ? (
+                              <span className="text-xs text-muted-foreground block">
+                                {new Date(history.changedAt).toLocaleDateString(
+                                  [],
+                                  { month: "short", day: "numeric" }
+                                )}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-muted-foreground/50 block">
+                                —
+                              </span>
+                            )}
                           </div>
                         </div>
-                      )}
-                    </div>
+                      );
+                    })}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                )}
 
-
-            {}
-            {orderData.statusHistory && orderData.statusHistory.length > 0 && (
-              <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
-                <CardHeader className="pb-3 border-b">
-                  <CardTitle className="text-xs font-bold text-foreground">
-                    📈 Status History ({orderData.statusHistory.length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 pt-3">
-                  <div className="space-y-2">
-                    {orderData.statusHistory.map((history, idx) => (
+                {/* Status history list */}
+                {orderData.statusHistory && orderData.statusHistory.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-border/50 space-y-1.5">
+                    {orderData.statusHistory.map((h, idx) => (
                       <div
-                        key={history.id}
-                        className="bg-white border border-slate-200 rounded p-3 hover:shadow-md transition-all duration-200 hover:border-slate-300"
+                        key={h.id}
+                        className="flex items-start gap-2 text-xs"
                       >
-                        {}
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white text-xs font-bold">
-                              {idx + 1}
-                            </span>
-                            <span className="text-xs font-semibold text-foreground">
-                              {history.statusName}
-                            </span>
-                          </div>
-                          <span className="text-xs text-muted-foreground font-medium">
-                            {dateTimeFormat(history.changedAt)}
-                          </span>
+                        <div className="flex-shrink-0 w-4 h-4 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold mt-0.5">
+                          {idx + 1}
                         </div>
-
-                        {}
-                        {history.note && (
-                          <p className="text-xs text-slate-600 border-l-3 border-blue-500 pl-2 mb-0">
-                            {history.note}
-                          </p>
-                        )}
+                        <div className="flex-1 min-w-0">
+                          <span className="font-semibold text-foreground">
+                            {h.statusName}
+                          </span>
+                          {h.note && (
+                            <span className="text-muted-foreground ml-1">
+                              — {h.note}
+                            </span>
+                          )}
+                          {h.changedBy && (
+                            <span className="text-muted-foreground ml-1">
+                              by {h.changedBy.fullName || h.changedBy.firstName}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-muted-foreground flex-shrink-0">
+                          {dateTimeFormat(h.changedAt)}
+                        </span>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                )}
+              </div>
 
-            {}
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
-              <CardHeader className="pb-3 border-b">
-                <CardTitle className="text-xs font-bold text-foreground">⚙️ System Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 pt-3">
-                <div className="bg-slate-50 border border-slate-200 rounded p-2">
-                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Metadata</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <DisplayField
-                      label="Order ID"
-                      value={
-                        <span className="text-xs font-mono break-all">
-                          {orderData.id}
+              {/* Order Items */}
+              {orderData.items && orderData.items.length > 0 && (
+                <div className="rounded border border-border/50 bg-card p-3">
+                  <SectionTitle icon={<Package className="h-3 w-3" />}>
+                    Order Items ({orderData.items.length})
+                  </SectionTitle>
+                  <div className="space-y-2">
+                    {orderData.items.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className="flex gap-3 p-2.5 rounded border border-border/50 bg-muted/20"
+                      >
+                        {/* Image */}
+                        <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50">
+                          {item.product?.imageUrl ? (
+                            <img
+                              src={item.product.imageUrl}
+                              alt={item.product.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-1 mb-1">
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold text-foreground truncate">
+                                {item.product?.name ||
+                                  item.productName ||
+                                  "Unknown"}
+                              </p>
+                              <div className="flex flex-wrap gap-2 mt-0.5">
+                                {item.product?.sizeName && (
+                                  <span className="text-xs text-muted-foreground">
+                                    Size: {item.product.sizeName}
+                                  </span>
+                                )}
+                                {item.product?.sku && (
+                                  <span className="text-xs text-muted-foreground font-mono">
+                                    SKU: {item.product.sku}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              {item.hasPromotion && (
+                                <span className="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-semibold">
+                                  Sale
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Pricing row */}
+                          <div className="flex items-center justify-between text-xs mt-1">
+                            <span className="text-muted-foreground">
+                              {formatCurrency(item.finalPrice)} ×{" "}
+                              {item.quantity}
+                            </span>
+                            <span className="font-bold text-foreground">
+                              {formatCurrency(item.totalPrice)}
+                            </span>
+                          </div>
+
+                          {/* Customizations */}
+                          {item.customizations &&
+                            item.customizations.length > 0 && (
+                              <div className="mt-1.5 pt-1.5 border-t border-border/40 space-y-0.5">
+                                {item.customizations.map((c) => (
+                                  <div
+                                    key={c.productCustomizationId}
+                                    className="flex justify-between text-xs text-muted-foreground"
+                                  >
+                                    <span>+ {c.name}</span>
+                                    <span className="text-blue-600 font-medium">
+                                      +{formatCurrency(c.priceAdjustment)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Pricing Summary */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle icon={<span className="text-xs">$</span>}>
+                  Pricing Summary
+                </SectionTitle>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      Subtotal ({orderData.pricing?.totalItems || 0} items)
+                    </span>
+                    <span className="font-medium text-foreground">
+                      {formatCurrency(orderData.pricing?.subtotal || 0)}
+                    </span>
+                  </div>
+
+                  {(orderData.pricing?.customizationTotal ?? 0) > 0 && (
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">
+                        Add-ons / Customizations
+                      </span>
+                      <span className="font-medium text-blue-600">
+                        +{formatCurrency(orderData.pricing!.customizationTotal)}
+                      </span>
+                    </div>
+                  )}
+
+                  {(orderData.pricing?.discountAmount ?? 0) > 0 && (
+                    <>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">
+                          Discount
+                          {orderData.pricing?.discountType &&
+                            ` (${orderData.pricing.discountType === "percentage" ? "%" : "Fixed"})`}
                         </span>
-                      }
-                    />
-                    <DisplayField
-                      label="Business ID"
-                      value={
-                        <span className="text-xs font-mono break-all">
-                          {orderData.businessId}
+                        <span className="font-medium text-red-600">
+                          -{formatCurrency(orderData.pricing!.discountAmount)}
                         </span>
-                      }
-                    />
-                    {orderData.customerId && (
-                      <DisplayField
-                        label="Customer ID"
-                        value={
-                          <span className="text-xs font-mono break-all">
-                            {orderData.customerId}
-                          </span>
-                        }
+                      </div>
+                      {orderData.pricing?.discountReason && (
+                        <div className="text-xs text-muted-foreground pl-2 italic">
+                          Reason: {orderData.pricing.discountReason}
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Delivery Fee</span>
+                    <span className="font-medium text-foreground">
+                      {(orderData.pricing?.deliveryFee ?? 0) > 0
+                        ? formatCurrency(orderData.pricing!.deliveryFee)
+                        : "Free"}
+                    </span>
+                  </div>
+
+                  {(orderData.pricing?.taxAmount ?? 0) > 0 && (
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">
+                        Tax ({orderData.pricing?.taxPercentage}%)
+                      </span>
+                      <span className="font-medium text-green-600">
+                        +{formatCurrency(orderData.pricing!.taxAmount)}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="pt-2 mt-1 border-t border-border/50 flex justify-between">
+                    <span className="text-xs font-bold text-foreground">
+                      Total
+                    </span>
+                    <span className="text-sm font-bold text-primary">
+                      {formatCurrency(orderData.pricing?.finalTotal || 0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Right sidebar ── */}
+            <div className="space-y-3">
+
+              {/* Order Info */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle icon={<Building2 className="h-3 w-3" />}>
+                  Order Info
+                </SectionTitle>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <InfoRow label="Date" value={new Date(orderData.createdAt).toLocaleDateString()} />
+                  <InfoRow
+                    label="Time"
+                    value={new Date(orderData.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  />
+                  <InfoRow
+                    label="Type"
+                    value={
+                      orderData.source === "PUBLIC"
+                        ? "Customer (Public)"
+                        : "Business (POS)"
+                    }
+                  />
+                  <InfoRow
+                    label="Business"
+                    value={orderData.businessName || "---"}
+                  />
+                  <InfoRow
+                    label="Payment Method"
+                    value={orderData.payment?.paymentMethod || "---"}
+                  />
+                  <InfoRow
+                    label="Payment Status"
+                    value={
+                      <span
+                        className={cn(
+                          "font-semibold",
+                          orderData.payment?.paymentStatus === "PAID"
+                            ? "text-green-600"
+                            : orderData.payment?.paymentStatus === "REFUNDED"
+                              ? "text-red-600"
+                              : "text-amber-600"
+                        )}
+                      >
+                        {orderData.payment?.paymentStatus || "---"}
+                      </span>
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Customer Info */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle icon={<User className="h-3 w-3" />}>
+                  Customer
+                </SectionTitle>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                      Name
+                    </p>
+                    <p className="text-xs font-semibold text-foreground">
+                      {orderData.customerName || "Walk-in Customer"}
+                    </p>
+                  </div>
+                  {orderData.customerPhone && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                        Phone
+                      </p>
+                      <a
+                        href={`tel:${orderData.customerPhone}`}
+                        className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+                      >
+                        <Phone className="h-3 w-3" />
+                        {orderData.customerPhone}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Customer Note */}
+              {orderData.customerNote && (
+                <div className="rounded border border-border/50 bg-card p-3">
+                  <SectionTitle icon={<MessageSquare className="h-3 w-3" />}>
+                    Customer Note
+                  </SectionTitle>
+                  <p className="text-xs text-foreground leading-relaxed">
+                    {orderData.customerNote}
+                  </p>
+                </div>
+              )}
+
+              {/* Delivery Address */}
+              {orderData.deliveryAddress && formattedAddress && (
+                <div className="rounded border border-border/50 bg-card p-3">
+                  <div className="flex items-start justify-between mb-2.5">
+                    <SectionTitle icon={<MapPin className="h-3 w-3" />}>
+                      Delivery Address
+                    </SectionTitle>
+                    <div className="flex gap-1 flex-shrink-0 -mt-0.5">
+                      <button
+                        onClick={() => {
+                          const text = orderData.deliveryAddress?.note
+                            ? `${formattedAddress}\n\nNote: ${orderData.deliveryAddress.note}`
+                            : formattedAddress;
+                          navigator.clipboard.writeText(text);
+                          showToast.success(
+                            Messages.clipboard.addressCopied || "Copied!"
+                          );
+                        }}
+                        className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        title="Copy address"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </button>
+                      {orderData.deliveryAddress.latitude &&
+                        orderData.deliveryAddress.longitude && (
+                          <button
+                            onClick={() =>
+                              window.open(
+                                `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`,
+                                "_blank"
+                              )
+                            }
+                            className="p-1 rounded text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                            title="View on Google Maps"
+                          >
+                            <MapPin className="h-3 w-3" />
+                          </button>
+                        )}
+                    </div>
+                  </div>
+                  <p className="text-xs text-foreground leading-relaxed">
+                    {formattedAddress}
+                  </p>
+                  {orderData.deliveryOption && (
+                    <div className="mt-2 pt-2 border-t border-border/40 grid grid-cols-2 gap-2">
+                      <InfoRow
+                        label="Method"
+                        value={orderData.deliveryOption.name}
                       />
-                    )}
-                    <DisplayField
+                      <InfoRow
+                        label="Fee"
+                        value={formatCurrency(
+                          orderData.deliveryOption.price || 0
+                        )}
+                      />
+                    </div>
+                  )}
+                  {orderData.deliveryAddress.note && (
+                    <div className="mt-2 pt-2 border-t border-border/40">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                        Delivery Note
+                      </p>
+                      <p className="text-xs text-foreground">
+                        {orderData.deliveryAddress.note}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Business Note */}
+              {orderData.businessNote && (
+                <div className="rounded border border-amber-200 bg-amber-50 p-3">
+                  <SectionTitle icon={<AlertCircle className="h-3 w-3" />}>
+                    Business Note
+                  </SectionTitle>
+                  <p className="text-xs text-amber-900 leading-relaxed">
+                    {orderData.businessNote}
+                  </p>
+                </div>
+              )}
+
+              {/* System Info */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle icon={<span className="text-xs">⚙</span>}>
+                  System Info
+                </SectionTitle>
+                <div className="space-y-1.5">
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                      Order ID
+                    </p>
+                    <p className="text-xs font-mono text-foreground break-all">
+                      {orderData.id}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <InfoRow
                       label="Created By"
                       value={orderData.createdBy || "---"}
                     />
-                    <DisplayField
+                    <InfoRow
                       label="Updated By"
                       value={orderData.updatedBy || "---"}
                     />
-                    {orderData.businessNote && (
-                      <div className="md:col-span-2">
-                        <DisplayField
-                          label="Business Note"
-                          value={orderData.businessNote}
-                        />
-                      </div>
-                    )}
+                    <InfoRow
+                      label="Created At"
+                      value={dateTimeFormat(orderData.createdAt)}
+                    />
+                    <InfoRow
+                      label="Updated At"
+                      value={dateTimeFormat(orderData.updatedAt)}
+                    />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* ── Footer ── */}
+        <div className="flex-shrink-0 px-4 py-3 border-t bg-muted/20 flex items-center justify-between gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadReceipt}
+            className="gap-1.5 h-8"
+          >
+            <Download className="h-3 w-3" />
+            Download Receipt
+          </Button>
+
+          {onUpdateOrder && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={onUpdateOrder}
+              className="gap-1.5 h-8"
+            >
+              <Edit className="h-3 w-3" />
+              Update Order
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

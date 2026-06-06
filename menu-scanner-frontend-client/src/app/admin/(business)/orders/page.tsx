@@ -185,6 +185,12 @@ export default function OrdersAdminPage() {
     setDetailModalState({ isOpen: false, orderId: "" });
   };
 
+  const handleUpdateOrderFromDetail = () => {
+    if (detailModalState.orderId) {
+      setUpdateModalState({ isOpen: true, orderId: detailModalState.orderId });
+    }
+  };
+
   const closeUpdateModal = () => {
     setUpdateModalState({ isOpen: false, orderId: "" });
   };
@@ -285,6 +291,7 @@ export default function OrdersAdminPage() {
         orderId={detailModalState.orderId}
         isOpen={detailModalState.isOpen}
         onClose={closeDetailModal}
+        onUpdateOrder={handleUpdateOrderFromDetail}
       />
 
       <OrderUpdateModal
