@@ -422,7 +422,7 @@ export default function ProductPromotionPage() {
         type="button"
         variant="outline"
         size="sm"
-        className="h-8 px-3 text-amber-700 border-amber-300 hover:bg-amber-50"
+        className="h-[26px] px-3 text-xs text-amber-700 border-amber-300 hover:bg-amber-50"
         disabled={selectedRowCount === 0 || operations.isDeleting}
         onClick={handleResetTablePromotions}
       >
@@ -432,7 +432,7 @@ export default function ProductPromotionPage() {
         type="button"
         variant="outline"
         size="sm"
-        className="h-8 px-3 text-rose-700 border-rose-300 hover:bg-rose-50"
+        className="h-[26px] px-3 text-xs text-rose-700 border-rose-300 hover:bg-rose-50"
         disabled={operations.isDeleting}
         onClick={handleResetAllPromotions}
       >

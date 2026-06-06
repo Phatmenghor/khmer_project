@@ -55,7 +55,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             onValueChange={filter.onChange}
             label={filter.label}
             disabled={filter.disabled}
-            size="lg"
+            size="md"
           />
         );
 
@@ -69,7 +69,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             showAllOption={(filter as any).showAllOption !== false}
             label={filter.label}
             disabled={filter.disabled}
-            size="lg"
+            size="md"
           />
         );
 
@@ -83,7 +83,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             showAllOption={(filter as any).showAllOption !== false}
             label={filter.label}
             disabled={filter.disabled}
-            size="lg"
+            size="md"
           />
         );
 
@@ -106,7 +106,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               }}
               min={(filter as any).min || "0"}
               max={(filter as any).max}
-              className="h-7 text-xs w-full"
+              className="h-[26px] text-xs w-full"
               disabled={filter.disabled}
             />
           </div>
@@ -123,7 +123,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               placeholder={filter.placeholder || "Enter text..."}
               value={filter.value?.toString() || ""}
               onChange={(e) => filter.onChange(e.target.value)}
-              className="h-7 text-xs w-full"
+              className="h-[26px] text-xs w-full"
               disabled={filter.disabled}
             />
           </div>
@@ -152,16 +152,16 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
 
   return (
     <Card>
-      <CardContent className="py-3 sm:py-4 space-y-3">
-        {/* Title row — page header lives here */}
+      <CardContent className="py-3 space-y-3">
+        {/* Title row */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-semibold tracking-tight">
+              <h1 className="text-sm sm:text-base font-semibold tracking-tight">
                 {config.title}
               </h1>
               {typeof config.totalCount === "number" && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-[11px] font-medium">
                   {config.totalCount.toLocaleString()}
                 </Badge>
               )}
@@ -179,45 +179,40 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                 disabled={config.buttonDisabled}
                 variant="default"
                 onClick={config.onButtonClick}
-                className="gap-1 flex-shrink-0 h-8 px-3"
+                className="gap-1 flex-shrink-0 h-[26px] px-3 text-xs"
                 title={config.buttonTooltip}
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3 h-3" />
                 {config.buttonText}
               </Button>
             )}
           </div>
         </div>
 
-        {/* Search + essential filters row */}
+        {/* Search + essential filters row — every control here is h-[26px] */}
         <div className="flex flex-wrap items-end gap-2">
-          <div className="w-full sm:w-[300px] h-8">
-            <div className="relative w-full h-full">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
-              <Input
-                type="search"
-                placeholder={config.searchPlaceholder}
-                className="pl-7 w-full h-full placeholder:text-gray-500 focus:border-primary focus:ring-primary/30 hover:border-primary transition-all duration-200"
-                value={config.searchValue}
-                onChange={config.onSearchChange}
-              />
-            </div>
+          <div className="relative w-full sm:w-[280px]">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
+            <Input
+              type="search"
+              placeholder={config.searchPlaceholder}
+              className="pl-7 h-[26px] text-xs w-full focus:border-primary focus:ring-primary/30 hover:border-primary transition-colors"
+              value={config.searchValue}
+              onChange={config.onSearchChange}
+            />
           </div>
 
-          <div className="flex flex-wrap items-end gap-2 ml-auto pb-1">
-            {essentialFilters.length > 0 && (
-              <div
-                className="grid gap-2 flex-shrink-0"
-                style={{
-                  gridTemplateColumns:
-                    "repeat(auto-fit, minmax(140px, 1fr))",
-                  maxWidth: "360px",
-                }}
-              >
-                {essentialFilters.map((filter) => renderFilter(filter))}
-              </div>
-            )}
-          </div>
+          {essentialFilters.length > 0 && (
+            <div
+              className="grid gap-2 flex-1 sm:flex-initial sm:ml-auto min-w-0"
+              style={{
+                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                maxWidth: "360px",
+              }}
+            >
+              {essentialFilters.map((filter) => renderFilter(filter))}
+            </div>
+          )}
         </div>
 
         {/* Advanced filters — inline collapsible inside the same card */}
@@ -227,19 +222,19 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               <button
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center gap-2 text-xs font-semibold text-foreground/80 hover:text-foreground transition-colors"
+                className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80 hover:text-foreground transition-colors"
               >
                 Advanced Filters
                 {advancedActiveCount > 0 && (
                   <Badge
                     variant="secondary"
-                    className="text-xs bg-primary/10 text-primary border border-primary/30"
+                    className="text-[11px] bg-primary/10 text-primary border border-primary/30 font-medium"
                   >
                     {advancedActiveCount} active
                   </Badge>
                 )}
                 <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform ${
+                  className={`w-3 h-3 transition-transform ${
                     showAdvanced ? "rotate-180" : ""
                   }`}
                 />
