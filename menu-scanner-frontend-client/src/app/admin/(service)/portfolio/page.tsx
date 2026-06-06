@@ -305,37 +305,39 @@ export default function PortfolioPage() {
               subtitle="Logo and cover image shown on your public page"
             />
           </CardHeader>
-          <CardContent className="space-y-5">
-            <Controller
-              name="logoUrl"
-              control={form.control}
-              render={({ field }) => (
-                <ClickableImageUpload
-                  label="Business Logo"
-                  value={field.value || ""}
-                  onChange={(v) => { field.onChange(v); showToast.success("Logo selected"); }}
-                  aspectRatio="square"
-                  placeholder="Click to upload logo"
-                  helperText="Square (1:1) image recommended — PNG with transparent background"
-                  maxSize={5}
-                />
-              )}
-            />
-            <Controller
-              name="coverImageUrl"
-              control={form.control}
-              render={({ field }) => (
-                <ClickableImageUpload
-                  label="Cover Image"
-                  value={field.value || ""}
-                  onChange={(v) => { field.onChange(v); showToast.success("Cover image selected"); }}
-                  aspectRatio="square"
-                  placeholder="Click to upload cover"
-                  helperText="Square (1:1) image recommended — PNG, JPG"
-                  maxSize={5}
-                />
-              )}
-            />
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Controller
+                name="logoUrl"
+                control={form.control}
+                render={({ field }) => (
+                  <ClickableImageUpload
+                    label="Business Logo"
+                    value={field.value || ""}
+                    onChange={(v) => { field.onChange(v); showToast.success("Logo selected"); }}
+                    aspectRatio="square"
+                    placeholder="Click to upload logo"
+                    helperText="Square (1:1) image recommended — PNG with transparent background"
+                    maxSize={5}
+                  />
+                )}
+              />
+              <Controller
+                name="coverImageUrl"
+                control={form.control}
+                render={({ field }) => (
+                  <ClickableImageUpload
+                    label="Cover Image"
+                    value={field.value || ""}
+                    onChange={(v) => { field.onChange(v); showToast.success("Cover image selected"); }}
+                    aspectRatio="square"
+                    placeholder="Click to upload cover"
+                    helperText="Square (1:1) image recommended — PNG, JPG"
+                    maxSize={5}
+                  />
+                )}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -739,7 +741,7 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             {galleryFields.length > 0 ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {galleryFields.map((field, index) => (
                   <div key={field.id} className="border rounded-md p-4 space-y-3 hover:shadow-sm transition-shadow relative">
                     <Button
@@ -871,7 +873,7 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             {teamFields.length > 0 ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {teamFields.map((field, index) => (
                   <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
                     <Button
