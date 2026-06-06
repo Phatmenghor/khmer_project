@@ -12,6 +12,6 @@ import java.util.UUID;
 public class BusinessHoursResponse {
     private UUID id;
     private String day;
-    private String openTime;
-    private String closeTime;
+    private String openingTime;
+    private String closingTime;
 }
