@@ -92,9 +92,9 @@ springdoc:
 # ── Telegram ──────────────────────────────────────────────────────────────────
 telegram:
   bot:
-    token: "${TELEGRAM_BOT_TOKEN:disabled}"
+    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
     enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:0}"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
     webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
     auto-setup: true
 
@@ -118,8 +118,8 @@ app:
       enabled: true
   social:
     telegram:
-      bot-token: "${TELEGRAM_BOT_TOKEN:disabled}"
-      group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:0}"
+      bot-token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
+      group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
       enabled: true
     google:
       client-id: "${GOOGLE_CLIENT_ID:disabled}"

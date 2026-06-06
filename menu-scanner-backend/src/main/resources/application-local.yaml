@@ -1,5 +1,5 @@
 # ============================================================
-# application-local.yaml — LOCAL DEVELOPMENT
+# application-local.yaml — unified profile (local/dev/h2/prod identical)
 # ============================================================
 spring:
   datasource:
@@ -13,7 +13,7 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
-      pool-name: HikariPool-Local
+      pool-name: HikariPool
 
   jpa:
     hibernate:
@@ -27,15 +27,15 @@ spring:
     enabled: false
 
 jwt:
-  secret: "${JWT_SECRET:local-dev-secret-replace-in-production-with-minimum-64-char-random-string-xyz}"
+  secret: "${JWT_SECRET:default-dev-secret-please-change-in-production-min-64-chars-xxxxxxxxxx}"
   expiration: "${JWT_EXPIRATION:86400000}"
   refresh-token-expiration: "${JWT_REFRESH_EXPIRATION:604800000}"
 
 telegram:
   bot:
-    token: "${TELEGRAM_BOT_TOKEN:disabled}"
+    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
     enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:0}"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
     webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
     auto-setup: true
 
