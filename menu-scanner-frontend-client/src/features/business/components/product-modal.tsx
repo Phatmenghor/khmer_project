@@ -765,6 +765,85 @@ export default function ProductModal({
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle>Product Images</CardTitle>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {imageFields.length > 0
+                            ? `${imageFields.length}/${MAX_PRODUCT_IMAGES} images uploaded`
+                            : `Upload up to ${MAX_PRODUCT_IMAGES} product images`}
+                        </p>
+                      </div>
+                      {canAddMore && (
+                        <div>
+                          <input
+                            type="file"
+                            id="multiple-image-upload"
+                            multiple
+                            accept="image/*"
+                            onChange={handleMultipleImageUpload}
+                            className="hidden"
+                            disabled={isProcessing}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              document
+                                .getElementById("multiple-image-upload")
+                                ?.click()
+                            }
+                            disabled={isProcessing}
+                          >
+                            <Plus className="h-3 w-3 mr-1" />
+                            {isProcessingImages ? "Processing..." : "Upload"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {imageFields.length === 0 ? (
+                      <div className="text-center py-5 border-2 border-dashed rounded">
+                        <p className="text-xs text-muted-foreground">
+                          No images uploaded yet
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                        {imageFields.map((field, index) => (
+                          <div key={field.id}>
+                            <ClickableImageUpload
+                              label=""
+                              value={watch(`images.${index}.imageUrl`) || ""}
+                              onChange={(base64) => {
+                                if (base64 === "") {
+                                  removeImage(index);
+                                } else {
+                                  setValue(
+                                    `images.${index}.imageUrl`,
+                                    base64,
+                                    { shouldDirty: true },
+                                  );
+                                }
+                              }}
+                              aspectRatio="square"
+                              maxSize={5}
+                              disabled={isProcessing}
+                              error={errors.images?.[index]?.imageUrl as any}
+                              showPreviewText={false}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
                       <CardTitle>Product Sizes</CardTitle>
                       <div className="flex items-center gap-1">
                         {hasSizes && sizeFields.some((_, idx) => {
@@ -1114,84 +1193,6 @@ export default function ProductModal({
                   </CardContent>
                 </Card>
 
-                {}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>Product Images</CardTitle>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {imageFields.length > 0
-                            ? `${imageFields.length}/${MAX_PRODUCT_IMAGES} images uploaded`
-                            : `Upload up to ${MAX_PRODUCT_IMAGES} product images`}
-                        </p>
-                      </div>
-                      {canAddMore && (
-                        <div>
-                          <input
-                            type="file"
-                            id="multiple-image-upload"
-                            multiple
-                            accept="image/*"
-                            onChange={handleMultipleImageUpload}
-                            className="hidden"
-                            disabled={isProcessing}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              document
-                                .getElementById("multiple-image-upload")
-                                ?.click()
-                            }
-                            disabled={isProcessing}
-                          >
-                            <Plus className="h-3 w-3 mr-1" />
-                            {isProcessingImages ? "Processing..." : "Upload"}
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {imageFields.length === 0 ? (
-                      <div className="text-center py-5 border-2 border-dashed rounded">
-                        <p className="text-xs text-muted-foreground">
-                          No images uploaded yet
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                        {imageFields.map((field, index) => (
-                          <div key={field.id}>
-                            <ClickableImageUpload
-                              label=""
-                              value={watch(`images.${index}.imageUrl`) || ""}
-                              onChange={(base64) => {
-                                if (base64 === "") {
-                                  removeImage(index);
-                                } else {
-                                  setValue(
-                                    `images.${index}.imageUrl`,
-                                    base64,
-                                    { shouldDirty: true },
-                                  );
-                                }
-                              }}
-                              aspectRatio="square"
-                              maxSize={5}
-                              disabled={isProcessing}
-                              error={errors.images?.[index]?.imageUrl as any}
-                              showPreviewText={false}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
               </div>
             </FormBody>
 
