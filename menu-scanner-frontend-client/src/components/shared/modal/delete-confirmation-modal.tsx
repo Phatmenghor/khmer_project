@@ -77,13 +77,22 @@ export function DeleteConfirmationModal({
 
   const headerSlot = (
     <div className="px-4 pt-4 pb-3 border-b">
-      <div className="flex items-start gap-3">
-        <div className="p-2 bg-destructive/10 border border-destructive/20 rounded shrink-0">
-          {icon ?? <AlertTriangle className="h-3 w-3 text-destructive" />}
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-destructive/10 border border-destructive/30 rounded-md shrink-0">
+          {icon ?? (
+            <AlertTriangle
+              className="h-5 w-5 text-destructive"
+              strokeWidth={2.25}
+            />
+          )}
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-xs font-semibold text-foreground">{title}</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+          <h2 className="text-sm font-semibold leading-tight text-foreground">
+            {title}
+          </h2>
+          <p className="text-xs leading-snug text-muted-foreground mt-0.5">
+            {description}
+          </p>
         </div>
       </div>
     </div>
