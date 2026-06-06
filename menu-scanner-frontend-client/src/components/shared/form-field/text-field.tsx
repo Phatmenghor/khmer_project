@@ -24,7 +24,7 @@ export function TextField<T extends FieldValues = FieldValues>({
   onCustomChange,
 }: TextFormFieldProps<T>) {
   return (
-    <div className={`space-y-1 ${className}`}>
+    <div className={`flex flex-col gap-1 w-full ${className}`}>
       <Label htmlFor={name} className="text-xs font-medium text-foreground">
         {label} {required && <span className="text-red-500 ml-1">*</span>}
       </Label>

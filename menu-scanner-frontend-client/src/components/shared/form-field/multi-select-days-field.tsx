@@ -131,7 +131,7 @@ function MultiSelectDaysContent({
   };
 
   return (
-    <div className={`space-y-1 ${className}`}>
+    <div className={`flex flex-col gap-1 w-full ${className}`}>
       <Label className="text-xs font-medium">
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
@@ -166,9 +166,7 @@ function MultiSelectDaysContent({
         })}
       </div>
 
-      {hasError && errorMessage && (
-        <p className="text-xs text-red-600">{errorMessage}</p>
-      )}
+      <p className="text-xs text-red-600 min-h-[16px]">{errorMessage || ""}</p>
     </div>
   );
 }

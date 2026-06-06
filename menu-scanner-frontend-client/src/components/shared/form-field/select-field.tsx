@@ -35,7 +35,7 @@ export function SelectField<T extends FieldValues = FieldValues>({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`space-y-1 ${className}`}>
+    <div className={`flex flex-col gap-1 w-full ${className}`}>
       <Label htmlFor={name} className="text-xs font-medium">
         {label} {required && <span className="text-red-500">*</span>}
       </Label>

@@ -22,7 +22,7 @@ export function DateTimePickerField<T extends FieldValues = FieldValues>({
   mode = "date",
 }: DatePickerFormFieldProps<T>) {
   return (
-    <div className={`space-y-1`}>
+    <div className={`flex flex-col gap-1 w-full ${className}`}>
       <Label
         htmlFor={name}
         className="text-xs sm:text-xs font-semibold text-foreground"
