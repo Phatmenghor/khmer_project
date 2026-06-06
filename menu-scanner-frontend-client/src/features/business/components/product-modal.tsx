@@ -736,8 +736,8 @@ export default function ProductModal({
                                 control={control}
                                 name="promotionFromDate"
                                 label="Promotion From"
-                                mode="datetime"
-                                placeholder="Select start date & time"
+                                mode="date"
+                                placeholder="Select start date"
                                 disabled={isProcessing}
                                 error={errors.promotionFromDate}
                               />
@@ -748,8 +748,8 @@ export default function ProductModal({
                                 control={control}
                                 name="promotionToDate"
                                 label="Promotion To"
-                                mode="datetime"
-                                placeholder="Select end date & time"
+                                mode="date"
+                                placeholder="Select end date"
                                 disabled={isProcessing}
                                 error={errors.promotionToDate}
                               />
@@ -1064,8 +1064,8 @@ export default function ProductModal({
                                           control={control}
                                           name={`sizes.${index}.promotionFromDate`}
                                           label="Promotion From"
-                                          mode="datetime"
-                                          placeholder="Select start date & time"
+                                          mode="date"
+                                          placeholder="Select start date"
                                           disabled={isProcessing}
                                           error={
                                             errors.sizes?.[index]
@@ -1079,8 +1079,8 @@ export default function ProductModal({
                                           control={control}
                                           name={`sizes.${index}.promotionToDate`}
                                           label="Promotion To"
-                                          mode="datetime"
-                                          placeholder="Select end date & time"
+                                          mode="date"
+                                          placeholder="Select end date"
                                           disabled={isProcessing}
                                           error={
                                             errors.sizes?.[index]
