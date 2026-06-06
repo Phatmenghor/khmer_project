@@ -1,16 +1,14 @@
 # ============================================================
-# application-local.yaml  –  LOCAL DEVELOPMENT
+# application-local.yaml — LOCAL DEVELOPMENT
 # ============================================================
-# Uses localhost PostgreSQL.
-# Override any value with environment variables:
-#   DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD
+# All values have defaults so the app starts without any env vars.
+# Override via environment variables or .env file as needed.
 # ============================================================
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:e_menu_platform}
-    username: ${DB_USERNAME:postgres}
-    # SECURITY: Set DB_PASSWORD env var; never commit real passwords here
-    password: ${DB_PASSWORD:}
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:e_menu_platform}"
+    username: "${DB_USERNAME:postgres}"
+    password: "${DB_PASSWORD:}"
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -28,23 +26,25 @@ spring:
       hibernate:
         format_sql: false
 
-# Local-only JWT secret (DEV ONLY — generate a fresh one for prod via openssl rand -hex 64)
+  flyway:
+    enabled: false
+
+# Local JWT secret — DEV ONLY. Generate for prod: openssl rand -hex 64
 jwt:
-  secret: "${JWT_SECRET:local-dev-secret-replace-in-production-with-min-64-char-random-string-x9z}"
+  secret: "${JWT_SECRET:local-dev-secret-replace-in-production-with-minimum-64-char-random-string-xyz}"
+
+app:
+  cache:
+    provider: "${CACHE_PROVIDER:caffeine}"
+  security:
+    cors:
+      allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:4173}"
 
 logging:
   level:
     root: INFO
-    com.emenu: INFO
+    com.emenu: DEBUG
     org.springframework: WARN
     org.hibernate: WARN
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-
-# Telegram (Local Development) — set TELEGRAM_BOT_TOKEN in .env or env vars
-telegram:
-  bot:
-    token: "${TELEGRAM_BOT_TOKEN:}"
-    enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:}"
+    console: "%d{HH:mm:ss.SSS} %-5level [%X{requestId}] %logger{30} - %msg%n"

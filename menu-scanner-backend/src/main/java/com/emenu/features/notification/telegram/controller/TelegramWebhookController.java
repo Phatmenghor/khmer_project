@@ -51,7 +51,7 @@ public class TelegramWebhookController {
             return ResponseEntity.ok(ApiResponse.success("Webhook processed", result));
         } catch (Exception e) {
             log.error("[Telegram Webhook] Error processing webhook: {}", e.getMessage(), e);
-            return ResponseEntity.ok(ApiResponse.error("Error processing webhook: " + e.getMessage()));
+            return ResponseEntity.ok(ApiResponse.failure("Error processing webhook: " + e.getMessage()));
         }
     }
     private String handleCommand(String text, long chatId) {
@@ -99,7 +99,7 @@ public class TelegramWebhookController {
         } catch (Exception e) {
             log.error("[Telegram] Error sending test message: {}", e.getMessage(), e);
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Failed to send test message: " + e.getMessage()));
+                    .body(ApiResponse.failure("Failed to send test message: " + e.getMessage()));
         }
     }
 
@@ -115,7 +115,7 @@ public class TelegramWebhookController {
         } catch (Exception e) {
             log.error("[Telegram] Error getting status: {}", e.getMessage(), e);
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Failed to get status: " + e.getMessage()));
+                    .body(ApiResponse.failure("Failed to get status: " + e.getMessage()));
         }
     }
 }

@@ -1,18 +1,18 @@
 # ============================================================
-# application.yaml - BASE CONFIG (shared across all profiles)
+# application.yaml — BASE CONFIG (shared across all profiles)
 # ============================================================
-# To switch environment:
-#   profiles.active: local => localhost DB, debug logging
-#   profiles.active: dev => dev server DB
-#   profiles.active: prod => production DB, minimal logging
+# Profile selection:
+#   local  → localhost PostgreSQL, debug logging
+#   dev    → dev-server PostgreSQL, standard logging
+#   prod   → production DB, no Swagger, minimal logging
+#
+# All sensitive values can be overridden with environment variables.
 # ============================================================
 spring:
   application:
     name: cambodia-emenu-platform
-  # IMPORTANT: Set SPRING_PROFILES_ACTIVE env var to 'local', 'dev', or 'prod' before starting.
-  # Do NOT rely on this base config's default. Production MUST use 'prod'.
 
-  # JPA - common settings (ddl-auto overridden per profile)
+  # JPA — ddl-auto and show-sql are set per profile
   jpa:
     open-in-view: false
     properties:
@@ -25,11 +25,15 @@ spring:
         order_updates: true
         default_batch_fetch_size: 25
 
-  # Cache — set type=none; CacheConfig/RedisConfig manage the beans directly
+  # Flyway — disabled by default; enabled in prod profile only
+  flyway:
+    enabled: false
+
+  # Cache — beans managed by CacheConfig/RedisConfig directly
   cache:
     type: none
 
-  # Redis (only used when app.cache.provider=redis)
+  # Redis
   data:
     redis:
       host: "${REDIS_HOST:localhost}"
@@ -38,7 +42,7 @@ spring:
       database: "${REDIS_DATABASE:0}"
       timeout: 2000ms
 
-# Server
+# ── Server ────────────────────────────────────────────────────────────────────
 server:
   port: 7070
   max-http-request-header-size: 65536
@@ -47,18 +51,18 @@ server:
     mime-types: application/json,application/xml,text/html,text/plain
     min-response-size: 2048
 
-# JWT — JWT_SECRET MUST be set via environment variable in production (min 64 chars)
+# ── JWT ───────────────────────────────────────────────────────────────────────
+# JWT_SECRET is REQUIRED in prod (min 64 chars). Dev profiles provide a default.
 jwt:
   secret: "${JWT_SECRET}"
-  expiration: "${JWT_EXPIRATION:86400000}"           # 24 hours (ms)
-  refresh-token-expiration: "${JWT_REFRESH_EXPIRATION:604800000}" # 7 days (ms)
+  expiration: "${JWT_EXPIRATION:86400000}"
+  refresh-token-expiration: "${JWT_REFRESH_EXPIRATION:604800000}"
 
-# Actuator & Monitoring
+# ── Actuator & Monitoring ─────────────────────────────────────────────────────
 management:
   endpoints:
     web:
       exposure:
-        # 'env' removed — it can expose secrets from environment variables
         include: health,info,metrics,prometheus,caches,loggers
       base-path: /actuator
   endpoint:
@@ -83,7 +87,7 @@ info:
     version: "1.0.0"
     description: "Restaurant Management Platform for Cambodia"
 
-# Swagger / OpenAPI
+# ── Swagger / OpenAPI ─────────────────────────────────────────────────────────
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -92,7 +96,7 @@ springdoc:
     path: /v3/api-docs
     enabled: true
 
-# Telegram — token MUST be provided via TELEGRAM_BOT_TOKEN environment variable
+# ── Telegram ──────────────────────────────────────────────────────────────────
 telegram:
   bot:
     token: "${TELEGRAM_BOT_TOKEN:}"
@@ -101,22 +105,18 @@ telegram:
     webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
     auto-setup: true
 
-# Application
+# ── Application ───────────────────────────────────────────────────────────────
 app:
   name: "Cambodia E-Menu Platform"
   version: "1.0.0"
   description: "Restaurant Management Platform for Cambodia"
   init:
     create-admin: true
-    # SECURITY: Set admin credentials via environment variables — never hardcode here
     admin-email: "${APP_ADMIN_EMAIL:}"
     admin-password: "${APP_ADMIN_PASSWORD:}"
-    # Test data now generated via SQL script: test-data-with-freepik-urls.sql
   subscription:
-    expiry-soon-days: 7   # days before end date to flag as expiring-soon
-    # Run directly in pgAdmin for instant data population with Freepik images
+    expiry-soon-days: 7
   cache:
-    # "caffeine" (default, in-process) or "redis" (distributed, requires Redis)
     provider: "${CACHE_PROVIDER:caffeine}"
   security:
     cors:

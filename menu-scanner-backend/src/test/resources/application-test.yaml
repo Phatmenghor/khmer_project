@@ -23,7 +23,7 @@ spring:
       port: 6379
 
 jwt:
-  secret: "test-secret-replace-in-ci-with-real-64-char-random-value-xxxxxxxxxxxxxxxxxxxxxxxxx"
+  secret: "test-only-secret-do-not-use-in-production-minimum-64-characters-long-xxxxxxxxxxx"
   expiration: 3600000
   refresh-token-expiration: 86400000
 

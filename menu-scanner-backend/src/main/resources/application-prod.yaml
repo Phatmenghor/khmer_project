@@ -1,8 +1,8 @@
 # ============================================================
 # application-prod.yaml — PRODUCTION
 # ============================================================
-# All sensitive values MUST be provided via environment variables.
-# Never commit real credentials here.
+# ALL sensitive values MUST be provided via environment variables.
+# No defaults for secrets — missing vars will cause startup failure.
 # ============================================================
 spring:
   datasource:
@@ -39,14 +39,29 @@ spring:
     out-of-order: false
     validate-on-migrate: true
 
-# Swagger / OpenAPI — disabled in production
+# Redis — required in prod
+  data:
+    redis:
+      host: "${REDIS_HOST}"
+      port: "${REDIS_PORT:6379}"
+      password: "${REDIS_PASSWORD}"
+      database: "${REDIS_DATABASE:0}"
+
+app:
+  cache:
+    provider: "${CACHE_PROVIDER:redis}"
+  security:
+    cors:
+      allowed-origins: "${CORS_ALLOWED_ORIGINS}"
+
+# Swagger disabled in production
 springdoc:
   swagger-ui:
     enabled: false
   api-docs:
     enabled: false
 
-# Actuator — tighten health detail in production
+# Actuator — hide internals in production
 management:
   endpoint:
     health:
