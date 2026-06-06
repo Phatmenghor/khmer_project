@@ -355,7 +355,7 @@ function CartPage() {
         onDelete={handleClearCart}
         title="Clear Cart"
         description={`Remove all ${totalItems} ${totalItems === 1 ? "item" : "items"} from your cart? This cannot be undone.`}
-        icon={<PackageX className="h-3 w-3 text-destructive" />}
+        icon={PackageX}
         confirmButtonText="Clear Cart"
         variant="critical"
       />

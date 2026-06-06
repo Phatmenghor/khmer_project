@@ -7,8 +7,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type FormHeaderVariant = "default" | "destructive";
 
 interface FormHeaderProps {
   title: string;
@@ -17,6 +19,8 @@ interface FormHeaderProps {
   avatarImageUrl?: string;
   showAvatar?: boolean;
   isCreate?: boolean;
+  icon?: LucideIcon;
+  variant?: FormHeaderVariant;
   className?: string;
 }
 
@@ -27,10 +31,17 @@ export function FormHeader({
   avatarImageUrl,
   showAvatar = false,
   isCreate = true,
+  icon,
+  variant = "default",
   className,
 }: FormHeaderProps) {
+  const Icon = icon ?? (isCreate ? Plus : Edit);
 
-  const Icon = isCreate ? Plus : Edit;
+  const isDestructive = variant === "destructive";
+  const iconBoxClass = isDestructive
+    ? "bg-destructive/10 border-destructive/30"
+    : "bg-primary/10 border-primary/30";
+  const iconColorClass = isDestructive ? "text-destructive" : "text-primary";
 
   return (
     <DialogHeader
@@ -41,8 +52,16 @@ export function FormHeader({
         {showAvatar ? (
           <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
         ) : (
-          <div className="p-2 bg-primary/10 border border-primary/30 rounded-md shrink-0">
-            <Icon className="h-5 w-5 text-primary" strokeWidth={2.25} />
+          <div
+            className={cn(
+              "p-2 border rounded-md shrink-0",
+              iconBoxClass,
+            )}
+          >
+            <Icon
+              className={cn("h-5 w-5", iconColorClass)}
+              strokeWidth={2.25}
+            />
           </div>
         )}
 
