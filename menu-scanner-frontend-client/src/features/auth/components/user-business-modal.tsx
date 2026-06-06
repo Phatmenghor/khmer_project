@@ -815,10 +815,8 @@ export default function UserBusinessModal({
                       </p>
                     </div>
                   ) : (
-                    <Card>
-                      <CardContent className="pt-4">
-                        <div className="space-y-3">
-                          {addressFields.map((field, index) => (
+                    <div className="space-y-3">
+                      {addressFields.map((field, index) => (
                             <div key={field.id} className="pb-3 border-b last:border-0 last:pb-0">
                               <div className="flex items-center justify-between mb-2">
                                 <p className="text-xs font-medium">Address {index + 1}</p>
@@ -918,9 +916,7 @@ export default function UserBusinessModal({
                               </div>
                             </div>
                           ))}
-                        </div>
-                      </CardContent>
-                    </Card>
+                    </div>
                   )}
                 </div>
 
@@ -964,10 +960,8 @@ export default function UserBusinessModal({
                       </p>
                     </div>
                   ) : (
-                    <Card>
-                      <CardContent className="pt-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {contactFields.map((field, index) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {contactFields.map((field, index) => (
                             <div
                               key={field.id}
                               className="border rounded p-3 relative lg:col-span-2"
@@ -1017,10 +1011,8 @@ export default function UserBusinessModal({
                                 </Button>
                               )}
                             </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
+                      ))}
+                    </div>
                   )}
                 </div>
 
