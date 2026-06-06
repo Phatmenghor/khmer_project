@@ -141,10 +141,10 @@ export default function BulkPromotionPage() {
       productIds: [],
       promotionType: undefined,
       promotionValue: 0,
-      promotionFromDate: new Date().toISOString(),
+      promotionFromDate: new Date().toISOString().split("T")[0],
       promotionToDate: new Date(
         Date.now() + PROMOTION_DEFAULT_DURATION_DAYS * 24 * 60 * 60 * 1000,
-      ).toISOString(),
+      ).toISOString().split("T")[0],
     },
   });
 
@@ -978,7 +978,7 @@ export default function BulkPromotionPage() {
                       name="promotionFromDate"
                       label="Start Date"
                       required
-                      mode="datetime"
+                      mode="date"
                       error={form.formState.errors.promotionFromDate}
                     />
 
@@ -988,7 +988,7 @@ export default function BulkPromotionPage() {
                       name="promotionToDate"
                       label="End Date"
                       required
-                      mode="datetime"
+                      mode="date"
                       error={form.formState.errors.promotionToDate}
                     />
                   </div>
