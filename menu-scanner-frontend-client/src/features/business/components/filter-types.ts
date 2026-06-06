@@ -1,5 +1,5 @@
 
-export type FilterType = 'select' | 'combobox-brand' | 'combobox-categories' | 'input-number' | 'input-text';
+export type FilterType = 'select' | 'combobox-brand' | 'combobox-categories' | 'input-number' | 'input-text' | 'date';
 
 export interface FilterOption {
   value: string;
@@ -47,12 +47,17 @@ export interface InputTextFilterConfig extends BaseFilterConfig {
   type: 'input-text';
 }
 
+export interface DateFilterConfig extends BaseFilterConfig {
+  type: 'date';
+}
+
 export type FilterConfig =
   | SelectFilterConfig
   | ComboboxBrandFilterConfig
   | ComboboxCategoriesFilterConfig
   | InputNumberFilterConfig
-  | InputTextFilterConfig;
+  | InputTextFilterConfig
+  | DateFilterConfig;
 
 
 export interface FilterPanelConfig {

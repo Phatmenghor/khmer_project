@@ -5,6 +5,7 @@ import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { CustomSelect } from "@/components/shared/common/custom-select";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
+import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -122,6 +123,22 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               value={filter.value?.toString() || ""}
               onChange={(e) => filter.onChange(e.target.value)}
               className="h-7 text-xs w-full"
+              disabled={filter.disabled}
+            />
+          </div>
+        );
+
+      case "date":
+        return (
+          <div key={filter.id} className="flex flex-col gap-1">
+            <label className="text-xs font-medium whitespace-nowrap">
+              {filter.label}
+            </label>
+            <CustomDateTimePicker
+              value={filter.value?.toString() || ""}
+              onChange={(val) => filter.onChange(val || undefined)}
+              placeholder={filter.placeholder || "Select date"}
+              mode="date"
               disabled={filter.disabled}
             />
           </div>

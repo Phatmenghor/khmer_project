@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -25,8 +23,6 @@ import {
 import { orderAdminTableColumns } from "@/features/business/table/order-admin-table";
 import { OrderDetailModal } from "@/features/business/components/order-detail-modal";
 import { OrderUpdateModal } from "@/features/business/components/order-update-modal";
-import { CustomSelect } from "@/components/shared/common/custom-select";
-import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -39,9 +35,14 @@ import {
   PAYMENT_STATUS_ADMIN_FILTER,
 } from "@/constants/status/filter-status";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
+import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
+import { FilterPanelConfig } from "@/features/business/components/filter-types";
+import { useRouter } from "next/navigation";
 
 export default function OrdersAdminPage() {
   useAdminCleanup(resetState);
+
+  const router = useRouter();
 
   const {
     orderState,
@@ -192,71 +193,77 @@ export default function OrdersAdminPage() {
     setDeleteState({ isOpen: false, order: null });
   };
 
-  const handleOrderStatusChange = (value: string) => {
-    dispatch(setOrderStatusFilter(value));
+  const handleOrderStatusChange = (value: string | number | boolean | null | undefined) => {
+    dispatch(setOrderStatusFilter(String(value ?? "")));
   };
 
-  const handlePaymentStatusChange = (value: string) => {
-    dispatch(setPaymentStatusFilter(value));
+  const handlePaymentStatusChange = (value: string | number | boolean | null | undefined) => {
+    dispatch(setPaymentStatusFilter(String(value ?? "")));
   };
 
-  const handleStartDateChange = (dateString: string) => {
-    dispatch(setStartDateFilter(dateString && dateString.trim() ? dateString : undefined));
+  const handleStartDateChange = (value: string | number | boolean | null | undefined) => {
+    const dateString = String(value ?? "");
+    dispatch(setStartDateFilter(dateString.trim() ? dateString : undefined));
   };
 
-  const handleEndDateChange = (dateString: string) => {
-    dispatch(setEndDateFilter(dateString && dateString.trim() ? dateString : undefined));
+  const handleEndDateChange = (value: string | number | boolean | null | undefined) => {
+    const dateString = String(value ?? "");
+    dispatch(setEndDateFilter(dateString.trim() ? dateString : undefined));
   };
+
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Order Management",
+    searchValue: filters.search,
+    searchPlaceholder: "Search order...",
+    onSearchChange: handleSearchChange,
+    buttonText: "New Order",
+    buttonDisabled: false,
+    onButtonClick: () => router.push(ROUTES.ADMIN.POS),
+    filters: [
+      {
+        id: "orderStatus",
+        type: "select",
+        label: "Order Status",
+        placeholder: "All Status",
+        value: filters.orderStatus || "ALL",
+        onChange: handleOrderStatusChange,
+        options: ORDER_STATUS_ADMIN_FILTER,
+      },
+      {
+        id: "paymentStatus",
+        type: "select",
+        label: "Payment Status",
+        placeholder: "All Payment",
+        value: filters.paymentStatus || "ALL",
+        onChange: handlePaymentStatusChange,
+        options: PAYMENT_STATUS_ADMIN_FILTER,
+      },
+      {
+        id: "startDate",
+        type: "date",
+        label: "From Date",
+        placeholder: "Select start date",
+        value: filters.startDate || "",
+        onChange: handleStartDateChange,
+      },
+      {
+        id: "endDate",
+        type: "date",
+        label: "To Date",
+        placeholder: "Select end date",
+        value: filters.endDate || "",
+        onChange: handleEndDateChange,
+      },
+    ],
+  }), [filters, router]);
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
-        <CardHeaderSection
-          title="Order Management"
-          searchValue={filters.search}
-          searchPlaceholder="Search order..."
-          onSearchChange={handleSearchChange}
-          buttonText="New Order"
-          buttonIcon={<Plus className="h-3 w-3" />}
-          buttonHref={ROUTES.ADMIN.POS}
-          buttonTooltip="Create a new POS order"
-        >
-          <CustomSelect
-            options={ORDER_STATUS_ADMIN_FILTER}
-            value={filters.orderStatus || "ALL"}
-            placeholder="All Status"
-            onValueChange={handleOrderStatusChange}
-            label="Order Status"
-          />
-
-          <CustomSelect
-            options={PAYMENT_STATUS_ADMIN_FILTER}
-            value={filters.paymentStatus || "ALL"}
-            placeholder="All Payment"
-            onValueChange={handlePaymentStatusChange}
-            label="Payment Status"
-          />
-          <div className="flex gap-1">
-            <div className="flex-1">
-              <label className="text-xs font-medium text-foreground mb-1 block">From Date</label>
-              <CustomDateTimePicker
-                value={filters.startDate || ""}
-                onChange={handleStartDateChange}
-                placeholder="Select start date"
-                mode="date"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="text-xs font-medium text-foreground mb-1 block">To Date</label>
-              <CustomDateTimePicker
-                value={filters.endDate || ""}
-                onChange={handleEndDateChange}
-                placeholder="Select end date"
-                mode="date"
-              />
-            </div>
-          </div>
-        </CardHeaderSection>
+        <CollapsibleFilterPanel
+          config={filterConfig}
+          essentialFilterIds={["orderStatus", "paymentStatus"]}
+        />
 
         <DataTableWithPagination
           data={orderContent}
