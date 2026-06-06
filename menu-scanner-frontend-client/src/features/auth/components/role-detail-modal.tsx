@@ -69,12 +69,7 @@ export function RoleDetailModal({
       <DialogContent className="w-full sm:max-w-md max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-bold text-foreground leading-tight">{displayName}</h2>
-            <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700">
-              {formatEnumValue(roleData.userType)}
-            </span>
-          </div>
+          <h2 className="text-sm font-bold text-foreground leading-tight">{displayName}</h2>
         </div>
 
         {/* Body */}

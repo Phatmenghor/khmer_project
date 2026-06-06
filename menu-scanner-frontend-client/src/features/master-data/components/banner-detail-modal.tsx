@@ -62,18 +62,10 @@ export function BannerDetailModal({
       <DialogTitle className="sr-only">Banner Details</DialogTitle>
       <DialogContent className="w-full sm:max-w-xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-2">
-          <p className="text-sm font-bold text-foreground flex-1 min-w-0 truncate">
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+          <p className="text-sm font-bold text-foreground truncate">
             {banner.businessName || "Banner"}
           </p>
-          <span
-            className={cn(
-              "px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0",
-              isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
-            )}
-          >
-            {banner.status ? formatEnumValue(banner.status) : "---"}
-          </span>
         </div>
 
         {/* Body */}

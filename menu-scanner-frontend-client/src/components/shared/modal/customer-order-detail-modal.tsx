@@ -211,14 +211,6 @@ export function CustomerOrderDetailModal({
               </p>
             </div>
           </div>
-          <div
-            className={cn(
-              "flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0",
-              statusCfg.badgeBg
-            )}
-          >
-            {getOrderStatusLabel(order.orderStatus)}
-          </div>
         </div>
 
         {/* Body */}

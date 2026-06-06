@@ -139,28 +139,11 @@ export function ProductDetailModal({
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-sm font-bold text-foreground truncate">
-                {productData.name}
-              </p>
-              <span
-                className={cn(
-                  "px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0",
-                  isActive
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-100 text-gray-500"
-                )}
-              >
-                {isActive ? "Active" : "Inactive"}
-              </span>
-              {promoLabel && (
-                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 flex-shrink-0">
-                  {promoLabel}
-                </span>
-              )}
-            </div>
+            <p className="text-sm font-bold text-foreground truncate">
+              {productData.name}
+            </p>
             {productData.businessName && (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {productData.businessName}
               </p>
             )}

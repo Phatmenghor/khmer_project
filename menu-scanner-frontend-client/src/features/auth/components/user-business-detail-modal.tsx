@@ -147,29 +147,9 @@ export function UserBusinessDetailModal({
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-sm font-bold text-foreground truncate">
-                {userData.fullName || userData.userIdentifier || "---"}
-              </p>
-              {userData.accountStatus && (
-                <span
-                  className={cn(
-                    "px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0",
-                    statusColor(userData.accountStatus)
-                  )}
-                >
-                  {formatEnumValue(userData.accountStatus)}
-                </span>
-              )}
-              {userData.roles?.map((role) => (
-                <span
-                  key={role}
-                  className="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 flex-shrink-0"
-                >
-                  {formatEnumValue(role)}
-                </span>
-              ))}
-            </div>
+            <p className="text-sm font-bold text-foreground truncate">
+              {userData.fullName || userData.userIdentifier || "---"}
+            </p>
             <div className="flex flex-wrap gap-2 mt-0.5">
               {userData.email && (
                 <span className="text-xs text-muted-foreground">{userData.email}</span>
@@ -194,6 +174,30 @@ export function UserBusinessDetailModal({
               <div className="rounded border border-border/50 bg-card p-3">
                 <SectionTitle>Personal Information</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <InfoRow
+                    label="Status"
+                    value={
+                      userData.accountStatus ? (
+                        <span className={cn("px-2 py-0.5 rounded-full text-xs font-semibold", statusColor(userData.accountStatus))}>
+                          {formatEnumValue(userData.accountStatus)}
+                        </span>
+                      ) : "---"
+                    }
+                  />
+                  <InfoRow
+                    label="Roles"
+                    value={
+                      userData.roles && userData.roles.length > 0 ? (
+                        <div className="flex flex-wrap gap-1 mt-0.5">
+                          {userData.roles.map((role) => (
+                            <span key={role} className="px-1.5 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-700">
+                              {formatEnumValue(role)}
+                            </span>
+                          ))}
+                        </div>
+                      ) : "---"
+                    }
+                  />
                   <InfoRow label="First Name" value={userData.firstName || "---"} />
                   <InfoRow label="Last Name" value={userData.lastName || "---"} />
                   <InfoRow label="Nickname" value={userData.nickname || "---"} />
