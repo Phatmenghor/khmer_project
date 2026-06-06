@@ -35,15 +35,6 @@ spring:
       database: "${REDIS_DATABASE:0}"
       timeout: 2000ms
 
-# ── Server ────────────────────────────────────────────────────────────────────
-server:
-  port: 7070
-  max-http-request-header-size: 65536
-  compression:
-    enabled: true
-    mime-types: application/json,application/xml,text/html,text/plain
-    min-response-size: 2048
-
 # ── Actuator & Monitoring ─────────────────────────────────────────────────────
 management:
   endpoints:
