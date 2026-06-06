@@ -10,17 +10,44 @@ import {
 import { fetchProductByIdService } from "../store/thunks/product-thunks";
 import { clearSelectedProduct } from "../store/slice/product-slice";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { DisplayField } from "@/components/shared/form-field/display-field";
 import { Loading } from "@/components/shared/common/loading";
-import { formatEnumValue } from "@/utils/format/enum-formatter";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { Package, Eye, Heart, Box } from "lucide-react";
 
 interface ProductDetailModalProps {
   productId?: string;
   isOpen: boolean;
   onClose: () => void;
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-2.5">
+      <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
+        {children}
+      </h3>
+    </div>
+  );
+}
+
+function InfoRow({
+  label,
+  value,
+  fullWidth,
+}: {
+  label: string;
+  value: React.ReactNode;
+  fullWidth?: boolean;
+}) {
+  return (
+    <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
+      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        {label}
+      </span>
+      <span className="text-xs text-foreground break-words">{value ?? "---"}</span>
+    </div>
+  );
 }
 
 export function ProductDetailModal({
@@ -33,15 +60,8 @@ export function ProductDetailModal({
   const productData = useAppSelector(selectSelectedProduct);
 
   useEffect(() => {
-    const fetchProductData = async () => {
-      if (!productId || !isOpen) return;
-      try {
-        await dispatch(fetchProductByIdService(productId)).unwrap();
-      } catch (error: unknown) {
-      }
-    };
-
-    fetchProductData();
+    if (!productId || !isOpen) return;
+    dispatch(fetchProductByIdService(productId)).unwrap().catch(() => {});
   }, [productId, isOpen, dispatch]);
 
   const handleClose = () => {
@@ -53,8 +73,8 @@ export function ProductDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">Product Details Loading</DialogTitle>
-        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-full">
+        <DialogContent className="w-full sm:max-w-5xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-center h-64">
             <Loading />
           </div>
         </DialogContent>
@@ -66,118 +86,135 @@ export function ProductDetailModal({
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogTitle className="sr-only">Product Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-full">
-            <p className="text-muted-foreground">No product data available</p>
+        <DialogContent className="w-full sm:max-w-5xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-center h-64">
+            <p className="text-sm text-muted-foreground">No product data available</p>
           </div>
         </DialogContent>
       </Dialog>
     );
   }
 
+  const isActive = productData.status === "ACTIVE";
+  const hasPromo = productData.hasPromotion;
+
+  const promoLabel = hasPromo
+    ? productData.displayPromotionType === "PERCENTAGE"
+      ? `${productData.displayPromotionValue}% OFF`
+      : productData.displayPromotionType === "FIXED"
+        ? `${formatCurrency(productData.displayPromotionValue || 0)} OFF`
+        : "On Sale"
+    : null;
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTitle className="sr-only">
         Product Details - {productData.name}
       </DialogTitle>
-      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        {}
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 flex-shrink-0 rounded overflow-hidden border bg-muted">
-              {productData.mainImageUrl ? (
-                <img
-                  src={productData.mainImageUrl}
-                  alt={productData.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-xs text-muted-foreground">
-                    No image
-                  </span>
-                </div>
+
+      <DialogContent className="w-full sm:max-w-5xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
+
+        {/* ── Header ── */}
+        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
+          <div className="relative flex-shrink-0 w-14 h-14 rounded overflow-hidden bg-muted border border-border/50">
+            {productData.mainImageUrl ? (
+              <img
+                src={productData.mainImageUrl}
+                alt={productData.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Package className="h-5 w-5 text-muted-foreground" />
+              </div>
+            )}
+            {hasPromo && (
+              <div
+                className="absolute bottom-0 left-0 right-0 bg-red-500/85 text-white text-center font-bold leading-none py-0.5"
+                style={{ fontSize: "7px" }}
+              >
+                SALE
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-sm font-bold text-foreground truncate">
+                {productData.name}
+              </p>
+              <span
+                className={cn(
+                  "px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0",
+                  isActive
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-100 text-gray-500"
+                )}
+              >
+                {isActive ? "Active" : "Inactive"}
+              </span>
+              {promoLabel && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 flex-shrink-0">
+                  {promoLabel}
+                </span>
               )}
             </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-xs font-semibold text-foreground">
-                Product Details
-              </h2>
-              <p className="text-xs text-foreground mt-1">
-                View detailed information about the product
-              </p>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {productData.businessName && (
+                <span className="text-xs text-muted-foreground">
+                  {productData.businessName}
+                </span>
+              )}
+              {productData.categoryName && (
+                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                  {productData.categoryName}
+                </span>
+              )}
+              {productData.brandName && (
+                <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                  {productData.brandName}
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {}
+        {/* ── Body ── */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-2.5 space-y-2">
-            {}
-            <Card>
-              <CardHeader>
-                <CardTitle>Product Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Product Name" value={productData.name} />
-                  <DisplayField
-                    label="Description"
-                    value={productData.description || "---"}
-                  />
-                  <DisplayField
-                    label="Category"
-                    value={productData.categoryName || "---"}
-                  />
-                  <DisplayField
-                    label="Brand"
-                    value={productData.brandName || "---"}
-                  />
-                  <DisplayField
-                    label="Status"
-                    value={formatEnumValue(productData.status) || "---"}
-                  />
-                  <DisplayField label="SKU" value={productData.sku || "---"} />
-                  <DisplayField
-                    label="Barcode"
-                    value={productData.barcode || "---"}
-                  />
-                  <DisplayField
-                    label="Has Sizes"
-                    value={productData.hasSizes ? "Yes" : "No"}
-                  />
-                  <DisplayField
-                    label="Business"
-                    value={productData.businessName || "---"}
-                  />
-                  <DisplayField
+          <div className="p-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
+
+            {/* ── Left column ── */}
+            <div className="lg:col-span-2 space-y-3">
+
+              {/* Product Info */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle>Product Information</SectionTitle>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <InfoRow label="Name" value={productData.name} fullWidth />
+                  {productData.description && (
+                    <InfoRow label="Description" value={productData.description} fullWidth />
+                  )}
+                  <InfoRow label="Category" value={productData.categoryName || "---"} />
+                  <InfoRow label="Brand" value={productData.brandName || "---"} />
+                  <InfoRow label="SKU" value={productData.sku || "---"} />
+                  <InfoRow label="Barcode" value={productData.barcode || "---"} />
+                  <InfoRow label="Has Sizes" value={productData.hasSizes ? "Yes" : "No"} />
+                  <InfoRow
                     label="Items"
                     value={
                       productData.sizes && productData.sizes.length > 0
-                        ? `${productData.sizes.length} items`
-                        : "No items"
+                        ? `${productData.sizes.length} size${productData.sizes.length > 1 ? "s" : ""}`
+                        : "No sizes"
                     }
                   />
-                  <DisplayField
-                    label="View Count"
-                    value={productData.viewCount ? productData.viewCount.toLocaleString() : "0"}
-                  />
-                  <DisplayField
-                    label="Favorite Count"
-                    value={productData.favoriteCount ? productData.favoriteCount.toLocaleString() : "0"}
-                  />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {}
-            <Card>
-              <CardHeader>
-                <CardTitle>Pricing Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField
+              {/* Pricing */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle>Pricing</SectionTitle>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <InfoRow
                     label="Base Price"
                     value={
                       productData.price
@@ -185,251 +222,303 @@ export function ProductDetailModal({
                         : "---"
                     }
                   />
-                  <DisplayField
+                  <InfoRow
                     label="Display Price"
-                    value={formatCurrency(productData.displayPrice)}
+                    value={
+                      <span className="font-semibold text-foreground">
+                        {formatCurrency(productData.displayPrice)}
+                      </span>
+                    }
                   />
-                  <DisplayField
-                    label="Display Origin Price"
-                    value={formatCurrency(productData.displayOriginPrice)}
-                  />
-                  {productData.hasPromotion && (
+                  {productData.displayOriginPrice !== productData.displayPrice && (
+                    <InfoRow
+                      label="Original Price"
+                      value={
+                        <span className="line-through text-muted-foreground">
+                          {formatCurrency(productData.displayOriginPrice)}
+                        </span>
+                      }
+                    />
+                  )}
+                  {hasPromo && (
                     <>
-                      <DisplayField
-                        label="Promotion Type"
+                      <InfoRow
+                        label="Promotion"
+                        value={
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold">
+                            {promoLabel}
+                          </span>
+                        }
+                      />
+                      <InfoRow
+                        label="Promo Type"
                         value={productData.displayPromotionType || "---"}
                       />
-                      <DisplayField
-                        label="Promotion Value"
+                      <InfoRow
+                        label="Promo Period"
                         value={
-                          productData.displayPromotionType === "PERCENTAGE"
-                            ? `${productData.displayPromotionValue}%`
-                            : formatCurrency(
-                                productData.displayPromotionValue || 0,
-                              )
-                        }
-                      />
-                      <DisplayField
-                        label="Promotion Period"
-                        value={
-                          productData.displayPromotionFromDate && productData.displayPromotionToDate
-                            ? `${dateFormatLocal(productData.displayPromotionFromDate)} - ${dateFormatLocal(productData.displayPromotionToDate)}`
+                          productData.displayPromotionFromDate &&
+                          productData.displayPromotionToDate
+                            ? `${dateFormatLocal(productData.displayPromotionFromDate)} – ${dateFormatLocal(productData.displayPromotionToDate)}`
                             : "---"
                         }
+                        fullWidth
                       />
                     </>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {}
-            {productData.images && productData.images.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Product Images</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1">
-                    {productData.images.map((image, index) => (
+              {/* Sizes */}
+              {productData.hasSizes &&
+                productData.sizes &&
+                productData.sizes.length > 0 && (
+                  <div className="rounded border border-border/50 bg-card p-3">
+                    <SectionTitle>
+                      Sizes ({productData.sizes.length})
+                    </SectionTitle>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {productData.sizes.map((size) => {
+                        const sizePromoLabel = size.hasPromotion
+                          ? size.promotionType === "PERCENTAGE"
+                            ? `${size.promotionValue}% OFF`
+                            : `${formatCurrency(size.promotionValue || 0)} OFF`
+                          : null;
+                        return (
+                          <div
+                            key={size.id}
+                            className="border border-border/50 rounded p-2.5 bg-muted/20 space-y-2"
+                          >
+                            {/* Size header */}
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-xs font-bold text-foreground">
+                                {size.name}
+                              </span>
+                              <div className="flex items-center gap-1">
+                                {sizePromoLabel && (
+                                  <span className="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-xs font-bold leading-none">
+                                    {sizePromoLabel}
+                                  </span>
+                                )}
+                                <span
+                                  className={cn(
+                                    "px-1.5 py-0.5 rounded text-xs font-semibold leading-none",
+                                    size.hasPromotion
+                                      ? "bg-red-50 text-red-600"
+                                      : "bg-muted text-muted-foreground"
+                                  )}
+                                >
+                                  {size.hasPromotion ? "On Promo" : "Regular"}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Pricing row */}
+                            <div className="flex items-center gap-2 text-xs">
+                              {size.hasPromotion ? (
+                                <>
+                                  <span className="line-through text-muted-foreground">
+                                    {formatCurrency(size.price)}
+                                  </span>
+                                  <span className="font-bold text-foreground">
+                                    {formatCurrency(size.finalPrice)}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="font-bold text-foreground">
+                                  {formatCurrency(size.price)}
+                                </span>
+                              )}
+                              {size.hasPromotion &&
+                                size.promotionFromDate &&
+                                size.promotionToDate && (
+                                  <span className="text-muted-foreground ml-auto">
+                                    {dateFormatLocal(size.promotionFromDate)} –{" "}
+                                    {dateFormatLocal(size.promotionToDate)}
+                                  </span>
+                                )}
+                            </div>
+
+                            {/* SKU / Stock row */}
+                            <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                              <InfoRow label="SKU" value={size.sku || "---"} />
+                              <InfoRow
+                                label="Stock"
+                                value={
+                                  <span
+                                    className={cn(
+                                      "font-semibold",
+                                      (size.totalStock ?? 0) === 0
+                                        ? "text-red-600"
+                                        : (size.totalStock ?? 0) <= 5
+                                          ? "text-amber-600"
+                                          : "text-green-600"
+                                    )}
+                                  >
+                                    {size.totalStock ?? 0}
+                                  </span>
+                                }
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+              {/* Customizations */}
+              {productData.customizations &&
+                productData.customizations.length > 0 && (
+                  <div className="rounded border border-border/50 bg-card p-3">
+                    <SectionTitle>
+                      Customizations ({productData.customizations.length})
+                    </SectionTitle>
+                    <div className="flex flex-wrap gap-1.5">
+                      {productData.customizations.map((c) => (
+                        <div
+                          key={c.id}
+                          className="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded text-xs"
+                        >
+                          <span className="font-medium">{c.name}</span>
+                          {(c.priceAdjustment ?? 0) > 0 && (
+                            <span className="font-bold">
+                              +{formatCurrency(c.priceAdjustment)}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* Images */}
+              {productData.images && productData.images.length > 0 && (
+                <div className="rounded border border-border/50 bg-card p-3">
+                  <SectionTitle>
+                    Images ({productData.images.length})
+                  </SectionTitle>
+                  <div className="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-9 gap-1.5">
+                    {productData.images.map((image, idx) => (
                       <div
                         key={image.id}
-                        className="relative aspect-square rounded overflow-hidden border hover:shadow-md transition-shadow"
+                        className="aspect-square rounded overflow-hidden border border-border/50 hover:border-primary/50 transition-colors"
                       >
                         <img
                           src={image.imageUrl}
-                          alt={`Product image ${index + 1}`}
+                          alt={`Image ${idx + 1}`}
                           className="object-cover w-full h-full"
                         />
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {}
-            {productData.hasSizes &&
-              productData.sizes &&
-              productData.sizes.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Available Sizes</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {productData.sizes.map((size) => (
-                        <div
-                          key={size.id}
-                          className="border rounded p-3 space-y-3"
-                        >
-                          <div className="flex justify-between items-center">
-                            <h4 className="font-semibold text-foreground">
-                              {size.name}
-                            </h4>
-                            <Badge
-                              variant={
-                                size.hasPromotion ? "default" : "outline"
-                              }
-                            >
-                              {size.hasPromotion ? "Promotion" : "Regular"}
-                            </Badge>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                            <DisplayField
-                              label="Price"
-                              value={formatCurrency(size.price)}
-                            />
-                            <DisplayField
-                              label="Final Price"
-                              value={formatCurrency(size.finalPrice)}
-                            />
-                            <DisplayField
-                              label="SKU"
-                              value={size.sku || "---"}
-                            />
-                            <DisplayField
-                              label="Barcode"
-                              value={size.barcode || "---"}
-                            />
-                            <DisplayField
-                              label="Total Stock"
-                              value={size.totalStock ? size.totalStock.toString() : "0"}
-                            />
-                            {size.hasPromotion && (
-                              <>
-                                <DisplayField
-                                  label="Promotion Value"
-                                  value={
-                                    size.promotionType === "PERCENTAGE"
-                                      ? `${size.promotionValue}%`
-                                      : formatCurrency(size.promotionValue || 0)
-                                  }
-                                />
-                                <DisplayField
-                                  label="Promotion Period"
-                                  value={
-                                    size.promotionFromDate && size.promotionToDate
-                                      ? `${dateFormatLocal(size.promotionFromDate)} - ${dateFormatLocal(size.promotionToDate)}`
-                                      : "---"
-                                  }
-                                />
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-            {}
-            <Card>
-              <CardHeader>
-                <CardTitle>Stock Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField
-                    label="Stock Status"
-                    value={
-                      <Badge
-                        variant={
-                          productData.stockStatus === "ENABLED"
-                            ? "default"
-                            : "secondary"
-                        }
-                      >
-                        {productData.stockStatus || "---"}
-                      </Badge>
-                    }
-                  />
-                  <DisplayField
-                    label="Total Stock"
-                    value={productData.totalStock ? productData.totalStock.toString() : "0"}
-                  />
-                  <DisplayField
-                    label="Quantity Available"
-                    value={productData.quantityAvailable ? productData.quantityAvailable.toString() : "0"}
-                  />
-                  <DisplayField
-                    label="Quantity Reserved"
-                    value={productData.quantityReserved ? productData.quantityReserved.toString() : "0"}
-                  />
-                  <DisplayField
-                    label="Quantity On Hand"
-                    value={productData.quantityOnHand ? productData.quantityOnHand.toString() : "0"}
-                  />
                 </div>
-              </CardContent>
-            </Card>
-
-            {}
-            {productData.customizations &&
-              productData.customizations.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Product Customizations</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {productData.customizations.map((customization) => (
-                        <div
-                          key={customization.id}
-                          className="border rounded p-3 space-y-2"
-                        >
-                          <h4 className="font-semibold text-foreground">
-                            {customization.name}
-                          </h4>
-                          <div className="space-y-2 text-xs">
-                            <DisplayField
-                              label="Price Adjustment"
-                              value={formatCurrency(
-                                customization.priceAdjustment || 0,
-                              )}
-                            />
-                            {customization.createdAt && (
-                              <DisplayField
-                                label="Created At"
-                                value={dateTimeFormat(customization.createdAt)}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
               )}
+            </div>
 
-            {}
-            <Card>
-              <CardHeader>
-                <CardTitle>System Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Product ID" value={productData.id} />
-                  <DisplayField
+            {/* ── Right sidebar ── */}
+            <div className="space-y-3">
+
+              {/* Engagement */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle>Engagement</SectionTitle>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col items-center gap-1 p-2 rounded bg-muted/30 border border-border/40">
+                    <Eye className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm font-bold text-foreground">
+                      {(productData.viewCount ?? 0).toLocaleString()}
+                    </span>
+                    <span className="text-xs text-muted-foreground">Views</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 p-2 rounded bg-muted/30 border border-border/40">
+                    <Heart className="h-4 w-4 text-red-500" />
+                    <span className="text-sm font-bold text-foreground">
+                      {(productData.favoriteCount ?? 0).toLocaleString()}
+                    </span>
+                    <span className="text-xs text-muted-foreground">Favorites</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stock */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle>Stock</SectionTitle>
+                <div className="space-y-2">
+                  {/* Stock status badge */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Status
+                    </span>
+                    <span
+                      className={cn(
+                        "px-2 py-0.5 rounded-full text-xs font-semibold",
+                        productData.stockStatus === "ENABLED"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-500"
+                      )}
+                    >
+                      {productData.stockStatus || "---"}
+                    </span>
+                  </div>
+
+                  <div className="pt-1 space-y-1.5">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-muted-foreground flex items-center gap-1">
+                        <Box className="h-3 w-3" /> Total
+                      </span>
+                      <span className="font-bold text-foreground">
+                        {productData.totalStock ?? 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-muted-foreground">Available</span>
+                      <span
+                        className={cn(
+                          "font-semibold",
+                          (productData.quantityAvailable ?? 0) === 0
+                            ? "text-red-600"
+                            : (productData.quantityAvailable ?? 0) <= 5
+                              ? "text-amber-600"
+                              : "text-green-600"
+                        )}
+                      >
+                        {productData.quantityAvailable ?? 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-muted-foreground">Reserved</span>
+                      <span className="font-semibold text-blue-600">
+                        {productData.quantityReserved ?? 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-muted-foreground">On Hand</span>
+                      <span className="font-semibold text-foreground">
+                        {productData.quantityOnHand ?? 0}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* System Info */}
+              <div className="rounded border border-border/50 bg-card p-3">
+                <SectionTitle>System Info</SectionTitle>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <InfoRow label="Created By" value={productData.createdBy || "---"} />
+                  <InfoRow
                     label="Created At"
                     value={dateTimeFormat(productData.createdAt ?? "")}
                   />
-                  <DisplayField
-                    label="Created By"
-                    value={productData.createdBy || "---"}
-                  />
-                  <DisplayField
+                  <InfoRow label="Updated By" value={productData.updatedBy || "---"} />
+                  <InfoRow
                     label="Last Updated"
                     value={dateTimeFormat(productData.updatedAt ?? "")}
                   />
-                  <DisplayField
-                    label="Updated By"
-                    value={productData.updatedBy || "---"}
-                  />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+            </div>
           </div>
         </div>
       </DialogContent>
