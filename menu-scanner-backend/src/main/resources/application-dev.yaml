@@ -1,5 +1,7 @@
 # ============================================================
 # application-dev.yaml — unified profile (local/dev/h2/prod identical)
+# Only profile-specific overrides live here. Everything else is in
+# application.yaml (base) or environment variables.
 # ============================================================
 spring:
   datasource:
@@ -22,33 +24,6 @@ spring:
     properties:
       hibernate:
         format_sql: false
-
-  flyway:
-    enabled: false
-
-jwt:
-  secret: "${JWT_SECRET:default-dev-secret-please-change-in-production-min-64-chars-xxxxxxxxxx}"
-  expiration: "${JWT_EXPIRATION:86400000}"
-  refresh-token-expiration: "${JWT_REFRESH_EXPIRATION:604800000}"
-
-telegram:
-  bot:
-    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
-    enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
-    webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
-    auto-setup: true
-
-app:
-  cache:
-    provider: "${CACHE_PROVIDER:caffeine}"
-  security:
-    cors:
-      allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:4173}"
-  init:
-    create-admin: true
-    admin-email: "${APP_ADMIN_EMAIL:admin@emenu.local}"
-    admin-password: "${APP_ADMIN_PASSWORD:Admin@123456}"
 
 logging:
   level:
