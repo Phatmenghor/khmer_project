@@ -175,12 +175,12 @@ export default function CategoriesModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-xl max-h-[92dvh] p-0 flex flex-col">
+      <DialogContent className="w-full sm:max-w-3xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title={isCreate ? "Create New Category" : "Edit Category"}
           description={
             isCreate
-              ? "Fill out the form to create a new category"
+              ? "Upload an image and configure category settings"
               : "Update category information below"
           }
           isCreate={isCreate}
@@ -190,81 +190,98 @@ export default function CategoriesModal({
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-hidden"
         >
-          <FormBody>
-            {}
-            {reduxError && (
-              <div className="p-3 bg-destructive/10 border border-destructive rounded">
-                <p className="text-xs text-destructive font-medium">
-                  {reduxError}
-                </p>
+            <FormBody>
+              {reduxError && (
+                <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+                  <p className="text-xs text-destructive font-medium">
+                    {reduxError}
+                  </p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <div className="space-y-2">
+                  <ClickableImageUpload
+                    label="Category Image"
+                    value={imageUrl}
+                    onChange={(base64) => setValue("imageUrl", base64)}
+                    aspectRatio="square"
+                    maxSize={5}
+                    required
+                    error={errors.imageUrl}
+                    placeholder="Click to upload category image"
+                    helperText="Square image works best (500x500)"
+                  />
+                </div>
+
+                <div className="border-t pt-4">
+                  <h3 className="text-xs font-semibold text-foreground mb-3">
+                    Category Details
+                  </h3>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <TextField
+                      control={control}
+                      name="name"
+                      label="Category Name"
+                      placeholder="Enter category name"
+                      required
+                      disabled={isProcessing}
+                      error={errors.name}
+                    />
+
+                    <SelectField
+                      control={control}
+                      name="status"
+                      label="Status"
+                      placeholder="Select status"
+                      options={BANNER_STATUS_CREATE_UPDATE}
+                      required
+                      disabled={isProcessing}
+                      error={errors.status}
+                    />
+                  </div>
+
+                  <TextAreaField
+                    control={control}
+                    name="description"
+                    label="Description"
+                    placeholder="Enter any additional description (optional)"
+                    rows={5}
+                    disabled={isProcessing}
+                    error={errors.description}
+                  />
+                </div>
               </div>
-            )}
+            </FormBody>
 
-            {}
-            <ClickableImageUpload
-              label="Category Image"
-              value={imageUrl}
-              onChange={(base64) => setValue("imageUrl", base64)}
-              aspectRatio="square"
-              required
-              error={errors.imageUrl}
-              placeholder="Click to upload category image"
-              helperText="Square image works best (500x500)"
-            />
-
-            {}
-            <TextField
-              control={control}
-              name="name"
-              label="Category Name"
-              placeholder="Enter category name"
-              required
-              disabled={isProcessing}
-              error={errors.name}
-            />
-
-            <TextAreaField
-              control={control}
-              name="description"
-              label="Description"
-              placeholder="Enter category description (optional)"
-              rows={4}
-              disabled={isProcessing}
-              error={errors.description}
-            />
-
-            {}
-            <SelectField
-              control={control}
-              name="status"
-              label="Status"
-              placeholder="Select status"
-              options={BANNER_STATUS_CREATE_UPDATE}
-              required
-              disabled={isProcessing}
-              error={errors.status}
-            />
-          </FormBody>
-
-          <FormFooter
-            isSubmitting={isProcessing}
-            isDirty={isDirty}
-            isCreate={isCreate}
-            createMessage={isProcessing ? "Uploading..." : "Creating category..."}
-            updateMessage={isProcessing ? "Uploading..." : "Updating category..."}
-          >
-            <CancelButton onClick={handleClose} disabled={isProcessing} />
-            <SubmitButton
+            <FormFooter
               isSubmitting={isProcessing}
               isDirty={isDirty}
               isCreate={isCreate}
-              createText="Create category"
-              updateText="Update category"
-              submittingCreateText="Creating..."
-              submittingUpdateText="Updating..."
-            />
-          </FormFooter>
-        </form>
+              createMessage={
+                isProcessing ? "Uploading category..." : "Creating category..."
+              }
+              updateMessage={
+                isProcessing ? "Uploading category..." : "Updating category..."
+              }
+            >
+              <CancelButton onClick={handleClose} disabled={isProcessing} />
+              <SubmitButton
+                isSubmitting={isProcessing}
+                isDirty={isDirty}
+                isCreate={isCreate}
+                createText="Create Category"
+                updateText="Update Category"
+                submittingCreateText={
+                  isProcessing ? "Uploading..." : "Creating..."
+                }
+                submittingUpdateText={
+                  isProcessing ? "Uploading..." : "Updating..."
+                }
+              />
+            </FormFooter>
+          </form>
       </DialogContent>
     </Dialog>
   );
