@@ -19,7 +19,11 @@ spring:
       hibernate:
         jdbc:
           batch_size: 50
+          fetch_size: 50
           time_zone: Asia/Phnom_Penh
+        order_inserts: true
+        order_updates: true
+        default_batch_fetch_size: 25
 
   # Cache — set type=none; CacheConfig/RedisConfig manage the beans directly
   cache:
@@ -115,6 +119,8 @@ app:
     # "caffeine" (default, in-process) or "redis" (distributed, requires Redis)
     provider: "${CACHE_PROVIDER:caffeine}"
   security:
+    cors:
+      allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}"
     token-cleanup:
       enabled: true
   social:

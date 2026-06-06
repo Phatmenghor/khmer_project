@@ -1,0 +1,3 @@
+-- V1 baseline: schema already exists (managed by Hibernate ddl-auto in pre-Flyway deployments).
+-- This migration is intentionally empty; Flyway baseline-on-migrate=true handles existing schemas.
+-- New schema changes belong in V2 and beyond.

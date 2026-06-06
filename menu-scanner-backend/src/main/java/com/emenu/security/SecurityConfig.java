@@ -2,7 +2,9 @@ package com.emenu.security;
 
 import com.emenu.security.jwt.JWTAuthenticationFilter;
 import com.emenu.security.jwt.JwtAuthEntryPoint;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -32,6 +35,24 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthEntryPoint authEntryPoint;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${app.security.cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
+    private String[] allowedOrigins;
+
+    // ─── Fail-fast JWT secret validation ─────────────────────────────────────
+
+    @PostConstruct
+    public void validateJwtSecret() {
+        if (jwtSecret == null || jwtSecret.startsWith("${") || jwtSecret.length() < 64) {
+            throw new IllegalStateException(
+                "FATAL: JWT_SECRET is not configured or is too short (minimum 64 characters). " +
+                "Set the JWT_SECRET environment variable before starting the application."
+            );
+        }
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -52,28 +73,28 @@ public class SecurityConfig {
                                 .policyDirectives("default-src 'self'; frame-ancestors 'none'"))
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // ===== PUBLIC ENDPOINTS =====
+                        // ── Public endpoints ──
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/public/**").permitAll() // Includes /api/v1/public/business-settings/**
+                        .requestMatchers("/api/v1/public/**").permitAll()
                         .requestMatchers("/api/v1/business-owners/register").permitAll()
                         .requestMatchers("/api/images/**").permitAll()
 
-                        // ===== TELEGRAM WEBHOOK =====
+                        // ── Telegram webhook (HMAC-validated in controller) ──
                         .requestMatchers("/api/v1/telegram/webhook").permitAll()
 
+                        // ── API documentation ──
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-resources/**", "/webjars/**").permitAll()
                         .requestMatchers("/swagger-config", "/api-docs/**").permitAll()
 
-                        // ===== WEBSOCKET ENDPOINT =====
+                        // ── WebSocket — JWT validated inside STOMP CONNECT interceptor ──
                         .requestMatchers("/ws/**").permitAll()
 
-                        // ===== ACTUATOR ENDPOINTS =====
+                        // ── Actuator ──
                         .requestMatchers("/actuator/health/**").permitAll()
                         .requestMatchers("/actuator/info").permitAll()
                         .requestMatchers("/actuator/prometheus").permitAll()
 
-                        // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -84,11 +105,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
+        // Explicit allowlist — NEVER use allowedOriginPatterns("*") with allowCredentials(true)
+        config.setAllowedOrigins(Arrays.asList(allowedOrigins));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-ID", "X-Requested-With"));
+        config.setExposedHeaders(List.of("Authorization", "X-Request-ID", "Content-Disposition", "Content-Type"));
         config.setAllowCredentials(true);
-        config.setExposedHeaders(List.of("Authorization", "Content-Disposition", "Content-Type"));
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

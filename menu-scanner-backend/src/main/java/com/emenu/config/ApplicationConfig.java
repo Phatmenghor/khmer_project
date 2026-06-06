@@ -47,7 +47,11 @@ public class ApplicationConfig {
 
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        // Always set timeouts — an unconfigured RestTemplate blocks the thread indefinitely
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5_000);
+        factory.setReadTimeout(15_000);
+        return new RestTemplate(factory);
     }
 
     @Bean(name = "telegramRestTemplate")

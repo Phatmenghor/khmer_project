@@ -1,42 +1,52 @@
 # =========================
 # Build stage
 # =========================
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
 
 WORKDIR /app
 
-# Copy pom.xml first → cache dependencies
+# Cache dependencies layer — only re-downloads when pom.xml changes
 COPY pom.xml .
+RUN mvn dependency:go-offline -B -q
 
-# Download dependencies (cached if pom.xml unchanged)
-RUN mvn dependency:go-offline -B
-
-# Copy source code
 COPY src ./src
+RUN mvn clean package -DskipTests -T 1C -q
 
-# Build application
-RUN mvn clean package -DskipTests -T 1C
+# Extract layered JAR for optimal Docker layer caching
+RUN java -Djarmode=layertools -jar target/*.jar extract --destination target/extracted
 
 
 # =========================
-# Runtime stage (small image)
+# Runtime stage
 # =========================
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21-jre-alpine AS runtime
+
+# Non-root user — never run as root in production
+RUN addgroup -S emenu && adduser -S emenu -G emenu
 
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+# Layered JAR: dependencies change rarely → cached; app code changes often → small layer
+COPY --from=build --chown=emenu:emenu /app/target/extracted/dependencies/           ./
+COPY --from=build --chown=emenu:emenu /app/target/extracted/spring-boot-loader/     ./
+COPY --from=build --chown=emenu:emenu /app/target/extracted/snapshot-dependencies/  ./
+COPY --from=build --chown=emenu:emenu /app/target/extracted/application/            ./
 
-# App listens on port 7070 (see server.port in application.yaml)
+USER emenu
+
 EXPOSE 7070
 
-# Respect container memory limits; use up to 75% of available RAM for heap
+# ZGC with generational mode (Java 21) — low-latency GC ideal for API workloads
+# UseContainerSupport + MaxRAMPercentage respect Kubernetes/Docker memory limits
 ENTRYPOINT ["java", \
+  "-XX:+UseZGC", \
+  "-XX:+ZGenerational", \
   "-XX:+UseContainerSupport", \
   "-XX:MaxRAMPercentage=75.0", \
-  "-XX:+UseG1GC", \
+  "-XX:+ExitOnOutOfMemoryError", \
   "-Djava.security.egd=file:/dev/./urandom", \
-  "-jar", "app.jar"]
+  "-cp", "BOOT-INF/classes:BOOT-INF/lib/*", \
+  "org.springframework.boot.loader.launch.JarLauncher"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
   CMD wget -q --spider http://localhost:7070/actuator/health || exit 1

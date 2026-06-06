@@ -1,24 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="emenu"/>
+    <springProperty scope="context" name="appName"    source="spring.application.name" defaultValue="emenu"/>
+    <springProperty scope="context" name="appVersion" source="app.version"             defaultValue="1.0.0"/>
 
-    <!-- ─── Console appender (human-readable for local/dev) ─────────────────── -->
+    <!-- ─── Console (local / dev — human-readable) ──────────────────────────── -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] [%X{userId:-}] %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- ─── JSON appender (for production / log aggregation) ───────────────── -->
+    <!-- ─── JSON console (prod → stdout → log aggregator) ──────────────────── -->
+    <!--
+        All MDC keys are automatically captured by LogstashEncoder.
+        Keys populated per request:
+          requestId   — set by RequestIdFilter
+          userId      — set by JWTAuthenticationFilter (after authentication)
+          userType    — set by JWTAuthenticationFilter
+          userIdentifier — set by JWTAuthenticationFilter
+          method      — set by RequestIdFilter
+          path        — set by RequestIdFilter
+          statusCode  — set by RequestIdFilter (in finally)
+          duration    — set by RequestIdFilter (in finally, milliseconds)
+          traceId     — set by Micrometer Tracing (OpenTelemetry bridge)
+          spanId      — set by Micrometer Tracing
+    -->
     <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <customFields>{"app":"${appName}"}</customFields>
-            <includeMdcKeyName>requestId</includeMdcKeyName>
-            <includeMdcKeyName>userId</includeMdcKeyName>
+            <customFields>{"app":"${appName}","version":"${appVersion}"}</customFields>
+            <fieldNames>
+                <timestamp>@timestamp</timestamp>
+                <message>message</message>
+                <logger>logger</logger>
+                <thread>thread</thread>
+                <!-- suppress the numeric levelValue field — use level string instead -->
+                <levelValue>[ignore]</levelValue>
+            </fieldNames>
+            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                <maxDepthPerCause>15</maxDepthPerCause>
+                <exclude>sun\.reflect\..*</exclude>
+                <exclude>java\.lang\.reflect\..*</exclude>
+                <rootCauseFirst>true</rootCauseFirst>
+            </throwableConverter>
         </encoder>
     </appender>
 
-    <!-- ─── Rolling file appender ───────────────────────────────────────────── -->
+    <!-- ─── Async JSON (production — non-blocking log dispatch) ─────────────── -->
+    <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>2048</queueSize>
+        <!-- 0 = never discard — important for audit trails -->
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="JSON_CONSOLE"/>
+    </appender>
+
+    <!-- ─── Rolling file (all environments) ─────────────────────────────────── -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/application.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -28,11 +65,11 @@
             <totalSizeCap>3GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] [%X{userId:-}] %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- ─── Error file appender ─────────────────────────────────────────────── -->
+    <!-- ─── Error-only file (90-day retention) ──────────────────────────────── -->
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/error.log</file>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -43,34 +80,41 @@
             <maxHistory>90</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] %logger{36} - %msg%n%ex{full}</pattern>
         </encoder>
     </appender>
 
-    <!-- ─── Profile-specific log configuration ──────────────────────────────── -->
+    <!-- ─── local / dev profile ──────────────────────────────────────────────── -->
     <springProfile name="local,dev">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
             <appender-ref ref="ERROR_FILE"/>
         </root>
-        <logger name="com.emenu" level="DEBUG"/>
-        <logger name="org.hibernate.SQL" level="WARN"/>
+        <logger name="com.emenu"                   level="DEBUG"/>
+        <logger name="org.hibernate.SQL"           level="WARN"/>
         <logger name="org.springframework.security" level="INFO"/>
+        <logger name="org.springframework.web"     level="INFO"/>
     </springProfile>
 
+    <!-- ─── prod profile ─────────────────────────────────────────────────────── -->
     <springProfile name="prod">
         <root level="WARN">
-            <appender-ref ref="JSON_CONSOLE"/>
-            <appender-ref ref="FILE"/>
+            <!-- Async JSON for stdout — goes to log aggregator (ELK / Loki) -->
+            <appender-ref ref="ASYNC_JSON"/>
             <appender-ref ref="ERROR_FILE"/>
         </root>
-        <logger name="com.emenu" level="INFO"/>
+        <logger name="com.emenu"                   level="INFO"/>
         <logger name="org.springframework.security" level="WARN"/>
+        <logger name="org.hibernate"               level="WARN"/>
     </springProfile>
 
-    <!-- ─── Noise reduction ─────────────────────────────────────────────────── -->
-    <logger name="org.springframework.web" level="WARN"/>
-    <logger name="org.hibernate.validator" level="WARN"/>
-    <logger name="com.github.benmanes.caffeine" level="WARN"/>
+    <!-- ─── Noise suppression (all profiles) ────────────────────────────────── -->
+    <logger name="org.springframework.web"                  level="WARN"/>
+    <logger name="org.hibernate.validator"                  level="WARN"/>
+    <logger name="com.github.benmanes.caffeine"             level="WARN"/>
+    <logger name="io.lettuce.core"                          level="WARN"/>
+    <logger name="org.springframework.data.redis"           level="WARN"/>
+    <logger name="org.springframework.messaging.simp"       level="WARN"/>
+    <logger name="org.springframework.web.socket"          level="WARN"/>
 </configuration>

@@ -69,8 +69,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -214,11 +217,8 @@ public class OrderServiceImpl implements OrderService {
 
         Page<Order> page = orderRepository.findAll(spec, pageable);
 
-        // Eagerly load statusHistory for all orders to prevent lazy loading during mapping
-        page.getContent().forEach(order -> {
-            List<OrderStatusHistory> statusHistory = orderRepository.findStatusHistoryByOrderId(order.getId());
-            order.setStatusHistory(statusHistory);
-        });
+        // Batch-fetch status histories in one query (avoids N+1)
+        batchLoadStatusHistories(page.getContent());
 
         PaginationResponse<OrderResponse> response = paginationMapper.toPaginationResponse(page, orderMapper.toResponseList(page.getContent()));
 
@@ -295,11 +295,8 @@ public class OrderServiceImpl implements OrderService {
         log.info("[DB QUERY COMPLETE] Retrieved {} orders (query took {} ms) | Total: {} | Pages: {}",
                 page.getNumberOfElements(), queryDuration, page.getTotalElements(), page.getTotalPages());
 
-        // Eagerly load statusHistory for all orders to prevent lazy loading during mapping
-        for (Order order : page.getContent()) {
-            List<OrderStatusHistory> statusHistory = orderRepository.findStatusHistoryByOrderId(order.getId());
-            order.setStatusHistory(statusHistory);
-        }
+        // Batch-fetch status histories in one query (avoids N+1)
+        batchLoadStatusHistories(page.getContent());
 
         PaginationResponse<OrderResponse> response = paginationMapper.toPaginationResponse(page, orderMapper.toResponseList(page.getContent()));
 
@@ -973,6 +970,18 @@ public class OrderServiceImpl implements OrderService {
             log.error("[POS CHECKOUT ERROR] Failed to create POS order: {}", e.getMessage(), e);
             throw new ValidationException("Failed to create POS order: " + e.getMessage());
         }
+    }
+
+    private void batchLoadStatusHistories(List<Order> orders) {
+        if (orders == null || orders.isEmpty()) return;
+        List<UUID> orderIds = orders.stream().map(Order::getId).toList();
+        Map<UUID, List<OrderStatusHistory>> historyMap = orderRepository
+                .findStatusHistoriesByOrderIds(orderIds)
+                .stream()
+                .collect(Collectors.groupingBy(OrderStatusHistory::getOrderId));
+        orders.forEach(order ->
+            order.setStatusHistory(historyMap.getOrDefault(order.getId(), Collections.emptyList()))
+        );
     }
 
     /**

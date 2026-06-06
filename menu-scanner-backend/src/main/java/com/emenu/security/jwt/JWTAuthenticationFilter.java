@@ -20,7 +20,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -31,6 +30,10 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService customUserDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
 
+    /**
+     * Carries authenticated user context within a single request thread.
+     * Cleared by RequestLoggingFilter / RequestIdFilter at the end of the request.
+     */
     public static final ThreadLocal<Map<String, String>> AUTHENTICATED_USER =
             ThreadLocal.withInitial(HashMap::new);
 
@@ -38,7 +41,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        MDC.put("requestId", UUID.randomUUID().toString());
+        // NOTE: requestId is set by RequestIdFilter at HIGHEST_PRECEDENCE — do NOT touch it here
         try {
             String token = extractBearerToken(request);
             if (StringUtils.hasText(token)) {
@@ -47,8 +50,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             log.error("Cannot set user authentication: {}", e.getMessage());
-        } finally {
-            MDC.remove("requestId");
         }
         filterChain.doFilter(request, response);
     }
@@ -62,7 +63,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Parse JWT exactly once — all claims extracted from this single result
+        // Parse JWT exactly once — reuse the Claims object for all field extractions
         Claims claims = jwtGenerator.parseClaimsQuietly(token).orElse(null);
         if (claims == null) {
             return;
@@ -87,17 +88,18 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        populateThreadLocalContext(claims, userType);
+        populateContextFromClaims(claims, userType);
     }
 
-    private void populateThreadLocalContext(Claims claims, String userType) {
+    private void populateContextFromClaims(Claims claims, String userType) {
         try {
             Map<String, String> ctx = AUTHENTICATED_USER.get();
-            String userId = claims.get("userId", String.class);
+            String userId         = claims.get("userId",         String.class);
             String userIdentifier = claims.get("userIdentifier", String.class);
-            if (userId != null) ctx.put("userId", userId);
-            if (userIdentifier != null) ctx.put("userIdentifier", userIdentifier);
-            if (userType != null) ctx.put("userType", userType);
+
+            if (userId         != null) { ctx.put("userId",         userId);         MDC.put("userId",         userId);         }
+            if (userIdentifier != null) { ctx.put("userIdentifier", userIdentifier); MDC.put("userIdentifier", userIdentifier); }
+            if (userType       != null) { ctx.put("userType",       userType);       MDC.put("userType",       userType);       }
         } catch (Exception e) {
             log.debug("Could not populate auth context: {}", e.getMessage());
         }

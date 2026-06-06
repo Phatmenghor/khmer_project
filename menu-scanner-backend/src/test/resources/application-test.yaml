@@ -1,0 +1,50 @@
+# ============================================================
+# application-test.yaml — Integration test profile
+# Datasource URL injected dynamically by BaseIntegrationTest via @DynamicPropertySource
+# ============================================================
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  flyway:
+    enabled: false
+
+  cache:
+    type: none
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: "test-secret-replace-in-ci-with-real-64-char-random-value-xxxxxxxxxxxxxxxxxxxxxxxxx"
+  expiration: 3600000
+  refresh-token-expiration: 86400000
+
+app:
+  cache:
+    provider: caffeine
+  security:
+    cors:
+      allowed-origins: "http://localhost:3000"
+    token-cleanup:
+      enabled: false
+  init:
+    create-admin: false
+
+telegram:
+  bot:
+    enabled: false
+    token: ""
+
+logging:
+  level:
+    root: WARN
+    com.emenu: INFO
+    org.hibernate.SQL: WARN

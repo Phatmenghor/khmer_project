@@ -35,7 +35,15 @@ public class JWTGenerator {
 
     @PostConstruct
     private void init() {
+        // Guard: prevent startup with an unset or weak JWT secret
+        if (jwtSecret == null || jwtSecret.startsWith("${") || jwtSecret.length() < 64) {
+            throw new IllegalStateException(
+                "JWT_SECRET is not configured or is too short (minimum 64 characters). " +
+                "Set JWT_SECRET environment variable before starting."
+            );
+        }
         this.signingKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        log.info("JWT signing key initialized (algorithm=HS512)");
     }
 
     // ─── Core signing key ──────────────────────────────────────────────────────

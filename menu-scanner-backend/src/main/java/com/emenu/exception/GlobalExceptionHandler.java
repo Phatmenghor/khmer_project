@@ -1,20 +1,19 @@
 package com.emenu.exception;
 
+import com.emenu.common.exception.BusinessException;
 import com.emenu.exception.custom.*;
-import com.emenu.shared.constants.ErrorCodes;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -37,538 +36,343 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    // =========================================================================
+    // PRIMARY: BusinessException — handles all domain errors
+    // =========================================================================
 
-    // ================================
-    // AUTHENTICATION & AUTHORIZATION ERRORS
-    // ================================
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBusinessException(
+            BusinessException ex, HttpServletRequest request) {
+        log.warn("[{}] {} — {}", ex.getErrorCode(), request.getRequestURI(), ex.getMessage());
+
+        Object responseData = ex.getDetails() != null
+                ? Map.of("errorCode", ex.getErrorCode(), "details", ex.getDetails())
+                : Map.of("errorCode", ex.getErrorCode());
+
+        return ResponseEntity.status(ex.getStatus())
+                .body(ApiResponse.failure(ex.getMessage(), responseData));
+    }
+
+    // =========================================================================
+    // SPRING SECURITY exceptions
+    // =========================================================================
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse<Object>> handleBadCredentialsException(
+    public ResponseEntity<ApiResponse<Object>> handleBadCredentials(
             BadCredentialsException ex, HttpServletRequest request) {
-        log.warn("Authentication failed - Invalid credentials from IP: {}", getClientIP(request));
-
-        ApiResponse<Object> response = buildErrorResponse("Invalid email or password",
-            ErrorCodes.INVALID_CREDENTIALS, request);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        log.warn("Auth failed from ip={}", clientIp(request));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.failure("Invalid email or password",
+                        Map.of("errorCode", "INVALID_CREDENTIALS")));
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiResponse<Object>> handleAuthenticationException(
+    public ResponseEntity<ApiResponse<Object>> handleAuthentication(
             AuthenticationException ex, HttpServletRequest request) {
-        log.warn("Authentication failed: {} from IP: {}", ex.getMessage(), getClientIP(request));
-
-        ApiResponse<Object> response = buildErrorResponse("Authentication failed. Please check your credentials.",
-            ErrorCodes.INVALID_CREDENTIALS, request);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-    }
-
-    // Account Status Exception Handlers
-    @ExceptionHandler(AccountLockedException.class)
-    public ResponseEntity<ApiResponse<Object>> handleAccountLockedException(
-            AccountLockedException ex, HttpServletRequest request) {
-        log.warn("Login blocked - Account locked: {}", ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(),
-            ErrorCodes.ACCOUNT_LOCKED, request);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
-
-    @ExceptionHandler(AccountEndWorkException.class)
-    public ResponseEntity<ApiResponse<Object>> handleAccountEndWorkException(
-            AccountEndWorkException ex, HttpServletRequest request) {
-        log.warn("Login blocked - Account ended: {}", ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(),
-            ErrorCodes.ACCOUNT_DISABLED, request);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
-
-    @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ApiResponse<Object>> handleDisabledException(
-            DisabledException ex, HttpServletRequest request) {
-        log.warn("Login blocked - Account disabled: {}", ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse("Your account has been disabled. Please contact support.",
-            ErrorCodes.ACCOUNT_DISABLED, request);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-    }
-
-    @ExceptionHandler(LockedException.class)
-    public ResponseEntity<ApiResponse<Object>> handleLockedException(
-            LockedException ex, HttpServletRequest request) {
-        log.warn("Login blocked - Account locked by Spring Security: {}", ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse("Your account has been locked. Please contact support.",
-            ErrorCodes.ACCOUNT_LOCKED, request);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        log.warn("Authentication failed: {} from ip={}", ex.getMessage(), clientIp(request));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.failure("Authentication failed. Please check your credentials.",
+                        Map.of("errorCode", "INVALID_CREDENTIALS")));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<Object>> handleAccessDeniedException(
+    public ResponseEntity<ApiResponse<Object>> handleAccessDenied(
             AccessDeniedException ex, HttpServletRequest request) {
-        log.warn("Access denied for request to {}: {}", request.getRequestURI(), ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse("Access denied. You don't have permission to perform this action.",
-            ErrorCodes.INSUFFICIENT_PERMISSIONS, request);
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        log.warn("Access denied: {} — {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.failure("Access denied. You don't have permission to perform this action.",
+                        Map.of("errorCode", "INSUFFICIENT_PERMISSIONS")));
     }
 
-    // ================================
-    // VALIDATION ERRORS
-    // ================================
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDisabled(
+            DisabledException ex, HttpServletRequest request) {
+        log.warn("Disabled account login attempt: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.failure("Your account has been disabled. Please contact support.",
+                        Map.of("errorCode", "ACCOUNT_DISABLED")));
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleLocked(
+            LockedException ex, HttpServletRequest request) {
+        log.warn("Locked account login attempt: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.failure("Your account has been locked. Please contact support.",
+                        Map.of("errorCode", "ACCOUNT_LOCKED")));
+    }
+
+    // =========================================================================
+    // LEGACY custom exceptions — kept until callers migrate to BusinessException
+    // =========================================================================
+
+    @ExceptionHandler({NotFoundException.class, UserNotFoundException.class, ResourceNotFoundException.class})
+    public ResponseEntity<ApiResponse<Object>> handleNotFound(
+            RuntimeException ex, HttpServletRequest request) {
+        log.warn("Not found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.failure(ex.getMessage(),
+                        Map.of("errorCode", "RESOURCE_NOT_FOUND")));
+    }
+
+    @ExceptionHandler({ValidationException.class, BusinessValidationException.class})
+    public ResponseEntity<ApiResponse<Object>> handleLegacyValidation(
+            RuntimeException ex, HttpServletRequest request) {
+        log.warn("Validation error: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.failure(ex.getMessage(),
+                        Map.of("errorCode", "VALIDATION_ERROR")));
+    }
+
+    @ExceptionHandler({AccountLockedException.class, AccountEndWorkException.class})
+    public ResponseEntity<ApiResponse<Object>> handleAccountStatus(
+            RuntimeException ex, HttpServletRequest request) {
+        log.warn("Account status error: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.failure(ex.getMessage(),
+                        Map.of("errorCode", "ACCOUNT_LOCKED")));
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiResponse<Object>> handleCustom(
+            CustomException ex, HttpServletRequest request) {
+        log.warn("Custom exception [{}]: {}", ex.getErrorCode(), ex.getMessage());
+        return ResponseEntity.status(ex.getHttpStatus())
+                .body(ApiResponse.failure(ex.getMessage(),
+                        Map.of("errorCode", ex.getErrorCode())));
+    }
+
+    @ExceptionHandler(InvalidOperationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidOperation(
+            InvalidOperationException ex, HttpServletRequest request) {
+        log.warn("Invalid operation: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ApiResponse.failure(ex.getMessage(),
+                        Map.of("errorCode", "INVALID_OPERATION")));
+    }
+
+    // =========================================================================
+    // VALIDATION errors (Spring framework)
+    // =========================================================================
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Object>> handleValidationExceptions(
+    public ResponseEntity<ApiResponse<Object>> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        Map<String, Object> fieldErrors = new HashMap<>();
-        List<String> missingFields = new ArrayList<>();
-        List<String> invalidFields = new ArrayList<>();
+        Map<String, Object> fieldErrors = new LinkedHashMap<>();
+        List<String> missingFields  = new ArrayList<>();
+        List<String> invalidFields  = new ArrayList<>();
 
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            Object rejectedValue = ((FieldError) error).getRejectedValue();
+        for (var error : ex.getBindingResult().getAllErrors()) {
+            String field   = ((FieldError) error).getField();
+            String message = error.getDefaultMessage();
+            Object rejected = ((FieldError) error).getRejectedValue();
 
-            Map<String, Object> errorInfo = new HashMap<>();
-            errorInfo.put("message", errorMessage != null ? errorMessage : "Validation failed");
-            errorInfo.put("rejectedValue", rejectedValue);
-            errorInfo.put("field", fieldName);
-            fieldErrors.put(fieldName, errorInfo);
+            fieldErrors.put(field, Map.of(
+                "message",       message != null ? message : "Validation failed",
+                "rejectedValue", rejected != null ? rejected : "null"
+            ));
 
-            // Categorize errors
-            if (errorMessage.toLowerCase().contains("required") ||
-                    errorMessage.toLowerCase().contains("must not be null") ||
-                    errorMessage.toLowerCase().contains("must not be blank")) {
-                missingFields.add(fieldName);
+            if (message != null && (message.contains("required") ||
+                    message.contains("must not be null") || message.contains("must not be blank"))) {
+                missingFields.add(field);
             } else {
-                invalidFields.add(fieldName);
+                invalidFields.add(field);
             }
-        });
+        }
 
-        log.warn("Validation failed for request to {}: {} field errors", request.getRequestURI(), fieldErrors.size());
+        log.warn("Validation failed for {} — {} field error(s)", request.getRequestURI(), fieldErrors.size());
 
-        String message = String.format("Validation failed for %d field(s). Required fields: %s",
-                fieldErrors.size(),
-                missingFields.isEmpty() ? "none" : String.join(", ", missingFields));
-
-        ApiResponse<Object> response = buildErrorResponse(message, ErrorCodes.VALIDATION_ERROR, request);
-        response.setData(Map.of(
-            "fieldErrors", fieldErrors,
-            "missingFields", missingFields,
-            "invalidFields", invalidFields,
-            "totalErrors", fieldErrors.size()
-        ));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ApiResponse.failure(
+                        String.format("Validation failed for %d field(s)", fieldErrors.size()),
+                        Map.of(
+                                "errorCode",     "VALIDATION_ERROR",
+                                "fieldErrors",   fieldErrors,
+                                "missingFields", missingFields,
+                                "invalidFields", invalidFields
+                        )
+                )
+        );
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Object>> handleConstraintViolationException(
+    public ResponseEntity<ApiResponse<Object>> handleConstraintViolation(
             ConstraintViolationException ex, HttpServletRequest request) {
         Map<String, String> violations = ex.getConstraintViolations().stream()
                 .collect(Collectors.toMap(
-                        violation -> violation.getPropertyPath().toString(),
-                        ConstraintViolation::getMessage
+                        v -> v.getPropertyPath().toString(),
+                        ConstraintViolation::getMessage,
+                        (a, b) -> a,
+                        LinkedHashMap::new
                 ));
 
-        log.warn("Constraint violation for request to {}: {}", request.getRequestURI(), violations);
+        log.warn("Constraint violation for {}: {}", request.getRequestURI(), violations);
 
-        ApiResponse<Object> response = buildErrorResponse("Data validation failed. Please check the constraints.",
-            ErrorCodes.VALIDATION_ERROR, request);
-        response.setData(violations);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.failure("Data validation failed.",
+                        Map.of("errorCode", "VALIDATION_ERROR", "violations", violations)));
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException ex, HttpServletRequest request) {
-        log.error("Runtime exception in request to {}: {}", request.getRequestURI(), ex.getMessage(), ex);
-
-        String message = "An unexpected error occurred while processing your request.";
-        String errorCode = ErrorCodes.INTERNAL_SERVER_ERROR;
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        Map<String, Object> errorData = new HashMap<>();
-
-        if (ex.getMessage() != null) {
-            String exMessage = ex.getMessage().toLowerCase();
-            if (exMessage.contains("subdomain")) {
-                if (exMessage.contains("already taken") || exMessage.contains("not available")) {
-                    message = "The subdomain you chose is not available. Please select a different subdomain.";
-                    errorData.put("field", "subdomain");
-                    errorData.put("type", "duplicate");
-                } else if (exMessage.contains("invalid") || exMessage.contains("format")) {
-                    message = "Invalid subdomain format. Please use only lowercase letters, numbers, and hyphens.";
-                    errorData.put("field", "subdomain");
-                    errorData.put("type", "format");
-                }
-            } else if (exMessage.contains("business name")) {
-                message = "The business name you chose is not available. Please select a different name.";
-                errorData.put("field", "businessName");
-                errorData.put("type", "duplicate");
-            } else if (exMessage.contains("email")) {
-                message = "The email address is already in use. Please use a different email.";
-                errorData.put("field", "email");
-                errorData.put("type", "duplicate");
-            } else if (exMessage.contains("timeout")) {
-                message = "The request timed out. Please try again.";
-            } else if (exMessage.contains("connection")) {
-                message = "A connection error occurred. Please try again later.";
-            } else if (exMessage.contains("not found")) {
-                message = "The requested resource could not be found.";
-                errorCode = ErrorCodes.RESOURCE_NOT_FOUND;
-                status = HttpStatus.NOT_FOUND;
-            }
-        }
-
-        ApiResponse<Object> response = buildErrorResponse(message, errorCode, request);
-        if (!errorData.isEmpty()) {
-            response.setData(errorData);
-        }
-        return ResponseEntity.status(status).body(response);
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiResponse<Object>> handleValidationException(
-            ValidationException ex, HttpServletRequest request) {
-        log.warn("Business validation error: {}", ex.getMessage());
-
-        String message = ex.getMessage();
-        Map<String, Object> errorData = new HashMap<>();
-        String msgLower = message.toLowerCase();
-
-        // ✅ CHECK FOR LOGIN-SPECIFIC ERRORS FIRST (PASS THROUGH UNCHANGED)
-        // These patterns indicate login flow errors that should NOT be transformed
-        boolean isLoginError = msgLower.contains("account not found") ||
-                               msgLower.contains("password is incorrect") ||
-                               msgLower.contains("user type mismatch") ||
-                               msgLower.contains("business id is required") ||
-                               msgLower.contains("business not found") ||
-                               msgLower.contains("subscription has expired") ||
-                               msgLower.contains("business account is currently") ||
-                               msgLower.contains("user not found");
-
-        // If it's a login error, pass through without transformation
-        if (isLoginError) {
-            // Don't transform - keep original message
-            // Don't add errorData - this is not a form field error
-        }
-        // ✅ DUPLICATE USERNAME/USER IDENTIFIER (registration or any user context)
-        else if (msgLower.contains("already taken") && msgLower.contains("username")) {
-            errorData.put("field", "userIdentifier");
-            errorData.put("type", "duplicate");
-            message = "This username is already taken. Please choose a different username.";
-        }
-        // ✅ PLAN ERRORS
-        else if (msgLower.contains("plan")) {
-            errorData.put("field", "plan");
-            errorData.put("type", "not_found");
-            message = "The selected subscription plan is not available. Please choose a different plan.";
-        }
-
-        ApiResponse<Object> response = buildErrorResponse(message, ErrorCodes.VALIDATION_ERROR, request);
-        if (!errorData.isEmpty()) {
-            response.setData(errorData);
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    // ================================
-    // NOT FOUND ERRORS
-    // ================================
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleUserNotFoundException(
-            UserNotFoundException ex, HttpServletRequest request) {
-        log.warn("User not found: {}", ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(), ErrorCodes.USER_NOT_FOUND, request);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleNotFoundException(
-            NotFoundException ex, HttpServletRequest request) {
-        log.warn("Resource not found: {}", ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(), ErrorCodes.RESOURCE_NOT_FOUND, request);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(
-            ResourceNotFoundException ex, HttpServletRequest request) {
-        log.warn("Resource not found: {}", ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(), ErrorCodes.RESOURCE_NOT_FOUND, request);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
+    // =========================================================================
+    // HTTP protocol errors
+    // =========================================================================
 
     @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ApiResponse<Object>> handleNoHandlerFoundException(
-            NoHandlerFoundException ex, HttpServletRequest request) {
-        log.warn("No handler found for {} {}", ex.getHttpMethod(), ex.getRequestURL());
-
-        ApiResponse<Object> response = buildErrorResponse("The requested endpoint was not found.",
-            "ENDPOINT_NOT_FOUND", request);
-        response.setData(Map.of(
-            "method", ex.getHttpMethod(),
-            "availableEndpoints", "Check API documentation for available endpoints"
-        ));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    public ResponseEntity<ApiResponse<Object>> handleNoHandler(
+            NoHandlerFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.failure("The requested endpoint was not found.",
+                        Map.of("errorCode", "ENDPOINT_NOT_FOUND",
+                               "method", ex.getHttpMethod())));
     }
 
-    // ================================
-    // HTTP METHOD & REQUEST ERRORS
-    // ================================
-
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ApiResponse<Object>> handleMethodNotSupportedException(
-            HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
-        log.warn("Method not supported: {} for {}", ex.getMethod(), request.getRequestURI());
-
-        String message = String.format("HTTP method '%s' is not supported for this endpoint", ex.getMethod());
-        ApiResponse<Object> response = buildErrorResponse(message, "METHOD_NOT_SUPPORTED", request);
-        response.setData(Map.of(
-            "supportedMethods", ex.getSupportedHttpMethods(),
-            "requestedMethod", ex.getMethod()
-        ));
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(response);
+    public ResponseEntity<ApiResponse<Object>> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(ApiResponse.failure(
+                        String.format("HTTP method '%s' is not supported for this endpoint", ex.getMethod()),
+                        Map.of("errorCode", "METHOD_NOT_SUPPORTED",
+                               "supportedMethods", Objects.requireNonNullElse(ex.getSupportedHttpMethods(), Set.of()))));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<Object>> handleHttpMessageNotReadableException(
-            HttpMessageNotReadableException ex, HttpServletRequest request) {
-        log.warn("Invalid JSON request body: {}", ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse("Invalid request body. Please check your JSON format.",
-            "INVALID_REQUEST_BODY", request);
-        response.setData(Map.of("hint", "Please check your JSON format and data types"));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    public ResponseEntity<ApiResponse<Object>> handleNotReadable(
+            HttpMessageNotReadableException ex) {
+        log.warn("Invalid JSON body: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.failure("Invalid request body. Please check your JSON format.",
+                        Map.of("errorCode", "INVALID_REQUEST_BODY")));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ApiResponse<Object>> handleMissingParameterException(
-            MissingServletRequestParameterException ex, HttpServletRequest request) {
-        log.warn("Missing required parameter: {}", ex.getParameterName());
-
-        String message = String.format("Required parameter '%s' is missing", ex.getParameterName());
-        ApiResponse<Object> response = buildErrorResponse(message, "MISSING_PARAMETER", request);
-        response.setData(Map.of(
-            "field", ex.getParameterName(),
-            "parameterType", ex.getParameterType(),
-            "missingFields", List.of(ex.getParameterName())
-        ));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    public ResponseEntity<ApiResponse<Object>> handleMissingParameter(
+            MissingServletRequestParameterException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.failure(
+                        String.format("Required parameter '%s' is missing", ex.getParameterName()),
+                        Map.of("errorCode", "MISSING_PARAMETER", "field", ex.getParameterName())));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiResponse<Object>> handleTypeMismatchException(
-            MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
-        log.warn("Type mismatch for parameter: {}", ex.getName());
-
-        String message = String.format("Invalid value for parameter '%s'. Expected %s.",
-            ex.getName(),
-            ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "different type");
-        ApiResponse<Object> response = buildErrorResponse(message, "TYPE_MISMATCH", request);
-        response.setData(Map.of(
-            "parameterName", ex.getName(),
-            "expectedType", ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "Unknown",
-            "providedValue", ex.getValue()
-        ));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    public ResponseEntity<ApiResponse<Object>> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex) {
+        String expected = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.failure(
+                        String.format("Invalid value for parameter '%s'. Expected %s.", ex.getName(), expected),
+                        Map.of("errorCode", "TYPE_MISMATCH", "field", ex.getName())));
     }
 
-    // ================================
-    // DATABASE ERRORS
-    // ================================
+    // =========================================================================
+    // DATABASE errors
+    // =========================================================================
 
-    @ExceptionHandler(OptimisticLockException.class)
-    public ResponseEntity<ApiResponse<Object>> handleOptimisticLockException(
-            OptimisticLockException ex, HttpServletRequest request) {
-        log.warn("Optimistic lock conflict for request to {}: {}", request.getRequestURI(), ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse("The data was modified by another request. Please try again.",
-            "CONFLICT", request);
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    @ExceptionHandler({OptimisticLockException.class, ObjectOptimisticLockingFailureException.class})
+    public ResponseEntity<ApiResponse<Object>> handleOptimisticLock(
+            Exception ex, HttpServletRequest request) {
+        log.warn("Optimistic lock conflict for {}: {}", request.getRequestURI(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.failure("The data was modified by another request. Please try again.",
+                        Map.of("errorCode", "CONFLICT")));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiResponse<Object>> handleDataIntegrityViolation(
+    public ResponseEntity<ApiResponse<Object>> handleDataIntegrity(
             DataIntegrityViolationException ex, HttpServletRequest request) {
+        String full = ((ex.getMessage() != null ? ex.getMessage() : "") + " " +
+                       (ex.getRootCause() != null && ex.getRootCause().getMessage() != null
+                               ? ex.getRootCause().getMessage() : "")).toLowerCase();
 
-        String message = "Data validation failed";
-        String errorCode = ErrorCodes.VALIDATION_ERROR;
-        Map<String, Object> errorData = new HashMap<>();
+        String message;
+        String errorCode;
+        Map<String, Object> detail = new LinkedHashMap<>();
 
-        String exceptionMessage = ex.getMessage() != null ? ex.getMessage().toLowerCase() : "";
-        String rootCauseMessage = ex.getRootCause() != null ? ex.getRootCause().getMessage().toLowerCase() : "";
-        String fullMessage = (exceptionMessage + " " + rootCauseMessage).toLowerCase();
-
-        // Enhanced duplicate detection patterns
-        if (containsPattern(fullMessage, new String[]{"email", "unique.*email", "users_email"})) {
-            message = "Email address is already registered. Please use a different email or sign in if you already have an account.";
-            errorCode = ErrorCodes.EMAIL_ALREADY_EXISTS;
-            errorData.put("field", "email");
-            errorData.put("type", "duplicate");
-            errorData.put("constraint", "UNIQUE_EMAIL");
-        } else if (containsPattern(fullMessage, new String[]{"phone", "unique.*phone", "users_phone_number"})) {
-            message = "Phone number is already registered. Please use a different phone number.";
-            errorCode = ErrorCodes.PHONE_ALREADY_EXISTS;
-            errorData.put("field", "phoneNumber");
-            errorData.put("type", "duplicate");
-            errorData.put("constraint", "UNIQUE_PHONE");
-        } else if (containsPattern(fullMessage, new String[]{"business.*email", "businesses_email"})) {
-            message = "Business email is already registered. Please use a different email for your business.";
-            errorCode = ErrorCodes.EMAIL_ALREADY_EXISTS;
-            errorData.put("field", "businessEmail");
-            errorData.put("type", "duplicate");
-            errorData.put("constraint", "UNIQUE_BUSINESS_EMAIL");
-        } else if (containsPattern(fullMessage, new String[]{"subdomain", "unique.*subdomain", "subdomains_subdomain"})) {
-            message = "Subdomain is already taken. Please choose a different subdomain name.";
-            errorData.put("field", "subdomain");
-            errorData.put("type", "duplicate");
-            errorData.put("constraint", "UNIQUE_SUBDOMAIN");
-            errorData.put("suggestion", "Try adding numbers or modify the name (e.g., myrestaurant2, myrestaurant-kh)");
-        } else if (containsPattern(fullMessage, new String[]{"business.*name", "businesses_name"})) {
-            message = "Business name is already registered. Please choose a different business name.";
-            errorData.put("field", "businessName");
-            errorData.put("type", "duplicate");
-            errorData.put("constraint", "UNIQUE_BUSINESS_NAME");
-        } else if (containsPattern(fullMessage, new String[]{"user_identifier", "users_user_identifier"})) {
-            message = "This username is already taken. Please choose a different username.";
-            errorData.put("field", "userIdentifier");
-            errorData.put("type", "duplicate");
-            errorData.put("constraint", "UNIQUE_USER_IDENTIFIER");
-        } else if (fullMessage.contains("foreign key")) {
-            message = "Referenced data does not exist. Please check your input and try again.";
-            errorData.put("constraint", "FOREIGN_KEY");
-            errorData.put("type", "reference");
-        } else if (fullMessage.contains("not null")) {
-            message = "Required field is missing. Please provide all mandatory information.";
-            errorData.put("constraint", "NOT_NULL");
-            errorData.put("type", "required");
+        if (matches(full, "email", "unique.*email", "users_email")) {
+            message   = "Email address is already registered.";
+            errorCode = "EMAIL_ALREADY_EXISTS";
+            detail.put("field", "email");
+        } else if (matches(full, "phone", "users_phone_number")) {
+            message   = "Phone number is already registered.";
+            errorCode = "PHONE_ALREADY_EXISTS";
+            detail.put("field", "phoneNumber");
+        } else if (matches(full, "subdomain", "subdomains_subdomain")) {
+            message   = "Subdomain is already taken. Please choose a different name.";
+            errorCode = "CONFLICT";
+            detail.put("field", "subdomain");
+        } else if (matches(full, "user_identifier", "users_user_identifier")) {
+            message   = "Username is already taken.";
+            errorCode = "CONFLICT";
+            detail.put("field", "userIdentifier");
+        } else if (matches(full, "foreign key")) {
+            message   = "Referenced data does not exist.";
+            errorCode = "VALIDATION_ERROR";
         } else {
-            message = "Data constraint violation. Please check your input and try again.";
-            errorData.put("constraint", "UNKNOWN");
-            errorData.put("type", "validation");
+            message   = "Data constraint violation. Please check your input.";
+            errorCode = "VALIDATION_ERROR";
         }
 
-        log.warn("Data integrity violation: {} - Parsed message: {}", fullMessage, message);
-
-        ApiResponse<Object> response = buildErrorResponse(message, errorCode, request);
-        response.setData(errorData);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    public ResponseEntity<ApiResponse<Object>> handleObjectOptimisticLockingFailureException(
-            ObjectOptimisticLockingFailureException ex, HttpServletRequest request) {
-        log.warn("Optimistic lock conflict for request to {}: {}", request.getRequestURI(), ex.getMessage());
-
-        ApiResponse<Object> response = buildErrorResponse("The data was modified by another request. Please try again.",
-            "CONFLICT", request);
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        log.warn("Data integrity violation [{}]: {}", errorCode, full);
+        detail.put("errorCode", errorCode);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.failure(message, detail));
     }
 
     @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<ApiResponse<Object>> handleDataAccessException(
+    public ResponseEntity<ApiResponse<Object>> handleDataAccess(
             DataAccessException ex, HttpServletRequest request) {
-        log.error("Database access error in request to {}: {}", request.getRequestURI(), ex.getMessage(), ex);
-
-        ApiResponse<Object> response = buildErrorResponse("Database operation failed. Please try again.",
-            ErrorCodes.DATABASE_ERROR, request);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        log.error("DB access error for {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.failure("Database operation failed. Please try again.",
+                        Map.of("errorCode", "DATABASE_ERROR")));
     }
 
     @ExceptionHandler(SQLException.class)
-    public ResponseEntity<ApiResponse<Object>> handleSQLException(
+    public ResponseEntity<ApiResponse<Object>> handleSQL(
             SQLException ex, HttpServletRequest request) {
-        log.error("SQL error in request to {} [sqlState={}]: {}", request.getRequestURI(), ex.getSQLState(), ex.getMessage(), ex);
-
-        ApiResponse<Object> response = buildErrorResponse("Database query failed. Please try again.",
-            ErrorCodes.DATABASE_ERROR, request);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        log.error("SQL error for {} [state={}]: {}", request.getRequestURI(), ex.getSQLState(), ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.failure("Database query failed. Please try again.",
+                        Map.of("errorCode", "DATABASE_ERROR")));
     }
-
-    // ================================
-    // CUSTOM BUSINESS EXCEPTIONS
-    // ================================
-
-    @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ApiResponse<Object>> handleCustomException(
-            CustomException ex, HttpServletRequest request) {
-        log.error("Custom exception occurred: {} - Path: {}", ex.getMessage(), request.getRequestURI());
-
-        ApiResponse<Object> response = buildErrorResponse(ex.getMessage(), ex.getErrorCode(), request);
-        return ResponseEntity.status(ex.getHttpStatus()).body(response);
-    }
-
-    // ================================
-    // GENERIC EXCEPTION HANDLER
-    // ================================
 
     @ExceptionHandler(org.springframework.dao.IncorrectResultSizeDataAccessException.class)
-    public ResponseEntity<ApiResponse<Object>> handleIncorrectResultSizeDataAccessException(
+    public ResponseEntity<ApiResponse<Object>> handleIncorrectResultSize(
             org.springframework.dao.IncorrectResultSizeDataAccessException ex, HttpServletRequest request) {
-        log.error("Database query returned multiple results when one was expected: {}", ex.getMessage(), ex);
-
-        ApiResponse<Object> response = buildErrorResponse(
-            "There is a data integrity issue. Please contact support to resolve this problem.",
-            ErrorCodes.INTERNAL_SERVER_ERROR, request);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        log.error("Data integrity issue — multiple results for single query: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.failure("Data integrity issue. Please contact support.",
+                        Map.of("errorCode", "INTERNAL_SERVER_ERROR")));
     }
+
+    // =========================================================================
+    // CATCH-ALL — last resort, generates trace ID for support
+    // =========================================================================
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Object>> handleGenericException(
+    public ResponseEntity<ApiResponse<Object>> handleGeneric(
             Exception ex, HttpServletRequest request) {
         String traceId = UUID.randomUUID().toString();
-        log.error("Unexpected exception in request to {} [TraceId: {}]: {}",
-            request.getRequestURI(), traceId, ex.getMessage(), ex);
-
-        ApiResponse<Object> response = buildErrorResponse("An unexpected error occurred. Our team has been notified.",
-            ErrorCodes.INTERNAL_SERVER_ERROR, request);
-        response.setData(Map.of(
-            "traceId", traceId,
-            "supportMessage", "Please contact support with the trace ID if the problem persists"
-        ));
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        log.error("Unhandled exception [traceId={}] for {}: {}", traceId, request.getRequestURI(), ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.failure("An unexpected error occurred. Our team has been notified.",
+                        Map.of("errorCode", "INTERNAL_SERVER_ERROR", "traceId", traceId)));
     }
 
-    // ================================
-    // HELPER METHODS
-    // ================================
+    // =========================================================================
+    // Helpers
+    // =========================================================================
 
-    private boolean containsPattern(String text, String[] patterns) {
-        for (String pattern : patterns) {
-            if (text.contains(pattern)) {
-                return true;
-            }
+    private boolean matches(String text, String... patterns) {
+        for (String p : patterns) {
+            if (text.contains(p)) return true;
         }
         return false;
     }
 
-    private String getSuggestionForConstraint(String errorCode) {
-        return switch (errorCode) {
-            case ErrorCodes.EMAIL_ALREADY_EXISTS -> "Please use a different email address or sign in if you already have an account";
-            case ErrorCodes.PHONE_ALREADY_EXISTS -> "Please use a different phone number or update your existing account";
-            default -> "Please check your input and try again";
-        };
+    private String clientIp(HttpServletRequest request) {
+        String xff = request.getHeader("X-Forwarded-For");
+        return xff != null ? xff.split(",")[0].trim() : request.getRemoteAddr();
     }
-
-    private ApiResponse<Object> buildErrorResponse(String message, String code, HttpServletRequest request) {
-        ApiResponse<Object> response = new ApiResponse<>();
-        response.setStatus("error");
-        response.setMessage(message);
-        response.setPath(request.getRequestURI());
-        response.setMethod(request.getMethod());
-        return response;
-    }
-
-    private String getClientIP(HttpServletRequest request) {
-        String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null) {
-            return request.getRemoteAddr();
-        }
-        return xfHeader.split(",")[0];
-    }
-
 }

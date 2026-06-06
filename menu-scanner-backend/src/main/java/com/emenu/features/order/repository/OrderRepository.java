@@ -39,6 +39,16 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
            "ORDER BY h.createdAt ASC")
     List<OrderStatusHistory> findStatusHistoryByOrderId(@Param("orderId") UUID orderId);
 
+    /**
+     * Batch-load status histories for a page of orders in one query.
+     * Use this instead of calling findStatusHistoryByOrderId() in a loop (N+1 problem).
+     */
+    @Query("SELECT h FROM OrderStatusHistory h " +
+           "LEFT JOIN FETCH h.changedByUser " +
+           "WHERE h.orderId IN :orderIds " +
+           "ORDER BY h.createdAt ASC")
+    List<OrderStatusHistory> findStatusHistoriesByOrderIds(@Param("orderIds") List<UUID> orderIds);
+
     boolean existsByOrderNumber(String orderNumber);
 
     @Query("SELECT DISTINCT o FROM Order o " +
