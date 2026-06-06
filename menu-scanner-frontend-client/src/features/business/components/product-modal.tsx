@@ -810,7 +810,7 @@ export default function ProductModal({
                         </p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                         {imageFields.map((field, index) => (
                           <div key={field.id}>
                             <ClickableImageUpload
@@ -828,6 +828,7 @@ export default function ProductModal({
                                 }
                               }}
                               aspectRatio="square"
+                              height="h-28"
                               maxSize={5}
                               disabled={isProcessing}
                               error={errors.images?.[index]?.imageUrl as any}
