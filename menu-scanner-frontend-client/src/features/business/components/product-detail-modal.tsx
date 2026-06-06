@@ -45,7 +45,7 @@ function InfoRow({
       <span className="text-xs font-semibold text-muted-foreground">
         {label}
       </span>
-      <span className="text-xs text-foreground break-words">{value ?? "---"}</span>
+      <span className="text-xs text-foreground break-words">{value || "---"}</span>
     </div>
   );
 }
@@ -162,9 +162,7 @@ export function ProductDetailModal({
                 <SectionTitle>Product Information</SectionTitle>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
                   <InfoRow label="Name" value={productData.name} fullWidth />
-                  {productData.description && (
-                    <InfoRow label="Description" value={productData.description} fullWidth />
-                  )}
+                  <InfoRow label="Description" value={productData.description} fullWidth />
                   <InfoRow label="Category" value={productData.categoryName || "---"} />
                   <InfoRow label="Brand" value={productData.brandName || "---"} />
                   <InfoRow label="SKU" value={productData.sku || "---"} />

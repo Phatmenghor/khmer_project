@@ -45,7 +45,7 @@ function InfoRow({
       <span className="text-xs font-semibold text-muted-foreground">
         {label}
       </span>
-      <span className="text-xs text-foreground break-words">{value ?? "---"}</span>
+      <span className="text-xs text-foreground break-words">{value || "---"}</span>
     </div>
   );
 }
@@ -229,9 +229,7 @@ export function UserBusinessDetailModal({
                     />
                     <InfoRow label="Join Date" value={userData.joinDate || "---"} />
                     <InfoRow label="Leave Date" value={userData.leaveDate || "---"} />
-                    {userData.shift && (
-                      <InfoRow label="Shift" value={userData.shift} />
-                    )}
+                    <InfoRow label="Shift" value={userData.shift} />
                   </div>
                 </div>
               )}
@@ -265,9 +263,7 @@ export function UserBusinessDetailModal({
                           <InfoRow label="Commune" value={addr.commune || "---"} />
                           <InfoRow label="District" value={addr.district || "---"} />
                           <InfoRow label="Province" value={addr.province || "---"} />
-                          {addr.country && (
-                            <InfoRow label="Country" value={addr.country} />
-                          )}
+                          <InfoRow label="Country" value={addr.country} />
                         </div>
                       </div>
                     ))}
@@ -450,12 +446,7 @@ export function UserBusinessDetailModal({
                         {userData.telegramSynced ? "Yes" : "No"}
                       </span>
                     </div>
-                    {userData.telegramSyncedAt && (
-                      <InfoRow
-                        label="Synced At"
-                        value={userData.telegramSyncedAt}
-                      />
-                    )}
+                    <InfoRow label="Synced At" value={userData.telegramSyncedAt} />
                   </div>
                 </div>
               )}

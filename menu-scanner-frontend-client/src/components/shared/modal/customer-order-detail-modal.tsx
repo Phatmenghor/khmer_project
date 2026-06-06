@@ -76,7 +76,7 @@ function InfoRow({
       <span className="text-xs font-semibold text-muted-foreground">
         {label}
       </span>
-      <span className="text-xs text-foreground">{value ?? "---"}</span>
+      <span className="text-xs text-foreground">{value || "---"}</span>
     </div>
   );
 }

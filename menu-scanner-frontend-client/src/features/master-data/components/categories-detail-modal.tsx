@@ -33,7 +33,7 @@ function InfoRow({
   return (
     <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
       <span className="text-xs font-semibold text-muted-foreground">{label}</span>
-      <span className="text-xs text-foreground break-words">{value ?? "---"}</span>
+      <span className="text-xs text-foreground break-words">{value || "---"}</span>
     </div>
   );
 }
@@ -104,9 +104,7 @@ export function CategoriesDetailModal({
                       </span>
                     }
                   />
-                  {categories.description && (
-                    <InfoRow label="Description" value={categories.description} fullWidth />
-                  )}
+                  <InfoRow label="Description" value={categories.description} fullWidth />
                 </div>
               </div>
 
