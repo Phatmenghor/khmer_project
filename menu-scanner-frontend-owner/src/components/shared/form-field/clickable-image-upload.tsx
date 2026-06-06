@@ -57,12 +57,13 @@ export function ClickableImageUpload({
     if (height) return height;
     if (aspectRatio === "banner") return "h-32";
     if (aspectRatio === "auto") return "h-44";
-    if (aspectRatio === "square") return "";
+    if (aspectRatio === "square") return "h-32";
     return "h-40";
   };
 
   const getWidthClass = () => {
     if (width) return width;
+    if (aspectRatio === "square") return "w-32";
     return "w-full";
   };
 
@@ -119,7 +120,7 @@ export function ClickableImageUpload({
         <div
           onClick={handleClick}
           className={cn(
-            "relative rounded overflow-hidden border-2 transition-all",
+            "relative mx-auto rounded overflow-hidden border-2 transition-all",
             getHeightClass(),
             getWidthClass(),
             getAspectRatioClass(),
