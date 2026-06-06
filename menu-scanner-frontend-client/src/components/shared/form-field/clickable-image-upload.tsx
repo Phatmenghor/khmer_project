@@ -19,6 +19,7 @@ interface ClickableImageUploadProps {
   maxSize?: number;
   aspectRatio?: AspectRatio;
   height?: string;
+  width?: string;
   placeholder?: string;
   helperText?: string;
   showPreviewText?: boolean;
@@ -34,6 +35,7 @@ export function ClickableImageUpload({
   maxSize = 10,
   aspectRatio = "square",
   height,
+  width,
   placeholder = "Click to upload image",
   helperText,
   showPreviewText = true,
@@ -63,7 +65,14 @@ export function ClickableImageUpload({
     if (height) return height;
     if (aspectRatio === "banner") return "h-32";
     if (aspectRatio === "auto") return "h-44";
+    if (aspectRatio === "square") return "h-32";
     return "h-40";
+  };
+
+  const getWidthClass = () => {
+    if (width) return width;
+    if (aspectRatio === "square" && !height) return "w-32";
+    return "w-full";
   };
 
   const handleFileChange = async (
@@ -131,8 +140,9 @@ export function ClickableImageUpload({
         <div
           onClick={handleClick}
           className={cn(
-            "relative w-full rounded overflow-hidden border-2 transition-all",
+            "relative rounded overflow-hidden border-2 transition-all",
             getHeightClass(),
+            getWidthClass(),
             getAspectRatioClass(),
             value
               ? "border-border hover:border-primary/50"

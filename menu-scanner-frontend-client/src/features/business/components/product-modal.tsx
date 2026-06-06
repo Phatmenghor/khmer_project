@@ -1192,6 +1192,7 @@ export default function ProductModal({
                                 }}
                                 aspectRatio="square"
                                 height="h-full"
+                                width="w-full"
                                 maxSize={5}
                                 disabled={isProcessing}
                                 error={
