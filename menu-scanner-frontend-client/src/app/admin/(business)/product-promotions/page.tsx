@@ -96,8 +96,8 @@ export default function ProductPromotionPage() {
     null,
   );
   const [sizeFilter, setSizeFilter] = useState("ALL");
-  const [sortBy, setSortBy] = useState("createdAt");
-  const [sortDirection, setSortDirection] = useState("DESC");
+  const [sortBy, setSortBy] = useState("");
+  const [sortDirection, setSortDirection] = useState("");
   const [selectedCategories, setSelectedCategories] =
     useState<CategoriesResponseModel | null>(null);
 
@@ -154,8 +154,8 @@ export default function ProductPromotionPage() {
         brandId: selectedBrand?.id,
         categoryId: selectedCategories?.id,
         hasSize,
-        sortBy,
-        sortDirection,
+        sortBy: sortBy || "createdAt",
+        sortDirection: sortDirection || "DESC",
       }),
     );
   }, [
@@ -449,7 +449,7 @@ export default function ProductPromotionPage() {
         id: "sortBy",
         type: "select",
         label: "Sort By",
-        placeholder: "Created Date",
+        placeholder: "Default (Created Date)",
         value: sortBy,
         onChange: handleSortByChange,
         options: SORT_BY_OPTIONS,
@@ -458,7 +458,7 @@ export default function ProductPromotionPage() {
         id: "sortDirection",
         type: "select",
         label: "Order",
-        placeholder: "DESC",
+        placeholder: "Default (High to Low)",
         value: sortDirection,
         onChange: handleSortDirectionChange,
         options: SORT_DIRECTION_OPTIONS,

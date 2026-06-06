@@ -34,7 +34,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
     (f) => !essentialFilterIds.includes(f.id),
   );
 
-  const activeFiltersCount = config.filters.filter((f) => {
+  const activeFiltersCount = advancedFilters.filter((f) => {
     if (f.value === undefined || f.value === null) return false;
     if (typeof f.value === "string" && f.value === "ALL") return false;
     if (typeof f.value === "string" && f.value === "") return false;
