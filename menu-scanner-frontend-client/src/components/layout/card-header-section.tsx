@@ -147,7 +147,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                     <TooltipTrigger asChild>
                       <Button
                         variant="default"
-                        className="text-white border-0 flex gap-1 font-medium transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/25 group"
+                        className="h-6 px-3 text-white border-0 flex gap-1 font-medium transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/25 group"
                         onClick={openModal}
                       >
                         {buttonIcon && (
