@@ -1,30 +1,54 @@
 # ============================================================
-# application-h2.yaml  –  H2 IN-MEMORY DATABASE (Testing)
-# ============================================================
-# Uses H2 in-memory database for quick testing without PostgreSQL
+# application-h2.yaml — LOCAL QUICK-START (PostgreSQL)
 # ============================================================
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:e_menu_platform}"
+    username: "${DB_USERNAME:postgres}"
+    password: "${DB_PASSWORD:postgres}"
+    driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: HikariPool-H2
 
   jpa:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
-    database-platform: org.hibernate.dialect.H2Dialect
     properties:
       hibernate:
         format_sql: false
 
-  h2:
-    console:
-      enabled: true
+  flyway:
+    enabled: false
+
+jwt:
+  secret: "${JWT_SECRET:h2-dev-secret-replace-in-production-with-minimum-64-char-random-string-xyz}"
+  expiration: "${JWT_EXPIRATION:86400000}"
+  refresh-token-expiration: "${JWT_REFRESH_EXPIRATION:604800000}"
+
+telegram:
+  bot:
+    token: "${TELEGRAM_BOT_TOKEN:disabled}"
+    enabled: true
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:0}"
+    webhook-url: "${TELEGRAM_WEBHOOK_URL:}"
+    auto-setup: true
+
+app:
+  cache:
+    provider: "${CACHE_PROVIDER:caffeine}"
+  security:
+    cors:
+      allowed-origins: "${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://localhost:4173}"
+  init:
+    create-admin: true
+    admin-email: "${APP_ADMIN_EMAIL:admin@emenu.local}"
+    admin-password: "${APP_ADMIN_PASSWORD:Admin@123456}"
 
 logging:
   level:
@@ -33,4 +57,4 @@ logging:
     org.springframework: WARN
     org.hibernate: WARN
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} %-5level [%X{requestId}] %logger{30} - %msg%n"
