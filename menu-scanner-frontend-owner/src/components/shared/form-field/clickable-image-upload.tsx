@@ -57,13 +57,12 @@ export function ClickableImageUpload({
     if (height) return height;
     if (aspectRatio === "banner") return "h-32";
     if (aspectRatio === "auto") return "h-44";
-    if (aspectRatio === "square") return "h-32";
+    if (aspectRatio === "square") return "";
     return "h-40";
   };
 
   const getWidthClass = () => {
     if (width) return width;
-    if (aspectRatio === "square" && !height) return "w-32";
     return "w-full";
   };
 
@@ -147,10 +146,10 @@ export function ClickableImageUpload({
                 alt="Preview"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
-              <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-                <div className="opacity-0 hover:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-1 text-white">
+              <div className="absolute inset-0 group/overlay bg-black/0 hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
+                <div className="opacity-0 group-hover/overlay:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-1 text-white">
                   <Upload className="h-5 w-5" />
-                  <p className="text-xs font-medium">Click to change image</p>
+                  <p className="text-xs font-medium">Click to change</p>
                 </div>
               </div>
               {!disabled && (
