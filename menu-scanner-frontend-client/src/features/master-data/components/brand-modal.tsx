@@ -192,7 +192,6 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
                     value={imageUrl}
                     onChange={(base64) => setValue("imageUrl", base64)}
                     aspectRatio="square"
-                    height="h-28"
                     maxSize={5}
                     required
                     error={errors.imageUrl}

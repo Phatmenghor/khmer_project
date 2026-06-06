@@ -145,7 +145,7 @@ export default function PaymentOptionsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-xl p-0 flex flex-col">
+      <DialogContent className="w-full max-w-xl max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title={isCreate ? "Create New Payment Option" : "Edit Payment Option"}
           description={
@@ -206,7 +206,6 @@ export default function PaymentOptionsModal({
                 disabled={isSubmitting}
                 placeholder="Click to upload QR code or payment method image"
                 helperText="PNG, JPG, GIF up to 10MB"
-                height="h-32"
                 aspectRatio="square"
               />
             </div>

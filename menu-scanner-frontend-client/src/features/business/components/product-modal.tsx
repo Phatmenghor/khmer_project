@@ -640,7 +640,6 @@ export default function ProductModal({
                         setValue("mainImageUrl", base64, { shouldDirty: true })
                       }
                       aspectRatio="square"
-                      height="h-32"
                       maxSize={5}
                       required
                       error={errors.mainImageUrl}

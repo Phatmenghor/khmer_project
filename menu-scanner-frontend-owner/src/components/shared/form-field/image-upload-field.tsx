@@ -91,11 +91,11 @@ export function ImageUploadField({
       <div className="space-y-2">
         {/* Preview */}
         {preview && (
-          <div className="relative w-full h-32 bg-muted rounded overflow-hidden border">
+          <div className="relative w-full h-40 bg-muted rounded overflow-hidden border">
             <img
               src={preview}
               alt="Preview"
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover"
             />
             {!disabled && (
               <Button
