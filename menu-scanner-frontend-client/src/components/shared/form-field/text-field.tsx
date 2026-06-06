@@ -22,10 +22,12 @@ export function TextField<T extends FieldValues = FieldValues>({
   allowZero = true,
   pattern,
   onCustomChange,
+  inputClassName = "",
+  labelClassName = "",
 }: TextFormFieldProps<T>) {
   return (
     <div className={`flex flex-col gap-1 w-full ${className}`}>
-      <Label htmlFor={name} className="text-xs font-medium text-foreground">
+      <Label htmlFor={name} className={`text-xs font-medium text-foreground ${labelClassName}`}>
         {label} {required && <span className="text-red-500 ml-1">*</span>}
       </Label>
       <Controller
@@ -87,7 +89,7 @@ export function TextField<T extends FieldValues = FieldValues>({
               error
                 ? "border-red-500 focus:border-red-500"
                 : "border-input focus:border-primary focus:ring-2 focus:ring-primary/30"
-            }`}
+            } ${inputClassName}`}
           />
         )}
       />

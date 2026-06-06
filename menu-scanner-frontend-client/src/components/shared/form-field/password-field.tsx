@@ -17,10 +17,12 @@ export function PasswordField<T extends FieldValues = FieldValues>({
   onTogglePassword,
   showPassword = false,
   className = "",
+  inputClassName = "",
+  labelClassName = "",
 }: PasswordFormFieldProps<T>) {
   return (
     <div className={`flex flex-col gap-1 w-full ${className}`}>
-      <Label htmlFor={name} className="text-xs font-medium">
+      <Label htmlFor={name} className={`text-xs font-medium ${labelClassName}`}>
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
       <div className="relative">
@@ -40,7 +42,7 @@ export function PasswordField<T extends FieldValues = FieldValues>({
                 error
                   ? "border-red-500 focus:border-red-500"
                   : "focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/30"
-              }`}
+              } ${inputClassName}`}
             />
           )}
         />

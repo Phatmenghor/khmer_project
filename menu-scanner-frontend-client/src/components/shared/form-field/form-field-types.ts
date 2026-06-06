@@ -14,6 +14,8 @@ export interface BaseFormFieldProps<T extends FieldValues = FieldValues> {
   required?: boolean;
   placeholder?: string;
   className?: string;
+  inputClassName?: string;
+  labelClassName?: string;
 }
 
 /**
