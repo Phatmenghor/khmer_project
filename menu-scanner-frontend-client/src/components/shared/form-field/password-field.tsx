@@ -59,7 +59,7 @@ export function PasswordField<T extends FieldValues = FieldValues>({
           </button>
         )}
       </div>
-      <p className="text-xs text-red-600 min-h-[16px]">{error?.message || ""}</p>
+      <p className={`text-xs text-red-600 ${error?.message ? "min-h-[16px]" : ""}`}>{error?.message || ""}</p>
     </div>
   );
 }

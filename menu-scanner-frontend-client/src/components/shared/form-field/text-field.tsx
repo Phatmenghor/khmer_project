@@ -91,7 +91,7 @@ export function TextField<T extends FieldValues = FieldValues>({
           />
         )}
       />
-      <p className="text-xs text-red-500 min-h-[16px]">{error?.message || ""}</p>
+      <p className={`text-xs text-red-500 ${error?.message ? "min-h-[16px]" : ""}`}>{error?.message || ""}</p>
     </div>
   );
 }

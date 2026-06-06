@@ -45,7 +45,7 @@ export function DateTimePickerField<T extends FieldValues = FieldValues>({
           />
         )}
       />
-      <p className="text-xs text-destructive font-medium min-h-[16px]">{error?.message || ""}</p>
+      <p className={`text-xs text-destructive font-medium ${error?.message ? "min-h-[16px]" : ""}`}>{error?.message || ""}</p>
     </div>
   );
 }

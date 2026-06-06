@@ -166,7 +166,7 @@ function MultiSelectDaysContent({
         })}
       </div>
 
-      <p className="text-xs text-red-600 min-h-[16px]">{errorMessage || ""}</p>
+      <p className={`text-xs text-red-600 ${errorMessage ? "min-h-[16px]" : ""}`}>{errorMessage || ""}</p>
     </div>
   );
 }
