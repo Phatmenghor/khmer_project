@@ -65,24 +65,12 @@ export function BrandDetailModal({
       <DialogContent className="w-full sm:max-w-2xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
-          <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50">
-            {brand.imageUrl ? (
-              <img
-                src={brand.imageUrl}
-                alt={brand.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Package className="h-5 w-5 text-muted-foreground" />
-              </div>
-            )}
+          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+            <Package className="h-5 w-5 text-muted-foreground" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground truncate">{brand.name}</p>
-            {brand.businessName && (
-              <p className="text-xs text-muted-foreground mt-0.5">{brand.businessName}</p>
-            )}
+            <p className="text-sm font-bold text-foreground">Brand</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Manage product brands for your business</p>
           </div>
         </div>
 
