@@ -264,7 +264,7 @@ export function StockManagementModal({
                 <img
                   src={product.mainImageUrl}
                   alt={product?.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain p-1.5"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
