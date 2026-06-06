@@ -52,12 +52,12 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 function Divider() {
   return (
-    <div className="relative py-1">
+    <div className="relative py-0.5">
       <div className="absolute inset-0 flex items-center">
         <span className="w-full border-t border-border/50" />
       </div>
       <div className="relative flex justify-center">
-        <span className="bg-background px-3 text-xs text-muted-foreground uppercase tracking-wider">
+        <span className="bg-background px-2 text-[10px] text-muted-foreground uppercase tracking-wider">
           or continue with
         </span>
       </div>
@@ -186,28 +186,25 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
     }
   };
 
-  // Same field height token as the login modal so inputs, buttons, and
-  // telegram all line up visually.
-  const fieldHeight = "h-10";
-  const inputClass = `!${fieldHeight} text-sm px-3`;
-  const labelClass = "text-sm";
+  // Admin-modal sizing: every interactive element is h-[26px] tall.
+  const fieldHeight = "h-[26px]";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader className="text-left">
-          <DialogTitle className="text-lg font-semibold leading-tight">
+          <DialogTitle className="text-xs font-semibold leading-tight">
             {businessName || "Create your account"}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground leading-snug">
             Create a new account to continue
           </p>
         </DialogHeader>
 
         <Separator />
 
-        <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+        <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
             <TextField
               name="firstName"
               label="First Name"
@@ -216,8 +213,6 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
               error={registerForm.formState.errors.firstName}
               disabled={isAnyLoading}
               required
-              inputClassName={inputClass}
-              labelClassName={labelClass}
             />
             <TextField
               name="lastName"
@@ -227,8 +222,6 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
               error={registerForm.formState.errors.lastName}
               disabled={isAnyLoading}
               required
-              inputClassName={inputClass}
-              labelClassName={labelClass}
             />
           </div>
 
@@ -240,8 +233,6 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             error={registerForm.formState.errors.userIdentifier}
             disabled={isAnyLoading}
             required
-            inputClassName={inputClass}
-            labelClassName={labelClass}
           />
 
           <TextField
@@ -252,8 +243,6 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             error={registerForm.formState.errors.phone}
             disabled={isAnyLoading}
             required
-            inputClassName={inputClass}
-            labelClassName={labelClass}
           />
 
           <PasswordField
@@ -266,8 +255,6 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             required
             showPassword={showPassword}
             onTogglePassword={() => setShowPassword((v) => !v)}
-            inputClassName={inputClass}
-            labelClassName={labelClass}
           />
 
           <PasswordField
@@ -280,17 +267,15 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             required
             showPassword={showConfirmPassword}
             onTogglePassword={() => setShowConfirmPassword((v) => !v)}
-            inputClassName={inputClass}
-            labelClassName={labelClass}
           />
 
           <DialogFooter className="pt-1">
             <Button
               type="submit"
-              className={`w-full ${fieldHeight} text-sm font-semibold`}
+              className={`w-full ${fieldHeight} text-xs font-semibold`}
               disabled={isAnyLoading}
             >
-              {isRegistrationLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isRegistrationLoading && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
               {isRegistrationLoading
                 ? (isLoading ? "Logging in..." : "Creating account...")
                 : "Create Account"
@@ -306,10 +291,10 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             onAuth={handleTelegramAuth}
             disabled={isAnyLoading}
             loading={isTelegramLoading}
-            className={`w-full ${fieldHeight}`}
+            className={`w-full ${fieldHeight} text-xs`}
           />
 
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-[11px] text-muted-foreground">
             Already have an account?{" "}
             <button
               type="button"

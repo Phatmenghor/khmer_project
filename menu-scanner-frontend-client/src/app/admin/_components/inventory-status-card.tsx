@@ -19,9 +19,9 @@ import {
 import { ROUTES } from "@/constants/app-routes/routes";
 
 const STOCK_STATUS_CONFIG: Record<StockStatus, { label: string; badgeClass: string; barClass: string }> = {
-  IN_STOCK:     { label: "In Stock",    badgeClass: "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800", barClass: "bg-emerald-400" },
-  LOW_STOCK:    { label: "Low Stock",   badgeClass: "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800",           barClass: "bg-amber-400" },
-  OUT_OF_STOCK: { label: "Out of Stock",badgeClass: "bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800",                 barClass: "bg-rose-300" },
+  IN_STOCK:     { label: "In Stock",     badgeClass: "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800", barClass: "bg-emerald-400" },
+  LOW_STOCK:    { label: "Low Stock",    badgeClass: "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800",           barClass: "bg-amber-400" },
+  OUT_OF_STOCK: { label: "Out of Stock", badgeClass: "bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800",                 barClass: "bg-rose-300" },
 };
 
 interface InventoryStatusCardProps {
@@ -30,80 +30,102 @@ interface InventoryStatusCardProps {
 }
 
 export function InventoryStatusCard({ stock, loading }: InventoryStatusCardProps) {
+  const outCount = stock?.outOfStockCount ?? 0;
+  const lowCount = stock?.lowStockCount ?? 0;
+  const hasSummary = outCount > 0 || lowCount > 0;
+
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xs">Inventory Status</CardTitle>
-            <CardDescription>Items requiring attention</CardDescription>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <CardTitle className="text-sm font-semibold">Inventory Status</CardTitle>
+            <CardDescription className="text-xs mt-0.5">
+              Items requiring attention
+            </CardDescription>
           </div>
-          <div className="flex items-center gap-1">
-            {(stock?.outOfStockCount ?? 0) > 0 && (
-              <span className="inline-flex items-center gap-1 px-1 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400">
-                <span className="w-1 h-1 rounded-full bg-rose-400 inline-block" />
-                {stock!.outOfStockCount} out of stock
-              </span>
-            )}
-            {(stock?.lowStockCount ?? 0) > 0 && (
-              <span className="inline-flex items-center gap-1 px-1 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400">
-                <span className="w-1 h-1 rounded-full bg-amber-400 inline-block" />
-                {stock!.lowStockCount} low stock
-              </span>
-            )}
-            <Link href={ROUTES.MANAGE_STOCK.STOCK_ITEMS}>
-              <Button variant="ghost" size="sm" className="gap-1 text-xs text-muted-foreground">
-                View all
-                <ArrowUpRight className="h-2.5 w-2.5" />
-              </Button>
-            </Link>
-          </div>
+          <Link href={ROUTES.MANAGE_STOCK.STOCK_ITEMS}>
+            <Button variant="ghost" size="sm" className="gap-1 h-8 text-xs">
+              View all
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
         </div>
       </CardHeader>
       <CardContent className="p-0">
+        {/* Summary strip — moved out of the header so it doesn't crowd the title */}
+        {hasSummary && !loading && (
+          <div className="flex flex-wrap items-center gap-2 px-4 py-2 border-b bg-muted/20">
+            {outCount > 0 && (
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                {outCount} out of stock
+              </span>
+            )}
+            {lowCount > 0 && (
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                {lowCount} low stock
+              </span>
+            )}
+          </div>
+        )}
+
         {loading ? (
-          <div className="p-4 space-y-2">
+          <div className="p-4 space-y-3">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <Skeleton className="h-5 w-5 rounded shrink-0" />
-                <div className="flex-1 space-y-1">
-                  <Skeleton className="h-2.5 w-24" />
-                  <Skeleton className="h-2 w-14" />
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="h-8 w-8 rounded shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-2 w-full" />
                 </div>
-                <Skeleton className="h-3 w-14 rounded-full" />
+                <Skeleton className="h-5 w-20 rounded-full" />
               </div>
             ))}
           </div>
         ) : !stock?.data?.length ? (
-          <div className="flex flex-col items-center justify-center py-7 text-muted-foreground gap-1">
-            <Package className="h-5 w-5 opacity-30" />
-            <p className="text-xs">All items fully stocked</p>
+          <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
+            <Package className="h-7 w-7 opacity-30" />
+            <p className="text-sm">All items fully stocked</p>
           </div>
         ) : (
           <div className="divide-y">
             {stock.data.map((item) => {
               const cfg = STOCK_STATUS_CONFIG[item.status];
-              const pct = Math.min(100, Math.round((item.quantity / Math.max(item.minStock * 2, 1)) * 100));
+              // Progress against the alert threshold: 0 means at/below min, 100 means well-stocked.
+              const pct = item.minStock > 0
+                ? Math.min(100, Math.round((item.quantity / item.minStock) * 100))
+                : 100;
               return (
-                <div key={item.id} className="flex items-center gap-2 px-4 py-2 hover:bg-muted/30 transition-colors">
-                  <div className="w-5 h-5 rounded bg-muted flex items-center justify-center shrink-0">
-                    <Package className="h-3 w-3 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-foreground truncate">{item.name}</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <p className="text-xs text-muted-foreground">{item.quantity} / {item.minStock} min</p>
-                      <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className={cn("h-full rounded-full transition-all", cfg.barClass)}
-                          style={{ width: `${pct}%` }}
-                        />
+                <div key={item.id} className="px-4 py-3 hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
+                      <Package className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
+                        <span className={cn(
+                          "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0",
+                          cfg.badgeClass
+                        )}>
+                          {cfg.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <p className="text-xs text-muted-foreground tabular-nums shrink-0">
+                          {item.quantity} / {item.minStock} min
+                        </p>
+                        <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={cn("h-full rounded-full transition-all", cfg.barClass)}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <span className={cn("inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium", cfg.badgeClass)}>
-                    {cfg.label}
-                  </span>
                 </div>
               );
             })}

@@ -129,25 +129,24 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
     }
   };
 
-  // Single source of truth for "tap target" height on this modal — every
-  // interactive element (inputs, buttons, telegram) uses it so the form
-  // visually aligns.
-  const fieldHeight = "h-10";
+  // Match admin modal: all interactive elements at h-[26px], compact text,
+  // tight padding. Single token kept so the unified height stays obvious.
+  const fieldHeight = "h-[26px]";
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md p-0 flex flex-col gap-0">
-        {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
-          <div className="flex items-start gap-3">
-            <div className="p-2.5 bg-primary/10 border border-primary/30 rounded-md shrink-0">
-              <LogIn className="h-5 w-5 text-primary" />
+      <DialogContent className="sm:max-w-sm p-0 flex flex-col gap-0">
+        {/* Header — admin FormHeader style */}
+        <DialogHeader className="px-3 pt-3 pb-2 border-b flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 border border-primary/30 bg-primary/10 rounded shrink-0">
+              <LogIn className="h-4 w-4 text-primary" strokeWidth={2.25} />
             </div>
-            <div className="flex flex-col gap-1 flex-1 min-w-0">
-              <DialogTitle className="text-lg font-semibold leading-tight">
+            <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+              <DialogTitle className="text-xs font-semibold leading-tight">
                 Sign In
               </DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground">
+              <DialogDescription className="text-[11px] leading-snug">
                 {businessName
                   ? `Welcome back to ${businessName}`
                   : "Sign in to your account to continue"}
@@ -158,7 +157,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
 
         {/* Body */}
         <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="flex flex-col flex-1">
-          <FormBody contentClassName="px-6 py-5 space-y-4">
+          <FormBody contentClassName="px-3 py-3 space-y-3">
             <TextField
               name="userIdentifier"
               label="Email or Username"
@@ -167,8 +166,6 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               error={loginForm.formState.errors.userIdentifier}
               disabled={isAnyLoading}
               required
-              inputClassName={`!${fieldHeight} text-sm px-3`}
-              labelClassName="text-sm"
             />
             <PasswordField
               name="password"
@@ -180,36 +177,34 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               required
               showPassword={showPassword}
               onTogglePassword={() => setShowPassword((v) => !v)}
-              inputClassName={`!${fieldHeight} text-sm px-3`}
-              labelClassName="text-sm"
             />
 
             {/* Divider */}
-            <div className="relative py-1">
+            <div className="relative py-0.5">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-border/50" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-background px-3 text-xs text-muted-foreground uppercase tracking-wider">
+                <span className="bg-background px-2 text-[10px] text-muted-foreground uppercase tracking-wider">
                   or continue with
                 </span>
               </div>
             </div>
 
-            {/* Telegram */}
+            {/* Telegram — same height as inputs and buttons */}
             <TelegramLoginButton
               botName={SocialAuthConfig.TELEGRAM_BOT_NAME}
               botId={SocialAuthConfig.TELEGRAM_BOT_ID}
               onAuth={handleTelegramAuth}
               disabled={isAnyLoading}
               loading={isTelegramLoading}
-              className={`w-full ${fieldHeight}`}
+              className={`w-full ${fieldHeight} text-xs`}
             />
           </FormBody>
 
-          {/* Footer */}
-          <div className="flex flex-col gap-3 px-6 py-4 border-t bg-muted/30 flex-shrink-0 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground order-2 sm:order-1">
+          {/* Footer — admin FormFooter style */}
+          <div className="flex flex-col gap-1.5 px-2.5 py-2 border-t bg-muted/30 flex-shrink-0 sm:flex-row sm:items-center sm:justify-between sm:px-3">
+            <p className="text-[11px] text-muted-foreground order-2 sm:order-1">
               No account?{" "}
               <button
                 type="button"
@@ -229,18 +224,18 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
                 variant="outline"
                 onClick={handleClose}
                 disabled={isAnyLoading}
-                className={`${fieldHeight} px-4 text-sm`}
+                className={`${fieldHeight} px-3 text-xs`}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={isAnyLoading}
-                className={`${fieldHeight} px-4 text-sm`}
+                className={`${fieldHeight} min-w-[96px] px-3 text-xs`}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                     Signing in...
                   </>
                 ) : (
