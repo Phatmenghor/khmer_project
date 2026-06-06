@@ -21,7 +21,6 @@ import {
   Download,
   Edit,
   Copy,
-  Phone,
   MapPin,
   Package,
   Check,
@@ -690,13 +689,9 @@ export function OrderDetailModal({
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
                         Phone
                       </p>
-                      <a
-                        href={`tel:${orderData.customerPhone}`}
-                        className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
-                      >
-                        <Phone className="h-3 w-3" />
+                      <p className="text-xs font-semibold text-foreground">
                         {orderData.customerPhone}
-                      </a>
+                      </p>
                     </div>
                   )}
                 </div>
