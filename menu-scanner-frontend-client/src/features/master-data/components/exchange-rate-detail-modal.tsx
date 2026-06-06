@@ -69,10 +69,8 @@ export function ExchangeRateDetailModal({
             <TrendingUp className="h-5 w-5 text-muted-foreground" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground">{formatKhrRate(exchangeRate.usdToKhrRate)}</p>
-            {exchangeRate.notes && (
-              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{exchangeRate.notes}</p>
-            )}
+            <p className="text-sm font-bold text-foreground">Exchange Rate</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Current exchange rate for currency conversion</p>
           </div>
         </div>
 
