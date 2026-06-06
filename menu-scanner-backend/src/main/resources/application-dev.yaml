@@ -9,7 +9,7 @@ spring:
   datasource:
     url: jdbc:postgresql://host.docker.internal:5432/e_menu_platform
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:Hour1819}
+    password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 15
@@ -36,6 +36,6 @@ logging:
 # Telegram (Development Server)
 telegram:
   bot:
-    token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
+    token: "${TELEGRAM_BOT_TOKEN:}"
     enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:}"

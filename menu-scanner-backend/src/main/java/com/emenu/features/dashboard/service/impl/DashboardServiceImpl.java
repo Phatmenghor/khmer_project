@@ -5,10 +5,12 @@ import com.emenu.features.dashboard.dto.response.*;
 import com.emenu.features.dashboard.service.DashboardService;
 import com.emenu.features.dashboard.util.DashboardPeriodUtil;
 import com.emenu.shared.constants.BusinessConstants;
+import com.emenu.shared.constants.CacheNames;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +40,7 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Summary ─────────────────────────────────────────────────────────────
 
     @Override
+    @Cacheable(value = CacheNames.DASHBOARD_SUMMARY, key = "#businessId")
     public DashboardSummaryResponse getSummary(UUID businessId, String period) {
         LocalDateTime[] today     = DashboardPeriodUtil.getTodayRange();
         LocalDateTime[] yesterday = DashboardPeriodUtil.getYesterdayRange();
@@ -72,6 +75,7 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Sales Analytics ─────────────────────────────────────────────────────
 
     @Override
+    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':sales:' + #period")
     public DashboardSalesResponse getSales(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
 
@@ -119,6 +123,7 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Payment Methods ──────────────────────────────────────────────────────
 
     @Override
+    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':payments:' + #period")
     public DashboardPaymentsResponse getPayments(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
 
@@ -284,6 +289,7 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Branches (grouped by source) ────────────────────────────────────────
 
     @Override
+    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':branches:' + #period")
     public DashboardBranchesResponse getBranches(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
         LocalDateTime[] prev  = new LocalDateTime[]{
@@ -354,6 +360,7 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Top Products ─────────────────────────────────────────────────────────
 
     @Override
+    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':topProducts:' + #period")
     public DashboardTopProductsResponse getTopProducts(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
 
@@ -400,6 +407,7 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Hourly Sales ─────────────────────────────────────────────────────────
 
     @Override
+    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':hourlySales:' + #period")
     public DashboardHourlySalesResponse getHourlySales(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
 
@@ -454,6 +462,7 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Customer Stats ───────────────────────────────────────────────────────
 
     @Override
+    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':customerStats:' + #period")
     public DashboardCustomerStatsResponse getCustomerStats(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
 
@@ -511,6 +520,7 @@ public class DashboardServiceImpl implements DashboardService {
     // ─── Promotion Performance ────────────────────────────────────────────────
 
     @Override
+    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':promotions:' + #period")
     public DashboardPromotionsResponse getPromotions(UUID businessId, String period) {
         LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
 

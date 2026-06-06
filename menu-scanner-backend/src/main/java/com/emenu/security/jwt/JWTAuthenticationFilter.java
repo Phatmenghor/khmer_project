@@ -1,12 +1,14 @@
 package com.emenu.security.jwt;
 
 import com.emenu.security.CustomUserDetailsService;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -35,17 +38,19 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String token = extractBearerToken(request);
+        MDC.put("requestId", UUID.randomUUID().toString());
         try {
+            String token = extractBearerToken(request);
             if (StringUtils.hasText(token)) {
                 authenticateFromToken(request, response, token);
                 if (response.isCommitted()) return;
             }
         } catch (Exception e) {
             log.error("Cannot set user authentication: {}", e.getMessage());
+        } finally {
+            MDC.remove("requestId");
         }
         filterChain.doFilter(request, response);
-        // ThreadLocal cleanup is owned by AuditLogFilter which wraps the entire chain
     }
 
     private void authenticateFromToken(HttpServletRequest request,
@@ -57,19 +62,21 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (!jwtGenerator.validateToken(token)) {
+        // Parse JWT exactly once — all claims extracted from this single result
+        Claims claims = jwtGenerator.parseClaimsQuietly(token).orElse(null);
+        if (claims == null) {
             return;
         }
 
-        String tokenType = jwtGenerator.getTokenTypeFromJWT(token);
+        String tokenType = claims.get("type", String.class);
         if (!"access".equals(tokenType)) {
             log.warn("Rejected non-access token (type={}) from ip={}", tokenType, request.getRemoteAddr());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token type");
             return;
         }
 
-        String username = jwtGenerator.getUsernameFromJWT(token);
-        String userType = jwtGenerator.getUserTypeFromJWT(token);
+        String username = claims.getSubject();
+        String userType = claims.get("userType", String.class);
 
         UserDetails userDetails = (userType != null)
                 ? customUserDetailsService.loadUserByUsernameAndUserType(username, userType)
@@ -80,14 +87,14 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        populateThreadLocalContext(token, userType);
+        populateThreadLocalContext(claims, userType);
     }
 
-    private void populateThreadLocalContext(String token, String userType) {
+    private void populateThreadLocalContext(Claims claims, String userType) {
         try {
             Map<String, String> ctx = AUTHENTICATED_USER.get();
-            String userId = jwtGenerator.getUserIdFromJWT(token);
-            String userIdentifier = jwtGenerator.getUserIdentifierFromJWT(token);
+            String userId = claims.get("userId", String.class);
+            String userIdentifier = claims.get("userIdentifier", String.class);
             if (userId != null) ctx.put("userId", userId);
             if (userIdentifier != null) ctx.put("userIdentifier", userIdentifier);
             if (userType != null) ctx.put("userType", userType);

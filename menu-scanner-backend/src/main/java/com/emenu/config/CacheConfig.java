@@ -34,7 +34,9 @@ public class CacheConfig {
                 buildCache(CacheNames.COMMUNES,           1000, 24, TimeUnit.HOURS),
                 buildCache(CacheNames.VILLAGES,           2000, 24, TimeUnit.HOURS),
                 buildCache(CacheNames.BANNERS,            200,  30, TimeUnit.MINUTES),
-                buildCache(CacheNames.BRANDS,             200,  1,  TimeUnit.HOURS)
+                buildCache(CacheNames.BRANDS,             200,  1,  TimeUnit.HOURS),
+                buildCache(CacheNames.DASHBOARD_SUMMARY,  1000, 60, TimeUnit.SECONDS),
+                buildCache(CacheNames.DASHBOARD_STATS,    1000, 2,  TimeUnit.MINUTES)
         ));
         return manager;
     }

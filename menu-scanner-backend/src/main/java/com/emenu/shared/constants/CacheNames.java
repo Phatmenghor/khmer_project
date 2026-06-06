@@ -17,4 +17,6 @@ public final class CacheNames {
     public static final String PROMOTIONS         = "promotions";
     public static final String BANNERS            = "banners";
     public static final String BRANDS             = "brands";
+    public static final String DASHBOARD_SUMMARY  = "dashboardSummary";
+    public static final String DASHBOARD_STATS    = "dashboardStats";
 }

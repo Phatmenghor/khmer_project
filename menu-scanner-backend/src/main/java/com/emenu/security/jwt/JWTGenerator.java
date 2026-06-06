@@ -15,6 +15,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -175,6 +176,20 @@ public class JWTGenerator {
             return getExpirationDateFromJWT(token).before(new Date());
         } catch (Exception e) {
             return true;
+        }
+    }
+
+    /**
+     * Parse the token exactly once and return all claims.
+     * Returns empty Optional if the token is invalid or expired.
+     * Use this in the authentication filter to avoid redundant parses.
+     */
+    public Optional<Claims> parseClaimsQuietly(String token) {
+        try {
+            return Optional.of(parseClaims(token));
+        } catch (Exception e) {
+            log.warn("JWT parsing failed: {}", e.getMessage());
+            return Optional.empty();
         }
     }
 }
