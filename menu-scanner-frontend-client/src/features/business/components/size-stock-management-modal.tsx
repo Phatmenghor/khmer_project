@@ -1,8 +1,9 @@
 "use client";
 
-import { Messages } from "@/constants/messages";
 import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   Dialog,
@@ -11,8 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { showToast } from "@/components/shared/common/show-toast";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
+import { TextField } from "@/components/shared/form-field/text-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { ActionButton } from "@/components/shared/button/action-button";
@@ -43,12 +43,19 @@ import { ProductDetailResponseModel, ProductSize } from "../store/models/respons
 import { ProductStockDto } from "../store/models/response/stock-response";
 import { createSizeStockHistoryColumns } from "../table/size-stock-history-table";
 
-interface SizeStockFormData {
-  quantityOnHand?: number;
-  priceIn?: string;
-  expiryDate?: string;
-  location?: string;
-}
+const stockFormSchema = z.object({
+  quantityOnHand: z.number({
+    required_error: "Quantity is required",
+    invalid_type_error: "Quantity is required",
+  }).min(0, "Must be >= 0"),
+  priceIn: z.string({ required_error: "Price is required" })
+    .min(1, "Price is required")
+    .refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) > 0, "Must be greater than 0"),
+  expiryDate: z.string().optional(),
+  location: z.string().optional(),
+});
+
+type StockFormData = z.infer<typeof stockFormSchema>;
 
 interface SizeStockManagementModalProps {
   isOpen: boolean;
@@ -74,8 +81,15 @@ export function SizeStockManagementModal({
   });
   const formSectionRef = useRef<HTMLDivElement>(null);
 
-  const form = useForm<SizeStockFormData>({
+  const form = useForm<StockFormData>({
+    resolver: zodResolver(stockFormSchema),
     mode: "onChange",
+    defaultValues: {
+      quantityOnHand: undefined as unknown as number,
+      priceIn: "",
+      expiryDate: "",
+      location: "",
+    },
   });
 
 
@@ -92,10 +106,10 @@ export function SizeStockManagementModal({
       dispatch(clearSuccess());
       setEditingStock(null);
       form.reset({
-        quantityOnHand: undefined,
-        priceIn: undefined,
-        expiryDate: undefined,
-        location: undefined,
+        quantityOnHand: undefined as unknown as number,
+        priceIn: "",
+        expiryDate: "",
+        location: "",
       });
     }
   }, [successMessage, dispatch, form]);
@@ -124,61 +138,37 @@ export function SizeStockManagementModal({
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        quantityOnHand: undefined,
-        priceIn: undefined,
-        expiryDate: undefined,
-        location: undefined,
+        quantityOnHand: undefined as unknown as number,
+        priceIn: "",
+        expiryDate: "",
+        location: "",
       });
     } else {
       setEditingStock(null);
       setSelectedSize(null);
       form.reset({
-        quantityOnHand: undefined,
-        priceIn: undefined,
-        expiryDate: undefined,
-        location: undefined,
+        quantityOnHand: undefined as unknown as number,
+        priceIn: "",
+        expiryDate: "",
+        location: "",
       });
     }
   }, [isOpen, form]);
 
-  const handleCreateStock = async (data: SizeStockFormData) => {
-    if (editingStock) {
-      return handleUpdateStock(data);
-    }
-
+  const handleCreateStock = async (data: StockFormData) => {
+    if (editingStock) return handleUpdateStock(data);
     if (!product || !selectedSize) return;
-
-    const quantity = Number(data.quantityOnHand);
-    if (isNaN(quantity) || quantity < 0) {
-      showToast.error(Messages.product.invalidQuantity);
-      return;
-    }
-
-    const price = parseFloat(data.priceIn || "");
-    if (isNaN(price) || price <= 0) {
-      showToast.error(Messages.product.invalidPrice);
-      return;
-    }
-
-    let formattedExpiryDate: string | undefined;
-    if (data.expiryDate) {
-      if (data.expiryDate.length === 10) {
-        formattedExpiryDate = `${data.expiryDate}T00:00:00`;
-      } else {
-        formattedExpiryDate = data.expiryDate;
-      }
-    }
-
-    dispatch(
-      createProductStockService({
-        productId: product.id || "",
-        productSizeId: selectedSize.id,
-        quantityOnHand: quantity,
-        priceIn: price,
-        expiryDate: formattedExpiryDate || undefined,
-        location: data.location || undefined,
-      })
-    );
+    const formattedExpiryDate = data.expiryDate
+      ? (data.expiryDate.length === 10 ? `${data.expiryDate}T00:00:00` : data.expiryDate)
+      : undefined;
+    dispatch(createProductStockService({
+      productId: product.id || "",
+      productSizeId: selectedSize.id,
+      quantityOnHand: data.quantityOnHand,
+      priceIn: parseFloat(data.priceIn),
+      expiryDate: formattedExpiryDate,
+      location: data.location || undefined,
+    }));
   };
 
   const handleDeleteStock = (stock: ProductStockDto) => {
@@ -215,41 +205,20 @@ export function SizeStockManagementModal({
     }, 0);
   };
 
-  const handleUpdateStock = async (data: SizeStockFormData) => {
+  const handleUpdateStock = async (data: StockFormData) => {
     if (!editingStock) return;
-
-    const quantity = Number(data.quantityOnHand);
-    if (isNaN(quantity) || quantity < 0) {
-      showToast.error(Messages.product.invalidQuantity);
-      return;
-    }
-
-    const price = parseFloat(data.priceIn || "");
-    if (isNaN(price) || price <= 0) {
-      showToast.error(Messages.product.invalidPrice);
-      return;
-    }
-
-    let formattedExpiryDate: string | undefined;
-    if (data.expiryDate) {
-      if (data.expiryDate.length === 10) {
-        formattedExpiryDate = `${data.expiryDate}T00:00:00`;
-      } else {
-        formattedExpiryDate = data.expiryDate;
-      }
-    }
-
-    dispatch(
-      updateProductStockService({
-        stockId: editingStock.id,
-        request: {
-          quantityOnHand: quantity,
-          priceIn: price,
-          expiryDate: formattedExpiryDate || undefined,
-          location: data.location || undefined,
-        },
-      })
-    );
+    const formattedExpiryDate = data.expiryDate
+      ? (data.expiryDate.length === 10 ? `${data.expiryDate}T00:00:00` : data.expiryDate)
+      : undefined;
+    dispatch(updateProductStockService({
+      stockId: editingStock.id,
+      request: {
+        quantityOnHand: data.quantityOnHand,
+        priceIn: parseFloat(data.priceIn),
+        expiryDate: formattedExpiryDate,
+        location: data.location || undefined,
+      },
+    }));
   };
 
   const stockHistoryColumns = createSizeStockHistoryColumns(
