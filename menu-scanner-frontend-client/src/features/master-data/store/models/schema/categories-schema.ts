@@ -4,6 +4,7 @@ import { z } from "zod";
 export const createCategoriesSchema = z.object({
   name: z.string().min(1, "name is required"),
   imageUrl: z.string().min(1, "image url is required"),
+  description: z.string().optional(),
   status: z.string().min(1, "status is required"),
 });
 
@@ -11,6 +12,7 @@ export const createCategoriesSchema = z.object({
 export const updateCategoriesSchema = z.object({
   name: z.string().min(1, "name is required"),
   imageUrl: z.string().min(1, "image url is required"),
+  description: z.string().optional(),
   status: z.string().min(1, "status is required"),
 });
 

@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
+import { TextAreaField } from "@/components/shared/form-field/textarea-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { FormHeader } from "@/components/shared/form-field/form-header";
@@ -75,6 +76,7 @@ export default function CategoriesModal({
     defaultValues: {
       name: "",
       imageUrl: "",
+      description: "",
       status: Status.ACTIVE,
     },
     mode: "onChange",
@@ -89,6 +91,7 @@ export default function CategoriesModal({
         reset({
           name: "",
           imageUrl: "",
+          description: "",
           status: Status.ACTIVE,
         });
       } else if (categories) {
@@ -96,6 +99,7 @@ export default function CategoriesModal({
         reset({
           name: categories.name || "",
           imageUrl: categories.imageUrl || "",
+          description: categories.description || "",
           status: categories.status || "",
         });
       }
@@ -131,6 +135,7 @@ export default function CategoriesModal({
       const payload: CreateCategoriesData = {
         name: data?.name || "",
         imageUrl: finalImageUrl,
+        description: data.description || "",
         status: data.status,
       };
 
@@ -216,6 +221,16 @@ export default function CategoriesModal({
               required
               disabled={isProcessing}
               error={errors.name}
+            />
+
+            <TextAreaField
+              control={control}
+              name="description"
+              label="Description"
+              placeholder="Enter category description (optional)"
+              rows={4}
+              disabled={isProcessing}
+              error={errors.description}
             />
 
             {}

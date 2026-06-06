@@ -41,7 +41,7 @@ export function TextAreaField<T extends FieldValues>({
             placeholder={placeholder}
             disabled={disabled}
             rows={rows}
-            className={`w-full px-2 py-1 text-[11px] rounded border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-200 resize-none ${
+            className={`w-full px-2 py-1.5 text-[11px] leading-relaxed rounded border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-200 resize-none shadow-sm ${
               disabled ? "bg-muted/50 cursor-not-allowed" : ""
             } ${
               error

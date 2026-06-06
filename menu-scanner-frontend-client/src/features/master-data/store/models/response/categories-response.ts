@@ -14,6 +14,7 @@ export interface CategoriesResponseModel {
   businessName: string;
   name: string;
   imageUrl: string;
+  description?: string;
   status: string;
   totalProducts?: number;
   activeProducts?: number;

@@ -114,6 +114,9 @@ export function CategoriesDetailModal({
                       </span>
                     }
                   />
+                  {categories.description && (
+                    <InfoRow label="Description" value={categories.description} fullWidth />
+                  )}
                 </div>
               </div>
 

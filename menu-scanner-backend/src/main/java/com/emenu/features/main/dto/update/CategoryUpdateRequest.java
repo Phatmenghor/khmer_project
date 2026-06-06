@@ -7,5 +7,6 @@ import lombok.Data;
 public class CategoryUpdateRequest {
     private String name;
     private String imageUrl;
+    private String description;
     private Status status;
 }

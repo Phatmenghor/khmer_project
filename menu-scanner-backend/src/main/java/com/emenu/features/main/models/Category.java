@@ -37,6 +37,10 @@ public class Category extends BaseUUIDEntity {
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.ACTIVE;
 
