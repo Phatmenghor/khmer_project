@@ -42,28 +42,16 @@ export function ClickableImageUpload({
 }: ClickableImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const getAspectRatioClass = () => {
-    switch (aspectRatio) {
-      case "square": return "aspect-square";
-      case "banner": return "aspect-[16/6]";
-      case "portrait": return "aspect-[3/4]";
-      case "landscape": return "aspect-[4/3]";
-      case "auto": return "";
-      default: return "aspect-square";
-    }
-  };
-
-  const getHeightClass = () => {
+  const getContainerHeight = () => {
     if (height) return height;
     if (aspectRatio === "banner") return "h-32";
     if (aspectRatio === "auto") return "h-44";
-    if (aspectRatio === "square") return "h-32";
+    if (aspectRatio === "square") return "h-40";
     return "h-40";
   };
 
-  const getWidthClass = () => {
+  const getContainerWidth = () => {
     if (width) return width;
-    if (aspectRatio === "square") return "w-32";
     return "w-full";
   };
 
@@ -109,6 +97,8 @@ export function ClickableImageUpload({
     if (!disabled) fileInputRef.current?.click();
   };
 
+  const isSquare = aspectRatio === "square" && !height;
+
   return (
     <div className="space-y-1">
       <Label className="text-xs sm:text-xs font-semibold text-foreground">
@@ -120,10 +110,9 @@ export function ClickableImageUpload({
         <div
           onClick={handleClick}
           className={cn(
-            "relative mx-auto rounded overflow-hidden border-2 transition-all",
-            getHeightClass(),
-            getWidthClass(),
-            getAspectRatioClass(),
+            "relative rounded overflow-hidden border-2 transition-all",
+            getContainerHeight(),
+            getContainerWidth(),
             value
               ? "border-border hover:border-primary/50"
               : "border-dashed border-border hover:border-primary",
@@ -142,17 +131,31 @@ export function ClickableImageUpload({
 
           {value ? (
             <>
-              <img
-                src={value}
-                alt="Preview"
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
+              {isSquare ? (
+                <div className="w-full h-full flex items-center justify-center bg-muted/10">
+                  <div className="w-40 h-40 rounded overflow-hidden flex-shrink-0">
+                    <img
+                      src={value}
+                      alt="Preview"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={value}
+                  alt="Preview"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+              )}
+
               <div className="absolute inset-0 group/overlay bg-black/0 hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
                 <div className="opacity-0 group-hover/overlay:opacity-100 transition-opacity duration-300 flex flex-col items-center gap-1 text-white">
                   <Upload className="h-5 w-5" />
                   <p className="text-xs font-medium">Click to change</p>
                 </div>
               </div>
+
               {!disabled && (
                 <Button
                   type="button"
