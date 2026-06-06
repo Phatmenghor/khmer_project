@@ -76,9 +76,15 @@ export function DeleteConfirmationModal({
       : "Delete";
 
   const headerSlot = (
-    <div className="px-4 pt-4 pb-3 border-b">
+    <div className="px-4 pt-4 pb-3 border-b bg-destructive/[0.03]">
       <div className="flex items-center gap-3">
-        <div className="p-2 bg-destructive/10 border border-destructive/30 rounded-md shrink-0">
+        <div
+          className={
+            "relative p-2.5 rounded-lg shrink-0 " +
+            "bg-destructive/10 border border-destructive/30 " +
+            "ring-4 ring-destructive/5"
+          }
+        >
           {icon ?? (
             <AlertTriangle
               className="h-5 w-5 text-destructive"
@@ -90,7 +96,7 @@ export function DeleteConfirmationModal({
           <h2 className="text-sm font-semibold leading-tight text-foreground">
             {title}
           </h2>
-          <p className="text-xs leading-snug text-muted-foreground mt-0.5">
+          <p className="text-xs leading-snug text-muted-foreground mt-1">
             {description}
           </p>
         </div>
@@ -133,20 +139,20 @@ export function DeleteConfirmationModal({
       customFooter={customFooter}
     >
       {itemName && (
-        <div className="p-2 bg-muted rounded border border-muted-foreground/20">
-          <p className="text-xs">
-            <span className="text-muted-foreground">Item:</span>
-            <span className="font-semibold text-foreground ml-1">
-              &quot;{itemName}&quot;
-            </span>
+        <div className="px-3 py-2 bg-muted/60 rounded-md border border-border">
+          <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+            Item
+          </p>
+          <p className="text-sm font-semibold text-foreground mt-0.5 truncate">
+            {itemName}
           </p>
         </div>
       )}
 
       {isCritical && (
-        <Alert className="border-destructive/30 bg-destructive/5">
-          <AlertTriangle className="h-3 w-3 text-destructive" />
-          <AlertDescription className="text-destructive">
+        <Alert className="border-destructive/30 bg-destructive/5 py-2">
+          <AlertTriangle className="h-4 w-4 text-destructive" />
+          <AlertDescription className="text-xs text-destructive font-medium">
             This action cannot be undone.
           </AlertDescription>
         </Alert>
@@ -174,9 +180,11 @@ export function DeleteConfirmationModal({
       )}
 
       {(error || errorMessage) && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-3 w-3" />
-          <AlertDescription>{error || errorMessage}</AlertDescription>
+        <Alert variant="destructive" className="py-2">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="text-xs">
+            {error || errorMessage}
+          </AlertDescription>
         </Alert>
       )}
     </FormDialogBase>

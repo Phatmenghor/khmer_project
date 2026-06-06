@@ -80,19 +80,31 @@ export function FormDialogBase({
     onSubmit?.(e);
   };
 
-  const header =
-    headerSlot ?? (
-      <DialogHeader>
-        {hideTitle ? (
-          <VisuallyHidden asChild>
-            <DialogTitle>{title}</DialogTitle>
-          </VisuallyHidden>
-        ) : (
+  const header = headerSlot ? (
+    <>
+      {}
+      <VisuallyHidden asChild>
+        <DialogTitle>{title}</DialogTitle>
+      </VisuallyHidden>
+      {description && (
+        <VisuallyHidden asChild>
+          <DialogDescription>{description}</DialogDescription>
+        </VisuallyHidden>
+      )}
+      {headerSlot}
+    </>
+  ) : (
+    <DialogHeader>
+      {hideTitle ? (
+        <VisuallyHidden asChild>
           <DialogTitle>{title}</DialogTitle>
-        )}
-        {description && <DialogDescription>{description}</DialogDescription>}
-      </DialogHeader>
-    );
+        </VisuallyHidden>
+      ) : (
+        <DialogTitle>{title}</DialogTitle>
+      )}
+      {description && <DialogDescription>{description}</DialogDescription>}
+    </DialogHeader>
+  );
 
   const body = (
     <div
