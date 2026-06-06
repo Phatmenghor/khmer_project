@@ -17,7 +17,6 @@ import { getOrderStatusLabel } from "@/enums/order-status.enum";
 import { Loading } from "@/components/shared/common/loading";
 import { showToast } from "@/components/shared/common/show-toast";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Download,
   Edit,
@@ -26,13 +25,7 @@ import {
   MapPin,
   Package,
   Check,
-  Clock,
-  CheckCircle2,
   XCircle,
-  User,
-  MessageSquare,
-  AlertCircle,
-  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -81,16 +74,9 @@ interface OrderDetailModalProps {
   onUpdateOrder?: () => void;
 }
 
-function SectionTitle({
-  icon,
-  children,
-}: {
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) {
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-1.5 mb-2.5">
-      <span className="text-primary">{icon}</span>
+    <div className="mb-2.5">
       <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">
         {children}
       </h3>
@@ -352,7 +338,7 @@ export function OrderDetailModal({
 
               {/* Status Timeline */}
               <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle icon={<Clock className="h-3 w-3" />}>
+                <SectionTitle>
                   Order Progress
                 </SectionTitle>
                 {isCancelled ? (
@@ -464,7 +450,7 @@ export function OrderDetailModal({
               {/* Order Items */}
               {orderData.items && orderData.items.length > 0 && (
                 <div className="rounded border border-border/50 bg-card p-3">
-                  <SectionTitle icon={<Package className="h-3 w-3" />}>
+                  <SectionTitle>
                     Order Items ({orderData.items.length})
                   </SectionTitle>
                   <div className="space-y-2">
@@ -556,7 +542,7 @@ export function OrderDetailModal({
 
               {/* Pricing Summary */}
               <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle icon={<span className="text-xs">$</span>}>
+                <SectionTitle>
                   Pricing Summary
                 </SectionTitle>
                 <div className="space-y-1.5">
@@ -637,7 +623,7 @@ export function OrderDetailModal({
 
               {/* Order Info */}
               <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle icon={<Building2 className="h-3 w-3" />}>
+                <SectionTitle>
                   Order Info
                 </SectionTitle>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-2">
@@ -687,7 +673,7 @@ export function OrderDetailModal({
 
               {/* Customer Info */}
               <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle icon={<User className="h-3 w-3" />}>
+                <SectionTitle>
                   Customer
                 </SectionTitle>
                 <div className="space-y-2">
@@ -719,7 +705,7 @@ export function OrderDetailModal({
               {/* Customer Note */}
               {orderData.customerNote && (
                 <div className="rounded border border-border/50 bg-card p-3">
-                  <SectionTitle icon={<MessageSquare className="h-3 w-3" />}>
+                  <SectionTitle>
                     Customer Note
                   </SectionTitle>
                   <p className="text-xs text-foreground leading-relaxed">
@@ -732,7 +718,7 @@ export function OrderDetailModal({
               {orderData.deliveryAddress && formattedAddress && (
                 <div className="rounded border border-border/50 bg-card p-3">
                   <div className="flex items-start justify-between mb-2.5">
-                    <SectionTitle icon={<MapPin className="h-3 w-3" />}>
+                    <SectionTitle>
                       Delivery Address
                     </SectionTitle>
                     <div className="flex gap-1 flex-shrink-0 -mt-0.5">
@@ -801,7 +787,7 @@ export function OrderDetailModal({
               {/* Business Note */}
               {orderData.businessNote && (
                 <div className="rounded border border-amber-200 bg-amber-50 p-3">
-                  <SectionTitle icon={<AlertCircle className="h-3 w-3" />}>
+                  <SectionTitle>
                     Business Note
                   </SectionTitle>
                   <p className="text-xs text-amber-900 leading-relaxed">
@@ -812,7 +798,7 @@ export function OrderDetailModal({
 
               {/* System Info */}
               <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle icon={<span className="text-xs">⚙</span>}>
+                <SectionTitle>
                   System Info
                 </SectionTitle>
                 <div className="space-y-1.5">
