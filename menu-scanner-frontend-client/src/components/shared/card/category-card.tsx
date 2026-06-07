@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 
 interface CategoryCardProps {
   category: CategoriesResponseModel;
@@ -34,30 +35,22 @@ function CategoryCardComponent({ category, className, loading = "lazy" }: Catego
       >
         <CardContent className="p-3 sm:p-3 flex flex-col items-center justify-center gap-2">
           {}
-          <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
-            {!imageError && category.imageUrl ? (
-              <>
-                {!imageLoaded && (
-                  <Skeleton className="absolute inset-0 w-full h-full rounded" />
-                )}
-                <Image
-                  src={category.imageUrl}
-                  alt={category.name}
-                  fill
-                  loading={loading}
-                  className={cn(
-                    "object-cover transition-all duration-300 group-hover:scale-105",
-                    imageLoaded ? "opacity-100" : "opacity-0"
-                  )}
-                  onLoad={() => setImageLoaded(true)}
-                  onError={() => setImageError(true)}
-                />
-              </>
-            ) : (
-              <span className="text-xs font-bold text-primary/80 group-hover:text-primary transition-colors">
-                {category.name.charAt(0).toUpperCase()}
-              </span>
+          <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded bg-muted/40 transition-all duration-300">
+            {!imageLoaded && (
+              <Skeleton className="absolute inset-0 w-full h-full rounded" />
             )}
+            <Image
+              src={imageError || !category.imageUrl ? appImages.noImage : category.imageUrl}
+              alt={category.name}
+              fill
+              loading={loading}
+              className={cn(
+                "object-cover transition-all duration-300 group-hover:scale-105",
+                imageLoaded ? "opacity-100" : "opacity-0"
+              )}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+            />
           </div>
 
           {}
