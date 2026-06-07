@@ -266,6 +266,10 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       config.headers = config.headers || {};
       config.headers["X-Request-ID"] = requestId;
 
+      if (config.data instanceof FormData) {
+        delete config.headers["Content-Type"];
+      }
+
       if (requiresAuth) {
         const token = getActiveToken();
 

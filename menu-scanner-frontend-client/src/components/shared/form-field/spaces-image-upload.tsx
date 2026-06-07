@@ -54,7 +54,7 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
     disabled = false,
     required = false,
     error,
-    maxSizeMb = 10,
+    maxSizeMb = 5,
     aspectRatio = "square",
     height,
     placeholder = "Click to upload image",
@@ -98,7 +98,7 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
       return;
     }
     if (file.size / 1024 / 1024 > maxSizeMb) {
-      setErrorMsg(`File must be under ${maxSizeMb}MB`);
+      setErrorMsg(`Image must be under ${maxSizeMb}MB`);
       return;
     }
 

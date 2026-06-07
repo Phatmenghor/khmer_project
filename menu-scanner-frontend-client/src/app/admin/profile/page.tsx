@@ -364,7 +364,7 @@ export default function AdminProfilePage() {
     try {
       setIsUploadingImage(true);
       setProfileImageKeys(result);
-      setValue("profileImageUrl", result.md.url, { shouldDirty: true });
+      setValue("profileImageUrl", result.md.url, { shouldDirty: false });
       const payload = { profileImage: { sm: result.sm.url, md: result.md.url, lg: result.lg.url, o: result.o.url } };
       await dispatch(updateProfileService(payload)).unwrap();
       await dispatch(getProfileService()).unwrap();
@@ -381,7 +381,7 @@ export default function AdminProfilePage() {
     try {
       setIsUploadingImage(true);
       setProfileImageKeys(undefined);
-      setValue("profileImageUrl", "", { shouldDirty: true });
+      setValue("profileImageUrl", "", { shouldDirty: false });
       const payload = { profileImage: null };
       await dispatch(updateProfileService(payload)).unwrap();
       await dispatch(getProfileService()).unwrap();
@@ -1475,7 +1475,6 @@ export default function AdminProfilePage() {
         currentImageUrl={watch("profileImageUrl") || userProfile?.profileImage?.md}
         userName={userProfile?.fullName}
         businessId={userProfile?.businessId || AppDefault.BUSINESS_ID}
-        imageKeys={profileImageKeys}
         onUploaded={handleProfileUploaded}
         onRemove={handleProfileRemove}
         isLoading={isUploadingImage}
