@@ -20,7 +20,6 @@ import { DatePickerField } from "@/components/shared/form-field/date-picker-fiel
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { PasswordField } from "@/components/shared/form-field/password-field";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { CreateUserRequest, UpdateUserRequest } from "../store/models/request/users-request";
 import { createUserSchema, updateUserSchema, UserFormData } from "../store/models/schema/user.schema";
 import { fetchUserByIdService, createUserService, updateUserService } from "../store/thunks/users-thunks";
@@ -37,7 +36,6 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { getFieldError } from "@/utils/common/get-field-error";
-import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 
 type Props = {
   mode: ModalMode;
@@ -49,7 +47,6 @@ type Props = {
 export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const dispatch = useAppDispatch();
   const operations = useAppSelector(selectOperations);
@@ -167,21 +164,6 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
 
   const onSubmit = async (data: UserFormData) => {
     try {
-      setIsUploadingImage(true);
-
-      let profileImageUrl = data.profileImageUrl;
-      if (profileImageUrl && isBase64Image(profileImageUrl)) {
-        try {
-          profileImageUrl = await uploadImage(profileImageUrl);
-        } catch {
-          showToast.error("Failed to upload profile image");
-          setIsUploadingImage(false);
-          return;
-        }
-      }
-
-      setIsUploadingImage(false);
-
       if (isCreate) {
         const payload: CreateUserRequest = {
           userIdentifier: data.userIdentifier!,
@@ -193,7 +175,6 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
           nickname: data.nickname || undefined,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: profileImageUrl || undefined,
           userType: data.userType!,
           accountStatus: data.accountStatus,
           roles: data.roles,
@@ -211,7 +192,6 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
           nickname: data.nickname || undefined,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: profileImageUrl || undefined,
           accountStatus: data.accountStatus,
           roles: data.roles,
           remark: data.remark || undefined,
@@ -228,13 +208,12 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
   const handleClose = () => {
     reset();
     setShowPassword(false);
-    setIsUploadingImage(false);
     dispatch(clearError());
     dispatch(clearSelectedUser());
     onClose();
   };
 
-  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage;
+  const isSubmitting = isCreate ? isCreating : isUpdating;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -246,9 +225,8 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
               ? "Fill out the form to create a new business user account"
               : "Update business user information below"
           }
+          imageUrl={userData?.profileImageUrl}
           avatarName={userIdentifier || email}
-          avatarImageUrl={userData?.profileImageUrl}
-          showAvatar={true}
           isCreate={isCreate}
         />
 
@@ -420,20 +398,6 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <ClickableImageUpload
-                        label="Profile Image"
-                        value={watch("profileImageUrl") || ""}
-                        onChange={(base64) =>
-                          setValue("profileImageUrl", base64, { shouldDirty: true })
-                        }
-                        aspectRatio="square"
-                        required={false}
-                        disabled={isSubmitting}
-                        error={errors.profileImageUrl}
-                        placeholder="Click to upload profile image"
-                      />
-                    </div>
                   </div>
                 </div>
 
@@ -453,8 +417,8 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
               isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage={isUploadingImage ? "Uploading image..." : "Creating business user..."}
-              updateMessage={isUploadingImage ? "Uploading image..." : "Updating business user..."}
+              createMessage="Creating business user..."
+              updateMessage="Updating business user..."
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
               <SubmitButton
@@ -463,8 +427,8 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
                 isCreate={isCreate}
                 createText="Create Business User"
                 updateText="Update Business User"
-                submittingCreateText={isUploadingImage ? "Uploading..." : "Creating..."}
-                submittingUpdateText={isUploadingImage ? "Uploading..." : "Updating..."}
+                submittingCreateText="Creating..."
+                submittingUpdateText="Updating..."
               />
             </FormFooter>
           </form>

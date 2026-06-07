@@ -20,7 +20,7 @@ import { DatePickerField } from "@/components/shared/form-field/date-picker-fiel
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { PasswordField } from "@/components/shared/form-field/password-field";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { CreateUserRequest, UpdateUserRequest } from "../store/models/request/users-request";
 import { createUserSchema, updateUserSchema, UserFormData } from "../store/models/schema/user.schema";
 import { fetchUserByIdService, createUserService, updateUserService } from "../store/thunks/users-thunks";
@@ -37,7 +37,7 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { getFieldError } from "@/utils/common/get-field-error";
-import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
+import { SpacesAllSizes } from "@/services/spaces-service";
 
 type Props = {
   mode: ModalMode;
@@ -49,7 +49,8 @@ type Props = {
 export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  // Tracks the full Spaces result so we can send the sm URL to the API
+  const [profileImageResult, setProfileImageResult] = useState<SpacesAllSizes | null>(null);
 
   const dispatch = useAppDispatch();
   const operations = useAppSelector(selectOperations);
@@ -99,6 +100,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
 
   const userIdentifier = watch("userIdentifier");
   const email = watch("email");
+  const profileImageUrl = watch("profileImageUrl");
 
   useEffect(() => {
     if (isOpen) {
@@ -132,6 +134,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
             roles: Array.isArray(data.roles) ? data.roles : [],
             remark: data.remark || "",
           });
+          setProfileImageResult(null);
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -158,6 +161,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
         accountStatus: AccountStatus.ACTIVE,
         remark: "",
       });
+      setProfileImageResult(null);
     }
   }, [isOpen, isCreate, reset]);
 
@@ -167,20 +171,10 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
 
   const onSubmit = async (data: UserFormData) => {
     try {
-      setIsUploadingImage(true);
-
-      let profileImageUrl = data.profileImageUrl;
-      if (profileImageUrl && isBase64Image(profileImageUrl)) {
-        try {
-          profileImageUrl = await uploadImage(profileImageUrl);
-        } catch {
-          showToast.error("Failed to upload profile image");
-          setIsUploadingImage(false);
-          return;
-        }
-      }
-
-      setIsUploadingImage(false);
+      // Use the uploaded Spaces URL if available, otherwise keep existing URL
+      const finalProfileImageUrl = profileImageResult
+        ? profileImageResult.sm.url
+        : data.profileImageUrl || undefined;
 
       if (isCreate) {
         const payload: CreateUserRequest = {
@@ -193,7 +187,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
           nickname: data.nickname || undefined,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: profileImageUrl || undefined,
+          profileImageUrl: finalProfileImageUrl,
           userType: data.userType!,
           accountStatus: data.accountStatus,
           roles: data.roles,
@@ -211,7 +205,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
           nickname: data.nickname || undefined,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: profileImageUrl || undefined,
+          profileImageUrl: finalProfileImageUrl,
           accountStatus: data.accountStatus,
           roles: data.roles,
           remark: data.remark || undefined,
@@ -228,13 +222,16 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
   const handleClose = () => {
     reset();
     setShowPassword(false);
-    setIsUploadingImage(false);
+    setProfileImageResult(null);
     dispatch(clearError());
     dispatch(clearSelectedUser());
     onClose();
   };
 
-  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage;
+  const isSubmitting = isCreate ? isCreating : isUpdating;
+
+  // Preview URL: newly uploaded sm URL takes priority, then existing URL from form
+  const previewUrl = profileImageResult?.sm.url || profileImageUrl || undefined;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -246,9 +243,8 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
               ? "Fill out the form to create a new platform user account"
               : "Update platform user information below"
           }
+          imageUrl={previewUrl}
           avatarName={userIdentifier || email}
-          avatarImageUrl={userData?.profileImageUrl}
-          showAvatar={true}
           isCreate={isCreate}
         />
 
@@ -420,13 +416,19 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                       />
                     </div>
 
+                    {/* Profile Image via Spaces upload */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <ClickableImageUpload
+                      <SpacesImageUpload
                         label="Profile Image"
-                        value={watch("profileImageUrl") || ""}
-                        onChange={(base64) =>
-                          setValue("profileImageUrl", base64, { shouldDirty: true })
-                        }
+                        value={previewUrl}
+                        onChange={(result) => {
+                          setProfileImageResult(result);
+                          setValue("profileImageUrl", result.sm.url, { shouldDirty: true });
+                        }}
+                        onRemove={() => {
+                          setProfileImageResult(null);
+                          setValue("profileImageUrl", "", { shouldDirty: true });
+                        }}
                         aspectRatio="square"
                         required={false}
                         disabled={isSubmitting}
@@ -453,8 +455,8 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
               isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage={isUploadingImage ? "Uploading image..." : "Creating platform user..."}
-              updateMessage={isUploadingImage ? "Uploading image..." : "Updating platform user..."}
+              createMessage="Creating platform user..."
+              updateMessage="Updating platform user..."
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
               <SubmitButton
@@ -463,8 +465,8 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                 isCreate={isCreate}
                 createText="Create Platform User"
                 updateText="Update Platform User"
-                submittingCreateText={isUploadingImage ? "Uploading..." : "Creating..."}
-                submittingUpdateText={isUploadingImage ? "Uploading..." : "Updating..."}
+                submittingCreateText="Creating..."
+                submittingUpdateText="Updating..."
               />
             </FormFooter>
           </form>
