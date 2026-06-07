@@ -19,6 +19,7 @@ public class UserBasicInfo {
     private String email;
     private String phoneNumber;
     private String profileImageUrl;
+    private String profileImageSmUrl;
 
     private Long telegramId;
     private String telegramUsername;

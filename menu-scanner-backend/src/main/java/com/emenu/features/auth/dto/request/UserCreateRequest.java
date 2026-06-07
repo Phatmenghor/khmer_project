@@ -39,6 +39,9 @@ public class UserCreateRequest {
     private LocalDate dateOfBirth;
     private String phoneNumber;
     private String profileImageUrl;
+    private String profileImageSmUrl;
+    private String profileImageLgUrl;
+    private String profileImageOUrl;
 
     private String employeeId;
     private String position;

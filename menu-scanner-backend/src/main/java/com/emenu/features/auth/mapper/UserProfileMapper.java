@@ -24,6 +24,9 @@ public interface UserProfileMapper {
         profile.setDateOfBirth(request.getDateOfBirth());
         profile.setPhoneNumber(request.getPhoneNumber());
         profile.setProfileImageUrl(request.getProfileImageUrl());
+        profile.setProfileImageSmUrl(request.getProfileImageSmUrl());
+        profile.setProfileImageLgUrl(request.getProfileImageLgUrl());
+        profile.setProfileImageOUrl(request.getProfileImageOUrl());
         return profile;
     }
 

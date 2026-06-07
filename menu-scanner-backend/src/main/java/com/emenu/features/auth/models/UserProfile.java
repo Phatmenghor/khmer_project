@@ -45,6 +45,15 @@ public class UserProfile extends BaseUUIDEntity {
     @Column(name = "profile_image_url", columnDefinition = "TEXT")
     private String profileImageUrl;
 
+    @Column(name = "profile_image_sm_url", columnDefinition = "TEXT")
+    private String profileImageSmUrl;
+
+    @Column(name = "profile_image_lg_url", columnDefinition = "TEXT")
+    private String profileImageLgUrl;
+
+    @Column(name = "profile_image_o_url", columnDefinition = "TEXT")
+    private String profileImageOUrl;
+
     public String getFullName() {
         if (firstName != null && lastName != null) return firstName + " " + lastName;
         if (firstName != null) return firstName;
