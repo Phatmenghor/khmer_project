@@ -72,7 +72,7 @@ export interface DashboardOrder {
   status: string;
   paymentMethod: string;
   itemCount: number;
-  createdAt: string;
+  createdAt: string | null;
 }
 
 export interface DashboardOrdersResponse {

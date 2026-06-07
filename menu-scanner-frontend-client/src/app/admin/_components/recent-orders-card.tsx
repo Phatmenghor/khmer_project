@@ -30,10 +30,10 @@ interface RecentOrdersCardProps {
   loading: boolean;
 }
 
-function safeRelativeTime(iso: string | undefined): string {
-  if (!iso) return "";
+function safeRelativeTime(iso: string | undefined | null): string {
+  if (!iso || iso === "null" || iso === "undefined") return "—";
   const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
+  if (isNaN(d.getTime())) return "—";
   return formatDistanceToNow(d, { addSuffix: true });
 }
 
