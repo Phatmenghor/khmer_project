@@ -77,18 +77,17 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-[140px_1fr_90px_110px_120px] gap-3 px-4 py-2 bg-muted/30 border-b text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="grid grid-cols-[140px_1fr_90px_120px] gap-3 px-4 py-2 bg-muted/30 border-b text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               <span>Order</span>
               <span>Customer</span>
               <span className="text-right">Amount</span>
-              <span className="text-right">Created At</span>
               <span className="text-center">Status</span>
             </div>
             <div className="divide-y">
               {orders.data.map((order) => (
                 <div
                   key={order.id}
-                  className="grid grid-cols-[140px_1fr_90px_110px_120px] gap-3 px-4 py-2.5 items-center hover:bg-muted/20 transition-colors"
+                  className="grid grid-cols-[140px_1fr_90px_120px] gap-3 px-4 py-2.5 items-center hover:bg-muted/20 transition-colors"
                 >
                   <span className="text-xs font-mono font-medium text-primary truncate">
                     {order.orderCode}
@@ -101,9 +100,6 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
                   </div>
                   <span className="text-xs font-semibold text-foreground tabular-nums text-right">
                     {formatCurrency(order.totalAmount)}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground text-right truncate">
-                    {safeRelativeTime(order.createdAt)}
                   </span>
                   <div className="flex justify-center">
                     <span className={cn(
