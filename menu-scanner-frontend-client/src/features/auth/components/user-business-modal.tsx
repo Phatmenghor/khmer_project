@@ -12,6 +12,7 @@ import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { SpacesMultiSizeResult } from "@/services/spaces-service";
+import { ImageUrls } from "../store/models/request/users-request";
 import { Button } from "@/components/ui/button";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import {
@@ -130,9 +131,6 @@ export default function UserBusinessModal({
       gender: "",
       dateOfBirth: "",
       profileImageUrl: "",
-      profileImageSmUrl: "",
-      profileImageLgUrl: "",
-      profileImageOUrl: "",
       employeeId: "",
       position: "",
       department: "",
@@ -229,10 +227,7 @@ export default function UserBusinessModal({
             roles: Array.isArray(data.roles) ? data.roles : [],
             gender: data.gender || "",
             dateOfBirth: data.dateOfBirth || "",
-            profileImageUrl: data.profileImageUrl || "",
-            profileImageSmUrl: data.profileImageSmUrl || "",
-            profileImageLgUrl: data.profileImageLgUrl || "",
-            profileImageOUrl: data.profileImageOUrl || "",
+            profileImageUrl: data.profileImage?.md || data.profileImageUrl || "",
             employeeId: data.employeeId || "",
             position: data.position || "",
             department: data.department || "",
@@ -280,9 +275,6 @@ export default function UserBusinessModal({
         gender: "",
         dateOfBirth: "",
         profileImageUrl: "",
-      profileImageSmUrl: "",
-      profileImageLgUrl: "",
-      profileImageOUrl: "",
         employeeId: "",
         position: "",
         department: "",
@@ -306,6 +298,15 @@ export default function UserBusinessModal({
       dispatch(clearError());
     }
   }, [isOpen, dispatch]);
+
+  const toImageUrls = (
+    keys: SpacesMultiSizeResult | undefined,
+    fallbackUrl: string | undefined
+  ): ImageUrls | undefined => {
+    if (keys) return { sm: keys.sm.url, md: keys.md.url, lg: keys.lg.url, o: keys.o.url };
+    if (fallbackUrl) return { sm: fallbackUrl, md: fallbackUrl, lg: fallbackUrl, o: fallbackUrl };
+    return undefined;
+  };
 
   const onSubmit = async (data: UserFormData) => {
     try {
@@ -342,10 +343,7 @@ export default function UserBusinessModal({
           roles: data.roles,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: data.profileImageUrl || undefined,
-          profileImageSmUrl: data.profileImageSmUrl || undefined,
-          profileImageLgUrl: data.profileImageLgUrl || undefined,
-          profileImageOUrl: data.profileImageOUrl || undefined,
+          profileImage: toImageUrls(profileImageKeys, data.profileImageUrl),
           employeeId: data.employeeId || undefined,
           position: data.position || undefined,
           department: data.department || undefined,
@@ -376,10 +374,7 @@ export default function UserBusinessModal({
           roles: data.roles,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: data.profileImageUrl || undefined,
-          profileImageSmUrl: data.profileImageSmUrl || undefined,
-          profileImageLgUrl: data.profileImageLgUrl || undefined,
-          profileImageOUrl: data.profileImageOUrl || undefined,
+          profileImage: toImageUrls(profileImageKeys, data.profileImageUrl),
           employeeId: data.employeeId || undefined,
           position: data.position || undefined,
           department: data.department || undefined,
@@ -636,16 +631,10 @@ export default function UserBusinessModal({
                         imageKeys={profileImageKeys}
                         onChange={(result) => {
                           setValue("profileImageUrl", result.md.url, { shouldDirty: true });
-                          setValue("profileImageSmUrl", result.sm.url, { shouldDirty: true });
-                          setValue("profileImageLgUrl", result.lg.url, { shouldDirty: true });
-                          setValue("profileImageOUrl", result.o.url, { shouldDirty: true });
                           setProfileImageKeys(result);
                         }}
                         onRemove={() => {
                           setValue("profileImageUrl", "", { shouldDirty: true });
-                          setValue("profileImageSmUrl", "", { shouldDirty: true });
-                          setValue("profileImageLgUrl", "", { shouldDirty: true });
-                          setValue("profileImageOUrl", "", { shouldDirty: true });
                           setProfileImageKeys(undefined);
                         }}
                         aspectRatio="square"

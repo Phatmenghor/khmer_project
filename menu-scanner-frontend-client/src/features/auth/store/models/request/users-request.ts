@@ -37,6 +37,13 @@ export interface UserEducationRequest {
   certificateUrl?: string;
 }
 
+export interface ImageUrls {
+  sm?: string;
+  md?: string;
+  lg?: string;
+  o?: string;
+}
+
 export interface CreateUserRequest {
   userIdentifier: string;
   email?: string;
@@ -45,10 +52,7 @@ export interface CreateUserRequest {
   lastName?: string;
   nickname?: string;
   phoneNumber?: string;
-  profileImageUrl?: string;
-  profileImageSmUrl?: string;
-  profileImageLgUrl?: string;
-  profileImageOUrl?: string;
+  profileImage?: ImageUrls;
   userType: string;
   businessId?: string;
   roles: string[];
@@ -75,10 +79,7 @@ export interface UpdateUserRequest {
   lastName?: string;
   nickname?: string;
   phoneNumber?: string;
-  profileImageUrl?: string;
-  profileImageSmUrl?: string;
-  profileImageLgUrl?: string;
-  profileImageOUrl?: string;
+  profileImage?: ImageUrls;
   accountStatus?: string;
   businessId?: string;
   roles?: string[];

@@ -1,6 +1,7 @@
 package com.emenu.features.auth.dto.update;
 
 import com.emenu.enums.common.Status;
+import com.emenu.shared.dto.ImageUrls;
 import com.emenu.enums.user.*;
 import com.emenu.features.auth.dto.request.*;
 import lombok.Data;
@@ -25,10 +26,7 @@ public class UserUpdateRequest {
     private Gender gender;
     private LocalDate dateOfBirth;
     private String phoneNumber;
-    private String profileImageUrl;
-    private String profileImageSmUrl;
-    private String profileImageLgUrl;
-    private String profileImageOUrl;
+    private ImageUrls profileImage;
 
     private String employeeId;
     private String position;

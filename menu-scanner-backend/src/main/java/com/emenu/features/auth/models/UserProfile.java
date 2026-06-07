@@ -2,8 +2,11 @@ package com.emenu.features.auth.models;
 
 import com.emenu.enums.user.Gender;
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
 
@@ -42,17 +45,9 @@ public class UserProfile extends BaseUUIDEntity {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "profile_image_url", columnDefinition = "TEXT")
-    private String profileImageUrl;
-
-    @Column(name = "profile_image_sm_url", columnDefinition = "TEXT")
-    private String profileImageSmUrl;
-
-    @Column(name = "profile_image_lg_url", columnDefinition = "TEXT")
-    private String profileImageLgUrl;
-
-    @Column(name = "profile_image_o_url", columnDefinition = "TEXT")
-    private String profileImageOUrl;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "profile_image", columnDefinition = "jsonb")
+    private ImageUrls profileImage;
 
     public String getFullName() {
         if (firstName != null && lastName != null) return firstName + " " + lastName;

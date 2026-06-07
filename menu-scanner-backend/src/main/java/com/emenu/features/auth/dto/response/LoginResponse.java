@@ -1,6 +1,7 @@
 package com.emenu.features.auth.dto.response;
 
 import com.emenu.enums.user.UserType;
+import com.emenu.shared.dto.ImageUrls;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -17,7 +18,7 @@ public class LoginResponse {
     private String userIdentifier;
     private String email;
     private String fullName;
-    private String profileImageUrl;
+    private ImageUrls profileImage;
     private UserType userType;
     private List<String> roles;
     private UUID businessId;

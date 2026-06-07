@@ -5,6 +5,7 @@ import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.Gender;
 import com.emenu.enums.user.UserType;
 import com.emenu.shared.dto.BaseAuditResponse;
+import com.emenu.shared.dto.ImageUrls;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -31,7 +32,7 @@ public class CustomerUserResponse extends BaseAuditResponse {
     private Gender gender;
     private LocalDate dateOfBirth;
     private String phoneNumber;
-    private String profileImageUrl;
+    private ImageUrls profileImage;
 
     private Long telegramId;
     private String telegramUsername;

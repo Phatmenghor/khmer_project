@@ -98,9 +98,6 @@ export const createUserSchema = z.object({
   lastName: z.string().optional().or(z.literal("")),
   phoneNumber: z.string().optional().or(z.literal("")),
   profileImageUrl: z.string().optional().or(z.literal("")),
-  profileImageSmUrl: z.string().optional().or(z.literal("")),
-  profileImageLgUrl: z.string().optional().or(z.literal("")),
-  profileImageOUrl: z.string().optional().or(z.literal("")),
   userType: z.string().min(1, "User type is required"),
   businessId: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).min(1, "At least one role is required"),
@@ -134,9 +131,6 @@ export const updateUserSchema = z.object({
   email: z.string().optional().or(z.literal("")),
   phoneNumber: z.string().optional().or(z.literal("")),
   profileImageUrl: z.string().optional().or(z.literal("")),
-  profileImageSmUrl: z.string().optional().or(z.literal("")),
-  profileImageLgUrl: z.string().optional().or(z.literal("")),
-  profileImageOUrl: z.string().optional().or(z.literal("")),
   accountStatus: z.string().optional().or(z.literal("")),
   businessId: z.string().optional().or(z.literal("")),
   roles: z.array(z.string()).optional(),
@@ -186,9 +180,6 @@ export type UserFormData = {
   lastName: string;
   phoneNumber: string;
   profileImageUrl?: string;
-  profileImageSmUrl?: string;
-  profileImageLgUrl?: string;
-  profileImageOUrl?: string;
   userType?: string;
   businessId?: string;
   roles: string[];

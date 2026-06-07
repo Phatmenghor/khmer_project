@@ -2,6 +2,7 @@ package com.emenu.features.auth.dto.response;
 
 import com.emenu.enums.common.Status;
 import com.emenu.enums.user.*;
+import com.emenu.shared.dto.ImageUrls;
 import com.emenu.shared.dto.BaseAuditResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,10 +33,7 @@ public class UserResponse extends BaseAuditResponse {
     private Gender gender;
     private LocalDate dateOfBirth;
     private String phoneNumber;
-    private String profileImageUrl;
-    private String profileImageSmUrl;
-    private String profileImageLgUrl;
-    private String profileImageOUrl;
+    private ImageUrls profileImage;
 
     private String employeeId;
     private String position;

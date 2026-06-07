@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.emenu.shared.dto.ImageUrls;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -18,8 +19,7 @@ public class UserBasicInfo {
     private String lastName;
     private String email;
     private String phoneNumber;
-    private String profileImageUrl;
-    private String profileImageSmUrl;
+    private ImageUrls profileImage;
 
     private Long telegramId;
     private String telegramUsername;

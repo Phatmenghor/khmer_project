@@ -1,6 +1,7 @@
 package com.emenu.features.auth.dto.request;
 
 import com.emenu.enums.user.*;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -38,10 +39,7 @@ public class UserCreateRequest {
     private Gender gender;
     private LocalDate dateOfBirth;
     private String phoneNumber;
-    private String profileImageUrl;
-    private String profileImageSmUrl;
-    private String profileImageLgUrl;
-    private String profileImageOUrl;
+    private ImageUrls profileImage;
 
     private String employeeId;
     private String position;
