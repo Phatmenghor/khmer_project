@@ -6,21 +6,15 @@
 // All plans grant access to the same feature set. Keep this list in
 // sync with what the product actually ships — no fictional features.
 export const ALL_PLATFORM_FEATURES = [
-  "QR code digital menu — public storefront for products & promotions",
-  "Real-time order management with status workflow",
-  "Stock management — products, sizes, low-stock alerts",
-  "Sales analytics dashboard — revenue, top products, hourly sales",
-  "Business profile page — hours, services, team, gallery, reviews",
-  "Promotions & discounts — single product or bulk",
-  "Brand & category management",
-  "Multiple branches / locations supported",
-  "Staff accounts with role-based permissions",
-  "Telegram login + order/stock notifications",
-  "Customer loyalty (returning customer tracking)",
-  "Multi-currency support with exchange rates",
-  "Branded business settings — logo, primary color, contact info",
-  "Real-time updates via WebSocket",
-  "Mobile-responsive — works on any device, no app to install",
+  "QR code digital menu",
+  "Real-time order management",
+  "Staff management (unlimited)",
+  "Advanced analytics & reports",
+  "Loyalty program",
+  "Telegram & email integration",
+  "24/7 priority support",
+  "Payment processing",
+  "API access",
 ];
 
 export const LANDING_CONFIG = {

@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ModalMode } from "@/constants/app-resource/status/status";
 import Loading from "@/components/shared/common/loading";
 import { TextField } from "@/components/shared/form-field/text-field";
-import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { FormHeader } from "@/components/shared/form-field/form-header";
@@ -67,8 +66,6 @@ export default function ExchangeRateModal({
     control,
     handleSubmit,
     reset,
-    setValue,
-    watch,
     formState: { errors, isDirty },
   } = useForm<ExchangeRateFormData>({
     resolver: zodResolver(
@@ -180,22 +177,20 @@ export default function ExchangeRateModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 flex flex-col">
-        {/* Header */}
+      <DialogContent className="w-full sm:max-w-md max-h-[92dvh] p-0 flex flex-col">
         <FormHeader
           title={isCreate ? "Create Exchange Rate" : "Edit Exchange Rate"}
           description={
             isCreate
-              ? "Add a new exchange rate to the system"
-              : "Update exchange rate information"
+              ? "Configure the USD to KHR exchange rate"
+              : "Update the USD to KHR exchange rate"
           }
           showAvatar={false}
           isCreate={isCreate}
         />
 
-        {/* Loading State - Edit Mode Only */}
         {!isCreate && isFetchingDetail ? (
-          <div className="p-4 flex items-center justify-center min-h-[400px] flex-1">
+          <div className="p-4 flex items-center justify-center min-h-[200px] flex-1">
             <Loading />
           </div>
         ) : (
@@ -203,9 +198,7 @@ export default function ExchangeRateModal({
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col flex-1 overflow-hidden"
           >
-            {/* Body */}
             <FormBody>
-              {/* Error Display */}
               {reduxError && (
                 <div className="p-3 bg-destructive/10 border border-destructive rounded">
                   <p className="text-xs text-destructive font-medium">
@@ -214,47 +207,31 @@ export default function ExchangeRateModal({
                 </div>
               )}
 
-              {/* Form Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <TextField
-                  control={control}
-                  name="usdToKhrRate"
-                  label="USD To Khr Rate"
-                  placeholder="Enter USD To Khr Rate"
-                  disabled={isSubmitting}
-                  required
-                  error={getFieldError(errors.usdToKhrRate)}
-                />
-              </div>
-
-              {/* Notes - Separate Row */}
-              <TextareaField
+              <TextField
                 control={control}
-                name="notes"
-                label="Remark"
-                placeholder="Enter any additional notes (optional)"
-                rows={5}
+                name="usdToKhrRate"
+                label="USD To KHR Rate"
+                placeholder="e.g. 4100"
                 disabled={isSubmitting}
-                error={getFieldError(errors.notes)}
+                required
+                error={getFieldError(errors.usdToKhrRate)}
               />
             </FormBody>
 
-            {/* Footer */}
             <FormFooter
               isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage="Creating exchange..."
-              updateMessage="Updating exchange..."
+              createMessage="Creating exchange rate..."
+              updateMessage="Updating exchange rate..."
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
-
               <SubmitButton
                 isSubmitting={isSubmitting}
                 isDirty={isDirty}
                 isCreate={isCreate}
-                createText="Create Exchange"
-                updateText="Update Exchange"
+                createText="Create Exchange Rate"
+                updateText="Update Exchange Rate"
                 submittingCreateText="Creating..."
                 submittingUpdateText="Updating..."
               />
