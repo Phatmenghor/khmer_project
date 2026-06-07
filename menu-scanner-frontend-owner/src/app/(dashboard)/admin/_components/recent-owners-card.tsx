@@ -37,12 +37,12 @@ function getAvatarColor(name: string): string {
 
 function StatusBadge({ status }: { status: string }) {
   const normalized = status?.toUpperCase();
-  const styles =
+  const textClass =
     normalized === "ACTIVE"
-      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+      ? "text-emerald-600 dark:text-emerald-400"
       : normalized === "EXPIRING_SOON"
-      ? "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400"
-      : "bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400";
+      ? "text-amber-600 dark:text-amber-400"
+      : "text-rose-500 dark:text-rose-400";
 
   const label =
     normalized === "EXPIRING_SOON"
@@ -52,12 +52,7 @@ function StatusBadge({ status }: { status: string }) {
       : "Expired";
 
   return (
-    <span
-      className={cn(
-        "inline-flex items-center px-1 py-0.5 rounded-full text-xs font-medium",
-        styles
-      )}
-    >
+    <span className={cn("text-[10px] font-semibold", textClass)}>
       {label}
     </span>
   );
@@ -95,25 +90,25 @@ function OwnerRow({ owner }: { owner: RecentOwner }) {
             </div>
           )}
           <div className="min-w-0">
-            <p className="text-xs font-medium text-foreground truncate">
+            <p className="text-[11px] font-medium text-foreground truncate">
               {owner.ownerName}
             </p>
           </div>
         </div>
       </td>
       <td className="py-2 pr-3">
-        <p className="text-xs text-muted-foreground truncate max-w-[140px]">
+        <p className="text-[10px] text-muted-foreground truncate max-w-[140px]">
           {owner.businessName}
         </p>
       </td>
       <td className="py-2 pr-3">
-        <span className="text-xs text-foreground">{owner.planName}</span>
+        <span className="text-[10px] text-foreground">{owner.planName}</span>
       </td>
       <td className="py-2 pr-3">
         <StatusBadge status={owner.subscriptionStatus} />
       </td>
       <td className="py-2">
-        <span className="text-xs text-muted-foreground whitespace-nowrap">
+        <span className="text-[10px] text-muted-foreground whitespace-nowrap">
           {joinedFormatted}
         </span>
       </td>
@@ -177,19 +172,19 @@ export function RecentOwnersCard({ recentOwners, loading }: RecentOwnersCardProp
         <table className="w-full text-left">
           <thead>
             <tr className="border-b">
-              <th className="pb-1 pr-3 text-xs font-medium text-muted-foreground">
+              <th className="pb-1 pr-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Owner
               </th>
-              <th className="pb-1 pr-3 text-xs font-medium text-muted-foreground">
+              <th className="pb-1 pr-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Business
               </th>
-              <th className="pb-1 pr-3 text-xs font-medium text-muted-foreground">
+              <th className="pb-1 pr-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Plan
               </th>
-              <th className="pb-1 pr-3 text-xs font-medium text-muted-foreground">
+              <th className="pb-1 pr-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Status
               </th>
-              <th className="pb-1 text-xs font-medium text-muted-foreground">
+              <th className="pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Joined
               </th>
             </tr>
