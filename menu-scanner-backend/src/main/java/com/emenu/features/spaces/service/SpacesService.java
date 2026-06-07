@@ -7,20 +7,12 @@ import java.util.UUID;
 
 public interface SpacesService {
 
-    // ── Upload ────────────────────────────────────────────────────────────────
-    SpacesUploadResponse uploadProduct(MultipartFile file, UUID businessId, String productId, String variant);
-    SpacesUploadResponse uploadCategory(MultipartFile file, UUID businessId, String categoryId);
-    SpacesUploadResponse uploadLogo(MultipartFile file, UUID businessId);
-    SpacesUploadResponse uploadBanner(MultipartFile file, UUID businessId);
-    SpacesUploadResponse uploadQr(MultipartFile file, UUID businessId, String tableId);
+    /** Upload file to b/{businessId}/{subPath} */
+    SpacesUploadResponse upload(MultipartFile file, UUID businessId, String subPath);
 
-    // ── Delete (entity) ───────────────────────────────────────────────────────
-    void deleteProduct(UUID businessId, String productId);
-    void deleteCategory(UUID businessId, String categoryId);
-    void deleteLogo(UUID businessId);
-    void deleteBanner(UUID businessId);
-    void deleteQr(UUID businessId, String tableId);
+    /** Delete all objects under b/{businessId}/{prefix} (pass "" to wipe everything) */
+    void delete(UUID businessId, String prefix);
 
-    // ── Delete (business bulk) ────────────────────────────────────────────────
+    /** Delete all objects under b/{businessId}/ — used by admin for cleanup */
     void deleteAllByBusiness(UUID businessId);
 }

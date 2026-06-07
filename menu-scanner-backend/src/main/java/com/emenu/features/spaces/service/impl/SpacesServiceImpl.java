@@ -25,77 +25,11 @@ public class SpacesServiceImpl implements SpacesService {
     private final S3Client spacesS3Client;
     private final SpacesProperties spacesProperties;
 
-    // ── Upload ────────────────────────────────────────────────────────────────
-
     @Override
-    public SpacesUploadResponse uploadProduct(MultipartFile file, UUID businessId, String productId, String variant) {
-        String key = StorageKeyUtil.product(businessId, productId, variant);
-        return put(file, key);
-    }
-
-    @Override
-    public SpacesUploadResponse uploadCategory(MultipartFile file, UUID businessId, String categoryId) {
-        String key = StorageKeyUtil.category(businessId, categoryId);
-        return put(file, key);
-    }
-
-    @Override
-    public SpacesUploadResponse uploadLogo(MultipartFile file, UUID businessId) {
-        String key = StorageKeyUtil.logo(businessId);
-        return put(file, key);
-    }
-
-    @Override
-    public SpacesUploadResponse uploadBanner(MultipartFile file, UUID businessId) {
-        String key = StorageKeyUtil.banner(businessId);
-        return put(file, key);
-    }
-
-    @Override
-    public SpacesUploadResponse uploadQr(MultipartFile file, UUID businessId, String tableId) {
-        String key = StorageKeyUtil.qr(businessId, tableId);
-        return put(file, key);
-    }
-
-    // ── Delete (entity) ───────────────────────────────────────────────────────
-
-    @Override
-    public void deleteProduct(UUID businessId, String productId) {
-        deleteByPrefix(StorageKeyUtil.productPrefix(businessId, productId));
-    }
-
-    @Override
-    public void deleteCategory(UUID businessId, String categoryId) {
-        deleteByPrefix(StorageKeyUtil.categoryPrefix(businessId, categoryId));
-    }
-
-    @Override
-    public void deleteLogo(UUID businessId) {
-        deleteByPrefix(StorageKeyUtil.logoPrefix(businessId));
-    }
-
-    @Override
-    public void deleteBanner(UUID businessId) {
-        deleteByPrefix(StorageKeyUtil.bannerPrefix(businessId));
-    }
-
-    @Override
-    public void deleteQr(UUID businessId, String tableId) {
-        deleteObject(StorageKeyUtil.qr(businessId, tableId));
-    }
-
-    // ── Delete (business bulk) ────────────────────────────────────────────────
-
-    @Override
-    public void deleteAllByBusiness(UUID businessId) {
-        deleteByPrefix(StorageKeyUtil.businessPrefix(businessId));
-        log.info("Deleted all Spaces objects for business: {}", businessId);
-    }
-
-    // ── Internals ─────────────────────────────────────────────────────────────
-
-    private SpacesUploadResponse put(MultipartFile file, String key) {
+    public SpacesUploadResponse upload(MultipartFile file, UUID businessId, String subPath) {
+        String key = StorageKeyUtil.key(businessId, subPath);
         String contentType = file.getContentType() != null ? file.getContentType() : "image/webp";
+
         try {
             spacesS3Client.putObject(
                     PutObjectRequest.builder()
@@ -113,9 +47,23 @@ public class SpacesServiceImpl implements SpacesService {
         }
 
         String url = spacesProperties.getCdnBaseUrl() + "/" + key;
-        log.info("Uploaded to Spaces: {}", key);
+        log.info("Uploaded: {}", key);
         return SpacesUploadResponse.builder().key(key).url(url).build();
     }
+
+    @Override
+    public void delete(UUID businessId, String prefix) {
+        String fullPrefix = StorageKeyUtil.key(businessId, prefix);
+        deleteByPrefix(fullPrefix);
+    }
+
+    @Override
+    public void deleteAllByBusiness(UUID businessId) {
+        deleteByPrefix(StorageKeyUtil.businessPrefix(businessId));
+        log.info("Deleted all Spaces objects for business: {}", businessId);
+    }
+
+    // ── Internal ──────────────────────────────────────────────────────────────
 
     private void deleteByPrefix(String prefix) {
         List<ObjectIdentifier> toDelete = new ArrayList<>();
@@ -136,7 +84,6 @@ public class SpacesServiceImpl implements SpacesService {
 
         if (toDelete.isEmpty()) return;
 
-        // S3 batch delete limit = 1 000 objects per request
         for (int i = 0; i < toDelete.size(); i += 1000) {
             List<ObjectIdentifier> batch = toDelete.subList(i, Math.min(i + 1000, toDelete.size()));
             spacesS3Client.deleteObjects(DeleteObjectsRequest.builder()
@@ -146,13 +93,5 @@ public class SpacesServiceImpl implements SpacesService {
         }
 
         log.info("Deleted {} objects with prefix: {}", toDelete.size(), prefix);
-    }
-
-    private void deleteObject(String key) {
-        spacesS3Client.deleteObject(DeleteObjectRequest.builder()
-                .bucket(spacesProperties.getBucket())
-                .key(key)
-                .build());
-        log.info("Deleted Spaces object: {}", key);
     }
 }

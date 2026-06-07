@@ -16,109 +16,45 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/owner/spaces")
 @RequiredArgsConstructor
-@Tag(name = "Spaces Storage", description = "Image upload/delete — businessId always resolved from auth token")
+@Tag(name = "Spaces Storage", description = "businessId always resolved from auth token")
 public class SpacesController {
 
     private final SpacesService spacesService;
     private final SecurityUtils securityUtils;
 
-    // ── Product ───────────────────────────────────────────────────────────────
-    // variant: sm | md | lg | o  (default: o)
-
-    @PostMapping(value = "/product/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Upload product image — variant: sm | md | lg | o (default o)")
-    public ResponseEntity<SpacesUploadResponse> uploadProduct(
-            @PathVariable String productId,
+    /**
+     * Upload any image.
+     * path examples:
+     *   p/{productId}/sm.webp
+     *   c/{categoryId}/sm.webp
+     *   logo/logo.webp
+     *   banner/banner.webp
+     *   qr/table-{tableId}.webp
+     */
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload image — path decides where it lands under b/{businessId}/")
+    public ResponseEntity<SpacesUploadResponse> upload(
             @RequestPart("file") MultipartFile file,
-            @RequestParam(defaultValue = "o") String variant
+            @RequestPart("path") String path
     ) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        return ResponseEntity.ok(spacesService.uploadProduct(file, businessId, productId, variant));
+        return ResponseEntity.ok(spacesService.upload(file, businessId, path));
     }
 
-    @DeleteMapping("/product/{productId}")
-    @Operation(summary = "Delete all variants of a product (sm + md + lg + o)")
-    public ResponseEntity<Void> deleteProduct(@PathVariable String productId) {
+    /**
+     * Delete by prefix.
+     * prefix examples:
+     *   p/{productId}/       → all product variants
+     *   c/{categoryId}/      → category image
+     *   logo/                → logo
+     *   banner/              → banner
+     *   qr/table-{tableId}.webp → one QR
+     */
+    @DeleteMapping
+    @Operation(summary = "Delete by prefix under b/{businessId}/")
+    public ResponseEntity<Void> delete(@RequestParam String prefix) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        spacesService.deleteProduct(businessId, productId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ── Category ──────────────────────────────────────────────────────────────
-
-    @PostMapping(value = "/category/{categoryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Upload category image")
-    public ResponseEntity<SpacesUploadResponse> uploadCategory(
-            @PathVariable String categoryId,
-            @RequestPart("file") MultipartFile file
-    ) {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        return ResponseEntity.ok(spacesService.uploadCategory(file, businessId, categoryId));
-    }
-
-    @DeleteMapping("/category/{categoryId}")
-    @Operation(summary = "Delete category image")
-    public ResponseEntity<Void> deleteCategory(@PathVariable String categoryId) {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        spacesService.deleteCategory(businessId, categoryId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ── Logo ──────────────────────────────────────────────────────────────────
-
-    @PostMapping(value = "/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Upload business logo")
-    public ResponseEntity<SpacesUploadResponse> uploadLogo(
-            @RequestPart("file") MultipartFile file
-    ) {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        return ResponseEntity.ok(spacesService.uploadLogo(file, businessId));
-    }
-
-    @DeleteMapping("/logo")
-    @Operation(summary = "Delete business logo")
-    public ResponseEntity<Void> deleteLogo() {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        spacesService.deleteLogo(businessId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ── Banner ────────────────────────────────────────────────────────────────
-
-    @PostMapping(value = "/banner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Upload business banner")
-    public ResponseEntity<SpacesUploadResponse> uploadBanner(
-            @RequestPart("file") MultipartFile file
-    ) {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        return ResponseEntity.ok(spacesService.uploadBanner(file, businessId));
-    }
-
-    @DeleteMapping("/banner")
-    @Operation(summary = "Delete business banner")
-    public ResponseEntity<Void> deleteBanner() {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        spacesService.deleteBanner(businessId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ── QR ───────────────────────────────────────────────────────────────────
-
-    @PostMapping(value = "/qr/{tableId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Upload QR code for a table")
-    public ResponseEntity<SpacesUploadResponse> uploadQr(
-            @PathVariable String tableId,
-            @RequestPart("file") MultipartFile file
-    ) {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        return ResponseEntity.ok(spacesService.uploadQr(file, businessId, tableId));
-    }
-
-    @DeleteMapping("/qr/{tableId}")
-    @Operation(summary = "Delete QR code for a table")
-    public ResponseEntity<Void> deleteQr(@PathVariable String tableId) {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        spacesService.deleteQr(businessId, tableId);
+        spacesService.delete(businessId, prefix);
         return ResponseEntity.noContent().build();
     }
 }
