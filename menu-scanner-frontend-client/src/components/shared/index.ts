@@ -2,6 +2,7 @@
  * Central export file for shared components, utilities, and factories
  * Makes it easy to import commonly used components across the app
  */
+export { SpacesImageUpload } from "./form-field/spaces-image-upload";
 
 // Form Components
 export { TextField } from "./form-field/text-field";
