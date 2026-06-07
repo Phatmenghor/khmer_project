@@ -882,7 +882,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
 
               {}
               <MultiImageUpload
-                images={imageFields.map((f) => ({ imageUrl: (f as any).imageUrl }))}
+                images={imageFields.map((f: { id: string; imageUrl: string }) => ({ imageUrl: f.imageUrl }))}
                 onAdd={(url) => appendImage({ imageUrl: url })}
                 onRemove={(idx) => removeImage(idx)}
                 disabled={isSubmitting}
