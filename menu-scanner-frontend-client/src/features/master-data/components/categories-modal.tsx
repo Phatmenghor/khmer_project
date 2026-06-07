@@ -15,10 +15,11 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { ModalMode, Status } from "@/constants/status/status";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import { showToast } from "@/components/shared/common/show-toast";
 import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-status";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
+import { uploadImage } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import {
   selectError,
   selectOperations,
@@ -53,10 +54,18 @@ export default function CategoriesModal({
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
 
-
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const dispatch = useAppDispatch();
+
+  // Revoke the object URL when it changes or unmounts to avoid memory leaks.
+  useEffect(() => {
+    if (!previewUrl || !previewUrl.startsWith("blob:")) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   const operations = useAppSelector(selectOperations);
   const reduxError = useAppSelector(selectError);
@@ -67,7 +76,6 @@ export default function CategoriesModal({
     handleSubmit,
     reset,
     setValue,
-    watch,
     formState: { errors, isDirty },
   } = useForm<CreateCategoriesData>({
     resolver: zodResolver(
@@ -82,30 +90,29 @@ export default function CategoriesModal({
     mode: "onChange",
   });
 
-  const imageUrl = watch("imageUrl");
-
   useEffect(() => {
     if (isOpen) {
       if (isCreate) {
-
         reset({
           name: "",
           imageUrl: "",
           description: "",
           status: Status.ACTIVE,
         });
+        setPendingFile(null);
+        setPreviewUrl("");
       } else if (categories) {
-
         reset({
           name: categories.name || "",
           imageUrl: categories.imageUrl || "",
           description: categories.description || "",
           status: categories.status || "",
         });
+        setPendingFile(null);
+        setPreviewUrl(categories.imageUrl || "");
       }
     }
   }, [isOpen, categories, isCreate, reset]);
-
 
   useEffect(() => {
     if (isOpen) {
@@ -114,18 +121,18 @@ export default function CategoriesModal({
   }, [isOpen, dispatch]);
 
   const onSubmit = async (data: CreateCategoriesData) => {
+    setIsProcessing(true);
     try {
       let finalImageUrl = data.imageUrl;
 
-
-      if (finalImageUrl && isBase64Image(finalImageUrl)) {
+      // Upload the pending file only now that the user committed to submit.
+      if (pendingFile) {
         setIsUploadingImage(true);
         try {
-          finalImageUrl = await uploadImage(finalImageUrl);
-        } catch (uploadError) {
-          showToast.error(
-            "Failed to upload category image. Please try again.",
-          );
+          const result = await uploadImage(pendingFile, AppDefault.BUSINESS_ID);
+          finalImageUrl = result.url;
+        } catch (uploadErr: any) {
+          showToast.error(uploadErr?.message || "Image upload failed — please try again");
           return;
         } finally {
           setIsUploadingImage(false);
@@ -133,7 +140,7 @@ export default function CategoriesModal({
       }
 
       const payload: CreateCategoriesData = {
-        name: data?.name || "",
+        name: data.name || "",
         imageUrl: finalImageUrl,
         description: data.description || "",
         status: data.status,
@@ -159,19 +166,22 @@ export default function CategoriesModal({
         (error as { message?: string })?.message ||
           `Failed to ${isCreate ? "create" : "update"} category`,
       );
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleClose = () => {
     reset();
+    setPendingFile(null);
+    setPreviewUrl("");
     setIsUploadingImage(false);
     dispatch(clearError());
     dispatch(clearSelectedCategories());
     onClose();
   };
 
-  const isSubmitting = isCreate ? isCreating : isUpdating;
-  const isProcessing = isSubmitting || isUploadingImage;
+  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage || isProcessing;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -190,98 +200,107 @@ export default function CategoriesModal({
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-hidden"
         >
-            <FormBody>
-              {reduxError && (
-                <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
-                  <p className="text-xs text-destructive font-medium">
-                    {reduxError}
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <div className="space-y-2">
-                  <ClickableImageUpload
-                    label="Category Image"
-                    value={imageUrl}
-                    onChange={(base64) => setValue("imageUrl", base64)}
-                    aspectRatio="square"
-                    maxSize={5}
-                    required
-                    error={errors.imageUrl}
-                    placeholder="Click to upload category image"
-                    helperText="Square image works best (500x500)"
-                  />
-                </div>
-
-                <div className="border-t pt-4">
-                  <h3 className="text-xs font-semibold text-foreground mb-3">
-                    Category Details
-                  </h3>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <TextField
-                      control={control}
-                      name="name"
-                      label="Category Name"
-                      placeholder="Enter category name"
-                      required
-                      disabled={isProcessing}
-                      error={errors.name}
-                    />
-
-                    <SelectField
-                      control={control}
-                      name="status"
-                      label="Status"
-                      placeholder="Select status"
-                      options={BANNER_STATUS_CREATE_UPDATE}
-                      required
-                      disabled={isProcessing}
-                      error={errors.status}
-                    />
-                  </div>
-
-                  <TextAreaField
-                    control={control}
-                    name="description"
-                    label="Description"
-                    placeholder="Enter any additional description (optional)"
-                    rows={5}
-                    disabled={isProcessing}
-                    error={errors.description}
-                  />
-                </div>
+          <FormBody>
+            {reduxError && (
+              <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+                <p className="text-xs text-destructive font-medium">
+                  {reduxError}
+                </p>
               </div>
-            </FormBody>
+            )}
 
-            <FormFooter
-              isSubmitting={isProcessing}
+            <div className="space-y-2">
+              <SpacesImageUpload
+                label="Category Image"
+                businessId={AppDefault.BUSINESS_ID}
+                value={previewUrl}
+                onFileSelected={(file) => {
+                  setPendingFile(file);
+                  if (file) {
+                    const objectUrl = URL.createObjectURL(file);
+                    setPreviewUrl(objectUrl);
+                    setValue("imageUrl", objectUrl, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  } else {
+                    setPreviewUrl("");
+                    setValue("imageUrl", "", {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }
+                }}
+                deferred
+                aspectRatio="square"
+                maxSizeMb={5}
+                required
+                disabled={isSubmitting}
+                error={errors.imageUrl}
+                placeholder="Click to upload category image"
+                helperText="Square image works best (500x500)"
+              />
+
+              <div className="border-t pt-4">
+                <h3 className="text-xs font-semibold text-foreground mb-3">
+                  Category Details
+                </h3>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <TextField
+                    control={control}
+                    name="name"
+                    label="Category Name"
+                    placeholder="Enter category name"
+                    required
+                    disabled={isSubmitting}
+                    error={errors.name}
+                  />
+
+                  <SelectField
+                    control={control}
+                    name="status"
+                    label="Status"
+                    placeholder="Select status"
+                    options={BANNER_STATUS_CREATE_UPDATE}
+                    required
+                    disabled={isSubmitting}
+                    error={errors.status}
+                  />
+                </div>
+
+                <TextAreaField
+                  control={control}
+                  name="description"
+                  label="Description"
+                  placeholder="Enter any additional description (optional)"
+                  rows={5}
+                  disabled={isSubmitting}
+                  error={errors.description}
+                />
+              </div>
+            </div>
+          </FormBody>
+
+          <FormFooter
+            isSubmitting={isSubmitting}
+            isDirty={isDirty}
+            isCreate={isCreate}
+            createMessage="Creating category..."
+            updateMessage="Updating category..."
+          >
+            <CancelButton onClick={handleClose} disabled={isSubmitting} />
+            <SubmitButton
+              isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage={
-                isProcessing ? "Uploading category..." : "Creating category..."
-              }
-              updateMessage={
-                isProcessing ? "Uploading category..." : "Updating category..."
-              }
-            >
-              <CancelButton onClick={handleClose} disabled={isProcessing} />
-              <SubmitButton
-                isSubmitting={isProcessing}
-                isDirty={isDirty}
-                isCreate={isCreate}
-                createText="Create Category"
-                updateText="Update Category"
-                submittingCreateText={
-                  isProcessing ? "Uploading..." : "Creating..."
-                }
-                submittingUpdateText={
-                  isProcessing ? "Uploading..." : "Updating..."
-                }
-              />
-            </FormFooter>
-          </form>
+              createText="Create Category"
+              updateText="Update Category"
+              submittingCreateText="Creating..."
+              submittingUpdateText="Updating..."
+            />
+          </FormFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
