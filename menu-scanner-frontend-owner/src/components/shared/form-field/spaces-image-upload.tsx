@@ -7,19 +7,20 @@ import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FieldError } from "react-hook-form";
 import {
-  uploadAllSizes,
   uploadMultiSize,
   deleteImage,
-  SpacesAllSizes,
   SpacesMultiSizeResult,
 } from "@/services/spaces-service";
 
 type AspectRatio = "square" | "banner" | "portrait" | "auto";
 type UploadState = "idle" | "uploading" | "done" | "error";
 
-interface BaseProps {
+export interface SpacesImageUploadProps {
   label: string;
   value?: string;
+  imageKeys?: Partial<SpacesMultiSizeResult>;
+  onChange: (result: SpacesMultiSizeResult) => void;
+  onRemove?: () => void;
   disabled?: boolean;
   required?: boolean;
   error?: FieldError | string;
@@ -28,43 +29,25 @@ interface BaseProps {
   height?: string;
   placeholder?: string;
   helperText?: string;
-  onRemove?: () => void;
 }
 
-/** Legacy: 4 parallel calls, returns SpacesAllSizes */
-interface AllSizesProps extends BaseProps {
-  multiSize?: false;
-  imageKeys?: Partial<SpacesAllSizes>;
-  onChange: (result: SpacesAllSizes) => void;
-}
-
-/** New: single upload-multi request, returns SpacesMultiSizeResult — matches client project */
-interface MultiSizeProps extends BaseProps {
-  multiSize: true;
-  imageKeys?: Partial<SpacesMultiSizeResult>;
-  onChange: (result: SpacesMultiSizeResult) => void;
-}
-
-type SpacesImageUploadProps = AllSizesProps | MultiSizeProps;
-
-export function SpacesImageUpload(props: SpacesImageUploadProps) {
-  const {
-    label,
-    value,
-    disabled = false,
-    required = false,
-    error,
-    maxSizeMb = 5,
-    aspectRatio = "square",
-    height,
-    placeholder = "Click to upload image",
-    helperText,
-    onRemove,
-  } = props;
-
+export function SpacesImageUpload({
+  label,
+  value,
+  imageKeys,
+  onChange,
+  onRemove,
+  disabled = false,
+  required = false,
+  error,
+  maxSizeMb = 5,
+  aspectRatio = "square",
+  height,
+  placeholder = "Click to upload image",
+  helperText,
+}: SpacesImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
-  const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const containerHeight = height
@@ -79,18 +62,9 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
     errorMsg ?? (typeof error === "string" ? error : error?.message ?? null);
 
   const deleteOldKeys = async () => {
-    if (props.multiSize) {
-      const keys = props.imageKeys;
-      if (keys) {
-        const all = [keys.sm?.key, keys.md?.key, keys.o?.key].filter(Boolean) as string[];
-        await Promise.allSettled(all.map(deleteImage));
-      }
-    } else {
-      const keys = props.imageKeys;
-      if (keys) {
-        const all = Object.values(keys).map((r) => r?.key).filter(Boolean) as string[];
-        await Promise.allSettled(all.map(deleteImage));
-      }
+    if (imageKeys) {
+      const keys = [imageKeys.sm?.key, imageKeys.md?.key, imageKeys.o?.key].filter(Boolean) as string[];
+      await Promise.allSettled(keys.map(deleteImage));
     }
   };
 
@@ -110,23 +84,14 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
     await deleteOldKeys();
     setErrorMsg(null);
     setUploadState("uploading");
-    setProgress(0);
 
     try {
-      if (props.multiSize) {
-        const result = await uploadMultiSize(file);
-        setUploadState("done");
-        (props as MultiSizeProps).onChange(result);
-      } else {
-        const result = await uploadAllSizes(file, (done, total) => {
-          setProgress(Math.round((done / total) * 100));
-        });
-        setUploadState("done");
-        (props as AllSizesProps).onChange(result);
-      }
-    } catch {
+      const result = await uploadMultiSize(file);
+      setUploadState("done");
+      onChange(result);
+    } catch (err: any) {
       setUploadState("error");
-      setErrorMsg("Upload failed — please try again");
+      setErrorMsg(err?.message || "Upload failed — please try again");
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
@@ -136,7 +101,6 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
     e.stopPropagation();
     await deleteOldKeys();
     setUploadState("idle");
-    setProgress(0);
     setErrorMsg(null);
     onRemove?.();
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -184,17 +148,7 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
         {isUploading && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-background/80">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <p className="text-xs font-medium text-foreground">
-              {props.multiSize ? "Generating sizes…" : `Uploading… ${progress}%`}
-            </p>
-            {!props.multiSize && (
-              <div className="w-32 h-1.5 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            )}
+            <p className="text-xs font-medium text-foreground">Generating sizes…</p>
           </div>
         )}
 
@@ -244,9 +198,7 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
               <ImageIcon className="h-7 w-7 text-muted-foreground" />
             </div>
             <div className="text-center px-3">
-              <p className="text-xs font-medium text-foreground">
-                {placeholder}
-              </p>
+              <p className="text-xs font-medium text-foreground">{placeholder}</p>
               <p className="text-xs text-muted-foreground mt-1">
                 {helperText ?? `PNG, JPG, WebP up to ${maxSizeMb}MB`}
               </p>

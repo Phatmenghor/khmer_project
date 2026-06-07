@@ -15,4 +15,9 @@ public final class StorageKeyUtil {
     public static String businessPrefix(UUID businessId) {
         return "b/" + businessId + "/";
     }
+
+    /** owner/yyyy-MM-dd/20240607T143022-a3f2.webp — shared owner path, no id needed */
+    public static String ownerKey(String name) {
+        return "owner/" + StorageNameUtil.dateFolder() + "/" + name;
+    }
 }

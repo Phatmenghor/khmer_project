@@ -45,6 +45,14 @@ public class SpacesController {
         );
     }
 
+    @PostMapping(value = "/upload-multi-owner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload image for owner — stored under owner/yyyy-MM-dd/, no businessId needed")
+    public ResponseEntity<SpacesMultiUploadResponse> uploadMultiOwner(
+            @RequestPart("file") MultipartFile file
+    ) {
+        return ResponseEntity.ok(spacesService.uploadMultiOwner(file));
+    }
+
     @DeleteMapping("/object")
     @Operation(summary = "Delete one image by key")
     public ResponseEntity<Void> deleteByKey(@RequestParam String key) {

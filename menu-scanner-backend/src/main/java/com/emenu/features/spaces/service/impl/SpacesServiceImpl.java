@@ -141,7 +141,70 @@ public class SpacesServiceImpl implements SpacesService {
         }
     }
 
+    @Override
+    @Transactional
+    public SpacesMultiUploadResponse uploadMultiOwner(MultipartFile file) {
+        try {
+            byte[] original = file.getBytes();
+            String base = StorageNameUtil.generateBase();
+
+            SpacesUploadResponse sm = uploadResizedOwner(original, base + "-sm.jpg", 300, file.getOriginalFilename());
+            SpacesUploadResponse md = uploadResizedOwner(original, base + "-md.jpg", 600, file.getOriginalFilename());
+            SpacesUploadResponse o  = uploadResizedOwner(original, base + ".jpg",    0,   file.getOriginalFilename());
+
+            log.info("Uploaded multi-size owner: {}", base);
+            return SpacesMultiUploadResponse.builder().sm(sm).md(md).o(o).build();
+        } catch (IOException e) {
+            log.error("Owner multi upload failed: {}", e.getMessage());
+            throw new RuntimeException("Multi-size image upload failed: " + e.getMessage());
+        }
+    }
+
     // ── Internals ─────────────────────────────────────────────────────────────
+
+    /** Resize and upload to owner/yyyy-MM-dd/ — no businessId involved */
+    private SpacesUploadResponse uploadResizedOwner(byte[] original,
+                                                    String name, int maxWidth, String originalFilename) throws IOException {
+        String key = StorageKeyUtil.ownerKey(name);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        var builder = Thumbnails.of(new java.io.ByteArrayInputStream(original))
+                .outputFormat("jpg")
+                .outputQuality(0.85);
+
+        if (maxWidth > 0) {
+            java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(original));
+            int targetWidth = Math.min(img.getWidth(), maxWidth);
+            builder = builder.width(targetWidth);
+        } else {
+            builder = builder.scale(1.0);
+        }
+        builder.toOutputStream(out);
+
+        byte[] bytes = out.toByteArray();
+
+        spacesS3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(spacesProperties.getBucket())
+                        .key(key)
+                        .contentType("image/jpeg")
+                        .contentLength((long) bytes.length)
+                        .acl(ObjectCannedACL.PUBLIC_READ)
+                        .build(),
+                RequestBody.fromBytes(bytes)
+        );
+
+        String url = spacesProperties.getCdnBaseUrl() + "/" + key;
+
+        spacesImageRepository.save(SpacesImage.builder()
+                .objectKey(key)
+                .url(url)
+                .originalFilename(originalFilename)
+                .fileSize((long) bytes.length)
+                .build());
+
+        return SpacesUploadResponse.builder().key(key).url(url).build();
+    }
 
     private SpacesUploadResponse uploadResized(byte[] original, UUID businessId,
                                                String name, int maxWidth, String originalFilename) throws IOException {

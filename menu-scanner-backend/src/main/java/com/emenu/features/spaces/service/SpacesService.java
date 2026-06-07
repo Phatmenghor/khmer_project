@@ -15,6 +15,9 @@ public interface SpacesService {
     /** Upload once → generate sm/md/lg/o sizes → return all 4 */
     SpacesMultiUploadResponse uploadMulti(MultipartFile file, UUID businessId);
 
+    /** Upload once → generate sm/md/o sizes → store under owner/yyyy-MM-dd/ — no businessId needed */
+    SpacesMultiUploadResponse uploadMultiOwner(MultipartFile file);
+
     void deleteByKey(String key);
 
     void deleteByDate(UUID businessId, String datePrefix);

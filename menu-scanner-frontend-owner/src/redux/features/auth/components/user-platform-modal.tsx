@@ -421,7 +421,6 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                     {/* Profile Image via Spaces upload */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <SpacesImageUpload
-                        multiSize
                         label="Profile Image"
                         value={previewUrl}
                         onChange={(result) => {

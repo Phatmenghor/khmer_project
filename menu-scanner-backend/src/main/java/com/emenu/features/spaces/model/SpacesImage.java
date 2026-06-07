@@ -15,7 +15,7 @@ import java.util.UUID;
 @Builder
 public class SpacesImage extends BaseUUIDEntity {
 
-    @Column(name = "business_id", nullable = false)
+    @Column(name = "business_id", nullable = true)
     private UUID businessId;
 
     @Column(name = "object_key", nullable = false, length = 500)
