@@ -20,13 +20,13 @@ public interface LeaveMapper {
     @Mapping(target = "userInfo.lastName", source = "user.profile.lastName")
     @Mapping(target = "userInfo.email", source = "user.profile.email")
     @Mapping(target = "userInfo.phoneNumber", source = "user.profile.phoneNumber")
-    @Mapping(target = "userInfo.profileImageUrl", source = "user.profile.profileImageUrl")
+    @Mapping(target = "userInfo.profileImage", source = "user.profile.profileImage")
     @Mapping(target = "actionUserInfo.id", source = "actionUser.id")
     @Mapping(target = "actionUserInfo.firstName", source = "actionUser.profile.firstName")
     @Mapping(target = "actionUserInfo.lastName", source = "actionUser.profile.lastName")
     @Mapping(target = "actionUserInfo.email", source = "actionUser.profile.email")
     @Mapping(target = "actionUserInfo.phoneNumber", source = "actionUser.profile.phoneNumber")
-    @Mapping(target = "actionUserInfo.profileImageUrl", source = "actionUser.profile.profileImageUrl")
+    @Mapping(target = "actionUserInfo.profileImage", source = "actionUser.profile.profileImage")
     LeaveResponse toResponse(Leave leave);
 
     List<LeaveResponse> toResponseList(List<Leave> leaves);

@@ -20,7 +20,7 @@ public interface AttendanceMapper {
     @Mapping(target = "userInfo.lastName", source = "user.profile.lastName")
     @Mapping(target = "userInfo.email", source = "user.profile.email")
     @Mapping(target = "userInfo.phoneNumber", source = "user.profile.phoneNumber")
-    @Mapping(target = "userInfo.profileImageUrl", source = "user.profile.profileImageUrl")
+    @Mapping(target = "userInfo.profileImage", source = "user.profile.profileImage")
     AttendanceResponse toResponse(Attendance attendance);
 
     List<AttendanceResponse> toResponseList(List<Attendance> attendances);
