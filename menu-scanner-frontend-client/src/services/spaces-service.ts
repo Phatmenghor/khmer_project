@@ -11,6 +11,19 @@ export interface SpacesMultiSizeResult {
   o: SpacesUploadResult;
 }
 
+/**
+ * Rethrow with the backend's user-facing message when possible (e.g. the
+ * "Your file is too big …" message from MaxUploadSizeExceededException),
+ * so toasts show something useful instead of "Network Error".
+ */
+function rethrowFriendly(err: any, fallback: string): never {
+  const backendMessage =
+    err?.response?.data?.message ||
+    err?.response?.data?.error?.message ||
+    err?.message;
+  throw new Error(backendMessage || fallback);
+}
+
 export async function uploadImage(
   file: File,
   businessId: string
@@ -18,11 +31,15 @@ export async function uploadImage(
   const form = new FormData();
   form.append("file", file);
   form.append("businessId", businessId);
-  const res = await axiosClient.post<SpacesUploadResult>(
-    "/api/v1/spaces/upload",
-    form
-  );
-  return res.data;
+  try {
+    const res = await axiosClient.post<SpacesUploadResult>(
+      "/api/v1/spaces/upload",
+      form
+    );
+    return res.data;
+  } catch (err) {
+    rethrowFriendly(err, "Image upload failed — please try again");
+  }
 }
 
 export async function uploadMultiSize(
@@ -32,11 +49,15 @@ export async function uploadMultiSize(
   const form = new FormData();
   form.append("file", file);
   form.append("businessId", businessId);
-  const res = await axiosClient.post<SpacesMultiSizeResult>(
-    "/api/v1/spaces/upload-multi",
-    form
-  );
-  return res.data;
+  try {
+    const res = await axiosClient.post<SpacesMultiSizeResult>(
+      "/api/v1/spaces/upload-multi",
+      form
+    );
+    return res.data;
+  } catch (err) {
+    rethrowFriendly(err, "Image upload failed — please try again");
+  }
 }
 
 export async function deleteImage(key: string): Promise<void> {

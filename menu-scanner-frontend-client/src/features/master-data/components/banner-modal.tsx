@@ -124,8 +124,8 @@ export default function BannerModal({
         try {
           const result = await uploadMultiSize(pendingFile, AppDefault.BUSINESS_ID);
           imagePayload = { sm: result.sm.url, md: result.md.url, o: result.o.url };
-        } catch {
-          showToast.error("Image upload failed — please try again");
+        } catch (uploadErr: any) {
+          showToast.error(uploadErr?.message || "Image upload failed — please try again");
           return;
         } finally {
           setIsUploadingImage(false);

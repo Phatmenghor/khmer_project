@@ -26,6 +26,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.sql.SQLException;
@@ -244,6 +245,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.failure("Invalid request body. Please check your JSON format.",
                         Map.of("errorCode", "INVALID_REQUEST_BODY")));
+    }
+
+    // Per-file cap is enforced by Spring; tell the user in MB instead of bytes.
+    private static final long MAX_FILE_SIZE_BYTES = 5L * 1024 * 1024;
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUploadTooLarge(
+            MaxUploadSizeExceededException ex) {
+        long maxMb = MAX_FILE_SIZE_BYTES / (1024 * 1024);
+        log.warn("Upload rejected — file exceeds per-file cap of {}MB", maxMb);
+        String message = String.format(
+                "Your file is too big. Each file can be at most %dMB.", maxMb);
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(ApiResponse.failure(message,
+                        Map.of(
+                                "errorCode", "FILE_TOO_LARGE",
+                                "maxFileSizeBytes", MAX_FILE_SIZE_BYTES,
+                                "maxFileSizeMb", maxMb)));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

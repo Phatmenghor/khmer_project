@@ -329,8 +329,8 @@ export default function UserBusinessModal({
         try {
           const result = await uploadMultiSize(pendingProfileFile, AppDefault.BUSINESS_ID);
           profileImage = { sm: result.sm.url, md: result.md.url, o: result.o.url };
-        } catch {
-          showToast.error("Profile image upload failed — please try again");
+        } catch (uploadErr: any) {
+          showToast.error(uploadErr?.message || "Profile image upload failed — please try again");
           return;
         } finally {
           setIsUploadingProfile(false);
@@ -358,8 +358,8 @@ export default function UserBusinessModal({
         eduUploadedUrls = Object.fromEntries(
           Object.entries(edus).map(([k, r]) => [k, r.url]),
         );
-      } catch {
-        showToast.error("File upload failed — please try again");
+      } catch (uploadErr: any) {
+        showToast.error(uploadErr?.message || "File upload failed — please try again");
         return;
       }
 

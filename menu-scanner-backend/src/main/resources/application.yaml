@@ -28,10 +28,11 @@ spring:
 
   servlet:
     multipart:
-      # Frontend caps each image at 5MB; request size is a touch higher to
-      # leave room for multipart encoding overhead (boundaries, headers).
+      # Per-file cap: 5MB matches the frontend.
+      # Total request cap: 25MB so a multi-file upload (up to ~5 files of 5MB)
+      # still fits. The per-file limit is what the friendly error reports.
       max-file-size: 5MB
-      max-request-size: 6MB
+      max-request-size: 25MB
 
   cache:
     type: none

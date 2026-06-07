@@ -243,8 +243,8 @@ export default function AdminProfilePage() {
         ]);
         docUrls = Object.fromEntries(Object.entries(docs).map(([k, r]) => [k, r.url]));
         eduUrls = Object.fromEntries(Object.entries(edus).map(([k, r]) => [k, r.url]));
-      } catch {
-        showToast.error("File upload failed — please try again");
+      } catch (uploadErr: any) {
+        showToast.error(uploadErr?.message || "File upload failed — please try again");
         return;
       }
 
