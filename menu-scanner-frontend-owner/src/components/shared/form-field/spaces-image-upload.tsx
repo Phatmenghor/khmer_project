@@ -55,7 +55,7 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
     disabled = false,
     required = false,
     error,
-    maxSizeMb = 10,
+    maxSizeMb = 5,
     aspectRatio = "square",
     height,
     placeholder = "Click to upload image",
