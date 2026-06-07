@@ -4,7 +4,7 @@ import { COOKIE_KEYS } from "@/constants/cookie-keys";
 const LOGIN_PATH = "/login";
 const ADMIN_PATH = "/admin";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const hasAdminToken = Boolean(
     request.cookies.get(COOKIE_KEYS.ADMIN_ACCESS_TOKEN)?.value,
