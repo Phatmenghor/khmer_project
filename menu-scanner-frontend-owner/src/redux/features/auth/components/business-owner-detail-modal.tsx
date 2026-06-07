@@ -64,6 +64,8 @@ export function BusinessOwnerDetailModal({
       isLoading={isFetchingDetail}
       title="Business Owner"
       description="Manage business owner accounts and subscriptions"
+      imageUrl={d?.logoBusinessUrl}
+      avatarName={d?.businessName || d?.ownerFullName}
       icon={Building2}
       maxWidthClass="sm:max-w-6xl"
     >
