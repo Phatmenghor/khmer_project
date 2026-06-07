@@ -8,6 +8,7 @@ import {
   Maximize2,
   CreditCard,
   ChevronDown,
+  LogIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -112,6 +113,19 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
               className="h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors"
             >
               <Maximize2 className="h-3 w-3" />
+            </Button>
+          )}
+
+          {/* No auth / session error — redirect to login */}
+          {!profile && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push(ROUTES.AUTH.LOGIN)}
+              className="h-7 rounded gap-1.5 text-xs border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
+            >
+              <LogIn className="h-3 w-3" />
+              <span className="hidden sm:inline">Sign In</span>
             </Button>
           )}
 
