@@ -93,7 +93,7 @@ export function ExchangeRateDetailModal({
           <DetailSection title="Personal Information">
             <DetailRow
               label="USD to KHR Rate"
-              value={exchangeData?.usdToKhrRate || "---"}
+              value={exchangeData?.usdToKhrRate || "—"}
             />
 
             <DetailRow
@@ -118,7 +118,7 @@ export function ExchangeRateDetailModal({
               }
             />
 
-            <DetailRow label="Noted" value={exchangeData?.notes || "---"} />
+            <DetailRow label="Noted" value={exchangeData?.notes || "—"} />
           </DetailSection>
 
           {/* System Information */}
@@ -137,7 +137,7 @@ export function ExchangeRateDetailModal({
             />
             <DetailRow
               label="Created By"
-              value={exchangeData?.createdBy || "---"}
+              value={exchangeData?.createdBy || "—"}
             />
             <DetailRow
               label="Last Updated"
@@ -145,7 +145,7 @@ export function ExchangeRateDetailModal({
             />
             <DetailRow
               label="Updated By"
-              value={exchangeData?.updatedBy || "---"}
+              value={exchangeData?.updatedBy || "—"}
               isLast
             />
           </DetailSection>

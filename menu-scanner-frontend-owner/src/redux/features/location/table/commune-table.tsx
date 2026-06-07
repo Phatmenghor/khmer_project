@@ -46,7 +46,7 @@ export const communeTableColumns = ({
       truncate: true,
       render: (commune) => (
         <span className="text-xs text-muted-foreground">
-          {commune?.communeEn || "---"}
+          {commune?.communeEn || "—"}
         </span>
       ),
     },
@@ -58,7 +58,7 @@ export const communeTableColumns = ({
       truncate: true,
       render: (commune) => (
         <span className="text-xs text-muted-foreground">
-          {commune?.communeKh || "---"}
+          {commune?.communeKh || "—"}
         </span>
       ),
     },
@@ -70,7 +70,7 @@ export const communeTableColumns = ({
       truncate: true,
       render: (commune) => (
         <span className="text-xs text-muted-foreground">
-          {commune?.communeCode || "---"}
+          {commune?.communeCode || "—"}
         </span>
       ),
     },
@@ -82,7 +82,7 @@ export const communeTableColumns = ({
       truncate: true,
       render: (commune) => (
         <span className="text-xs text-muted-foreground">
-          {commune?.district?.districtEn || "---"}
+          {commune?.district?.districtEn || "—"}
         </span>
       ),
     },
@@ -94,7 +94,7 @@ export const communeTableColumns = ({
       truncate: true,
       render: (commune) => (
         <span className="text-xs text-muted-foreground">
-          {commune?.district?.districtCode || "---"}
+          {commune?.district?.districtCode || "—"}
         </span>
       ),
     },
@@ -106,7 +106,7 @@ export const communeTableColumns = ({
       truncate: true,
       render: (commune) => (
         <span className="text-xs text-muted-foreground">
-          {commune?.district?.province?.provinceEn || "---"}
+          {commune?.district?.province?.provinceEn || "—"}
         </span>
       ),
     },
@@ -118,7 +118,7 @@ export const communeTableColumns = ({
       truncate: true,
       render: (commune) => (
         <span className="text-xs text-muted-foreground">
-          {commune?.district?.province?.provinceCode || "---"}
+          {commune?.district?.province?.provinceCode || "—"}
         </span>
       ),
     },

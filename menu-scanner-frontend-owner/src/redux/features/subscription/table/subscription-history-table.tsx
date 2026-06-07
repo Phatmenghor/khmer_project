@@ -42,7 +42,7 @@ export const subscriptionHistoryTableColumns = ({
       maxWidth: "200px",
       truncate: true,
       render: (row) => (
-        <span className="text-xs font-medium">{row.businessName || "---"}</span>
+        <span className="text-xs font-medium">{row.businessName || "—"}</span>
       ),
     },
     {
@@ -52,7 +52,7 @@ export const subscriptionHistoryTableColumns = ({
       maxWidth: "160px",
       truncate: true,
       render: (row) => (
-        <span className="text-xs text-muted-foreground">{row.planName || "---"}</span>
+        <span className="text-xs text-muted-foreground">{row.planName || "—"}</span>
       ),
     },
     {
@@ -61,7 +61,7 @@ export const subscriptionHistoryTableColumns = ({
       minWidth: "80px",
       maxWidth: "120px",
       render: (row) => (
-        <span className="text-xs text-muted-foreground">{row.planDurationType || "---"}</span>
+        <span className="text-xs text-muted-foreground">{row.planDurationType || "—"}</span>
       ),
     },
     {
@@ -81,7 +81,7 @@ export const subscriptionHistoryTableColumns = ({
       minWidth: "100px",
       maxWidth: "140px",
       render: (row) => (
-        <span className="text-xs text-muted-foreground">{row.startDate || "---"}</span>
+        <span className="text-xs text-muted-foreground">{row.startDate || "—"}</span>
       ),
     },
     {
@@ -90,7 +90,7 @@ export const subscriptionHistoryTableColumns = ({
       minWidth: "100px",
       maxWidth: "140px",
       render: (row) => (
-        <span className="text-xs text-muted-foreground">{row.endDate || "---"}</span>
+        <span className="text-xs text-muted-foreground">{row.endDate || "—"}</span>
       ),
     },
     {
@@ -106,7 +106,7 @@ export const subscriptionHistoryTableColumns = ({
             ? "text-orange-500 font-medium"
             : "text-red-500";
         return (
-          <span className={`text-xs ${colorClass}`}>{row.status || "---"}</span>
+          <span className={`text-xs ${colorClass}`}>{row.status || "—"}</span>
         );
       },
     },
@@ -143,7 +143,7 @@ export const subscriptionHistoryTableColumns = ({
             : "text-red-500";
         return (
           <span className={`text-xs ${colorClass}`}>
-            {row.paymentStatus?.replace("_", " ") || "---"}
+            {row.paymentStatus?.replace("_", " ") || "—"}
           </span>
         );
       },

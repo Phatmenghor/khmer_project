@@ -47,7 +47,7 @@ export const paymentTableColumns = ({
       truncate: true,
       render: (payment) => (
         <span className="text-xs text-muted-foreground">
-          {payment?.formattedAmount || "---"}
+          {payment?.formattedAmount || "—"}
         </span>
       ),
     },
@@ -59,7 +59,7 @@ export const paymentTableColumns = ({
       truncate: true,
       render: (payment) => (
         <span className="text-xs text-muted-foreground">
-          {payment?.formattedAmountKhr || "---"}
+          {payment?.formattedAmountKhr || "—"}
         </span>
       ),
     },
@@ -71,7 +71,7 @@ export const paymentTableColumns = ({
       truncate: true,
       render: (payment) => (
         <span className="text-xs text-muted-foreground">
-          {payment?.paymentMethod || "---"}
+          {payment?.paymentMethod || "—"}
         </span>
       ),
     },
@@ -84,7 +84,7 @@ export const paymentTableColumns = ({
       truncate: true,
       render: (payment) => (
         <span className="text-xs text-muted-foreground">
-          {payment?.status || "---"}
+          {payment?.status || "—"}
         </span>
       ),
     },

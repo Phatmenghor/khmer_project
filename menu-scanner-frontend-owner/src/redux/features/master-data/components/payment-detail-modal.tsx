@@ -87,36 +87,36 @@ export function PaymentDetailModal({
           <DetailSection title="Payment Information">
             <DetailRow
               label="Amount Dollat"
-              value={paymentData?.formattedAmount || "---"}
+              value={paymentData?.formattedAmount || "—"}
             />
             <DetailRow
               label="amount"
-              value={paymentData?.formattedAmountKhr || "---"}
+              value={paymentData?.formattedAmountKhr || "—"}
             />
             <DetailRow
               label="Payment Method"
-              value={paymentData?.paymentMethod || "---"}
+              value={paymentData?.paymentMethod || "—"}
             />
-            <DetailRow label="Status" value={paymentData?.status || "---"} />
+            <DetailRow label="Status" value={paymentData?.status || "—"} />
             <DetailRow
               label="Reference Number"
-              value={paymentData?.referenceNumber || "---"}
+              value={paymentData?.referenceNumber || "—"}
             />
             <DetailRow
               label="Bisiness Name"
-              value={paymentData?.businessName || "---"}
+              value={paymentData?.businessName || "—"}
             />
             <DetailRow
               label="Plan Name"
-              value={paymentData?.planName || "---"}
+              value={paymentData?.planName || "—"}
             />
             <DetailRow
               label="Subscription Display Name"
-              value={paymentData?.subscriptionDisplayName || "---"}
+              value={paymentData?.subscriptionDisplayName || "—"}
             />
             <DetailRow
               label="Remark"
-              value={paymentData?.referenceNumber || "---"}
+              value={paymentData?.referenceNumber || "—"}
             />
           </DetailSection>
 
@@ -136,7 +136,7 @@ export function PaymentDetailModal({
             />
             <DetailRow
               label="Created By"
-              value={paymentData?.createdBy || "---"}
+              value={paymentData?.createdBy || "—"}
             />
             <DetailRow
               label="Last Updated"
@@ -144,7 +144,7 @@ export function PaymentDetailModal({
             />
             <DetailRow
               label="Updated By"
-              value={paymentData?.updatedBy || "---"}
+              value={paymentData?.updatedBy || "—"}
               isLast
             />
           </DetailSection>

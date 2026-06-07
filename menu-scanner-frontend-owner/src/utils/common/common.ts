@@ -26,7 +26,7 @@ export function toRoman(num: number): string {
 }
 
 export function formatValue(value: any) {
-  return value === null || value === undefined || value === "" ? "---" : value;
+  return value === null || value === undefined || value === "" ? "—" : value;
 }
 
 export const indexDisplay = (

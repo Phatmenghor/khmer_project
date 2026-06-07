@@ -68,60 +68,60 @@ export function AllNotificationDetailModal({
         <div className="space-y-4">
           {/* Notification Information */}
           <DetailSection title="Commune Information">
-            <DetailRow label="Title" value={notificationData?.title || "---"} />
+            <DetailRow label="Title" value={notificationData?.title || "—"} />
 
             <DetailRow
               label="Message"
-              value={notificationData?.message || "---"}
+              value={notificationData?.message || "—"}
             />
 
             <DetailRow
               label="Message Type"
               value={
-                convertEnumOrString(notificationData?.messageType) || "---"
+                convertEnumOrString(notificationData?.messageType) || "—"
               }
             />
 
             <DetailRow
               label="Priority"
-              value={convertEnumOrString(notificationData?.priority) || "---"}
+              value={convertEnumOrString(notificationData?.priority) || "—"}
             />
 
             <DetailRow
               label="Status"
-              value={convertEnumOrString(notificationData?.status) || "---"}
+              value={convertEnumOrString(notificationData?.status) || "—"}
             />
 
             <DetailRow
               label="Recipient Type"
               value={
-                convertEnumOrString(notificationData?.recipientType) || "---"
+                convertEnumOrString(notificationData?.recipientType) || "—"
               }
             />
 
             <DetailRow
               label="user Id"
-              value={notificationData?.userId || "---"}
+              value={notificationData?.userId || "—"}
             />
 
             <DetailRow
               label="User Name"
-              value={notificationData?.userName || "---"}
+              value={notificationData?.userName || "—"}
             />
 
             <DetailRow
               label="Business Id"
-              value={notificationData?.businessId || "---"}
+              value={notificationData?.businessId || "—"}
             />
 
             <DetailRow
               label="Group Id"
-              value={notificationData?.groupId || "---"}
+              value={notificationData?.groupId || "—"}
             />
 
             <DetailRow
               label="Is Seen"
-              value={notificationData?.isSeen || "---"}
+              value={notificationData?.isSeen || "—"}
             />
 
             <DetailRow
@@ -131,7 +131,7 @@ export function AllNotificationDetailModal({
 
             <DetailRow
               label="Is Read"
-              value={notificationData?.isRead || "---"}
+              value={notificationData?.isRead || "—"}
             />
 
             <DetailRow
@@ -156,7 +156,7 @@ export function AllNotificationDetailModal({
             />
             <DetailRow
               label="Created By"
-              value={notificationData?.createdBy || "---"}
+              value={notificationData?.createdBy || "—"}
             />
             <DetailRow
               label="Last Updated"
@@ -164,7 +164,7 @@ export function AllNotificationDetailModal({
             />
             <DetailRow
               label="Updated By"
-              value={notificationData?.updatedBy || "---"}
+              value={notificationData?.updatedBy || "—"}
               isLast
             />
           </DetailSection>

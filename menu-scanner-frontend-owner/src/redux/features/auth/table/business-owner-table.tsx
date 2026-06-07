@@ -50,7 +50,7 @@ export const userBusinessOwnerTableColumns = ({
       truncate: true,
       render: (user) => (
         <span className="text-xs text-muted-foreground">
-          {user?.ownerUserIdentifier || "---"}
+          {user?.ownerUserIdentifier || "—"}
         </span>
       ),
     },
@@ -62,7 +62,7 @@ export const userBusinessOwnerTableColumns = ({
       truncate: true,
       render: (user) => (
         <span className="text-xs text-muted-foreground font-medium">
-          {user?.ownerFullName || "---"}
+          {user?.ownerFullName || "—"}
         </span>
       ),
     },
@@ -74,7 +74,7 @@ export const userBusinessOwnerTableColumns = ({
       truncate: true,
       render: (user) => (
         <span className="text-xs text-muted-foreground">
-          {user?.ownerPhone || "---"}
+          {user?.ownerPhone || "—"}
         </span>
       ),
     },
@@ -86,7 +86,7 @@ export const userBusinessOwnerTableColumns = ({
       truncate: true,
       render: (user) => (
         <span className="text-xs text-muted-foreground font-medium">
-          {user?.businessName || "---"}
+          {user?.businessName || "—"}
         </span>
       ),
     },
@@ -98,7 +98,7 @@ export const userBusinessOwnerTableColumns = ({
       truncate: true,
       render: (user) => (
         <span className="text-xs text-muted-foreground font-medium">
-          {user?.currentPlanName || "---"}
+          {user?.currentPlanName || "—"}
         </span>
       ),
     },
@@ -111,7 +111,7 @@ export const userBusinessOwnerTableColumns = ({
         <span className="text-xs text-muted-foreground">
           {user?.currentPlanPrice !== undefined && user?.currentPlanPrice !== null
             ? `$${user.currentPlanPrice}`
-            : "---"}
+            : "—"}
         </span>
       ),
     },
@@ -122,7 +122,7 @@ export const userBusinessOwnerTableColumns = ({
       maxWidth: "200px",
       render: (user) => (
         <span className="text-xs text-muted-foreground">
-          {formatDate(user?.subscriptionStartDate) || "---"}
+          {formatDate(user?.subscriptionStartDate) || "—"}
         </span>
       ),
     },
@@ -133,7 +133,7 @@ export const userBusinessOwnerTableColumns = ({
       maxWidth: "200px",
       render: (user) => (
         <span className="text-xs text-muted-foreground">
-          {formatDate(user?.subscriptionEndDate) || "---"}
+          {formatDate(user?.subscriptionEndDate) || "—"}
         </span>
       ),
     },
@@ -186,7 +186,7 @@ export const userBusinessOwnerTableColumns = ({
             : "text-red-500";
         return (
           <span className={`text-xs ${colorClass}`}>
-            {status || "---"}
+            {status || "—"}
           </span>
         );
       },
@@ -202,31 +202,26 @@ export const userBusinessOwnerTableColumns = ({
             icon={<CreditCard className="w-3 h-3" />}
             tooltip="Subscription"
             onClick={() => handleSubscriptionAction(user)}
-            size="sm"
           />
           <ActionButton
             icon={<Eye className="w-3 h-3" />}
             tooltip="View Details"
             onClick={() => handleViewUserDetail(user)}
-            size="sm"
           />
           <ActionButton
             icon={<Edit className="w-3 h-3" />}
             tooltip="Edit"
             onClick={() => handleEditOwner(user)}
-            size="sm"
           />
           <ActionButton
             icon={<RotateCw className="w-3 h-3" />}
             tooltip="Reset Password"
             onClick={() => handleResetPassword(user)}
-            size="sm"
           />
           <ActionButton
             icon={<Trash className="w-3 h-3" />}
             tooltip="Delete"
             onClick={() => handleDeleteUser(user)}
-            size="sm"
             variant="destructive"
           />
         </div>

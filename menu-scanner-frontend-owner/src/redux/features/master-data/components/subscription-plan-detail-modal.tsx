@@ -91,19 +91,19 @@ export function SubscriptionPlanDetailModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Plan Name"
-                      value={planData.name || "---"}
+                      value={planData.name || "—"}
                     />
                     <DisplayField
                       label="Price"
                       value={
                         planData.price !== undefined && planData.price !== null
                           ? String(planData.price)
-                          : "---"
+                          : "—"
                       }
                     />
                     <DisplayField
                       label="Duration Type"
-                      value={planData.durationType || "---"}
+                      value={planData.durationType || "—"}
                     />
                     <DisplayField
                       label="Active Subscriptions Count"
@@ -111,7 +111,7 @@ export function SubscriptionPlanDetailModal({
                         planData.activeSubscriptionsCount !== undefined &&
                         planData.activeSubscriptionsCount !== null
                           ? String(planData.activeSubscriptionsCount)
-                          : "---"
+                          : "—"
                       }
                     />
                     <DisplayField
@@ -162,7 +162,7 @@ export function SubscriptionPlanDetailModal({
                     />
                     <DisplayField
                       label="Created By"
-                      value={planData.createdBy || "---"}
+                      value={planData.createdBy || "—"}
                     />
                     <DisplayField
                       label="Last Updated"
@@ -170,7 +170,7 @@ export function SubscriptionPlanDetailModal({
                     />
                     <DisplayField
                       label="Updated By"
-                      value={planData.updatedBy || "---"}
+                      value={planData.updatedBy || "—"}
                     />
                   </div>
                 </CardContent>

@@ -187,7 +187,7 @@ export default function SubscriptionActionModal({
           <div className="flex flex-wrap gap-1 text-xs">
             <div className="bg-background border border-border rounded px-2 py-1 flex items-center gap-1">
               <span className="text-muted-foreground">End Date</span>
-              <span className="font-semibold text-foreground">{owner?.subscriptionEndDate || "---"}</span>
+              <span className="font-semibold text-foreground">{owner?.subscriptionEndDate || "—"}</span>
             </div>
             <div className="bg-background border border-border rounded px-2 py-1 flex items-center gap-1">
               <span className="text-muted-foreground">Days Left</span>
@@ -198,7 +198,7 @@ export default function SubscriptionActionModal({
             <div className="bg-background border border-border rounded px-2 py-1 flex items-center gap-1">
               <span className="text-muted-foreground">Status</span>
               <span className={`font-semibold ${owner?.subscriptionStatus === "ACTIVE" ? "text-green-600" : owner?.subscriptionStatus === "EXPIRING_SOON" ? "text-yellow-600" : owner?.subscriptionStatus === "CANCELLED" ? "text-orange-500" : owner?.subscriptionStatus === "CHANGE_PLAN" ? "text-blue-600" : "text-red-500"}`}>
-                {owner?.subscriptionStatus || "---"}
+                {owner?.subscriptionStatus || "—"}
               </span>
             </div>
             {owner?.subscriptionCancellationReason && (
@@ -210,7 +210,7 @@ export default function SubscriptionActionModal({
             <div className="bg-background border border-border rounded px-2 py-1 flex items-center gap-1">
               <span className="text-muted-foreground">Price</span>
               <span className="font-semibold text-foreground">
-                {owner?.currentPlanPrice != null ? `$${owner.currentPlanPrice}` : "---"}
+                {owner?.currentPlanPrice != null ? `$${owner.currentPlanPrice}` : "—"}
               </span>
             </div>
           </div>
@@ -241,7 +241,7 @@ export default function SubscriptionActionModal({
                     <CardTitle className="text-xs">Renew Subscription</CardTitle>
                     <div className="flex items-start gap-1 text-xs text-muted-foreground bg-blue-50 border border-blue-200 rounded p-1">
                       <Info className="w-2.5 h-2.5 mt-0.5 text-blue-500 flex-shrink-0" />
-                      <span>New period starts from current end date <strong>{owner?.subscriptionEndDate || "---"}</strong></span>
+                      <span>New period starts from current end date <strong>{owner?.subscriptionEndDate || "—"}</strong></span>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -443,17 +443,17 @@ export default function SubscriptionActionModal({
                         {subscriptionHistory.map((row, idx) => (
                           <tr key={`${row.subscriptionId}-${idx}`} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
                             <td className="px-3 py-2 text-xs text-muted-foreground">{idx + 1}</td>
-                            <td className="px-3 py-2 text-xs font-medium">{row.planName || "---"}</td>
-                            <td className="px-3 py-2 text-xs text-muted-foreground">{row.planDurationType || "---"}</td>
+                            <td className="px-3 py-2 text-xs font-medium">{row.planName || "—"}</td>
+                            <td className="px-3 py-2 text-xs text-muted-foreground">{row.planDurationType || "—"}</td>
                             <td className="px-3 py-2 text-xs text-muted-foreground">${row.planPrice?.toFixed(2) ?? "0.00"}</td>
-                            <td className="px-3 py-2 text-xs text-muted-foreground">{row.startDate || "---"}</td>
-                            <td className="px-3 py-2 text-xs text-muted-foreground">{row.endDate || "---"}</td>
+                            <td className="px-3 py-2 text-xs text-muted-foreground">{row.startDate || "—"}</td>
+                            <td className="px-3 py-2 text-xs text-muted-foreground">{row.endDate || "—"}</td>
                             <td className="px-3 py-2 text-xs">
-                              <span className={row.status === "ACTIVE" ? "text-green-600 font-medium" : row.status === "CANCELLED" ? "text-orange-500 font-medium" : row.status === "CHANGE_PLAN" ? "text-blue-600 font-medium" : "text-red-500"}>{row.status || "---"}</span>
+                              <span className={row.status === "ACTIVE" ? "text-green-600 font-medium" : row.status === "CANCELLED" ? "text-orange-500 font-medium" : row.status === "CHANGE_PLAN" ? "text-blue-600 font-medium" : "text-red-500"}>{row.status || "—"}</span>
                             </td>
                             <td className="px-3 py-2 text-xs">
                               <span className={row.paymentStatus === "PAID" ? "text-green-600 font-medium" : row.paymentStatus === "PENDING" || row.paymentStatus === "PARTIALLY_PAID" ? "text-yellow-600 font-medium" : "text-red-500"}>
-                                {row.paymentStatus?.replace("_", " ") || "---"}
+                                {row.paymentStatus?.replace("_", " ") || "—"}
                               </span>
                             </td>
                             <td className="px-3 py-2 text-xs text-muted-foreground">${row.totalPaid?.toFixed(2) ?? "0.00"}</td>

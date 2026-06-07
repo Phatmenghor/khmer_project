@@ -45,7 +45,7 @@ export const subscriptionPlanTableColumns = ({
       truncate: true,
       render: (plan) => (
         <span className="text-xs text-muted-foreground">
-          {plan?.name || "---"}
+          {plan?.name || "—"}
         </span>
       ),
     },
@@ -59,7 +59,7 @@ export const subscriptionPlanTableColumns = ({
         <span className="text-xs text-muted-foreground">
           {plan?.price !== undefined && plan?.price !== null
             ? plan.price
-            : "---"}
+            : "—"}
         </span>
       ),
     },
@@ -71,7 +71,7 @@ export const subscriptionPlanTableColumns = ({
       truncate: true,
       render: (plan) => (
         <span className="text-xs text-muted-foreground">
-          {plan?.durationType || "---"}
+          {plan?.durationType || "—"}
         </span>
       ),
     },
@@ -86,7 +86,7 @@ export const subscriptionPlanTableColumns = ({
           {plan?.activeSubscriptionsCount !== undefined &&
           plan?.activeSubscriptionsCount !== null
             ? plan.activeSubscriptionsCount
-            : "---"}
+            : "—"}
         </span>
       ),
     },
@@ -98,7 +98,7 @@ export const subscriptionPlanTableColumns = ({
       truncate: true,
       render: (plan) => (
         <span className="text-xs text-muted-foreground">
-          {plan?.status || "---"}
+          {plan?.status || "—"}
         </span>
       ),
     },

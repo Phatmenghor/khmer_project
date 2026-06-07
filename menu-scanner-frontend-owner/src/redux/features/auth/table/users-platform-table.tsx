@@ -68,7 +68,7 @@ export const userPlatformTableColumns = ({
       truncate: true,
       render: (user) => (
         <span className="text-xs text-muted-foreground">
-          {user?.userIdentifier || "---"}
+          {user?.userIdentifier || "—"}
         </span>
       ),
     },
@@ -94,7 +94,7 @@ export const userPlatformTableColumns = ({
         <span className="text-xs text-muted-foreground">
           {user.roles?.length > 0
             ? user.roles.map((r: string) => formatEnumLabel(r) ?? r).join(", ")
-            : "---"}
+            : "—"}
         </span>
       ),
     },
@@ -106,7 +106,7 @@ export const userPlatformTableColumns = ({
       truncate: true,
       render: (user) => (
         <span className="text-xs text-muted-foreground">
-          {formatEnumLabel(user?.accountStatus) ?? "---"}
+          {formatEnumLabel(user?.accountStatus) ?? "—"}
         </span>
       ),
     },

@@ -58,7 +58,7 @@ export const roleTableColumns = ({
       truncate: true,
       render: (role) => (
         <span className="text-xs text-muted-foreground">
-          {role?.description || "---"}
+          {role?.description || "—"}
         </span>
       ),
     },

@@ -46,7 +46,7 @@ export const provinceTableColumns = ({
       truncate: true,
       render: (province) => (
         <span className="text-xs text-muted-foreground">
-          {province?.provinceEn || "---"}
+          {province?.provinceEn || "—"}
         </span>
       ),
     },
@@ -58,7 +58,7 @@ export const provinceTableColumns = ({
       truncate: true,
       render: (province) => (
         <span className="text-xs text-muted-foreground">
-          {province?.provinceKh || "---"}
+          {province?.provinceKh || "—"}
         </span>
       ),
     },
@@ -70,7 +70,7 @@ export const provinceTableColumns = ({
       truncate: true,
       render: (province) => (
         <span className="text-xs text-muted-foreground">
-          {province?.provinceCode || "---"}
+          {province?.provinceCode || "—"}
         </span>
       ),
     },

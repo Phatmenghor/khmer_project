@@ -75,7 +75,7 @@ export function UserBusinessDetailModal({
                 <h2 className="text-xs font-semibold text-foreground">Business User Details</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {userData
-                    ? userData.fullName || `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "---"
+                    ? userData.fullName || `${userData.firstName || ""} ${userData.lastName || ""}`.trim() || "—"
                     : "Detailed information about the selected business user"}
                 </p>
               </div>
@@ -100,21 +100,21 @@ export function UserBusinessDetailModal({
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <DisplayField label="Full Name" value={userData.fullName || "---"} />
-                      <DisplayField label="Email" value={userData.email || "---"} />
-                      <DisplayField label="Phone Number" value={userData.phoneNumber || "---"} />
-                      <DisplayField label="Nickname" value={userData.nickname || "---"} />
-                      <DisplayField label="Gender" value={formatEnumLabel(userData.gender) ?? "---"} />
-                      <DisplayField label="Date of Birth" value={userData.dateOfBirth || "---"} />
-                      <DisplayField label="User Identifier" value={userData.userIdentifier || "---"} />
-                      <DisplayField label="User Type" value={formatEnumLabel(userData.userType) ?? "---"} />
-                      <DisplayField label="Account Status" value={formatEnumLabel(userData.accountStatus) ?? "---"} />
+                      <DisplayField label="Full Name" value={userData.fullName || "—"} />
+                      <DisplayField label="Email" value={userData.email || "—"} />
+                      <DisplayField label="Phone Number" value={userData.phoneNumber || "—"} />
+                      <DisplayField label="Nickname" value={userData.nickname || "—"} />
+                      <DisplayField label="Gender" value={formatEnumLabel(userData.gender) ?? "—"} />
+                      <DisplayField label="Date of Birth" value={userData.dateOfBirth || "—"} />
+                      <DisplayField label="User Identifier" value={userData.userIdentifier || "—"} />
+                      <DisplayField label="User Type" value={formatEnumLabel(userData.userType) ?? "—"} />
+                      <DisplayField label="Account Status" value={formatEnumLabel(userData.accountStatus) ?? "—"} />
                       <DisplayField
                         label="Roles"
                         value={
                           userData.roles?.length > 0
                             ? userData.roles.map((r) => formatEnumLabel(r) ?? r).join(", ")
-                            : "---"
+                            : "—"
                         }
                       />
                       {userData.remark && (
@@ -137,12 +137,12 @@ export function UserBusinessDetailModal({
                         label="Synced"
                         value={userData.telegramSynced ? "Connected" : "Not Connected"}
                       />
-                      <DisplayField label="Username" value={userData.telegramUsername || "---"} />
-                      <DisplayField label="First Name" value={userData.telegramFirstName || "---"} />
-                      <DisplayField label="Last Name" value={userData.telegramLastName || "---"} />
+                      <DisplayField label="Username" value={userData.telegramUsername || "—"} />
+                      <DisplayField label="First Name" value={userData.telegramFirstName || "—"} />
+                      <DisplayField label="Last Name" value={userData.telegramLastName || "—"} />
                       <DisplayField
                         label="Synced At"
-                        value={userData.telegramSyncedAt ? dateTimeFormat(userData.telegramSyncedAt) : "---"}
+                        value={userData.telegramSyncedAt ? dateTimeFormat(userData.telegramSyncedAt) : "—"}
                       />
                     </div>
                   </CardContent>
@@ -158,12 +158,12 @@ export function UserBusinessDetailModal({
                       <DisplayField label="User ID" value={userData.id} />
                       <DisplayField
                         label="Last Login"
-                        value={userData.lastLoginAt ? dateTimeFormat(userData.lastLoginAt) : "---"}
+                        value={userData.lastLoginAt ? dateTimeFormat(userData.lastLoginAt) : "—"}
                       />
                       <DisplayField label="Created At" value={dateTimeFormat(userData.createdAt ?? "")} />
-                      <DisplayField label="Created By" value={userData.createdBy || "---"} />
+                      <DisplayField label="Created By" value={userData.createdBy || "—"} />
                       <DisplayField label="Last Updated" value={dateTimeFormat(userData.updatedAt ?? "")} />
-                      <DisplayField label="Updated By" value={userData.updatedBy || "---"} />
+                      <DisplayField label="Updated By" value={userData.updatedBy || "—"} />
                     </div>
                   </CardContent>
                 </Card>

@@ -47,7 +47,7 @@ export const allNotificationTableColumns = ({
       truncate: true,
       render: (notification) => (
         <span className="text-xs text-muted-foreground">
-          {notification?.title || "---"}
+          {notification?.title || "—"}
         </span>
       ),
     },
@@ -59,7 +59,7 @@ export const allNotificationTableColumns = ({
       truncate: true,
       render: (notification) => (
         <span className="text-xs text-muted-foreground">
-          {notification?.message || "---"}
+          {notification?.message || "—"}
         </span>
       ),
     },
@@ -72,7 +72,7 @@ export const allNotificationTableColumns = ({
       truncate: true,
       render: (notification) => (
         <span className="text-xs text-muted-foreground">
-          {convertEnumOrString(notification?.status) || "---"}
+          {convertEnumOrString(notification?.status) || "—"}
         </span>
       ),
     },
@@ -85,7 +85,7 @@ export const allNotificationTableColumns = ({
       truncate: true,
       render: (notification) => (
         <span className="text-xs text-muted-foreground">
-          {convertEnumOrString(notification?.recipientType) || "---"}
+          {convertEnumOrString(notification?.recipientType) || "—"}
         </span>
       ),
     },
@@ -98,7 +98,7 @@ export const allNotificationTableColumns = ({
       truncate: true,
       render: (notification) => (
         <span className="text-xs text-muted-foreground">
-          {notification?.isRead || "---"}
+          {notification?.isRead || "—"}
         </span>
       ),
     },
@@ -124,7 +124,7 @@ export const allNotificationTableColumns = ({
       truncate: true,
       render: (notification) => (
         <span className="text-xs text-muted-foreground">
-          {notification?.isSeen || "---"}
+          {notification?.isSeen || "—"}
         </span>
       ),
     },

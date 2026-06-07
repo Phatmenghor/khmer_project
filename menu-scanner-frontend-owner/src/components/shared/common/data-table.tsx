@@ -215,7 +215,7 @@ export function DataTableWithPagination<T = any>({
                   {columns.map((column) => {
                     const cellContent = column.render
                       ? column.render(item, index)
-                      : String(item[column.key as keyof T] || "---");
+                      : String(item[column.key as keyof T] || "—");
 
                     return (
                       <td

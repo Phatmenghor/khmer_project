@@ -86,15 +86,15 @@ export function ProvinceDetailModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Province Code"
-                      value={provinceData.provinceCode || "---"}
+                      value={provinceData.provinceCode || "—"}
                     />
                     <DisplayField
                       label="Province EN"
-                      value={provinceData.provinceEn || "---"}
+                      value={provinceData.provinceEn || "—"}
                     />
                     <DisplayField
                       label="Province KH"
-                      value={provinceData.provinceKh || "---"}
+                      value={provinceData.provinceKh || "—"}
                     />
                   </div>
                 </CardContent>
@@ -121,7 +121,7 @@ export function ProvinceDetailModal({
                     />
                     <DisplayField
                       label="Created By"
-                      value={provinceData.createdBy || "---"}
+                      value={provinceData.createdBy || "—"}
                     />
                     <DisplayField
                       label="Last Updated"
@@ -129,7 +129,7 @@ export function ProvinceDetailModal({
                     />
                     <DisplayField
                       label="Updated By"
-                      value={provinceData.updatedBy || "---"}
+                      value={provinceData.updatedBy || "—"}
                     />
                   </div>
                 </CardContent>

@@ -46,7 +46,7 @@ export const villageTableColumns = ({
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.villageEn || "---"}
+          {village?.villageEn || "—"}
         </span>
       ),
     },
@@ -58,7 +58,7 @@ export const villageTableColumns = ({
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.villageKh || "---"}
+          {village?.villageKh || "—"}
         </span>
       ),
     },
@@ -70,7 +70,7 @@ export const villageTableColumns = ({
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.villageCode || "---"}
+          {village?.villageCode || "—"}
         </span>
       ),
     },
@@ -82,7 +82,7 @@ export const villageTableColumns = ({
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.commune?.communeEn || "---"}
+          {village?.commune?.communeEn || "—"}
         </span>
       ),
     },
@@ -94,7 +94,7 @@ export const villageTableColumns = ({
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.commune?.communeCode || "---"}
+          {village?.commune?.communeCode || "—"}
         </span>
       ),
     },
@@ -106,7 +106,7 @@ export const villageTableColumns = ({
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.commune?.district?.districtEn || "---"}
+          {village?.commune?.district?.districtEn || "—"}
         </span>
       ),
     },
@@ -118,7 +118,7 @@ export const villageTableColumns = ({
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.commune?.district?.districtCode || "---"}
+          {village?.commune?.district?.districtCode || "—"}
         </span>
       ),
     },
@@ -130,7 +130,7 @@ export const villageTableColumns = ({
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.commune?.district?.province?.provinceEn || "---"}
+          {village?.commune?.district?.province?.provinceEn || "—"}
         </span>
       ),
     },
@@ -142,7 +142,7 @@ export const villageTableColumns = ({
       truncate: true,
       render: (village) => (
         <span className="text-xs text-muted-foreground">
-          {village?.commune?.district?.province?.provinceCode || "---"}
+          {village?.commune?.district?.province?.provinceCode || "—"}
         </span>
       ),
     },

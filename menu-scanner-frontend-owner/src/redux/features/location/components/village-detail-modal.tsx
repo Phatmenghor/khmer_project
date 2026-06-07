@@ -86,15 +86,15 @@ export function VillageDetailModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Village Code"
-                      value={villageData.villageCode || "---"}
+                      value={villageData.villageCode || "—"}
                     />
                     <DisplayField
                       label="Village EN"
-                      value={villageData.villageEn || "---"}
+                      value={villageData.villageEn || "—"}
                     />
                     <DisplayField
                       label="Village KH"
-                      value={villageData.villageKh || "---"}
+                      value={villageData.villageKh || "—"}
                     />
                   </div>
                 </CardContent>
@@ -109,15 +109,15 @@ export function VillageDetailModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Commune Code"
-                      value={villageData.commune?.communeCode || "---"}
+                      value={villageData.commune?.communeCode || "—"}
                     />
                     <DisplayField
                       label="Commune EN"
-                      value={villageData.commune?.communeEn || "---"}
+                      value={villageData.commune?.communeEn || "—"}
                     />
                     <DisplayField
                       label="Commune KH"
-                      value={villageData.commune?.communeKh || "---"}
+                      value={villageData.commune?.communeKh || "—"}
                     />
                   </div>
                 </CardContent>
@@ -132,15 +132,15 @@ export function VillageDetailModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="District Code"
-                      value={villageData.commune?.district?.districtCode || "---"}
+                      value={villageData.commune?.district?.districtCode || "—"}
                     />
                     <DisplayField
                       label="District EN"
-                      value={villageData.commune?.district?.districtEn || "---"}
+                      value={villageData.commune?.district?.districtEn || "—"}
                     />
                     <DisplayField
                       label="District KH"
-                      value={villageData.commune?.district?.districtKh || "---"}
+                      value={villageData.commune?.district?.districtKh || "—"}
                     />
                   </div>
                 </CardContent>
@@ -156,19 +156,19 @@ export function VillageDetailModal({
                     <DisplayField
                       label="Province Code"
                       value={
-                        villageData.commune?.district?.province?.provinceCode || "---"
+                        villageData.commune?.district?.province?.provinceCode || "—"
                       }
                     />
                     <DisplayField
                       label="Province EN"
                       value={
-                        villageData.commune?.district?.province?.provinceEn || "---"
+                        villageData.commune?.district?.province?.provinceEn || "—"
                       }
                     />
                     <DisplayField
                       label="Province KH"
                       value={
-                        villageData.commune?.district?.province?.provinceKh || "---"
+                        villageData.commune?.district?.province?.provinceKh || "—"
                       }
                     />
                   </div>
@@ -196,7 +196,7 @@ export function VillageDetailModal({
                     />
                     <DisplayField
                       label="Created By"
-                      value={villageData.createdBy || "---"}
+                      value={villageData.createdBy || "—"}
                     />
                     <DisplayField
                       label="Last Updated"
@@ -204,7 +204,7 @@ export function VillageDetailModal({
                     />
                     <DisplayField
                       label="Updated By"
-                      value={villageData.updatedBy || "---"}
+                      value={villageData.updatedBy || "—"}
                     />
                   </div>
                 </CardContent>

@@ -86,7 +86,7 @@ export function SubscriptionHistoryDetailModal({
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <DisplayField label="Business Name" value={h.businessName || "---"} />
+                    <DisplayField label="Business Name" value={h.businessName || "—"} />
                     <DisplayField
                       label="Business ID"
                       value={
@@ -106,15 +106,15 @@ export function SubscriptionHistoryDetailModal({
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <DisplayField label="Plan Name" value={h.planName || "---"} />
+                    <DisplayField label="Plan Name" value={h.planName || "—"} />
                     <DisplayField
                       label="Plan Price"
-                      value={h.planPrice !== undefined ? `$${h.planPrice.toFixed(2)}` : "---"}
+                      value={h.planPrice !== undefined ? `$${h.planPrice.toFixed(2)}` : "—"}
                     />
-                    <DisplayField label="Duration Type" value={h.planDurationType || "---"} />
-                    <DisplayField label="Status" value={h.status || "---"} />
-                    <DisplayField label="Start Date" value={h.startDate || "---"} />
-                    <DisplayField label="End Date" value={h.endDate || "---"} />
+                    <DisplayField label="Duration Type" value={h.planDurationType || "—"} />
+                    <DisplayField label="Status" value={h.status || "—"} />
+                    <DisplayField label="Start Date" value={h.startDate || "—"} />
+                    <DisplayField label="End Date" value={h.endDate || "—"} />
                     <DisplayField
                       label="Days Remaining"
                       value={h.status === "EXPIRED" ? "Expired" : h.status === "CANCELLED" ? "Cancelled" : `${h.daysRemaining} days`}
@@ -134,7 +134,7 @@ export function SubscriptionHistoryDetailModal({
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <DisplayField label="Payment Status" value={h.paymentStatus?.replace("_", " ") || "---"} />
+                    <DisplayField label="Payment Status" value={h.paymentStatus?.replace("_", " ") || "—"} />
                     <DisplayField
                       label="Total Paid"
                       value={`$${h.totalPaid?.toFixed(2) ?? "0.00"}`}
@@ -145,9 +145,9 @@ export function SubscriptionHistoryDetailModal({
                           label="Amount"
                           value={`$${h.payment.amount?.toFixed(2) ?? "0.00"}`}
                         />
-                        <DisplayField label="Payment Method" value={h.payment.paymentMethod || "---"} />
-                        <DisplayField label="Payment Type" value={h.payment.paymentType || "---"} />
-                        <DisplayField label="Reference No." value={h.payment.referenceNumber || "---"} />
+                        <DisplayField label="Payment Method" value={h.payment.paymentMethod || "—"} />
+                        <DisplayField label="Payment Type" value={h.payment.paymentType || "—"} />
+                        <DisplayField label="Reference No." value={h.payment.referenceNumber || "—"} />
                         {h.payment.paidAt && (
                           <DisplayField
                             label="Paid At"

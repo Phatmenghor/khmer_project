@@ -86,15 +86,15 @@ export function DistrictDetailModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="District Code"
-                      value={districtData.districtCode || "---"}
+                      value={districtData.districtCode || "—"}
                     />
                     <DisplayField
                       label="District EN"
-                      value={districtData.districtEn || "---"}
+                      value={districtData.districtEn || "—"}
                     />
                     <DisplayField
                       label="District KH"
-                      value={districtData.districtKh || "---"}
+                      value={districtData.districtKh || "—"}
                     />
                   </div>
                 </CardContent>
@@ -109,15 +109,15 @@ export function DistrictDetailModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Province Code"
-                      value={districtData.province?.provinceCode || "---"}
+                      value={districtData.province?.provinceCode || "—"}
                     />
                     <DisplayField
                       label="Province EN"
-                      value={districtData.province?.provinceEn || "---"}
+                      value={districtData.province?.provinceEn || "—"}
                     />
                     <DisplayField
                       label="Province KH"
-                      value={districtData.province?.provinceKh || "---"}
+                      value={districtData.province?.provinceKh || "—"}
                     />
                   </div>
                 </CardContent>
@@ -144,7 +144,7 @@ export function DistrictDetailModal({
                     />
                     <DisplayField
                       label="Created By"
-                      value={districtData.createdBy || "---"}
+                      value={districtData.createdBy || "—"}
                     />
                     <DisplayField
                       label="Last Updated"
@@ -152,7 +152,7 @@ export function DistrictDetailModal({
                     />
                     <DisplayField
                       label="Updated By"
-                      value={districtData.updatedBy || "---"}
+                      value={districtData.updatedBy || "—"}
                     />
                   </div>
                 </CardContent>

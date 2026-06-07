@@ -49,7 +49,7 @@ export const exchangeRateTableColumns = ({
       truncate: true,
       render: (exchange) => (
         <span className="text-xs text-muted-foreground">
-          {exchange?.usdToKhrRate || "---"}
+          {exchange?.usdToKhrRate || "—"}
         </span>
       ),
     },
@@ -61,7 +61,7 @@ export const exchangeRateTableColumns = ({
       truncate: true,
       render: (exchange) => (
         <span className="text-xs text-muted-foreground">
-          {exchange?.notes || "---"}
+          {exchange?.notes || "—"}
         </span>
       ),
     },
@@ -86,7 +86,7 @@ export const exchangeRateTableColumns = ({
       truncate: true,
       render: (exchange) => (
         <span className="text-xs text-muted-foreground">
-          {exchange?.createdBy || "---"}
+          {exchange?.createdBy || "—"}
         </span>
       ),
     },

@@ -86,15 +86,15 @@ export function CommuneDetailModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Commune Code"
-                      value={communeData.communeCode || "---"}
+                      value={communeData.communeCode || "—"}
                     />
                     <DisplayField
                       label="Commune EN"
-                      value={communeData.communeEn || "---"}
+                      value={communeData.communeEn || "—"}
                     />
                     <DisplayField
                       label="Commune KH"
-                      value={communeData.communeKh || "---"}
+                      value={communeData.communeKh || "—"}
                     />
                   </div>
                 </CardContent>
@@ -109,15 +109,15 @@ export function CommuneDetailModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="District Code"
-                      value={communeData.district?.districtCode || "---"}
+                      value={communeData.district?.districtCode || "—"}
                     />
                     <DisplayField
                       label="District EN"
-                      value={communeData.district?.districtEn || "---"}
+                      value={communeData.district?.districtEn || "—"}
                     />
                     <DisplayField
                       label="District KH"
-                      value={communeData.district?.districtKh || "---"}
+                      value={communeData.district?.districtKh || "—"}
                     />
                   </div>
                 </CardContent>
@@ -132,15 +132,15 @@ export function CommuneDetailModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <DisplayField
                       label="Province Code"
-                      value={communeData.district?.province?.provinceCode || "---"}
+                      value={communeData.district?.province?.provinceCode || "—"}
                     />
                     <DisplayField
                       label="Province EN"
-                      value={communeData.district?.province?.provinceEn || "---"}
+                      value={communeData.district?.province?.provinceEn || "—"}
                     />
                     <DisplayField
                       label="Province KH"
-                      value={communeData.district?.province?.provinceKh || "---"}
+                      value={communeData.district?.province?.provinceKh || "—"}
                     />
                   </div>
                 </CardContent>
@@ -167,7 +167,7 @@ export function CommuneDetailModal({
                     />
                     <DisplayField
                       label="Created By"
-                      value={communeData.createdBy || "---"}
+                      value={communeData.createdBy || "—"}
                     />
                     <DisplayField
                       label="Last Updated"
@@ -175,7 +175,7 @@ export function CommuneDetailModal({
                     />
                     <DisplayField
                       label="Updated By"
-                      value={communeData.updatedBy || "---"}
+                      value={communeData.updatedBy || "—"}
                     />
                   </div>
                 </CardContent>

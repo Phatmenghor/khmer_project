@@ -82,7 +82,7 @@ export const getUserTypeIcon = (
 };
 
 export const formatEnumToDisplay = (value: string): string => {
-  if (!value) return "---";
+  if (!value) return "—";
   // Convert PLATFORM_USER to Platform User
   return value
     .split("_")
