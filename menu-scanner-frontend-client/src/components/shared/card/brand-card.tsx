@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 
 interface BrandCardProps {
   brand: BrandResponseModel;
@@ -18,6 +19,8 @@ interface BrandCardProps {
 function BrandCardComponent({ brand, className, loading = "lazy" }: BrandCardProps) {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  const imageUrl = brand.image?.sm || brand.image?.md || "";
 
   return (
     <Link
@@ -32,41 +35,30 @@ function BrandCardComponent({ brand, className, loading = "lazy" }: BrandCardPro
         )}
       >
         <CardContent className="p-3 sm:p-3 flex flex-col items-center justify-center gap-2">
-          {}
-          <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
-            {!imageError && brand.imageUrl ? (
-              <>
-                {!imageLoaded && (
-                  <Skeleton className="absolute inset-0 w-full h-full rounded" />
-                )}
-                <Image
-                  src={brand.imageUrl}
-                  alt={brand.name}
-                  fill
-                  loading={loading}
-                  className={cn(
-                    "object-cover transition-all duration-300 group-hover:scale-105",
-                    imageLoaded ? "opacity-100" : "opacity-0"
-                  )}
-                  onLoad={() => setImageLoaded(true)}
-                  onError={() => setImageError(true)}
-                />
-              </>
-            ) : (
-              <span className="text-xs font-bold text-primary/80 group-hover:text-primary transition-colors">
-                {brand.name.charAt(0).toUpperCase()}
-              </span>
+          <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded bg-muted/40 transition-all duration-300">
+            {!imageLoaded && (
+              <Skeleton className="absolute inset-0 w-full h-full rounded" />
             )}
+            <Image
+              src={imageError || !imageUrl ? appImages.noImage : imageUrl}
+              alt={brand.name}
+              fill
+              loading={loading}
+              className={cn(
+                "object-cover transition-all duration-300 group-hover:scale-105",
+                imageLoaded ? "opacity-100" : "opacity-0"
+              )}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+            />
           </div>
 
-          {}
           <div className="text-center w-full">
             <h3 className="font-semibold text-xs sm:text-xs line-clamp-2 text-foreground group-hover:text-primary transition-colors leading-snug">
               {brand.name}
             </h3>
           </div>
 
-          {}
           {brand.activeProducts > 0 && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground group-hover:text-primary/80 transition-colors">
               <ShoppingBag className="h-2 w-2" />

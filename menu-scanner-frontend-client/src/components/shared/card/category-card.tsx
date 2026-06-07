@@ -40,7 +40,7 @@ function CategoryCardComponent({ category, className, loading = "lazy" }: Catego
               <Skeleton className="absolute inset-0 w-full h-full rounded" />
             )}
             <Image
-              src={imageError || !category.imageUrl ? appImages.noImage : category.imageUrl}
+              src={imageError || !category.image?.sm ? appImages.noImage : category.image.sm}
               alt={category.name}
               fill
               loading={loading}
