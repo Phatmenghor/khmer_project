@@ -33,7 +33,7 @@ public class SpacesServiceImpl implements SpacesService {
 
     @Override
     @Transactional
-    public SpacesUploadResponse upload(MultipartFile file, UUID businessId, String size) {
+    public SpacesUploadResponse upload(MultipartFile file, UUID businessId) {
         String name = StorageNameUtil.generateName();
         String key = StorageKeyUtil.key(businessId, name);
         String contentType = file.getContentType() != null ? file.getContentType() : "image/webp";
@@ -60,7 +60,6 @@ public class SpacesServiceImpl implements SpacesService {
                 .businessId(businessId)
                 .objectKey(key)
                 .url(url)
-                .size(size != null ? size : "o")
                 .originalFilename(file.getOriginalFilename())
                 .fileSize(file.getSize())
                 .build());
@@ -146,7 +145,6 @@ public class SpacesServiceImpl implements SpacesService {
                 .businessId(image.getBusinessId())
                 .objectKey(image.getObjectKey())
                 .url(image.getUrl())
-                .size(image.getSize())
                 .originalFilename(image.getOriginalFilename())
                 .fileSize(image.getFileSize())
                 .createdAt(image.getCreatedAt())

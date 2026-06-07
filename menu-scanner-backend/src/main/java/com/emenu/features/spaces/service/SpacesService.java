@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface SpacesService {
 
-    SpacesUploadResponse upload(MultipartFile file, UUID businessId, String size);
+    SpacesUploadResponse upload(MultipartFile file, UUID businessId);
 
     void deleteByKey(String key);
 
