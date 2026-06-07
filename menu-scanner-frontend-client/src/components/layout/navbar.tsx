@@ -281,17 +281,15 @@ export function Navbar() {
                 <button onClick={handleNavigateToHome} className="flex items-center gap-1 group">
                   <div className="relative">
                     <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                      {businessLogoUrl && (
-                        <img
-                          key={businessLogoUrl}
-                          src={businessLogoUrl}
-                          alt={businessName}
-                          className="w-full h-full object-cover rounded"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/assets/image/no-image.svg";
-                          }}
-                        />
-                      )}
+                      <img
+                        key={businessLogoUrl}
+                        src={businessLogoUrl || "/assets/image/menu-logo.png"}
+                        alt={businessName}
+                        className="w-full h-full object-cover rounded"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/assets/image/menu-logo.png";
+                        }}
+                      />
                     </div>
                     <div className="absolute -inset-1 rounded bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>

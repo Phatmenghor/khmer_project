@@ -77,21 +77,19 @@ function NavbarMenuComponent({
           {/* Header */}
           <div className="border-b border-border/60 px-4 py-3 mt-0 bg-gradient-to-br from-primary/5 to-transparent">
             <div className="flex items-start gap-2">
-              {businessLogoUrl && (
-                <div className="relative shrink-0">
-                  <div className="w-8 h-8 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
-                    <img
-                      src={businessLogoUrl}
-                      alt={businessName}
-                      className="w-full h-full object-cover rounded"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "/assets/image/no-image.svg";
-                      }}
-                    />
-                  </div>
+              <div className="relative shrink-0">
+                <div className="w-8 h-8 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
+                  <img
+                    src={businessLogoUrl || "/assets/image/menu-logo.png"}
+                    alt={businessName}
+                    className="w-full h-full object-cover rounded"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        "/assets/image/menu-logo.png";
+                    }}
+                  />
                 </div>
-              )}
+              </div>
 
               <div className="flex-1 min-w-0 pt-1">
                 <h2 className="text-foreground font-bold text-xs leading-tight line-clamp-1">

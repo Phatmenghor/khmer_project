@@ -5,4 +5,5 @@ export const appImages = {
   excel: "/assets/icons/excel.png",
   cpBank: "/assets/image/cpbank.png",
   noImage: "/assets/image/no-image.svg",
+  menuLogo: "/assets/image/menu-logo.png",
 };
