@@ -7,14 +7,12 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { LoginModal } from "./login-modal";
 import { RegisterModal } from "./register-modal";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
 
   useEffect(() => {
@@ -77,13 +75,6 @@ export default function Navbar() {
               {/* Auth Buttons */}
               <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
-                  className="h-7 px-4"
-                  onClick={() => setLoginOpen(true)}
-                >
-                  Sign In
-                </Button>
-                <Button
                   className="h-7 px-5 text-xs bg-primary hover:bg-primary/90 text-white rounded"
                   onClick={() => setRegisterOpen(true)}
                 >
@@ -121,17 +112,7 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-            <div className="pt-3 border-t border-slate-200 mt-2 space-y-1">
-              <Button
-                variant="outline"
-                className="w-full h-7"
-                onClick={() => {
-                  setMobileOpen(false);
-                  setLoginOpen(true);
-                }}
-              >
-                Sign In
-              </Button>
+            <div className="pt-3 border-t border-slate-200 mt-2">
               <Button
                 className="w-full h-7 text-xs bg-primary hover:bg-primary/90 text-white"
                 onClick={() => {
@@ -146,8 +127,6 @@ export default function Navbar() {
         )}
       </header>
 
-      {/* Modals */}
-      <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
       <RegisterModal isOpen={registerOpen} onClose={() => setRegisterOpen(false)} />
     </>
   );
