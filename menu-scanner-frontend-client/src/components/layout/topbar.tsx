@@ -7,11 +7,9 @@ import {
   UserCircle,
   Maximize2,
   CreditCard,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { FormHeader } from "@/components/shared/form-field/form-header";
-import { FormBody } from "@/components/shared/form-field/form-body";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -19,12 +17,12 @@ import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useLogout } from "@/hooks/use-logout";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { CustomDropdownMenu } from "@/components/shared/common/custom-dropdown-menu";
+import { SignoutModal } from "@/components/shared/common/signout-modal";
 
 interface TopBarProps {
   onMenuClick?: () => void;
   onFullscreenClick?: () => void;
 }
-
 
 function getBreadcrumbs(pathname: string) {
   const parts = pathname.split("/").filter(Boolean);
@@ -44,22 +42,28 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { profile, fullName, profileImage } = useAuthState();
   const { logout: handleLogout } = useLogout();
 
   const breadcrumbs = getBreadcrumbs(pathname);
 
   const confirmLogout = async () => {
+    setIsLoggingOut(true);
     setShowLogoutAlert(false);
     await handleLogout();
+    setIsLoggingOut(false);
   };
+
+  const displayName = fullName || profile?.fullName || "Admin";
+  const displayEmail = profile?.email || "";
+  const avatarImage = profileImage?.sm ?? profile?.profileImage?.sm;
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-11 items-center gap-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 shadow-md">
-        {}
+      <header className="sticky top-0 z-20 flex h-11 items-center gap-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 shadow-sm">
+        {/* Left: Mobile menu + Breadcrumbs */}
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          {}
           <Button
             variant="ghost"
             size="icon"
@@ -70,7 +74,6 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             <Menu className="h-3 w-3" />
           </Button>
 
-          {}
           <nav className="hidden md:flex items-center gap-1 text-xs min-w-0">
             {breadcrumbs.map((crumb, i) => (
               <div key={crumb.href} className="flex items-center gap-1 min-w-0">
@@ -93,15 +96,13 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             ))}
           </nav>
 
-          {}
           <span className="md:hidden font-semibold text-xs text-foreground truncate">
             {breadcrumbs[breadcrumbs.length - 1]?.label ?? "Dashboard"}
           </span>
         </div>
 
-        {}
+        {/* Right: Actions */}
         <div className="flex items-center gap-1 shrink-0">
-          {}
           {onFullscreenClick && pathname.includes("/admin/pos") && (
             <Button
               variant="ghost"
@@ -114,31 +115,42 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             </Button>
           )}
 
-          {}
+          {/* Profile dropdown — only shown when authenticated */}
           {profile && (
             <CustomDropdownMenu
               trigger={
-                <div className="h-6 w-6 flex items-center justify-center rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-border bg-muted/40 hover:bg-muted hover:border-primary/30 transition-all duration-150 cursor-pointer group">
                   <CustomAvatar
-                    imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
-                    name={fullName || profile?.fullName || "Admin"}
+                    imageUrl={avatarImage}
+                    name={displayName}
                     size="sm"
                   />
+                  <div className="hidden sm:flex flex-col min-w-0">
+                    <span className="text-[11px] font-semibold leading-tight text-foreground truncate max-w-[96px]">
+                      {displayName}
+                    </span>
+                    {displayEmail && (
+                      <span className="text-[9px] text-muted-foreground leading-tight truncate max-w-[96px]">
+                        {displayEmail}
+                      </span>
+                    )}
+                  </div>
+                  <ChevronDown className="h-3 w-3 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
                 </div>
               }
               header={
                 <div className="flex items-center gap-2">
                   <CustomAvatar
-                    imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
-                    name={fullName || profile?.fullName || "Admin"}
+                    imageUrl={avatarImage}
+                    name={displayName}
                     size="lg"
                   />
                   <div className="flex flex-col space-y-0.5 flex-1 min-w-0">
                     <p className="text-xs font-semibold line-clamp-1">
-                      {fullName || profile?.fullName || "Admin"}
+                      {displayName}
                     </p>
                     <p className="text-xs text-muted-foreground line-clamp-1">
-                      {profile?.email || ""}
+                      {displayEmail}
                     </p>
                   </div>
                 </div>
@@ -161,7 +173,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
                 {
                   items: [
                     {
-                      label: "Logout",
+                      label: "Sign Out",
                       icon: <LogOut className="h-3 w-3" />,
                       onClick: () => setShowLogoutAlert(true),
                       variant: "destructive" as const,
@@ -171,57 +183,17 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
               ]}
               align="right"
               openOnHover={false}
-              hoverDelay={200}
             />
           )}
         </div>
       </header>
 
-      <Dialog open={showLogoutAlert} onOpenChange={setShowLogoutAlert}>
-        <DialogContent className="w-full sm:max-w-lg max-h-[92vh] p-0 gap-0 flex flex-col">
-          <FormHeader
-            title="Sign Out"
-            description="End your current session"
-            isCreate={false}
-          />
-
-          <FormBody className="flex-1">
-            <div className="space-y-4">
-              <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded">
-                <p className="text-xs text-red-900 dark:text-red-100 font-medium leading-relaxed">
-                  Are you sure you want to sign out of your account? You'll need to sign in again to access your dashboard and saved data.
-                </p>
-              </div>
-
-              <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded">
-                <p className="text-xs text-amber-900 dark:text-amber-100 leading-relaxed">
-                  <span className="font-semibold">⚠️ Important:</span> This action will end your current session and you'll be redirected to the login page. Make sure you've saved any ongoing work before proceeding.
-                </p>
-              </div>
-            </div>
-          </FormBody>
-
-          <div className="flex justify-between items-center p-4 border-t bg-muted/30 flex-shrink-0">
-            <div></div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowLogoutAlert(false)}
-                className="rounded"
-              >
-                Stay Signed In
-              </Button>
-              <Button
-                onClick={confirmLogout}
-                className="rounded bg-red-600 hover:bg-red-700 focus:ring-red-600 gap-1"
-              >
-                <LogOut className="h-3 w-3" />
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <SignoutModal
+        open={showLogoutAlert}
+        onOpenChange={setShowLogoutAlert}
+        onConfirm={confirmLogout}
+        isLoading={isLoggingOut}
+      />
     </>
   );
 }
