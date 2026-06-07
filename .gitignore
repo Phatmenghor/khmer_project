@@ -17,8 +17,3 @@ target/
 build/
 dist/
 
-# Backend config yamls — contain real credentials, never commit
-menu-scanner-backend/src/main/resources/application-local.yaml
-menu-scanner-backend/src/main/resources/application-dev.yaml
-menu-scanner-backend/src/main/resources/application-prod.yaml
-menu-scanner-backend/src/main/resources/application-h2.yaml
