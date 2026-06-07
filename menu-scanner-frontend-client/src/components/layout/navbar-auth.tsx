@@ -1,12 +1,12 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, LogOut, MapPin, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
-
+import { SignoutModal } from "@/components/shared/common/signout-modal";
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 interface NavbarAuthProps {
@@ -35,6 +35,7 @@ function NavbarAuthComponent({
   openOnHover,
 }: NavbarAuthProps) {
   const router = useRouter();
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
 
   if (!isAuthenticated) {
     return (
@@ -72,9 +73,9 @@ function NavbarAuthComponent({
     {
       items: [
         {
-          label: "Logout",
+          label: "Sign Out",
           icon: <LogOut className="h-3 w-3" />,
-          onClick: onLogout,
+          onClick: () => setShowLogoutAlert(true),
           variant: "destructive" as const,
         },
       ],
@@ -100,22 +101,33 @@ function NavbarAuthComponent({
   );
 
   return (
-    <CustomDropdownMenu
-      trigger={
-        <div className="relative h-7 w-7 rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
-          <CustomAvatar
-            imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
-            name={fullName || profile?.fullName || "User"}
-            size="md"
-          />
-        </div>
-      }
-      header={dropdownHeader}
-      sections={dropdownSections}
-      align="right"
-      openOnHover={openOnHover}
-      hoverDelay={200}
-    />
+    <>
+      <CustomDropdownMenu
+        trigger={
+          <div className="relative h-7 w-7 rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
+            <CustomAvatar
+              imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
+              name={fullName || profile?.fullName || "User"}
+              size="md"
+            />
+          </div>
+        }
+        header={dropdownHeader}
+        sections={dropdownSections}
+        align="right"
+        openOnHover={openOnHover}
+        hoverDelay={200}
+      />
+
+      <SignoutModal
+        open={showLogoutAlert}
+        onOpenChange={setShowLogoutAlert}
+        onConfirm={() => {
+          setShowLogoutAlert(false);
+          onLogout();
+        }}
+      />
+    </>
   );
 }
 
