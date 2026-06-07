@@ -11,7 +11,7 @@ import { SelectField } from "@/components/shared/form-field/select-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
-import { SpacesMultiSizeResult } from "@/services/spaces-service";
+import { uploadMultiSize } from "@/services/spaces-service";
 import { ImageUrls } from "../store/models/request/users-request";
 import { Button } from "@/components/ui/button";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
@@ -86,9 +86,18 @@ export default function UserBusinessModal({
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
-  const [profileImageKeys, setProfileImageKeys] = useState<SpacesMultiSizeResult | undefined>();
+  const [pendingProfileFile, setPendingProfileFile] = useState<File | null>(null);
+  const [profilePreviewUrl, setProfilePreviewUrl] = useState<string>("");
+  const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  // The full ImageUrls from the loaded user — used when editing without changing the image.
+  const [existingProfileImage, setExistingProfileImage] = useState<ImageUrls | undefined>(undefined);
   const [documentKeys, setDocumentKeys] = useState<Record<number, string>>({});
   const [educationKeys, setEducationKeys] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    if (!profilePreviewUrl || !profilePreviewUrl.startsWith("blob:")) return;
+    return () => URL.revokeObjectURL(profilePreviewUrl);
+  }, [profilePreviewUrl]);
 
   const dispatch = useAppDispatch();
 
@@ -227,7 +236,7 @@ export default function UserBusinessModal({
             roles: Array.isArray(data.roles) ? data.roles : [],
             gender: data.gender || "",
             dateOfBirth: data.dateOfBirth || "",
-            profileImageUrl: data.profileImage?.md || "",
+            profileImageUrl: data.profileImage?.md || data.profileImage?.o || data.profileImage?.sm || "",
             employeeId: data.employeeId || "",
             position: data.position || "",
             department: data.department || "",
@@ -249,6 +258,11 @@ export default function UserBusinessModal({
                 }))
               : [],
           });
+          setExistingProfileImage(data.profileImage);
+          setPendingProfileFile(null);
+          setProfilePreviewUrl(
+            data.profileImage?.md || data.profileImage?.o || data.profileImage?.sm || ""
+          );
         }
       } catch (error) {
       }
@@ -289,6 +303,9 @@ export default function UserBusinessModal({
         documents: [],
         educations: [],
       });
+      setExistingProfileImage(undefined);
+      setPendingProfileFile(null);
+      setProfilePreviewUrl("");
     }
   }, [isOpen, isCreate, reset]);
 
@@ -299,17 +316,30 @@ export default function UserBusinessModal({
     }
   }, [isOpen, dispatch]);
 
-  const toImageUrls = (
-    keys: SpacesMultiSizeResult | undefined,
-    fallbackUrl: string | undefined
-  ): ImageUrls | undefined => {
-    if (keys) return { sm: keys.sm.url, md: keys.md.url, o: keys.o.url };
-    if (fallbackUrl) return { sm: fallbackUrl, md: fallbackUrl, o: fallbackUrl };
-    return undefined;
-  };
-
   const onSubmit = async (data: UserFormData) => {
     try {
+      // Upload the pending profile image only now, on submit.
+      let profileImage: ImageUrls | undefined;
+      if (pendingProfileFile) {
+        setIsUploadingProfile(true);
+        try {
+          const result = await uploadMultiSize(pendingProfileFile, AppDefault.BUSINESS_ID);
+          profileImage = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+        } catch {
+          showToast.error("Profile image upload failed — please try again");
+          return;
+        } finally {
+          setIsUploadingProfile(false);
+        }
+      } else if (data.profileImageUrl) {
+        // Editing without a new file — preserve the original sm/md/o the user had.
+        profileImage = existingProfileImage ?? {
+          sm: data.profileImageUrl,
+          md: data.profileImageUrl,
+          o: data.profileImageUrl,
+        };
+      }
+
       const validDocuments = (data.documents || []).map((doc) => ({
         id: doc.id,
         type: doc.type,
@@ -343,7 +373,7 @@ export default function UserBusinessModal({
           roles: data.roles,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImage: toImageUrls(profileImageKeys, data.profileImageUrl),
+          profileImage,
           employeeId: data.employeeId || undefined,
           position: data.position || undefined,
           department: data.department || undefined,
@@ -374,7 +404,7 @@ export default function UserBusinessModal({
           roles: data.roles,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImage: toImageUrls(profileImageKeys, data.profileImageUrl),
+          profileImage,
           employeeId: data.employeeId || undefined,
           position: data.position || undefined,
           department: data.department || undefined,
@@ -409,7 +439,9 @@ export default function UserBusinessModal({
   const handleClose = () => {
     reset();
     setShowPassword(false);
-    setProfileImageKeys(undefined);
+    setPendingProfileFile(null);
+    setProfilePreviewUrl("");
+    setExistingProfileImage(undefined);
     setDocumentKeys({});
     setEducationKeys({});
     dispatch(clearError());
@@ -417,7 +449,7 @@ export default function UserBusinessModal({
     onClose();
   };
 
-  const isSubmitting = isCreate ? isCreating : isUpdating;
+  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingProfile;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -625,17 +657,21 @@ export default function UserBusinessModal({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <SpacesImageUpload
                         multiSize
+                        deferred
                         label="Profile Image"
                         businessId={AppDefault.BUSINESS_ID}
-                        value={watch("profileImageUrl") || ""}
-                        imageKeys={profileImageKeys}
-                        onChange={(result) => {
-                          setValue("profileImageUrl", result.md.url, { shouldDirty: true });
-                          setProfileImageKeys(result);
-                        }}
-                        onRemove={() => {
-                          setValue("profileImageUrl", "", { shouldDirty: true });
-                          setProfileImageKeys(undefined);
+                        value={profilePreviewUrl}
+                        onFileSelected={(file) => {
+                          setPendingProfileFile(file);
+                          if (file) {
+                            const objectUrl = URL.createObjectURL(file);
+                            setProfilePreviewUrl(objectUrl);
+                            setValue("profileImageUrl", objectUrl, { shouldDirty: true });
+                          } else {
+                            setProfilePreviewUrl("");
+                            setValue("profileImageUrl", "", { shouldDirty: true });
+                            setExistingProfileImage(undefined);
+                          }
                         }}
                         aspectRatio="square"
                         required={false}

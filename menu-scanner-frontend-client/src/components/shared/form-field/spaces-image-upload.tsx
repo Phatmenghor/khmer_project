@@ -30,18 +30,26 @@ interface BaseProps {
   placeholder?: string;
   helperText?: string;
   onRemove?: () => void;
+  /**
+   * When true, picking a file does NOT call the Spaces API. The component
+   * fires onFileSelected(file) with a local preview; the parent is
+   * responsible for uploading on submit. Avoids orphaned uploads when the
+   * user cancels the form.
+   */
+  deferred?: boolean;
+  onFileSelected?: (file: File | null) => void;
 }
 
 interface SingleProps extends BaseProps {
   multiSize?: false;
   imageKey?: string;
-  onChange: (result: SpacesUploadResult) => void;
+  onChange?: (result: SpacesUploadResult) => void;
 }
 
 interface MultiProps extends BaseProps {
   multiSize: true;
   imageKeys?: SpacesMultiSizeResult;
-  onChange: (result: SpacesMultiSizeResult) => void;
+  onChange?: (result: SpacesMultiSizeResult) => void;
 }
 
 type SpacesImageUploadProps = SingleProps | MultiProps;
@@ -60,6 +68,8 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
     placeholder = "Click to upload image",
     helperText,
     onRemove,
+    deferred = false,
+    onFileSelected,
   } = props;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -102,19 +112,27 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
       return;
     }
 
-    await deleteOldKeys();
     setErrorMsg(null);
+
+    if (deferred) {
+      // No API call yet — hand the File to the parent for preview/upload-on-submit.
+      onFileSelected?.(file);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    await deleteOldKeys();
     setUploadState("uploading");
 
     try {
       if (props.multiSize) {
         const result = await uploadMultiSize(file, businessId);
         setUploadState("done");
-        props.onChange(result);
+        props.onChange?.(result);
       } else {
         const result = await uploadImage(file, businessId);
         setUploadState("done");
-        props.onChange(result);
+        props.onChange?.(result);
       }
     } catch {
       setUploadState("error");
@@ -126,9 +144,10 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
 
   const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    await deleteOldKeys();
+    if (!deferred) await deleteOldKeys();
     setUploadState("idle");
     setErrorMsg(null);
+    onFileSelected?.(null);
     onRemove?.();
     if (fileInputRef.current) fileInputRef.current.value = "";
   };

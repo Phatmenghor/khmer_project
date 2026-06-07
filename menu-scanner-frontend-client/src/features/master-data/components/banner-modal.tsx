@@ -31,7 +31,7 @@ import { clearError, clearSelectedBanner } from "../store/slice/banner-slice";
 import { showToast } from "@/components/shared/common/show-toast";
 import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-status";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
-import { SpacesMultiSizeResult } from "@/services/spaces-service";
+import { uploadMultiSize } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { BannerResponseModel } from "../store/models/response/banner-response";
 
@@ -50,9 +50,17 @@ export default function BannerModal({
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
 
-  const [imageKeys, setImageKeys] = useState<SpacesMultiSizeResult | undefined>(undefined);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const dispatch = useAppDispatch();
+
+  // Revoke the object URL when it changes or unmounts to avoid leaks.
+  useEffect(() => {
+    if (!previewUrl || !previewUrl.startsWith("blob:")) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   const operations = useAppSelector(selectOperations);
   const reduxError = useAppSelector(selectError);
@@ -63,7 +71,6 @@ export default function BannerModal({
     handleSubmit,
     reset,
     setValue,
-    watch,
     formState: { errors, isDirty },
   } = useForm<CreateBannerData>({
     resolver: zodResolver(isCreate ? createBannerSchema : updateBannerSchema),
@@ -75,8 +82,6 @@ export default function BannerModal({
     mode: "onChange",
   });
 
-  const image = watch("image");
-
   useEffect(() => {
     if (isOpen) {
       if (isCreate) {
@@ -85,7 +90,8 @@ export default function BannerModal({
           description: "",
           status: Status.ACTIVE,
         });
-        setImageKeys(undefined);
+        setPendingFile(null);
+        setPreviewUrl("");
       } else if (banner) {
         reset({
           image: {
@@ -96,7 +102,8 @@ export default function BannerModal({
           description: banner.description || "",
           status: banner.status || "",
         });
-        setImageKeys(undefined);
+        setPendingFile(null);
+        setPreviewUrl(banner.image?.md || banner.image?.o || banner.image?.sm || "");
       }
     }
   }, [isOpen, banner, isCreate, reset]);
@@ -109,8 +116,24 @@ export default function BannerModal({
 
   const onSubmit = async (data: CreateBannerData) => {
     try {
+      let imagePayload = data.image;
+
+      // Upload the pending file only now that the user committed to submit.
+      if (pendingFile) {
+        setIsUploadingImage(true);
+        try {
+          const result = await uploadMultiSize(pendingFile, AppDefault.BUSINESS_ID);
+          imagePayload = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+        } catch {
+          showToast.error("Image upload failed — please try again");
+          return;
+        } finally {
+          setIsUploadingImage(false);
+        }
+      }
+
       const payload = {
-        image: data.image,
+        image: imagePayload,
         description: data.description || "",
         status: data.status,
       };
@@ -136,13 +159,14 @@ export default function BannerModal({
 
   const handleClose = () => {
     reset();
-    setImageKeys(undefined);
+    setPendingFile(null);
+    setPreviewUrl("");
     dispatch(clearError());
     dispatch(clearSelectedBanner());
     onClose();
   };
 
-  const isSubmitting = isCreate ? isCreating : isUpdating;
+  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -173,25 +197,30 @@ export default function BannerModal({
             <div className="space-y-0.5">
               <SpacesImageUpload
                 multiSize
+                deferred
                 label="Banner Image"
                 businessId={AppDefault.BUSINESS_ID}
-                value={image?.md || image?.o || ""}
-                imageKeys={imageKeys}
-                onChange={(result) => {
-                  setImageKeys(result);
-                  setValue(
-                    "image",
-                    { sm: result.sm.url, md: result.md.url, o: result.o.url },
-                    { shouldDirty: true, shouldValidate: true },
-                  );
-                }}
-                onRemove={() => {
-                  setImageKeys(undefined);
-                  setValue(
-                    "image",
-                    { sm: "", md: "", o: "" },
-                    { shouldDirty: true, shouldValidate: true },
-                  );
+                value={previewUrl}
+                onFileSelected={(file) => {
+                  setPendingFile(file);
+                  if (file) {
+                    const objectUrl = URL.createObjectURL(file);
+                    setPreviewUrl(objectUrl);
+                    // Mark the form as dirty so the submit button enables;
+                    // the real URLs are filled in onSubmit after upload.
+                    setValue(
+                      "image",
+                      { sm: objectUrl, md: objectUrl, o: objectUrl },
+                      { shouldDirty: true, shouldValidate: true },
+                    );
+                  } else {
+                    setPreviewUrl("");
+                    setValue(
+                      "image",
+                      { sm: "", md: "", o: "" },
+                      { shouldDirty: true, shouldValidate: true },
+                    );
+                  }
                 }}
                 aspectRatio="banner"
                 required
