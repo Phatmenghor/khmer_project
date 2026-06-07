@@ -8,6 +8,7 @@ import { PageContainer } from "../shared/common/page-container";
 import { useAppSelector } from "@/store";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { readBusinessCache } from "@/lib/business-cache";
+import { SocialMedia } from "@/features/business/store/models/response/business-settings-response";
 
 export function Footer() {
   const businessSettings = useAppSelector(selectBusinessSettings);
@@ -138,7 +139,7 @@ export function Footer() {
             <div className="space-y-3">
               <h3 className="font-semibold text-white text-xs">Follow Us</h3>
               <div className="space-y-1 text-xs">
-                {socialMedia.map((social: { name: string; linkUrl: string; imageUrl?: string }) => (
+                {socialMedia.map((social: SocialMedia) => (
                   <a
                     key={social.name}
                     href={social.linkUrl}
