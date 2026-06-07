@@ -29,6 +29,13 @@ export interface SpacesImageUploadProps {
   height?: string;
   placeholder?: string;
   helperText?: string;
+  /**
+   * When true, picking a file does NOT call the Spaces API immediately.
+   * The component fires onFileSelected(file) with a local preview URL so the
+   * parent can show a preview and upload only when the form is submitted.
+   */
+  deferred?: boolean;
+  onFileSelected?: (file: File | null) => void;
 }
 
 export function SpacesImageUpload({
@@ -45,6 +52,8 @@ export function SpacesImageUpload({
   height,
   placeholder = "Click to upload image",
   helperText,
+  deferred = false,
+  onFileSelected,
 }: SpacesImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
@@ -81,8 +90,17 @@ export function SpacesImageUpload({
       return;
     }
 
-    await deleteOldKeys();
     setErrorMsg(null);
+
+    if (deferred) {
+      // Hand the File to the parent — no API call yet, parent previews locally
+      // and uploads on form submit.
+      onFileSelected?.(file);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    await deleteOldKeys();
     setUploadState("uploading");
 
     try {
@@ -99,9 +117,10 @@ export function SpacesImageUpload({
 
   const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    await deleteOldKeys();
+    if (!deferred) await deleteOldKeys();
     setUploadState("idle");
     setErrorMsg(null);
+    onFileSelected?.(null);
     onRemove?.();
     if (fileInputRef.current) fileInputRef.current.value = "";
   };

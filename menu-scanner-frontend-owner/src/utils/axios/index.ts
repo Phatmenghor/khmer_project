@@ -322,6 +322,11 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
       config.headers = config.headers || {};
       config.headers["X-Request-ID"] = requestId;
 
+      // Allow browser to set correct Content-Type (with boundary) for FormData
+      if (config.data instanceof FormData) {
+        delete config.headers["Content-Type"];
+      }
+
       // Handle authentication
       if (requiresAuth) {
         const token = getToken();

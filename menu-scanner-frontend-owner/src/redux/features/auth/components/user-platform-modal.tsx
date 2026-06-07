@@ -37,7 +37,7 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { getFieldError } from "@/utils/common/get-field-error";
-import { SpacesMultiSizeResult } from "@/services/spaces-service";
+import { uploadMultiSize, SpacesMultiSizeResult } from "@/services/spaces-service";
 
 type Props = {
   mode: ModalMode;
@@ -49,7 +49,10 @@ type Props = {
 export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
-  // Tracks the multi-size Spaces result so we can send the sm URL to the API
+  // Deferred upload: File picked but not yet uploaded; uploaded on submit
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
+  // Holds the Spaces result once uploaded (on submit)
   const [profileImageResult, setProfileImageResult] = useState<SpacesMultiSizeResult | null>(null);
 
   const dispatch = useAppDispatch();
@@ -135,6 +138,9 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
             remark: data.remark || "",
           });
           setProfileImageResult(null);
+          setPendingFile(null);
+          if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+          setLocalPreviewUrl(null);
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -162,7 +168,11 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
         remark: "",
       });
       setProfileImageResult(null);
+      setPendingFile(null);
+      if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+      setLocalPreviewUrl(null);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isCreate, reset]);
 
   useEffect(() => {
@@ -171,9 +181,16 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
 
   const onSubmit = async (data: UserFormData) => {
     try {
+      // If a file was picked (deferred), upload it now before sending the form
+      let uploadedResult = profileImageResult;
+      if (pendingFile) {
+        uploadedResult = await uploadMultiSize(pendingFile);
+        setProfileImageResult(uploadedResult);
+      }
+
       // Build profileImage object from Spaces result, or fall back to existing URL
-      const profileImage = profileImageResult
-        ? { sm: profileImageResult.sm.url, md: profileImageResult.md.url, o: profileImageResult.o.url }
+      const profileImage = uploadedResult
+        ? { sm: uploadedResult.sm.url, md: uploadedResult.md.url, o: uploadedResult.o.url }
         : data.profileImageUrl
         ? { sm: data.profileImageUrl, md: data.profileImageUrl, o: data.profileImageUrl }
         : undefined;
@@ -225,6 +242,9 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
     reset();
     setShowPassword(false);
     setProfileImageResult(null);
+    if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+    setPendingFile(null);
+    setLocalPreviewUrl(null);
     dispatch(clearError());
     dispatch(clearSelectedUser());
     onClose();
@@ -232,8 +252,8 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
 
   const isSubmitting = isCreate ? isCreating : isUpdating;
 
-  // Preview URL: newly uploaded sm URL takes priority, then existing URL from form
-  const previewUrl = profileImageResult?.sm.url || profileImageUrl || undefined;
+  // Preview URL: local object URL (deferred) > uploaded sm URL > existing URL from form
+  const previewUrl = localPreviewUrl || profileImageResult?.sm.url || profileImageUrl || undefined;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -423,11 +443,24 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                       <SpacesImageUpload
                         label="Profile Image"
                         value={previewUrl}
+                        deferred
+                        onFileSelected={(file) => {
+                          if (file) {
+                            if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+                            const url = URL.createObjectURL(file);
+                            setPendingFile(file);
+                            setLocalPreviewUrl(url);
+                            setValue("profileImageUrl", url, { shouldDirty: true });
+                          }
+                        }}
                         onChange={(result) => {
                           setProfileImageResult(result);
                           setValue("profileImageUrl", result.sm.url, { shouldDirty: true });
                         }}
                         onRemove={() => {
+                          if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+                          setPendingFile(null);
+                          setLocalPreviewUrl(null);
                           setProfileImageResult(null);
                           setValue("profileImageUrl", "", { shouldDirty: true });
                         }}
