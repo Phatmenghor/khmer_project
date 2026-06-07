@@ -332,7 +332,7 @@ export default function UserBusinessModal({
           roles: data.roles,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: profileImageUrl || undefined,
+          profileImageUrl: data.profileImageUrl || undefined,
           employeeId: data.employeeId || undefined,
           position: data.position || undefined,
           department: data.department || undefined,
@@ -341,29 +341,15 @@ export default function UserBusinessModal({
           leaveDate: data.leaveDate || undefined,
           shift: data.shift || undefined,
           remark: data.remark || undefined,
-          addresses:
-            addressFields.length > 0
-              ? (data.addresses as any)
-              : undefined,
-          emergencyContacts:
-            contactFields.length > 0
-              ? (data.emergencyContacts as any)
-              : undefined,
-          documents:
-            validDocuments.length > 0
-              ? (validDocuments as any)
-              : undefined,
-          educations:
-            validEducations.length > 0
-              ? (validEducations as any)
-              : undefined,
-        } as any;
+          addresses: addressFields.length > 0 ? data.addresses : undefined,
+          emergencyContacts: contactFields.length > 0 ? data.emergencyContacts : undefined,
+          documents: validDocuments.length > 0 ? validDocuments : undefined,
+          educations: validEducations.length > 0 ? validEducations : undefined,
+        };
 
         const result = await dispatch(createUserService(payload)).unwrap();
         showToast.success(
-          `User business "${
-            result.userIdentifier || result.email
-          }" created successfully`,
+          `User business "${result.userIdentifier || result.email}" created successfully`,
         );
         handleClose();
       } else {
@@ -377,7 +363,7 @@ export default function UserBusinessModal({
           roles: data.roles,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: profileImageUrl || undefined,
+          profileImageUrl: data.profileImageUrl || undefined,
           employeeId: data.employeeId || undefined,
           position: data.position || undefined,
           department: data.department || undefined,
@@ -386,23 +372,11 @@ export default function UserBusinessModal({
           leaveDate: data.leaveDate || undefined,
           shift: data.shift || undefined,
           remark: data.remark || undefined,
-          addresses:
-            addressFields.length > 0
-              ? (data.addresses as any)
-              : undefined,
-          emergencyContacts:
-            contactFields.length > 0
-              ? (data.emergencyContacts as any)
-              : undefined,
-          documents:
-            validDocuments.length > 0
-              ? (validDocuments as any)
-              : undefined,
-          educations:
-            validEducations.length > 0
-              ? (validEducations as any)
-              : undefined,
-        } as any;
+          addresses: addressFields.length > 0 ? data.addresses : undefined,
+          emergencyContacts: contactFields.length > 0 ? data.emergencyContacts : undefined,
+          documents: validDocuments.length > 0 ? validDocuments : undefined,
+          educations: validEducations.length > 0 ? validEducations : undefined,
+        };
 
         const result = await dispatch(
           updateUserService({ userId: data.id, userData: payload }),
