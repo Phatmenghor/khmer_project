@@ -13,7 +13,6 @@ import {
   Monitor,
   Link2,
   Plus,
-  Camera,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
@@ -40,13 +39,13 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { clearError } from "@/features/auth/store/slice/auth-slice";
 import ChangePasswordModal from "@/components/shared/modal/change-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
-import { ProfilePictureModal } from "@/components/shared/modal/profile-picture-modal";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { clearToken } from "@/utils/local-storage/token";
-import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
-import { isBase64Image, uploadImage } from "@/utils/common/upload-image";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
+import { SpacesMultiSizeResult } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
 import Link from "next/link";
 import { Loading } from "@/components/shared/common/loading";
@@ -84,10 +83,11 @@ export default function AdminProfilePage() {
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
     useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] =
-    useState(false);
   const [activeSection, setActiveSection] = useState("profile");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [profileImageKeys, setProfileImageKeys] = useState<SpacesMultiSizeResult | undefined>();
+  const [documentKeys, setDocumentKeys] = useState<Record<number, string>>({});
+  const [educationKeys, setEducationKeys] = useState<Record<number, string>>({});
 
   const {
     control,
@@ -223,80 +223,16 @@ export default function AdminProfilePage() {
 
   const onSubmit = async (data: UserFormData) => {
     try {
-      setIsUploadingImage(true);
+      // profile image
+      const profileImageUrls: ImageUrls | undefined = profileImageKeys
+        ? { sm: profileImageKeys.sm.url, md: profileImageKeys.md.url, lg: profileImageKeys.lg.url, o: profileImageKeys.o.url }
+        : (data.profileImageUrl ? { sm: data.profileImageUrl, md: data.profileImageUrl, lg: data.profileImageUrl, o: data.profileImageUrl } : undefined);
 
+      // documents: no more base64 processing, just use form values directly
+      const validDocuments = (data.documents || []).filter(doc => doc.type && doc.number);
 
-      let profileImageUrl = data.profileImageUrl;
-      if (profileImageUrl && isBase64Image(profileImageUrl)) {
-        try {
-          profileImageUrl = await uploadImage(profileImageUrl);
-        } catch (error) {
-          showToast.error(Messages.profile.imageUploadFailed);
-          setIsUploadingImage(false);
-          return;
-        }
-      }
-
-
-      const processedDocuments = await Promise.all(
-        (data.documents || []).map(async (doc) => {
-          let fileUrl = doc.fileUrl;
-          if (fileUrl && isBase64Image(fileUrl)) {
-            try {
-              fileUrl = await uploadImage(fileUrl);
-            } catch (error) {
-              return null;
-            }
-          }
-
-          if (!fileUrl) {
-            return null;
-          }
-          return {
-            id: doc.id,
-            type: doc.type,
-            number: doc.number,
-            fileUrl,
-          };
-        }),
-      );
-
-      const validDocuments = processedDocuments.filter((doc) => doc !== null);
-
-
-      const processedEducations = await Promise.all(
-        (data.educations || []).map(async (edu) => {
-          let certificateUrl = edu.certificateUrl;
-          if (certificateUrl && isBase64Image(certificateUrl)) {
-            try {
-              certificateUrl = await uploadImage(certificateUrl);
-            } catch (error) {
-              return null;
-            }
-          }
-
-          if (!certificateUrl) {
-            return null;
-          }
-          return {
-            id: edu.id,
-            level: edu.level,
-            schoolName: edu.schoolName,
-            fieldOfStudy: edu.fieldOfStudy,
-            startYear: edu.startYear,
-            endYear: edu.endYear,
-            isGraduated: edu.isGraduated || false,
-            certificateUrl,
-          };
-        }),
-      );
-
-      const validEducations = processedEducations.filter(
-        (edu) => edu !== null
-      );
-
-      setIsUploadingImage(false);
-
+      // educations: no more base64 processing, just use form values directly
+      const validEducations = (data.educations || []).filter(edu => edu.level && edu.schoolName && edu.fieldOfStudy);
 
       const payload: any = {};
 
@@ -310,7 +246,7 @@ export default function AdminProfilePage() {
       if (data.nickname) payload.nickname = data.nickname;
       if (data.gender) payload.gender = data.gender;
       if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth;
-      if (profileImageUrl) payload.profileImage = { sm: profileImageUrl, md: profileImageUrl, lg: profileImageUrl, o: profileImageUrl };
+      if (profileImageUrls) payload.profileImage = profileImageUrls;
 
 
       if (data.employeeId) payload.employeeId = data.employeeId;
@@ -377,51 +313,6 @@ export default function AdminProfilePage() {
       setIsEditing(false);
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || Messages.profile.updateFailed);
-      setIsUploadingImage(false);
-    }
-  };
-
-  const handleAutoUploadProfilePicture = async (imageData: string) => {
-    try {
-      setIsUploadingImage(true);
-
-
-      let profileImageUrl = imageData;
-      if (isBase64Image(profileImageUrl)) {
-        try {
-          profileImageUrl = await uploadImage(profileImageUrl);
-        } catch (error) {
-          showToast.error(Messages.upload.imageFailed);
-          setIsUploadingImage(false);
-          return;
-        }
-      }
-
-
-      setValue("profileImageUrl", profileImageUrl, {
-        shouldDirty: true,
-      });
-
-
-      const payload = {
-        profileImageUrl,
-      };
-
-      const updatedProfile = await dispatch(updateProfileService(payload)).unwrap();
-
-
-      const freshProfile = await dispatch(getProfileService()).unwrap();
-
-      showToast.success(Messages.profile.pictureUpdated);
-    } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || Messages.profile.pictureUpdateFailed);
-
-      if (userProfile?.profileImage?.md) {
-        setValue("profileImageUrl", userProfile.profileImage.md);
-      }
-    } finally {
-      setIsUploadingImage(false);
-      setIsProfilePictureModalOpen(false);
     }
   };
 
@@ -465,6 +356,32 @@ export default function AdminProfilePage() {
     setIsEditing(false);
   };
 
+  const handleRemoveDocument = (index: number) => {
+    removeDocument(index);
+    setDocumentKeys(prev => {
+      const next: Record<number, string> = {};
+      Object.entries(prev).forEach(([k, v]) => {
+        const ki = Number(k);
+        if (ki < index) next[ki] = v;
+        else if (ki > index) next[ki - 1] = v;
+      });
+      return next;
+    });
+  };
+
+  const handleRemoveEducation = (index: number) => {
+    removeEducation(index);
+    setEducationKeys(prev => {
+      const next: Record<number, string> = {};
+      Object.entries(prev).forEach(([k, v]) => {
+        const ki = Number(k);
+        if (ki < index) next[ki] = v;
+        else if (ki > index) next[ki - 1] = v;
+      });
+      return next;
+    });
+  };
+
   const handleDeleteAccount = async () => {
     try {
       await dispatch(deleteAccountService()).unwrap();
@@ -493,22 +410,24 @@ export default function AdminProfilePage() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               {}
-              <div
-                className="relative group cursor-pointer"
-                onClick={() => setIsProfilePictureModalOpen(true)}
-              >
-                <div className="relative ring-2 ring-primary/20 rounded">
-                  <CustomAvatar
-                    imageUrl={userProfile?.profileImage?.md}
-                    name={userProfile?.fullName}
-                    size="xxl"
-                  />
-                  {}
-                  <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
-                    <Camera className="h-3 w-3 text-white" />
-                  </div>
-                </div>
-              </div>
+              <SpacesImageUpload
+                label="Profile Photo"
+                businessId={userProfile?.businessId || AppDefault.BUSINESS_ID}
+                multiSize
+                value={watch("profileImageUrl") || ""}
+                imageKeys={profileImageKeys}
+                disabled={!isEditing}
+                aspectRatio="square"
+                height="h-32"
+                onChange={(result) => {
+                  setProfileImageKeys(result);
+                  setValue("profileImageUrl", result.md.url, { shouldDirty: true });
+                }}
+                onRemove={() => {
+                  setProfileImageKeys(undefined);
+                  setValue("profileImageUrl", "", { shouldDirty: true });
+                }}
+              />
 
               <div className="flex-1">
                 <div className="flex items-start justify-between">
@@ -1158,7 +1077,7 @@ export default function AdminProfilePage() {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeDocument(index)}
+                            onClick={() => handleRemoveDocument(index)}
                             className="absolute top-1 right-1 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-3 w-3" />
@@ -1186,25 +1105,21 @@ export default function AdminProfilePage() {
                               />
                             </div>
                             <div className="w-1/2">
-                              <ClickableImageUpload
+                              <SpacesImageUpload
                                 label="File"
-                                value={
-                                  watch(`documents.${index}.fileUrl`) || ""
-                                }
-                                onChange={(base64) =>
-                                  setValue(
-                                    `documents.${index}.fileUrl`,
-                                    base64,
-                                    { shouldDirty: true }
-                                  )
-                                }
+                                businessId={userProfile?.businessId || AppDefault.BUSINESS_ID}
+                                value={watch(`documents.${index}.fileUrl`) || ""}
+                                imageKey={documentKeys[index]}
                                 aspectRatio="auto"
                                 height="h-24"
-                                maxSize={5}
-                                error={
-                                  errors.documents?.[index]?.fileUrl as any
-                                }
-                                placeholder="Upload"
+                                onChange={(result) => {
+                                  setDocumentKeys(prev => ({ ...prev, [index]: result.key }));
+                                  setValue(`documents.${index}.fileUrl`, result.url, { shouldDirty: true });
+                                }}
+                                onRemove={() => {
+                                  setDocumentKeys(prev => { const n = { ...prev }; delete n[index]; return n; });
+                                  setValue(`documents.${index}.fileUrl`, "", { shouldDirty: true });
+                                }}
                               />
                             </div>
                           </div>
@@ -1292,7 +1207,7 @@ export default function AdminProfilePage() {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeEducation(index)}
+                            onClick={() => handleRemoveEducation(index)}
                             className="absolute top-1 right-1 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-3 w-3" />
@@ -1365,27 +1280,21 @@ export default function AdminProfilePage() {
                               />
                             </div>
                             <div className="w-1/2">
-                              <ClickableImageUpload
+                              <SpacesImageUpload
                                 label="Certificate"
-                                value={
-                                  watch(`educations.${index}.certificateUrl`) ||
-                                  ""
-                                }
-                                onChange={(base64) =>
-                                  setValue(
-                                    `educations.${index}.certificateUrl`,
-                                    base64,
-                                    { shouldDirty: true }
-                                  )
-                                }
+                                businessId={userProfile?.businessId || AppDefault.BUSINESS_ID}
+                                value={watch(`educations.${index}.certificateUrl`) || ""}
+                                imageKey={educationKeys[index]}
                                 aspectRatio="auto"
                                 height="h-24"
-                                maxSize={5}
-                                error={
-                                  errors.educations?.[index]
-                                    ?.certificateUrl as any
-                                }
-                                placeholder="Upload"
+                                onChange={(result) => {
+                                  setEducationKeys(prev => ({ ...prev, [index]: result.key }));
+                                  setValue(`educations.${index}.certificateUrl`, result.url, { shouldDirty: true });
+                                }}
+                                onRemove={() => {
+                                  setEducationKeys(prev => { const n = { ...prev }; delete n[index]; return n; });
+                                  setValue(`educations.${index}.certificateUrl`, "", { shouldDirty: true });
+                                }}
                               />
                             </div>
                           </div>
@@ -1524,37 +1433,6 @@ export default function AdminProfilePage() {
             </Card>
           </div>
         )}
-
-      {}
-      <ProfilePictureModal
-        isOpen={isProfilePictureModalOpen}
-        onClose={() => setIsProfilePictureModalOpen(false)}
-        currentImageUrl={userProfile?.profileImage?.md}
-        userName={userProfile?.fullName}
-        onImageSelect={handleAutoUploadProfilePicture}
-        onImageRemove={async () => {
-          try {
-            setIsUploadingImage(true);
-
-            const payload = {
-              profileImageUrl: "",
-            };
-
-            await dispatch(updateProfileService(payload)).unwrap();
-
-
-            const freshProfile = await dispatch(getProfileService()).unwrap();
-
-            showToast.success(Messages.profile.pictureRemoved);
-            setIsProfilePictureModalOpen(false);
-          } catch (error: unknown) {
-            showToast.error((error as { message?: string })?.message || "Failed to remove profile picture");
-          } finally {
-            setIsUploadingImage(false);
-          }
-        }}
-        isLoading={isUploadingImage}
-      />
 
       {}
       <ChangePasswordModal
