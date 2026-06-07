@@ -16,3 +16,7 @@ Thumbs.db
 target/
 build/
 dist/
+
+# Local config — contains real credentials, never commit
+menu-scanner-backend/src/main/resources/application-local.yaml
+menu-scanner-backend/src/main/resources/application-dev.yaml
