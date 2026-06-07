@@ -5,7 +5,7 @@
 
 // All plans grant access to the same feature set. Keep this list in
 // sync with what the product actually ships — no fictional features.
-const ALL_PLATFORM_FEATURES = [
+export const ALL_PLATFORM_FEATURES = [
   "QR code digital menu — public storefront for products & promotions",
   "Real-time order management with status workflow",
   "Stock management — products, sizes, low-stock alerts",

@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { LANDING_CONFIG } from "@/constants/landing-config";
+import { LANDING_CONFIG, ALL_PLATFORM_FEATURES } from "@/constants/landing-config";
 import { RegisterModal } from "./register-modal";
 import { useState, useEffect } from "react";
 import { axiosClient } from "@/utils/axios";
@@ -43,9 +43,11 @@ export default function PricingSection() {
         );
         const fetchedPlans = response.data.data || [];
 
-        // Map API response to display format, matching by durationType with static config
+        // Map API response to display format. Names/prices come from the
+        // API (source of truth for billing), but copy and features are
+        // driven entirely by LANDING_CONFIG so every plan shows the same
+        // feature list ('all features on every plan').
         const displayPlans = fetchedPlans.map((apiPlan) => {
-          // Find matching static plan by durationType
           const staticPlan = LANDING_CONFIG.pricing.plans.find(
             p => p.durationType === apiPlan.durationType
           );
@@ -53,11 +55,14 @@ export default function PricingSection() {
 
           return {
             id: apiPlan.id,
-            name: apiPlan.name || staticPlan?.name || "Plan",
+            name: staticPlan?.name || apiPlan.name || "Plan",
             price: `$${apiPlan.price}`,
             period,
-            description: apiPlan.description || staticPlan?.description || "",
-            features: staticPlan?.features || [],
+            description: staticPlan?.description || apiPlan.description || "",
+            // Always the universal feature list — fallback guarantees
+            // every plan shows the same features even if durationType
+            // matching fails.
+            features: ALL_PLATFORM_FEATURES,
             highlighted: staticPlan?.highlighted || false,
           };
         });
