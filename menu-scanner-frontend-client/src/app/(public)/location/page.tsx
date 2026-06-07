@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useCallback, useRef, useMemo, useState } from "react";
+import { useEffect, Suspense, useCallback, useRef, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MapPin, Plus, Loader2 } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
@@ -18,7 +18,7 @@ import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GridPageSkeleton } from "@/components/shared/skeletons/grid-page-skeleton";
 
-export default function LocationPage() {
+function LocationPageInner() {
   const {
     locations,
     primaryLocation,
@@ -299,5 +299,13 @@ export default function LocationPage() {
         variant="critical"
       />
     </PageContainer>
+  );
+}
+
+export default function LocationPage() {
+  return (
+    <Suspense>
+      <LocationPageInner />
+    </Suspense>
   );
 }

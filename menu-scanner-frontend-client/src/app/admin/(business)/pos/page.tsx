@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { Messages } from "@/constants/messages";
 import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import {
@@ -196,7 +198,7 @@ type POSCheckoutPayload = {
   orderStatus: string;
 };
 
-export default function PosPage() {
+function PosPageInner() {
   const dispatch = useAppDispatch();
 
 
@@ -1369,5 +1371,13 @@ export default function PosPage() {
         onDiscountApply={handleDiscountApply}
       />
     </div>
+  );
+}
+
+export default function PosPage() {
+  return (
+    <Suspense>
+      <PosPageInner />
+    </Suspense>
   );
 }

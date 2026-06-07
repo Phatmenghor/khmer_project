@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useCallback, useMemo, useRef, useState } from "react";
+import { useEffect, Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Trash2, CheckCircle2, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/common/page-header";
@@ -26,7 +26,7 @@ import { PageContainer } from "@/components/shared/common/page-container";
 import { PageState } from "@/components/shared/page-state";
 import { usePaginationLoadMore } from "@/hooks/use-pagination-load-more";
 
-export default function FavoritesPage() {
+function FavoritesPageInner() {
   const router = useRouter();
   const { isAuthenticated, authReady } = useAuthState();
   const { dispatch, items, totalItems, pagination, loading, loaded } = useFavoriteState();
@@ -277,5 +277,13 @@ export default function FavoritesPage() {
         variant="critical"
       />
     </PageContainer>
+  );
+}
+
+export default function FavoritesPage() {
+  return (
+    <Suspense>
+      <FavoritesPageInner />
+    </Suspense>
   );
 }

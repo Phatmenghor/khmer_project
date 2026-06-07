@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef, useState } from "react";
+import { useEffect, Suspense, useCallback, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePublicBrandsState } from "@/features/main/store/state/public-brands-state";
 import { Store, Loader2, CheckCircle2 } from "lucide-react";
@@ -15,7 +15,7 @@ import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 
 
-export default function BrandsPage() {
+function BrandsPageInner() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
@@ -132,5 +132,13 @@ export default function BrandsPage() {
         )}
       </PageContainer>
     </div>
+  );
+}
+
+export default function BrandsPage() {
+  return (
+    <Suspense>
+      <BrandsPageInner />
+    </Suspense>
   );
 }

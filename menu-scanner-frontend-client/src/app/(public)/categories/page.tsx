@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useCallback, useRef, useState } from "react";
+import { useEffect, Suspense, useCallback, useRef, useState } from "react";
 import { usePublicCategoriesState } from "@/features/main/store/state/public-categories-state";
 import { LayoutGrid, Loader2, CheckCircle2 } from "lucide-react";
 import { CategoryCard } from "@/components/shared/card/category-card";
@@ -14,7 +14,7 @@ import { PageState } from "@/components/shared/page-state";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 
-export default function CategoriesPage() {
+function CategoriesPageInner() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
@@ -130,5 +130,13 @@ export default function CategoriesPage() {
         )}
       </PageContainer>
     </div>
+  );
+}
+
+export default function CategoriesPage() {
+  return (
+    <Suspense>
+      <CategoriesPageInner />
+    </Suspense>
   );
 }
