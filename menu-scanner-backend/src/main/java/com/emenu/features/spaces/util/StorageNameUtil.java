@@ -34,10 +34,8 @@ public final class StorageNameUtil {
         return ts + "-" + rand;
     }
 
-    /**
-     * Full filename — 20240607T143022-a3f2.webp
-     */
+    /** 20240607T143022-a3f2.jpg */
     public static String generateName() {
-        return generate() + ".webp";
+        return generate() + ".jpg";
     }
 }

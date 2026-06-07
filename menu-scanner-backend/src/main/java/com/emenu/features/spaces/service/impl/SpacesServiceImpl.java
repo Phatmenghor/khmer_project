@@ -44,7 +44,7 @@ public class SpacesServiceImpl implements SpacesService {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             Thumbnails.of(file.getInputStream())
                     .scale(1.0)
-                    .outputFormat("webp")
+                    .outputFormat("jpg")
                     .outputQuality(0.85)
                     .toOutputStream(out);
             imageBytes = out.toByteArray();
@@ -58,7 +58,7 @@ public class SpacesServiceImpl implements SpacesService {
                     PutObjectRequest.builder()
                             .bucket(spacesProperties.getBucket())
                             .key(key)
-                            .contentType("image/webp")
+                            .contentType("image/jpeg")
                             .contentLength((long) imageBytes.length)
                             .acl(ObjectCannedACL.PUBLIC_READ)
                             .build(),
