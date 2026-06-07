@@ -18,10 +18,10 @@ import {
 } from "@/features/dashboard/store/models/response/dashboard-response";
 import { ROUTES } from "@/constants/app-routes/routes";
 
-const STOCK_STATUS_CONFIG: Record<StockStatus, { label: string; badgeClass: string; barClass: string }> = {
-  IN_STOCK:     { label: "In Stock",     badgeClass: "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800", barClass: "bg-emerald-400" },
-  LOW_STOCK:    { label: "Low Stock",    badgeClass: "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800",           barClass: "bg-amber-400" },
-  OUT_OF_STOCK: { label: "Out of Stock", badgeClass: "bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800",                 barClass: "bg-rose-300" },
+const STOCK_STATUS_CONFIG: Record<StockStatus, { label: string; textClass: string; barClass: string }> = {
+  IN_STOCK:     { label: "In Stock",     textClass: "text-emerald-600 dark:text-emerald-400", barClass: "bg-emerald-400" },
+  LOW_STOCK:    { label: "Low Stock",    textClass: "text-amber-600 dark:text-amber-400",    barClass: "bg-amber-400" },
+  OUT_OF_STOCK: { label: "Out of Stock", textClass: "text-rose-500 dark:text-rose-400",      barClass: "bg-rose-300" },
 };
 
 interface InventoryStatusCardProps {
@@ -105,16 +105,13 @@ export function InventoryStatusCard({ stock, loading }: InventoryStatusCardProps
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
-                        <span className={cn(
-                          "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0",
-                          cfg.badgeClass
-                        )}>
+                        <p className="text-xs font-medium text-foreground truncate">{item.name}</p>
+                        <span className={cn("text-[10px] font-semibold shrink-0", cfg.textClass)}>
                           {cfg.label}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mt-1.5">
-                        <p className="text-xs text-muted-foreground tabular-nums shrink-0">
+                        <p className="text-[10px] text-muted-foreground tabular-nums shrink-0">
                           {item.quantity} / {item.minStock} min
                         </p>
                         <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">

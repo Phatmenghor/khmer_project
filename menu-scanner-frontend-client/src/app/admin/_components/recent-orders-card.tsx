@@ -19,14 +19,10 @@ import { OrderStatus } from "@/enums/order-status.enum";
 import { ROUTES } from "@/constants/app-routes/routes";
 
 const ORDER_STATUS_STYLE: Record<string, string> = {
-  [OrderStatus.PENDING]:
-    "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400",
-  [OrderStatus.CONFIRMED]:
-    "bg-sky-100 text-sky-700 dark:bg-sky-950/40 dark:text-sky-400",
-  [OrderStatus.COMPLETED]:
-    "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
-  [OrderStatus.CANCELLED]:
-    "bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400",
+  [OrderStatus.PENDING]:   "text-amber-600 dark:text-amber-400",
+  [OrderStatus.CONFIRMED]: "text-sky-600 dark:text-sky-400",
+  [OrderStatus.COMPLETED]: "text-emerald-600 dark:text-emerald-400",
+  [OrderStatus.CANCELLED]: "text-rose-500 dark:text-rose-400",
 };
 
 interface RecentOrdersCardProps {
@@ -85,7 +81,7 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
               <span>Order</span>
               <span>Customer</span>
               <span className="text-right">Amount</span>
-              <span className="text-right">Time</span>
+              <span className="text-right">Created At</span>
               <span className="text-center">Status</span>
             </div>
             <div className="divide-y">
@@ -98,21 +94,21 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
                     {order.orderCode}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{order.customerName}</p>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-xs font-medium text-foreground truncate">{order.customerName}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">
                       {order.itemCount} item{order.itemCount !== 1 ? "s" : ""} · {order.paymentMethod}
                     </p>
                   </div>
-                  <span className="text-sm font-semibold text-foreground tabular-nums text-right">
+                  <span className="text-xs font-semibold text-foreground tabular-nums text-right">
                     {formatCurrency(order.totalAmount)}
                   </span>
-                  <span className="text-xs text-muted-foreground text-right truncate">
+                  <span className="text-[10px] text-muted-foreground text-right truncate">
                     {safeRelativeTime(order.createdAt)}
                   </span>
                   <div className="flex justify-center">
                     <span className={cn(
-                      "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-                      ORDER_STATUS_STYLE[order.status] ?? "bg-muted text-muted-foreground"
+                      "text-[10px] font-semibold",
+                      ORDER_STATUS_STYLE[order.status] ?? "text-muted-foreground"
                     )}>
                       {order.status}
                     </span>
