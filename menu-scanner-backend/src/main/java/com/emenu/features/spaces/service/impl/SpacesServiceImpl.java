@@ -61,21 +61,9 @@ public class SpacesServiceImpl implements SpacesService {
     }
 
     @Override
-    public void deleteByYear(UUID businessId, int year) {
-        deleteByPrefix(StorageKeyUtil.yearPrefix(businessId, year));
-        log.info("Deleted year {} for business {}", year, businessId);
-    }
-
-    @Override
-    public void deleteByMonth(UUID businessId, int year, int month) {
-        deleteByPrefix(StorageKeyUtil.monthPrefix(businessId, year, month));
-        log.info("Deleted {}/{} for business {}", year, month, businessId);
-    }
-
-    @Override
-    public void deleteByDay(UUID businessId, int year, int month, int day) {
-        deleteByPrefix(StorageKeyUtil.dayPrefix(businessId, year, month, day));
-        log.info("Deleted {}/{}/{} for business {}", year, month, day, businessId);
+    public void deleteByDate(UUID businessId, String datePrefix) {
+        deleteByPrefix("b/" + businessId + "/" + datePrefix);
+        log.info("Deleted date prefix {} for business {}", datePrefix, businessId);
     }
 
     @Override

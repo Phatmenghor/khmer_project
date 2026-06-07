@@ -19,21 +19,4 @@ public final class StorageKeyUtil {
     public static String businessPrefix(UUID businessId) {
         return "b/" + businessId + "/";
     }
-
-    /** b/{businessId}/yyyy- — matches all dates in that year */
-    public static String yearPrefix(UUID businessId, int year) {
-        return "b/" + businessId + "/" + year + "-";
-    }
-
-    /** b/{businessId}/yyyy-MM- — matches all dates in that month */
-    public static String monthPrefix(UUID businessId, int year, int month) {
-        return "b/" + businessId + "/" + year + "-" + String.format("%02d", month) + "-";
-    }
-
-    /** b/{businessId}/yyyy-MM-dd/ — matches exactly that day */
-    public static String dayPrefix(UUID businessId, int year, int month, int day) {
-        return "b/" + businessId + "/" + year
-                + "-" + String.format("%02d", month)
-                + "-" + String.format("%02d", day) + "/";
-    }
 }

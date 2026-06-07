@@ -54,27 +54,18 @@ public class SpacesController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/date/{year}")
-    @Operation(summary = "Delete all images uploaded in a year — e.g. /date/2024")
-    public ResponseEntity<Void> deleteByYear(@PathVariable int year) {
+    /**
+     * Delete by date prefix.
+     * prefix examples:
+     *   2024-        → whole year
+     *   2024-06-     → whole month
+     *   2024-06-07/  → single day
+     */
+    @DeleteMapping("/date")
+    @Operation(summary = "Delete by date prefix — 2024- / 2024-06- / 2024-06-07/")
+    public ResponseEntity<Void> deleteByDate(@RequestParam String prefix) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        spacesService.deleteByYear(businessId, year);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/date/{year}/{month}")
-    @Operation(summary = "Delete all images uploaded in a month — e.g. /date/2024/06")
-    public ResponseEntity<Void> deleteByMonth(@PathVariable int year, @PathVariable int month) {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        spacesService.deleteByMonth(businessId, year, month);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/date/{year}/{month}/{day}")
-    @Operation(summary = "Delete all images uploaded on a day — e.g. /date/2024/06/07")
-    public ResponseEntity<Void> deleteByDay(@PathVariable int year, @PathVariable int month, @PathVariable int day) {
-        UUID businessId = securityUtils.getCurrentUserBusinessId();
-        spacesService.deleteByDay(businessId, year, month, day);
+        spacesService.deleteByDate(businessId, prefix);
         return ResponseEntity.noContent().build();
     }
 }
