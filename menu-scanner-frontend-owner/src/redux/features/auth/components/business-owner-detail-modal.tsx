@@ -62,10 +62,8 @@ export function BusinessOwnerDetailModal({
       isOpen={isOpen}
       onClose={handleClose}
       isLoading={isFetchingDetail}
-      title="Business Owner Details"
-      description={d ? d.ownerFullName || d.ownerUserIdentifier : "Loading..."}
-      avatarUrl={d?.logoBusinessUrl}
-      avatarName={d?.ownerFullName || d?.businessName}
+      title="Business Owner"
+      description="Manage business owner accounts and subscriptions"
       icon={Building2}
       maxWidthClass="sm:max-w-6xl"
     >
