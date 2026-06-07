@@ -118,6 +118,8 @@ export default function UserBusinessModal({
     label: formatEnumValue(role.name),
   }));
 
+  const isBusinessOwner = !isCreate && userData?.roles?.includes("BUSINESS_OWNER");
+
   const {
     control: formControl,
     handleSubmit,
@@ -605,7 +607,7 @@ export default function UserBusinessModal({
                           placeholder="Select user role"
                           options={roleOptions}
                           required
-                          disabled={isSubmitting || roleOptions.length === 0}
+                          disabled={isSubmitting || roleOptions.length === 0 || isBusinessOwner}
                           error={getArrayFieldError(errors.roles)}
                           onValueChange={(value) => {
                             setValue("roles", [String(value)], {

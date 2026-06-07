@@ -276,6 +276,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private void updateUserRoles(User userEntity, UserUpdateRequest updateRequestData) {
+        boolean isBusinessOwner = userEntity.getRoles().stream()
+                .anyMatch(role -> "BUSINESS_OWNER".equals(role.getName()));
+        if (isBusinessOwner) {
+            return;
+        }
         if (updateRequestData.getRoles() != null && !updateRequestData.getRoles().isEmpty()) {
             List<Role> assignedRoles = roleRepository.findByNameInAndIsDeletedFalse(updateRequestData.getRoles());
             userEntity.getRoles().clear();
