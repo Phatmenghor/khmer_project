@@ -720,7 +720,7 @@ export default function PosPage() {
       deliveryOption: {
         name: selectedDeliveryOption.name || "Delivery",
         description: selectedDeliveryOption.description || "POS Order",
-        imageUrl: selectedDeliveryOption.imageUrl || "",
+        imageUrl: selectedDeliveryOption.image?.sm || selectedDeliveryOption.image?.md || "",
         price: selectedDeliveryOption.price || 0,
       },
 
