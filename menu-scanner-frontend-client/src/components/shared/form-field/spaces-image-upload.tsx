@@ -6,17 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FieldError } from "react-hook-form";
-import { uploadImage, deleteImage, SpacesUploadResult } from "@/services/spaces-service";
+import {
+  uploadImage,
+  uploadMultiSize,
+  deleteImage,
+  SpacesUploadResult,
+  SpacesMultiSizeResult,
+} from "@/services/spaces-service";
 
 type AspectRatio = "square" | "banner" | "portrait" | "auto";
+type UploadState = "idle" | "uploading" | "done" | "error";
 
-interface SpacesImageUploadProps {
+interface BaseProps {
   label: string;
   businessId: string;
   value?: string;
-  imageKey?: string;
-  onChange: (result: SpacesUploadResult) => void;
-  onRemove?: () => void;
   disabled?: boolean;
   required?: boolean;
   error?: FieldError | string;
@@ -25,26 +29,39 @@ interface SpacesImageUploadProps {
   height?: string;
   placeholder?: string;
   helperText?: string;
+  onRemove?: () => void;
 }
 
-type UploadState = "idle" | "uploading" | "done" | "error";
+interface SingleProps extends BaseProps {
+  multiSize?: false;
+  imageKey?: string;
+  onChange: (result: SpacesUploadResult) => void;
+}
 
-export function SpacesImageUpload({
-  label,
-  businessId,
-  value,
-  imageKey,
-  onChange,
-  onRemove,
-  disabled = false,
-  required = false,
-  error,
-  maxSizeMb = 10,
-  aspectRatio = "square",
-  height,
-  placeholder = "Click to upload image",
-  helperText,
-}: SpacesImageUploadProps) {
+interface MultiProps extends BaseProps {
+  multiSize: true;
+  imageKeys?: SpacesMultiSizeResult;
+  onChange: (result: SpacesMultiSizeResult) => void;
+}
+
+type SpacesImageUploadProps = SingleProps | MultiProps;
+
+export function SpacesImageUpload(props: SpacesImageUploadProps) {
+  const {
+    label,
+    businessId,
+    value,
+    disabled = false,
+    required = false,
+    error,
+    maxSizeMb = 10,
+    aspectRatio = "square",
+    height,
+    placeholder = "Click to upload image",
+    helperText,
+    onRemove,
+  } = props;
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -60,6 +77,18 @@ export function SpacesImageUpload({
   const errorMessage =
     errorMsg ?? (typeof error === "string" ? error : error?.message ?? null);
 
+  const deleteOldKeys = async () => {
+    if (props.multiSize) {
+      const keys = props.imageKeys;
+      if (keys) {
+        const all = [keys.sm?.key, keys.md?.key, keys.lg?.key, keys.o?.key].filter(Boolean) as string[];
+        await Promise.allSettled(all.map(deleteImage));
+      }
+    } else {
+      if (props.imageKey) await deleteImage(props.imageKey).catch(() => {});
+    }
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -73,17 +102,20 @@ export function SpacesImageUpload({
       return;
     }
 
-    if (imageKey) {
-      await deleteImage(imageKey).catch(() => {});
-    }
-
+    await deleteOldKeys();
     setErrorMsg(null);
     setUploadState("uploading");
 
     try {
-      const result = await uploadImage(file, businessId);
-      setUploadState("done");
-      onChange(result);
+      if (props.multiSize) {
+        const result = await uploadMultiSize(file, businessId);
+        setUploadState("done");
+        props.onChange(result);
+      } else {
+        const result = await uploadImage(file, businessId);
+        setUploadState("done");
+        props.onChange(result);
+      }
     } catch {
       setUploadState("error");
       setErrorMsg("Upload failed — please try again");
@@ -94,9 +126,7 @@ export function SpacesImageUpload({
 
   const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (imageKey) {
-      await deleteImage(imageKey).catch(() => {});
-    }
+    await deleteOldKeys();
     setUploadState("idle");
     setErrorMsg(null);
     onRemove?.();
@@ -144,7 +174,9 @@ export function SpacesImageUpload({
         {isUploading && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-background/80">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <p className="text-xs font-medium text-foreground">Uploading…</p>
+            <p className="text-xs font-medium text-foreground">
+              {props.multiSize ? "Generating sizes…" : "Uploading…"}
+            </p>
           </div>
         )}
 

@@ -1,6 +1,7 @@
 package com.emenu.features.spaces.controller;
 
 import com.emenu.features.spaces.dto.response.SpacesImageResponse;
+import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import com.emenu.features.spaces.dto.response.SpacesUploadResponse;
 import com.emenu.features.spaces.service.SpacesService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,17 @@ public class SpacesController {
     ) {
         return ResponseEntity.ok(
                 spacesService.upload(file, UUID.fromString(businessId))
+        );
+    }
+
+    @PostMapping(value = "/upload-multi", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload image — generates sm/md/lg/o sizes, returns all 4 keys and urls")
+    public ResponseEntity<SpacesMultiUploadResponse> uploadMulti(
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("businessId") String businessId
+    ) {
+        return ResponseEntity.ok(
+                spacesService.uploadMulti(file, UUID.fromString(businessId))
         );
     }
 

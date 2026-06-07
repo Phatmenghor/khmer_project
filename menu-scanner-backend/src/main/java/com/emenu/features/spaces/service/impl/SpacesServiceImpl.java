@@ -2,6 +2,7 @@ package com.emenu.features.spaces.service.impl;
 
 import com.emenu.config.spaces.SpacesProperties;
 import com.emenu.features.spaces.dto.response.SpacesImageResponse;
+import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import com.emenu.features.spaces.dto.response.SpacesUploadResponse;
 import com.emenu.features.spaces.model.SpacesImage;
 import com.emenu.features.spaces.repository.SpacesImageRepository;
@@ -121,7 +122,72 @@ public class SpacesServiceImpl implements SpacesService {
                 .toList();
     }
 
+    @Override
+    @Transactional
+    public SpacesMultiUploadResponse uploadMulti(MultipartFile file, UUID businessId) {
+        try {
+            byte[] original = file.getBytes();
+            String base = StorageNameUtil.generateBase();
+
+            SpacesUploadResponse sm = uploadResized(original, businessId, base + "-sm.jpg", 300, file.getOriginalFilename());
+            SpacesUploadResponse md = uploadResized(original, businessId, base + "-md.jpg", 600, file.getOriginalFilename());
+            SpacesUploadResponse lg = uploadResized(original, businessId, base + "-lg.jpg", 1200, file.getOriginalFilename());
+            SpacesUploadResponse o  = uploadResized(original, businessId, base + ".jpg",    0,    file.getOriginalFilename());
+
+            log.info("Uploaded multi-size for business {}: {}", businessId, base);
+            return SpacesMultiUploadResponse.builder().sm(sm).md(md).lg(lg).o(o).build();
+        } catch (IOException e) {
+            log.error("Multi upload failed for business {}: {}", businessId, e.getMessage());
+            throw new RuntimeException("Multi-size image upload failed: " + e.getMessage());
+        }
+    }
+
     // ── Internals ─────────────────────────────────────────────────────────────
+
+    private SpacesUploadResponse uploadResized(byte[] original, UUID businessId,
+                                               String name, int maxWidth, String originalFilename) throws IOException {
+        String key = StorageKeyUtil.key(businessId, name);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        var builder = Thumbnails.of(new java.io.ByteArrayInputStream(original))
+                .outputFormat("jpg")
+                .outputQuality(0.85);
+
+        if (maxWidth > 0) {
+            // only downscale — never upscale smaller images
+            java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(original));
+            int targetWidth = Math.min(img.getWidth(), maxWidth);
+            builder = builder.width(targetWidth);
+        } else {
+            builder = builder.scale(1.0);
+        }
+        builder.toOutputStream(out);
+
+        byte[] bytes = out.toByteArray();
+
+        spacesS3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(spacesProperties.getBucket())
+                        .key(key)
+                        .contentType("image/jpeg")
+                        .contentLength((long) bytes.length)
+                        .acl(ObjectCannedACL.PUBLIC_READ)
+                        .build(),
+                RequestBody.fromBytes(bytes)
+        );
+
+        String url = spacesProperties.getCdnBaseUrl() + "/" + key;
+
+        spacesImageRepository.save(SpacesImage.builder()
+                .businessId(businessId)
+                .objectKey(key)
+                .url(url)
+                .originalFilename(originalFilename)
+                .fileSize((long) bytes.length)
+                .build());
+
+        return SpacesUploadResponse.builder().key(key).url(url).build();
+    }
 
     private List<String> deleteByPrefix(String prefix) {
         List<ObjectIdentifier> toDelete = new ArrayList<>();

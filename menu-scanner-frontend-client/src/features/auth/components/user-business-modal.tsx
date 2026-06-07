@@ -11,6 +11,7 @@ import { SelectField } from "@/components/shared/form-field/select-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
+import { SpacesMultiSizeResult } from "@/services/spaces-service";
 import { Button } from "@/components/ui/button";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import {
@@ -84,7 +85,7 @@ export default function UserBusinessModal({
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
-  const [profileImageKey, setProfileImageKey] = useState<string | undefined>();
+  const [profileImageKeys, setProfileImageKeys] = useState<SpacesMultiSizeResult | undefined>();
   const [documentKeys, setDocumentKeys] = useState<Record<number, string>>({});
   const [educationKeys, setEducationKeys] = useState<Record<number, string>>({});
 
@@ -129,6 +130,9 @@ export default function UserBusinessModal({
       gender: "",
       dateOfBirth: "",
       profileImageUrl: "",
+      profileImageSmUrl: "",
+      profileImageLgUrl: "",
+      profileImageOUrl: "",
       employeeId: "",
       position: "",
       department: "",
@@ -226,6 +230,9 @@ export default function UserBusinessModal({
             gender: data.gender || "",
             dateOfBirth: data.dateOfBirth || "",
             profileImageUrl: data.profileImageUrl || "",
+            profileImageSmUrl: data.profileImageSmUrl || "",
+            profileImageLgUrl: data.profileImageLgUrl || "",
+            profileImageOUrl: data.profileImageOUrl || "",
             employeeId: data.employeeId || "",
             position: data.position || "",
             department: data.department || "",
@@ -273,6 +280,9 @@ export default function UserBusinessModal({
         gender: "",
         dateOfBirth: "",
         profileImageUrl: "",
+      profileImageSmUrl: "",
+      profileImageLgUrl: "",
+      profileImageOUrl: "",
         employeeId: "",
         position: "",
         department: "",
@@ -333,6 +343,9 @@ export default function UserBusinessModal({
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
           profileImageUrl: data.profileImageUrl || undefined,
+          profileImageSmUrl: data.profileImageSmUrl || undefined,
+          profileImageLgUrl: data.profileImageLgUrl || undefined,
+          profileImageOUrl: data.profileImageOUrl || undefined,
           employeeId: data.employeeId || undefined,
           position: data.position || undefined,
           department: data.department || undefined,
@@ -364,6 +377,9 @@ export default function UserBusinessModal({
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
           profileImageUrl: data.profileImageUrl || undefined,
+          profileImageSmUrl: data.profileImageSmUrl || undefined,
+          profileImageLgUrl: data.profileImageLgUrl || undefined,
+          profileImageOUrl: data.profileImageOUrl || undefined,
           employeeId: data.employeeId || undefined,
           position: data.position || undefined,
           department: data.department || undefined,
@@ -398,7 +414,7 @@ export default function UserBusinessModal({
   const handleClose = () => {
     reset();
     setShowPassword(false);
-    setProfileImageKey(undefined);
+    setProfileImageKeys(undefined);
     setDocumentKeys({});
     setEducationKeys({});
     dispatch(clearError());
@@ -613,17 +629,24 @@ export default function UserBusinessModal({
                     {}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <SpacesImageUpload
+                        multiSize
                         label="Profile Image"
                         businessId={AppDefault.BUSINESS_ID}
                         value={watch("profileImageUrl") || ""}
-                        imageKey={profileImageKey}
+                        imageKeys={profileImageKeys}
                         onChange={(result) => {
-                          setValue("profileImageUrl", result.url, { shouldDirty: true });
-                          setProfileImageKey(result.key);
+                          setValue("profileImageUrl", result.md.url, { shouldDirty: true });
+                          setValue("profileImageSmUrl", result.sm.url, { shouldDirty: true });
+                          setValue("profileImageLgUrl", result.lg.url, { shouldDirty: true });
+                          setValue("profileImageOUrl", result.o.url, { shouldDirty: true });
+                          setProfileImageKeys(result);
                         }}
                         onRemove={() => {
                           setValue("profileImageUrl", "", { shouldDirty: true });
-                          setProfileImageKey(undefined);
+                          setValue("profileImageSmUrl", "", { shouldDirty: true });
+                          setValue("profileImageLgUrl", "", { shouldDirty: true });
+                          setValue("profileImageOUrl", "", { shouldDirty: true });
+                          setProfileImageKeys(undefined);
                         }}
                         aspectRatio="square"
                         required={false}

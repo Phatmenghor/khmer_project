@@ -38,4 +38,14 @@ public final class StorageNameUtil {
     public static String generateName() {
         return generate() + ".jpg";
     }
+
+    /** 20240607T143022-a3f2-sm.jpg */
+    public static String generateName(String suffix) {
+        return generate() + "-" + suffix + ".jpg";
+    }
+
+    /** Base without extension — 20240607T143022-a3f2 */
+    public static String generateBase() {
+        return generate();
+    }
 }

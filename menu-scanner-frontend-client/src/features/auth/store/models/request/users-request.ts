@@ -46,6 +46,9 @@ export interface CreateUserRequest {
   nickname?: string;
   phoneNumber?: string;
   profileImageUrl?: string;
+  profileImageSmUrl?: string;
+  profileImageLgUrl?: string;
+  profileImageOUrl?: string;
   userType: string;
   businessId?: string;
   roles: string[];
@@ -73,6 +76,9 @@ export interface UpdateUserRequest {
   nickname?: string;
   phoneNumber?: string;
   profileImageUrl?: string;
+  profileImageSmUrl?: string;
+  profileImageLgUrl?: string;
+  profileImageOUrl?: string;
   accountStatus?: string;
   businessId?: string;
   roles?: string[];

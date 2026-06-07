@@ -5,6 +5,13 @@ export interface SpacesUploadResult {
   url: string;
 }
 
+export interface SpacesMultiSizeResult {
+  sm: SpacesUploadResult;
+  md: SpacesUploadResult;
+  lg: SpacesUploadResult;
+  o: SpacesUploadResult;
+}
+
 export async function uploadImage(
   file: File,
   businessId: string
@@ -14,6 +21,20 @@ export async function uploadImage(
   form.append("businessId", businessId);
   const res = await axiosClient.post<SpacesUploadResult>(
     "/api/v1/spaces/upload",
+    form
+  );
+  return res.data;
+}
+
+export async function uploadMultiSize(
+  file: File,
+  businessId: string
+): Promise<SpacesMultiSizeResult> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("businessId", businessId);
+  const res = await axiosClient.post<SpacesMultiSizeResult>(
+    "/api/v1/spaces/upload-multi",
     form
   );
   return res.data;
