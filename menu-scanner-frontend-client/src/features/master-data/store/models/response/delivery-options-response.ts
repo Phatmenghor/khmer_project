@@ -1,4 +1,5 @@
 import { BasePagination } from "@/utils/common/pagination";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 export interface AllDeliveryOptionsResponseModel extends BasePagination {
   content: DeliveryOptionsResponseModel[];
@@ -14,7 +15,7 @@ export interface DeliveryOptionsResponseModel {
   businessName: string;
   name: string;
   description: string;
-  imageUrl: string;
+  image: ImageUrls;
   price: number;
   status: string;
 }

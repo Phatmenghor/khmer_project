@@ -3,11 +3,14 @@ package com.emenu.features.order.models;
 import com.emenu.enums.common.Status;
 import com.emenu.features.auth.models.Business;
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -37,8 +40,9 @@ public class DeliveryOption extends BaseUUIDEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "image", columnDefinition = "jsonb")
+    private ImageUrls image;
 
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;

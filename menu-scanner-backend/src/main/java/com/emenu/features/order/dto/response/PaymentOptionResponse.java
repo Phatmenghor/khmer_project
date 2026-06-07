@@ -2,6 +2,7 @@ package com.emenu.features.order.dto.response;
 
 import com.emenu.enums.common.Status;
 import com.emenu.enums.payment.PaymentOptionType;
+import com.emenu.shared.dto.ImageUrls;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +22,7 @@ public class PaymentOptionResponse {
     private String name;
     private PaymentOptionType paymentOptionType;
     private Status status;
-    private String imageUrl;
+    private ImageUrls image;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

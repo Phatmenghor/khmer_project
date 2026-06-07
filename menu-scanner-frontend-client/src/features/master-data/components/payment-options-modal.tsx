@@ -1,10 +1,9 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
@@ -13,11 +12,12 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
+import { uploadMultiSize } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, Status } from "@/constants/status/status";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { uploadImage } from "@/utils/common/upload-image";
 import {
   createPaymentOptionService,
   updatePaymentOptionService,
@@ -30,10 +30,9 @@ import { clearError } from "../store/slice/payment-options-slice";
 import {
   createPaymentOptionSchema,
   updatePaymentOptionSchema,
+  CreatePaymentOptionData,
 } from "../store/models/schema/payment-options-schema";
 import { PaymentOptionResponse } from "../store/models/response/payment-option-response";
-
-type PaymentOptionFormData = z.infer<typeof createPaymentOptionSchema>;
 
 const PAYMENT_OPTION_TYPE_OPTIONS = [
   { value: "CASH", label: "Cash" },
@@ -62,16 +61,24 @@ export default function PaymentOptionsModal({
   const operations = useAppSelector(selectPaymentOptionsOperations);
   const reduxError = useAppSelector(selectPaymentOptionsError);
   const isCreate = mode === ModalMode.CREATE_MODE;
-  const isSubmitting = isCreate ? operations.isCreating : operations.isUpdating;
+
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (!previewUrl || !previewUrl.startsWith("blob:")) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   const {
     control,
     handleSubmit,
     reset,
-    watch,
     setValue,
     formState: { errors, isDirty },
-  } = useForm<PaymentOptionFormData>({
+  } = useForm<CreatePaymentOptionData>({
     resolver: zodResolver(
       isCreate ? createPaymentOptionSchema : updatePaymentOptionSchema
     ),
@@ -79,12 +86,10 @@ export default function PaymentOptionsModal({
       name: "",
       paymentOptionType: "",
       status: Status.ACTIVE,
-      imageUrl: "",
+      image: { sm: "", md: "", o: "" },
     },
     mode: "onChange",
   });
-
-  const imageUrl = watch("imageUrl");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -94,18 +99,27 @@ export default function PaymentOptionsModal({
         name: "",
         paymentOptionType: "",
         status: Status.ACTIVE,
-        imageUrl: "",
+        image: { sm: "", md: "", o: "" },
       });
+      setPendingFile(null);
+      setPreviewUrl("");
     } else if (paymentOption) {
       reset({
         name: paymentOption.name || "",
         paymentOptionType: paymentOption.paymentOptionType || "",
         status: (paymentOption.status || Status.ACTIVE) as "ACTIVE" | "INACTIVE",
-        imageUrl: paymentOption.imageUrl || "",
+        image: {
+          sm: paymentOption.image?.sm || "",
+          md: paymentOption.image?.md || "",
+          o: paymentOption.image?.o || "",
+        },
       });
+      setPendingFile(null);
+      setPreviewUrl(
+        paymentOption.image?.md || paymentOption.image?.o || paymentOption.image?.sm || "",
+      );
     }
   }, [isOpen, isCreate, paymentOption, reset]);
-
 
   useEffect(() => {
     if (isOpen) {
@@ -113,35 +127,66 @@ export default function PaymentOptionsModal({
     }
   }, [isOpen, dispatch]);
 
-  const onSubmit = async (data: PaymentOptionFormData) => {
+  const onSubmit = async (data: CreatePaymentOptionData) => {
+    setIsProcessing(true);
     try {
-      let processedData = { ...data };
-      if (data.imageUrl && !data.imageUrl.startsWith("http")) {
-        processedData.imageUrl = await uploadImage(data.imageUrl);
+      let imagePayload = data.image;
+
+      if (pendingFile) {
+        setIsUploadingImage(true);
+        try {
+          const result = await uploadMultiSize(pendingFile, AppDefault.BUSINESS_ID);
+          imagePayload = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+        } catch (uploadErr: any) {
+          showToast.error(uploadErr?.message || "Image upload failed — please try again");
+          return;
+        } finally {
+          setIsUploadingImage(false);
+        }
       }
+
+      const payload: CreatePaymentOptionData = {
+        name: data.name || "",
+        paymentOptionType: data.paymentOptionType,
+        status: data.status,
+        image: imagePayload,
+      };
+
       if (isCreate) {
-        await dispatch(createPaymentOptionService(processedData)).unwrap();
+        await dispatch(createPaymentOptionService(payload)).unwrap();
         showToast.success(Messages.payment.created);
         handleClose();
       } else if (paymentOption?.id) {
         await dispatch(
           updatePaymentOptionService({
             id: paymentOption.id,
-            payload: processedData,
+            payload,
           })
         ).unwrap();
         showToast.success(Messages.payment.updated);
         handleClose();
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || Messages.payment.saveFailed);
+      showToast.error(
+        (error as { message?: string })?.message || Messages.payment.saveFailed,
+      );
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleClose = () => {
     reset();
+    setPendingFile(null);
+    setPreviewUrl("");
+    dispatch(clearError());
     onClose();
   };
+
+  const isSubmitting =
+    (isCreate ? operations.isCreating : operations.isUpdating) ||
+    isUploadingImage ||
+    isProcessing;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -156,7 +201,10 @@ export default function PaymentOptionsModal({
           isCreate={isCreate}
         />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
           <FormBody>
             {reduxError && (
               <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
@@ -167,20 +215,42 @@ export default function PaymentOptionsModal({
             )}
 
             <div className="space-y-2">
-              {/* Image upload */}
-              <ClickableImageUpload
+              <SpacesImageUpload
+                multiSize
+                deferred
                 label="QR Code / Payment Image"
-                value={imageUrl}
-                onChange={(base64) => setValue("imageUrl", base64, { shouldDirty: true })}
+                businessId={AppDefault.BUSINESS_ID}
+                value={previewUrl}
+                onFileSelected={(file) => {
+                  setPendingFile(file);
+                  if (file) {
+                    const objectUrl = URL.createObjectURL(file);
+                    setPreviewUrl(objectUrl);
+                    setValue(
+                      "image",
+                      { sm: objectUrl, md: objectUrl, o: objectUrl },
+                      { shouldDirty: true, shouldValidate: true },
+                    );
+                  } else {
+                    setPreviewUrl("");
+                    setValue(
+                      "image",
+                      { sm: "", md: "", o: "" },
+                      { shouldDirty: true, shouldValidate: true },
+                    );
+                  }
+                }}
+                aspectRatio="square"
+                maxSizeMb={5}
                 disabled={isSubmitting}
                 placeholder="Click to upload QR code or payment method image"
                 helperText="Square image works best — e.g. bank QR code (500×500)"
-                aspectRatio="square"
               />
 
-              {/* Payment details */}
               <div className="border-t pt-4">
-                <h3 className="text-xs font-semibold text-foreground mb-3">Payment Details</h3>
+                <h3 className="text-xs font-semibold text-foreground mb-3">
+                  Payment Details
+                </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <TextField
                     control={control}

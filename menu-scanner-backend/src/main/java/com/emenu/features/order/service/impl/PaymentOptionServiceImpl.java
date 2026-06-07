@@ -45,6 +45,7 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
                 .name(request.getName())
                 .paymentOptionType(request.getPaymentOptionType())
                 .status(request.getStatus())
+                .image(request.getImage())
                 .build();
 
         PaymentOption saved = paymentOptionRepository.save(paymentOption);
@@ -83,6 +84,7 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
         option.setName(request.getName());
         option.setPaymentOptionType(request.getPaymentOptionType());
         option.setStatus(request.getStatus());
+        option.setImage(request.getImage());
         PaymentOption updated = paymentOptionRepository.save(option);
         log.info("Payment option updated: {}", id);
         return mapToResponse(updated);
@@ -141,6 +143,7 @@ public class PaymentOptionServiceImpl implements PaymentOptionService {
                 .name(option.getName())
                 .paymentOptionType(option.getPaymentOptionType())
                 .status(option.getStatus())
+                .image(option.getImage())
                 .createdAt(option.getCreatedAt())
                 .updatedAt(option.getUpdatedAt())
                 .build();

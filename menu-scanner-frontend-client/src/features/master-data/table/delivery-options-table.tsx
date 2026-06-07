@@ -4,7 +4,6 @@ import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { ActionButton } from "@/components/shared/button/action-button";
-import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { Switch } from "@/components/ui/switch";
 import { TableImage } from "@/components/shared/table/table-image";
 import {
@@ -50,14 +49,15 @@ export const deliveryOptionsTableColumns = ({
       ),
     },
     {
-      key: "imageUrl",
+      key: "image",
       label: "Delivery options Image",
       minWidth: "10px",
       maxWidth: "400px",
       render: (deliveryOptions) => {
         return (
           <TableImage
-            src={deliveryOptions.imageUrl}
+            src={deliveryOptions.image?.sm}
+            previewSrc={deliveryOptions.image?.o}
             alt={deliveryOptions?.name}
             fallbackText={deliveryOptions?.name || "D"}
           />

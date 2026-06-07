@@ -49,7 +49,8 @@ export const paymentOptionsTableColumns = ({
       render: (option) => {
         return (
           <TableImage
-            src={option.imageUrl}
+            src={option.image?.sm}
+            previewSrc={option.image?.o}
             alt={option?.name}
             fallbackText={option?.name || "P"}
           />

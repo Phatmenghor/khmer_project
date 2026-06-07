@@ -2,6 +2,7 @@ package com.emenu.features.order.dto.request;
 
 import com.emenu.enums.common.Status;
 import com.emenu.enums.payment.PaymentOptionType;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,5 +25,5 @@ public class PaymentOptionRequest {
     @NotNull(message = "Status is required")
     private Status status;
 
-    private String imageUrl;
+    private ImageUrls image;
 }

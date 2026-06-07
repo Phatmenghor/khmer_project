@@ -1,6 +1,7 @@
 package com.emenu.features.order.dto.request;
 
 import com.emenu.enums.common.Status;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +16,7 @@ public class DeliveryOptionCreateRequest {
     private String name;
     
     private String description;
-    private String imageUrl;
+    private ImageUrls image;
     
     @NotNull(message = "Price is required")
     @DecimalMin(value = "0.0", message = "Price must be non-negative")

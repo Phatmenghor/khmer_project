@@ -4,12 +4,15 @@ import com.emenu.enums.common.Status;
 import com.emenu.enums.payment.PaymentOptionType;
 import com.emenu.features.auth.models.Business;
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -46,6 +49,7 @@ public class PaymentOption extends BaseUUIDEntity {
     @Builder.Default
     private Status status = Status.ACTIVE;
 
-    @Column(name = "image_url", columnDefinition = "TEXT")
-    private String imageUrl;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "image", columnDefinition = "jsonb")
+    private ImageUrls image;
 }

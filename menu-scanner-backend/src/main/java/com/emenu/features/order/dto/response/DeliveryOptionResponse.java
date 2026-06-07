@@ -2,6 +2,7 @@ package com.emenu.features.order.dto.response;
 
 import com.emenu.enums.common.Status;
 import com.emenu.shared.dto.BaseAuditResponse;
+import com.emenu.shared.dto.ImageUrls;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -15,7 +16,7 @@ public class DeliveryOptionResponse extends BaseAuditResponse {
     private String businessName;
     private String name;
     private String description;
-    private String imageUrl;
+    private ImageUrls image;
     private BigDecimal price;
     private Status status;
 }

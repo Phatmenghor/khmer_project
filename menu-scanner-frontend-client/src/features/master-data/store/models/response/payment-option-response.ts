@@ -1,5 +1,6 @@
 import { Status } from "@/constants/status/status";
 import { BasePagination } from "@/utils/common/pagination";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 export type PaymentOptionType = "CASH";
 
@@ -13,7 +14,7 @@ export interface PaymentOptionResponse {
   name: string;
   paymentOptionType: PaymentOptionType;
   status: Status;
-  imageUrl?: string;
+  image?: ImageUrls;
   createdAt: string;
   updatedAt: string;
 }

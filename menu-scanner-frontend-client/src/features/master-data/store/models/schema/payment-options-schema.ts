@@ -1,12 +1,18 @@
 import { z } from "zod";
 
+const imageUrlsSchema = z.object({
+  sm: z.string().optional(),
+  md: z.string().optional(),
+  o: z.string().optional(),
+});
+
 export const createPaymentOptionSchema = z.object({
   name: z.string().min(1, "Name is required"),
   paymentOptionType: z.string().min(1, "Type is required"),
   status: z.enum(["ACTIVE", "INACTIVE"], {
     errorMap: () => ({ message: "Status is required" }),
   }),
-  imageUrl: z.string().optional().default(""),
+  image: imageUrlsSchema.optional(),
 });
 
 export const updatePaymentOptionSchema = z.object({
@@ -15,7 +21,7 @@ export const updatePaymentOptionSchema = z.object({
   status: z.enum(["ACTIVE", "INACTIVE"], {
     errorMap: () => ({ message: "Status is required" }),
   }),
-  imageUrl: z.string().optional().default(""),
+  image: imageUrlsSchema.optional(),
 });
 
 export type CreatePaymentOptionData = z.infer<
