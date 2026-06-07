@@ -79,7 +79,12 @@ export const educationSchema = z.object({
   fieldOfStudy: z.string().min(1, "Field of study is required"),
   startYear: z.string().optional().or(z.literal("")),
   endYear: z.string().optional().or(z.literal("")),
-  isGraduated: z.boolean().default(false),
+  // The select field stores "true"/"false" as strings; accept either and
+  // coerce to boolean so the API receives a real boolean.
+  isGraduated: z
+    .union([z.boolean(), z.string()])
+    .transform((v) => v === true || v === "true")
+    .default(false),
   certificateUrl: z.string().optional().or(z.literal("")),
 });
 
