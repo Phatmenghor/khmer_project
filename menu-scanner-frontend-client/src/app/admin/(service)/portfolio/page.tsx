@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Loader2,
   Plus,
@@ -16,6 +16,7 @@ import {
   GalleryHorizontal,
   Briefcase,
   Users,
+  X,
 } from "lucide-react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { showToast } from "@/components/shared/common/show-toast";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
@@ -35,11 +36,13 @@ import {
   saveAdminPortfolioProfileThunk,
 } from "@/features/portfolio/store/thunks/portfolio-thunks";
 import { resetState } from "@/features/portfolio/store/slice/portfolio-profile-slice";
-import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
+import { uploadMultiSize } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import {
   PortfolioProfileSaveRequest,
   PortfolioAdminProfile,
 } from "@/features/portfolio/store/models/portfolio-types";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import {
   portfolioFormSchema,
   type PortfolioFormData,
@@ -50,8 +53,8 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
   return {
     businessName: p.businessName || "",
     description: p.description || "",
-    logoUrl: p.logoUrl || "",
-    coverImageUrl: p.coverImageUrl || "",
+    logo: p.logo || {},
+    coverImage: p.coverImage || {},
     contact: {
       email: contact.email ?? "",
       phone: contact.phone ?? "",
@@ -71,7 +74,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
         openTime: h.openTime || "",
         closeTime: h.closeTime || "",
       })) ?? [],
-    gallery: (p.gallery || []).map((g) => ({ id: g.id, url: g.url, title: g.title || "" })),
+    gallery: (p.gallery || []).map((g) => ({ id: g.id, image: g.image || {}, title: g.title || "" })),
     services: (p.services || []).map((s) => ({
       id: s.id,
       name: s.name,
@@ -82,7 +85,7 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
       name: m.name,
       position: m.position,
       bio: m.bio || "",
-      photoUrl: m.photoUrl || "",
+      photo: m.photo || {},
     })),
   };
 }
@@ -90,8 +93,8 @@ function buildFormFromProfile(p: PortfolioAdminProfile): PortfolioFormData {
 const emptyForm = (): PortfolioFormData => ({
   businessName: "",
   description: "",
-  logoUrl: "",
-  coverImageUrl: "",
+  logo: {},
+  coverImage: {},
   contact: { email: "", phone: "", phones: [], whatsapp: "", telegram: "", address: "", mapLink: "" },
   socialMedia: [],
   features: [],
@@ -102,7 +105,6 @@ const emptyForm = (): PortfolioFormData => ({
   team: [],
 });
 
-// Shared section card title — unified style across the page
 function SectionTitle({
   icon: Icon,
   title,
@@ -148,6 +150,26 @@ export default function PortfolioPage() {
     defaultValues,
   });
 
+  // Pending file state for deferred uploads
+  const [pendingLogoFile, setPendingLogoFile] = useState<File | null>(null);
+  const [logoBlobUrl, setLogoBlobUrl] = useState<string>("");
+  const [pendingCoverFile, setPendingCoverFile] = useState<File | null>(null);
+  const [coverBlobUrl, setCoverBlobUrl] = useState<string>("");
+  const [pendingGalleryFiles, setPendingGalleryFiles] = useState<(File | null)[]>([]);
+  const [galleryBlobUrls, setGalleryBlobUrls] = useState<string[]>([]);
+  const [pendingTeamFiles, setPendingTeamFiles] = useState<(File | null)[]>([]);
+  const [teamBlobUrls, setTeamBlobUrls] = useState<string[]>([]);
+
+  // Cleanup blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (logoBlobUrl) URL.revokeObjectURL(logoBlobUrl);
+      if (coverBlobUrl) URL.revokeObjectURL(coverBlobUrl);
+      galleryBlobUrls.forEach((u) => u && URL.revokeObjectURL(u));
+      teamBlobUrls.forEach((u) => u && URL.revokeObjectURL(u));
+    };
+  }, []);
+
   const { fields: businessHoursFields, append: appendBusinessHour, remove: removeBusinessHour } = useFieldArray({ control: form.control, name: "businessHours" });
   const { fields: galleryFields, append: appendGallery, remove: removeGallery } = useFieldArray({ control: form.control, name: "gallery" });
   const { fields: servicesFields, append: appendService, remove: removeService } = useFieldArray({ control: form.control, name: "services" });
@@ -168,6 +190,14 @@ export default function PortfolioPage() {
       try {
         const formData = buildFormFromProfile(profile);
         form.reset(formData);
+        setPendingLogoFile(null);
+        setLogoBlobUrl("");
+        setPendingCoverFile(null);
+        setCoverBlobUrl("");
+        setPendingGalleryFiles([]);
+        setGalleryBlobUrls([]);
+        setPendingTeamFiles([]);
+        setTeamBlobUrls([]);
       } catch (err) {
         console.error("Error building portfolio form from profile:", err);
         showToast.error("Error loading portfolio data");
@@ -176,47 +206,152 @@ export default function PortfolioPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
+  const handleLogoFileSelected = (file: File | null) => {
+    if (logoBlobUrl) URL.revokeObjectURL(logoBlobUrl);
+    if (file) {
+      const blobUrl = URL.createObjectURL(file);
+      setPendingLogoFile(file);
+      setLogoBlobUrl(blobUrl);
+      form.setValue("logo", { sm: blobUrl, md: blobUrl, o: blobUrl }, { shouldDirty: true });
+    } else {
+      setPendingLogoFile(null);
+      setLogoBlobUrl("");
+      form.setValue("logo", {}, { shouldDirty: true });
+    }
+  };
+
+  const handleCoverFileSelected = (file: File | null) => {
+    if (coverBlobUrl) URL.revokeObjectURL(coverBlobUrl);
+    if (file) {
+      const blobUrl = URL.createObjectURL(file);
+      setPendingCoverFile(file);
+      setCoverBlobUrl(blobUrl);
+      form.setValue("coverImage", { sm: blobUrl, md: blobUrl, o: blobUrl }, { shouldDirty: true });
+    } else {
+      setPendingCoverFile(null);
+      setCoverBlobUrl("");
+      form.setValue("coverImage", {}, { shouldDirty: true });
+    }
+  };
+
+  const handleGalleryFileSelected = (index: number, file: File | null) => {
+    setPendingGalleryFiles((prev) => {
+      const next = [...prev];
+      if (next[index]?.name !== file?.name) {
+        if (galleryBlobUrls[index]) URL.revokeObjectURL(galleryBlobUrls[index]);
+      }
+      next[index] = file;
+      return next;
+    });
+    if (file) {
+      const blobUrl = URL.createObjectURL(file);
+      setGalleryBlobUrls((prev) => { const next = [...prev]; next[index] = blobUrl; return next; });
+      form.setValue(`gallery.${index}.image`, { sm: blobUrl, md: blobUrl, o: blobUrl }, { shouldDirty: true });
+    } else {
+      setGalleryBlobUrls((prev) => { const next = [...prev]; next[index] = ""; return next; });
+      form.setValue(`gallery.${index}.image`, {}, { shouldDirty: true });
+    }
+  };
+
+  const handleRemoveGallery = (index: number) => {
+    if (pendingGalleryFiles[index]) {
+      if (galleryBlobUrls[index]) URL.revokeObjectURL(galleryBlobUrls[index]);
+      setPendingGalleryFiles((prev) => prev.filter((_, i) => i !== index));
+      setGalleryBlobUrls((prev) => prev.filter((_, i) => i !== index));
+    }
+    removeGallery(index);
+  };
+
+  const handleTeamFileSelected = (index: number, file: File | null) => {
+    setPendingTeamFiles((prev) => {
+      const next = [...prev];
+      next[index] = file;
+      return next;
+    });
+    if (file) {
+      const blobUrl = URL.createObjectURL(file);
+      setTeamBlobUrls((prev) => { const next = [...prev]; next[index] = blobUrl; return next; });
+      form.setValue(`team.${index}.photo`, { sm: blobUrl, md: blobUrl, o: blobUrl }, { shouldDirty: true });
+    } else {
+      setTeamBlobUrls((prev) => { const next = [...prev]; next[index] = ""; return next; });
+      form.setValue(`team.${index}.photo`, {}, { shouldDirty: true });
+    }
+  };
+
+  const handleRemoveTeam = (index: number) => {
+    if (pendingTeamFiles[index] && teamBlobUrls[index]) {
+      URL.revokeObjectURL(teamBlobUrls[index]);
+      setPendingTeamFiles((prev) => prev.filter((_, i) => i !== index));
+      setTeamBlobUrls((prev) => prev.filter((_, i) => i !== index));
+    }
+    removeTeam(index);
+  };
+
   const onSubmit = async (data: PortfolioFormData) => {
     try {
-      let logoUrl = data.logoUrl || "";
-      let coverImageUrl = data.coverImageUrl || "";
+      const businessId = AppDefault.BUSINESS_ID;
 
-      if (logoUrl && isBase64Image(logoUrl)) {
-        try { logoUrl = await uploadImage(logoUrl); }
-        catch { showToast.error("Failed to upload logo"); return; }
-      }
-      if (coverImageUrl && isBase64Image(coverImageUrl)) {
-        try { coverImageUrl = await uploadImage(coverImageUrl); }
-        catch { showToast.error("Failed to upload cover image"); return; }
+      // Upload logo if pending
+      let logo: ImageUrls | undefined = data.logo as ImageUrls | undefined;
+      if (pendingLogoFile) {
+        try {
+          logo = await uploadMultiSize(pendingLogoFile, businessId);
+        } catch {
+          showToast.error("Failed to upload logo");
+          return;
+        }
       }
 
+      // Upload cover image if pending
+      let coverImage: ImageUrls | undefined = data.coverImage as ImageUrls | undefined;
+      if (pendingCoverFile) {
+        try {
+          coverImage = await uploadMultiSize(pendingCoverFile, businessId);
+        } catch {
+          showToast.error("Failed to upload cover image");
+          return;
+        }
+      }
+
+      // Upload gallery images
       const uploadedGallery = await Promise.all(
-        (data.gallery || []).map(async (item) => {
-          let url = item.url;
-          if (url && isBase64Image(url)) {
-            try { url = await uploadImage(url); }
-            catch { showToast.error("Failed to upload gallery image"); throw new Error("Gallery upload failed"); }
+        (data.gallery || []).map(async (item, index) => {
+          const pendingFile = pendingGalleryFiles[index];
+          if (pendingFile) {
+            try {
+              const uploaded = await uploadMultiSize(pendingFile, businessId);
+              return { ...item, image: uploaded as ImageUrls };
+            } catch {
+              showToast.error(`Failed to upload gallery image ${index + 1}`);
+              throw new Error("Gallery upload failed");
+            }
           }
-          return { ...item, url };
+          return item;
         })
       );
 
+      // Upload team photos
       const uploadedTeam = await Promise.all(
-        (data.team || []).map(async (member) => {
-          let photoUrl = member.photoUrl || "";
-          if (photoUrl && isBase64Image(photoUrl)) {
-            try { photoUrl = await uploadImage(photoUrl); }
-            catch { showToast.error("Failed to upload team photo"); throw new Error("Team photo upload failed"); }
+        (data.team || []).map(async (member, index) => {
+          const pendingFile = pendingTeamFiles[index];
+          if (pendingFile) {
+            try {
+              const uploaded = await uploadMultiSize(pendingFile, businessId);
+              return { ...member, photo: uploaded as ImageUrls };
+            } catch {
+              showToast.error(`Failed to upload team photo for ${member.name}`);
+              throw new Error("Team photo upload failed");
+            }
           }
-          return { ...member, photoUrl };
+          return member;
         })
       );
 
       const submitData: PortfolioProfileSaveRequest = {
         businessName: data.businessName || "",
         description: data.description || "",
-        logoUrl,
-        coverImageUrl,
+        logo: logo && (logo.sm || logo.md || logo.o) ? logo : undefined,
+        coverImage: coverImage && (coverImage.sm || coverImage.md || coverImage.o) ? coverImage : undefined,
         contact: {
           email: data.contact?.email || "",
           phone: data.contact?.phone || "",
@@ -228,9 +363,19 @@ export default function PortfolioPage() {
         },
         socialMedia: data.socialMedia || [],
         businessHours: data.businessHours || [],
-        gallery: uploadedGallery,
+        gallery: uploadedGallery.map((g) => ({
+          id: g.id,
+          image: g.image as ImageUrls | undefined,
+          title: g.title,
+        })),
         services: data.services || [],
-        team: uploadedTeam,
+        team: uploadedTeam.map((m) => ({
+          id: m.id,
+          name: m.name,
+          position: m.position,
+          bio: m.bio,
+          photo: m.photo as ImageUrls | undefined,
+        })),
         features: data.features || [],
         customStats: data.customStats || [],
       };
@@ -238,6 +383,10 @@ export default function PortfolioPage() {
       const result = await dispatch(saveAdminPortfolioProfileThunk(submitData));
       if (saveAdminPortfolioProfileThunk.fulfilled.match(result)) {
         showToast.success("Portfolio profile saved successfully");
+        setPendingLogoFile(null);
+        setPendingCoverFile(null);
+        setPendingGalleryFiles([]);
+        setPendingTeamFiles([]);
       } else {
         showToast.error("Failed to save portfolio profile");
       }
@@ -253,6 +402,9 @@ export default function PortfolioPage() {
       </div>
     );
   }
+
+  const watchLogo = form.watch("logo");
+  const watchCoverImage = form.watch("coverImage");
 
   return (
     <div className="flex flex-1 flex-col gap-5 px-4 py-5">
@@ -307,35 +459,29 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Controller
-                name="logoUrl"
-                control={form.control}
-                render={({ field }) => (
-                  <ClickableImageUpload
-                    label="Business Logo"
-                    value={field.value || ""}
-                    onChange={(v) => { field.onChange(v); showToast.success("Logo selected"); }}
-                    aspectRatio="square"
-                    placeholder="Click to upload logo"
-                    helperText="Square (1:1) image recommended — PNG with transparent background"
-                    maxSize={5}
-                  />
-                )}
+              <SpacesImageUpload
+                label="Business Logo"
+                value={watchLogo?.sm || ""}
+                previewSrc={watchLogo?.o || watchLogo?.md || watchLogo?.sm}
+                multiSize
+                deferred
+                onFileSelected={handleLogoFileSelected}
+                aspectRatio="square"
+                placeholder="Click to upload logo"
+                helperText="Square (1:1) image recommended — PNG with transparent background"
+                maxSize={5}
               />
-              <Controller
-                name="coverImageUrl"
-                control={form.control}
-                render={({ field }) => (
-                  <ClickableImageUpload
-                    label="Cover Image"
-                    value={field.value || ""}
-                    onChange={(v) => { field.onChange(v); showToast.success("Cover image selected"); }}
-                    aspectRatio="square"
-                    placeholder="Click to upload cover"
-                    helperText="Square (1:1) image recommended — PNG, JPG"
-                    maxSize={5}
-                  />
-                )}
+              <SpacesImageUpload
+                label="Cover Image"
+                value={watchCoverImage?.sm || ""}
+                previewSrc={watchCoverImage?.o || watchCoverImage?.md || watchCoverImage?.sm}
+                multiSize
+                deferred
+                onFileSelected={handleCoverFileSelected}
+                aspectRatio="square"
+                placeholder="Click to upload cover"
+                helperText="Square (1:1) image recommended — PNG, JPG"
+                maxSize={5}
               />
             </div>
           </CardContent>
@@ -734,7 +880,11 @@ export default function PortfolioPage() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => appendGallery({ id: "", url: "", title: "" })}
+              onClick={() => {
+                appendGallery({ id: "", image: {}, title: "" });
+                setPendingGalleryFiles((prev) => [...prev, null]);
+                setGalleryBlobUrls((prev) => [...prev, ""]);
+              }}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Image
             </Button>
@@ -742,40 +892,40 @@ export default function PortfolioPage() {
           <CardContent>
             {galleryFields.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {galleryFields.map((field, index) => (
-                  <div key={field.id} className="border rounded-md p-4 space-y-3 hover:shadow-sm transition-shadow relative">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute top-2 right-2 z-10 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => removeGallery(index)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                    <Controller
-                      name={`gallery.${index}.url`}
-                      control={form.control}
-                      render={({ field: f }) => (
-                        <ClickableImageUpload
-                          label={`Image ${index + 1}`}
-                          value={f.value}
-                          onChange={f.onChange}
-                          aspectRatio="square"
-                          placeholder="Click to upload"
-                          helperText="Square (1:1) image recommended — PNG, JPG"
-                          maxSize={5}
-                        />
-                      )}
-                    />
-                    <TextField<PortfolioFormData>
-                      control={form.control}
-                      name={`gallery.${index}.title`}
-                      label="Caption (optional)"
-                      placeholder="e.g., Store Entrance"
-                    />
-                  </div>
-                ))}
+                {galleryFields.map((field, index) => {
+                  const watchImage = form.watch(`gallery.${index}.image`);
+                  return (
+                    <div key={field.id} className="border rounded-md p-4 space-y-3 hover:shadow-sm transition-shadow relative">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2 z-10 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleRemoveGallery(index)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                      <SpacesImageUpload
+                        label={`Image ${index + 1}`}
+                        value={watchImage?.sm || ""}
+                        previewSrc={watchImage?.o || watchImage?.md || watchImage?.sm}
+                        multiSize
+                        deferred
+                        onFileSelected={(file) => handleGalleryFileSelected(index, file)}
+                        aspectRatio="square"
+                        placeholder="Click to upload"
+                        helperText="Square (1:1) image recommended — PNG, JPG"
+                        maxSize={5}
+                      />
+                      <TextField<PortfolioFormData>
+                        control={form.control}
+                        name={`gallery.${index}.title`}
+                        label="Caption (optional)"
+                        placeholder="e.g., Store Entrance"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <EmptyState
@@ -866,7 +1016,11 @@ export default function PortfolioPage() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => appendTeam({ id: "", name: "", position: "", bio: "", photoUrl: "" })}
+              onClick={() => {
+                appendTeam({ id: "", name: "", position: "", bio: "", photo: {} });
+                setPendingTeamFiles((prev) => [...prev, null]);
+                setTeamBlobUrls((prev) => [...prev, ""]);
+              }}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Member
             </Button>
@@ -874,63 +1028,63 @@ export default function PortfolioPage() {
           <CardContent>
             {teamFields.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {teamFields.map((field, index) => (
-                  <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      className="absolute top-2 right-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => removeTeam(index)}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                    <div className="space-y-4 pr-10">
-                      <Controller
-                        name={`team.${index}.photoUrl`}
-                        control={form.control}
-                        render={({ field: f }) => (
-                          <ClickableImageUpload
-                            label="Photo"
-                            value={f.value || ""}
-                            onChange={f.onChange}
-                            aspectRatio="square"
-                            placeholder="Click to upload photo"
-                            helperText="Square (1:1) image recommended — PNG, JPG"
-                            maxSize={5}
-                          />
-                        )}
-                      />
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <TextField<PortfolioFormData>
-                          control={form.control}
-                          name={`team.${index}.name`}
-                          label="Full Name"
-                          placeholder="John Doe"
-                          required
-                          error={form.formState.errors.team?.[index]?.name}
+                {teamFields.map((field, index) => {
+                  const watchPhoto = form.watch(`team.${index}.photo`);
+                  return (
+                    <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="absolute top-2 right-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleRemoveTeam(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                      <div className="space-y-4 pr-10">
+                        <SpacesImageUpload
+                          label="Photo"
+                          value={watchPhoto?.sm || ""}
+                          previewSrc={watchPhoto?.o || watchPhoto?.md || watchPhoto?.sm}
+                          multiSize
+                          deferred
+                          onFileSelected={(file) => handleTeamFileSelected(index, file)}
+                          aspectRatio="square"
+                          placeholder="Click to upload photo"
+                          helperText="Square (1:1) image recommended — PNG, JPG"
+                          maxSize={5}
                         />
-                        <TextField<PortfolioFormData>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <TextField<PortfolioFormData>
+                            control={form.control}
+                            name={`team.${index}.name`}
+                            label="Full Name"
+                            placeholder="John Doe"
+                            required
+                            error={form.formState.errors.team?.[index]?.name}
+                          />
+                          <TextField<PortfolioFormData>
+                            control={form.control}
+                            name={`team.${index}.position`}
+                            label="Position / Title"
+                            placeholder="Store Manager"
+                            required
+                            error={form.formState.errors.team?.[index]?.position}
+                          />
+                        </div>
+
+                        <TextareaField<PortfolioFormData>
                           control={form.control}
-                          name={`team.${index}.position`}
-                          label="Position / Title"
-                          placeholder="Store Manager"
-                          required
-                          error={form.formState.errors.team?.[index]?.position}
+                          name={`team.${index}.bio`}
+                          label="Bio"
+                          placeholder="Short bio about this team member..."
+                          rows={4}
                         />
                       </div>
-
-                      <TextareaField<PortfolioFormData>
-                        control={form.control}
-                        name={`team.${index}.bio`}
-                        label="Bio"
-                        placeholder="Short bio about this team member..."
-                        rows={4}
-                      />
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <EmptyState

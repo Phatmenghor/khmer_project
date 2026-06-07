@@ -1,10 +1,16 @@
 import { z } from "zod";
 
+const imageUrlsSchema = z.object({
+  sm: z.string().optional(),
+  md: z.string().optional(),
+  o: z.string().optional(),
+}).optional();
+
 export const portfolioFormSchema = z.object({
   businessName: z.string().min(1, "Business name is required"),
   description: z.string().min(1, "Description is required"),
-  logoUrl: z.string().optional(),
-  coverImageUrl: z.string().optional(),
+  logo: imageUrlsSchema,
+  coverImage: imageUrlsSchema,
 
   contact: z.object({
     email: z.string().email("Invalid email address").optional().or(z.literal("")),
@@ -41,7 +47,7 @@ export const portfolioFormSchema = z.object({
   gallery: z.array(
     z.object({
       id: z.string().optional(),
-      url: z.string().min(1, "Gallery image URL is required"),
+      image: imageUrlsSchema,
       title: z.string().optional(),
     })
   ).optional(),
@@ -60,7 +66,7 @@ export const portfolioFormSchema = z.object({
       name: z.string().min(1, "Team member name is required"),
       position: z.string().min(1, "Position is required"),
       bio: z.string().optional(),
-      photoUrl: z.string().optional(),
+      photo: imageUrlsSchema,
     })
   ).optional(),
 

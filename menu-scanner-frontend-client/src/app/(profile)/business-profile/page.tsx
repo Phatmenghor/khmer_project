@@ -275,8 +275,8 @@ export default function BusinessProfilePage() {
         {/* Cover */}
         <div className="relative h-40 sm:h-52 lg:h-56">
           <div className="absolute inset-0 overflow-hidden">
-            {profile.coverImageUrl ? (
-              <Image src={profile.coverImageUrl} alt={profile.businessName} fill className="object-cover" priority />
+            {(profile.coverImage?.md || profile.coverImage?.sm) ? (
+              <Image src={profile.coverImage?.md || profile.coverImage?.sm || ""} alt={profile.businessName} fill className="object-cover" priority />
             ) : (
               <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.7))" }} />
             )}
@@ -289,8 +289,8 @@ export default function BusinessProfilePage() {
           <div className="relative -mt-8 sm:-mt-11 flex items-end justify-between pb-2">
             {/* Logo */}
             <div className="w-16 h-16 sm:w-24 sm:h-24 rounded border-4 border-background shadow-2xl flex-shrink-0 overflow-hidden bg-card">
-              {profile.logoUrl
-                ? <Image src={profile.logoUrl} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
+              {(profile.logo?.sm || profile.logo?.md)
+                ? <Image src={profile.logo?.md || profile.logo?.sm || ""} alt="logo" width={128} height={128} className="object-cover w-full h-full" />
                 : <div className="w-full h-full flex items-center justify-center bg-primary/10"><Building2 className="w-7 h-7 text-primary" /></div>
               }
             </div>
@@ -415,8 +415,8 @@ export default function BusinessProfilePage() {
                     {profile.gallery.map((item) => (
                       <div key={item.id}
                         className="relative aspect-square rounded overflow-hidden group cursor-pointer bg-muted">
-                        {item.url
-                          ? <Image src={item.url} alt={item.title || "Gallery"} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                        {(item.image?.md || item.image?.sm)
+                          ? <Image src={item.image?.md || item.image?.sm || ""} alt={item.title || "Gallery"} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
                           : <div className="w-full h-full flex items-center justify-center bg-primary/10"><span className="text-xs">🍜</span></div>
                         }
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-end p-2">
@@ -515,8 +515,8 @@ export default function BusinessProfilePage() {
                     {profile.team.map((m) => (
                       <div key={m.id} className="text-center p-3 rounded bg-muted/30 border border-border hover:border-primary/20 transition-colors">
                         <div className="w-11 h-11 mx-auto rounded-full overflow-hidden border-2 border-border mb-2 bg-muted">
-                          {m.photoUrl
-                            ? <Image src={m.photoUrl} alt={m.name} width={64} height={64} className="object-cover w-full h-full" />
+                          {(m.photo?.sm || m.photo?.md)
+                            ? <Image src={m.photo?.md || m.photo?.sm || ""} alt={m.name} width={64} height={64} className="object-cover w-full h-full" />
                             : <div className="w-full h-full flex items-center justify-center bg-primary/10">
                                 <span className="text-xs font-bold text-primary">{m.name.charAt(0)}</span>
                               </div>
@@ -656,7 +656,7 @@ export default function BusinessProfilePage() {
         url={profileUrl}
         businessName={profile.businessName}
         subtitle={profile.tagline || "Scan to view our menu"}
-        logoUrl={profile.logoUrl}
+        logoUrl={profile.logo?.sm || profile.logo?.md}
       />
     </div>
   );

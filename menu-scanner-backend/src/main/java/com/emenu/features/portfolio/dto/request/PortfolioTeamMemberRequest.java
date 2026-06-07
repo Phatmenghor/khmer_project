@@ -1,5 +1,6 @@
 package com.emenu.features.portfolio.dto.request;
 
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -16,5 +17,5 @@ public class PortfolioTeamMemberRequest {
 
     private String bio;
 
-    private String photoUrl;
+    private ImageUrls photo;
 }

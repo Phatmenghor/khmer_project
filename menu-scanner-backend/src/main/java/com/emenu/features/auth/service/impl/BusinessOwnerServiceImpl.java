@@ -653,7 +653,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         businessSettingRepository.findByBusinessIdAndIsDeletedFalse(businessId)
                 .ifPresent(setting -> {
                     detailResponse.setBusinessSettingId(setting.getId());
-                    detailResponse.setLogoBusinessUrl(setting.getLogoBusinessUrl());
+                    detailResponse.setLogoBusiness(setting.getLogoBusiness());
                     detailResponse.setEnableStock(setting.getEnableStock() != null ? setting.getEnableStock().name() : null);
                 });
     }

@@ -2,11 +2,14 @@ package com.emenu.features.auth.models;
 
 import com.emenu.enums.common.StockStatus;
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,8 +32,9 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Column(name = "tax_percentage")
     private Double taxPercentage;
 
-    @Column(name = "logo_business_url")
-    private String logoBusinessUrl;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "logo_business", columnDefinition = "jsonb")
+    private ImageUrls logoBusiness;
 
     @Column(name = "enable_stock")
     @Enumerated(EnumType.STRING)

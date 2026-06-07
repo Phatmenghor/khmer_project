@@ -1,5 +1,6 @@
 package com.emenu.features.portfolio.dto.request;
 
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -15,9 +16,9 @@ public class PortfolioProfileSaveRequest {
     @NotBlank
     private String description;
 
-    private String logoUrl;
+    private ImageUrls logo;
 
-    private String coverImageUrl;
+    private ImageUrls coverImage;
 
     @Valid
     private ContactRequest contact;

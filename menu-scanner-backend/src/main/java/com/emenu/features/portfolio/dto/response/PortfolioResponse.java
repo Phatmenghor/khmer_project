@@ -1,5 +1,6 @@
 package com.emenu.features.portfolio.dto.response;
 
+import com.emenu.shared.dto.ImageUrls;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,8 +18,8 @@ public class PortfolioResponse {
     private UUID id;
     private String businessName;
     private String description;
-    private String logoUrl;
-    private String coverImageUrl;
+    private ImageUrls logo;
+    private ImageUrls coverImage;
     private ContactDto contact;
     private List<SocialMediaItemDto> socialMedia;
     private List<HoursDto> businessHours;
@@ -81,7 +82,7 @@ public class PortfolioResponse {
     @AllArgsConstructor
     public static class GalleryItemDto {
         private UUID id;
-        private String url;
+        private ImageUrls image;
         private String title;
     }
 
@@ -104,7 +105,7 @@ public class PortfolioResponse {
         private String name;
         private String position;
         private String bio;
-        private String photoUrl;
+        private ImageUrls photo;
     }
 
     @Data

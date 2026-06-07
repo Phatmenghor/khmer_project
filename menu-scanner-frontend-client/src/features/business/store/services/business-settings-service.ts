@@ -1,12 +1,10 @@
-
-
-
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import { axiosClient, axiosClientWithAuth } from "@/utils/axios";
 
 export interface SocialMedia {
   name: string;
   linkUrl: string;
-  imageUrl?: string;
+  image?: ImageUrls;
 }
 
 export interface BusinessHours {
@@ -24,7 +22,7 @@ export interface BusinessSettingsResponse {
   businessId: string;
   businessName: string;
   taxPercentage: number | null;
-  logoBusinessUrl: string;
+  logoBusiness?: ImageUrls;
   enableStock: "ENABLED" | "DISABLED";
   socialMedia: SocialMedia[];
   primaryColor?: string;
@@ -41,7 +39,7 @@ export interface BusinessSettingsResponse {
 export interface UpdateBusinessSettingsRequest {
   businessName?: string;
   taxPercentage?: number | null;
-  logoBusinessUrl?: string;
+  logoBusiness?: ImageUrls;
   enableStock?: "ENABLED" | "DISABLED";
   socialMedia?: SocialMedia[];
   primaryColor?: string;
@@ -90,7 +88,7 @@ export const generateBusinessSettingsHash = (settings: BusinessSettingsResponse)
   const hashString = JSON.stringify({
     id: settings.id,
     primaryColor: settings.primaryColor,
-    logoBusinessUrl: settings.logoBusinessUrl,
+    logoBusiness: settings.logoBusiness?.sm,
     businessName: settings.businessName,
     taxPercentage: settings.taxPercentage,
     updatedAt: settings.updatedAt,

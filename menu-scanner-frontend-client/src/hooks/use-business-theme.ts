@@ -109,7 +109,7 @@ export function useBusinessTheme() {
     const currentData = {
       primaryColor: businessSettings.primaryColor || "",
       businessName: businessSettings.businessName,
-      logoBusinessUrl: businessSettings.logoBusinessUrl,
+      logoBusinessUrl: businessSettings.logoBusiness?.sm,
       taxPercentage: businessSettings.taxPercentage ?? undefined,
     };
 
@@ -122,7 +122,10 @@ export function useBusinessTheme() {
       applyColors(businessSettings.primaryColor);
     }
 
-    syncWindowCache(businessSettings);
+    syncWindowCache({
+      ...businessSettings,
+      logoBusinessUrl: businessSettings.logoBusiness?.sm,
+    });
   }, [businessSettings]);
 
   // Effect 3: Fetch business settings exactly once.

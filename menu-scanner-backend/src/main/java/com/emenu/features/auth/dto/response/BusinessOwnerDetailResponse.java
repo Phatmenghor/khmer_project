@@ -4,6 +4,7 @@ import com.emenu.enums.sub_scription.SubscriptionPlanDurationType;
 import com.emenu.enums.sub_scription.SubscriptionStatus;
 import com.emenu.enums.user.BusinessStatus;
 import com.emenu.shared.dto.BaseAuditResponse;
+import com.emenu.shared.dto.ImageUrls;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -34,7 +35,7 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
 
     // Business Setting Info
     private UUID businessSettingId;
-    private String logoBusinessUrl;
+    private ImageUrls logoBusiness;
     private String enableStock;
 
     // Subscription Info

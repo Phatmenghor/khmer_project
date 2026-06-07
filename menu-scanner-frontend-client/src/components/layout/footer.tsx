@@ -27,7 +27,7 @@ export function Footer() {
 
 
   const businessName = businessSettings?.businessName || cachedBusinessName || "";
-  const businessLogoUrl = businessSettings?.logoBusinessUrl || cachedLogoUrl || "";
+  const businessLogoUrl = businessSettings?.logoBusiness?.sm || cachedLogoUrl || "";
   const contactAddress = businessSettings?.contactAddress || "";
   const contactPhone = businessSettings?.contactPhone || "";
   const contactEmail = businessSettings?.contactEmail || "";
@@ -148,9 +148,9 @@ export function Footer() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-white hover:text-white/80 transition-colors"
                   >
-                    {social.imageUrl && (
+                    {social.image?.sm && (
                       <Image
-                        src={social.imageUrl}
+                        src={social.image.sm}
                         alt={social.name}
                         width={16}
                         height={16}

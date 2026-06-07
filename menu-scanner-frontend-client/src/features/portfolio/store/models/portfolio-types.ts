@@ -1,3 +1,5 @@
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
+
 export interface PortfolioPhoneDto {
   id: string;
   number: string;
@@ -28,7 +30,7 @@ export interface PortfolioHoursDto {
 
 export interface PortfolioGalleryItemDto {
   id: string;
-  url: string;
+  image?: ImageUrls;
   title?: string;
 }
 
@@ -43,7 +45,7 @@ export interface PortfolioTeamMemberDto {
   name: string;
   position: string;
   bio?: string;
-  photoUrl?: string;
+  photo?: ImageUrls;
 }
 
 export interface PortfolioCustomStatDto {
@@ -69,8 +71,8 @@ export interface PortfolioPublicProfile {
   businessName: string;
   description: string;
   tagline?: string;
-  logoUrl?: string;
-  coverImageUrl?: string;
+  logo?: ImageUrls;
+  coverImage?: ImageUrls;
   contact: PortfolioContactDto;
   socialMedia?: PortfolioSocialMediaItemDto[];
   businessHours?: PortfolioHoursDto[];
@@ -125,7 +127,7 @@ export interface PortfolioHoursRequest {
 
 export interface PortfolioGalleryItemRequest {
   id?: string;
-  url: string;
+  image?: ImageUrls;
   title?: string;
 }
 
@@ -140,7 +142,7 @@ export interface PortfolioTeamMemberRequest {
   name: string;
   position: string;
   bio?: string;
-  photoUrl?: string;
+  photo?: ImageUrls;
 }
 
 export interface PortfolioCustomStatRequest {
@@ -167,8 +169,8 @@ export interface PortfolioContactRequest {
 export interface PortfolioProfileSaveRequest {
   businessName: string;
   description: string;
-  logoUrl?: string;
-  coverImageUrl?: string;
+  logo?: ImageUrls;
+  coverImage?: ImageUrls;
   contact?: PortfolioContactRequest;
   socialMedia?: PortfolioSocialMediaRequest[];
   businessHours?: PortfolioHoursRequest[];

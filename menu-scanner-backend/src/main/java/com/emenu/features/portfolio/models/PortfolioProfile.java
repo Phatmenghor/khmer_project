@@ -1,11 +1,14 @@
 package com.emenu.features.portfolio.models;
 
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +35,13 @@ public class PortfolioProfile extends BaseUUIDEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "logo_url")
-    private String logoUrl;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "logo", columnDefinition = "jsonb")
+    private ImageUrls logo;
 
-    @Column(name = "cover_image_url")
-    private String coverImageUrl;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "cover_image", columnDefinition = "jsonb")
+    private ImageUrls coverImage;
 
     // Contact
     @Column(name = "contact_email")

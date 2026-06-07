@@ -10,7 +10,7 @@ export const selectBusinessName = (state: RootState) =>
   state.businessSettings.data?.businessName;
 
 export const selectBusinessLogo = (state: RootState) =>
-  state.businessSettings.data?.logoBusinessUrl;
+  state.businessSettings.data?.logoBusiness?.sm;
 
 
 export const selectBusinessColors = createSelector(

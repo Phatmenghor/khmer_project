@@ -1,11 +1,14 @@
 package com.emenu.features.auth.models;
 
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -27,8 +30,9 @@ public class SocialMedia extends BaseUUIDEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "image", columnDefinition = "jsonb")
+    private ImageUrls image;
 
     @Column(name = "link_url")
     private String linkUrl;

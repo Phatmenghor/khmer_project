@@ -1,16 +1,21 @@
 import { z } from "zod";
 
+const imageUrlsSchema = z.object({
+  sm: z.string().optional(),
+  md: z.string().optional(),
+  o: z.string().optional(),
+}).optional();
 
 export const businessSettingsSchema = z.object({
   businessName: z.string().optional(),
   taxPercentage: z.string().optional(),
-  logoBusinessUrl: z.string(),
+  logoBusiness: imageUrlsSchema,
   enableStock: z.enum(["ENABLED", "DISABLED"]),
   socialMedia: z.array(
     z.object({
       name: z.string().optional(),
       linkUrl: z.string().optional(),
-      imageUrl: z.string().optional(),
+      image: imageUrlsSchema,
     }).refine(
       (item) => {
         // If name is empty, all fields can be empty

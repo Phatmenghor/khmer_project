@@ -1,6 +1,7 @@
 package com.emenu.features.auth.dto.request;
 
 import com.emenu.enums.common.StockStatus;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -20,7 +21,7 @@ public class BusinessSettingCreateRequest {
     @DecimalMax(value = "100.0")
     private Double taxPercentage;
 
-    private String logoBusinessUrl;
+    private ImageUrls logoBusiness;
 
     private StockStatus enableStock;
 

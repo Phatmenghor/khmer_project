@@ -1,11 +1,12 @@
 
-
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 export type StockStatus = "ENABLED" | "DISABLED";
 
 export interface SocialMedia {
   name: string;
   linkUrl: string;
+  image?: ImageUrls;
 }
 
 export interface BusinessHours {
@@ -24,7 +25,7 @@ export interface BusinessSettingsResponse {
   businessId: string;
   businessName: string;
   taxPercentage: number | null;
-  logoBusinessUrl: string;
+  logoBusiness?: ImageUrls;
   enableStock: StockStatus;
   socialMedia: SocialMedia[];
   primaryColor?: string;

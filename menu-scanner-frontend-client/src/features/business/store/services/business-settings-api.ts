@@ -1,3 +1,4 @@
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import { axiosClient } from "@/utils/axios";
 
 export interface BusinessSettingsResponse {
@@ -13,7 +14,7 @@ export interface BusinessSettingsResponse {
   businessCountry?: string;
   businessLatitude?: number;
   businessLongitude?: number;
-  logoBusinessUrl?: string;
+  logoBusiness?: ImageUrls;
   coverBusinessUrl?: string;
   primaryColor?: string;
   secondaryColor?: string;
@@ -65,7 +66,7 @@ export const businessSettingsApi = {
       errorColor: settings.errorColor,
       infoColor: settings.infoColor,
       mutedColor: settings.mutedColor,
-      logoBusinessUrl: settings.logoBusinessUrl,
+      logoBusiness: settings.logoBusiness?.sm,
       coverBusinessUrl: settings.coverBusinessUrl,
       businessName: settings.businessName,
       taxPercentage: settings.taxPercentage,

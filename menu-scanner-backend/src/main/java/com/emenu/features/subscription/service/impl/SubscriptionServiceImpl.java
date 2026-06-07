@@ -165,7 +165,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             response.setBusinessName(subscription.getBusiness().getName());
         }
         businessSettingRepository.findByBusinessIdAndIsDeletedFalse(subscription.getBusinessId())
-                .ifPresent(s -> response.setLogoBusinessUrl(s.getLogoBusinessUrl()));
+                .ifPresent(s -> response.setLogoBusinessUrl(s.getLogoBusiness() != null ? s.getLogoBusiness().getSm() : null));
         if (subscription.getPlan() != null) {
             SubscriptionPlan plan = subscription.getPlan();
             response.setPlanId(plan.getId());

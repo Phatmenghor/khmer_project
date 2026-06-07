@@ -1,6 +1,6 @@
 package com.emenu.features.portfolio.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
+import com.emenu.shared.dto.ImageUrls;
 import lombok.Data;
 
 import java.util.UUID;
@@ -10,8 +10,7 @@ public class PortfolioGalleryItemRequest {
 
     private UUID id;
 
-    @NotBlank
-    private String url;
+    private ImageUrls image;
 
     private String title;
 }

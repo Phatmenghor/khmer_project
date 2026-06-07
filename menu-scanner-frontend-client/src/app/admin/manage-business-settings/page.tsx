@@ -24,7 +24,7 @@ import {
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { type SocialMedia } from "@/features/business/store/services/business-settings-service";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
@@ -37,7 +37,8 @@ import {
   fetchBusinessSettingsThunk,
   updateBusinessSettingsThunk,
 } from "@/features/business/store/thunks/business-settings-thunks";
-import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
+import { uploadMultiSize } from "@/services/spaces-service";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import {
   businessSettingsSchema,
   type BusinessSettingsFormData,
@@ -56,9 +57,13 @@ function convertResponseToFormData(
   return {
     businessName: response.businessName || "",
     taxPercentage: response.taxPercentage?.toString() || "",
-    logoBusinessUrl: response.logoBusinessUrl || "",
+    logoBusiness: response.logoBusiness || {},
     enableStock: response.enableStock || "DISABLED",
-    socialMedia: response.socialMedia || [],
+    socialMedia: (response.socialMedia || []).map((sm) => ({
+      name: sm.name,
+      linkUrl: sm.linkUrl,
+      image: sm.image || {},
+    })),
     primaryColor: response.primaryColor || "",
     contactAddress: response.contactAddress || "",
     contactPhone: response.contactPhone || "",
@@ -76,7 +81,6 @@ function convertResponseToFormData(
   };
 }
 
-// Shared section card title — unified style across the page (mirrors portfolio)
 function SectionTitle({
   icon: Icon,
   title,
@@ -117,13 +121,21 @@ export default function BusinessSettingsPage() {
   const [isLoading, setIsLoading] = useState(!reduxBusinessSettings);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Deferred upload state for logo
+  const [pendingLogoFile, setPendingLogoFile] = useState<File | null>(null);
+  const [logoBlobUrl, setLogoBlobUrl] = useState<string>("");
+
+  // Deferred upload state for social media icons (indexed parallel array)
+  const [pendingSocialFiles, setPendingSocialFiles] = useState<(File | null)[]>([]);
+  const [socialBlobUrls, setSocialBlobUrls] = useState<string[]>([]);
+
   const form = useForm<BusinessSettingsFormData>({
     resolver: zodResolver(businessSettingsSchema),
     mode: "onChange",
     defaultValues: {
       businessName: "",
       taxPercentage: "",
-      logoBusinessUrl: "",
+      logoBusiness: {},
       enableStock: "DISABLED",
       socialMedia: [],
       primaryColor: "",
@@ -147,6 +159,10 @@ export default function BusinessSettingsPage() {
     if (!reduxBusinessSettings) return;
     const formData = convertResponseToFormData(reduxBusinessSettings);
     form.reset(formData);
+    setPendingLogoFile(null);
+    setLogoBlobUrl("");
+    setPendingSocialFiles([]);
+    setSocialBlobUrls([]);
     setIsLoading(false);
 
     if (reduxBusinessSettings?.businessId) {
@@ -177,7 +193,7 @@ export default function BusinessSettingsPage() {
         const apiData = {
           primaryColor: data.primaryColor || "",
           businessName: data.businessName,
-          logoBusinessUrl: data.logoBusinessUrl,
+          logoBusinessUrl: data.logoBusiness?.sm,
           taxPercentage: data.taxPercentage ?? undefined,
         };
 
@@ -194,42 +210,67 @@ export default function BusinessSettingsPage() {
     }
   };
 
-  const handleLogoSelect = useCallback(
-    (imageData: string) => {
-      form.setValue("logoBusinessUrl", imageData, { shouldDirty: true });
-      showToast.success(Messages.business.logoSelected);
-    },
-    [form],
-  );
+  const handleLogoFileSelected = useCallback((file: File | null) => {
+    if (logoBlobUrl) URL.revokeObjectURL(logoBlobUrl);
+    if (file) {
+      const blobUrl = URL.createObjectURL(file);
+      setPendingLogoFile(file);
+      setLogoBlobUrl(blobUrl);
+      form.setValue("logoBusiness", { sm: blobUrl, md: blobUrl, o: blobUrl }, { shouldDirty: true });
+    } else {
+      setPendingLogoFile(null);
+      setLogoBlobUrl("");
+      form.setValue("logoBusiness", {}, { shouldDirty: true });
+    }
+  }, [form, logoBlobUrl]);
+
+  const handleSocialFileSelected = useCallback((index: number, file: File | null) => {
+    setPendingSocialFiles((prev) => {
+      const next = [...prev];
+      if (socialBlobUrls[index]) URL.revokeObjectURL(socialBlobUrls[index]);
+      next[index] = file;
+      return next;
+    });
+    if (file) {
+      const blobUrl = URL.createObjectURL(file);
+      setSocialBlobUrls((prev) => { const next = [...prev]; next[index] = blobUrl; return next; });
+      form.setValue(`socialMedia.${index}.image`, { sm: blobUrl, md: blobUrl, o: blobUrl }, { shouldDirty: true });
+    } else {
+      setSocialBlobUrls((prev) => { const next = [...prev]; next[index] = ""; return next; });
+      form.setValue(`socialMedia.${index}.image`, {}, { shouldDirty: true });
+    }
+  }, [form, socialBlobUrls]);
 
   const onSubmit = async (data: BusinessSettingsFormData) => {
     try {
       setIsSaving(true);
+      const businessId = AppDefault.BUSINESS_ID;
 
-      let logoBusinessUrl = data.logoBusinessUrl;
-      if (isBase64Image(logoBusinessUrl)) {
+      // Upload logo if pending
+      let logoBusiness: ImageUrls | undefined = data.logoBusiness as ImageUrls | undefined;
+      if (pendingLogoFile) {
         try {
-          logoBusinessUrl = await uploadImage(logoBusinessUrl);
+          logoBusiness = await uploadMultiSize(pendingLogoFile, businessId);
         } catch (error) {
           showToast.error(Messages.business.logoUploadFailed);
           return;
         }
       }
 
+      // Upload social media icons
       const uploadedSocialMedia = await Promise.all(
-        (data.socialMedia || []).map(async (social) => {
-          let imageUrl = (
-            social as { name: string; linkUrl: string; imageUrl?: string }
-          ).imageUrl;
-          if (imageUrl && isBase64Image(imageUrl)) {
+        (data.socialMedia || []).map(async (social, index) => {
+          const pendingFile = pendingSocialFiles[index];
+          if (pendingFile) {
             try {
-              imageUrl = await uploadImage(imageUrl);
+              const uploaded = await uploadMultiSize(pendingFile, businessId);
+              return { ...social, image: uploaded as ImageUrls };
             } catch (error) {
               showToast.error(`Failed to upload ${social.name} icon`);
               throw error;
             }
           }
-          return { ...social, imageUrl };
+          return social;
         }),
       );
 
@@ -246,7 +287,7 @@ export default function BusinessSettingsPage() {
         .map((sm) => ({
           name: sm.name as string,
           linkUrl: sm.linkUrl as string,
-          imageUrl: sm.imageUrl,
+          image: sm.image as ImageUrls | undefined,
         }));
 
       const payload = {
@@ -254,7 +295,7 @@ export default function BusinessSettingsPage() {
         taxPercentage: data.taxPercentage
           ? parseFloat(data.taxPercentage)
           : null,
-        logoBusinessUrl: logoBusinessUrl,
+        logoBusiness: logoBusiness && (logoBusiness.sm || logoBusiness.md || logoBusiness.o) ? logoBusiness : undefined,
         enableStock: data.enableStock,
         socialMedia: filteredSocialMedia,
         primaryColor: data.primaryColor,
@@ -279,7 +320,7 @@ export default function BusinessSettingsPage() {
         const businessData = {
           primaryColor: result.primaryColor || "",
           businessName: result.businessName,
-          logoBusinessUrl: result.logoBusinessUrl,
+          logoBusinessUrl: result.logoBusiness?.sm,
           taxPercentage: result.taxPercentage ?? undefined,
         };
         cacheThemeColors(result.businessId, businessData);
@@ -289,6 +330,10 @@ export default function BusinessSettingsPage() {
         }
 
         form.reset(convertResponseToFormData(result));
+        setPendingLogoFile(null);
+        setLogoBlobUrl("");
+        setPendingSocialFiles([]);
+        setSocialBlobUrls([]);
 
         showToast.success(Messages.business.settingsUpdated);
       } else {
@@ -314,6 +359,7 @@ export default function BusinessSettingsPage() {
   const hasErrors = Object.keys(formErrors).length > 0;
   const businessHours = form.watch("businessHours") || [];
   const socialMedia = form.watch("socialMedia") || [];
+  const watchLogoBusiness = form.watch("logoBusiness");
 
   return (
     <div className="flex flex-1 flex-col gap-5 px-4 py-5">
@@ -422,10 +468,13 @@ export default function BusinessSettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ClickableImageUpload
+              <SpacesImageUpload
                 label="Business Logo"
-                value={form.watch("logoBusinessUrl")}
-                onChange={handleLogoSelect}
+                value={watchLogoBusiness?.sm || ""}
+                previewSrc={watchLogoBusiness?.o || watchLogoBusiness?.md || watchLogoBusiness?.sm}
+                multiSize
+                deferred
+                onFileSelected={handleLogoFileSelected}
                 disabled={isSaving}
                 aspectRatio="square"
                 placeholder="Click to upload logo"
@@ -670,9 +719,11 @@ export default function BusinessSettingsPage() {
                 const current = form.getValues("socialMedia") || [];
                 form.setValue(
                   "socialMedia",
-                  [...current, { name: "", imageUrl: "", linkUrl: "" }],
+                  [...current, { name: "", image: {}, linkUrl: "" }],
                   { shouldDirty: true },
                 );
+                setPendingSocialFiles((prev) => [...prev, null]);
+                setSocialBlobUrls((prev) => [...prev, ""]);
               }}
               disabled={isSaving}
             >
@@ -692,6 +743,7 @@ export default function BusinessSettingsPage() {
                     form.formState.errors.socialMedia as any
                   )?.[index];
                   const hasError = !!socialErrors;
+                  const watchImage = form.watch(`socialMedia.${index}.image`);
                   return (
                     <div
                       key={index}
@@ -713,27 +765,27 @@ export default function BusinessSettingsPage() {
                             current.filter((_, i) => i !== index),
                             { shouldDirty: true },
                           );
+                          if (socialBlobUrls[index]) URL.revokeObjectURL(socialBlobUrls[index]);
+                          setPendingSocialFiles((prev) => prev.filter((_, i) => i !== index));
+                          setSocialBlobUrls((prev) => prev.filter((_, i) => i !== index));
                         }}
                         disabled={isSaving}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                       <div className="space-y-4 pr-10">
-                        <Controller
-                          control={form.control}
-                          name={`socialMedia.${index}.imageUrl`}
-                          render={({ field }) => (
-                            <ClickableImageUpload
-                              label="Platform Icon"
-                              value={field.value || ""}
-                              onChange={field.onChange}
-                              disabled={isSaving}
-                              aspectRatio="square"
-                              placeholder="Click to upload icon"
-                              maxSize={5}
-                              helperText="Square (1:1) icon recommended — PNG, JPG"
-                            />
-                          )}
+                        <SpacesImageUpload
+                          label="Platform Icon"
+                          value={watchImage?.sm || ""}
+                          previewSrc={watchImage?.o || watchImage?.md || watchImage?.sm}
+                          multiSize
+                          deferred
+                          onFileSelected={(file) => handleSocialFileSelected(index, file)}
+                          disabled={isSaving}
+                          aspectRatio="square"
+                          placeholder="Click to upload icon"
+                          maxSize={5}
+                          helperText="Square (1:1) icon recommended — PNG, JPG"
                         />
                         <TextField<BusinessSettingsFormData>
                           control={form.control}

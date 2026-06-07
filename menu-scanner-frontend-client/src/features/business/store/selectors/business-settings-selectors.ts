@@ -18,7 +18,7 @@ export const selectBusinessPrimaryColor = (state: RootState) => {
 };
 
 export const selectBusinessLogo = (state: RootState) => {
-  return state.businessSettings.data?.logoBusinessUrl || defaultSettings.logoBusinessUrl;
+  return state.businessSettings.data?.logoBusiness?.sm || (defaultSettings as any).logoBusinessUrl;
 };
 
 export const selectBusinessName = (state: RootState) => {

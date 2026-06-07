@@ -229,7 +229,10 @@ public class OwnerDashboardServiceImpl implements OwnerDashboardService {
                 List<BusinessSetting> settings = em.createQuery(
                         "SELECT bs FROM BusinessSetting bs WHERE bs.businessId = :bId AND bs.isDeleted = false")
                         .setParameter("bId", businessId).setMaxResults(1).getResultList();
-                if (!settings.isEmpty()) logoUrl = settings.get(0).getLogoBusinessUrl();
+                if (!settings.isEmpty()) {
+                    var logoBusiness = settings.get(0).getLogoBusiness();
+                    logoUrl = logoBusiness != null ? logoBusiness.getSm() : null;
+                }
             }
 
             String planName = null, status = null;
