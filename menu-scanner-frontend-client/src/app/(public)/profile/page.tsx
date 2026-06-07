@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Edit, Loader2, Trash2, Lock, User, Camera, Eye, EyeOff } from "lucide-react";
+import { Edit, Loader2, Trash2, Lock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { PasswordField } from "@/components/shared/form-field/password-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { DisplayField } from "@/components/shared/form-field/display-field";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   getCustomerProfileService,
@@ -30,12 +31,12 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { clearError } from "@/features/auth/store/slice/auth-slice";
 import ChangePasswordModal from "@/components/shared/modal/change-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
-import { ProfilePictureModal } from "@/components/shared/modal/profile-picture-modal";
 import { useRouter } from "next/navigation";
-import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
-import { isBase64Image, uploadImage } from "@/utils/common/upload-image";
 import { clearToken } from "@/utils/local-storage/token";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
+import { SpacesMultiSizeResult } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { GENDER_OPTIONS } from "@/constants/form-options";
@@ -67,12 +68,12 @@ export default function PublicProfilePage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] = useState(false);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("profile");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [profileImageKeys, setProfileImageKeys] = useState<SpacesMultiSizeResult | undefined>();
 
   const {
     control,
@@ -132,20 +133,9 @@ export default function PublicProfilePage() {
 
   const onSubmit = async (data: CustomerProfileFormData) => {
     try {
-      setIsUploadingImage(true);
-
-      let profileImageUrl =
-        data.profileImageUrl || userProfile?.profileImage?.md || "";
-
-      if (profileImageUrl && isBase64Image(profileImageUrl)) {
-        try {
-          profileImageUrl = await uploadImage(profileImageUrl);
-        } catch (error) {
-          showToast.error(Messages.profile.pictureUploadFailed);
-          setIsUploadingImage(false);
-          return;
-        }
-      }
+      const profileImageUrls: ImageUrls | undefined = profileImageKeys
+        ? { sm: profileImageKeys.sm.url, md: profileImageKeys.md.url, lg: profileImageKeys.lg.url, o: profileImageKeys.o.url }
+        : (data.profileImageUrl ? { sm: data.profileImageUrl, md: data.profileImageUrl, lg: data.profileImageUrl, o: data.profileImageUrl } : undefined);
 
       const payload: any = {
         firstName: data.firstName,
@@ -157,7 +147,7 @@ export default function PublicProfilePage() {
       if (data.nickname) payload.nickname = data.nickname;
       if (data.gender) payload.gender = data.gender;
       if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth;
-      if (profileImageUrl) payload.profileImage = { sm: profileImageUrl, md: profileImageUrl, lg: profileImageUrl, o: profileImageUrl };
+      if (profileImageUrls) payload.profileImage = profileImageUrls;
 
       await dispatch(updateCustomerProfileService(payload)).unwrap();
 
@@ -168,8 +158,6 @@ export default function PublicProfilePage() {
       setIsEditing(false);
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || Messages.profile.updateFailed);
-    } finally {
-      setIsUploadingImage(false);
     }
   };
 
@@ -187,41 +175,6 @@ export default function PublicProfilePage() {
       });
     }
     setIsEditing(false);
-  };
-
-  const handleAutoUploadProfilePicture = async (imageData: string) => {
-    try {
-      setIsUploadingImage(true);
-
-      let profileImageUrl = imageData;
-      if (isBase64Image(profileImageUrl)) {
-        try {
-          profileImageUrl = await uploadImage(profileImageUrl);
-        } catch (error) {
-          showToast.error(Messages.upload.imageFailed);
-          setIsUploadingImage(false);
-          return;
-        }
-      }
-
-      setValue("profileImageUrl", profileImageUrl, {
-        shouldDirty: true,
-      });
-
-      const payload = {
-        profileImageUrl,
-      };
-
-      await dispatch(updateCustomerProfileService(payload)).unwrap();
-      await dispatch(getCustomerProfileService()).unwrap();
-
-      showToast.success(Messages.profile.pictureUpdated);
-    } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || Messages.profile.pictureUpdateFailed);
-    } finally {
-      setIsUploadingImage(false);
-      setIsProfilePictureModalOpen(false);
-    }
   };
 
   const handleDeleteAccount = async () => {
@@ -264,22 +217,24 @@ export default function PublicProfilePage() {
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 {}
-                <div
-                  className="relative group cursor-pointer"
-                  onClick={() => setIsProfilePictureModalOpen(true)}
-                >
-                  <div className="relative ring-2 ring-primary/20 rounded">
-                    <CustomAvatar
-                      imageUrl={userProfile?.profileImage?.sm}
-                      name={userProfile?.fullName}
-                      size="xxl"
-                    />
-                    {}
-                    <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
-                      <Camera className="h-3 w-3 text-white" />
-                    </div>
-                  </div>
-                </div>
+                <SpacesImageUpload
+                  label="Profile Photo"
+                  businessId={userProfile?.businessId || AppDefault.BUSINESS_ID}
+                  multiSize
+                  value={watch("profileImageUrl") || ""}
+                  imageKeys={profileImageKeys}
+                  disabled={!isEditing}
+                  aspectRatio="square"
+                  height="h-32"
+                  onChange={(result) => {
+                    setProfileImageKeys(result);
+                    setValue("profileImageUrl", result.md.url, { shouldDirty: true });
+                  }}
+                  onRemove={() => {
+                    setProfileImageKeys(undefined);
+                    setValue("profileImageUrl", "", { shouldDirty: true });
+                  }}
+                />
 
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
@@ -656,16 +611,6 @@ export default function PublicProfilePage() {
             onClose={() => setIsChangePasswordModalOpen(false)}
           />
 
-          {}
-          <ProfilePictureModal
-            isOpen={isProfilePictureModalOpen}
-            onClose={() => setIsProfilePictureModalOpen(false)}
-            onImageSelect={handleAutoUploadProfilePicture}
-            onImageRemove={() => setValue("profileImageUrl", "")}
-            isLoading={isUploadingImage}
-            currentImageUrl={watch("profileImageUrl") || userProfile?.profileImage?.md}
-            userName={userProfile?.fullName}
-          />
         </div>
       </div>
     </PageContainer>
