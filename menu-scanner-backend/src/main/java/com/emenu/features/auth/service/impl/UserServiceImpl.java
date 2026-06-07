@@ -278,15 +278,6 @@ public class UserServiceImpl implements UserService {
     private void updateUserRoles(User userEntity, UserUpdateRequest updateRequestData) {
         if (updateRequestData.getRoles() != null && !updateRequestData.getRoles().isEmpty()) {
             List<Role> assignedRoles = roleRepository.findByNameInAndIsDeletedFalse(updateRequestData.getRoles());
-
-            if (assignedRoles.size() != updateRequestData.getRoles().size()) {
-                log.warn("Role assignment failed - invalid roles: invalid_roles={}, user_id={}",
-                        updateRequestData.getRoles(), userEntity.getId());
-                throw new ValidationException("One or more roles not found");
-            }
-
-            validateRoleUserTypeCompatibility(assignedRoles, userEntity.getUserType());
-            validateBusinessOwnerRoleAssignment(updateRequestData.getRoles(), userEntity.getBusinessId());
             userEntity.getRoles().clear();
             userEntity.getRoles().addAll(assignedRoles);
         }
