@@ -13,6 +13,7 @@ import {
 
 interface TableImageProps {
   src?: string;
+  previewSrc?: string;
   alt?: string;
   fallbackText?: string;
   className?: string;
@@ -20,17 +21,22 @@ interface TableImageProps {
 
 export function TableImage({
   src,
+  previewSrc,
   alt = "Image",
   fallbackText,
   className = "h-9 w-9",
 }: TableImageProps) {
   const [viewOpen, setViewOpen] = useState(false);
+  const [thumbErrored, setThumbErrored] = useState(false);
+  const [previewErrored, setPreviewErrored] = useState(false);
+  const effectivePreview = previewSrc || src;
 
   const handleDownload = async (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (!src) return;
+    const target = effectivePreview;
+    if (!target) return;
     try {
-      const res = await fetch(src);
+      const res = await fetch(target);
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -41,7 +47,7 @@ export function TableImage({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch {
-      window.open(src, "_blank");
+      window.open(target, "_blank");
     }
   };
 
@@ -50,9 +56,14 @@ export function TableImage({
       <div
         className={`relative group rounded overflow-hidden bg-muted border border-border flex-shrink-0 ${className}`}
       >
-        {src ? (
+        {src && !thumbErrored ? (
           <>
-            <img src={src} alt={alt} className="w-full h-full object-cover" />
+            <img
+              src={src}
+              alt={alt}
+              className="w-full h-full object-cover"
+              onError={() => setThumbErrored(true)}
+            />
             {/* View — top left */}
             <button
               type="button"
@@ -106,8 +117,8 @@ export function TableImage({
                     <Download className="h-3.5 w-3.5 mr-2" />
                     Download
                   </DropdownMenuItem>
-                  {src && (
-                    <DropdownMenuItem onClick={() => window.open(src, "_blank")}>
+                  {effectivePreview && (
+                    <DropdownMenuItem onClick={() => window.open(effectivePreview, "_blank")}>
                       <ExternalLink className="h-3.5 w-3.5 mr-2" />
                       Open in new tab
                     </DropdownMenuItem>
@@ -127,11 +138,12 @@ export function TableImage({
 
           {/* Body */}
           <div className="flex items-center justify-center bg-muted/20 min-h-[240px] p-4">
-            {src ? (
+            {effectivePreview && !previewErrored ? (
               <img
-                src={src}
+                src={effectivePreview}
                 alt={alt}
                 className="max-w-full max-h-[60vh] object-contain rounded"
+                onError={() => setPreviewErrored(true)}
               />
             ) : (
               <div className="flex flex-col items-center gap-2 text-muted-foreground">

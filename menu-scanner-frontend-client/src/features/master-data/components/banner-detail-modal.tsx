@@ -6,6 +6,27 @@ import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { BannerResponseModel } from "../store/models/response/banner-response";
 import { cn } from "@/lib/utils";
 import { Image as ImageIcon } from "lucide-react";
+import { useState } from "react";
+
+function BannerDetailImage({ src, alt }: { src?: string; alt: string }) {
+  const [errored, setErrored] = useState(false);
+  return (
+    <div className="w-full rounded overflow-hidden bg-muted border border-border/50 aspect-[16/5]">
+      {src && !errored ? (
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-full object-cover"
+          onError={() => setErrored(true)}
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <ImageIcon className="h-8 w-8 text-muted-foreground/40" />
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface BannerDetailModalProps {
   banner: BannerResponseModel | null;
@@ -82,19 +103,10 @@ export function BannerDetailModal({
               {/* Banner Preview */}
               <div className="rounded border border-border/50 bg-card p-3">
                 <SectionTitle>Banner Image</SectionTitle>
-                <div className="w-full rounded overflow-hidden bg-muted border border-border/50 aspect-[16/5]">
-                  {banner.imageUrl ? (
-                    <img
-                      src={banner.imageUrl}
-                      alt={banner.description || "Banner"}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <ImageIcon className="h-8 w-8 text-muted-foreground/40" />
-                    </div>
-                  )}
-                </div>
+                <BannerDetailImage
+                  src={banner.image?.md ?? banner.image?.o}
+                  alt={banner.description || "Banner"}
+                />
               </div>
 
               {/* Banner Information */}

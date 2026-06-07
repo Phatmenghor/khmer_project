@@ -45,14 +45,15 @@ export const bannerTableColumns = ({
       ),
     },
     {
-      key: "imageUrl",
+      key: "image",
       label: "Banner Image",
       minWidth: "200px",
       maxWidth: "280px",
       render: (banner) => {
         return (
           <TableImage
-            src={banner.imageUrl}
+            src={banner.image?.sm}
+            previewSrc={banner.image?.o}
             alt="Banner"
             fallbackText="B"
             className="w-44 h-24"

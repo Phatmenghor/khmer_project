@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TextField } from "@/components/shared/form-field/text-field";
 import { TextAreaField } from "@/components/shared/form-field/textarea-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
@@ -29,10 +28,11 @@ import {
   updateBannerService,
 } from "../store/thunks/banner-thunks";
 import { clearError, clearSelectedBanner } from "../store/slice/banner-slice";
-import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import { showToast } from "@/components/shared/common/show-toast";
 import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-status";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
+import { SpacesMultiSizeResult } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { BannerResponseModel } from "../store/models/response/banner-response";
 
 type Props = {
@@ -50,8 +50,7 @@ export default function BannerModal({
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
 
-
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [imageKeys, setImageKeys] = useState<SpacesMultiSizeResult | undefined>(undefined);
 
   const dispatch = useAppDispatch();
 
@@ -69,35 +68,38 @@ export default function BannerModal({
   } = useForm<CreateBannerData>({
     resolver: zodResolver(isCreate ? createBannerSchema : updateBannerSchema),
     defaultValues: {
-      imageUrl: "",
+      image: { sm: "", md: "", o: "" },
       description: "",
       status: Status.ACTIVE,
     },
     mode: "onChange",
   });
 
-  const imageUrl = watch("imageUrl");
+  const image = watch("image");
 
   useEffect(() => {
     if (isOpen) {
       if (isCreate) {
-
         reset({
-          imageUrl: "",
+          image: { sm: "", md: "", o: "" },
           description: "",
           status: Status.ACTIVE,
         });
+        setImageKeys(undefined);
       } else if (banner) {
-
         reset({
-          imageUrl: banner.imageUrl || "",
+          image: {
+            sm: banner.image?.sm || "",
+            md: banner.image?.md || "",
+            o: banner.image?.o || "",
+          },
           description: banner.description || "",
           status: banner.status || "",
         });
+        setImageKeys(undefined);
       }
     }
   }, [isOpen, banner, isCreate, reset]);
-
 
   useEffect(() => {
     if (isOpen) {
@@ -107,23 +109,8 @@ export default function BannerModal({
 
   const onSubmit = async (data: CreateBannerData) => {
     try {
-      let finalImageUrl = data.imageUrl;
-
-
-      if (finalImageUrl && isBase64Image(finalImageUrl)) {
-        setIsUploadingImage(true);
-        try {
-          finalImageUrl = await uploadImage(finalImageUrl);
-        } catch (uploadError) {
-          showToast.error(Messages.banner.imageUploadFailed);
-          return;
-        } finally {
-          setIsUploadingImage(false);
-        }
-      }
-
       const payload = {
-        imageUrl: finalImageUrl,
+        image: data.image,
         description: data.description || "",
         status: data.status,
       };
@@ -149,14 +136,13 @@ export default function BannerModal({
 
   const handleClose = () => {
     reset();
-    setIsUploadingImage(false);
+    setImageKeys(undefined);
     dispatch(clearError());
     dispatch(clearSelectedBanner());
     onClose();
   };
 
   const isSubmitting = isCreate ? isCreating : isUpdating;
-  const isProcessing = isSubmitting || isUploadingImage;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -175,77 +161,90 @@ export default function BannerModal({
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-hidden"
         >
-            <FormBody>
-              {}
-              {reduxError && (
-                <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
-                  <p className="text-xs text-destructive font-medium">
-                    {reduxError}
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-0.5">
-                <ClickableImageUpload
-                  label="Banner Image"
-                  value={imageUrl}
-                  onChange={(base64) => setValue("imageUrl", base64)}
-                  aspectRatio="banner"
-                  required
-                  error={errors.imageUrl}
-                  placeholder="Click to upload banner image"
-                />
-
-                <TextAreaField
-                  control={control}
-                  name="description"
-                  label="Description"
-                  placeholder="Enter banner description (optional)"
-                  disabled={isProcessing}
-                  error={errors.description}
-                  rows={3}
-                />
-
-                <SelectField
-                  control={control}
-                  name="status"
-                  label="Status"
-                  placeholder="Select status"
-                  options={BANNER_STATUS_CREATE_UPDATE}
-                  required
-                  disabled={isProcessing}
-                  error={errors.status}
-                />
+          <FormBody>
+            {reduxError && (
+              <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+                <p className="text-xs text-destructive font-medium">
+                  {reduxError}
+                </p>
               </div>
-            </FormBody>
+            )}
 
-            <FormFooter
-              isSubmitting={isProcessing}
+            <div className="space-y-0.5">
+              <SpacesImageUpload
+                multiSize
+                label="Banner Image"
+                businessId={AppDefault.BUSINESS_ID}
+                value={image?.md || image?.o || ""}
+                imageKeys={imageKeys}
+                onChange={(result) => {
+                  setImageKeys(result);
+                  setValue(
+                    "image",
+                    { sm: result.sm.url, md: result.md.url, o: result.o.url },
+                    { shouldDirty: true, shouldValidate: true },
+                  );
+                }}
+                onRemove={() => {
+                  setImageKeys(undefined);
+                  setValue(
+                    "image",
+                    { sm: "", md: "", o: "" },
+                    { shouldDirty: true, shouldValidate: true },
+                  );
+                }}
+                aspectRatio="banner"
+                required
+                disabled={isSubmitting}
+                error={
+                  (errors.image as any)?.message ||
+                  (errors.image as any)?.root?.message
+                }
+                placeholder="Click to upload banner image"
+              />
+
+              <TextAreaField
+                control={control}
+                name="description"
+                label="Description"
+                placeholder="Enter banner description (optional)"
+                disabled={isSubmitting}
+                error={errors.description}
+                rows={3}
+              />
+
+              <SelectField
+                control={control}
+                name="status"
+                label="Status"
+                placeholder="Select status"
+                options={BANNER_STATUS_CREATE_UPDATE}
+                required
+                disabled={isSubmitting}
+                error={errors.status}
+              />
+            </div>
+          </FormBody>
+
+          <FormFooter
+            isSubmitting={isSubmitting}
+            isDirty={isDirty}
+            isCreate={isCreate}
+            createMessage="Creating banner..."
+            updateMessage="Updating banner..."
+          >
+            <CancelButton onClick={handleClose} disabled={isSubmitting} />
+            <SubmitButton
+              isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage={
-                isProcessing ? "Uploading banner..." : "Creating banner..."
-              }
-              updateMessage={
-                isProcessing ? "Uploading banner..." : "Updating banner..."
-              }
-            >
-              <CancelButton onClick={handleClose} disabled={isProcessing} />
-              <SubmitButton
-                isSubmitting={isProcessing}
-                isDirty={isDirty}
-                isCreate={isCreate}
-                createText="Create Banner"
-                updateText="Update Banner"
-                submittingCreateText={
-                  isProcessing ? "Uploading..." : "Creating..."
-                }
-                submittingUpdateText={
-                  isProcessing ? "Uploading..." : "Updating..."
-                }
-              />
-            </FormFooter>
-          </form>
+              createText="Create Banner"
+              updateText="Update Banner"
+              submittingCreateText="Creating..."
+              submittingUpdateText="Updating..."
+            />
+          </FormFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

@@ -104,7 +104,7 @@ const BannerSectionComponent = ({
                   )}
 
                   <Image
-                    src={banner.imageUrl || appImages.noImage}
+                    src={banner.image?.md || appImages.noImage}
                     alt={banner.businessName || "Banner"}
                     fill
                     loading="eager"

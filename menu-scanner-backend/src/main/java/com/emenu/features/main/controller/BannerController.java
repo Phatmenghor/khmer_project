@@ -29,7 +29,7 @@ public class BannerController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<BannerResponse>> createBanner(@Valid @RequestBody BannerCreateRequest request) {
-        log.info("Endpoint: create-banner - banner creation: image={}", request.getImageUrl());
+        log.info("Endpoint: create-banner - banner creation: image={}", request.getImage());
         BannerResponse banner = bannerService.createBanner(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Banner created successfully", banner));
