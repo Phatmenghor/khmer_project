@@ -1,12 +1,16 @@
 package com.emenu.features.spaces.service.impl;
 
 import com.emenu.config.spaces.SpacesProperties;
+import com.emenu.features.spaces.dto.response.SpacesImageResponse;
 import com.emenu.features.spaces.dto.response.SpacesUploadResponse;
+import com.emenu.features.spaces.model.SpacesImage;
+import com.emenu.features.spaces.repository.SpacesImageRepository;
 import com.emenu.features.spaces.service.SpacesService;
 import com.emenu.features.spaces.util.StorageKeyUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -24,11 +28,15 @@ public class SpacesServiceImpl implements SpacesService {
 
     private final S3Client spacesS3Client;
     private final SpacesProperties spacesProperties;
+    private final SpacesImageRepository spacesImageRepository;
 
     @Override
-    public SpacesUploadResponse upload(MultipartFile file, UUID businessId, String name) {
+    @Transactional
+    public SpacesUploadResponse upload(MultipartFile file, UUID businessId, String name,
+                                       String entityType, String entityId) {
         String key = StorageKeyUtil.key(businessId, name);
         String contentType = file.getContentType() != null ? file.getContentType() : "image/webp";
+        String size = extractSize(name);
 
         try {
             spacesS3Client.putObject(
@@ -47,34 +55,73 @@ public class SpacesServiceImpl implements SpacesService {
         }
 
         String url = spacesProperties.getCdnBaseUrl() + "/" + key;
-        log.info("Uploaded: {}", key);
+
+        // Log to DB
+        spacesImageRepository.save(SpacesImage.builder()
+                .businessId(businessId)
+                .objectKey(key)
+                .url(url)
+                .size(size)
+                .entityType(entityType)
+                .entityId(entityId)
+                .originalFilename(file.getOriginalFilename())
+                .fileSize(file.getSize())
+                .build());
+
+        log.info("Uploaded and logged: {}", key);
         return SpacesUploadResponse.builder().key(key).url(url).build();
     }
 
     @Override
+    @Transactional
     public void deleteByKey(String key) {
         spacesS3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(spacesProperties.getBucket())
                 .key(key)
                 .build());
+        spacesImageRepository.deleteByObjectKey(key);
         log.info("Deleted: {}", key);
     }
 
     @Override
+    @Transactional
     public void deleteByDate(UUID businessId, String datePrefix) {
-        deleteByPrefix("b/" + businessId + "/" + datePrefix);
-        log.info("Deleted date prefix {} for business {}", datePrefix, businessId);
+        String fullPrefix = "b/" + businessId + "/" + datePrefix;
+        List<String> deletedKeys = deleteByPrefix(fullPrefix);
+        deletedKeys.forEach(spacesImageRepository::deleteByObjectKey);
+        log.info("Deleted {} objects for date prefix {} (business {})",
+                deletedKeys.size(), datePrefix, businessId);
     }
 
     @Override
+    @Transactional
     public void deleteAllByBusiness(UUID businessId) {
         deleteByPrefix(StorageKeyUtil.businessPrefix(businessId));
+        spacesImageRepository.deleteByBusinessId(businessId);
         log.info("Deleted all objects for business {}", businessId);
     }
 
-    // ── Internal ──────────────────────────────────────────────────────────────
+    @Override
+    public List<SpacesImageResponse> getByBusiness(UUID businessId) {
+        return spacesImageRepository
+                .findByBusinessIdOrderByCreatedAtDesc(businessId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 
-    private void deleteByPrefix(String prefix) {
+    @Override
+    public List<SpacesImageResponse> getByEntity(UUID businessId, String entityType, String entityId) {
+        return spacesImageRepository
+                .findByBusinessIdAndEntityTypeAndEntityId(businessId, entityType, entityId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    // ── Internals ─────────────────────────────────────────────────────────────
+
+    private List<String> deleteByPrefix(String prefix) {
         List<ObjectIdentifier> toDelete = new ArrayList<>();
 
         ListObjectsV2Request listReq = ListObjectsV2Request.builder()
@@ -91,7 +138,7 @@ public class SpacesServiceImpl implements SpacesService {
             listReq = listReq.toBuilder().continuationToken(page.nextContinuationToken()).build();
         } while (Boolean.TRUE.equals(page.isTruncated()));
 
-        if (toDelete.isEmpty()) return;
+        if (toDelete.isEmpty()) return List.of();
 
         for (int i = 0; i < toDelete.size(); i += 1000) {
             List<ObjectIdentifier> batch = toDelete.subList(i, Math.min(i + 1000, toDelete.size()));
@@ -102,5 +149,28 @@ public class SpacesServiceImpl implements SpacesService {
         }
 
         log.info("Deleted {} objects with prefix: {}", toDelete.size(), prefix);
+        return toDelete.stream().map(ObjectIdentifier::key).toList();
+    }
+
+    private String extractSize(String name) {
+        // name format: 20240607T143022-a3f2-sm.webp → extract "sm"
+        if (name == null) return "o";
+        String[] parts = name.replace(".webp", "").split("-");
+        return parts.length > 0 ? parts[parts.length - 1] : "o";
+    }
+
+    private SpacesImageResponse toResponse(SpacesImage image) {
+        return SpacesImageResponse.builder()
+                .id(image.getId())
+                .businessId(image.getBusinessId())
+                .objectKey(image.getObjectKey())
+                .url(image.getUrl())
+                .size(image.getSize())
+                .entityType(image.getEntityType())
+                .entityId(image.getEntityId())
+                .originalFilename(image.getOriginalFilename())
+                .fileSize(image.getFileSize())
+                .createdAt(image.getCreatedAt())
+                .build();
     }
 }
