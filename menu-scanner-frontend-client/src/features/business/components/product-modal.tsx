@@ -367,7 +367,7 @@ export default function ProductModal({
       );
 
       const validImages = processedImages.filter(
-        (img): img is { id?: string; image: { sm?: string; md?: string; o?: string } } =>
+        (img): img is { id: string | undefined; image: { sm?: string; md?: string; o?: string } } =>
           img !== null && !!img.image,
       );
 
