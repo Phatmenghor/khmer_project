@@ -457,6 +457,7 @@ export default function AdminProfilePage() {
                     imageUrl={watch("profileImageUrl") || userProfile?.profileImage?.md}
                     name={userProfile?.fullName}
                     size="xxl"
+                    className="border-0 shadow-none"
                   />
                   <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
                     <Camera className="h-3 w-3 text-white" />
