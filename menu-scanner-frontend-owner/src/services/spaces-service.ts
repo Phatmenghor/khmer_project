@@ -1,4 +1,5 @@
 import { axiosClient } from "@/utils/axios";
+import { getUserInfo } from "@/utils/local-storage/userInfo";
 
 export type ImageSize = "sm" | "md" | "lg" | "o";
 
@@ -29,13 +30,21 @@ function rethrowFriendly(err: any, fallback: string): never {
   throw new Error(msg || fallback);
 }
 
-// Upload a single size — owner path, no businessId needed
+// Returns the owner's userId to use as the storage path prefix
+function getOwnerId(): string {
+  const id = getUserInfo()?.userId;
+  if (!id) throw new Error("Not logged in — please sign in again");
+  return id;
+}
+
+// Upload a single size — stored under owner's userId path
 export async function uploadImage(
   file: File,
   size: ImageSize = "o"
 ): Promise<SpacesUploadResult> {
   const form = new FormData();
   form.append("file", file);
+  form.append("businessId", getOwnerId());
   form.append("size", size);
 
   try {
@@ -74,12 +83,13 @@ export async function uploadAllSizes(
   };
 }
 
-// Upload all sizes in one request (server generates sm, md, o) — no businessId needed
+// Upload all sizes in one request — stored under owner's userId path
 export async function uploadMultiSize(
   file: File
 ): Promise<SpacesMultiSizeResult> {
   const form = new FormData();
   form.append("file", file);
+  form.append("businessId", getOwnerId());
 
   try {
     const res = await axiosClient.post<SpacesMultiSizeResult>(
@@ -97,7 +107,9 @@ export async function deleteImage(key: string): Promise<void> {
   await axiosClient.delete("/api/v1/spaces/object", { params: { key } });
 }
 
-// Delete by date prefix
+// Delete by date prefix — uses owner's userId as the businessId path
 export async function deleteByDate(prefix: string): Promise<void> {
-  await axiosClient.delete("/api/v1/spaces/date", { params: { prefix } });
+  await axiosClient.delete("/api/v1/spaces/date", {
+    params: { businessId: getOwnerId(), prefix },
+  });
 }
