@@ -474,8 +474,7 @@ export default function BusinessSettingsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <SpacesImageUpload
                 label="Business Logo"
-                value={watchLogoBusiness?.sm || ""}
-                previewSrc={watchLogoBusiness?.o || watchLogoBusiness?.md || watchLogoBusiness?.sm}
+                value={watchLogoBusiness?.o || watchLogoBusiness?.md || watchLogoBusiness?.sm || ""}
                 multiSize
                 deferred
                 onFileSelected={handleLogoFileSelected}
@@ -780,8 +779,7 @@ export default function BusinessSettingsPage() {
                       <div className="space-y-4 pr-10">
                         <SpacesImageUpload
                           label="Platform Icon"
-                          value={watchImage?.sm || ""}
-                          previewSrc={watchImage?.o || watchImage?.md || watchImage?.sm}
+                          value={watchImage?.o || watchImage?.md || watchImage?.sm || ""}
                           multiSize
                           deferred
                           onFileSelected={(file) => handleSocialFileSelected(index, file)}

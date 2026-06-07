@@ -465,8 +465,7 @@ export default function PortfolioPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <SpacesImageUpload
                 label="Business Logo"
-                value={watchLogo?.sm || ""}
-                previewSrc={watchLogo?.o || watchLogo?.md || watchLogo?.sm}
+                value={watchLogo?.o || watchLogo?.md || watchLogo?.sm || ""}
                 multiSize
                 deferred
                 onFileSelected={handleLogoFileSelected}
@@ -477,8 +476,7 @@ export default function PortfolioPage() {
               />
               <SpacesImageUpload
                 label="Cover Image"
-                value={watchCoverImage?.sm || ""}
-                previewSrc={watchCoverImage?.o || watchCoverImage?.md || watchCoverImage?.sm}
+                value={watchCoverImage?.o || watchCoverImage?.md || watchCoverImage?.sm || ""}
                 multiSize
                 deferred
                 onFileSelected={handleCoverFileSelected}
@@ -911,8 +909,7 @@ export default function PortfolioPage() {
                       </Button>
                       <SpacesImageUpload
                         label={`Image ${index + 1}`}
-                        value={watchImage?.sm || ""}
-                        previewSrc={watchImage?.o || watchImage?.md || watchImage?.sm}
+                        value={watchImage?.o || watchImage?.md || watchImage?.sm || ""}
                         multiSize
                         deferred
                         onFileSelected={(file) => handleGalleryFileSelected(index, file)}
@@ -1048,8 +1045,7 @@ export default function PortfolioPage() {
                       <div className="space-y-4 pr-10">
                         <SpacesImageUpload
                           label="Photo"
-                          value={watchPhoto?.sm || ""}
-                          previewSrc={watchPhoto?.o || watchPhoto?.md || watchPhoto?.sm}
+                          value={watchPhoto?.o || watchPhoto?.md || watchPhoto?.sm || ""}
                           multiSize
                           deferred
                           onFileSelected={(file) => handleTeamFileSelected(index, file)}
