@@ -7,6 +7,7 @@ import com.emenu.features.spaces.model.SpacesImage;
 import com.emenu.features.spaces.repository.SpacesImageRepository;
 import com.emenu.features.spaces.service.SpacesService;
 import com.emenu.features.spaces.util.StorageKeyUtil;
+import com.emenu.features.spaces.util.StorageNameUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,11 +33,10 @@ public class SpacesServiceImpl implements SpacesService {
 
     @Override
     @Transactional
-    public SpacesUploadResponse upload(MultipartFile file, UUID businessId, String name,
-                                       String entityType, String entityId) {
+    public SpacesUploadResponse upload(MultipartFile file, UUID businessId) {
+        String name = StorageNameUtil.generateName();
         String key = StorageKeyUtil.key(businessId, name);
         String contentType = file.getContentType() != null ? file.getContentType() : "image/webp";
-        String size = extractSize(name);
 
         try {
             spacesS3Client.putObject(
@@ -56,19 +56,15 @@ public class SpacesServiceImpl implements SpacesService {
 
         String url = spacesProperties.getCdnBaseUrl() + "/" + key;
 
-        // Log to DB
         spacesImageRepository.save(SpacesImage.builder()
                 .businessId(businessId)
                 .objectKey(key)
                 .url(url)
-                .size(size)
-                .entityType(entityType)
-                .entityId(entityId)
                 .originalFilename(file.getOriginalFilename())
                 .fileSize(file.getSize())
                 .build());
 
-        log.info("Uploaded and logged: {}", key);
+        log.info("Uploaded: {}", key);
         return SpacesUploadResponse.builder().key(key).url(url).build();
     }
 
@@ -110,15 +106,6 @@ public class SpacesServiceImpl implements SpacesService {
                 .toList();
     }
 
-    @Override
-    public List<SpacesImageResponse> getByEntity(UUID businessId, String entityType, String entityId) {
-        return spacesImageRepository
-                .findByBusinessIdAndEntityTypeAndEntityId(businessId, entityType, entityId)
-                .stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
     // ── Internals ─────────────────────────────────────────────────────────────
 
     private List<String> deleteByPrefix(String prefix) {
@@ -152,22 +139,12 @@ public class SpacesServiceImpl implements SpacesService {
         return toDelete.stream().map(ObjectIdentifier::key).toList();
     }
 
-    private String extractSize(String name) {
-        // name format: 20240607T143022-a3f2-sm.webp → extract "sm"
-        if (name == null) return "o";
-        String[] parts = name.replace(".webp", "").split("-");
-        return parts.length > 0 ? parts[parts.length - 1] : "o";
-    }
-
     private SpacesImageResponse toResponse(SpacesImage image) {
         return SpacesImageResponse.builder()
                 .id(image.getId())
                 .businessId(image.getBusinessId())
                 .objectKey(image.getObjectKey())
                 .url(image.getUrl())
-                .size(image.getSize())
-                .entityType(image.getEntityType())
-                .entityId(image.getEntityId())
                 .originalFilename(image.getOriginalFilename())
                 .fileSize(image.getFileSize())
                 .createdAt(image.getCreatedAt())

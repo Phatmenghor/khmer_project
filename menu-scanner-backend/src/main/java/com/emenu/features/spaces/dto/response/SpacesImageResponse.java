@@ -13,9 +13,6 @@ public class SpacesImageResponse {
     private UUID businessId;
     private String objectKey;
     private String url;
-    private String size;
-    private String entityType;
-    private String entityId;
     private String originalFilename;
     private Long fileSize;
     private LocalDateTime createdAt;

@@ -35,10 +35,9 @@ public final class StorageNameUtil {
     }
 
     /**
-     * Full filename with size suffix.
-     * Example: 20240607T143022-a3f2-sm.webp
+     * Full filename — 20240607T143022-a3f2.webp
      */
-    public static String generate(String size) {
-        return generate() + "-" + size + ".webp";
+    public static String generateName() {
+        return generate() + ".webp";
     }
 }
