@@ -66,7 +66,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
 
 
   const avatarSrc = user.profileImage?.sm ?? appImages.noImage;
-  const previewSrc = user.profileImage?.o ?? user.profileImage?.lg ?? appImages.noImage;
+  const previewSrc = user.profileImage?.o ?? user.profileImage?.md ?? appImages.noImage;
   const hasImage = !!(user.profileImage?.sm);
 
   const handleMouseEnter = () => {

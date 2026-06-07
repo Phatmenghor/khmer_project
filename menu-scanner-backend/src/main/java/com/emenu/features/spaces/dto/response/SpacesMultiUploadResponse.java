@@ -8,6 +8,5 @@ import lombok.Data;
 public class SpacesMultiUploadResponse {
     private SpacesUploadResponse sm;
     private SpacesUploadResponse md;
-    private SpacesUploadResponse lg;
     private SpacesUploadResponse o;
 }

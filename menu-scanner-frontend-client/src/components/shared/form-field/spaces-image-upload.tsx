@@ -81,7 +81,7 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
     if (props.multiSize) {
       const keys = props.imageKeys;
       if (keys) {
-        const all = [keys.sm?.key, keys.md?.key, keys.lg?.key, keys.o?.key].filter(Boolean) as string[];
+        const all = [keys.sm?.key, keys.md?.key, keys.o?.key].filter(Boolean) as string[];
         await Promise.allSettled(all.map(deleteImage));
       }
     } else {

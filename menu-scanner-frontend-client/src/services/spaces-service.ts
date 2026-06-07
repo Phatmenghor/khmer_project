@@ -8,7 +8,6 @@ export interface SpacesUploadResult {
 export interface SpacesMultiSizeResult {
   sm: SpacesUploadResult;
   md: SpacesUploadResult;
-  lg: SpacesUploadResult;
   o: SpacesUploadResult;
 }
 

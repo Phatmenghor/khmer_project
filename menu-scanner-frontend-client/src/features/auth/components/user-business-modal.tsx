@@ -303,8 +303,8 @@ export default function UserBusinessModal({
     keys: SpacesMultiSizeResult | undefined,
     fallbackUrl: string | undefined
   ): ImageUrls | undefined => {
-    if (keys) return { sm: keys.sm.url, md: keys.md.url, lg: keys.lg.url, o: keys.o.url };
-    if (fallbackUrl) return { sm: fallbackUrl, md: fallbackUrl, lg: fallbackUrl, o: fallbackUrl };
+    if (keys) return { sm: keys.sm.url, md: keys.md.url, o: keys.o.url };
+    if (fallbackUrl) return { sm: fallbackUrl, md: fallbackUrl, o: fallbackUrl };
     return undefined;
   };
 

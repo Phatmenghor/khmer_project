@@ -228,8 +228,8 @@ export default function AdminProfilePage() {
     try {
       // profile image
       const profileImageUrls: ImageUrls | undefined = profileImageKeys
-        ? { sm: profileImageKeys.sm.url, md: profileImageKeys.md.url, lg: profileImageKeys.lg.url, o: profileImageKeys.o.url }
-        : (data.profileImageUrl ? { sm: data.profileImageUrl, md: data.profileImageUrl, lg: data.profileImageUrl, o: data.profileImageUrl } : undefined);
+        ? { sm: profileImageKeys.sm.url, md: profileImageKeys.md.url, o: profileImageKeys.o.url }
+        : (data.profileImageUrl ? { sm: data.profileImageUrl, md: data.profileImageUrl, o: data.profileImageUrl } : undefined);
 
       // documents: no more base64 processing, just use form values directly
       const validDocuments = (data.documents || []).filter(doc => doc.type && doc.number);
@@ -364,7 +364,7 @@ export default function AdminProfilePage() {
       setIsUploadingImage(true);
       setProfileImageKeys(result);
       setValue("profileImageUrl", result.md.url, { shouldDirty: false });
-      const payload = { profileImage: { sm: result.sm.url, md: result.md.url, lg: result.lg.url, o: result.o.url } };
+      const payload = { profileImage: { sm: result.sm.url, md: result.md.url, o: result.o.url } };
       await dispatch(updateProfileService(payload)).unwrap();
       await dispatch(getProfileService()).unwrap();
       showToast.success(Messages.profile.pictureUpdated);

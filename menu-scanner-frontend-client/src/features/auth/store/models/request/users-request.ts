@@ -40,7 +40,6 @@ export interface UserEducationRequest {
 export interface ImageUrls {
   sm?: string;
   md?: string;
-  lg?: string;
   o?: string;
 }
 

@@ -136,8 +136,8 @@ export default function PublicProfilePage() {
   const onSubmit = async (data: CustomerProfileFormData) => {
     try {
       const profileImageUrls: ImageUrls | undefined = profileImageKeys
-        ? { sm: profileImageKeys.sm.url, md: profileImageKeys.md.url, lg: profileImageKeys.lg.url, o: profileImageKeys.o.url }
-        : (data.profileImageUrl ? { sm: data.profileImageUrl, md: data.profileImageUrl, lg: data.profileImageUrl, o: data.profileImageUrl } : undefined);
+        ? { sm: profileImageKeys.sm.url, md: profileImageKeys.md.url, o: profileImageKeys.o.url }
+        : (data.profileImageUrl ? { sm: data.profileImageUrl, md: data.profileImageUrl, o: data.profileImageUrl } : undefined);
 
       const payload: any = {
         firstName: data.firstName,
@@ -184,7 +184,7 @@ export default function PublicProfilePage() {
       setIsUploadingImage(true);
       setProfileImageKeys(result);
       setValue("profileImageUrl", result.md.url, { shouldDirty: false });
-      const payload = { profileImage: { sm: result.sm.url, md: result.md.url, lg: result.lg.url, o: result.o.url } };
+      const payload = { profileImage: { sm: result.sm.url, md: result.md.url, o: result.o.url } };
       await dispatch(updateCustomerProfileService(payload)).unwrap();
       await dispatch(getCustomerProfileService()).unwrap();
       showToast.success(Messages.profile.pictureUpdated);

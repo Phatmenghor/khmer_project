@@ -131,11 +131,10 @@ public class SpacesServiceImpl implements SpacesService {
 
             SpacesUploadResponse sm = uploadResized(original, businessId, base + "-sm.jpg", 300, file.getOriginalFilename());
             SpacesUploadResponse md = uploadResized(original, businessId, base + "-md.jpg", 600, file.getOriginalFilename());
-            SpacesUploadResponse lg = uploadResized(original, businessId, base + "-lg.jpg", 1200, file.getOriginalFilename());
             SpacesUploadResponse o  = uploadResized(original, businessId, base + ".jpg",    0,    file.getOriginalFilename());
 
             log.info("Uploaded multi-size for business {}: {}", businessId, base);
-            return SpacesMultiUploadResponse.builder().sm(sm).md(md).lg(lg).o(o).build();
+            return SpacesMultiUploadResponse.builder().sm(sm).md(md).o(o).build();
         } catch (IOException e) {
             log.error("Multi upload failed for business {}: {}", businessId, e.getMessage());
             throw new RuntimeException("Multi-size image upload failed: " + e.getMessage());
