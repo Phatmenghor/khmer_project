@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -20,6 +20,21 @@ interface UserDetailModalProps {
   userId?: string;
   isOpen: boolean;
   onClose: () => void;
+}
+
+function UserHeaderAvatar({ src, alt }: { src?: string; alt?: string }) {
+  const [errored, setErrored] = useState(false);
+  const effective = !errored && src ? src : appImages.noImage;
+  return (
+    <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+      <img
+        src={effective}
+        alt={alt}
+        className={cn("w-full h-full object-cover", (!src || errored) && "opacity-30")}
+        onError={() => setErrored(true)}
+      />
+    </div>
+  );
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -133,13 +148,7 @@ export function UserBusinessDetailModal({
 
         {/* ── Header ── */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
-          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
-            {userData.profileImage?.md ? (
-              <img src={userData.profileImage.md} alt={userData.fullName} className="w-full h-full object-cover" />
-            ) : (
-              <img src={appImages.noImage} alt={userData.fullName} className="w-full h-full object-cover opacity-30" />
-            )}
-          </div>
+          <UserHeaderAvatar src={userData.profileImage?.md} alt={userData.fullName} />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground">User</p>
             <p className="text-xs text-muted-foreground mt-0.5">Manage user accounts and permissions</p>
