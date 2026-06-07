@@ -259,7 +259,7 @@ export default function ProductModal({
             promotionValue: data.promotionValue || undefined,
             promotionFromDate: data.promotionFromDate || "",
             promotionToDate: data.promotionToDate || "",
-            images: (data.images || []).map((img) => ({
+            images: (data.images || []).map((img: { id?: string; image?: { sm?: string; md?: string; o?: string } }) => ({
               id: img.id,
               image: { sm: img.image?.sm || "", md: img.image?.md || "", o: img.image?.o || "" },
             })),
@@ -352,7 +352,7 @@ export default function ProductModal({
       }
 
       const processedImages = await Promise.all(
-        (data.images || []).map(async (img, i) => {
+        (data.images || []).map(async (img: { id?: string; image?: { sm?: string; md?: string; o?: string } }, i) => {
           const pendingFile = pendingImageFiles[i];
           if (pendingFile) {
             try {
