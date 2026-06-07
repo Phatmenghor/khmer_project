@@ -472,7 +472,7 @@ export default function PortfolioPage() {
                 aspectRatio="square"
                 placeholder="Click to upload logo"
                 helperText="Square (1:1) image recommended — PNG with transparent background"
-                maxSize={5}
+                maxSizeMb={5}
               />
               <SpacesImageUpload
                 label="Cover Image"
@@ -483,7 +483,7 @@ export default function PortfolioPage() {
                 aspectRatio="square"
                 placeholder="Click to upload cover"
                 helperText="Square (1:1) image recommended — PNG, JPG"
-                maxSize={5}
+                maxSizeMb={5}
               />
             </div>
           </CardContent>
@@ -916,7 +916,7 @@ export default function PortfolioPage() {
                         aspectRatio="square"
                         placeholder="Click to upload"
                         helperText="Square (1:1) image recommended — PNG, JPG"
-                        maxSize={5}
+                        maxSizeMb={5}
                       />
                       <TextField<PortfolioFormData>
                         control={form.control}
@@ -1052,7 +1052,7 @@ export default function PortfolioPage() {
                           aspectRatio="square"
                           placeholder="Click to upload photo"
                           helperText="Square (1:1) image recommended — PNG, JPG"
-                          maxSize={5}
+                          maxSizeMb={5}
                         />
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

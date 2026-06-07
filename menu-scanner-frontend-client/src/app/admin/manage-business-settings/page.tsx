@@ -482,7 +482,7 @@ export default function BusinessSettingsPage() {
                 aspectRatio="square"
                 placeholder="Click to upload logo"
                 helperText="Square (1:1) image recommended — PNG, JPG"
-                maxSize={5}
+                maxSizeMb={5}
               />
               <div />
             </div>
@@ -786,7 +786,7 @@ export default function BusinessSettingsPage() {
                           disabled={isSaving}
                           aspectRatio="square"
                           placeholder="Click to upload icon"
-                          maxSize={5}
+                          maxSizeMb={5}
                           helperText="Square (1:1) icon recommended — PNG, JPG"
                         />
                         <TextField<BusinessSettingsFormData>
