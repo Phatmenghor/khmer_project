@@ -13,8 +13,14 @@ public interface SpacesService {
     /** Delete one exact object by its full key */
     void deleteByKey(UUID businessId, String key);
 
-    /** Delete one week of uploads — b/{businessId}/{week}/ */
-    void deleteByWeek(UUID businessId, String week);
+    /** Delete one year  — b/{businessId}/yyyy/ */
+    void deleteByYear(UUID businessId, int year);
+
+    /** Delete one month — b/{businessId}/yyyy/MM/ */
+    void deleteByMonth(UUID businessId, int year, int month);
+
+    /** Delete one day   — b/{businessId}/yyyy/MM/dd/ */
+    void deleteByDay(UUID businessId, int year, int month, int day);
 
     /** Delete everything for a business — b/{businessId}/ */
     void deleteAllByBusiness(UUID businessId);

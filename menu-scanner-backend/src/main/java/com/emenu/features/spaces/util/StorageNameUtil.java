@@ -1,10 +1,9 @@
 package com.emenu.features.spaces.util;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.WeekFields;
-import java.time.LocalDate;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class StorageNameUtil {
@@ -15,14 +14,16 @@ public final class StorageNameUtil {
     private StorageNameUtil() {}
 
     /**
-     * Current ISO week folder.
-     * Example: 2024-W23
+     * Current date folder — nested yyyy/MM/dd.
+     * Example: 2024/06/07
+     *
+     * Allows prefix-delete by year (2024/), month (2024/06/), or day (2024/06/07/).
      */
-    public static String weekFolder() {
+    public static String dateFolder() {
         LocalDate today = LocalDate.now(ZoneOffset.UTC);
-        int week = today.get(WeekFields.ISO.weekOfWeekBasedYear());
-        int year = today.get(WeekFields.ISO.weekBasedYear());
-        return year + "-W" + String.format("%02d", week);
+        return today.getYear()
+                + "/" + String.format("%02d", today.getMonthValue())
+                + "/" + String.format("%02d", today.getDayOfMonth());
     }
 
     /**

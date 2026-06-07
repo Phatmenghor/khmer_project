@@ -54,15 +54,27 @@ public class SpacesController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Delete all uploads from one week.
-     * week = ISO week string, e.g. 2024-W23
-     */
-    @DeleteMapping("/week/{week}")
-    @Operation(summary = "Delete all images uploaded in a given week — e.g. 2024-W23")
-    public ResponseEntity<Void> deleteByWeek(@PathVariable String week) {
+    @DeleteMapping("/date/{year}")
+    @Operation(summary = "Delete all images uploaded in a year — e.g. /date/2024")
+    public ResponseEntity<Void> deleteByYear(@PathVariable int year) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        spacesService.deleteByWeek(businessId, week);
+        spacesService.deleteByYear(businessId, year);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/date/{year}/{month}")
+    @Operation(summary = "Delete all images uploaded in a month — e.g. /date/2024/06")
+    public ResponseEntity<Void> deleteByMonth(@PathVariable int year, @PathVariable int month) {
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        spacesService.deleteByMonth(businessId, year, month);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/date/{year}/{month}/{day}")
+    @Operation(summary = "Delete all images uploaded on a day — e.g. /date/2024/06/07")
+    public ResponseEntity<Void> deleteByDay(@PathVariable int year, @PathVariable int month, @PathVariable int day) {
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        spacesService.deleteByDay(businessId, year, month, day);
         return ResponseEntity.noContent().build();
     }
 }
