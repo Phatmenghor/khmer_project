@@ -92,7 +92,7 @@ export function ProfilePictureModal({
               aspectRatio="auto"
               height="h-28"
               placeholder="Click to upload a new photo"
-              helperText="PNG, JPG up to 10MB — generates sm/md/lg sizes"
+              helperText="PNG, JPG up to 10MB"
               onChange={(result) => {
                 setPreviewUrl(result.md.url);
                 onUploaded(result);
