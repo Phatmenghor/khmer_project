@@ -1,4 +1,5 @@
 // components/shared/form-field/index.ts
+export { SpacesImageUpload } from "./spaces-image-upload";
 import { Control, FieldError, FieldValues, Path } from "react-hook-form";
 
 /**

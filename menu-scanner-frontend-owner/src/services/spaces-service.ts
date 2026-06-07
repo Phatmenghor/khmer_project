@@ -1,0 +1,74 @@
+import { axiosClient } from "@/utils/axios";
+
+export type ImageSize = "sm" | "md" | "lg" | "o";
+
+export interface SpacesUploadResult {
+  key: string;
+  url: string;
+}
+
+export interface SpacesAllSizes {
+  sm: SpacesUploadResult;
+  md: SpacesUploadResult;
+  lg: SpacesUploadResult;
+  o: SpacesUploadResult;
+}
+
+// Upload a single size
+export async function uploadImage(
+  file: File,
+  businessId: string,
+  size: ImageSize = "o"
+): Promise<SpacesUploadResult> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("businessId", businessId);
+  form.append("size", size);
+
+  const res = await axiosClient.post<SpacesUploadResult>(
+    "/api/v1/spaces/upload",
+    form
+  );
+  return res.data;
+}
+
+// Upload all 4 sizes in parallel
+export async function uploadAllSizes(
+  file: File,
+  businessId: string,
+  onProgress?: (done: number, total: number) => void
+): Promise<SpacesAllSizes> {
+  const sizes: ImageSize[] = ["sm", "md", "lg", "o"];
+  let done = 0;
+
+  const results = await Promise.all(
+    sizes.map(async (size) => {
+      const result = await uploadImage(file, businessId, size);
+      done++;
+      onProgress?.(done, sizes.length);
+      return result;
+    })
+  );
+
+  return {
+    sm: results[0],
+    md: results[1],
+    lg: results[2],
+    o: results[3],
+  };
+}
+
+// Delete one image by its key
+export async function deleteImage(key: string): Promise<void> {
+  await axiosClient.delete("/api/v1/spaces/object", { params: { key } });
+}
+
+// Delete by date prefix
+export async function deleteByDate(
+  businessId: string,
+  prefix: string
+): Promise<void> {
+  await axiosClient.delete("/api/v1/spaces/date", {
+    params: { businessId, prefix },
+  });
+}
