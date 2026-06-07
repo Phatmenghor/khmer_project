@@ -26,10 +26,11 @@ public class SpacesController {
     @Operation(summary = "Upload image — logged to DB with key and url")
     public ResponseEntity<SpacesUploadResponse> upload(
             @RequestPart("file") MultipartFile file,
-            @RequestPart("businessId") String businessId
+            @RequestPart("businessId") String businessId,
+            @RequestPart(value = "size", required = false) String size
     ) {
         return ResponseEntity.ok(
-                spacesService.upload(file, UUID.fromString(businessId))
+                spacesService.upload(file, UUID.fromString(businessId), size)
         );
     }
 

@@ -24,6 +24,10 @@ public class SpacesImage extends BaseUUIDEntity {
     @Column(name = "url", nullable = false, length = 1000)
     private String url;
 
+    /** sm | md | lg | o — sent by frontend */
+    @Column(name = "size", length = 10)
+    private String size;
+
     @Column(name = "original_filename", length = 255)
     private String originalFilename;
 
