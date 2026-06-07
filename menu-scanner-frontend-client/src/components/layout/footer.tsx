@@ -8,7 +8,7 @@ import { PageContainer } from "../shared/common/page-container";
 import { useAppSelector } from "@/store";
 import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { readBusinessCache } from "@/lib/business-cache";
-import { SocialMedia } from "@/features/business/store/models/response/business-settings-response";
+import { SocialMedia } from "@/features/business/store/services/business-settings-service";
 
 export function Footer() {
   const businessSettings = useAppSelector(selectBusinessSettings);
