@@ -154,18 +154,22 @@ interface RecentOwnersCardProps {
 export function RecentOwnersCard({ recentOwners, loading }: RecentOwnersCardProps) {
   return (
     <Card>
-      <CardHeader className="pb-1">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xs">Recent Owners</CardTitle>
-            <CardDescription>Latest business owners on the platform</CardDescription>
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-xs sm:text-sm font-semibold truncate">
+              Recent Owners
+            </CardTitle>
+            <CardDescription className="text-[11px] sm:text-xs truncate">
+              Latest business owners on the platform
+            </CardDescription>
           </div>
           <Link
             href={ROUTES.DASHBOARD.BUSINESS_OWNER}
-            className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+            className="flex items-center gap-1 text-[11px] sm:text-xs text-primary hover:underline font-medium whitespace-nowrap shrink-0"
           >
             View all
-            <ArrowRight className="h-2 w-2" />
+            <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </CardHeader>

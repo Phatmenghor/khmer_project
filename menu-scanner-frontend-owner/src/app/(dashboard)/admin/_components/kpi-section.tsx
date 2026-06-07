@@ -29,20 +29,24 @@ function KpiCard({ title, value, change, icon, iconBg, description }: KpiCardPro
   return (
     <Card className="transition-shadow hover:shadow-md">
       <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-medium text-muted-foreground">{title}</p>
-          <div className={cn("h-6 w-6 rounded flex items-center justify-center shrink-0", iconBg)}>
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide truncate min-w-0">
+            {title}
+          </p>
+          <div className={cn("h-8 w-8 sm:h-9 sm:w-9 rounded-md flex items-center justify-center shrink-0", iconBg)}>
             {icon}
           </div>
         </div>
-        <p className="text-xs font-bold text-foreground tracking-tight">{value}</p>
+        <p className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground tracking-tight tabular-nums truncate">
+          {value}
+        </p>
         {change !== undefined && (
-          <div className="flex items-center gap-1 mt-1">
+          <div className="flex items-center gap-1 mt-2 min-w-0">
             {isPositive
-              ? <TrendingUp className="h-2.5 w-2.5 text-emerald-500" />
-              : <TrendingDown className="h-2.5 w-2.5 text-rose-500" />}
+              ? <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-500 shrink-0" />
+              : <TrendingDown className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-rose-500 shrink-0" />}
             <span className={cn(
-              "text-xs font-medium",
+              "text-[11px] sm:text-xs font-medium truncate",
               isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
             )}>
               {isPositive ? "+" : ""}{change.toFixed(1)}% vs previous period
@@ -50,7 +54,9 @@ function KpiCard({ title, value, change, icon, iconBg, description }: KpiCardPro
           </div>
         )}
         {description && change === undefined && (
-          <p className="text-xs text-muted-foreground mt-1">{description}</p>
+          <p className="text-[11px] sm:text-xs text-muted-foreground mt-2 truncate">
+            {description}
+          </p>
         )}
       </CardContent>
     </Card>
@@ -63,10 +69,10 @@ function KpiCardSkeleton() {
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <Skeleton className="h-3 w-16" />
-          <Skeleton className="h-6 w-6 rounded" />
+          <Skeleton className="h-9 w-9 rounded-md" />
         </div>
-        <Skeleton className="h-5 w-24 mb-1" />
-        <Skeleton className="h-2 w-20" />
+        <Skeleton className="h-7 w-28 mb-2" />
+        <Skeleton className="h-3 w-20" />
       </CardContent>
     </Card>
   );
@@ -103,7 +109,7 @@ export function KpiSection({ summary, loading }: KpiSectionProps) {
           <KpiCard
             title="Total Owners"
             value={String(summary?.totalBusinessOwners ?? 0)}
-            icon={<Building2 className="h-3 w-3 text-blue-600" />}
+            icon={<Building2 className="h-4 w-4 text-blue-600" />}
             iconBg="bg-blue-100 dark:bg-blue-950/40"
             description="Registered on platform"
           />
@@ -111,27 +117,27 @@ export function KpiSection({ summary, loading }: KpiSectionProps) {
             title="New This Period"
             value={String(summary?.newOwnersThisPeriod ?? 0)}
             change={summary?.newOwnersChange}
-            icon={<UserPlus className="h-3 w-3 text-sky-600" />}
+            icon={<UserPlus className="h-4 w-4 text-sky-600" />}
             iconBg="bg-sky-100 dark:bg-sky-950/40"
           />
           <KpiCard
             title="Active Subs"
             value={String(summary?.activeSubscriptions ?? 0)}
-            icon={<CheckCircle className="h-3 w-3 text-emerald-600" />}
+            icon={<CheckCircle className="h-4 w-4 text-emerald-600" />}
             iconBg="bg-emerald-100 dark:bg-emerald-950/40"
             description="Currently active"
           />
           <KpiCard
             title="Expiring Soon"
             value={String(summary?.expiringSoonSubscriptions ?? 0)}
-            icon={<Clock className="h-3 w-3 text-amber-600" />}
+            icon={<Clock className="h-4 w-4 text-amber-600" />}
             iconBg="bg-amber-100 dark:bg-amber-950/40"
             description="≤7 days remaining"
           />
           <KpiCard
             title="Expired"
             value={String(summary?.expiredSubscriptions ?? 0)}
-            icon={<XCircle className="h-3 w-3 text-rose-600" />}
+            icon={<XCircle className="h-4 w-4 text-rose-600" />}
             iconBg="bg-rose-100 dark:bg-rose-950/40"
             description="Subscription lapsed"
           />
@@ -139,7 +145,7 @@ export function KpiSection({ summary, loading }: KpiSectionProps) {
             title="Revenue"
             value={formatRevenue(summary?.totalRevenue ?? 0)}
             change={summary?.revenueChange}
-            icon={<DollarSign className="h-3 w-3 text-violet-600" />}
+            icon={<DollarSign className="h-4 w-4 text-violet-600" />}
             iconBg="bg-violet-100 dark:bg-violet-950/40"
           />
         </>

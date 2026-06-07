@@ -64,18 +64,26 @@ export function DailyTrendsCard({
 
   return (
     <Card>
-      <CardHeader className="pb-1">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xs">{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-xs sm:text-sm font-semibold truncate">
+              {title}
+            </CardTitle>
+            <CardDescription className="text-[11px] sm:text-xs truncate">
+              {description}
+            </CardDescription>
           </div>
           {loading ? (
-            <Skeleton className="h-4 w-14" />
+            <Skeleton className="h-4 w-14 shrink-0" />
           ) : (
-            <div className="text-right">
-              <p className="text-xs font-bold text-primary">{total}</p>
-              <p className="text-xs text-muted-foreground">{totalLabel}</p>
+            <div className="text-right shrink-0">
+              <p className="text-sm sm:text-base font-bold text-primary tabular-nums whitespace-nowrap">
+                {total}
+              </p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground whitespace-nowrap">
+                {totalLabel}
+              </p>
             </div>
           )}
         </div>

@@ -84,9 +84,11 @@ export function PlanBreakdownCard({ planBreakdown, loading }: PlanBreakdownCardP
 
   return (
     <Card>
-      <CardHeader className="pb-1">
-        <CardTitle className="text-xs">Plan Breakdown</CardTitle>
-        <CardDescription>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-xs sm:text-sm font-semibold truncate">
+          Plan Breakdown
+        </CardTitle>
+        <CardDescription className="text-[11px] sm:text-xs truncate">
           {loading || !planBreakdown
             ? "Active subscriptions by plan"
             : `${totalActive} active subscriptions across ${sortedPlans.length} plans`}

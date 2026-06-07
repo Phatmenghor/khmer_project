@@ -58,18 +58,22 @@ export function SubscriptionTrendsCard({
 
   return (
     <Card className={cn(className)}>
-      <CardHeader className="pb-1">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xs">Subscription Trends</CardTitle>
-            <CardDescription>New subscriptions &amp; revenue over time</CardDescription>
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-xs sm:text-sm font-semibold truncate">
+              Subscription Trends
+            </CardTitle>
+            <CardDescription className="text-[11px] sm:text-xs truncate">
+              New subscriptions &amp; revenue over time
+            </CardDescription>
           </div>
           {trends && (
-            <div className="text-right">
-              <p className="text-xs font-bold text-primary">
+            <div className="text-right shrink-0">
+              <p className="text-sm sm:text-base font-bold text-primary tabular-nums whitespace-nowrap">
                 {formatRevenue(trends.totalRevenue)}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[11px] sm:text-xs text-muted-foreground whitespace-nowrap">
                 {trends.totalNewSubscriptions} new subs
               </p>
             </div>

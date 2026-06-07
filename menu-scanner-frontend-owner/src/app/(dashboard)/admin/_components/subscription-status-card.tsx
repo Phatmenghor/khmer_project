@@ -64,9 +64,11 @@ export function SubscriptionStatusCard({
 }: SubscriptionStatusCardProps) {
   return (
     <Card>
-      <CardHeader className="pb-1">
-        <CardTitle className="text-xs">Subscription Status</CardTitle>
-        <CardDescription>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-xs sm:text-sm font-semibold truncate">
+          Subscription Status
+        </CardTitle>
+        <CardDescription className="text-[11px] sm:text-xs truncate">
           {loading || !statusBreakdown
             ? "Breakdown by status"
             : `${statusBreakdown.total} total subscriptions`}
