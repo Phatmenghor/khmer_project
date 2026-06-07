@@ -15,7 +15,7 @@ import Autoplay from "embla-carousel-autoplay";
 
 
 const appImages = {
-  noImage: "/assets/image/no-image.png",
+  noImage: "/assets/image/no-image.svg",
 };
 
 interface BannerSectionProps {

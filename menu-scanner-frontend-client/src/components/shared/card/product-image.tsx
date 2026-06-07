@@ -40,7 +40,7 @@ function ProductImageComponent({
       {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
 
       <Image
-        src={imageError ? "/assets/image/no-image.png" : imageUrl}
+        src={imageError ? "/assets/image/no-image.svg" : imageUrl}
         alt={product.name || "Product Image"}
         fill
         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

@@ -4,5 +4,5 @@ export const appImages = {
   telegram: "/assets/icons/telegram.svg",
   excel: "/assets/icons/excel.png",
   cpBank: "/assets/image/cpbank.png",
-  noImage: "/assets/image/no-image.png",
+  noImage: "/assets/image/no-image.svg",
 };

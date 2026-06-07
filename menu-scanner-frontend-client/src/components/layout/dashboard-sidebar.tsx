@@ -245,11 +245,11 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                 <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                   <img
                     key={logoUrl}
-                    src={logoUrl || "/assets/image/no-image.png"}
+                    src={logoUrl || "/assets/image/no-image.svg"}
                     alt={businessName}
                     className="w-full h-full object-cover rounded"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+                      (e.target as HTMLImageElement).src = "/assets/image/no-image.svg";
                     }}
                   />
                 </div>

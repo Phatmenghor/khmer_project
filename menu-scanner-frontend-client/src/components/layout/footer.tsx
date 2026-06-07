@@ -51,7 +51,7 @@ export function Footer() {
                         alt={businessName}
                         className="w-full h-full object-cover rounded"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/assets/image/no-image.png";
+                          (e.target as HTMLImageElement).src = "/assets/image/no-image.svg";
                         }}
                       />
                     )}
