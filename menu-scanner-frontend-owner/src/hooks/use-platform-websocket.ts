@@ -3,8 +3,10 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useAppDispatch } from "@/redux/store";
+import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { bumpVersion, WebSocketResource } from "@/redux/store/slices/websocket-slice";
+import { getToken } from "@/utils/local-storage/token";
+import { selectAccessToken } from "@/redux/features/auth/store/selectors/auth-selectors";
 
 const EVENT_TYPE_MAP: Record<string, WebSocketResource> = {
   BUSINESS_OWNER_CHANGED: "businessOwner",
@@ -18,6 +20,9 @@ const EVENT_TYPE_MAP: Record<string, WebSocketResource> = {
 
 export function usePlatformWebSocket() {
   const dispatch = useAppDispatch();
+  // Watch the Redux access token so the hook re-runs on login/logout —
+  // without this, the WS never connects after the user signs in.
+  const accessToken = useAppSelector(selectAccessToken);
   const clientRef = useRef<Client | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -31,8 +36,19 @@ export function usePlatformWebSocket() {
       }
     };
 
+    // Skip connect entirely when the user isn't logged in — backend
+    // rejects anonymous STOMP CONNECT and would log a stack trace every
+    // 5s reconnect. Prefer the Redux token (fresh) and fall back to the
+    // cookie (e.g. on first paint before rehydration).
+    const token = accessToken || getToken();
+    if (!token) {
+      devLog("[WS] No platform token yet — skipping WebSocket connect");
+      return;
+    }
+
     const client = new Client({
       webSocketFactory: () => new SockJS(wsUrl),
+      connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       onConnect: () => {
         setIsConnected(true);
@@ -80,7 +96,7 @@ export function usePlatformWebSocket() {
 
     client.activate();
     clientRef.current = client;
-  }, [dispatch]);
+  }, [dispatch, accessToken]);
 
   useEffect(() => {
     connect();
