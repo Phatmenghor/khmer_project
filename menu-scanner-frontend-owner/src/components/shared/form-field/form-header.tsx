@@ -15,6 +15,19 @@ type FormHeaderVariant = "default" | "destructive";
 interface FormHeaderProps {
   title: string;
   description?: string;
+  /**
+   * Optional image URL. Pair with `useImageTile` (or just pass
+   * `imageUrl` — its presence implies `useImageTile`). When the image
+   * is missing the tile falls back to the icon.
+   */
+  imageUrl?: string;
+  /**
+   * Force the 12×12 image tile even when imageUrl is not yet loaded
+   * (e.g. while fetching). The tile shows the icon as a fallback so
+   * the layout doesn't jump when the URL arrives.
+   */
+  useImageTile?: boolean;
+  /** Alt text + fallback for the image tile. */
   avatarName?: string;
   avatarImageUrl?: string;
   showAvatar?: boolean;
@@ -27,6 +40,8 @@ interface FormHeaderProps {
 export function FormHeader({
   title,
   description,
+  imageUrl,
+  useImageTile,
   avatarName,
   avatarImageUrl,
   showAvatar = false,
@@ -43,14 +58,44 @@ export function FormHeader({
     : "bg-primary/10 border-primary/30";
   const iconColorClass = isDestructive ? "text-destructive" : "text-primary";
 
+  // Resolve the image tile: explicit imageUrl wins, then avatarImageUrl
+  // (legacy prop). Used to decide between image and icon fallback.
+  const tileImage = imageUrl || avatarImageUrl;
+  // Render the 12×12 tile when the caller explicitly asks for it,
+  // when they pass imageUrl, or when they opted into the legacy
+  // showAvatar path with a real image URL.
+  const showImageTile =
+    !!useImageTile || !!imageUrl || (showAvatar && !!avatarImageUrl);
+  const showLegacyAvatar = showAvatar && !imageUrl && !useImageTile;
+
   return (
     <DialogHeader
       className={cn("px-3 pt-3 pb-2 border-b flex-shrink-0", className)}
     >
       <div className="flex items-center gap-2">
-        {showAvatar ? (
+        {showLegacyAvatar ? (
+          // Legacy avatar path — still supported for callers that want
+          // initials when the record has no image.
           <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
+        ) : showImageTile ? (
+          // 12×12 image tile with icon fallback — matches DetailModal /
+          // client modal header pattern.
+          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+            {tileImage ? (
+              <img
+                src={tileImage}
+                alt={avatarName || title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <Icon
+                className="h-5 w-5 text-muted-foreground"
+                strokeWidth={2}
+              />
+            )}
+          </div>
         ) : (
+          // Small admin-modal icon tile (no image expected).
           <div
             className={cn(
               "p-1.5 border rounded shrink-0",
