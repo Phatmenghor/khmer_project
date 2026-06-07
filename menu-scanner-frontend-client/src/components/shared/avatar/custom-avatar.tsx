@@ -186,7 +186,7 @@ export const CustomAvatar: React.FC<CustomerAvatarProps> = ({
           imageUrl && enableImagePreview ? "cursor-pointer hover:scale-110" : ""
         } ${className}`}
       >
-        <AvatarImage src={imageUrl || ""} alt={name || "User"} />
+        {imageUrl && <AvatarImage src={imageUrl} alt={name || "User"} />}
         <AvatarFallback className="bg-primary/10 dark:bg-primary/20 text-primary font-semibold">
           {fallbackText}
         </AvatarFallback>
