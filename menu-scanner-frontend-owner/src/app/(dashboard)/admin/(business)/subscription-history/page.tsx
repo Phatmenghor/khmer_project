@@ -149,12 +149,24 @@ export default function SubscriptionHistoryPage() {
     updateUrlWithPage(1);
   };
 
+  const handleClearAllFilters = () => {
+    dispatch(setStatusFilter(""));
+    dispatch(setPlanIdFilter(""));
+    dispatch(setBusinessIdFilter(""));
+    setSelectedBusiness(null);
+    dispatch(setFromDateFilter(""));
+    dispatch(setToDateFilter(""));
+  };
+
   const filterConfig = useMemo(
     (): FilterPanelConfig => ({
       title: "Subscription History",
+      subtitle: "View and filter all subscription records",
+      totalCount: pagination.totalElements,
       searchValue: "",
       searchPlaceholder: "Search...",
       onSearchChange: () => {},
+      onClearAll: handleClearAllFilters,
       filters: [
         {
           id: "status",

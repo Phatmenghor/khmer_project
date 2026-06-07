@@ -16,6 +16,13 @@ interface CollapsibleFilterPanelProps {
   essentialFilterIds?: string[];
 }
 
+function isFilterActive(f: FilterConfig): boolean {
+  const v = f.value;
+  if (v === undefined || v === null) return false;
+  if (typeof v === "string" && (v === "" || v === "ALL")) return false;
+  return true;
+}
+
 export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
   config,
   essentialFilterIds = [],
@@ -29,12 +36,8 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
     (f) => !essentialFilterIds.includes(f.id)
   );
 
-  const activeFiltersCount = config.filters.filter((f) => {
-    if (f.value === undefined || f.value === null) return false;
-    if (typeof f.value === "string" && (f.value === "ALL" || f.value === ""))
-      return false;
-    return true;
-  }).length;
+  const advancedActiveCount = advancedFilters.filter(isFilterActive).length;
+  const anyFilterActive = config.filters.some(isFilterActive);
 
   const renderFilter = (filter: FilterConfig): React.ReactNode => {
     switch (filter.type) {
@@ -48,7 +51,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             onValueChange={filter.onChange}
             label={filter.label}
             disabled={filter.disabled}
-            size="lg"
+            size="md"
           />
         );
 
@@ -62,14 +65,14 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
             showAllOption={(filter as any).showAllOption !== false}
             label={filter.label}
             disabled={filter.disabled}
-            size="lg"
+            size="md"
           />
         );
 
       case "date-picker":
         return (
           <div key={filter.id} className="flex flex-col gap-1">
-            <label className="text-xs sm:text-xs font-semibold text-foreground whitespace-nowrap">
+            <label className="text-xs font-medium whitespace-nowrap">
               {filter.label}
             </label>
             <CustomDateTimePicker
@@ -88,99 +91,119 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
   };
 
   return (
-    <div className="space-y-2">
-      <Card>
-        <CardContent className="py-2 sm:py-3 space-y-2">
-          <div className="flex items-center gap-1 mb-0">
-            <h1 className="text-xs sm:text-xs font-bold">{config.title}</h1>
-          </div>
-
-          <div className="flex flex-wrap items-end gap-2">
-            {/* Search */}
-            <div className="w-[300px] h-7">
-              <div className="relative w-full h-full group">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-gray-400 pointer-events-none" />
-                <Input
-                  type="search"
-                  placeholder={config.searchPlaceholder}
-                  className="pl-7 w-full h-full placeholder:text-gray-500 focus:border-primary focus:ring-primary/30 hover:border-primary transition-all duration-200"
-                  value={config.searchValue}
-                  onChange={config.onSearchChange}
-                />
-              </div>
-            </div>
-
-            {/* Essential filters + button — right-aligned */}
-            <div className="flex flex-wrap items-end gap-2 ml-auto overflow-x-auto max-w-[calc(100vw-330px)] pb-1">
-              {essentialFilters.length > 0 && (
-                <div
-                  className="grid gap-2 flex-shrink-0"
-                  style={{
-                    gridTemplateColumns: `repeat(${essentialFilters.length}, minmax(120px, 1fr))`,
-                    maxWidth: `${essentialFilters.length * 160}px`,
-                  }}
-                >
-                  {essentialFilters.map((filter) => renderFilter(filter))}
-                </div>
-              )}
-
-              {config.buttonText && (
-                <Button
-                  disabled={config.buttonDisabled}
-                  variant="default"
-                  onClick={config.onButtonClick}
-                  className="gap-1 flex-shrink-0 h-7 px-3"
-                >
-                  <Plus className="w-3 h-3" />
-                  {config.buttonText}
-                </Button>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Advanced filters */}
-      {advancedFilters.length > 0 && (
-        <div className="bg-primary/5 rounded border border-primary/20 p-2">
-          <button
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center justify-between w-full hover:text-primary hover:bg-primary/10 px-1 py-1 rounded transition-all duration-200"
-          >
-            <div className="flex items-center gap-1">
-              <span className="text-xs font-bold text-primary">
-                Advanced Filters
-              </span>
-              {activeFiltersCount > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="text-xs bg-primary/10 text-primary border border-primary"
-                >
-                  {activeFiltersCount} active
+    <Card>
+      <CardContent className="py-3 space-y-3">
+        {/* Title row */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="text-sm sm:text-base font-semibold tracking-tight">
+                {config.title}
+              </h1>
+              {typeof config.totalCount === "number" && (
+                <Badge variant="secondary" className="text-[11px] font-medium">
+                  {config.totalCount.toLocaleString()}
                 </Badge>
               )}
             </div>
-            <ChevronDown
-              className={`w-3 h-3 transition-transform ${
-                showAdvanced ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {showAdvanced && (
-            <div className="mt-2 pt-2 border-t border-primary/20">
-              <div
-                className="grid gap-2 w-full"
-                style={{
-                  gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-                }}
+            {config.subtitle && (
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {config.subtitle}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {config.extraActions}
+            {config.buttonText && (
+              <Button
+                disabled={config.buttonDisabled}
+                variant="default"
+                onClick={config.onButtonClick}
+                className="gap-1 flex-shrink-0 h-[26px] px-3 text-xs"
               >
-                {advancedFilters.map((filter) => renderFilter(filter))}
-              </div>
+                <Plus className="w-3 h-3" />
+                {config.buttonText}
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Search + essential filters row */}
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="relative w-full sm:w-[280px]">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
+            <Input
+              type="search"
+              placeholder={config.searchPlaceholder}
+              className="pl-7 h-[26px] text-xs w-full focus:border-primary focus:ring-primary/30 hover:border-primary transition-colors"
+              value={config.searchValue}
+              onChange={config.onSearchChange}
+            />
+          </div>
+
+          {essentialFilters.length > 0 && (
+            <div
+              className="grid gap-2 flex-1 sm:flex-initial sm:ml-auto min-w-0"
+              style={{
+                gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                maxWidth: "360px",
+              }}
+            >
+              {essentialFilters.map((filter) => renderFilter(filter))}
             </div>
           )}
         </div>
-      )}
-    </div>
+
+        {/* Advanced filters — collapsible inside the same card */}
+        {advancedFilters.length > 0 && (
+          <div className="border-t pt-3">
+            <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80 hover:text-foreground transition-colors"
+              >
+                Advanced Filters
+                {advancedActiveCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="text-[11px] bg-primary/10 text-primary border border-primary/30 font-medium"
+                  >
+                    {advancedActiveCount} active
+                  </Badge>
+                )}
+                <ChevronDown
+                  className={`w-3 h-3 transition-transform ${
+                    showAdvanced ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {anyFilterActive && config.onClearAll && (
+                <button
+                  type="button"
+                  onClick={config.onClearAll}
+                  className="text-xs font-medium text-primary hover:underline"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            {showAdvanced && (
+              <div className="mt-3 pt-3 border-t border-dashed">
+                <div
+                  className="grid gap-2 w-full"
+                  style={{
+                    gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+                  }}
+                >
+                  {advancedFilters.map((filter) => renderFilter(filter))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };

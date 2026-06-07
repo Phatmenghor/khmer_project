@@ -39,6 +39,8 @@ export type FilterConfig =
 
 export interface FilterPanelConfig {
   title: string;
+  subtitle?: string;
+  totalCount?: number;
   searchValue: string;
   searchPlaceholder: string;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -46,4 +48,6 @@ export interface FilterPanelConfig {
   buttonText?: string;
   buttonDisabled?: boolean;
   onButtonClick?: () => void;
+  onClearAll?: () => void;
+  extraActions?: React.ReactNode;
 }
