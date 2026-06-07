@@ -48,14 +48,15 @@ export const brandTableColumns = ({
       ),
     },
     {
-      key: "imageUrl",
+      key: "image",
       label: "Brand Image",
       minWidth: "10px",
       maxWidth: "400px",
       render: (brand) => {
         return (
           <TableImage
-            src={brand.imageUrl}
+            src={brand.image?.sm}
+            previewSrc={brand.image?.o}
             alt={brand?.name}
             fallbackText={brand?.name || "B"}
           />

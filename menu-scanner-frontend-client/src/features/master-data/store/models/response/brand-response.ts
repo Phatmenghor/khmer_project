@@ -1,4 +1,5 @@
 import { BasePagination } from "@/utils/common/pagination";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 export interface AllBrandResponseModel extends BasePagination {
   content: BrandResponseModel[];
@@ -13,7 +14,7 @@ export interface BrandResponseModel {
   businessId: string;
   businessName: string;
   name: string;
-  imageUrl: string;
+  image: ImageUrls;
   description: string;
   status: string;
   totalProducts: number;

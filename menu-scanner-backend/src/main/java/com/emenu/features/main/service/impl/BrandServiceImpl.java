@@ -124,7 +124,7 @@ public class BrandServiceImpl implements BrandService {
                     response.setBusinessId(baseResponse.getBusinessId());
                     response.setBusinessName(baseResponse.getBusinessName());
                     response.setName(baseResponse.getName());
-                    response.setImageUrl(baseResponse.getImageUrl());
+                    response.setImage(baseResponse.getImage());
                     response.setDescription(baseResponse.getDescription());
                     response.setStatus(baseResponse.getStatus());
 

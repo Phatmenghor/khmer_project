@@ -14,9 +14,11 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { ModalMode, Status } from "@/constants/status/status";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 import { showToast } from "@/components/shared/common/show-toast";
 import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-status";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
+import { uploadMultiSize } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import {
   CreateBrandData,
   createBrandSchema,
@@ -31,7 +33,6 @@ import {
   selectError,
   selectOperations,
 } from "../store/selectors/brand-selector";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
 import { TextAreaField } from "@/components/shared/form-field/textarea-field";
 import { BrandResponseModel } from "../store/models/response/brand-response";
 
@@ -45,10 +46,18 @@ type Props = {
 export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
 
-
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const dispatch = useAppDispatch();
+
+  // Revoke the object URL when it changes or unmounts to avoid memory leaks.
+  useEffect(() => {
+    if (!previewUrl || !previewUrl.startsWith("blob:")) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   const operations = useAppSelector(selectOperations);
   const reduxError = useAppSelector(selectError);
@@ -59,43 +68,47 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
     handleSubmit,
     reset,
     setValue,
-    watch,
     formState: { errors, isDirty },
   } = useForm<CreateBrandData>({
     resolver: zodResolver(isCreate ? createBrandSchema : updateBrandSchema),
     defaultValues: {
       name: "",
-      imageUrl: "",
+      image: { sm: "", md: "", o: "" },
       description: "",
       status: Status.ACTIVE,
     },
     mode: "onChange",
   });
 
-  const imageUrl = watch("imageUrl");
-
   useEffect(() => {
     if (isOpen) {
       if (isCreate) {
-
         reset({
           name: "",
-          imageUrl: "",
+          image: { sm: "", md: "", o: "" },
           description: "",
           status: Status.ACTIVE,
         });
+        setPendingFile(null);
+        setPreviewUrl("");
       } else if (brand) {
-
         reset({
           name: brand.name || "",
-          imageUrl: brand.imageUrl || "",
+          image: {
+            sm: brand.image?.sm || "",
+            md: brand.image?.md || "",
+            o: brand.image?.o || "",
+          },
           description: brand.description || "",
           status: brand.status || "",
         });
+        setPendingFile(null);
+        setPreviewUrl(
+          brand.image?.md || brand.image?.o || brand.image?.sm || "",
+        );
       }
     }
   }, [isOpen, brand, isCreate, reset]);
-
 
   useEffect(() => {
     if (isOpen) {
@@ -104,16 +117,18 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
   }, [isOpen, dispatch]);
 
   const onSubmit = async (data: CreateBrandData) => {
+    setIsProcessing(true);
     try {
-      let finalImageUrl = data.imageUrl;
+      let imagePayload = data.image;
 
-
-      if (finalImageUrl && isBase64Image(finalImageUrl)) {
+      // Upload the pending file only now that the user committed to submit.
+      if (pendingFile) {
         setIsUploadingImage(true);
         try {
-          finalImageUrl = await uploadImage(finalImageUrl);
-        } catch (uploadError) {
-          showToast.error(Messages.brand.imageUploadFailed);
+          const result = await uploadMultiSize(pendingFile, AppDefault.BUSINESS_ID);
+          imagePayload = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+        } catch (uploadErr: any) {
+          showToast.error(uploadErr?.message || "Image upload failed — please try again");
           return;
         } finally {
           setIsUploadingImage(false);
@@ -121,8 +136,8 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
       }
 
       const payload: CreateBrandData = {
-        name: data?.name || "",
-        imageUrl: finalImageUrl,
+        name: data.name || "",
+        image: imagePayload,
         description: data.description || "",
         status: data.status,
       };
@@ -141,21 +156,24 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
       }
     } catch (error: unknown) {
       showToast.error(
-        (error as { message?: string })?.message || `Failed to ${isCreate ? "create" : "update"} brand`,
+        (error as { message?: string })?.message ||
+          `Failed to ${isCreate ? "create" : "update"} brand`,
       );
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleClose = () => {
     reset();
-    setIsUploadingImage(false);
+    setPendingFile(null);
+    setPreviewUrl("");
     dispatch(clearError());
     dispatch(clearSelectedBrand());
     onClose();
   };
 
-  const isSubmitting = isCreate ? isCreating : isUpdating;
-  const isProcessing = isSubmitting || isUploadingImage;
+  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage || isProcessing;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -174,101 +192,112 @@ export default function BrandModal({ isOpen, onClose, brand, mode }: Props) {
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-hidden"
         >
-            <FormBody>
-              {}
-              {reduxError && (
-                <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
-                  <p className="text-xs text-destructive font-medium">
-                    {reduxError}
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                {}
-                <div className="space-y-2">
-                  <ClickableImageUpload
-                    label="Brand Logo"
-                    value={imageUrl}
-                    onChange={(base64) => setValue("imageUrl", base64)}
-                    aspectRatio="square"
-                    maxSize={5}
-                    required
-                    error={errors.imageUrl}
-                    placeholder="Click to upload brand logo"
-                    helperText="PNG with transparent background recommended"
-                  />
-                </div>
-
-                {}
-                <div className="border-t pt-4">
-                  <h3 className="text-xs font-semibold text-foreground mb-3">
-                    Brand Details
-                  </h3>
-
-                  {}
-                  <div className="grid grid-cols-2 gap-3">
-                    <TextField
-                      control={control}
-                      name="name"
-                      label="Brand Name"
-                      placeholder="Enter brand name"
-                      disabled={isProcessing}
-                      error={errors.name}
-                    />
-
-                    <SelectField
-                      control={control}
-                      name="status"
-                      label="Status"
-                      placeholder="Select status"
-                      options={BANNER_STATUS_CREATE_UPDATE}
-                      required
-                      disabled={isProcessing}
-                      error={errors.status}
-                    />
-                  </div>
-
-                  <TextAreaField
-                    control={control}
-                    name="description"
-                    label="Description"
-                    placeholder="Enter any additional description (optional)"
-                    rows={5}
-                    disabled={isProcessing}
-                    error={errors.description}
-                  />
-                </div>
+          <FormBody>
+            {reduxError && (
+              <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
+                <p className="text-xs text-destructive font-medium">
+                  {reduxError}
+                </p>
               </div>
-            </FormBody>
+            )}
 
-            <FormFooter
-              isSubmitting={isProcessing}
+            <div className="space-y-2">
+              <SpacesImageUpload
+                multiSize
+                deferred
+                label="Brand Logo"
+                businessId={AppDefault.BUSINESS_ID}
+                value={previewUrl}
+                onFileSelected={(file) => {
+                  setPendingFile(file);
+                  if (file) {
+                    const objectUrl = URL.createObjectURL(file);
+                    setPreviewUrl(objectUrl);
+                    setValue(
+                      "image",
+                      { sm: objectUrl, md: objectUrl, o: objectUrl },
+                      { shouldDirty: true, shouldValidate: true },
+                    );
+                  } else {
+                    setPreviewUrl("");
+                    setValue(
+                      "image",
+                      { sm: "", md: "", o: "" },
+                      { shouldDirty: true, shouldValidate: true },
+                    );
+                  }
+                }}
+                aspectRatio="square"
+                maxSizeMb={5}
+                required
+                disabled={isSubmitting}
+                error={
+                  (errors.image as any)?.message ||
+                  (errors.image as any)?.root?.message
+                }
+                placeholder="Click to upload brand logo"
+                helperText="PNG with transparent background recommended"
+              />
+
+              <div className="border-t pt-4">
+                <h3 className="text-xs font-semibold text-foreground mb-3">
+                  Brand Details
+                </h3>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <TextField
+                    control={control}
+                    name="name"
+                    label="Brand Name"
+                    placeholder="Enter brand name"
+                    disabled={isSubmitting}
+                    error={errors.name}
+                  />
+
+                  <SelectField
+                    control={control}
+                    name="status"
+                    label="Status"
+                    placeholder="Select status"
+                    options={BANNER_STATUS_CREATE_UPDATE}
+                    required
+                    disabled={isSubmitting}
+                    error={errors.status}
+                  />
+                </div>
+
+                <TextAreaField
+                  control={control}
+                  name="description"
+                  label="Description"
+                  placeholder="Enter any additional description (optional)"
+                  rows={5}
+                  disabled={isSubmitting}
+                  error={errors.description}
+                />
+              </div>
+            </div>
+          </FormBody>
+
+          <FormFooter
+            isSubmitting={isSubmitting}
+            isDirty={isDirty}
+            isCreate={isCreate}
+            createMessage="Creating brand..."
+            updateMessage="Updating brand..."
+          >
+            <CancelButton onClick={handleClose} disabled={isSubmitting} />
+            <SubmitButton
+              isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage={
-                isProcessing ? "Uploading brand..." : "Creating brand..."
-              }
-              updateMessage={
-                isProcessing ? "Uploading brand..." : "Updating brand..."
-              }
-            >
-              <CancelButton onClick={handleClose} disabled={isProcessing} />
-              <SubmitButton
-                isSubmitting={isProcessing}
-                isDirty={isDirty}
-                isCreate={isCreate}
-                createText="Create Brand"
-                updateText="Update Brand"
-                submittingCreateText={
-                  isProcessing ? "Uploading..." : "Creating..."
-                }
-                submittingUpdateText={
-                  isProcessing ? "Uploading..." : "Updating..."
-                }
-              />
-            </FormFooter>
-          </form>
+              createText="Create Brand"
+              updateText="Update Brand"
+              submittingCreateText="Creating..."
+              submittingUpdateText="Updating..."
+            />
+          </FormFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
