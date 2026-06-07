@@ -416,30 +416,7 @@ export default function ProductPromotionPage() {
     [productContent],
   );
 
-  const extraActions = (
-    <>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="h-[26px] px-3 text-xs text-amber-700 border-amber-300 hover:bg-amber-50"
-        disabled={selectedRowCount === 0 || operations.isDeleting}
-        onClick={handleResetTablePromotions}
-      >
-        Reset Selected{selectedRowCount > 0 ? ` (${selectedRowCount})` : ""}
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="h-[26px] px-3 text-xs text-rose-700 border-rose-300 hover:bg-rose-50"
-        disabled={operations.isDeleting}
-        onClick={handleResetAllPromotions}
-      >
-        Reset All
-      </Button>
-    </>
-  );
+  const extraActions = null;
 
   const filterConfig = useMemo((): FilterPanelConfig => ({
     title: "Product Promotions",
