@@ -245,7 +245,7 @@ export default function CheckoutPage() {
         deliveryOption: {
           name: selectedDeliveryOption.name || "",
           description: selectedDeliveryOption.description || "",
-          imageUrl: selectedDeliveryOption.imageUrl || "",
+          imageUrl: selectedDeliveryOption.image?.sm || selectedDeliveryOption.image?.md || "",
           price: selectedDeliveryOption.price || 0,
         },
         customerName: checkoutState.customerName,
