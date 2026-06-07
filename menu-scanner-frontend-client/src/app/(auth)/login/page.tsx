@@ -201,7 +201,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full h-7 font-semibold"
+                className="w-full h-[26px] text-xs font-semibold"
                 disabled={isAnyLoading}
               >
                 {isLoading ? (
@@ -216,12 +216,12 @@ export default function LoginPage() {
             </form>
 
             {/* Divider */}
-            <div className="relative">
+            <div className="relative py-0.5">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-background px-2 text-xs text-muted-foreground">
+                <span className="bg-background px-2 text-[10px] text-muted-foreground uppercase tracking-wider">
                   or continue with
                 </span>
               </div>
@@ -234,7 +234,7 @@ export default function LoginPage() {
               onAuth={handleTelegramAuth}
               disabled={isAnyLoading}
               loading={isTelegramLoading}
-              className="w-full h-7"
+              className="w-full h-[26px] text-xs"
             />
 
             {/* Sign up link */}

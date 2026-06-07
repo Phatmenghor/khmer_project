@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
@@ -76,7 +76,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     } catch (err: any) {
       let errorMessage: string = "Login failed. Please try again.";
 
-      // Handle different error formats (axios)
       if (typeof err === 'string') {
         errorMessage = err;
       } else if (err?.message) {
@@ -93,26 +92,43 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     }
   }
 
+  const handleClose = () => {
+    if (!isSubmitting) {
+      onClose();
+      reset();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-screen sm:w-full sm:max-w-md max-h-[100dvh] sm:max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="w-screen sm:w-full sm:max-w-sm max-h-[100dvh] sm:max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded">
         {/* Mobile drag handle */}
         <div className="sm:hidden h-1 bg-slate-300 rounded-full w-8 mx-auto mt-2"></div>
 
-        {/* Header */}
-        <DialogHeader className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
-          <DialogTitle className="text-xs font-bold text-foreground">
-            Welcome Back
-          </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground mt-1">
-            Sign in to your account
-          </DialogDescription>
+        {/* Header — admin FormHeader style with icon tile */}
+        <DialogHeader className="px-3 pt-3 pb-2 border-b bg-muted/30 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 border border-primary/30 bg-primary/10 rounded shrink-0">
+              <LogIn className="h-4 w-4 text-primary" strokeWidth={2.25} />
+            </div>
+            <div className="flex flex-col gap-0.5 flex-1 min-w-0 text-left">
+              <DialogTitle className="text-xs font-semibold leading-tight">
+                Welcome Back
+              </DialogTitle>
+              <DialogDescription className="text-[11px] leading-snug">
+                Sign in to your platform account
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
         {/* Content */}
         <ScrollArea className="flex-1 min-h-0">
-          <div className="px-4 py-5">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col"
+          >
+            <div className="px-3 py-3 space-y-3">
               <TextField
                 name="userIdentifier"
                 label="Email or Username"
@@ -134,41 +150,43 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 showPassword={showPassword}
                 onTogglePassword={() => setShowPassword((v) => !v)}
               />
+            </div>
 
-              <div className="flex justify-between items-center pt-3 -mx-4 -mb-5 px-4 py-3 border-t bg-muted/30">
-                <div className="text-xs text-muted-foreground flex items-center gap-1">
-                  {isSubmitting && (
-                    <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
-                  )}
-                  <span>{isSubmitting ? "Signing in..." : "Ready to sign in"}</span>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onClose}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-primary hover:bg-primary/90"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                        Signing in...
-                      </>
-                    ) : (
-                      "Sign In"
-                    )}
-                  </Button>
-                </div>
+            {/* Footer — admin FormFooter style */}
+            <div className="flex flex-col gap-1.5 px-2.5 py-2 border-t bg-muted/30 flex-shrink-0 sm:flex-row sm:items-center sm:justify-between sm:px-3">
+              <div className="text-[11px] text-muted-foreground flex items-center gap-1 order-2 sm:order-1">
+                {isSubmitting && (
+                  <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
+                )}
+                <span>{isSubmitting ? "Signing in..." : "Ready to sign in"}</span>
               </div>
-            </form>
-          </div>
+              <div className="flex gap-2 order-1 sm:order-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={isSubmitting}
+                  className="h-6 px-3 text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="h-6 min-w-[96px] px-3 text-xs bg-primary hover:bg-primary/90"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </form>
         </ScrollArea>
       </DialogContent>
     </Dialog>
