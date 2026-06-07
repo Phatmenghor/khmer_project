@@ -48,6 +48,7 @@ import { clearUserInfo } from "@/utils/local-storage/userInfo";
 import { SpacesMultiSizeResult } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
+import { useDeferredUploads } from "@/hooks/use-deferred-upload";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
 import Link from "next/link";
 import { Loading } from "@/components/shared/common/loading";
@@ -89,8 +90,8 @@ export default function AdminProfilePage() {
   const [activeSection, setActiveSection] = useState("profile");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [profileImageKeys, setProfileImageKeys] = useState<SpacesMultiSizeResult | undefined>();
-  const [documentKeys, setDocumentKeys] = useState<Record<number, string>>({});
-  const [educationKeys, setEducationKeys] = useState<Record<number, string>>({});
+  const documentUploads = useDeferredUploads<number>();
+  const educationUploads = useDeferredUploads<number>();
 
   const {
     control,
@@ -231,11 +232,35 @@ export default function AdminProfilePage() {
         ? { sm: profileImageKeys.sm.url, md: profileImageKeys.md.url, o: profileImageKeys.o.url }
         : (data.profileImageUrl ? { sm: data.profileImageUrl, md: data.profileImageUrl, o: data.profileImageUrl } : undefined);
 
-      // documents: no more base64 processing, just use form values directly
-      const validDocuments = (data.documents || []).filter(doc => doc.type && doc.number);
+      // Upload pending document/education files only now, on Save.
+      const businessId = userProfile?.businessId || AppDefault.BUSINESS_ID;
+      let docUrls: Record<string, string> = {};
+      let eduUrls: Record<string, string> = {};
+      try {
+        const [docs, edus] = await Promise.all([
+          documentUploads.uploadAllSingle(businessId),
+          educationUploads.uploadAllSingle(businessId),
+        ]);
+        docUrls = Object.fromEntries(Object.entries(docs).map(([k, r]) => [k, r.url]));
+        eduUrls = Object.fromEntries(Object.entries(edus).map(([k, r]) => [k, r.url]));
+      } catch {
+        showToast.error("File upload failed — please try again");
+        return;
+      }
 
-      // educations: no more base64 processing, just use form values directly
-      const validEducations = (data.educations || []).filter(edu => edu.level && edu.schoolName && edu.fieldOfStudy);
+      const validDocuments = (data.documents || [])
+        .map((doc, idx) => ({
+          ...doc,
+          fileUrl: docUrls[String(idx)] ?? doc.fileUrl,
+        }))
+        .filter(doc => doc.type && doc.number);
+
+      const validEducations = (data.educations || [])
+        .map((edu, idx) => ({
+          ...edu,
+          certificateUrl: eduUrls[String(idx)] ?? edu.certificateUrl,
+        }))
+        .filter(edu => edu.level && edu.schoolName && edu.fieldOfStudy);
 
       const payload: any = {};
 
@@ -314,6 +339,8 @@ export default function AdminProfilePage() {
 
       showToast.success(Messages.profile.updated);
       setIsEditing(false);
+      documentUploads.reset();
+      educationUploads.reset();
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || Messages.profile.updateFailed);
     }
@@ -395,28 +422,12 @@ export default function AdminProfilePage() {
 
   const handleRemoveDocument = (index: number) => {
     removeDocument(index);
-    setDocumentKeys(prev => {
-      const next: Record<number, string> = {};
-      Object.entries(prev).forEach(([k, v]) => {
-        const ki = Number(k);
-        if (ki < index) next[ki] = v;
-        else if (ki > index) next[ki - 1] = v;
-      });
-      return next;
-    });
+    documentUploads.reindexAfterRemove(index);
   };
 
   const handleRemoveEducation = (index: number) => {
     removeEducation(index);
-    setEducationKeys(prev => {
-      const next: Record<number, string> = {};
-      Object.entries(prev).forEach(([k, v]) => {
-        const ki = Number(k);
-        if (ki < index) next[ki] = v;
-        else if (ki > index) next[ki - 1] = v;
-      });
-      return next;
-    });
+    educationUploads.reindexAfterRemove(index);
   };
 
   const handleDeleteAccount = async () => {
@@ -1146,19 +1157,27 @@ export default function AdminProfilePage() {
                             </div>
                             <div className="w-1/2">
                               <SpacesImageUpload
+                                deferred
                                 label="File"
                                 businessId={userProfile?.businessId || AppDefault.BUSINESS_ID}
-                                value={watch(`documents.${index}.fileUrl`) || ""}
-                                imageKey={documentKeys[index]}
+                                value={
+                                  documentUploads.getPreview(index) ||
+                                  watch(`documents.${index}.fileUrl`) ||
+                                  ""
+                                }
                                 aspectRatio="auto"
                                 height="h-24"
-                                onChange={(result) => {
-                                  setDocumentKeys(prev => ({ ...prev, [index]: result.key }));
-                                  setValue(`documents.${index}.fileUrl`, result.url, { shouldDirty: true });
-                                }}
-                                onRemove={() => {
-                                  setDocumentKeys(prev => { const n = { ...prev }; delete n[index]; return n; });
-                                  setValue(`documents.${index}.fileUrl`, "", { shouldDirty: true });
+                                onFileSelected={(file) => {
+                                  documentUploads.setPending(index, file);
+                                  if (file) {
+                                    setValue(
+                                      `documents.${index}.fileUrl`,
+                                      URL.createObjectURL(file),
+                                      { shouldDirty: true },
+                                    );
+                                  } else {
+                                    setValue(`documents.${index}.fileUrl`, "", { shouldDirty: true });
+                                  }
                                 }}
                               />
                             </div>
@@ -1321,19 +1340,27 @@ export default function AdminProfilePage() {
                             </div>
                             <div className="w-1/2">
                               <SpacesImageUpload
+                                deferred
                                 label="Certificate"
                                 businessId={userProfile?.businessId || AppDefault.BUSINESS_ID}
-                                value={watch(`educations.${index}.certificateUrl`) || ""}
-                                imageKey={educationKeys[index]}
+                                value={
+                                  educationUploads.getPreview(index) ||
+                                  watch(`educations.${index}.certificateUrl`) ||
+                                  ""
+                                }
                                 aspectRatio="auto"
                                 height="h-24"
-                                onChange={(result) => {
-                                  setEducationKeys(prev => ({ ...prev, [index]: result.key }));
-                                  setValue(`educations.${index}.certificateUrl`, result.url, { shouldDirty: true });
-                                }}
-                                onRemove={() => {
-                                  setEducationKeys(prev => { const n = { ...prev }; delete n[index]; return n; });
-                                  setValue(`educations.${index}.certificateUrl`, "", { shouldDirty: true });
+                                onFileSelected={(file) => {
+                                  educationUploads.setPending(index, file);
+                                  if (file) {
+                                    setValue(
+                                      `educations.${index}.certificateUrl`,
+                                      URL.createObjectURL(file),
+                                      { shouldDirty: true },
+                                    );
+                                  } else {
+                                    setValue(`educations.${index}.certificateUrl`, "", { shouldDirty: true });
+                                  }
                                 }}
                               />
                             </div>

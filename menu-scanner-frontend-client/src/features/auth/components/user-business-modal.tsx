@@ -12,6 +12,7 @@ import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { uploadMultiSize } from "@/services/spaces-service";
+import { useDeferredUploads } from "@/hooks/use-deferred-upload";
 import { ImageUrls } from "../store/models/request/users-request";
 import { Button } from "@/components/ui/button";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
@@ -91,8 +92,8 @@ export default function UserBusinessModal({
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
   // The full ImageUrls from the loaded user — used when editing without changing the image.
   const [existingProfileImage, setExistingProfileImage] = useState<ImageUrls | undefined>(undefined);
-  const [documentKeys, setDocumentKeys] = useState<Record<number, string>>({});
-  const [educationKeys, setEducationKeys] = useState<Record<number, string>>({});
+  const documentUploads = useDeferredUploads<number>();
+  const educationUploads = useDeferredUploads<number>();
 
   useEffect(() => {
     if (!profilePreviewUrl || !profilePreviewUrl.startsWith("blob:")) return;
@@ -318,7 +319,10 @@ export default function UserBusinessModal({
 
   const onSubmit = async (data: UserFormData) => {
     try {
-      // Upload the pending profile image only now, on submit.
+      // ── All uploads are deferred to here so that cancelling the form leaves
+      //    nothing orphaned in Spaces. ──
+
+      // Profile image (multi-size).
       let profileImage: ImageUrls | undefined;
       if (pendingProfileFile) {
         setIsUploadingProfile(true);
@@ -340,14 +344,38 @@ export default function UserBusinessModal({
         };
       }
 
-      const validDocuments = (data.documents || []).map((doc) => ({
+      // Documents & educations (single-size, indexed by row).
+      let docUploadedUrls: Record<string, string> = {};
+      let eduUploadedUrls: Record<string, string> = {};
+      try {
+        const [docs, edus] = await Promise.all([
+          documentUploads.uploadAllSingle(AppDefault.BUSINESS_ID),
+          educationUploads.uploadAllSingle(AppDefault.BUSINESS_ID),
+        ]);
+        docUploadedUrls = Object.fromEntries(
+          Object.entries(docs).map(([k, r]) => [k, r.url]),
+        );
+        eduUploadedUrls = Object.fromEntries(
+          Object.entries(edus).map(([k, r]) => [k, r.url]),
+        );
+      } catch {
+        showToast.error("File upload failed — please try again");
+        return;
+      }
+
+      const mergeDocUrl = (idx: number, fallback?: string) =>
+        docUploadedUrls[String(idx)] ?? fallback;
+      const mergeEduUrl = (idx: number, fallback?: string) =>
+        eduUploadedUrls[String(idx)] ?? fallback;
+
+      const validDocuments = (data.documents || []).map((doc, idx) => ({
         id: doc.id,
         type: doc.type,
         number: doc.number,
-        fileUrl: doc.fileUrl,
+        fileUrl: mergeDocUrl(idx, doc.fileUrl),
       }));
 
-      const validEducations = (data.educations || []).map((edu) => ({
+      const validEducations = (data.educations || []).map((edu, idx) => ({
         id: edu.id,
         level: edu.level,
         schoolName: edu.schoolName,
@@ -355,7 +383,7 @@ export default function UserBusinessModal({
         startYear: edu.startYear,
         endYear: edu.endYear,
         isGraduated: edu.isGraduated || false,
-        certificateUrl: edu.certificateUrl,
+        certificateUrl: mergeEduUrl(idx, edu.certificateUrl),
       }));
 
       if (isCreate) {
@@ -442,8 +470,8 @@ export default function UserBusinessModal({
     setPendingProfileFile(null);
     setProfilePreviewUrl("");
     setExistingProfileImage(undefined);
-    setDocumentKeys({});
-    setEducationKeys({});
+    documentUploads.reset();
+    educationUploads.reset();
     dispatch(clearError());
     dispatch(clearSelectedUser());
     onClose();
@@ -1048,15 +1076,7 @@ export default function UserBusinessModal({
                             size="sm"
                             onClick={() => {
                               removeDocument(index);
-                              setDocumentKeys((prev) => {
-                                const next: Record<number, string> = {};
-                                Object.entries(prev).forEach(([k, v]) => {
-                                  const i = Number(k);
-                                  if (i < index) next[i] = v;
-                                  else if (i > index) next[i - 1] = v;
-                                });
-                                return next;
-                              });
+                              documentUploads.reindexAfterRemove(index);
                             }}
                             disabled={isSubmitting}
                             className="h-4 w-4 p-0 absolute top-1 right-1 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
@@ -1085,17 +1105,27 @@ export default function UserBusinessModal({
                             </div>
                             <div className="w-1/2">
                               <SpacesImageUpload
+                                deferred
                                 label="File"
                                 businessId={AppDefault.BUSINESS_ID}
-                                value={watch(`documents.${index}.fileUrl`) || ""}
-                                imageKey={documentKeys[index]}
-                                onChange={(result) => {
-                                  setValue(`documents.${index}.fileUrl`, result.url, { shouldDirty: true });
-                                  setDocumentKeys((prev) => ({ ...prev, [index]: result.key }));
-                                }}
-                                onRemove={() => {
-                                  setValue(`documents.${index}.fileUrl`, "", { shouldDirty: true });
-                                  setDocumentKeys((prev) => { const n = { ...prev }; delete n[index]; return n; });
+                                value={
+                                  documentUploads.getPreview(index) ||
+                                  watch(`documents.${index}.fileUrl`) ||
+                                  ""
+                                }
+                                onFileSelected={(file) => {
+                                  documentUploads.setPending(index, file);
+                                  if (file) {
+                                    // Keep the form dirty so the submit button enables;
+                                    // the real URL replaces this on submit.
+                                    setValue(
+                                      `documents.${index}.fileUrl`,
+                                      URL.createObjectURL(file),
+                                      { shouldDirty: true },
+                                    );
+                                  } else {
+                                    setValue(`documents.${index}.fileUrl`, "", { shouldDirty: true });
+                                  }
                                 }}
                                 aspectRatio="auto"
                                 height="h-28"
@@ -1161,15 +1191,7 @@ export default function UserBusinessModal({
                             size="sm"
                             onClick={() => {
                               removeEducation(index);
-                              setEducationKeys((prev) => {
-                                const next: Record<number, string> = {};
-                                Object.entries(prev).forEach(([k, v]) => {
-                                  const i = Number(k);
-                                  if (i < index) next[i] = v;
-                                  else if (i > index) next[i - 1] = v;
-                                });
-                                return next;
-                              });
+                              educationUploads.reindexAfterRemove(index);
                             }}
                             disabled={isSubmitting}
                             className="h-4 w-4 p-0 absolute top-1 right-1 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
@@ -1236,17 +1258,25 @@ export default function UserBusinessModal({
                             </div>
                             <div className="w-1/2">
                               <SpacesImageUpload
+                                deferred
                                 label="Certificate"
                                 businessId={AppDefault.BUSINESS_ID}
-                                value={watch(`educations.${index}.certificateUrl`) || ""}
-                                imageKey={educationKeys[index]}
-                                onChange={(result) => {
-                                  setValue(`educations.${index}.certificateUrl`, result.url, { shouldDirty: true });
-                                  setEducationKeys((prev) => ({ ...prev, [index]: result.key }));
-                                }}
-                                onRemove={() => {
-                                  setValue(`educations.${index}.certificateUrl`, "", { shouldDirty: true });
-                                  setEducationKeys((prev) => { const n = { ...prev }; delete n[index]; return n; });
+                                value={
+                                  educationUploads.getPreview(index) ||
+                                  watch(`educations.${index}.certificateUrl`) ||
+                                  ""
+                                }
+                                onFileSelected={(file) => {
+                                  educationUploads.setPending(index, file);
+                                  if (file) {
+                                    setValue(
+                                      `educations.${index}.certificateUrl`,
+                                      URL.createObjectURL(file),
+                                      { shouldDirty: true },
+                                    );
+                                  } else {
+                                    setValue(`educations.${index}.certificateUrl`, "", { shouldDirty: true });
+                                  }
                                 }}
                                 aspectRatio="auto"
                                 height="h-28"
