@@ -1,5 +1,11 @@
 import { BaseGetAllRequest } from "@/utils/common/get-all-request";
 
+export interface ImageUrls {
+  sm?: string;
+  md?: string;
+  o?: string;
+}
+
 export interface CreateUserRequest {
   userIdentifier: string;
   password: string;
@@ -13,7 +19,7 @@ export interface CreateUserRequest {
   gender?: string;
   dateOfBirth?: string;
   phoneNumber?: string;
-  profileImageUrl?: string;
+  profileImage?: ImageUrls;
   remark?: string;
 }
 
@@ -26,7 +32,7 @@ export interface UpdateUserRequest {
   nickname?: string;
   gender?: string;
   dateOfBirth?: string;
-  profileImageUrl?: string;
+  profileImage?: ImageUrls;
   accountStatus?: string;
   roles?: string[];
   remark?: string;

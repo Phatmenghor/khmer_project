@@ -129,7 +129,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
             nickname: data.nickname || "",
             gender: data.gender || "",
             dateOfBirth: data.dateOfBirth || "",
-            profileImageUrl: data.profileImageUrl || "",
+            profileImageUrl: data.profileImage?.sm || data.profileImageUrl || "",
             accountStatus: data.accountStatus,
             roles: Array.isArray(data.roles) ? data.roles : [],
             remark: data.remark || "",
@@ -171,10 +171,12 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
 
   const onSubmit = async (data: UserFormData) => {
     try {
-      // Use the uploaded Spaces URL if available, otherwise keep existing URL
-      const finalProfileImageUrl = profileImageResult
-        ? profileImageResult.sm.url
-        : data.profileImageUrl || undefined;
+      // Build profileImage object from Spaces result, or fall back to existing URL
+      const profileImage = profileImageResult
+        ? { sm: profileImageResult.sm.url, md: profileImageResult.md.url, o: profileImageResult.o.url }
+        : data.profileImageUrl
+        ? { sm: data.profileImageUrl, md: data.profileImageUrl, o: data.profileImageUrl }
+        : undefined;
 
       if (isCreate) {
         const payload: CreateUserRequest = {
@@ -187,7 +189,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
           nickname: data.nickname || undefined,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: finalProfileImageUrl,
+          profileImage,
           userType: data.userType!,
           accountStatus: data.accountStatus,
           roles: data.roles,
@@ -205,7 +207,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
           nickname: data.nickname || undefined,
           gender: data.gender || undefined,
           dateOfBirth: data.dateOfBirth || undefined,
-          profileImageUrl: finalProfileImageUrl,
+          profileImage,
           accountStatus: data.accountStatus,
           roles: data.roles,
           remark: data.remark || undefined,
@@ -243,7 +245,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
               ? "Fill out the form to create a new platform user account"
               : "Update platform user information below"
           }
-          imageUrl={previewUrl}
+          imageUrl={previewUrl || userData?.profileImage?.sm || userData?.profileImageUrl}
           avatarName={userIdentifier || email}
           isCreate={isCreate}
         />

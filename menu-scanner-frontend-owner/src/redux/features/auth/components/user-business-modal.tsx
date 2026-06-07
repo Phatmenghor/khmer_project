@@ -124,7 +124,7 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
             nickname: data.nickname || "",
             gender: data.gender || "",
             dateOfBirth: data.dateOfBirth || "",
-            profileImageUrl: data.profileImageUrl || "",
+            profileImageUrl: data.profileImage?.sm || data.profileImageUrl || "",
             accountStatus: data.accountStatus,
             roles: Array.isArray(data.roles) ? data.roles : [],
             remark: data.remark || "",
@@ -225,7 +225,7 @@ export default function UserBusinessModal({ isOpen, onClose, userId, mode }: Pro
               ? "Fill out the form to create a new business user account"
               : "Update business user information below"
           }
-          imageUrl={userData?.profileImageUrl}
+          imageUrl={userData?.profileImage?.sm || userData?.profileImageUrl}
           avatarName={userIdentifier || email}
           isCreate={isCreate}
         />

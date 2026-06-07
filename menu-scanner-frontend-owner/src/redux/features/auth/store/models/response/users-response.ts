@@ -62,6 +62,7 @@ export interface UserResponseModel {
   dateOfBirth?: string;
   phoneNumber: string;
   profileImageUrl?: string;
+  profileImage?: { sm?: string; md?: string; o?: string };
   employeeId?: string;
   position?: string;
   department?: string;

@@ -47,7 +47,7 @@ export const userCustomerTableColumns = ({
       maxWidth: "400px",
       render: (user) => (
         <TableImage
-          src={user.profileImageUrl}
+          src={user.profileImage?.sm || user.profileImageUrl}
           alt={user?.firstName}
           fallbackText={user?.firstName || "U"}
           className="h-8 w-8"
