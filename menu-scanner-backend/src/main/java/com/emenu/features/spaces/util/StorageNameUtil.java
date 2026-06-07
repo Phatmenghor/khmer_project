@@ -35,9 +35,9 @@ public final class StorageNameUtil {
     }
 
     /**
-     * Full filename — 20240607T143022-a3f2.jpg
+     * Full filename — 20240607T143022-a3f2.webp
      */
     public static String generateName() {
-        return generate() + ".jpg";
+        return generate() + ".webp";
     }
 }
