@@ -98,7 +98,7 @@ public interface OrderMapper {
                 .productId(cartItem.getProductId())
                 .productSizeId(cartItem.getProductSizeId())
                 .productName(cartItem.getProduct().getName())
-                .productImageUrl(cartItem.getProduct().getMainImageUrl())
+                .productImageUrl(cartItem.getProduct().getMainImage() != null ? cartItem.getProduct().getMainImage().getSm() : null)
                 .sizeName(cartItem.getSizeName())
                 // Pricing snapshot
                 .currentPrice(cartItem.getCurrentPrice())

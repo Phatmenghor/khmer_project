@@ -638,7 +638,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setProductId(item.getProductId());
             orderItem.setProductSizeId(item.getProductSizeId());
             orderItem.setProductName(item.getProductName() != null ? item.getProductName() : product.getName());
-            orderItem.setProductImageUrl(item.getProductImageUrl() != null ? item.getProductImageUrl() : product.getMainImageUrl());
+            orderItem.setProductImageUrl(item.getProductImageUrl() != null ? item.getProductImageUrl() : (product.getMainImage() != null ? product.getMainImage().getSm() : null));
             orderItem.setSizeName(item.getSizeName());
 
             // Set SKU and barcode: prefer from request, fallback to product master data
