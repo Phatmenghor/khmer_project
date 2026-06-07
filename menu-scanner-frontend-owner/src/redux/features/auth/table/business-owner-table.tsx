@@ -37,7 +37,7 @@ export const userBusinessOwnerTableColumns = ({
       minWidth: "10px",
       maxWidth: "60px",
       render: (_, index) => (
-        <span className="font-medium">
+        <span className="text-xs text-muted-foreground">
           {indexDisplay(data?.pageNo || 1, data?.pageSize || 10, index + 1)}
         </span>
       ),

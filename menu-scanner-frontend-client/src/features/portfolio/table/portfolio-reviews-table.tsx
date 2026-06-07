@@ -42,7 +42,7 @@ export const portfolioReviewTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (_, index) => (
-        <span className="font-medium">
+        <span className="text-xs text-muted-foreground">
           {indexDisplay(data?.pageNo || 1, data?.pageSize || 10, index + 1)}
         </span>
       ),

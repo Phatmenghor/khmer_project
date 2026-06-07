@@ -39,7 +39,7 @@ export const exchangeRateTableColumns = ({
       minWidth: "10px",
       maxWidth: "60px",
       render: (_, index) => (
-        <span className="font-medium">
+        <span className="text-xs text-muted-foreground">
           {indexDisplay(data?.pageNo, data?.pageSize, index + 1)}
         </span>
       ),

@@ -387,7 +387,7 @@ function createOrderTableColumns(
       minWidth: "40px",
       maxWidth: "60px",
       render: (_, index) => (
-        <span className="font-medium text-xs">
+        <span className="text-xs text-muted-foreground">
           {indexDisplay(pagination.currentPage || 1, pagination.pageSize || 15, index + 1)}
         </span>
       ),

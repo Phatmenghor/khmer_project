@@ -48,7 +48,7 @@ export const bulkPromotionTableColumns = ({
       maxWidth: "120px",
       className: "pr-1",
       render: (_, index) => (
-        <span className="font-medium text-xs pointer-events-none">
+        <span className="text-xs text-muted-foreground pointer-events-none">
           {indexDisplay(pageNo || 1, pageSize || 10, index + 1)}
         </span>
       ),
