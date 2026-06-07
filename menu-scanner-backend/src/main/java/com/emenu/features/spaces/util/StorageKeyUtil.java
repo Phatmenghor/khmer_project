@@ -6,11 +6,7 @@ public final class StorageKeyUtil {
 
     private StorageKeyUtil() {}
 
-    /**
-     * Full object key.
-     * Pattern: b/{businessId}/yyyy-MM-dd/{name}
-     * Example: b/uuid/2024-06-07/20240607T143022-a3f2-sm.webp
-     */
+    /** b/{businessId}/yyyy-MM-dd/20240607T143022-a3f2.webp */
     public static String key(UUID businessId, String name) {
         return "b/" + businessId + "/" + StorageNameUtil.dateFolder() + "/" + name;
     }
