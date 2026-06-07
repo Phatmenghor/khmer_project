@@ -5,8 +5,11 @@ import com.emenu.enums.product.PromotionType;
 import com.emenu.enums.product.StockStatus;
 import com.emenu.features.auth.models.Business;
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.emenu.shared.dto.ImageUrls;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -106,8 +109,9 @@ public class Product extends BaseUUIDEntity {
     @Column(name = "sku")
     private String sku;
 
-    @Column(name = "main_image_url")
-    private String mainImageUrl;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "main_image", columnDefinition = "jsonb")
+    private ImageUrls mainImage;
 
     @Column(name = "category_name", length = 255)
     private String categoryName;

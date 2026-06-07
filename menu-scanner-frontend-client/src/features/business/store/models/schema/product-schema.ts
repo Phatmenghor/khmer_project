@@ -1,13 +1,15 @@
 
 import { z } from "zod";
 
+const imageUrlsSchema = z.object({
+  sm: z.string().optional(),
+  md: z.string().optional(),
+  o: z.string().optional(),
+});
 
 export const imageSchema = z.object({
   id: z.string().optional(),
-  imageUrl: z
-    .string()
-    .url("Invalid image URL")
-    .or(z.string().min(1, "Image URL required")),
+  image: imageUrlsSchema.optional(),
 });
 
 
@@ -86,10 +88,7 @@ const baseProductSchema = z.object({
   brandId: z.string().optional(),
   sku: z.string().optional(),
   barcode: z.string().optional(),
-  mainImageUrl: z
-    .string()
-    .url("Invalid main image URL")
-    .or(z.string().min(1, "Main image required")),
+  mainImage: imageUrlsSchema.optional(),
 
 
   price: z.number().min(0, "Price must be positive").optional(),
@@ -244,14 +243,14 @@ export type ProductFormData = {
   sku?: string;
   barcode?: string;
   price: number;
-  mainImageUrl: string;
+  mainImage?: { sm?: string; md?: string; o?: string };
   promotionType?: string;
   promotionValue?: number;
   promotionFromDate?: string;
   promotionToDate?: string;
   images?: Array<{
     id?: string;
-    imageUrl: string;
+    image?: { sm?: string; md?: string; o?: string };
   }>;
   sizes?: Array<{
     id?: string;

@@ -238,9 +238,9 @@ export function SizeStockManagementModal({
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 flex-shrink-0 rounded overflow-hidden border bg-muted">
-              {product.mainImageUrl ? (
+              {(product?.mainImage?.md || product?.mainImage?.sm) ? (
                 <img
-                  src={product.mainImageUrl}
+                  src={product.mainImage?.md || product.mainImage?.sm}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />

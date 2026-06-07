@@ -1,5 +1,6 @@
 package com.emenu.features.main.dto.update;
 
+import com.emenu.shared.dto.ImageUrls;
 import lombok.Data;
 
 import java.util.UUID;
@@ -7,7 +8,7 @@ import java.util.UUID;
 @Data
 public class ProductImageUpdateDto {
     private UUID id;
-    private String imageUrl;
+    private ImageUrls image;
     private Boolean toDelete = false;
 
     public boolean isExisting() {

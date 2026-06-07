@@ -1,4 +1,5 @@
 import { BaseGetAllRequest } from "@/utils/common/get-all-request";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 export interface AllProductRequest extends BaseGetAllRequest {
   businessId?: string;
@@ -14,7 +15,7 @@ export interface AllProductRequest extends BaseGetAllRequest {
 
 export interface ProductImageRequest {
   id?: string;
-  imageUrl: string;
+  image: ImageUrls;
 }
 
 export interface ProductSizeRequest {
@@ -32,7 +33,7 @@ export interface CreateProductRequest {
   description: string;
   categoryId: string;
   brandId?: string;
-  mainImageUrl: string;
+  mainImage: ImageUrls;
 
 
   price?: number | null;
@@ -53,7 +54,7 @@ export interface UpdateProductRequest {
   description?: string;
   categoryId?: string;
   brandId?: string;
-  mainImageUrl?: string;
+  mainImage?: ImageUrls;
 
 
   price?: number | null;

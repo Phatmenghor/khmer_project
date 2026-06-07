@@ -86,7 +86,8 @@ export const productTableColumns = ({
       maxWidth: "400px",
       render: (product) => (
         <TableImage
-          src={product.mainImageUrl}
+          src={product.mainImage?.sm}
+          previewSrc={product.mainImage?.o}
           alt={product?.name}
           fallbackText={product?.name || "P"}
         />

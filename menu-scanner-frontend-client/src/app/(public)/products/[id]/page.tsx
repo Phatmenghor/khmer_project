@@ -143,10 +143,10 @@ export default function ProductDetailPage() {
 
   const allImages = product
     ? [
-        { id: "main", imageUrl: sanitizeImageUrl(product.mainImageUrl, appImages.noImage) },
+        { id: "main", imageUrl: sanitizeImageUrl(product.mainImage?.md || product.mainImage?.sm, appImages.noImage) },
         ...(product.images || []).map((img) => ({
           id: img.id,
-          imageUrl: sanitizeImageUrl(img.imageUrl, appImages.noImage),
+          imageUrl: sanitizeImageUrl(img.image?.md || img.image?.sm, appImages.noImage),
         })),
       ]
     : [];
@@ -161,7 +161,7 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     if (!product) return;
-    setSelectedImage(sanitizeImageUrl(product.mainImageUrl, appImages.noImage));
+    setSelectedImage(sanitizeImageUrl(product.mainImage?.md || product.mainImage?.sm, appImages.noImage));
     setCurrentImageIndex(0);
     setImageLoaded(false);
     setThumbOffset(0);
@@ -491,7 +491,7 @@ export default function ProductDetailPage() {
           productSizeId: sizeId,
           quantity: pendingQty,
           productName: product.name,
-          productImageUrl: product.mainImageUrl,
+          productImageUrl: product.mainImage?.sm,
           sizeName: size?.name ?? null,
           finalPrice,
           currentPrice: size?.price ?? product.displayOriginPrice ?? finalPrice,
@@ -523,7 +523,7 @@ export default function ProductDetailPage() {
       productSizeId: null,
       quantity: 1,
       productName: product.name,
-      productImageUrl: product.mainImageUrl,
+      productImageUrl: product.mainImage?.sm,
       sizeName: null,
       finalPrice: product.displayPrice,
       currentPrice: product.displayOriginPrice ?? product.displayPrice,

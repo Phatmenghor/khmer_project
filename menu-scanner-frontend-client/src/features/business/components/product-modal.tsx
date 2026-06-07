@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, X } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
@@ -35,10 +35,11 @@ import {
   PRODUCT_STATUS_CREATE_UPDATE,
   PROMOTION_TYPE_CREATE_UPDATE,
 } from "@/constants/status/create-update-status";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_select_brand";
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
-import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
+import { uploadMultiSize } from "@/services/spaces-service";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import {
@@ -74,13 +75,18 @@ export default function ProductModal({
   const productData = useAppSelector(selectSelectedProduct);
   const { isCreating, isUpdating } = operations;
 
+  const [pendingMainFile, setPendingMainFile] = useState<File | null>(null);
+  const [mainPreviewUrl, setMainPreviewUrl] = useState<string>("");
+  const [pendingImageFiles, setPendingImageFiles] = useState<(File | null)[]>([]);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isProcessingImages, setIsProcessingImages] = useState(false);
-  const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(
-    null,
-  );
-  const [selectedCategory, setSelectedCategory] =
-    useState<CategoriesResponseModel | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<BrandResponseModel | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoriesResponseModel | null>(null);
+
+  useEffect(() => {
+    if (!mainPreviewUrl || !mainPreviewUrl.startsWith("blob:")) return;
+    return () => URL.revokeObjectURL(mainPreviewUrl);
+  }, [mainPreviewUrl]);
 
   const {
     control,
@@ -102,7 +108,7 @@ export default function ProductModal({
       sku: "",
       barcode: "",
       price: 0,
-      mainImageUrl: "",
+      mainImage: { sm: "", md: "", o: "" },
       promotionType: "NONE",
       promotionValue: undefined,
       promotionFromDate: "",
@@ -114,7 +120,6 @@ export default function ProductModal({
     },
     mode: "onChange",
   });
-
 
   const {
     fields: imageFields,
@@ -144,22 +149,25 @@ export default function ProductModal({
   });
 
   const productName = watch("name");
-  const mainImageUrl = watch("mainImageUrl");
   const promotionType = watch("promotionType");
   const hasSizes = sizeFields.length > 0;
   const showPromotionFields = promotionType && promotionType !== "NONE";
 
-
   const remainingSlots = MAX_PRODUCT_IMAGES - imageFields.length;
   const canAddMore = imageFields.length < MAX_PRODUCT_IMAGES;
 
+  const handleRemoveImage = (index: number) => {
+    const blobUrl = watch(`images.${index}.image.sm`);
+    if (blobUrl?.startsWith("blob:")) URL.revokeObjectURL(blobUrl);
+    const newFiles = [...pendingImageFiles];
+    newFiles.splice(index, 1);
+    setPendingImageFiles(newFiles);
+    removeImage(index);
+  };
 
-  const handleMultipleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleMultipleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
-
 
     if (imageFields.length >= MAX_PRODUCT_IMAGES) {
       showToast.error(`Maximum ${MAX_PRODUCT_IMAGES} images allowed`);
@@ -167,79 +175,53 @@ export default function ProductModal({
       return;
     }
 
-
     const availableSlots = MAX_PRODUCT_IMAGES - imageFields.length;
     const filesToProcess = Array.from(files).slice(0, availableSlots);
 
     if (files.length > availableSlots) {
       showToast.warning(
-        `Only ${availableSlots} slot${
-          availableSlots > 1 ? "s" : ""
-        } remaining. Processing first ${availableSlots} image${
-          availableSlots > 1 ? "s" : ""
-        }.`,
+        `Only ${availableSlots} slot${availableSlots > 1 ? "s" : ""} remaining. Processing first ${availableSlots} image${availableSlots > 1 ? "s" : ""}.`,
       );
     }
 
     setIsProcessingImages(true);
+    const newFiles = [...pendingImageFiles];
 
     try {
       const maxSize = 5 * 1024 * 1024;
-      const fileToBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      };
+      let added = 0;
+      const errors: string[] = [];
 
-      const results = await Promise.all(
-        filesToProcess.map(async (file) => {
-          if (!file.type.startsWith("image/")) {
-            return { success: false, error: `${file.name} is not an image` };
-          }
-          if (file.size > maxSize) {
-            return { success: false, error: `${file.name} exceeds 5MB` };
-          }
-          try {
-            const base64 = await fileToBase64(file);
-            return { success: true, base64 };
-          } catch {
-            return { success: false, error: `Failed to process ${file.name}` };
-          }
-        }),
-      );
+      filesToProcess.forEach((file) => {
+        if (!file.type.startsWith("image/")) {
+          errors.push(`${file.name} is not an image`);
+          return;
+        }
+        if (file.size > maxSize) {
+          errors.push(`${file.name} exceeds 5MB`);
+          return;
+        }
+        const blobUrl = URL.createObjectURL(file);
+        appendImage({ image: { sm: blobUrl, md: blobUrl, o: blobUrl } });
+        newFiles.push(file);
+        added++;
+      });
 
-      const successfulImages = results.filter(
-        (r): r is { success: true; base64: string } => r.success,
-      );
-      const failedImages = results.filter(
-        (r): r is { success: false; error: string } => !r.success,
-      );
+      setPendingImageFiles(newFiles);
 
-      if (successfulImages.length > 0) {
-        successfulImages.forEach((img) => {
-          appendImage({ imageUrl: img.base64 });
-        });
-        showToast.success(
-          `Added ${successfulImages.length} image${
-            successfulImages.length > 1 ? "s" : ""
-          }`,
-        );
+      if (added > 0) {
+        showToast.success(`Added ${added} image${added > 1 ? "s" : ""}`);
       }
-
-      if (failedImages.length > 0) {
-        showToast.error(`${failedImages.length} image(s) failed to upload`);
+      if (errors.length > 0) {
+        showToast.error(`${errors.length} image(s) failed to process`);
       }
-    } catch (error) {
+    } catch {
       showToast.error(Messages.product.imagesFailed);
     } finally {
       setIsProcessingImages(false);
       event.target.value = "";
     }
   };
-
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -251,19 +233,12 @@ export default function ProductModal({
         if (fetchProductByIdService.fulfilled.match(resultAction)) {
           const data = resultAction.payload;
 
-
           if (data.brandId) {
-            setSelectedBrand({
-              id: data.brandId,
-              name: data.brandName,
-            } as BrandResponseModel);
+            setSelectedBrand({ id: data.brandId, name: data.brandName } as BrandResponseModel);
           }
 
           if (data.categoryId) {
-            setSelectedCategory({
-              id: data.categoryId,
-              name: data.categoryName,
-            } as CategoriesResponseModel);
+            setSelectedCategory({ id: data.categoryId, name: data.categoryName } as CategoriesResponseModel);
           }
 
           reset({
@@ -275,24 +250,33 @@ export default function ProductModal({
             sku: data.sku || "",
             barcode: data.barcode || "",
             price: data.price || 0,
-            mainImageUrl: data.mainImageUrl || "",
+            mainImage: {
+              sm: data.mainImage?.sm || "",
+              md: data.mainImage?.md || "",
+              o: data.mainImage?.o || "",
+            },
             promotionType: data.promotionType || "NONE",
             promotionValue: data.promotionValue || undefined,
             promotionFromDate: data.promotionFromDate || "",
             promotionToDate: data.promotionToDate || "",
-            images: data.images || [],
+            images: (data.images || []).map((img) => ({
+              id: img.id,
+              image: { sm: img.image?.sm || "", md: img.image?.md || "", o: img.image?.o || "" },
+            })),
             sizes: data.sizes || [],
             customizations: data.customizations || [],
             status: data.status || ProductStatus.ACTIVE,
           });
+          setMainPreviewUrl(data.mainImage?.md || data.mainImage?.sm || "");
+          setPendingMainFile(null);
+          setPendingImageFiles((data.images || []).map(() => null));
         }
-      } catch (error) {
+      } catch {
       }
     };
 
     fetchProductData();
   }, [productId, isOpen, isCreate, reset, dispatch]);
-
 
   useEffect(() => {
     if (isOpen && isCreate) {
@@ -306,7 +290,7 @@ export default function ProductModal({
         sku: "",
         barcode: "",
         price: 0,
-        mainImageUrl: "",
+        mainImage: { sm: "", md: "", o: "" },
         promotionType: "NONE",
         promotionValue: undefined,
         promotionFromDate: "",
@@ -316,16 +300,17 @@ export default function ProductModal({
         customizations: [],
         status: ProductStatus.ACTIVE,
       });
+      setPendingMainFile(null);
+      setMainPreviewUrl("");
+      setPendingImageFiles([]);
     }
   }, [isOpen, isCreate, reset]);
-
 
   useEffect(() => {
     if (isOpen) {
       dispatch(clearError());
     }
   }, [isOpen, dispatch]);
-
 
   const cleanPromotionData = (
     promotionType?: string,
@@ -354,46 +339,39 @@ export default function ProductModal({
     try {
       setIsUploadingImage(true);
 
-
-      let finalMainImageUrl = data.mainImageUrl;
-      if (finalMainImageUrl && isBase64Image(finalMainImageUrl)) {
+      let mainImagePayload = data.mainImage;
+      if (pendingMainFile) {
         try {
-          finalMainImageUrl = await uploadImage(finalMainImageUrl);
-        } catch (uploadError) {
-          showToast.error(Messages.product.mainImageFailed);
+          const result = await uploadMultiSize(pendingMainFile, AppDefault.BUSINESS_ID);
+          mainImagePayload = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+        } catch (uploadErr: any) {
+          showToast.error(uploadErr?.message || Messages.product.mainImageFailed);
           setIsUploadingImage(false);
           return;
         }
       }
 
-
       const processedImages = await Promise.all(
-        (data.images || []).map(async (img: any) => {
-          if (!img.imageUrl) return null;
-
-          let imageUrl = img.imageUrl;
-          if (isBase64Image(imageUrl)) {
+        (data.images || []).map(async (img, i) => {
+          const pendingFile = pendingImageFiles[i];
+          if (pendingFile) {
             try {
-              imageUrl = await uploadImage(imageUrl);
-            } catch (error) {
+              const result = await uploadMultiSize(pendingFile, AppDefault.BUSINESS_ID);
+              return { id: img.id, image: { sm: result.sm.url, md: result.md.url, o: result.o.url } };
+            } catch {
               return null;
             }
           }
-
-          return {
-            id: img.id,
-            imageUrl,
-          };
+          return img.image ? { id: img.id, image: img.image } : null;
         }),
       );
 
       const validImages = processedImages.filter(
-        (img: any): img is { id?: string; imageUrl: string } =>
-          img !== null && !!img.imageUrl,
+        (img): img is { id?: string; image: { sm?: string; md?: string; o?: string } } =>
+          img !== null && !!img.image,
       );
 
       setIsUploadingImage(false);
-
 
       const cleanedSizes = (data.sizes || []).map((size) => ({
         id: size.id,
@@ -407,13 +385,11 @@ export default function ProductModal({
         ),
       }));
 
-
       const cleanedCustomizations = (data.customizations || []).map((customization) => ({
         id: customization.id,
         name: customization.name,
         priceAdjustment: customization.priceAdjustment || 0,
       }));
-
 
       const basePayload = {
         name: data.name,
@@ -422,13 +398,12 @@ export default function ProductModal({
         brandId: data.brandId || undefined,
         sku: data.sku || undefined,
         barcode: data.barcode || undefined,
-        mainImageUrl: finalMainImageUrl,
+        mainImage: mainImagePayload,
         images: validImages.length > 0 ? validImages : undefined,
         sizes: cleanedSizes.length > 0 ? cleanedSizes : undefined,
         customizations: cleanedCustomizations.length > 0 ? cleanedCustomizations : undefined,
         status: data.status,
       };
-
 
       const payload = hasSizes
         ? {
@@ -473,6 +448,9 @@ export default function ProductModal({
 
   const handleClose = () => {
     reset();
+    setPendingMainFile(null);
+    setMainPreviewUrl("");
+    setPendingImageFiles([]);
     setIsUploadingImage(false);
     setIsProcessingImages(false);
     setSelectedBrand(null);
@@ -528,19 +506,37 @@ export default function ProductModal({
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-col md:flex-row gap-3 items-start">
-                      {/* Left: image */}
+                      {/* Left: main image */}
                       <div className="w-full md:w-44 flex-shrink-0">
-                        <ClickableImageUpload
+                        <SpacesImageUpload
+                          multiSize
+                          deferred
                           label="Main Image"
-                          value={mainImageUrl}
-                          onChange={(base64) =>
-                            setValue("mainImageUrl", base64, { shouldDirty: true })
-                          }
+                          businessId={AppDefault.BUSINESS_ID}
+                          value={mainPreviewUrl}
+                          onFileSelected={(file) => {
+                            setPendingMainFile(file);
+                            if (file) {
+                              const blobUrl = URL.createObjectURL(file);
+                              setMainPreviewUrl(blobUrl);
+                              setValue(
+                                "mainImage",
+                                { sm: blobUrl, md: blobUrl, o: blobUrl },
+                                { shouldDirty: true, shouldValidate: true },
+                              );
+                            } else {
+                              setMainPreviewUrl("");
+                              setValue(
+                                "mainImage",
+                                { sm: "", md: "", o: "" },
+                                { shouldDirty: true, shouldValidate: true },
+                              );
+                            }
+                          }}
                           aspectRatio="square"
-                          maxSize={5}
-                          required
-                          error={errors.mainImageUrl}
+                          maxSizeMb={5}
                           disabled={isProcessing}
+                          placeholder="Click to upload"
                           helperText="PNG, JPG up to 5MB"
                         />
                       </div>
@@ -646,7 +642,6 @@ export default function ProductModal({
                   </CardContent>
                 </Card>
 
-                {}
                 {!hasSizes && (
                   <Card>
                     <CardHeader>
@@ -658,18 +653,10 @@ export default function ProductModal({
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              setValue("promotionType", "NONE", {
-                                shouldDirty: true,
-                              });
-                              setValue("promotionValue", undefined, {
-                                shouldDirty: true,
-                              });
-                              setValue("promotionFromDate", "", {
-                                shouldDirty: true,
-                              });
-                              setValue("promotionToDate", "", {
-                                shouldDirty: true,
-                              });
+                              setValue("promotionType", "NONE", { shouldDirty: true });
+                              setValue("promotionValue", undefined, { shouldDirty: true });
+                              setValue("promotionFromDate", "", { shouldDirty: true });
+                              setValue("promotionToDate", "", { shouldDirty: true });
                             }}
                             disabled={isProcessing}
                           >
@@ -709,7 +696,6 @@ export default function ProductModal({
                           />
                         </div>
 
-                        {}
                         {showPromotionFields && (
                           <>
                             <div>
@@ -758,7 +744,6 @@ export default function ProductModal({
                   </Card>
                 )}
 
-                {}
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -786,9 +771,7 @@ export default function ProductModal({
                             variant="outline"
                             size="sm"
                             onClick={() =>
-                              document
-                                .getElementById("multiple-image-upload")
-                                ?.click()
+                              document.getElementById("multiple-image-upload")?.click()
                             }
                             disabled={isProcessing}
                           >
@@ -809,28 +792,28 @@ export default function ProductModal({
                     ) : (
                       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                         {imageFields.map((field, index) => (
-                          <div key={field.id}>
-                            <ClickableImageUpload
-                              label=""
-                              value={watch(`images.${index}.imageUrl`) || ""}
-                              onChange={(base64) => {
-                                if (base64 === "") {
-                                  removeImage(index);
-                                } else {
-                                  setValue(
-                                    `images.${index}.imageUrl`,
-                                    base64,
-                                    { shouldDirty: true },
-                                  );
-                                }
-                              }}
-                              aspectRatio="square"
-                              height="h-28"
-                              maxSize={5}
+                          <div key={field.id} className="relative aspect-square group">
+                            <div className="w-full h-full rounded overflow-hidden border border-border/50 bg-muted">
+                              {watch(`images.${index}.image.sm`) ? (
+                                <img
+                                  src={watch(`images.${index}.image.sm`)}
+                                  alt={`Image ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                                  No image
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(index)}
                               disabled={isProcessing}
-                              error={errors.images?.[index]?.imageUrl as any}
-                              showPreviewText={false}
-                            />
+                              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
                           </div>
                         ))}
                       </div>
@@ -838,7 +821,6 @@ export default function ProductModal({
                   </CardContent>
                 </Card>
 
-                {}
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -854,18 +836,10 @@ export default function ProductModal({
                             size="sm"
                             onClick={() => {
                               sizeFields.forEach((_, idx) => {
-                                setValue(`sizes.${idx}.promotionType`, "NONE", {
-                                  shouldDirty: true,
-                                });
-                                setValue(`sizes.${idx}.promotionValue`, undefined, {
-                                  shouldDirty: true,
-                                });
-                                setValue(`sizes.${idx}.promotionFromDate`, "", {
-                                  shouldDirty: true,
-                                });
-                                setValue(`sizes.${idx}.promotionToDate`, "", {
-                                  shouldDirty: true,
-                                });
+                                setValue(`sizes.${idx}.promotionType`, "NONE", { shouldDirty: true });
+                                setValue(`sizes.${idx}.promotionValue`, undefined, { shouldDirty: true });
+                                setValue(`sizes.${idx}.promotionFromDate`, "", { shouldDirty: true });
+                                setValue(`sizes.${idx}.promotionToDate`, "", { shouldDirty: true });
                               });
                             }}
                             disabled={isProcessing}
@@ -909,12 +883,9 @@ export default function ProductModal({
                     ) : (
                       <div className="space-y-3">
                         {sizeFields.map((field, index) => {
-                          const sizePromotionType = watch(
-                            `sizes.${index}.promotionType`,
-                          );
+                          const sizePromotionType = watch(`sizes.${index}.promotionType`);
                           const showSizePromotionFields =
-                            sizePromotionType &&
-                            sizePromotionType !== "NONE";
+                            sizePromotionType && sizePromotionType !== "NONE";
 
                           return (
                             <div
@@ -932,26 +903,10 @@ export default function ProductModal({
                                       variant="outline"
                                       size="sm"
                                       onClick={() => {
-                                        setValue(
-                                          `sizes.${index}.promotionType`,
-                                          "NONE",
-                                          { shouldDirty: true }
-                                        );
-                                        setValue(
-                                          `sizes.${index}.promotionValue`,
-                                          undefined,
-                                          { shouldDirty: true }
-                                        );
-                                        setValue(
-                                          `sizes.${index}.promotionFromDate`,
-                                          "",
-                                          { shouldDirty: true }
-                                        );
-                                        setValue(
-                                          `sizes.${index}.promotionToDate`,
-                                          "",
-                                          { shouldDirty: true }
-                                        );
+                                        setValue(`sizes.${index}.promotionType`, "NONE", { shouldDirty: true });
+                                        setValue(`sizes.${index}.promotionValue`, undefined, { shouldDirty: true });
+                                        setValue(`sizes.${index}.promotionFromDate`, "", { shouldDirty: true });
+                                        setValue(`sizes.${index}.promotionToDate`, "", { shouldDirty: true });
                                       }}
                                       disabled={isProcessing}
                                     >
@@ -1029,9 +984,7 @@ export default function ProductModal({
                                     placeholder="Select promotion type"
                                     options={PROMOTION_TYPE_CREATE_UPDATE}
                                     disabled={isProcessing}
-                                    error={
-                                      errors.sizes?.[index]?.promotionType as any
-                                    }
+                                    error={errors.sizes?.[index]?.promotionType as any}
                                   />
                                 </div>
 
@@ -1045,10 +998,7 @@ export default function ProductModal({
                                         type="number"
                                         placeholder="Enter promotion value"
                                         disabled={isProcessing}
-                                        error={
-                                          errors.sizes?.[index]
-                                            ?.promotionValue as any
-                                        }
+                                        error={errors.sizes?.[index]?.promotionValue as any}
                                         valueAsNumber={true}
                                         min={0}
                                         step="0.01"
@@ -1065,10 +1015,7 @@ export default function ProductModal({
                                           mode="date"
                                           placeholder="Select start date"
                                           disabled={isProcessing}
-                                          error={
-                                            errors.sizes?.[index]
-                                              ?.promotionFromDate as any
-                                          }
+                                          error={errors.sizes?.[index]?.promotionFromDate as any}
                                         />
                                       </div>
 
@@ -1080,10 +1027,7 @@ export default function ProductModal({
                                           mode="date"
                                           placeholder="Select end date"
                                           disabled={isProcessing}
-                                          error={
-                                            errors.sizes?.[index]
-                                              ?.promotionToDate as any
-                                          }
+                                          error={errors.sizes?.[index]?.promotionToDate as any}
                                         />
                                       </div>
                                     </div>
@@ -1098,7 +1042,6 @@ export default function ProductModal({
                   </CardContent>
                 </Card>
 
-                {}
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -1159,9 +1102,7 @@ export default function ProductModal({
                                   placeholder="e.g., Extra cheese, Add sauce"
                                   required
                                   disabled={isProcessing}
-                                  error={
-                                    errors.customizations?.[index]?.name as any
-                                  }
+                                  error={errors.customizations?.[index]?.name as any}
                                 />
                               </div>
 
@@ -1173,10 +1114,7 @@ export default function ProductModal({
                                   type="number"
                                   placeholder="Enter price adjustment"
                                   disabled={isProcessing}
-                                  error={
-                                    errors.customizations?.[index]
-                                      ?.priceAdjustment as any
-                                  }
+                                  error={errors.customizations?.[index]?.priceAdjustment as any}
                                   valueAsNumber={true}
                                   min={0}
                                   step="0.01"

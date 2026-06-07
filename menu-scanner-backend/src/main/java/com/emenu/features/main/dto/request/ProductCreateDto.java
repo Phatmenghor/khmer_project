@@ -2,6 +2,7 @@ package com.emenu.features.main.dto.request;
 
 import com.emenu.enums.product.ProductStatus;
 import com.emenu.enums.product.PromotionType;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -29,7 +30,7 @@ public class ProductCreateDto {
     @DecimalMin(value = "0.0", message = "Price must be non-negative")
     private BigDecimal price;
     
-    private String mainImageUrl;
+    private ImageUrls mainImage;
 
     private String barcode;
     private String sku;

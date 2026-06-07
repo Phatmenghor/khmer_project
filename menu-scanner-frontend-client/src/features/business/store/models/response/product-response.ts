@@ -1,5 +1,6 @@
 import { BasePagination } from "@/utils/common/pagination";
 import { ProductCustomizationDto } from "./product-customization-response";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 export interface AllProductResponseModel extends BasePagination {
   content: ProductDetailResponseModel[];
@@ -28,7 +29,7 @@ export interface ProductDetailResponseModel {
   hasSizes: boolean;
   quantity: number;
   hasPromotion: boolean;
-  mainImageUrl: string;
+  mainImage: ImageUrls;
   viewCount: number;
   favoriteCount: number;
   isFavorited: boolean;
@@ -54,7 +55,7 @@ export interface ProductDetailResponseModel {
 
 interface ProductImage {
   id: string;
-  imageUrl: string;
+  image: ImageUrls;
   displayOrder: number;
   createdAt: string;
 }

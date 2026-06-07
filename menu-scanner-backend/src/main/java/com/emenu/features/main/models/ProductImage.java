@@ -1,11 +1,14 @@
 package com.emenu.features.main.models;
 
 import com.emenu.shared.domain.BaseUUIDEntity;
+import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -28,16 +31,17 @@ public class ProductImage extends BaseUUIDEntity {
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
     private Product product;
 
-    @Column(name = "image_url", nullable = false)
-    private String imageUrl;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "image", columnDefinition = "jsonb")
+    private ImageUrls image;
 
-    public ProductImage(UUID productId, String imageUrl) {
+    public ProductImage(UUID productId, ImageUrls image) {
         this.productId = productId;
-        this.imageUrl = imageUrl;
+        this.image = image;
     }
 
-    public ProductImage(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public ProductImage(ImageUrls image) {
+        this.image = image;
     }
 
     public void setProduct(Product product) {

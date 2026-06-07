@@ -192,7 +192,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<Object[]> rows = em.createNativeQuery(
             "SELECT ps.id, p.name, p.sku, " +
             "       ps.quantity_on_hand, ps.quantity_available, " +
-            "       p.main_image_url " +
+            "       p.main_image->>'sm' " +
             "FROM product_stock ps " +
             "JOIN products p ON p.id = ps.product_id " +
             "WHERE ps.business_id = :bid " +

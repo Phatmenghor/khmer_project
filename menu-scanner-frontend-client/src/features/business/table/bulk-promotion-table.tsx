@@ -94,7 +94,7 @@ export const bulkPromotionTableColumns = ({
       maxWidth: "120px",
       className: "px-1",
       render: (product) => (
-        <TableImage src={product.mainImageUrl} alt={product.name} fallbackText={product.name} />
+        <TableImage src={product.mainImage?.sm} previewSrc={product.mainImage?.o} alt={product.name} fallbackText={product.name} />
       ),
     },
     {

@@ -3,6 +3,7 @@ package com.emenu.features.main.dto.response;
 import com.emenu.enums.product.ProductStatus;
 import com.emenu.enums.product.StockStatus;
 import com.emenu.shared.dto.BaseAuditResponse;
+import com.emenu.shared.dto.ImageUrls;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -33,7 +34,7 @@ public class ProductListDto extends BaseAuditResponse {
 
     private Boolean hasSizes;
     private Boolean hasPromotion;
-    private String mainImageUrl;
+    private ImageUrls mainImage;
 
     private String barcode;
     private String sku;

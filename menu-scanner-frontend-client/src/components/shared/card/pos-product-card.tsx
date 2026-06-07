@@ -81,9 +81,9 @@ function POSProductCardComponent({
     >
       {}
       <div className={cn("relative aspect-square overflow-hidden bg-muted/30")}>
-        {product.mainImageUrl ? (
+        {(product.mainImage?.md || product.mainImage?.sm) ? (
           <img
-            src={product.mainImageUrl}
+            src={product.mainImage?.md || product.mainImage?.sm}
             alt={product.name}
             className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
             loading="lazy"

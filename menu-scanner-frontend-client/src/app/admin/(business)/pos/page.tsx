@@ -509,7 +509,7 @@ export default function PosPage() {
         id: cartId,
         productId: product.id,
         productName: product.name,
-        productImageUrl: product.mainImageUrl || "",
+        productImageUrl: product.mainImage?.sm || "",
         productSizeId: size?.id || null,
         sizeName: size?.name || null,
         quantity,

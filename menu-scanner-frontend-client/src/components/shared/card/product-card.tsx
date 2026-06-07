@@ -83,7 +83,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
   const isInCart = totalQuantity > 0;
 
 
-  const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.noImage);
+  const imageUrl = sanitizeImageUrl(product.mainImage?.md || product.mainImage?.sm, appImages.noImage);
 
   const [imageLoaded, setImageLoaded] = useState(imageLoadedCache.has(imageUrl));
   const [imageError, setImageError] = useState(false);
@@ -143,7 +143,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
         productSizeId: null,
         quantity: 1,
         productName: product.name,
-        productImageUrl: product.mainImageUrl,
+        productImageUrl: product.mainImage?.sm,
         sizeName: null,
         finalPrice: product.displayPrice,
         currentPrice: product.displayOriginPrice || product.displayPrice,
@@ -303,7 +303,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
             productSizeId: sizeId,
             quantity,
             productName: selectedProduct.name,
-            productImageUrl: selectedProduct.mainImageUrl,
+            productImageUrl: selectedProduct.mainImage?.sm,
             sizeName: size?.name || null,
             finalPrice: size?.finalPrice || selectedProduct.displayPrice,
             currentPrice: size?.price || selectedProduct.displayOriginPrice || selectedProduct.displayPrice,
@@ -409,7 +409,7 @@ export const ProductCard = memo(
 
       prevProps.product.displayPrice === nextProps.product.displayPrice &&
 
-      prevProps.product.mainImageUrl === nextProps.product.mainImageUrl &&
+      prevProps.product.mainImage?.sm === nextProps.product.mainImage?.sm &&
 
       prevProps.product.hasPromotion === nextProps.product.hasPromotion &&
 

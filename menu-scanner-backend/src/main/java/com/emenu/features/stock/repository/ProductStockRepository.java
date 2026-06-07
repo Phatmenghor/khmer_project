@@ -271,7 +271,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     COALESCE(SUM(ps.quantity_on_hand - ps.quantity_reserved), 0)::bigint as quantity_available,
                     COALESCE(SUM(ps.quantity_reserved), 0)::bigint as quantity_reserved,
                     COALESCE(MAX(ps.quantity_on_hand), 0)::bigint as quantity_on_hand,
-                    p.main_image_url,
+                    p.main_image->>'sm' as main_image_url,
                     p.status,
                     p.stock_status,
                     'PRODUCT'::varchar as item_type,
@@ -288,7 +288,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
-                GROUP BY p.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, p.price, p.promotion_type, p.promotion_value, p.promotion_from_date, p.promotion_to_date, p.main_image_url, p.status, p.stock_status, p.created_at, p.updated_at
+                GROUP BY p.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, p.price, p.promotion_type, p.promotion_value, p.promotion_from_date, p.promotion_to_date, p.main_image, p.status, p.stock_status, p.created_at, p.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
             UNION ALL
@@ -352,7 +352,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     COALESCE(SUM(ps.quantity_on_hand - ps.quantity_reserved), 0)::bigint as quantity_available,
                     COALESCE(SUM(ps.quantity_reserved), 0)::bigint as quantity_reserved,
                     COALESCE(MAX(ps.quantity_on_hand), 0)::bigint as quantity_on_hand,
-                    p.main_image_url,
+                    p.main_image->>'sm' as main_image_url,
                     p.status,
                     p.stock_status,
                     'SIZE'::varchar as item_type,
@@ -371,7 +371,7 @@ public interface ProductStockRepository extends JpaRepository<ProductStock, UUID
                     AND (CAST(:search AS text) IS NULL OR p.name ILIKE '%' || CAST(:search AS text) || '%')
                     AND (CAST(:status AS text) IS NULL OR p.status = :status)
                     AND (CAST(:stockStatus AS text) IS NULL OR p.stock_status = :stockStatus)
-                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, psz.price, psz.promotion_type, psz.promotion_value, psz.promotion_from_date, psz.promotion_to_date, p.main_image_url, p.status, p.stock_status, psz.created_at, psz.updated_at
+                GROUP BY p.id, psz.id, p.name, p.description, p.category_id, p.category_name, p.brand_id, p.brand_name, p.sku, p.barcode, psz.name, psz.price, psz.promotion_type, psz.promotion_value, psz.promotion_from_date, psz.promotion_to_date, p.main_image, p.status, p.stock_status, psz.created_at, psz.updated_at
                 HAVING (CAST(:lowStockThreshold AS integer) IS NULL OR COALESCE(SUM(ps.quantity_on_hand), 0) < :lowStockThreshold)
             )
         ) AS result

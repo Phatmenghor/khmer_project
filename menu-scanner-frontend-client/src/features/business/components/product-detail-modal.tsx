@@ -117,9 +117,9 @@ export function ProductDetailModal({
         {/* ── Header ── */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
           <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
-            {productData.mainImageUrl ? (
+            {(productData.mainImage?.md || productData.mainImage?.sm) ? (
               <img
-                src={productData.mainImageUrl}
+                src={productData.mainImage?.md || productData.mainImage?.sm}
                 alt={productData.name}
                 className="w-full h-full object-cover"
               />
@@ -320,7 +320,7 @@ export function ProductDetailModal({
                         className="aspect-square rounded overflow-hidden border border-border/50 hover:border-primary/50 transition-colors"
                       >
                         <img
-                          src={image.imageUrl}
+                          src={image.image?.md || image.image?.sm}
                           alt={`Image ${idx + 1}`}
                           className="object-cover w-full h-full"
                         />

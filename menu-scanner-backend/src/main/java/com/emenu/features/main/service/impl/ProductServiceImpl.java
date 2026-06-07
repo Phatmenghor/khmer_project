@@ -801,7 +801,7 @@ public class ProductServiceImpl implements ProductService {
         if (imageDtos == null || imageDtos.isEmpty()) return;
 
         List<ProductImage> images = imageDtos.stream()
-                .filter(imageDto -> productUtils.isValidImageUrl(imageDto.getImageUrl()))
+                .filter(imageDto -> imageDto.getImage() != null)
                 .map(imageDto -> {
                     ProductImage image = productImageMapper.toEntity(imageDto);
                     image.setProductId(product.getId());

@@ -72,7 +72,7 @@ export const stockTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       render: (product) => (
-        <TableImage src={product.mainImageUrl} alt={product.name} fallbackText={product.name} />
+        <TableImage src={product.mainImage?.sm} previewSrc={product.mainImage?.o} alt={product.name} fallbackText={product.name} />
       ),
     },
 
