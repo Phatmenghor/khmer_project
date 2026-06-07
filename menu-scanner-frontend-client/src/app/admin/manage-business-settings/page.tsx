@@ -473,6 +473,7 @@ export default function BusinessSettingsPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <SpacesImageUpload
+                businessId={AppDefault.BUSINESS_ID}
                 label="Business Logo"
                 value={watchLogoBusiness?.o || watchLogoBusiness?.md || watchLogoBusiness?.sm || ""}
                 multiSize
@@ -778,6 +779,7 @@ export default function BusinessSettingsPage() {
                       </Button>
                       <div className="space-y-4 pr-10">
                         <SpacesImageUpload
+                businessId={AppDefault.BUSINESS_ID}
                           label="Platform Icon"
                           value={watchImage?.o || watchImage?.md || watchImage?.sm || ""}
                           multiSize

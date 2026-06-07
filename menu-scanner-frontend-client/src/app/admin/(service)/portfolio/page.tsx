@@ -464,6 +464,7 @@ export default function PortfolioPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <SpacesImageUpload
+                businessId={AppDefault.BUSINESS_ID}
                 label="Business Logo"
                 value={watchLogo?.o || watchLogo?.md || watchLogo?.sm || ""}
                 multiSize
@@ -475,6 +476,7 @@ export default function PortfolioPage() {
                 maxSizeMb={5}
               />
               <SpacesImageUpload
+                businessId={AppDefault.BUSINESS_ID}
                 label="Cover Image"
                 value={watchCoverImage?.o || watchCoverImage?.md || watchCoverImage?.sm || ""}
                 multiSize
@@ -908,6 +910,7 @@ export default function PortfolioPage() {
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                       <SpacesImageUpload
+                businessId={AppDefault.BUSINESS_ID}
                         label={`Image ${index + 1}`}
                         value={watchImage?.o || watchImage?.md || watchImage?.sm || ""}
                         multiSize
@@ -1044,6 +1047,7 @@ export default function PortfolioPage() {
                       </Button>
                       <div className="space-y-4 pr-10">
                         <SpacesImageUpload
+                businessId={AppDefault.BUSINESS_ID}
                           label="Photo"
                           value={watchPhoto?.o || watchPhoto?.md || watchPhoto?.sm || ""}
                           multiSize
