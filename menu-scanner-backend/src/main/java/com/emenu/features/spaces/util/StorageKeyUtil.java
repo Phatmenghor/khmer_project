@@ -6,13 +6,28 @@ public final class StorageKeyUtil {
 
     private StorageKeyUtil() {}
 
-    /** Full object key: b/{businessId}/{subPath} */
-    public static String key(UUID businessId, String subPath) {
-        return "b/" + businessId + "/" + subPath;
+    /**
+     * Full object key.
+     * Pattern: b/{businessId}/{week}/{name}
+     * Example: b/uuid/2024-W23/20240607T143022-a3f2-sm.webp
+     */
+    public static String key(UUID businessId, String name) {
+        return "b/" + businessId + "/" + StorageNameUtil.weekFolder() + "/" + name;
     }
 
-    /** Prefix for deleting everything under a business: b/{businessId}/ */
+    /**
+     * Business-level prefix — wipes everything for a business.
+     * b/{businessId}/
+     */
     public static String businessPrefix(UUID businessId) {
         return "b/" + businessId + "/";
+    }
+
+    /**
+     * Week-level prefix — wipes one week of uploads for a business.
+     * b/{businessId}/{week}/
+     */
+    public static String weekPrefix(UUID businessId, String week) {
+        return "b/" + businessId + "/" + week + "/";
     }
 }

@@ -26,8 +26,8 @@ public class SpacesServiceImpl implements SpacesService {
     private final SpacesProperties spacesProperties;
 
     @Override
-    public SpacesUploadResponse upload(MultipartFile file, UUID businessId, String subPath) {
-        String key = StorageKeyUtil.key(businessId, subPath);
+    public SpacesUploadResponse upload(MultipartFile file, UUID businessId, String name) {
+        String key = StorageKeyUtil.key(businessId, name);
         String contentType = file.getContentType() != null ? file.getContentType() : "image/webp";
 
         try {
@@ -52,15 +52,24 @@ public class SpacesServiceImpl implements SpacesService {
     }
 
     @Override
-    public void delete(UUID businessId, String prefix) {
-        String fullPrefix = StorageKeyUtil.key(businessId, prefix);
-        deleteByPrefix(fullPrefix);
+    public void deleteByKey(UUID businessId, String key) {
+        spacesS3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(spacesProperties.getBucket())
+                .key(key)
+                .build());
+        log.info("Deleted: {}", key);
+    }
+
+    @Override
+    public void deleteByWeek(UUID businessId, String week) {
+        deleteByPrefix(StorageKeyUtil.weekPrefix(businessId, week));
+        log.info("Deleted week {} for business {}", week, businessId);
     }
 
     @Override
     public void deleteAllByBusiness(UUID businessId) {
         deleteByPrefix(StorageKeyUtil.businessPrefix(businessId));
-        log.info("Deleted all Spaces objects for business: {}", businessId);
+        log.info("Deleted all objects for business {}", businessId);
     }
 
     // ── Internal ──────────────────────────────────────────────────────────────

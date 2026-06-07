@@ -2,6 +2,7 @@ package com.emenu.features.spaces.controller;
 
 import com.emenu.features.spaces.dto.response.SpacesUploadResponse;
 import com.emenu.features.spaces.service.SpacesService;
+import com.emenu.features.spaces.util.StorageNameUtil;
 import com.emenu.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,45 +17,52 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/owner/spaces")
 @RequiredArgsConstructor
-@Tag(name = "Spaces Storage", description = "businessId always resolved from auth token")
+@Tag(name = "Spaces Storage", description = "businessId resolved from auth — flat week-grouped storage")
 public class SpacesController {
 
     private final SpacesService spacesService;
     private final SecurityUtils securityUtils;
 
     /**
-     * Upload any image.
-     * path examples:
-     *   p/{productId}/sm.webp
-     *   c/{categoryId}/sm.webp
-     *   logo/logo.webp
-     *   banner/banner.webp
-     *   qr/table-{tableId}.webp
+     * Upload an image.
+     * size: sm | md | lg | o  (default o)
+     *
+     * Backend generates the name and week folder automatically.
+     * Returns the full key and CDN URL — store both in DB.
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Upload image — path decides where it lands under b/{businessId}/")
+    @Operation(summary = "Upload image — key auto-generated as b/{businessId}/{week}/{datetime}-{size}.webp")
     public ResponseEntity<SpacesUploadResponse> upload(
             @RequestPart("file") MultipartFile file,
-            @RequestPart("path") String path
+            @RequestPart(value = "size", required = false) String size
     ) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        return ResponseEntity.ok(spacesService.upload(file, businessId, path));
+        String name = StorageNameUtil.generate(size != null ? size : "o");
+        return ResponseEntity.ok(spacesService.upload(file, businessId, name));
     }
 
     /**
-     * Delete by prefix.
-     * prefix examples:
-     *   p/{productId}/       → all product variants
-     *   c/{categoryId}/      → category image
-     *   logo/                → logo
-     *   banner/              → banner
-     *   qr/table-{tableId}.webp → one QR
+     * Delete one exact object by its key.
+     * key = full path returned from upload, e.g.
+     *   b/{businessId}/2024-W23/20240607T143022-a3f2-sm.webp
      */
-    @DeleteMapping
-    @Operation(summary = "Delete by prefix under b/{businessId}/")
-    public ResponseEntity<Void> delete(@RequestParam String prefix) {
+    @DeleteMapping("/object")
+    @Operation(summary = "Delete one image by its exact key")
+    public ResponseEntity<Void> deleteByKey(@RequestParam String key) {
         UUID businessId = securityUtils.getCurrentUserBusinessId();
-        spacesService.delete(businessId, prefix);
+        spacesService.deleteByKey(businessId, key);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Delete all uploads from one week.
+     * week = ISO week string, e.g. 2024-W23
+     */
+    @DeleteMapping("/week/{week}")
+    @Operation(summary = "Delete all images uploaded in a given week — e.g. 2024-W23")
+    public ResponseEntity<Void> deleteByWeek(@PathVariable String week) {
+        UUID businessId = securityUtils.getCurrentUserBusinessId();
+        spacesService.deleteByWeek(businessId, week);
         return ResponseEntity.noContent().build();
     }
 }

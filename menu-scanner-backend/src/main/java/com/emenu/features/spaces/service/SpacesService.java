@@ -7,12 +7,15 @@ import java.util.UUID;
 
 public interface SpacesService {
 
-    /** Upload file to b/{businessId}/{subPath} */
-    SpacesUploadResponse upload(MultipartFile file, UUID businessId, String subPath);
+    /** Upload — key = b/{businessId}/{week}/{name} */
+    SpacesUploadResponse upload(MultipartFile file, UUID businessId, String name);
 
-    /** Delete all objects under b/{businessId}/{prefix} (pass "" to wipe everything) */
-    void delete(UUID businessId, String prefix);
+    /** Delete one exact object by its full key */
+    void deleteByKey(UUID businessId, String key);
 
-    /** Delete all objects under b/{businessId}/ — used by admin for cleanup */
+    /** Delete one week of uploads — b/{businessId}/{week}/ */
+    void deleteByWeek(UUID businessId, String week);
+
+    /** Delete everything for a business — b/{businessId}/ */
     void deleteAllByBusiness(UUID businessId);
 }
