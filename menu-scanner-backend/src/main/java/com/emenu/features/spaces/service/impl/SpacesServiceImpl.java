@@ -13,10 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import net.coobird.thumbnailator.Thumbnails;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,20 +38,33 @@ public class SpacesServiceImpl implements SpacesService {
     public SpacesUploadResponse upload(MultipartFile file, UUID businessId) {
         String name = StorageNameUtil.generateName();
         String key = StorageKeyUtil.key(businessId, name);
-        String contentType = file.getContentType() != null ? file.getContentType() : "image/webp";
+
+        byte[] imageBytes;
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Thumbnails.of(file.getInputStream())
+                    .scale(1.0)
+                    .outputFormat("jpg")
+                    .outputQuality(0.85)
+                    .toOutputStream(out);
+            imageBytes = out.toByteArray();
+        } catch (IOException e) {
+            log.error("Image conversion failed for business {}: {}", businessId, e.getMessage());
+            throw new RuntimeException("Image conversion failed: " + e.getMessage());
+        }
 
         try {
             spacesS3Client.putObject(
                     PutObjectRequest.builder()
                             .bucket(spacesProperties.getBucket())
                             .key(key)
-                            .contentType(contentType)
-                            .contentLength(file.getSize())
+                            .contentType("image/jpeg")
+                            .contentLength((long) imageBytes.length)
                             .acl(ObjectCannedACL.PUBLIC_READ)
                             .build(),
-                    RequestBody.fromBytes(file.getBytes())
+                    RequestBody.fromBytes(imageBytes)
             );
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Upload failed for key {}: {}", key, e.getMessage());
             throw new RuntimeException("Image upload failed: " + e.getMessage());
         }
@@ -61,7 +76,7 @@ public class SpacesServiceImpl implements SpacesService {
                 .objectKey(key)
                 .url(url)
                 .originalFilename(file.getOriginalFilename())
-                .fileSize(file.getSize())
+                .fileSize((long) imageBytes.length)
                 .build());
 
         log.info("Uploaded: {}", key);
