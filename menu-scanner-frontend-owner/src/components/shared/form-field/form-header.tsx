@@ -6,7 +6,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { CustomAvatar } from "@/components/shared/avator/custom-avator";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
+import { ImageTile } from "@/components/shared/avatar/image-tile";
 import { Plus, Edit, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -78,22 +79,12 @@ export function FormHeader({
           // initials when the record has no image.
           <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
         ) : showImageTile ? (
-          // 12×12 image tile with icon fallback — matches DetailModal /
-          // client modal header pattern.
-          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
-            {tileImage ? (
-              <img
-                src={tileImage}
-                alt={avatarName || title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <Icon
-                className="h-5 w-5 text-muted-foreground"
-                strokeWidth={2}
-              />
-            )}
-          </div>
+          // 12×12 image tile — image opens a click-to-zoom preview when present
+          <ImageTile
+            imageUrl={tileImage}
+            name={avatarName || title}
+            icon={Icon}
+          />
         ) : (
           // Small admin-modal icon tile (no image expected).
           <div

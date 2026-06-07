@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Eye, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Loading from "@/components/shared/common/loading";
+import { ImageTile } from "@/components/shared/avatar/image-tile";
 
 interface DetailModalProps {
   isOpen: boolean;
@@ -70,21 +71,12 @@ export function DetailModal({
       >
         <DialogHeader className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center gap-3">
-            {/* 12x12 image tile — matches client modal header pattern */}
-            <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
-              {image ? (
-                <img
-                  src={image}
-                  alt={avatarName || title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <Icon
-                  className="h-5 w-5 text-muted-foreground"
-                  strokeWidth={2}
-                />
-              )}
-            </div>
+            {/* 12x12 image tile — image opens a click-to-zoom preview when present */}
+            <ImageTile
+              imageUrl={image}
+              name={avatarName || title}
+              icon={Icon}
+            />
 
             <div className="flex flex-col gap-0.5 flex-1 min-w-0 text-left">
               <DialogTitle className="text-sm font-bold text-foreground leading-tight truncate">
