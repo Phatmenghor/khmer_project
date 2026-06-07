@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Edit, Loader2, Trash2, Lock, User } from "lucide-react";
+import { Edit, Loader2, Trash2, Lock, User, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +31,8 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { clearError } from "@/features/auth/store/slice/auth-slice";
 import ChangePasswordModal from "@/components/shared/modal/change-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
+import { ProfilePictureModal } from "@/components/shared/modal/profile-picture-modal";
+import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { useRouter } from "next/navigation";
 import { clearToken } from "@/utils/local-storage/token";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
@@ -72,6 +74,7 @@ export default function PublicProfilePage() {
   const [activeSection, setActiveSection] = useState("profile");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [profileImageKeys, setProfileImageKeys] = useState<SpacesMultiSizeResult | undefined>();
 
@@ -177,6 +180,40 @@ export default function PublicProfilePage() {
     setIsEditing(false);
   };
 
+  const handleProfileUploaded = async (result: SpacesMultiSizeResult) => {
+    try {
+      setIsUploadingImage(true);
+      setProfileImageKeys(result);
+      setValue("profileImageUrl", result.md.url, { shouldDirty: true });
+      const payload = { profileImage: { sm: result.sm.url, md: result.md.url, lg: result.lg.url, o: result.o.url } };
+      await dispatch(updateCustomerProfileService(payload)).unwrap();
+      await dispatch(getCustomerProfileService()).unwrap();
+      showToast.success(Messages.profile.pictureUpdated);
+      setIsProfilePictureModalOpen(false);
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || Messages.profile.pictureUpdateFailed);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleProfileRemove = async () => {
+    try {
+      setIsUploadingImage(true);
+      setProfileImageKeys(undefined);
+      setValue("profileImageUrl", "", { shouldDirty: true });
+      const payload = { profileImage: null };
+      await dispatch(updateCustomerProfileService(payload)).unwrap();
+      await dispatch(getCustomerProfileService()).unwrap();
+      showToast.success(Messages.profile.pictureUpdated);
+      setIsProfilePictureModalOpen(false);
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || Messages.profile.pictureUpdateFailed);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   const handleDeleteAccount = async () => {
     try {
       await dispatch(deleteAccountService()).unwrap();
@@ -217,24 +254,21 @@ export default function PublicProfilePage() {
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 {}
-                <SpacesImageUpload
-                  label="Profile Photo"
-                  businessId={userProfile?.businessId || AppDefault.BUSINESS_ID}
-                  multiSize
-                  value={watch("profileImageUrl") || ""}
-                  imageKeys={profileImageKeys}
-                  disabled={!isEditing}
-                  aspectRatio="square"
-                  height="h-32"
-                  onChange={(result) => {
-                    setProfileImageKeys(result);
-                    setValue("profileImageUrl", result.md.url, { shouldDirty: true });
-                  }}
-                  onRemove={() => {
-                    setProfileImageKeys(undefined);
-                    setValue("profileImageUrl", "", { shouldDirty: true });
-                  }}
-                />
+                <div
+                  className="relative group cursor-pointer flex-shrink-0"
+                  onClick={() => setIsProfilePictureModalOpen(true)}
+                >
+                  <div className="relative ring-2 ring-primary/20 rounded-full">
+                    <CustomAvatar
+                      imageUrl={watch("profileImageUrl") || userProfile?.profileImage?.md}
+                      name={userProfile?.fullName}
+                      size="xxl"
+                    />
+                    <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
+                      <Camera className="h-3 w-3 text-white" />
+                    </div>
+                  </div>
+                </div>
 
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
@@ -590,6 +624,18 @@ export default function PublicProfilePage() {
           )}
 
           {}
+
+          <ProfilePictureModal
+            isOpen={isProfilePictureModalOpen}
+            onClose={() => setIsProfilePictureModalOpen(false)}
+            currentImageUrl={watch("profileImageUrl") || userProfile?.profileImage?.md}
+            userName={userProfile?.fullName}
+            businessId={userProfile?.businessId || AppDefault.BUSINESS_ID}
+            imageKeys={profileImageKeys}
+            onUploaded={handleProfileUploaded}
+            onRemove={handleProfileRemove}
+            isLoading={isUploadingImage}
+          />
 
           {}
           <DeleteConfirmationModal

@@ -1,24 +1,23 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Camera,
-  Trash2,
-  Download,
-  Loader2,
-} from "lucide-react";
+import { Download, Loader2, Trash2 } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
+import { SpacesMultiSizeResult } from "@/services/spaces-service";
 
 interface ProfilePictureModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentImageUrl?: string;
   userName?: string;
-  onImageSelect: (imageData: string) => void;
-  onImageRemove: () => void;
+  businessId: string;
+  imageKeys?: SpacesMultiSizeResult;
+  onUploaded: (result: SpacesMultiSizeResult) => void;
+  onRemove: () => void;
   isLoading?: boolean;
 }
 
@@ -27,49 +26,20 @@ export function ProfilePictureModal({
   onClose,
   currentImageUrl,
   userName,
-  onImageSelect,
-  onImageRemove,
+  businessId,
+  imageKeys,
+  onUploaded,
+  onRemove,
   isLoading = false,
 }: ProfilePictureModalProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedImage, setSelectedImage] = useState<string>(currentImageUrl || "");
-  const [isRemoving, setIsRemoving] = useState(false);
-
+  const [previewUrl, setPreviewUrl] = useState(currentImageUrl || "");
 
   useEffect(() => {
-    if (isOpen) {
-      setSelectedImage(currentImageUrl || "");
-      setIsRemoving(false);
-    }
+    if (isOpen) setPreviewUrl(currentImageUrl || "");
   }, [isOpen, currentImageUrl]);
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      alert("Please select an image file");
-      return;
-    }
-
-    const fileSizeMB = file.size / (1024 * 1024);
-    if (fileSizeMB > 5) {
-      alert("File size must be less than 5MB");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const imageData = event.target?.result as string;
-      setSelectedImage(imageData);
-      setIsRemoving(false);
-    };
-    reader.readAsDataURL(file);
-  };
 
   const handleDownload = async () => {
     if (!currentImageUrl) return;
-
     try {
       const response = await fetch(currentImageUrl);
       const blob = await response.blob();
@@ -81,30 +51,9 @@ export function ProfilePictureModal({
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-    } catch (error) {
-      alert("Failed to download image");
+    } catch {
+      // ignore download errors
     }
-  };
-
-  const handleRemoveClick = () => {
-    setSelectedImage("");
-    setIsRemoving(true);
-  };
-
-  const handleSave = () => {
-    if (isRemoving) {
-      onImageRemove();
-    } else if (selectedImage !== currentImageUrl) {
-      onImageSelect(selectedImage);
-    }
-  };
-
-  const hasChanges = selectedImage !== currentImageUrl || isRemoving;
-
-  const handleCancel = () => {
-    setSelectedImage(currentImageUrl || "");
-    setIsRemoving(false);
-    onClose();
   };
 
   return (
@@ -117,58 +66,45 @@ export function ProfilePictureModal({
           <VisuallyHidden>Upload, download, or remove your profile picture</VisuallyHidden>
         </DialogDescription>
 
-        {}
         <div className="px-4 py-3 border-b">
           <h2 className="text-xs font-semibold">Update Profile Picture</h2>
         </div>
 
-        {}
-        <div className="p-4 flex flex-col items-center gap-3">
-          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-200 flex items-center justify-center bg-gray-100">
-            {selectedImage || currentImageUrl ? (
-              <img
-                src={selectedImage || currentImageUrl}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <CustomAvatar
-                imageUrl={currentImageUrl}
-                name={userName}
-                size="xl"
-              />
-            )}
+        <div className="p-4 flex flex-col items-center gap-4">
+          {/* Circle preview */}
+          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 flex-shrink-0">
+            <CustomAvatar
+              imageUrl={previewUrl}
+              name={userName}
+              size="xxl"
+            />
           </div>
 
-          {selectedImage && selectedImage !== currentImageUrl && (
-            <p className="text-xs text-blue-600 font-medium">
-              New image selected
-            </p>
-          )}
+          {/* Spaces upload widget */}
+          <div className="w-full">
+            <SpacesImageUpload
+              label="Choose Photo"
+              businessId={businessId}
+              multiSize
+              value={previewUrl}
+              imageKeys={imageKeys}
+              aspectRatio="auto"
+              height="h-28"
+              placeholder="Click to upload a new photo"
+              helperText="PNG, JPG up to 10MB — generates sm/md/lg sizes"
+              onChange={(result) => {
+                setPreviewUrl(result.md.url);
+                onUploaded(result);
+              }}
+              onRemove={() => {
+                setPreviewUrl("");
+                onRemove();
+              }}
+            />
+          </div>
         </div>
 
-        {}
         <div className="border-t px-4 py-3 space-y-2">
-          {}
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full gap-1 bg-primary hover:bg-primary/90"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Camera className="h-3 w-3" />
-                Select Photo
-              </>
-            )}
-          </Button>
-
-          {}
           {currentImageUrl && (
             <Button
               onClick={handleDownload}
@@ -181,54 +117,31 @@ export function ProfilePictureModal({
             </Button>
           )}
 
-          {}
-          {currentImageUrl && !isRemoving && (
+          {currentImageUrl && (
             <Button
-              onClick={handleRemoveClick}
+              onClick={() => {
+                setPreviewUrl("");
+                onRemove();
+              }}
               variant="outline"
               className="w-full gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
               disabled={isLoading}
             >
               <Trash2 className="h-3 w-3" />
-              Remove
+              Remove Photo
             </Button>
           )}
 
-          {}
-          <div className="flex gap-1 pt-1">
-            <Button
-              onClick={handleCancel}
-              variant="outline"
-              className="flex-1"
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={isLoading || !hasChanges}
-              className="flex-1"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                  Saving...
-                </>
-              ) : (
-                "Save"
-              )}
-            </Button>
-          </div>
+          <Button
+            onClick={onClose}
+            variant="outline"
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+            Close
+          </Button>
         </div>
-
-        {}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileSelect}
-        />
       </DialogContent>
     </Dialog>
   );
