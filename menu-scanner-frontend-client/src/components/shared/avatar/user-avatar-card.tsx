@@ -65,8 +65,10 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
     user.fullName?.charAt(0) || user.firstName?.charAt(0) || "U";
 
 
-  const avatarSrc = user.profileImage?.sm ?? appImages.noImage;
-  const previewSrc = user.profileImage?.o ?? user.profileImage?.md ?? appImages.noImage;
+  const [avatarErrored, setAvatarErrored] = useState(false);
+  const [previewErrored, setPreviewErrored] = useState(false);
+  const avatarSrc = !avatarErrored && user.profileImage?.sm ? user.profileImage.sm : appImages.noImage;
+  const previewSrc = !previewErrored && user.profileImage?.o ? user.profileImage.o : appImages.noImage;
   const hasImage = !!(user.profileImage?.sm);
 
   const handleMouseEnter = () => {
@@ -125,7 +127,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
                   : ""
               }`}
             >
-              <AvatarImage src={avatarSrc} alt={displayName} />
+              <AvatarImage src={avatarSrc} alt={displayName} onError={() => setAvatarErrored(true)} />
               <AvatarFallback
                 className={`${sizes.avatar} rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white text-xs font-bold shadow-sm`}
               >
@@ -161,7 +163,10 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
                   alt={displayName}
                   className="max-w-[70vw] max-h-[70vh] w-auto h-auto object-contain rounded"
                   onLoad={() => setImageLoading(false)}
-                  onError={() => setImageLoading(false)}
+                  onError={() => {
+                    setImageLoading(false);
+                    setPreviewErrored(true);
+                  }}
                   style={{
                     opacity: imageLoading ? 0 : 1,
                     transition: "opacity 0.3s",
