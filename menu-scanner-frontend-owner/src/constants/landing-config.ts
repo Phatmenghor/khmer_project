@@ -1,4 +1,28 @@
-// Landing Page Configuration - Easy to Update
+// Landing Page Configuration — describes the actual Emenu Cambodia
+// platform features. Pricing plans all share the same feature list
+// because every plan unlocks every feature; the only thing that
+// changes between plans is the subscription duration.
+
+// All plans grant access to the same feature set. Keep this list in
+// sync with what the product actually ships — no fictional features.
+const ALL_PLATFORM_FEATURES = [
+  "QR code digital menu — public storefront for products & promotions",
+  "Real-time order management with status workflow",
+  "Stock management — products, sizes, low-stock alerts",
+  "Sales analytics dashboard — revenue, top products, hourly sales",
+  "Business profile page — hours, services, team, gallery, reviews",
+  "Promotions & discounts — single product or bulk",
+  "Brand & category management",
+  "Multiple branches / locations supported",
+  "Staff accounts with role-based permissions",
+  "Telegram login + order/stock notifications",
+  "Customer loyalty (returning customer tracking)",
+  "Multi-currency support with exchange rates",
+  "Branded business settings — logo, primary color, contact info",
+  "Real-time updates via WebSocket",
+  "Mobile-responsive — works on any device, no app to install",
+];
+
 export const LANDING_CONFIG = {
   // Navigation
   nav: {
@@ -8,77 +32,104 @@ export const LANDING_CONFIG = {
 
   // Hero Section
   hero: {
-    tag: "Professional SaaS for Global Food & Hospitality",
-    headline: "Transform Your Restaurant Into a Digital Powerhouse",
-    subheadline: "Enterprise-grade platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, multi-language support, and global payment processing. Everything restaurant owners need to compete globally and scale their business.",
-    primaryCTA: "Start Your Free Trial",
-    secondaryCTA: "Schedule Demo",
+    tag: "All-in-one digital menu + storefront + POS",
+    headline: "Run your whole business from one dashboard",
+    subheadline:
+      "Emenu Cambodia is a complete platform for restaurants and retail shops: a public QR storefront for your customers, a real-time order system for your staff, stock and promotion management, branded business profiles with reviews, and a live analytics dashboard — all in a single product, with full access on every plan.",
+    primaryCTA: "Start Free",
+    secondaryCTA: "See How It Works",
     features: [
-      "Free trial - Full access",
-      "No credit card needed",
-      "All features included",
-      "24/7 global support",
-      "Auto-scaling infrastructure",
-      "GDPR & compliance ready"
+      "Free to start — no credit card",
+      "All features on every plan",
+      "Live in minutes, not weeks",
+      "Real-time orders & stock",
+      "Telegram + WebSocket notifications",
+      "Mobile-responsive storefront",
     ],
   },
 
-  // Features Section
+  // Features Section — what the product actually includes
   features: {
-    subtitle: "Powerful features designed for modern food businesses",
+    subtitle:
+      "Everything you need to run your business online — included in every plan.",
     items: [
       {
         icon: "QrCode",
-        title: "QR Code Digital Menu System",
-        description: "Generate unique QR codes for every table, location, and marketing material. Customers scan instantly to access your full menu with photos, descriptions, and prices. Update items and prices in real-time without reprinting. Mobile-responsive design works perfectly on all devices. No app download required."
+        title: "Public QR Storefront",
+        description:
+          "Give every customer a link or QR code that opens your live product catalog with categories, brands, prices, sale tags, and your business profile. Updates are instant — no app downloads, no reprints.",
       },
       {
         icon: "ShoppingCart",
-        title: "Integrated POS & Order Management",
-        description: "Professional point-of-sale system handles dine-in, takeout, and delivery orders seamlessly. Real-time order tracking, kitchen display system integration, table management, and staff coordination. Complete inventory management with stock tracking. Order status notifications keep customers informed. Supports unlimited staff accounts with role-based permissions."
+        title: "Real-Time Order Management",
+        description:
+          "Orders arrive in your dashboard the moment customers place them. Move them through your workflow (pending → confirmed → completed), see itemized details, and notify staff over Telegram automatically.",
       },
       {
-        icon: "CreditCard",
-        title: "Multiple Payment Methods & Processing",
-        description: "Accept payments via credit cards, mobile wallets, bank transfers, and cash. Secure payment processing with PCI compliance. Instant payment confirmation and automated invoicing. Integration with major payment gateways worldwide. Fraud detection and chargeback protection. Settlement reports and financial reconciliation."
+        icon: "Package",
+        title: "Stock & Product Management",
+        description:
+          "Manage products, sizes, brands, and categories with photos and rich descriptions. Track stock levels per size, see low-stock and out-of-stock items at a glance, and toggle availability without rebuilding your menu.",
+      },
+      {
+        icon: "Tag",
+        title: "Promotions & Discounts",
+        description:
+          "Run single-product or bulk promotions. Active promotions appear automatically on the public /promotions page so customers see the deal alongside the product.",
       },
       {
         icon: "Users",
-        title: "Staff & Team Management System",
-        description: "Create unlimited staff accounts with granular role-based permissions. Control who can access menus, orders, analytics, and settings. Track staff performance, login history, and action audit logs for complete transparency. Schedule management and shift planning features. Commission tracking for delivery staff and managers."
+        title: "Staff & Role Management",
+        description:
+          "Invite unlimited staff and assign roles with granular permissions. Audit who did what with login history and action logs. Every staff member sees only what their role allows.",
       },
       {
-        icon: "Trophy",
-        title: "Advanced Customer Loyalty & Rewards",
-        description: "Build repeat business with automated loyalty program. Customers earn points with every purchase. Automatic tier upgrades (Bronze to VIP) unlock exclusive benefits and discounts. Drive customer retention and increase lifetime value. Redemption management with flexible reward options. Loyalty analytics showing program ROI."
-      },
-      {
-        icon: "Zap",
-        title: "Real-Time Notifications & Communication",
-        description: "Instant notifications via email, SMS, and Telegram. Customers receive order confirmations and status updates. Staff gets real-time alerts for new orders, kitchen items, and customer requests. Integrated messaging system for customer support. Bulk messaging for promotions and announcements. Notification scheduling and personalization."
+        icon: "Building2",
+        title: "Branded Business Profile",
+        description:
+          "A dedicated profile page for each business — logo, cover, hours, services, gallery, team members, contact channels, and customer reviews. Configurable primary color brands the whole storefront.",
       },
       {
         icon: "BarChart3",
-        title: "Advanced Analytics & Business Intelligence",
-        description: "Comprehensive dashboards showing sales trends, popular items, peak hours, and revenue by category. Customer insights including repeat rates and lifetime value. Export reports in multiple formats (PDF, Excel, CSV). Predictive analytics for demand forecasting. Competitive benchmarking against industry averages. Real-time dashboards with drill-down capabilities."
+        title: "Live Analytics Dashboard",
+        description:
+          "Today's KPIs at a glance: total sales, total orders, average order value, return rate, low stock, system alerts. Drill into hourly sales, top products, payment methods, customer stats, and branch performance.",
       },
       {
-        icon: "Lock",
-        title: "Enterprise-Grade Security & Compliance",
-        description: "Bank-level encryption for all data in transit and at rest. Two-factor authentication, password policies, and session management. Complete audit logs of every action with IP tracking. GDPR, CCPA, and data privacy compliance. Regular security audits and penetration testing. DDoS protection and bot mitigation. 99.99% uptime guarantee with redundant infrastructure."
-      }
-    ]
+        icon: "Zap",
+        title: "Telegram & Real-Time Notifications",
+        description:
+          "Connect a Telegram group and the platform pushes new-order and stock alerts in real time. Built on WebSocket so the dashboard, storefront, and staff devices stay in sync without refresh.",
+      },
+    ],
   },
 
   // Stats Section
   stats: {
-    subtitle: "Real results from real businesses using Emenu Cambodia",
+    subtitle:
+      "Built in Cambodia for restaurants, cafés, and retail shops everywhere.",
     items: [
-      { number: "500+", label: "Businesses Active", description: "Growing daily across all continents" },
-      { number: "50,000+", label: "Orders Processed", description: "Successfully delivered monthly" },
-      { number: "99.9%", label: "Uptime Guarantee", description: "Reliable service you can depend on" },
-      { number: "< 1hr", label: "Average Setup Time", description: "Get started almost instantly" }
-    ]
+      {
+        number: "1",
+        label: "Unified Platform",
+        description: "Storefront, POS, stock, and analytics in one product",
+      },
+      {
+        number: "All",
+        label: "Features On Every Plan",
+        description: "No tiers, no upgrades to unlock features",
+      },
+      {
+        number: "< 1hr",
+        label: "Average Setup Time",
+        description: "Sign up, add products, share your QR — done",
+      },
+      {
+        number: "24/7",
+        label: "Support",
+        description: "Email + Telegram support whenever you need help",
+      },
+    ],
   },
 
   // Founder Section
@@ -86,206 +137,175 @@ export const LANDING_CONFIG = {
     name: "Phat Menghor",
     title: "Founder & Full-Stack Software Engineer",
     image: "/images/hero/founder.jpg",
-    bio: "A passionate software engineer from Cambodia with a vision to transform how businesses operate across Asia and the world. With over a decade of experience building enterprise-grade SaaS platforms, Phat recognized a critical gap: many food businesses, especially in developing markets, lack access to affordable digital infrastructure.",
-    story: "After working with multiple restaurants and witnessing their struggles with manual operations, outdated systems, and expensive solutions, Phat decided to build something different. Emenu Cambodia was created to democratize restaurant technology—combining world-class features typically found in expensive enterprise software with the simplicity and affordability that small to medium-sized restaurants need.",
-    vision: "Empower food businesses globally to compete digitally, streamline operations, increase profitability, and deliver exceptional customer experiences. Every restaurant, regardless of size or location, deserves access to professional digital tools.",
+    bio: "A passionate software engineer from Cambodia who wanted to give local food and retail businesses the same kind of digital tools the big chains use — without the enterprise price tag.",
+    story:
+      "Emenu Cambodia started as a side project after watching too many restaurants struggle with paper menus, lost orders, and spreadsheets for stock. The goal was to build one platform that handled the storefront, the orders, the stock, and the analytics — and to give every customer the same complete feature set instead of locking things behind tiers.",
+    vision:
+      "Help every small and medium business go digital with a single tool they can actually afford and actually use. Every plan should unlock every feature — the only thing that changes is how long you subscribe.",
     highlights: [
       "Built in Cambodia 🇰🇭 for the world 🌍",
-      "10+ years enterprise software experience",
-      "Passionate about restaurant technology",
-      "Committed to affordable digital solutions"
+      "Full-stack platform — frontend, backend, and infrastructure",
+      "Real-time order + stock sync via WebSocket",
+      "Same feature set on every plan, no tiered lock-out",
     ],
     contact: {
       email: "phatmenghor7@gmail.com",
       location: "Cambodia 🇰🇭",
       telegram: "https://t.me/Hor_HOrz",
-      social: "Hor_HOrz"
-    }
+      social: "Hor_HOrz",
+    },
   },
 
-  // Pricing Section
+  // Pricing Section — every plan shares the same feature list.
   pricing: {
+    title: "Simple Pricing",
     subtitle: "Start free, upgrade anytime as your business grows.",
+    note: "Every plan unlocks every feature. You only choose how long you subscribe.",
     plans: [
       {
         name: "1 Week",
         price: "$0",
-        period: "7 days",
-        description: "Try the full platform completely free",
+        period: "/ 7 days",
+        description: "Try the full platform — every feature unlocked.",
         durationType: "WEEKLY",
-        features: [
-          "QR code digital menu",
-          "Real-time order management",
-          "Staff management (up to 3)",
-          "Analytics dashboard",
-          "Telegram notifications",
-          "24/7 customer support",
-          "Mobile responsive",
-          "Payment processing",
-          "No credit card required"
-        ]
+        features: ALL_PLATFORM_FEATURES,
       },
       {
         name: "1 Month",
         price: "$0",
-        period: "30 days",
-        description: "Full platform access, completely free",
+        period: "/ 30 days",
+        description: "Full platform access for a month, completely free.",
         durationType: "MONTHLY",
-        features: [
-          "QR code digital menu",
-          "Real-time order management",
-          "Staff management (unlimited)",
-          "Advanced analytics & reports",
-          "Loyalty program",
-          "Telegram & email integration",
-          "24/7 priority support",
-          "Payment processing",
-          "API access"
-        ],
-        highlighted: true
+        features: ALL_PLATFORM_FEATURES,
+        highlighted: true,
       },
       {
         name: "1 Year",
         price: "$0",
-        period: "365 days",
-        description: "Best value for serious businesses",
+        period: "/ 365 days",
+        description: "Best value — same complete feature set, year-long.",
         durationType: "YEARLY",
-        features: [
-          "QR code digital menu",
-          "Real-time order management",
-          "Unlimited staff accounts",
-          "Complete analytics suite",
-          "Advanced loyalty features",
-          "Multi-location support",
-          "24/7 dedicated support",
-          "Delivery integrations",
-          "Custom branded features"
-        ]
-      }
-    ]
+        features: ALL_PLATFORM_FEATURES,
+      },
+    ],
   },
 
   // Business Types
   businessTypes: {
-    subtitle: "From small cafes to large restaurant chains",
+    subtitle: "Built for restaurants, cafés, and retail businesses of any size.",
     types: [
       { name: "Fine Dining Restaurants", icon: "🍽️" },
       { name: "Casual Restaurants", icon: "🥘" },
       { name: "Fast Casual & QSR", icon: "🌮" },
-      { name: "Cafes & Espresso Bars", icon: "☕" },
+      { name: "Cafés & Espresso Bars", icon: "☕" },
       { name: "Bakeries & Pastry Shops", icon: "🍰" },
       { name: "Pizza & Sandwich Shops", icon: "🍕" },
       { name: "Food Courts & Malls", icon: "🍲" },
       { name: "Bars, Lounges & Clubs", icon: "🍹" },
       { name: "Cloud Kitchens & Delivery", icon: "🛵" },
       { name: "Food Trucks & Carts", icon: "🚚" },
-      { name: "Catering & Event Services", icon: "🍴" },
-      { name: "Juice & Smoothie Bars", icon: "🥤" }
-    ]
+      { name: "Retail Shops", icon: "🛒" },
+      { name: "Juice & Smoothie Bars", icon: "🥤" },
+    ],
   },
 
   // Security Section
   security: {
-    subtitle: "Your business data and customer information protected with bank-level security",
+    subtitle:
+      "Your business data and customer information stay safe and yours.",
     features: [
       {
         icon: "Shield",
-        title: "End-to-End Encryption",
-        description: "All data encrypted in transit using TLS 1.3 and at rest using AES-256 encryption"
+        title: "Token-Based Authentication",
+        description:
+          "JWT access + refresh tokens with auto-rotation, separate token scopes per persona (customer, staff, platform).",
       },
       {
         icon: "Lock",
-        title: "Advanced Authentication",
-        description: "JWT token-based authentication with optional 2FA, RBAC, and automatic session timeout"
+        title: "Role-Based Access Control",
+        description:
+          "Every staff account is bound to a role. Pages and API calls check the role before responding.",
       },
       {
         icon: "Clock",
-        title: "Complete Audit Logging",
-        description: "Every action logged with timestamp, user ID, IP address for full transparency"
+        title: "Audit Logs",
+        description:
+          "Every privileged action is logged with timestamp, user, and IP so you can see who did what and when.",
       },
       {
         icon: "TrendingUp",
-        title: "Compliance & Privacy",
-        description: "GDPR and CCPA compliant with data processing agreements and privacy controls"
-      }
+        title: "Encrypted in Transit",
+        description:
+          "All traffic over HTTPS/TLS. WebSocket connections also require an authenticated session.",
+      },
     ],
     certifications: [
-      "ISO 27001 Information Security Management",
-      "GDPR & CCPA Compliant",
-      "SOC 2 Type II Certified",
-      "PCI DSS Compliant",
-      "Regular Third-Party Security Audits",
-      "DDoS & Bot Protection",
-      "24/7 Security Monitoring",
-      "Automated Threat Detection"
-    ]
+      "Per-business data isolation",
+      "GDPR-aware design",
+      "Regular backups",
+      "Telegram + email security alerts",
+      "Session expiry & refresh",
+      "WebSocket auth on every connect",
+    ],
   },
 
   // Support Section
   support: {
-    subtitle: "We're committed to your success",
+    subtitle: "Real people, fast replies, in the channels you already use.",
     features: [
       {
-        title: "24/7 Multilingual Support",
-        description: "Email, phone, chat, and Telegram support available 24/7/365 in multiple languages"
+        title: "Email & Telegram Support",
+        description:
+          "Direct support on Telegram and email — usually replied to within hours, not days.",
       },
       {
-        title: "Onboarding & Setup",
-        description: "Dedicated specialist helps set up your menu, staff, and configuration with video training"
+        title: "Setup Help",
+        description:
+          "We'll help you onboard the first time — set up your products, your team, and your business profile.",
       },
       {
-        title: "Comprehensive Documentation",
-        description: "Detailed guides, FAQ, troubleshooting articles, and best practices knowledge base"
+        title: "Documentation",
+        description:
+          "Step-by-step guides covering products, stock, promotions, staff roles, and dashboard.",
       },
       {
-        title: "Live Training Sessions",
-        description: "Scheduled group training and one-on-one sessions with recordings for future reference"
+        title: "Bug Fixes & Updates",
+        description:
+          "Updates ship continuously and are free for everyone — no extra cost, no plan upgrade required.",
       },
-      {
-        title: "Integration Support",
-        description: "Integrations with payment gateways, delivery platforms, and accounting software"
-      },
-      {
-        title: "Mobile Apps",
-        description: "Native iOS and Android apps with full feature parity and offline menu viewing"
-      },
-      {
-        title: "Continuous Updates",
-        description: "Regular updates with bug fixes, features, and improvements - always included"
-      },
-      {
-        title: "Data Security & Backups",
-        description: "Automatic daily backups, data redundancy, disaster recovery, and 99.99% uptime SLA"
-      }
-    ]
+    ],
   },
 
   // CTA Section
   cta: {
-    subtitle: "Join thousands of restaurants, cafes, and food businesses worldwide using Emenu Cambodia to increase efficiency, boost sales, and delight customers.",
-    primaryCTA: "Start Free Trial",
-    secondaryCTA: "Schedule a Personalized Demo",
-    disclaimer: "✓ No credit card required  •  ✓ Full access to all features  •  ✓ Cancel anytime  •  ✓ 24/7 support"
+    subtitle:
+      "Set up your storefront, add your products, and share your QR — your customers can order in minutes, and you'll see every order in real time from your dashboard.",
+    primaryCTA: "Start Free",
+    secondaryCTA: "Talk to the Founder",
+    disclaimer:
+      "✓ No credit card  •  ✓ All features on every plan  •  ✓ Cancel anytime",
   },
 
   // Footer
   footer: {
     company: "Emenu Cambodia",
-    tagline: "Professional digital menu and POS solution for modern food businesses worldwide",
-    description: "Trusted by restaurants, cafes, delivery services, and food enterprises. Simple, affordable, powerful.",
+    tagline:
+      "Digital storefront, real-time orders, stock, and analytics — one platform for your whole business.",
+    description:
+      "Every plan unlocks every feature. You only choose how long you subscribe.",
     contact: {
-      email: "support@emenu-platform.com",
-      phone: "+1-800-EMENU-99",
-      location: "Available Globally 🌍"
+      email: "phatmenghor7@gmail.com",
+      phone: "+855 ## ### ###",
+      location: "Cambodia 🇰🇭",
     },
     links: {
-      Product: ["Features", "Pricing", "Security", "API Docs"],
-      Company: ["About Us", "Blog", "Careers", "Contact"],
-      Resources: ["Help Center", "Community", "Status Page"],
-      Legal: ["Privacy Policy", "Terms of Service", "Compliance", "Cookie Policy"]
+      Product: ["Features", "Pricing", "How It Works"],
+      Company: ["About", "Founder", "Contact"],
+      Resources: ["Documentation", "FAQ", "Status"],
+      Legal: ["Privacy Policy", "Terms of Service", "Cookie Policy"],
     },
-    social: "Made with ❤️ by Emenu Cambodia"
-  }
+    social: "Made with ❤️ in Cambodia",
+  },
 };
 
 export type LandingConfig = typeof LANDING_CONFIG;

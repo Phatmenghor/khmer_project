@@ -1,4 +1,16 @@
-import { QrCode, ShoppingCart, BarChart3, Users, Trophy, Zap, Lock, CreditCard } from "lucide-react";
+import {
+  QrCode,
+  ShoppingCart,
+  BarChart3,
+  Users,
+  Trophy,
+  Zap,
+  Lock,
+  CreditCard,
+  Package,
+  Tag,
+  Building2,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import FadeIn from "@/components/landing/fade-in";
 import { LANDING_CONFIG } from "@/constants/landing-config";
@@ -12,6 +24,9 @@ const iconMap: Record<string, React.ReactNode> = {
   Zap: <Zap className="w-5 h-5" />,
   BarChart3: <BarChart3 className="w-5 h-5" />,
   Lock: <Lock className="w-5 h-5" />,
+  Package: <Package className="w-5 h-5" />,
+  Tag: <Tag className="w-5 h-5" />,
+  Building2: <Building2 className="w-5 h-5" />,
 };
 
 export default function FeaturesSection() {
@@ -27,7 +42,7 @@ export default function FeaturesSection() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-5">
         <FadeIn direction="up">
           <div className="text-center mb-11">
-            <h2 className="text-xs font-bold text-slate-900 mb-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Powerful Features</span>
             </h2>
             <p className="text-xs text-slate-700 leading-relaxed max-w-3xl mx-auto font-medium">

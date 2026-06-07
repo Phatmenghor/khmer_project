@@ -6,6 +6,7 @@ import { ArrowRight, CheckCircle, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { LANDING_CONFIG } from "@/constants/landing-config";
 
 const scrollStyles = `
   @keyframes scroll-bounce-updown {
@@ -37,28 +38,19 @@ export default function HeroSection() {
               <div className="flex flex-col justify-start h-full space-y-5 sm:space-y-7">
                 {/* Headline */}
                 <div className="space-y-2 sm:space-y-3">
-                  <h1 className="text-xs sm:text-sm lg:text-base xl:text-xs font-bold leading-[1.1] tracking-tight bg-gradient-to-r from-slate-900 via-primary to-slate-900 bg-clip-text text-transparent">
-                    Transform Your Business
-                    <br />
-                    Into a Digital Powerhouse
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.1] tracking-tight bg-gradient-to-r from-slate-900 via-primary to-slate-900 bg-clip-text text-transparent">
+                    {LANDING_CONFIG.hero.headline}
                   </h1>
                 </div>
 
                 {/* Subheadline */}
-                <p className="text-xs sm:text-xs lg:text-xs text-slate-600 leading-relaxed max-w-2xl font-medium tracking-wide">
-                  Enterprise-grade platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, and global payment processing.
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl font-medium tracking-wide">
+                  {LANDING_CONFIG.hero.subheadline}
                 </p>
 
                 {/* Features Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3 pt-3">
-                  {[
-                    "Free trial included",
-                    "Full feature access",
-                    "No credit card needed",
-                    "24/7 global support",
-                    "Auto-scaling infrastructure",
-                    "GDPR & compliance ready"
-                  ].map((feature, i) => (
+                  {LANDING_CONFIG.hero.features.map((feature, i) => (
                     <div key={i} className="flex items-center gap-2 group" style={{animationDelay: `${i * 50}ms`}}>
                       <div className="relative flex-shrink-0">
                         <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg group-hover:blur-xl group-hover:scale-110 transition-all"></div>
@@ -73,14 +65,14 @@ export default function HeroSection() {
                 <div className="flex flex-col sm:flex-row gap-3 pt-4 sm:pt-5">
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white px-5 py-3 text-xs sm:text-xs rounded group shadow-lg hover:shadow-2xl transition-all font-semibold"
+                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white px-5 py-3 text-sm rounded group shadow-lg hover:shadow-2xl transition-all font-semibold"
                     onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
                   >
-                    Start Free Trial
-                    <ArrowRight className="ml-1 w-3 h-3 group-hover:translate-x-1 transition" />
+                    {LANDING_CONFIG.hero.primaryCTA}
+                    <ArrowRight className="ml-1 w-4 h-4 group-hover:translate-x-1 transition" />
                   </Button>
-                  <Button size="lg" className="px-5 py-3 text-xs sm:text-xs rounded border-2 border-primary/30 bg-white text-primary hover:bg-primary/5 hover:border-primary/50 font-semibold transition-all" asChild>
-                    <Link href="/">Schedule Demo</Link>
+                  <Button size="lg" className="px-5 py-3 text-sm rounded border-2 border-primary/30 bg-white text-primary hover:bg-primary/5 hover:border-primary/50 font-semibold transition-all" asChild>
+                    <Link href="#how-it-works">{LANDING_CONFIG.hero.secondaryCTA}</Link>
                   </Button>
                 </div>
               </div>

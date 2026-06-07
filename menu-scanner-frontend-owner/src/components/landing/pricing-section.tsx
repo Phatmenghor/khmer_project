@@ -113,12 +113,19 @@ export default function PricingSection() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-5">
         <FadeIn direction="up">
           <div className="text-center mb-11">
-            <h2 className="text-xs font-bold text-slate-900 mb-3">
-              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Simple Pricing</span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                {LANDING_CONFIG.pricing.title}
+              </span>
             </h2>
-            <p className="text-xs text-slate-700 leading-relaxed max-w-3xl mx-auto font-medium">
+            <p className="text-sm text-slate-700 leading-relaxed max-w-3xl mx-auto font-medium">
               {LANDING_CONFIG.pricing.subtitle}
             </p>
+            {LANDING_CONFIG.pricing.note && (
+              <p className="text-xs text-primary leading-relaxed max-w-3xl mx-auto mt-3 font-semibold">
+                {LANDING_CONFIG.pricing.note}
+              </p>
+            )}
           </div>
         </FadeIn>
 
