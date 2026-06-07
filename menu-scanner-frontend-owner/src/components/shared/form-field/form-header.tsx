@@ -7,8 +7,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type FormHeaderVariant = "default" | "destructive";
 
 interface FormHeaderProps {
   title: string;
@@ -17,6 +19,8 @@ interface FormHeaderProps {
   avatarImageUrl?: string;
   showAvatar?: boolean;
   isCreate?: boolean;
+  icon?: LucideIcon;
+  variant?: FormHeaderVariant;
   className?: string;
 }
 
@@ -27,30 +31,45 @@ export function FormHeader({
   avatarImageUrl,
   showAvatar = false,
   isCreate = true,
+  icon,
+  variant = "default",
   className,
 }: FormHeaderProps) {
-  // Determine icon based on mode
-  const Icon = isCreate ? Plus : Edit;
+  const Icon = icon ?? (isCreate ? Plus : Edit);
+
+  const isDestructive = variant === "destructive";
+  const iconBoxClass = isDestructive
+    ? "bg-destructive/10 border-destructive/30"
+    : "bg-primary/10 border-primary/30";
+  const iconColorClass = isDestructive ? "text-destructive" : "text-primary";
 
   return (
     <DialogHeader
       className={cn("px-3 pt-3 pb-2 border-b flex-shrink-0", className)}
     >
-      <div className="flex items-start gap-2">
-        {/* Avatar or Icon - Left side */}
+      <div className="flex items-center gap-2">
         {showAvatar ? (
           <CustomAvatar size="xl" name={avatarName} imageUrl={avatarImageUrl} />
         ) : (
-          <div className="p-1 bg-primary/10 border border-primary rounded shrink-0">
-            <Icon className="h-3 w-3 text-primary" />
+          <div
+            className={cn(
+              "p-1.5 border rounded shrink-0",
+              iconBoxClass,
+            )}
+          >
+            <Icon
+              className={cn("h-4 w-4", iconColorClass)}
+              strokeWidth={2.25}
+            />
           </div>
         )}
 
-        {/* Header Content */}
-        <div className="flex flex-col gap-1 flex-1 min-w-0">
-          <DialogTitle className="text-xs font-semibold">{title}</DialogTitle>
+        <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+          <DialogTitle className="text-xs font-semibold leading-tight">
+            {title}
+          </DialogTitle>
           {description && (
-            <DialogDescription className="text-xs">
+            <DialogDescription className="text-[11px] leading-snug">
               {description}
             </DialogDescription>
           )}

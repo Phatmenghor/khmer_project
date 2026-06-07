@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Trash2, Loader2, type LucideIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 
@@ -16,11 +17,13 @@ interface DeleteConfirmationDialogProps {
   onDelete: () => Promise<void>;
   title: string;
   description: string;
+  icon?: LucideIcon;
   itemName?: string;
   isSubmitting?: boolean;
   variant?: "default" | "critical";
   requireConfirmation?: boolean;
   confirmationText?: string;
+  confirmButtonText?: string;
   errorMessage?: string;
 }
 
@@ -30,11 +33,13 @@ export function DeleteConfirmationModal({
   onDelete,
   title,
   description,
+  icon,
   itemName,
   isSubmitting = false,
   variant = "default",
   requireConfirmation = false,
   confirmationText = "DELETE",
+  confirmButtonText,
   errorMessage,
 }: DeleteConfirmationDialogProps) {
   const [confirmationValue, setConfirmationValue] = useState("");
@@ -53,105 +58,132 @@ export function DeleteConfirmationModal({
       setError(null);
       setIsDeleting(true);
       await onDelete();
+      onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete item");
+      setError(err instanceof Error ? err.message : "Operation failed");
     } finally {
       setIsDeleting(false);
     }
   };
 
+  const inFlight = isDeleting || isSubmitting;
+  const isCritical = variant === "critical";
   const isDeleteDisabled =
-    isSubmitting ||
-    isDeleting ||
+    inFlight ||
     (requireConfirmation && confirmationValue !== confirmationText);
 
-  const isCritical = variant === "critical";
+  const buttonLabel = confirmButtonText
+    ? confirmButtonText
+    : isCritical
+      ? "Delete Permanently"
+      : "Delete";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-xl p-0 flex flex-col">
-        <DialogTitle className="sr-only">{title}</DialogTitle>
-        <div className="p-3 border-b border-border bg-destructive/5">
-          <h2 className="text-xs font-semibold text-foreground">{title}</h2>
-          <p className="text-xs text-muted-foreground mt-1">{description}</p>
-        </div>
+      <DialogContent className="w-full max-w-sm p-0 flex flex-col">
+        <FormHeader
+          title={title}
+          description="Confirm deletion"
+          icon={icon ?? Trash2}
+          variant="destructive"
+        />
 
-        <FormBody>
-          {itemName && (
-            <div className="p-2 bg-muted rounded border border-muted-foreground/20">
-              <p className="text-xs">
-                <span className="text-muted-foreground">Item to delete:</span>
-                <span className="font-semibold text-foreground ml-1">
-                  "{itemName}"
-                </span>
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <FormBody>
+            {description && (
+              <p className="text-xs text-foreground leading-relaxed">
+                {description}
               </p>
-            </div>
-          )}
-
-          {isCritical && (
-            <Alert className="border-red-200 bg-red-50">
-              <AlertTriangle className="h-3 w-3 text-red-600" />
-              <AlertDescription className="text-red-700">
-                This action cannot be undone.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {requireConfirmation && (
-            <div className="space-y-1">
-              <Label htmlFor="confirmation" className="text-xs font-medium">
-                Type{" "}
-                <code className="bg-muted px-1 py-0.5 rounded text-red-600 font-mono text-xs">
-                  {confirmationText}
-                </code>{" "}
-                to confirm:
-              </Label>
-              <Input
-                id="confirmation"
-                value={confirmationValue}
-                onChange={(e) => setConfirmationValue(e.target.value)}
-                placeholder="Type to confirm deletion"
-                className="font-mono"
-                autoComplete="off"
-                disabled={isDeleting || isSubmitting}
-              />
-            </div>
-          )}
-
-          {(error || errorMessage) && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-3 w-3" />
-              <AlertDescription>{error || errorMessage}</AlertDescription>
-            </Alert>
-          )}
-        </FormBody>
-
-        <FormFooter isSubmitting={isDeleting || isSubmitting} isDirty={true} isCreate={true}>
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isDeleting || isSubmitting}
-            className="flex-1 sm:flex-initial"
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={isDeleteDisabled}
-            className={`flex-1 sm:flex-initial ${
-              isCritical
-                ? "bg-red-600 hover:bg-red-700 focus:ring-red-600"
-                : "bg-red-500 hover:bg-red-600"
-            }`}
-          >
-            {isDeleting || isSubmitting ? (
-              <>Deleting...</>
-            ) : (
-              <>Delete{isCritical ? " Permanently" : ""}</>
             )}
-          </Button>
-        </FormFooter>
+
+            {itemName && (
+              <div className="px-2.5 py-2 bg-muted/60 rounded border border-border">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">
+                  Item
+                </p>
+                <p className="text-xs font-semibold text-foreground mt-0.5 truncate">
+                  {itemName}
+                </p>
+              </div>
+            )}
+
+            {isCritical && (
+              <Alert className="border-destructive/30 bg-destructive/5 py-2">
+                <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+                <AlertDescription className="text-xs text-destructive font-medium">
+                  This action cannot be undone.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {requireConfirmation && (
+              <div className="space-y-1">
+                <Label htmlFor="confirmation" className="text-xs font-medium">
+                  Type{" "}
+                  <code className="bg-muted px-1 py-0.5 rounded text-destructive font-mono text-xs">
+                    {confirmationText}
+                  </code>{" "}
+                  to confirm:
+                </Label>
+                <Input
+                  id="confirmation"
+                  value={confirmationValue}
+                  onChange={(e) => setConfirmationValue(e.target.value)}
+                  placeholder="Type to confirm"
+                  className="font-mono"
+                  autoComplete="off"
+                  disabled={inFlight}
+                />
+              </div>
+            )}
+
+            {(error || errorMessage) && (
+              <Alert variant="destructive" className="py-2">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                <AlertDescription className="text-xs">
+                  {error || errorMessage}
+                </AlertDescription>
+              </Alert>
+            )}
+          </FormBody>
+
+          <FormFooter
+            isSubmitting={inFlight}
+            isDirty={!requireConfirmation || confirmationValue === confirmationText}
+            isCreate={false}
+            createMessage="Deleting..."
+            updateMessage="Deleting..."
+            noChangesMessage={
+              requireConfirmation
+                ? `Type ${confirmationText} to enable delete`
+                : "Confirm to delete"
+            }
+          >
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={inFlight}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleteDisabled}
+            >
+              {inFlight ? (
+                <>
+                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                buttonLabel
+              )}
+            </Button>
+          </FormFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
