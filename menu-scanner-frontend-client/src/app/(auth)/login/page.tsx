@@ -23,6 +23,7 @@ import { AppDefault, SocialAuthConfig } from "@/constants/app-resource/default/d
 import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
 import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 import { UserGropeType } from "@/constants/status/status";
+import { getAdminToken } from "@/utils/local-storage/token";
 
 const formSchema = z.object({
   userIdentifier: z.string().min(1, "Email or username is required"),
@@ -36,14 +37,17 @@ export default function LoginPage() {
   const [isTelegramLoading, setIsTelegramLoading] = useState(false);
   const router = useRouter();
 
-  const { isLoading, dispatch, accessToken, authReady } = useAuthState();
+  const { isLoading, dispatch, authReady } = useAuthState();
 
-  // Redirect to dashboard if already logged in
+  // Redirect to dashboard only if the admin cookie the server checks is set.
+  // Using Redux state alone caused a loop: stale state.user (or a non-admin
+  // login response that skipped storeAdminTokens) would push us to /admin,
+  // and admin layout would bounce us back to /login because the cookie is missing.
   useEffect(() => {
-    if (authReady && accessToken) {
+    if (authReady && getAdminToken()) {
       router.replace(ROUTES.ADMIN.DASHBOARD);
     }
-  }, [authReady, accessToken, router]);
+  }, [authReady, router]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
