@@ -14,16 +14,14 @@ public final class StorageNameUtil {
     private StorageNameUtil() {}
 
     /**
-     * Current date folder — nested yyyy/MM/dd.
-     * Example: 2024/06/07
-     *
-     * Allows prefix-delete by year (2024/), month (2024/06/), or day (2024/06/07/).
+     * Current date folder.
+     * Example: 2024-06-07
      */
     public static String dateFolder() {
         LocalDate today = LocalDate.now(ZoneOffset.UTC);
         return today.getYear()
-                + "/" + String.format("%02d", today.getMonthValue())
-                + "/" + String.format("%02d", today.getDayOfMonth());
+                + "-" + String.format("%02d", today.getMonthValue())
+                + "-" + String.format("%02d", today.getDayOfMonth());
     }
 
     /**
