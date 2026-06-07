@@ -1,4 +1,5 @@
 import { BasePagination } from "@/utils/common/pagination";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 export interface AllCategoriesResponseModel extends BasePagination {
   content: CategoriesResponseModel[];
@@ -13,7 +14,7 @@ export interface CategoriesResponseModel {
   businessId: string;
   businessName: string;
   name: string;
-  imageUrl: string;
+  image: ImageUrls;
   description?: string;
   status: string;
   totalProducts?: number;

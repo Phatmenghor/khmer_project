@@ -83,7 +83,7 @@ export const toggleCategoriesStatusService = createApiThunk<any, any>(
       `/api/v1/categories/${category.id}`,
       {
         name: category.name,
-        imageUrl: category.imageUrl,
+        image: category.image,
         description: category.description || "",
         status: newStatus,
       }

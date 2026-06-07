@@ -119,7 +119,7 @@ public class CategoryServiceImpl implements CategoryService {
                     response.setBusinessId(baseResponse.getBusinessId());
                     response.setBusinessName(baseResponse.getBusinessName());
                     response.setName(baseResponse.getName());
-                    response.setImageUrl(baseResponse.getImageUrl());
+                    response.setImage(baseResponse.getImage());
                     response.setStatus(baseResponse.getStatus());
 
                     response.setTotalProducts(totalProductCountMap.getOrDefault(category.getId(), 0L));

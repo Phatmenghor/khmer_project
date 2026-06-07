@@ -49,14 +49,14 @@ export const categoriesTableColumns = ({
       ),
     },
     {
-      key: "imageUrl",
+      key: "image",
       label: "Categories Image",
       minWidth: "10px",
       maxWidth: "400px",
       render: (categories) => {
         return (
           <TableImage
-            src={categories.imageUrl}
+            src={categories.image?.sm || categories.image?.md || categories.image?.o}
             alt={categories?.name}
             fallbackText={categories?.name || "C"}
           />

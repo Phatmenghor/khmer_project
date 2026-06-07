@@ -18,7 +18,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
 import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-status";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
-import { uploadImage } from "@/services/spaces-service";
+import { uploadMultiSize } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import {
   selectError,
@@ -83,7 +83,7 @@ export default function CategoriesModal({
     ),
     defaultValues: {
       name: "",
-      imageUrl: "",
+      image: { sm: "", md: "", o: "" },
       description: "",
       status: Status.ACTIVE,
     },
@@ -95,7 +95,7 @@ export default function CategoriesModal({
       if (isCreate) {
         reset({
           name: "",
-          imageUrl: "",
+          image: { sm: "", md: "", o: "" },
           description: "",
           status: Status.ACTIVE,
         });
@@ -104,12 +104,18 @@ export default function CategoriesModal({
       } else if (categories) {
         reset({
           name: categories.name || "",
-          imageUrl: categories.imageUrl || "",
+          image: {
+            sm: categories.image?.sm || "",
+            md: categories.image?.md || "",
+            o: categories.image?.o || "",
+          },
           description: categories.description || "",
           status: categories.status || "",
         });
         setPendingFile(null);
-        setPreviewUrl(categories.imageUrl || "");
+        setPreviewUrl(
+          categories.image?.md || categories.image?.o || categories.image?.sm || "",
+        );
       }
     }
   }, [isOpen, categories, isCreate, reset]);
@@ -123,14 +129,14 @@ export default function CategoriesModal({
   const onSubmit = async (data: CreateCategoriesData) => {
     setIsProcessing(true);
     try {
-      let finalImageUrl = data.imageUrl;
+      let imagePayload = data.image;
 
       // Upload the pending file only now that the user committed to submit.
       if (pendingFile) {
         setIsUploadingImage(true);
         try {
-          const result = await uploadImage(pendingFile, AppDefault.BUSINESS_ID);
-          finalImageUrl = result.url;
+          const result = await uploadMultiSize(pendingFile, AppDefault.BUSINESS_ID);
+          imagePayload = { sm: result.sm.url, md: result.md.url, o: result.o.url };
         } catch (uploadErr: any) {
           showToast.error(uploadErr?.message || "Image upload failed — please try again");
           return;
@@ -141,7 +147,7 @@ export default function CategoriesModal({
 
       const payload: CreateCategoriesData = {
         name: data.name || "",
-        imageUrl: finalImageUrl,
+        image: imagePayload,
         description: data.description || "",
         status: data.status,
       };
@@ -175,7 +181,6 @@ export default function CategoriesModal({
     reset();
     setPendingFile(null);
     setPreviewUrl("");
-    setIsUploadingImage(false);
     dispatch(clearError());
     dispatch(clearSelectedCategories());
     onClose();
@@ -211,6 +216,8 @@ export default function CategoriesModal({
 
             <div className="space-y-2">
               <SpacesImageUpload
+                multiSize
+                deferred
                 label="Category Image"
                 businessId={AppDefault.BUSINESS_ID}
                 value={previewUrl}
@@ -219,24 +226,28 @@ export default function CategoriesModal({
                   if (file) {
                     const objectUrl = URL.createObjectURL(file);
                     setPreviewUrl(objectUrl);
-                    setValue("imageUrl", objectUrl, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    });
+                    setValue(
+                      "image",
+                      { sm: objectUrl, md: objectUrl, o: objectUrl },
+                      { shouldDirty: true, shouldValidate: true },
+                    );
                   } else {
                     setPreviewUrl("");
-                    setValue("imageUrl", "", {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    });
+                    setValue(
+                      "image",
+                      { sm: "", md: "", o: "" },
+                      { shouldDirty: true, shouldValidate: true },
+                    );
                   }
                 }}
-                deferred
                 aspectRatio="square"
                 maxSizeMb={5}
                 required
                 disabled={isSubmitting}
-                error={errors.imageUrl}
+                error={
+                  (errors.image as any)?.message ||
+                  (errors.image as any)?.root?.message
+                }
                 placeholder="Click to upload category image"
                 helperText="Square image works best (500x500)"
               />
