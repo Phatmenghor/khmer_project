@@ -138,6 +138,16 @@ const categoriesSlice = createSlice({
             state.data.totalElements / state.data.pageSize
           );
         }
+        if (state.dataWithProductCount) {
+          state.dataWithProductCount.content = [
+            { ...action.payload, totalProducts: 0, activeProducts: 0 },
+            ...state.dataWithProductCount.content,
+          ];
+          state.dataWithProductCount.totalElements += 1;
+          state.dataWithProductCount.totalPages = Math.ceil(
+            state.dataWithProductCount.totalElements / state.dataWithProductCount.pageSize
+          );
+        }
         state.operations.isCreating = false;
       })
       .addCase(createCategoriesService.rejected, (state, action) => {
@@ -154,10 +164,16 @@ const categoriesSlice = createSlice({
         state.selectedCategories = action.payload;
         state.operations.isUpdating = false;
 
-
         if (state.data) {
-          state.data.content = state.data.content.map((user) =>
-            user.id === action.payload.id ? action.payload : user
+          state.data.content = state.data.content.map((item) =>
+            item.id === action.payload.id ? action.payload : item
+          );
+        }
+        if (state.dataWithProductCount) {
+          state.dataWithProductCount.content = state.dataWithProductCount.content.map((item) =>
+            item.id === action.payload.id
+              ? { ...action.payload, totalProducts: item.totalProducts, activeProducts: item.activeProducts }
+              : item
           );
         }
       })
