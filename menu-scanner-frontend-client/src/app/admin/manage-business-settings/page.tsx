@@ -37,7 +37,11 @@ import {
   fetchBusinessSettingsThunk,
   updateBusinessSettingsThunk,
 } from "@/features/business/store/thunks/business-settings-thunks";
-import { uploadMultiSize } from "@/services/spaces-service";
+import { uploadMultiSize, SpacesMultiSizeResult } from "@/services/spaces-service";
+
+function toImageUrls(r: SpacesMultiSizeResult): ImageUrls {
+  return { sm: r.sm.url, md: r.md.url, o: r.o.url };
+}
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import {
   businessSettingsSchema,
@@ -250,7 +254,7 @@ export default function BusinessSettingsPage() {
       let logoBusiness: ImageUrls | undefined = data.logoBusiness as ImageUrls | undefined;
       if (pendingLogoFile) {
         try {
-          logoBusiness = await uploadMultiSize(pendingLogoFile, businessId);
+          logoBusiness = toImageUrls(await uploadMultiSize(pendingLogoFile, businessId));
         } catch (error) {
           showToast.error(Messages.business.logoUploadFailed);
           return;
@@ -264,7 +268,7 @@ export default function BusinessSettingsPage() {
           if (pendingFile) {
             try {
               const uploaded = await uploadMultiSize(pendingFile, businessId);
-              return { ...social, image: uploaded as ImageUrls };
+              return { ...social, image: toImageUrls(uploaded) };
             } catch (error) {
               showToast.error(`Failed to upload ${social.name} icon`);
               throw error;

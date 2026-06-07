@@ -36,7 +36,11 @@ import {
   saveAdminPortfolioProfileThunk,
 } from "@/features/portfolio/store/thunks/portfolio-thunks";
 import { resetState } from "@/features/portfolio/store/slice/portfolio-profile-slice";
-import { uploadMultiSize } from "@/services/spaces-service";
+import { uploadMultiSize, SpacesMultiSizeResult } from "@/services/spaces-service";
+
+function toImageUrls(r: SpacesMultiSizeResult): ImageUrls {
+  return { sm: r.sm.url, md: r.md.url, o: r.o.url };
+}
 import { AppDefault } from "@/constants/app-resource/default/default";
 import {
   PortfolioProfileSaveRequest,
@@ -295,7 +299,7 @@ export default function PortfolioPage() {
       let logo: ImageUrls | undefined = data.logo as ImageUrls | undefined;
       if (pendingLogoFile) {
         try {
-          logo = await uploadMultiSize(pendingLogoFile, businessId);
+          logo = toImageUrls(await uploadMultiSize(pendingLogoFile, businessId));
         } catch {
           showToast.error("Failed to upload logo");
           return;
@@ -306,7 +310,7 @@ export default function PortfolioPage() {
       let coverImage: ImageUrls | undefined = data.coverImage as ImageUrls | undefined;
       if (pendingCoverFile) {
         try {
-          coverImage = await uploadMultiSize(pendingCoverFile, businessId);
+          coverImage = toImageUrls(await uploadMultiSize(pendingCoverFile, businessId));
         } catch {
           showToast.error("Failed to upload cover image");
           return;
@@ -320,7 +324,7 @@ export default function PortfolioPage() {
           if (pendingFile) {
             try {
               const uploaded = await uploadMultiSize(pendingFile, businessId);
-              return { ...item, image: uploaded as ImageUrls };
+              return { ...item, image: toImageUrls(uploaded) };
             } catch {
               showToast.error(`Failed to upload gallery image ${index + 1}`);
               throw new Error("Gallery upload failed");
@@ -337,7 +341,7 @@ export default function PortfolioPage() {
           if (pendingFile) {
             try {
               const uploaded = await uploadMultiSize(pendingFile, businessId);
-              return { ...member, photo: uploaded as ImageUrls };
+              return { ...member, photo: toImageUrls(uploaded) };
             } catch {
               showToast.error(`Failed to upload team photo for ${member.name}`);
               throw new Error("Team photo upload failed");
