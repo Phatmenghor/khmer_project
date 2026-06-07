@@ -11,7 +11,7 @@ public interface SpacesService {
     SpacesUploadResponse upload(MultipartFile file, UUID businessId, String name);
 
     /** Delete one exact object by its full key */
-    void deleteByKey(UUID businessId, String key);
+    void deleteByKey(String key);
 
     /**
      * Delete by date prefix — pass any of:

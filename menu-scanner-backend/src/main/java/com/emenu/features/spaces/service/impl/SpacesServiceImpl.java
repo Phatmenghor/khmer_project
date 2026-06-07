@@ -52,7 +52,7 @@ public class SpacesServiceImpl implements SpacesService {
     }
 
     @Override
-    public void deleteByKey(UUID businessId, String key) {
+    public void deleteByKey(String key) {
         spacesS3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(spacesProperties.getBucket())
                 .key(key)

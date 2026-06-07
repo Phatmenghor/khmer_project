@@ -78,6 +78,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/public/**").permitAll()
                         .requestMatchers("/api/v1/business-owners/register").permitAll()
                         .requestMatchers("/api/images/**").permitAll()
+                        .requestMatchers("/api/v1/spaces/**").permitAll()
 
                         // ── Telegram webhook (HMAC-validated in controller) ──
                         .requestMatchers("/api/v1/telegram/webhook").permitAll()
