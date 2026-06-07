@@ -1,6 +1,5 @@
 "use client";
 
-import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -11,7 +10,7 @@ import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { CancelButton } from "@/components/shared/form-field/cancel-button";
 import { SubmitButton } from "@/components/shared/form-field/submid-button";
-import { ClickableImageUpload } from "@/components/shared/form-field/clickable-image-upload";
+import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { Button } from "@/components/ui/button";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import {
@@ -69,7 +68,6 @@ import {
   GENDER_OPTIONS,
   EMPLOYMENT_TYPE_OPTIONS,
 } from "@/constants/form-options";
-import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
 
 type Props = {
   mode: ModalMode;
@@ -86,7 +84,9 @@ export default function UserBusinessModal({
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [profileImageKey, setProfileImageKey] = useState<string | undefined>();
+  const [documentKeys, setDocumentKeys] = useState<Record<number, string>>({});
+  const [educationKeys, setEducationKeys] = useState<Record<number, string>>({});
 
   const dispatch = useAppDispatch();
 
@@ -299,69 +299,23 @@ export default function UserBusinessModal({
 
   const onSubmit = async (data: UserFormData) => {
     try {
-      setIsUploadingImage(true);
+      const validDocuments = (data.documents || []).map((doc) => ({
+        id: doc.id,
+        type: doc.type,
+        number: doc.number,
+        fileUrl: doc.fileUrl,
+      }));
 
-
-      let profileImageUrl = data.profileImageUrl;
-      if (profileImageUrl && isBase64Image(profileImageUrl)) {
-        try {
-          profileImageUrl = await uploadImage(profileImageUrl);
-        } catch (error) {
-          showToast.error(Messages.profile.imageUploadFailed);
-          setIsUploadingImage(false);
-          return;
-        }
-      }
-
-
-      const processedDocuments = await Promise.all(
-        (data.documents || []).map(async (doc) => {
-          let fileUrl = doc.fileUrl;
-          if (fileUrl && isBase64Image(fileUrl)) {
-            try {
-              fileUrl = await uploadImage(fileUrl);
-            } catch (error) {
-              return null;
-            }
-          }
-          return {
-            id: doc.id,
-            type: doc.type,
-            number: doc.number,
-            fileUrl,
-          };
-        }),
-      );
-
-      const validDocuments = processedDocuments.filter((doc) => doc !== null);
-
-
-      const processedEducations = await Promise.all(
-        (data.educations || []).map(async (edu) => {
-          let certificateUrl = edu.certificateUrl;
-          if (certificateUrl && isBase64Image(certificateUrl)) {
-            try {
-              certificateUrl = await uploadImage(certificateUrl);
-            } catch (error) {
-              return null;
-            }
-          }
-          return {
-            id: edu.id,
-            level: edu.level,
-            schoolName: edu.schoolName,
-            fieldOfStudy: edu.fieldOfStudy,
-            startYear: edu.startYear,
-            endYear: edu.endYear,
-            isGraduated: edu.isGraduated || false,
-            certificateUrl,
-          };
-        }),
-      );
-
-      const validEducations = processedEducations.filter((edu) => edu !== null);
-
-      setIsUploadingImage(false);
+      const validEducations = (data.educations || []).map((edu) => ({
+        id: edu.id,
+        level: edu.level,
+        schoolName: edu.schoolName,
+        fieldOfStudy: edu.fieldOfStudy,
+        startYear: edu.startYear,
+        endYear: edu.endYear,
+        isGraduated: edu.isGraduated || false,
+        certificateUrl: edu.certificateUrl,
+      }));
 
       if (isCreate) {
         const payload: CreateUserRequest = {
@@ -470,13 +424,15 @@ export default function UserBusinessModal({
   const handleClose = () => {
     reset();
     setShowPassword(false);
-    setIsUploadingImage(false);
+    setProfileImageKey(undefined);
+    setDocumentKeys({});
+    setEducationKeys({});
     dispatch(clearError());
     dispatch(clearSelectedUser());
     onClose();
   };
 
-  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage;
+  const isSubmitting = isCreate ? isCreating : isUpdating;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -682,10 +638,19 @@ export default function UserBusinessModal({
 
                     {}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <ClickableImageUpload
+                      <SpacesImageUpload
                         label="Profile Image"
+                        businessId={AppDefault.BUSINESS_ID}
                         value={watch("profileImageUrl") || ""}
-                        onChange={(base64) => setValue("profileImageUrl", base64)}
+                        imageKey={profileImageKey}
+                        onChange={(result) => {
+                          setValue("profileImageUrl", result.url, { shouldDirty: true });
+                          setProfileImageKey(result.key);
+                        }}
+                        onRemove={() => {
+                          setValue("profileImageUrl", "", { shouldDirty: true });
+                          setProfileImageKey(undefined);
+                        }}
                         aspectRatio="square"
                         required={false}
                         disabled={isSubmitting}
@@ -1086,15 +1051,22 @@ export default function UserBusinessModal({
                               />
                             </div>
                             <div className="w-1/2">
-                              <ClickableImageUpload
+                              <SpacesImageUpload
                                 label="File"
+                                businessId={AppDefault.BUSINESS_ID}
                                 value={watch(`documents.${index}.fileUrl`) || ""}
-                                onChange={(base64) =>
-                                  setValue(`documents.${index}.fileUrl`, base64, { shouldDirty: true })
-                                }
+                                imageKey={documentKeys[index]}
+                                onChange={(result) => {
+                                  setValue(`documents.${index}.fileUrl`, result.url, { shouldDirty: true });
+                                  setDocumentKeys((prev) => ({ ...prev, [index]: result.key }));
+                                }}
+                                onRemove={() => {
+                                  setValue(`documents.${index}.fileUrl`, "", { shouldDirty: true });
+                                  setDocumentKeys((prev) => { const n = { ...prev }; delete n[index]; return n; });
+                                }}
                                 aspectRatio="auto"
                                 height="h-28"
-                                maxSize={5}
+                                maxSizeMb={5}
                                 disabled={isSubmitting}
                                 error={errors.documents?.[index]?.fileUrl as any}
                                 placeholder="Upload"
@@ -1219,15 +1191,22 @@ export default function UserBusinessModal({
                               />
                             </div>
                             <div className="w-1/2">
-                              <ClickableImageUpload
+                              <SpacesImageUpload
                                 label="Certificate"
+                                businessId={AppDefault.BUSINESS_ID}
                                 value={watch(`educations.${index}.certificateUrl`) || ""}
-                                onChange={(base64) =>
-                                  setValue(`educations.${index}.certificateUrl`, base64, { shouldDirty: true })
-                                }
+                                imageKey={educationKeys[index]}
+                                onChange={(result) => {
+                                  setValue(`educations.${index}.certificateUrl`, result.url, { shouldDirty: true });
+                                  setEducationKeys((prev) => ({ ...prev, [index]: result.key }));
+                                }}
+                                onRemove={() => {
+                                  setValue(`educations.${index}.certificateUrl`, "", { shouldDirty: true });
+                                  setEducationKeys((prev) => { const n = { ...prev }; delete n[index]; return n; });
+                                }}
                                 aspectRatio="auto"
                                 height="h-28"
-                                maxSize={5}
+                                maxSizeMb={5}
                                 disabled={isSubmitting}
                                 error={errors.educations?.[index]?.certificateUrl as any}
                                 placeholder="Upload"
@@ -1259,12 +1238,8 @@ export default function UserBusinessModal({
               isSubmitting={isSubmitting}
               isDirty={isDirty}
               isCreate={isCreate}
-              createMessage={
-                isUploadingImage ? "Uploading files..." : "Creating user..."
-              }
-              updateMessage={
-                isUploadingImage ? "Uploading files..." : "Updating user..."
-              }
+              createMessage="Creating user..."
+              updateMessage="Updating user..."
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
               <SubmitButton
@@ -1273,12 +1248,8 @@ export default function UserBusinessModal({
                 isCreate={isCreate}
                 createText="Create User"
                 updateText="Update User"
-                submittingCreateText={
-                  isUploadingImage ? "Uploading..." : "Creating..."
-                }
-                submittingUpdateText={
-                  isUploadingImage ? "Uploading..." : "Updating..."
-                }
+                submittingCreateText="Creating..."
+                submittingUpdateText="Updating..."
               />
             </FormFooter>
           </form>

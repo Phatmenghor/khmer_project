@@ -6,20 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FieldError } from "react-hook-form";
-import {
-  uploadAllSizes,
-  deleteImage,
-  SpacesAllSizes,
-} from "@/services/spaces-service";
+import { uploadImage, deleteImage, SpacesUploadResult } from "@/services/spaces-service";
 
 type AspectRatio = "square" | "banner" | "portrait" | "auto";
 
 interface SpacesImageUploadProps {
   label: string;
-  businessId: string;                      // passed by the caller
-  value?: string;                          // preview URL (sm or any size)
-  imageKeys?: Partial<SpacesAllSizes>;     // existing keys — deleted on replace
-  onChange: (result: SpacesAllSizes) => void;
+  businessId: string;
+  value?: string;
+  imageKey?: string;
+  onChange: (result: SpacesUploadResult) => void;
   onRemove?: () => void;
   disabled?: boolean;
   required?: boolean;
@@ -37,7 +33,7 @@ export function SpacesImageUpload({
   label,
   businessId,
   value,
-  imageKeys,
+  imageKey,
   onChange,
   onRemove,
   disabled = false,
@@ -51,7 +47,6 @@ export function SpacesImageUpload({
 }: SpacesImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
-  const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const containerHeight = height
@@ -78,23 +73,15 @@ export function SpacesImageUpload({
       return;
     }
 
-    // Delete old Spaces files before uploading new ones
-    if (imageKeys) {
-      const oldKeys = Object.values(imageKeys)
-        .map((r) => r?.key)
-        .filter(Boolean) as string[];
-      await Promise.allSettled(oldKeys.map(deleteImage));
+    if (imageKey) {
+      await deleteImage(imageKey).catch(() => {});
     }
 
     setErrorMsg(null);
     setUploadState("uploading");
-    setProgress(0);
 
     try {
-      const result = await uploadAllSizes(file, businessId, (done, total) => {
-        setProgress(Math.round((done / total) * 100));
-      });
-
+      const result = await uploadImage(file, businessId);
       setUploadState("done");
       onChange(result);
     } catch {
@@ -107,16 +94,10 @@ export function SpacesImageUpload({
 
   const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    if (imageKeys) {
-      const keys = Object.values(imageKeys)
-        .map((r) => r?.key)
-        .filter(Boolean) as string[];
-      await Promise.allSettled(keys.map(deleteImage));
+    if (imageKey) {
+      await deleteImage(imageKey).catch(() => {});
     }
-
     setUploadState("idle");
-    setProgress(0);
     setErrorMsg(null);
     onRemove?.();
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -160,23 +141,13 @@ export function SpacesImageUpload({
           className="hidden"
         />
 
-        {/* Uploading overlay */}
         {isUploading && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-background/80">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <p className="text-xs font-medium text-foreground">
-              Uploading… {progress}%
-            </p>
-            <div className="w-32 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+            <p className="text-xs font-medium text-foreground">Uploading…</p>
           </div>
         )}
 
-        {/* Preview */}
         {value && !isUploading ? (
           <>
             {aspectRatio === "square" ? (
@@ -222,11 +193,9 @@ export function SpacesImageUpload({
               <ImageIcon className="h-7 w-7 text-muted-foreground" />
             </div>
             <div className="text-center px-3">
-              <p className="text-xs font-medium text-foreground">
-                {placeholder}
-              </p>
+              <p className="text-xs font-medium text-foreground">{placeholder}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {helperText ?? `PNG, JPG, WebP up to ${maxSizeMb}MB`}
+                {helperText ?? `PNG, JPG up to ${maxSizeMb}MB`}
               </p>
             </div>
           </div>
