@@ -50,7 +50,9 @@ export function DetailModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          "w-full max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden",
+          // Fixed height (not max-only) so the flex-1 ScrollArea actually
+          // gets remaining space. max-h is kept as a safety cap.
+          "w-full h-[92dvh] max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden",
           maxWidthClass,
         )}
       >
