@@ -1,25 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import {
+  Loader2,
+  UserPlus,
+  User,
+  Building2,
+  Settings as SettingsIcon,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
+import { FormHeader } from "@/components/shared/form-field/form-header";
+import { FormBody } from "@/components/shared/form-field/form-body";
 import { showToast } from "@/components/shared/common/show-toast";
 import { axiosClient } from "@/utils/axios";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 const schema = z
   .object({
@@ -57,6 +59,43 @@ interface RegisterModalProps {
   plan?: PlanData;
 }
 
+// Compact admin-modal section heading. Mirrors the pattern used in other
+// owner modals (icon tile + sm title + xs subtitle).
+function SectionHeading({
+  step,
+  icon: Icon,
+  title,
+  subtitle,
+}: {
+  step: number;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 mb-3">
+      <div className="relative flex-shrink-0">
+        <div className="p-1.5 rounded-md bg-primary/10 text-primary">
+          <Icon className="w-4 h-4" />
+        </div>
+        <span className="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center shadow">
+          {step}
+        </span>
+      </div>
+      <div className="min-w-0">
+        <h3 className="text-xs font-semibold text-foreground leading-tight">
+          {title}
+        </h3>
+        {subtitle && (
+          <p className="text-[11px] text-muted-foreground leading-snug">
+            {subtitle}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -65,7 +104,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     reset,
     watch,
     setValue,
@@ -83,7 +122,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       businessPhone: "",
       businessAddress: "",
       enableStockManagement: false,
-      primaryColor: "#A32D62", // Owner project primary color (HSL 334 51% 39%)
+      primaryColor: "#A32D62",
     },
     mode: "onChange",
   });
@@ -105,7 +144,6 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         primaryColor: values.primaryColor,
       };
 
-      // Include planId if user selected a plan from pricing page
       if (plan?.id) {
         payload.planId = plan.id;
       }
@@ -126,244 +164,299 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     }
   }
 
+  const handleClose = () => {
+    if (!isSubmitting) {
+      onClose();
+      reset();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-screen sm:w-full sm:max-w-7xl max-h-[100dvh] sm:max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent
+        className="w-screen sm:w-full sm:max-w-3xl max-h-[100dvh] sm:max-h-[92dvh] h-[100dvh] sm:h-auto p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded"
+      >
         {/* Mobile drag handle */}
-        <div className="sm:hidden h-1 bg-slate-300 rounded-full w-8 mx-auto mt-2"></div>
+        <div className="sm:hidden h-1 bg-slate-300 rounded-full w-8 mx-auto mt-2" />
 
-        {/* Header */}
-        <DialogHeader className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex flex-col gap-3">
-            <div>
-              <DialogTitle className="text-xs font-bold text-foreground">
-                Create Your Account
-              </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground mt-1">
-                Register to get started with your business
-              </DialogDescription>
+        {/* Header — admin FormHeader style */}
+        <FormHeader
+          title="Create Your Account"
+          description="Register your business — every plan unlocks every feature."
+          icon={UserPlus}
+        />
+
+        {/* Selected plan strip (only when arriving from pricing) */}
+        {plan && (
+          <div className="px-3 py-2 border-b bg-primary/5 flex-shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="p-1 rounded bg-primary/10 text-primary shrink-0">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-foreground truncate">
+                  {plan.name}
+                  <span className="text-muted-foreground font-normal ml-1">
+                    · {plan.price} {plan.period}
+                  </span>
+                </p>
+                {plan.description && (
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {plan.description}
+                  </p>
+                )}
+              </div>
             </div>
-
-            {/* Selected Plan Display */}
-            {plan && (
-              <div className="bg-primary/5 border border-primary/20 rounded p-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold text-foreground">{plan.name} Plan</h4>
-                  <span className="text-xs text-muted-foreground">{plan.price} {plan.period}</span>
-                </div>
-              </div>
-            )}
           </div>
-        </DialogHeader>
+        )}
 
-        {/* Content */}
-        <ScrollArea className="flex-1 min-h-0 w-full">
-          <form onSubmit={handleSubmit(onSubmit)} className="px-4 py-5 space-y-7">
-            {/* Account Credentials Section */}
-              <div>
-                <h3 className="text-xs font-bold text-slate-900 mb-4 flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">1</span>
-                  Account Credentials
-                </h3>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {/* Login Fields - First Priority */}
-                  <TextField
-                    name="userIdentifier"
-                    label="Username *"
-                    placeholder="Enter username"
-                    control={control}
-                    error={errors.userIdentifier}
-                    disabled={isSubmitting}
-                    required
-                  />
-                  <PasswordField
-                    name="ownerPassword"
-                    label="Password *"
-                    placeholder="Enter password"
-                    control={control}
-                    error={errors.ownerPassword}
-                    disabled={isSubmitting}
-                    required
-                    showPassword={showPassword}
-                    onTogglePassword={() => setShowPassword((v) => !v)}
-                  />
-                  <PasswordField
-                    name="confirmPassword"
-                    label="Confirm Password"
-                    placeholder="Confirm password"
-                    control={control}
-                    error={errors.confirmPassword}
-                    disabled={isSubmitting}
-                    required
-                    showPassword={showConfirm}
-                    onTogglePassword={() => setShowConfirm((v) => !v)}
-                  />
-                  {/* Personal Information */}
-                  <TextField
-                    name="ownerFullName"
-                    label="Full Name"
-                    placeholder="Enter full name"
-                    control={control}
-                    error={errors.ownerFullName}
-                    disabled={isSubmitting}
-                    required
-                  />
-                  <TextField
-                    name="ownerEmail"
-                    label="Email Address"
-                    type="email"
-                    placeholder="Enter email address"
-                    control={control}
-                    error={errors.ownerEmail}
-                    disabled={isSubmitting}
-                    required
-                  />
-                  <TextField
-                    name="ownerPhone"
-                    label="Phone Number"
-                    type="tel"
-                    placeholder="Enter phone number"
-                    control={control}
-                    error={errors.ownerPhone}
-                    disabled={isSubmitting}
-                    required
-                  />
-                </div>
+        {/* Body */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 min-h-0"
+        >
+          <FormBody contentClassName="px-3 py-3 space-y-5">
+            {/* Step 1 — Account credentials */}
+            <section>
+              <SectionHeading
+                step={1}
+                icon={User}
+                title="Account Credentials"
+                subtitle="Your sign-in details and personal contact info"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <TextField
+                  name="userIdentifier"
+                  label="Username"
+                  placeholder="Enter username"
+                  control={control}
+                  error={errors.userIdentifier}
+                  disabled={isSubmitting}
+                  required
+                />
+                <TextField
+                  name="ownerEmail"
+                  label="Email Address"
+                  type="email"
+                  placeholder="name@example.com"
+                  control={control}
+                  error={errors.ownerEmail}
+                  disabled={isSubmitting}
+                  required
+                />
+                <PasswordField
+                  name="ownerPassword"
+                  label="Password"
+                  placeholder="Enter password"
+                  control={control}
+                  error={errors.ownerPassword}
+                  disabled={isSubmitting}
+                  required
+                  showPassword={showPassword}
+                  onTogglePassword={() => setShowPassword((v) => !v)}
+                />
+                <PasswordField
+                  name="confirmPassword"
+                  label="Confirm Password"
+                  placeholder="Confirm password"
+                  control={control}
+                  error={errors.confirmPassword}
+                  disabled={isSubmitting}
+                  required
+                  showPassword={showConfirm}
+                  onTogglePassword={() => setShowConfirm((v) => !v)}
+                />
+                <TextField
+                  name="ownerFullName"
+                  label="Full Name"
+                  placeholder="Enter full name"
+                  control={control}
+                  error={errors.ownerFullName}
+                  disabled={isSubmitting}
+                  required
+                />
+                <TextField
+                  name="ownerPhone"
+                  label="Phone Number"
+                  type="tel"
+                  placeholder="+855 12 345 678"
+                  control={control}
+                  error={errors.ownerPhone}
+                  disabled={isSubmitting}
+                  required
+                />
               </div>
+            </section>
 
-              {/* Business section */}
-              <div>
-                <h3 className="text-xs font-bold text-slate-900 mb-4 flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">2</span>
-                  Business Information
-                </h3>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <TextField
-                    name="businessName"
-                    label="Business Name"
-                    placeholder="Enter business name"
-                    control={control}
-                    error={errors.businessName}
-                    disabled={isSubmitting}
-                    required
-                  />
-                  <TextField
-                    name="businessEmail"
-                    label="Business Email"
-                    type="email"
-                    placeholder="Enter business email"
-                    control={control}
-                    error={errors.businessEmail}
-                    disabled={isSubmitting}
-                    required
-                  />
-                  <TextField
-                    name="businessPhone"
-                    label="Business Phone"
-                    type="tel"
-                    placeholder="Enter business phone"
-                    control={control}
-                    error={errors.businessPhone}
-                    disabled={isSubmitting}
-                    required
-                  />
-                  <TextField
-                    name="businessAddress"
-                    label="Business Address"
-                    placeholder="Enter business address"
-                    control={control}
-                    error={errors.businessAddress}
-                    disabled={isSubmitting}
-                    required
-                  />
-                </div>
+            {/* Step 2 — Business information */}
+            <section>
+              <SectionHeading
+                step={2}
+                icon={Building2}
+                title="Business Information"
+                subtitle="How your business appears to customers"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <TextField
+                  name="businessName"
+                  label="Business Name"
+                  placeholder="e.g. Mega Store"
+                  control={control}
+                  error={errors.businessName}
+                  disabled={isSubmitting}
+                  required
+                />
+                <TextField
+                  name="businessEmail"
+                  label="Business Email"
+                  type="email"
+                  placeholder="contact@business.com"
+                  control={control}
+                  error={errors.businessEmail}
+                  disabled={isSubmitting}
+                  required
+                />
+                <TextField
+                  name="businessPhone"
+                  label="Business Phone"
+                  type="tel"
+                  placeholder="+855 12 345 678"
+                  control={control}
+                  error={errors.businessPhone}
+                  disabled={isSubmitting}
+                  required
+                />
+                <TextField
+                  name="businessAddress"
+                  label="Business Address"
+                  placeholder="Street, City, Country"
+                  control={control}
+                  error={errors.businessAddress}
+                  disabled={isSubmitting}
+                  required
+                />
               </div>
+            </section>
 
-              {/* Settings section */}
-              <div>
-                <h3 className="text-xs font-bold text-slate-900 mb-4 flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">3</span>
-                  Settings
-                </h3>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium">Enable Stock Management</label>
-                    <div className="flex items-center gap-2 p-2 border rounded bg-muted/30">
-                      <Switch
-                        checked={watch("enableStockManagement")}
-                        onCheckedChange={(checked) => setValue("enableStockManagement", checked)}
-                        disabled={isSubmitting}
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        {watch("enableStockManagement") ? "Enabled" : "Disabled"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium">Primary Color</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="color"
-                        value={watch("primaryColor")}
-                        onChange={(e) => setValue("primaryColor", e.target.value)}
-                        disabled={isSubmitting}
-                        className="w-14 h-7 cursor-pointer rounded border border-input"
-                      />
-                      <input
-                        placeholder="#RRGGBB"
-                        value={watch("primaryColor")}
-                        onChange={(e) => setValue("primaryColor", e.target.value)}
-                        disabled={isSubmitting}
-                        className={`flex-1 px-2 py-1 border rounded ${errors.primaryColor ? "border-red-500" : "border-input"}`}
-                      />
-                    </div>
-                    {errors.primaryColor && (
-                      <p className="text-xs text-red-500">{errors.primaryColor.message}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground">
-                      Main brand color applied site-wide
-                    </p>
+            {/* Step 3 — Settings */}
+            <section>
+              <SectionHeading
+                step={3}
+                icon={SettingsIcon}
+                title="Settings"
+                subtitle="Branding and inventory preferences (you can change these later)"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1 w-full">
+                  <Label className="text-xs font-medium text-foreground">
+                    Stock Management
+                  </Label>
+                  <div className="flex items-center gap-2 h-[26px] px-2 border border-input rounded bg-muted/30">
+                    <Switch
+                      checked={watch("enableStockManagement")}
+                      onCheckedChange={(checked) =>
+                        setValue("enableStockManagement", checked, {
+                          shouldDirty: true,
+                        })
+                      }
+                      disabled={isSubmitting}
+                    />
+                    <span className="text-xs text-muted-foreground">
+                      {watch("enableStockManagement")
+                        ? "Track stock levels"
+                        : "Skip stock tracking"}
+                    </span>
                   </div>
                 </div>
-              </div>
-            </form>
-        </ScrollArea>
 
-        {/* Footer with buttons - outside scroll area */}
-        <div className="flex justify-between items-center px-4 py-3 border-t bg-muted/30 flex-shrink-0">
-          <div className="text-xs text-muted-foreground flex items-center gap-1">
-            {isSubmitting && (
-              <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
-            )}
-            <span>{isSubmitting ? "Creating account..." : "Ready to create account"}</span>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="bg-primary hover:bg-primary/90"
-              disabled={isSubmitting}
-              onClick={handleSubmit(onSubmit)}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                "Create Account"
+                <div className="flex flex-col gap-1 w-full">
+                  <Label className="text-xs font-medium text-foreground">
+                    Primary Color
+                    <span className="text-red-500 ml-1">*</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    <input
+                      type="color"
+                      value={watch("primaryColor")}
+                      onChange={(e) =>
+                        setValue("primaryColor", e.target.value, {
+                          shouldDirty: true,
+                        })
+                      }
+                      disabled={isSubmitting}
+                      className="w-12 h-[26px] cursor-pointer rounded border border-input"
+                    />
+                    <input
+                      placeholder="#RRGGBB"
+                      value={watch("primaryColor")}
+                      onChange={(e) =>
+                        setValue("primaryColor", e.target.value, {
+                          shouldDirty: true,
+                        })
+                      }
+                      disabled={isSubmitting}
+                      className={`flex h-[26px] flex-1 rounded border bg-transparent px-2 py-0.5 text-xs shadow-sm transition-all focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 ${
+                        errors.primaryColor
+                          ? "border-red-500"
+                          : "border-input"
+                      }`}
+                    />
+                  </div>
+                  <p
+                    className={`text-[11px] text-red-500 ${
+                      errors.primaryColor?.message ? "min-h-[14px]" : ""
+                    }`}
+                  >
+                    {errors.primaryColor?.message || ""}
+                  </p>
+                </div>
+              </div>
+            </section>
+          </FormBody>
+
+          {/* Footer — admin FormFooter style */}
+          <div className="flex flex-col gap-1.5 px-2.5 py-2 border-t bg-muted/30 flex-shrink-0 sm:flex-row sm:items-center sm:justify-between sm:px-3">
+            <div className="text-[11px] text-muted-foreground flex items-center gap-1 order-2 sm:order-1">
+              {isSubmitting && (
+                <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
               )}
-            </Button>
+              {isDirty && !isSubmitting && (
+                <div className="h-1 w-1 rounded-full bg-orange-500" />
+              )}
+              <span>
+                {isSubmitting
+                  ? "Creating account..."
+                  : isDirty
+                    ? "You have unsaved changes"
+                    : "Fill in the form to register"}
+              </span>
+            </div>
+            <div className="flex gap-2 order-1 sm:order-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="min-w-[120px] bg-primary hover:bg-primary/90"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Account"
+                )}
+              </Button>
+            </div>
           </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
