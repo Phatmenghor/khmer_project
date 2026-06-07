@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense} from "react";
 import { useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
@@ -32,7 +32,7 @@ import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
 
-export default function WorkScheduleTypePage() {
+function WorkScheduleTypePageInner() {
   useAdminCleanup(resetState);
   const searchParams = useSearchParams();
 
@@ -264,5 +264,13 @@ export default function WorkScheduleTypePage() {
         isSubmitting={operations.isDeleting}
       />
     </div>
+  );
+}
+
+export default function WorkScheduleTypePage() {
+  return (
+    <Suspense>
+      <WorkScheduleTypePageInner />
+    </Suspense>
   );
 }

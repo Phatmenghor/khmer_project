@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense} from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -35,7 +35,7 @@ import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
 
-export default function DeliveryOptionsPage() {
+function DeliveryOptionsPageInner() {
 
   useAdminCleanup(resetState);
 
@@ -302,5 +302,13 @@ export default function DeliveryOptionsPage() {
         isSubmitting={operations.isDeleting}
       />
     </div>
+  );
+}
+
+export default function DeliveryOptionsPage() {
+  return (
+    <Suspense>
+      <DeliveryOptionsPageInner />
+    </Suspense>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense} from "react";
 
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -65,7 +65,7 @@ const SORT_DIRECTION_OPTIONS = [
   { value: "ASC", label: "Low to High (ASC)" },
 ];
 
-export default function ProductPromotionPage() {
+function ProductPromotionPageInner() {
   const router = useRouter();
 
   useAdminCleanup(resetState);
@@ -588,5 +588,13 @@ export default function ProductPromotionPage() {
         isDangerous={false}
       />
     </div>
+  );
+}
+
+export default function ProductPromotionPage() {
+  return (
+    <Suspense>
+      <ProductPromotionPageInner />
+    </Suspense>
   );
 }

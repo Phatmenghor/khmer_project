@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense} from "react";
 import { Plus } from "lucide-react";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
@@ -34,7 +34,7 @@ import { useDebounce } from "@/utils/debounce/debounce";
 import { PAYMENT_STATUS_ADMIN_FILTER } from "@/constants/status/filter-status";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 
-export default function PendingOrdersAdminPage() {
+function PendingOrdersAdminPageInner() {
   useAdminCleanup(resetState);
 
   const {
@@ -256,5 +256,13 @@ export default function PendingOrdersAdminPage() {
         isSubmitting={operations.isDeleting}
       />
     </div>
+  );
+}
+
+export default function PendingOrdersAdminPage() {
+  return (
+    <Suspense>
+      <PendingOrdersAdminPageInner />
+    </Suspense>
   );
 }

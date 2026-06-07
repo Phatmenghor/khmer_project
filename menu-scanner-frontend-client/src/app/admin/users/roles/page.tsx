@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense} from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
@@ -31,7 +31,7 @@ import {
   setSearchFilter,
 } from "@/features/auth/store/slice/role-slice";
 
-export default function RolesPage() {
+function RolesPageInner() {
   useAdminCleanup(resetState);
 
   const {
@@ -248,5 +248,13 @@ export default function RolesPage() {
         isSubmitting={operations.isDeleting}
       />
     </div>
+  );
+}
+
+export default function RolesPage() {
+  return (
+    <Suspense>
+      <RolesPageInner />
+    </Suspense>
   );
 }

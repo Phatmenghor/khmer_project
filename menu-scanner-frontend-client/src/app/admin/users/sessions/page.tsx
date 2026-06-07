@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense} from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -33,7 +33,7 @@ import {
 import { sessionTableColumns } from "@/features/sessions/table/session-table";
 import { SessionsDetailModal } from "@/features/sessions/components/session-detail-modal";
 
-export default function SessionPage() {
+function SessionPageInner() {
   useAdminCleanup(resetState);
 
   const {
@@ -208,5 +208,13 @@ export default function SessionPage() {
         isSubmitting={operations.isDeleting}
       />
     </div>
+  );
+}
+
+export default function SessionPage() {
+  return (
+    <Suspense>
+      <SessionPageInner />
+    </Suspense>
   );
 }

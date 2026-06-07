@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense} from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -32,7 +32,7 @@ import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
 
-export default function LeaveTypePage() {
+function LeaveTypePageInner() {
   useAdminCleanup(resetState);
 
 
@@ -296,5 +296,13 @@ export default function LeaveTypePage() {
         isSubmitting={operations.isDeleting}
       />
     </div>
+  );
+}
+
+export default function LeaveTypePage() {
+  return (
+    <Suspense>
+      <LeaveTypePageInner />
+    </Suspense>
   );
 }

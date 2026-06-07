@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense} from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -34,7 +34,7 @@ import { attendanceTableColumns } from "@/features/hr/table/attendance-table";
 import AttendanceModal from "@/features/hr/components/attendance-modal";
 import { AttendanceDetailModal } from "@/features/hr/components/attendance-detail-modal";
 
-export default function AttendancePage() {
+function AttendancePageInner() {
   useAdminCleanup(resetState);
 
 
@@ -254,5 +254,13 @@ export default function AttendancePage() {
         isSubmitting={operations.isDeleting}
       />
     </div>
+  );
+}
+
+export default function AttendancePage() {
+  return (
+    <Suspense>
+      <AttendancePageInner />
+    </Suspense>
   );
 }

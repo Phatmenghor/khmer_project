@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, Suspense} from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -62,7 +62,7 @@ const SORT_DIRECTION_OPTIONS = [
   { value: "DESC", label: "High to Low (DESC)" },
 ];
 
-export default function StockItemsPage() {
+function StockItemsPageInner() {
 
   useAdminCleanup(resetState);
 
@@ -373,5 +373,13 @@ export default function StockItemsPage() {
         stockItem={stockManagementState.item || undefined}
       />
     </div>
+  );
+}
+
+export default function StockItemsPage() {
+  return (
+    <Suspense>
+      <StockItemsPageInner />
+    </Suspense>
   );
 }

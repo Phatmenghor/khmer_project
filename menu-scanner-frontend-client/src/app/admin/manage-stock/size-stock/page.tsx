@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback, Suspense} from "react";
 
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -43,7 +43,7 @@ const STOCK_STATUS_FILTER = [
   { value: "DISABLED", label: "Stock Disabled" },
 ];
 
-export default function SizeStockPage() {
+function SizeStockPageInner() {
 
   useAdminCleanup(resetState);
 
@@ -369,5 +369,13 @@ export default function SizeStockPage() {
         product={stockManagementState.product}
       />
     </div>
+  );
+}
+
+export default function SizeStockPage() {
+  return (
+    <Suspense>
+      <SizeStockPageInner />
+    </Suspense>
   );
 }

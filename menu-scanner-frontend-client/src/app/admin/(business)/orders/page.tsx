@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense} from "react";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
@@ -39,7 +39,7 @@ import { CollapsibleFilterPanel } from "@/features/business/components/collapsib
 import { FilterPanelConfig } from "@/features/business/components/filter-types";
 import { useRouter } from "next/navigation";
 
-export default function OrdersAdminPage() {
+function OrdersAdminPageInner() {
   useAdminCleanup(resetState);
 
   const router = useRouter();
@@ -314,5 +314,13 @@ export default function OrdersAdminPage() {
         isSubmitting={operations.isDeleting}
       />
     </div>
+  );
+}
+
+export default function OrdersAdminPage() {
+  return (
+    <Suspense>
+      <OrdersAdminPageInner />
+    </Suspense>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense} from "react";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -35,7 +35,7 @@ import {
 import { paymentOptionsTableColumns } from "@/features/master-data/table/payment-options-table";
 import { PaymentOptionResponse } from "@/features/master-data/store/models/response/payment-option-response";
 
-export default function PaymentOptionsPage() {
+function PaymentOptionsPageInner() {
 
   useAdminCleanup(resetState);
 
@@ -302,5 +302,13 @@ export default function PaymentOptionsPage() {
         onClose={closeDetailModal}
       />
     </div>
+  );
+}
+
+export default function PaymentOptionsPage() {
+  return (
+    <Suspense>
+      <PaymentOptionsPageInner />
+    </Suspense>
   );
 }
