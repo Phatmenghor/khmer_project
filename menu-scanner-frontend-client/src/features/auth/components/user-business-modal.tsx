@@ -90,6 +90,9 @@ export default function UserBusinessModal({
   const [pendingProfileFile, setPendingProfileFile] = useState<File | null>(null);
   const [profilePreviewUrl, setProfilePreviewUrl] = useState<string>("");
   const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+  // Flips true the moment the user clicks Save and stays true through the
+  // entire upload + API phase so the button shows a spinner the whole time.
+  const [isProcessing, setIsProcessing] = useState(false);
   // The full ImageUrls from the loaded user — used when editing without changing the image.
   const [existingProfileImage, setExistingProfileImage] = useState<ImageUrls | undefined>(undefined);
   const documentUploads = useDeferredUploads<number>();
@@ -318,6 +321,7 @@ export default function UserBusinessModal({
   }, [isOpen, dispatch]);
 
   const onSubmit = async (data: UserFormData) => {
+    setIsProcessing(true);
     try {
       // ── All uploads are deferred to here so that cancelling the form leaves
       //    nothing orphaned in Spaces. ──
@@ -461,6 +465,8 @@ export default function UserBusinessModal({
       showToast.error(
         (error as { message?: string })?.message || `Failed to ${isCreate ? "create" : "update"} user business`,
       );
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -477,7 +483,7 @@ export default function UserBusinessModal({
     onClose();
   };
 
-  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingProfile;
+  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingProfile || isProcessing;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>

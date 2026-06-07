@@ -92,6 +92,8 @@ export default function AdminProfilePage() {
   const [profileImageKeys, setProfileImageKeys] = useState<SpacesMultiSizeResult | undefined>();
   const documentUploads = useDeferredUploads<number>();
   const educationUploads = useDeferredUploads<number>();
+  // True from the click on Save until the whole upload + PUT flow resolves.
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const {
     control,
@@ -226,6 +228,7 @@ export default function AdminProfilePage() {
   }, [reduxError, dispatch]);
 
   const onSubmit = async (data: UserFormData) => {
+    setIsProcessing(true);
     try {
       // profile image
       const profileImageUrls: ImageUrls | undefined = profileImageKeys
@@ -343,6 +346,8 @@ export default function AdminProfilePage() {
       educationUploads.reset();
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || Messages.profile.updateFailed);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -503,7 +508,7 @@ export default function AdminProfilePage() {
                           variant="outline"
                           size="sm"
                           onClick={handleCancel}
-                          disabled={isProfileLoading || isUploadingImage}
+                          disabled={isProfileLoading || isUploadingImage || isProcessing}
                           className="border-primary/30 hover:bg-primary/5 hover:text-primary hover:border-primary/50"
                         >
                           Cancel
@@ -514,14 +519,15 @@ export default function AdminProfilePage() {
                           disabled={
                             isProfileLoading ||
                             isUploadingImage ||
+                            isProcessing ||
                             !isDirty
                           }
                           className="bg-primary hover:bg-primary/90"
                         >
-                          {isProfileLoading || isUploadingImage ? (
+                          {isProfileLoading || isUploadingImage || isProcessing ? (
                             <>
                               <Loader2 className="h-2 w-2 mr-1 animate-spin" />
-                              {isUploadingImage ? "Uploading..." : "Saving..."}
+                              {isUploadingImage || isProcessing ? "Saving..." : "Saving..."}
                             </>
                           ) : (
                             "Save"

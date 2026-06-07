@@ -53,6 +53,8 @@ export default function BannerModal({
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  // True from the click on Save/Create until the API call resolves.
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -115,6 +117,7 @@ export default function BannerModal({
   }, [isOpen, dispatch]);
 
   const onSubmit = async (data: CreateBannerData) => {
+    setIsProcessing(true);
     try {
       let imagePayload = data.image;
 
@@ -154,6 +157,8 @@ export default function BannerModal({
       showToast.error(
         (error as { message?: string })?.message || `Failed to ${isCreate ? "create" : "update"} banner`,
       );
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -166,7 +171,7 @@ export default function BannerModal({
     onClose();
   };
 
-  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage;
+  const isSubmitting = (isCreate ? isCreating : isUpdating) || isUploadingImage || isProcessing;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
