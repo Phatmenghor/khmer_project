@@ -32,7 +32,6 @@ import { clearError } from "@/features/auth/store/slice/auth-slice";
 import ChangePasswordModal from "@/components/shared/modal/change-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { ProfilePictureModal } from "@/components/shared/modal/profile-picture-modal";
-import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { useRouter } from "next/navigation";
 import { clearToken } from "@/utils/local-storage/token";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
@@ -258,14 +257,19 @@ export default function PublicProfilePage() {
                   className="relative group cursor-pointer flex-shrink-0"
                   onClick={() => setIsProfilePictureModalOpen(true)}
                 >
-                  <div className="relative ring-2 ring-primary/20 rounded-full">
-                    <CustomAvatar
-                      imageUrl={watch("profileImageUrl") || userProfile?.profileImage?.md}
-                      name={userProfile?.fullName}
-                      size="xxl"
-                      className="!border-0 shadow-none"
-                    />
-                    <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80">
+                  <div className="relative h-14 w-14 rounded-full overflow-hidden ring-2 ring-primary/20 bg-primary/10">
+                    {(watch("profileImageUrl") || userProfile?.profileImage?.md) ? (
+                      <img
+                        src={watch("profileImageUrl") || userProfile?.profileImage?.md}
+                        alt={userProfile?.fullName || "User"}
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-primary font-semibold">
+                        {userProfile?.fullName?.charAt(0)?.toUpperCase() || "U"}
+                      </div>
+                    )}
+                    <div className="absolute bottom-1 right-1 bg-primary rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all shadow-lg hover:shadow-primary/50 hover:bg-primary/80 z-10">
                       <Camera className="h-3 w-3 text-white" />
                     </div>
                   </div>
