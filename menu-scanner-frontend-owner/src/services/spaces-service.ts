@@ -14,6 +14,13 @@ export interface SpacesAllSizes {
   o: SpacesUploadResult;
 }
 
+// Multi-size result from single upload-multi endpoint (matches client project)
+export interface SpacesMultiSizeResult {
+  sm: SpacesUploadResult;
+  md: SpacesUploadResult;
+  o: SpacesUploadResult;
+}
+
 // Upload a single size
 export async function uploadImage(
   file: File,
@@ -56,6 +63,34 @@ export async function uploadAllSizes(
     lg: results[2],
     o: results[3],
   };
+}
+
+// Upload all sizes in one request (server generates sm, md, o) — mirrors client project
+export async function uploadMultiSize(
+  file: File,
+  businessId: string
+): Promise<SpacesMultiSizeResult> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("businessId", businessId);
+
+  function rethrowFriendly(err: any, fallback: string): never {
+    const msg =
+      err?.response?.data?.message ||
+      err?.response?.data?.error?.message ||
+      err?.message;
+    throw new Error(msg || fallback);
+  }
+
+  try {
+    const res = await axiosClient.post<SpacesMultiSizeResult>(
+      "/api/v1/spaces/upload-multi",
+      form
+    );
+    return res.data;
+  } catch (err) {
+    rethrowFriendly(err, "Image upload failed — please try again");
+  }
 }
 
 // Delete one image by its key

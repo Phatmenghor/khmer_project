@@ -9,18 +9,18 @@ import { FieldError } from "react-hook-form";
 import { getUserInfo } from "@/utils/local-storage/userInfo";
 import {
   uploadAllSizes,
+  uploadMultiSize,
   deleteImage,
   SpacesAllSizes,
+  SpacesMultiSizeResult,
 } from "@/services/spaces-service";
 
 type AspectRatio = "square" | "banner" | "portrait" | "auto";
+type UploadState = "idle" | "uploading" | "done" | "error";
 
-interface SpacesImageUploadProps {
+interface BaseProps {
   label: string;
-  value?: string;                          // preview URL (sm or any size)
-  imageKeys?: Partial<SpacesAllSizes>;     // existing keys for delete on replace
-  onChange: (result: SpacesAllSizes) => void;
-  onRemove?: () => void;
+  value?: string;
   disabled?: boolean;
   required?: boolean;
   error?: FieldError | string;
@@ -29,25 +29,40 @@ interface SpacesImageUploadProps {
   height?: string;
   placeholder?: string;
   helperText?: string;
+  onRemove?: () => void;
 }
 
-type UploadState = "idle" | "uploading" | "done" | "error";
+/** Legacy: 4 parallel calls, returns SpacesAllSizes */
+interface AllSizesProps extends BaseProps {
+  multiSize?: false;
+  imageKeys?: Partial<SpacesAllSizes>;
+  onChange: (result: SpacesAllSizes) => void;
+}
 
-export function SpacesImageUpload({
-  label,
-  value,
-  imageKeys,
-  onChange,
-  onRemove,
-  disabled = false,
-  required = false,
-  error,
-  maxSizeMb = 10,
-  aspectRatio = "square",
-  height,
-  placeholder = "Click to upload image",
-  helperText,
-}: SpacesImageUploadProps) {
+/** New: single upload-multi request, returns SpacesMultiSizeResult — matches client project */
+interface MultiSizeProps extends BaseProps {
+  multiSize: true;
+  imageKeys?: Partial<SpacesMultiSizeResult>;
+  onChange: (result: SpacesMultiSizeResult) => void;
+}
+
+type SpacesImageUploadProps = AllSizesProps | MultiSizeProps;
+
+export function SpacesImageUpload(props: SpacesImageUploadProps) {
+  const {
+    label,
+    value,
+    disabled = false,
+    required = false,
+    error,
+    maxSizeMb = 10,
+    aspectRatio = "square",
+    height,
+    placeholder = "Click to upload image",
+    helperText,
+    onRemove,
+  } = props;
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [progress, setProgress] = useState(0);
@@ -62,8 +77,23 @@ export function SpacesImageUpload({
     : "h-40";
 
   const errorMessage =
-    errorMsg ??
-    (typeof error === "string" ? error : error?.message ?? null);
+    errorMsg ?? (typeof error === "string" ? error : error?.message ?? null);
+
+  const deleteOldKeys = async () => {
+    if (props.multiSize) {
+      const keys = props.imageKeys;
+      if (keys) {
+        const all = [keys.sm?.key, keys.md?.key, keys.o?.key].filter(Boolean) as string[];
+        await Promise.allSettled(all.map(deleteImage));
+      }
+    } else {
+      const keys = props.imageKeys;
+      if (keys) {
+        const all = Object.values(keys).map((r) => r?.key).filter(Boolean) as string[];
+        await Promise.allSettled(all.map(deleteImage));
+      }
+    }
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,25 +114,23 @@ export function SpacesImageUpload({
       return;
     }
 
-    // Delete old images from Spaces before uploading new ones
-    if (imageKeys) {
-      const oldKeys = Object.values(imageKeys)
-        .map((r) => r?.key)
-        .filter(Boolean) as string[];
-      await Promise.allSettled(oldKeys.map(deleteImage));
-    }
-
+    await deleteOldKeys();
     setErrorMsg(null);
     setUploadState("uploading");
     setProgress(0);
 
     try {
-      const result = await uploadAllSizes(file, businessId, (done, total) => {
-        setProgress(Math.round((done / total) * 100));
-      });
-
-      setUploadState("done");
-      onChange(result);
+      if (props.multiSize) {
+        const result = await uploadMultiSize(file, businessId);
+        setUploadState("done");
+        (props as MultiSizeProps).onChange(result);
+      } else {
+        const result = await uploadAllSizes(file, businessId, (done, total) => {
+          setProgress(Math.round((done / total) * 100));
+        });
+        setUploadState("done");
+        (props as AllSizesProps).onChange(result);
+      }
     } catch {
       setUploadState("error");
       setErrorMsg("Upload failed — please try again");
@@ -113,14 +141,7 @@ export function SpacesImageUpload({
 
   const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    if (imageKeys) {
-      const keys = Object.values(imageKeys)
-        .map((r) => r?.key)
-        .filter(Boolean) as string[];
-      await Promise.allSettled(keys.map(deleteImage));
-    }
-
+    await deleteOldKeys();
     setUploadState("idle");
     setProgress(0);
     setErrorMsg(null);
@@ -171,14 +192,16 @@ export function SpacesImageUpload({
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-background/80">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
             <p className="text-xs font-medium text-foreground">
-              Uploading… {progress}%
+              {props.multiSize ? "Generating sizes…" : `Uploading… ${progress}%`}
             </p>
-            <div className="w-32 h-1.5 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+            {!props.multiSize && (
+              <div className="w-32 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            )}
           </div>
         )}
 

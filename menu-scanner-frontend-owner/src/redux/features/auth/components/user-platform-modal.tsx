@@ -37,7 +37,7 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { getFieldError } from "@/utils/common/get-field-error";
-import { SpacesAllSizes } from "@/services/spaces-service";
+import { SpacesMultiSizeResult } from "@/services/spaces-service";
 
 type Props = {
   mode: ModalMode;
@@ -49,8 +49,8 @@ type Props = {
 export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
-  // Tracks the full Spaces result so we can send the sm URL to the API
-  const [profileImageResult, setProfileImageResult] = useState<SpacesAllSizes | null>(null);
+  // Tracks the multi-size Spaces result so we can send the sm URL to the API
+  const [profileImageResult, setProfileImageResult] = useState<SpacesMultiSizeResult | null>(null);
 
   const dispatch = useAppDispatch();
   const operations = useAppSelector(selectOperations);
@@ -419,6 +419,7 @@ export default function UserPlatformModal({ isOpen, onClose, userId, mode }: Pro
                     {/* Profile Image via Spaces upload */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <SpacesImageUpload
+                        multiSize
                         label="Profile Image"
                         value={previewUrl}
                         onChange={(result) => {
