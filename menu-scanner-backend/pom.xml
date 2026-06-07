@@ -185,6 +185,13 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- ===== DigitalOcean Spaces (AWS S3-compatible) ===== -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>2.29.52</version>
+		</dependency>
+
 		<!-- ===== Testing ===== -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
