@@ -8,6 +8,7 @@ import {
   UserResponseModel,
 } from "../store/models/response/users-response";
 import { ActionButton } from "@/components/shared/button/action-button";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { Switch } from "@/components/ui/switch";
 
@@ -55,7 +56,7 @@ export const userBusinessTableColumns = ({
       maxWidth: "400px",
       render: (user) => (
         <TableImage
-          src={user.profileImageUrl}
+          src={user.profileImage?.sm ?? appImages.noImage}
           alt={user?.firstName}
           fallbackText={user?.firstName || "U"}
           className="h-8 w-8"

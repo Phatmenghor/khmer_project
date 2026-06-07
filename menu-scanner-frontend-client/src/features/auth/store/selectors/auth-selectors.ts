@@ -76,7 +76,7 @@ export const selectUserEmail = createSelector(
 
 export const selectUserProfileImage = createSelector(
   [selectUser],
-  (user) => user?.profileImageUrl || ""
+  (user) => user?.profileImage
 );
 
 

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { cn } from "@/lib/utils";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 interface NavLink {
   name: string;
@@ -26,9 +27,9 @@ interface NavbarMenuProps {
   isAuthenticated: boolean;
   fullName: string | null;
   email: string | null;
-  profileImage: string | null;
+  profileImage?: ImageUrls;
   profile?: {
-    profileImageUrl?: string;
+    profileImage?: ImageUrls;
     fullName?: string;
     email?: string;
   } | null;
@@ -166,7 +167,7 @@ function NavbarMenuComponent({
               <div className="px-3 py-3 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent">
                 <div className="flex items-center gap-2 mb-3 p-1 rounded bg-background/50">
                   <CustomAvatar
-                    imageUrl={profileImage || profile?.profileImageUrl}
+                    imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
                     name={fullName || profile?.fullName || "User"}
                     size="md"
                   />

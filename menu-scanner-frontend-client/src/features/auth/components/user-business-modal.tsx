@@ -227,7 +227,7 @@ export default function UserBusinessModal({
             roles: Array.isArray(data.roles) ? data.roles : [],
             gender: data.gender || "",
             dateOfBirth: data.dateOfBirth || "",
-            profileImageUrl: data.profileImage?.md || data.profileImageUrl || "",
+            profileImageUrl: data.profileImage?.md || "",
             employeeId: data.employeeId || "",
             position: data.position || "",
             department: data.department || "",

@@ -1,5 +1,5 @@
 
-
+import { ImageUrls } from "../request/users-request";
 
 export interface UserAuthResponseModel {
   accessToken: string;
@@ -9,7 +9,7 @@ export interface UserAuthResponseModel {
   userIdentifier: string;
   email: string;
   fullName: string;
-  profileImageUrl: string | null;
+  profileImage?: ImageUrls;
   userType: string;
   roles: string[];
   businessId: string;

@@ -152,7 +152,7 @@ export default function UserBusinessPage() {
       userBusinessId: user.id || "",
       userName: user.userIdentifier || "",
       roles: user.roles || [],
-      profileImageUrl: user.profileImageUrl || "",
+      profileImageUrl: user.profileImage?.sm || "",
     });
 
   const handleDeleteUser = (user: UserResponseModel) =>

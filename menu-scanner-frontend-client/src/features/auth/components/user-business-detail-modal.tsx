@@ -13,6 +13,7 @@ import {
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { Loading } from "@/components/shared/common/loading";
 import { cn } from "@/lib/utils";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 import { User } from "lucide-react";
 
 interface UserDetailModalProps {
@@ -133,10 +134,10 @@ export function UserBusinessDetailModal({
         {/* ── Header ── */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
           <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
-            {userData.profileImageUrl ? (
-              <img src={userData.profileImageUrl} alt={userData.fullName} className="w-full h-full object-cover" />
+            {userData.profileImage?.md ? (
+              <img src={userData.profileImage.md} alt={userData.fullName} className="w-full h-full object-cover" />
             ) : (
-              <User className="h-5 w-5 text-muted-foreground" />
+              <img src={appImages.noImage} alt={userData.fullName} className="w-full h-full object-cover opacity-30" />
             )}
           </div>
           <div className="flex-1 min-w-0">

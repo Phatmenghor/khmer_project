@@ -165,8 +165,9 @@ const authSlice = createSlice({
 
         if (state.user) {
           state.user.fullName = action.payload.fullName || state.user.fullName;
-          state.user.profileImageUrl =
-            action.payload.profileImageUrl || state.user.profileImageUrl;
+          if (action.payload.profileImage) {
+            state.user.profileImage = action.payload.profileImage;
+          }
         }
       })
       .addCase(updateProfileService.rejected, (state, action) => {
@@ -226,7 +227,7 @@ const authSlice = createSlice({
           userIdentifier: socialResponse.userIdentifier,
           email: socialResponse.userIdentifier,
           fullName: socialResponse.socialUsername || socialResponse.userIdentifier,
-          profileImageUrl: null,
+          profileImage: undefined,
           userType: socialResponse.userType,
           roles: [socialResponse.userType],
           businessId: "",
@@ -269,7 +270,7 @@ const authSlice = createSlice({
           userIdentifier: socialResponse.userIdentifier,
           email: socialResponse.userIdentifier,
           fullName: socialResponse.socialUsername || socialResponse.userIdentifier,
-          profileImageUrl: null,
+          profileImage: undefined,
           userType: socialResponse.userType,
           roles: [socialResponse.userType],
           businessId: "",

@@ -83,7 +83,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
   const isInCart = totalQuantity > 0;
 
 
-  const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.NoImage);
+  const imageUrl = sanitizeImageUrl(product.mainImageUrl, appImages.noImage);
 
   const [imageLoaded, setImageLoaded] = useState(imageLoadedCache.has(imageUrl));
   const [imageError, setImageError] = useState(false);
@@ -95,10 +95,10 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
   };
 
   const handleImageError = () => {
-    if (imageUrl !== appImages.NoImage) {
+    if (imageUrl !== appImages.noImage) {
       setImageError(true);
       setImageLoaded(true);
-      imageLoadedCache.add(appImages.NoImage);
+      imageLoadedCache.add(appImages.noImage);
     }
   };
 

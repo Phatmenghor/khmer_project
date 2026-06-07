@@ -500,7 +500,7 @@ export function SizePickerModal({
           <div className="flex gap-3 mb-3">
             <div className="relative w-14 h-14 rounded overflow-hidden bg-muted flex-shrink-0">
               <Image
-                src={product?.mainImageUrl || appImages.NoImage}
+                src={product?.mainImageUrl || appImages.noImage}
                 alt={product?.name || "Product"}
                 fill
                 className="object-cover"

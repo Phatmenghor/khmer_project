@@ -181,7 +181,7 @@ export function POSEditCartItemModal({
           <div className="flex gap-3 p-3 bg-muted/30 rounded border">
             <div className="relative w-14 h-14 rounded overflow-hidden bg-white border flex-shrink-0">
               <Image
-                src={sanitizeImageUrl(item.productImageUrl, appImages.NoImage)}
+                src={sanitizeImageUrl(item.productImageUrl, appImages.noImage)}
                 alt={item.productName}
                 fill
                 className="object-cover"

@@ -1,4 +1,5 @@
 import { BasePagination } from "@/utils/common/pagination";
+import { ImageUrls } from "../request/users-request";
 
 export interface Address {
   id?: string;
@@ -59,7 +60,7 @@ export interface CustomerUserResponseModel {
   gender?: string;
   dateOfBirth?: string;
   phoneNumber: string;
-  profileImageUrl?: string;
+  profileImage?: ImageUrls;
   employeeId?: string;
   position?: string;
   department?: string;
@@ -97,7 +98,7 @@ export interface UserResponseModel {
   lastName: string;
   fullName: string;
   phoneNumber: string;
-  profileImageUrl: string;
+  profileImage?: ImageUrls;
   userType: string;
   accountStatus: string;
   status: string;
@@ -137,6 +138,6 @@ export interface UserInfoModel {
   lastName: string;
   email: string;
   phoneNumber: string;
-  profileImageUrl: string;
+  profileImage?: ImageUrls;
   fullName: string;
 }

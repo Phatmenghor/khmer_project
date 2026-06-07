@@ -110,7 +110,7 @@ export default function PublicProfilePage() {
   useEffect(() => {
     if (userProfile) {
       reset({
-        profileImageUrl: userProfile.profileImageUrl || "",
+        profileImageUrl: userProfile.profileImage?.md || "",
         firstName: userProfile.firstName || "",
         lastName: userProfile.lastName || "",
         email: userProfile.email || "",
@@ -135,7 +135,7 @@ export default function PublicProfilePage() {
       setIsUploadingImage(true);
 
       let profileImageUrl =
-        data.profileImageUrl || userProfile?.profileImageUrl || "";
+        data.profileImageUrl || userProfile?.profileImage?.md || "";
 
       if (profileImageUrl && isBase64Image(profileImageUrl)) {
         try {
@@ -157,7 +157,7 @@ export default function PublicProfilePage() {
       if (data.nickname) payload.nickname = data.nickname;
       if (data.gender) payload.gender = data.gender;
       if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth;
-      if (profileImageUrl) payload.profileImageUrl = profileImageUrl;
+      if (profileImageUrl) payload.profileImage = { sm: profileImageUrl, md: profileImageUrl, lg: profileImageUrl, o: profileImageUrl };
 
       await dispatch(updateCustomerProfileService(payload)).unwrap();
 
@@ -176,7 +176,7 @@ export default function PublicProfilePage() {
   const handleCancel = () => {
     if (userProfile) {
       reset({
-        profileImageUrl: userProfile.profileImageUrl || "",
+        profileImageUrl: userProfile.profileImage?.md || "",
         firstName: userProfile.firstName || "",
         lastName: userProfile.lastName || "",
         email: userProfile.email || "",
@@ -270,7 +270,7 @@ export default function PublicProfilePage() {
                 >
                   <div className="relative ring-2 ring-primary/20 rounded">
                     <CustomAvatar
-                      imageUrl={userProfile?.profileImageUrl}
+                      imageUrl={userProfile?.profileImage?.sm}
                       name={userProfile?.fullName}
                       size="xxl"
                     />
@@ -663,7 +663,7 @@ export default function PublicProfilePage() {
             onImageSelect={handleAutoUploadProfilePicture}
             onImageRemove={() => setValue("profileImageUrl", "")}
             isLoading={isUploadingImage}
-            currentImageUrl={watch("profileImageUrl") || userProfile?.profileImageUrl}
+            currentImageUrl={watch("profileImageUrl") || userProfile?.profileImage?.md}
             userName={userProfile?.fullName}
           />
         </div>

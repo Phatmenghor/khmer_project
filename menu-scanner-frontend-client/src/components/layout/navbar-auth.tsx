@@ -7,13 +7,15 @@ import { Button } from "@/components/ui/button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
 
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
+
 interface NavbarAuthProps {
   isAuthenticated: boolean;
   fullName: string | null;
   email: string | null;
-  profileImage: string | null;
+  profileImage?: ImageUrls;
   profile?: {
-    profileImageUrl?: string;
+    profileImage?: ImageUrls;
     fullName?: string;
     email?: string;
   } | null;
@@ -82,7 +84,7 @@ function NavbarAuthComponent({
   const dropdownHeader = (
     <div className="flex items-center gap-2">
       <CustomAvatar
-        imageUrl={profileImage || profile?.profileImageUrl}
+        imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
         name={fullName || profile?.fullName || "User"}
         size="lg"
       />
@@ -102,7 +104,7 @@ function NavbarAuthComponent({
       trigger={
         <div className="relative h-7 w-7 rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
           <CustomAvatar
-            imageUrl={profileImage || profile?.profileImageUrl}
+            imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
             name={fullName || profile?.fullName || "User"}
             size="md"
           />

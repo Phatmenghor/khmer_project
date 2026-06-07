@@ -128,7 +128,7 @@ export default function LoginPage() {
       {/* ── Left — hero image ── */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden">
         <Image
-          src={appImages.CpBank}
+          src={appImages.cpBank}
           alt="Background"
           fill
           sizes="50vw"

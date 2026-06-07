@@ -77,7 +77,7 @@ export function CartItemCard({
           {showLink ? (
             <Link href={`/products/${productId}`}>
               <Image
-                src={sanitizeImageUrl(productImageUrl, appImages.NoImage)}
+                src={sanitizeImageUrl(productImageUrl, appImages.noImage)}
                 alt={productName}
                 fill
                 className="object-cover"
@@ -85,7 +85,7 @@ export function CartItemCard({
             </Link>
           ) : (
             <Image
-              src={sanitizeImageUrl(productImageUrl, appImages.NoImage)}
+              src={sanitizeImageUrl(productImageUrl, appImages.noImage)}
               alt={productName}
               fill
               className="object-cover"

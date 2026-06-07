@@ -2,10 +2,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { appImages } from "@/constants/app-resource/icons/app-images";
+import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 
 interface UserAvatarCardProps {
   user: {
-    profileImageUrl?: string;
+    profileImage?: ImageUrls;
     fullName?: string;
     firstName?: string;
     lastName?: string;
@@ -63,8 +65,12 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
     user.fullName?.charAt(0) || user.firstName?.charAt(0) || "U";
 
 
+  const avatarSrc = user.profileImage?.sm ?? appImages.noImage;
+  const previewSrc = user.profileImage?.o ?? user.profileImage?.lg ?? appImages.noImage;
+  const hasImage = !!(user.profileImage?.sm);
+
   const handleMouseEnter = () => {
-    if (!enableImagePreview || !user.profileImageUrl) return;
+    if (!enableImagePreview || !hasImage) return;
 
 
     if (closeTimeoutRef.current) {
@@ -114,12 +120,12 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
           <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <Avatar
               className={`${sizes.avatar} ${
-                enableImagePreview && user.profileImageUrl
+                enableImagePreview && hasImage
                   ? "cursor-pointer hover:scale-110 transition-transform"
                   : ""
               }`}
             >
-              <AvatarImage src={user.profileImageUrl} alt={displayName} />
+              <AvatarImage src={avatarSrc} alt={displayName} />
               <AvatarFallback
                 className={`${sizes.avatar} rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white text-xs font-bold shadow-sm`}
               >
@@ -129,7 +135,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
           </div>
         </DialogTrigger>
 
-        {enableImagePreview && user.profileImageUrl && (
+        {enableImagePreview && hasImage && (
           <DialogContent
             className="max-w-fit border-none bg-transparent shadow-none p-0"
             onMouseEnter={handlePreviewMouseEnter}
@@ -151,7 +157,7 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
                 )}
 
                 <img
-                  src={user.profileImageUrl}
+                  src={previewSrc}
                   alt={displayName}
                   className="max-w-[70vw] max-h-[70vh] w-auto h-auto object-contain rounded"
                   onLoad={() => setImageLoading(false)}

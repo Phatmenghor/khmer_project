@@ -120,7 +120,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
               trigger={
                 <div className="h-6 w-6 flex items-center justify-center rounded-full hover:ring-2 hover:ring-primary/20 transition-all">
                   <CustomAvatar
-                    imageUrl={profileImage || profile?.profileImageUrl}
+                    imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
                     name={fullName || profile?.fullName || "Admin"}
                     size="sm"
                   />
@@ -129,7 +129,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
               header={
                 <div className="flex items-center gap-2">
                   <CustomAvatar
-                    imageUrl={profileImage || profile?.profileImageUrl}
+                    imageUrl={profileImage?.sm ?? profile?.profileImage?.sm}
                     name={fullName || profile?.fullName || "Admin"}
                     size="lg"
                   />

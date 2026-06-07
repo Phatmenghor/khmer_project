@@ -18,7 +18,7 @@ export function OrderItemCard({ item }: OrderItemCardProps) {
         {/* Image */}
         <div className="relative w-[80px] h-[80px] rounded overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
           <Image
-            src={sanitizeImageUrl(item.product?.imageUrl, appImages.NoImage)}
+            src={sanitizeImageUrl(item.product?.imageUrl, appImages.noImage)}
             alt={item.product?.name || "Product"}
             fill
             className="object-cover"

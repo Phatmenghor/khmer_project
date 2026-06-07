@@ -15,7 +15,7 @@ import Autoplay from "embla-carousel-autoplay";
 
 
 const appImages = {
-  NoImage: "/assets/image/no-image.png",
+  noImage: "/assets/image/no-image.png",
 };
 
 interface BannerSectionProps {
@@ -104,7 +104,7 @@ const BannerSectionComponent = ({
                   )}
 
                   <Image
-                    src={banner.imageUrl || appImages.NoImage}
+                    src={banner.imageUrl || appImages.noImage}
                     alt={banner.businessName || "Banner"}
                     fill
                     loading="eager"

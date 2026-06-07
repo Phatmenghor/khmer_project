@@ -71,7 +71,7 @@ export function POSCartItem({
         {}
         <div className="relative w-[80px] h-[80px] rounded overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
           <Image
-            src={sanitizeImageUrl(productImageUrl, appImages.NoImage)}
+            src={sanitizeImageUrl(productImageUrl, appImages.noImage)}
             alt={productName}
             fill
             className="object-cover"

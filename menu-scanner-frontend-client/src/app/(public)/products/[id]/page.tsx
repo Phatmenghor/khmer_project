@@ -143,10 +143,10 @@ export default function ProductDetailPage() {
 
   const allImages = product
     ? [
-        { id: "main", imageUrl: sanitizeImageUrl(product.mainImageUrl, appImages.NoImage) },
+        { id: "main", imageUrl: sanitizeImageUrl(product.mainImageUrl, appImages.noImage) },
         ...(product.images || []).map((img) => ({
           id: img.id,
-          imageUrl: sanitizeImageUrl(img.imageUrl, appImages.NoImage),
+          imageUrl: sanitizeImageUrl(img.imageUrl, appImages.noImage),
         })),
       ]
     : [];
@@ -161,7 +161,7 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     if (!product) return;
-    setSelectedImage(sanitizeImageUrl(product.mainImageUrl, appImages.NoImage));
+    setSelectedImage(sanitizeImageUrl(product.mainImageUrl, appImages.noImage));
     setCurrentImageIndex(0);
     setImageLoaded(false);
     setThumbOffset(0);
@@ -673,7 +673,7 @@ export default function ProductDetailPage() {
                         )}
                       >
                         <Image
-                          src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)}
+                          src={sanitizeImageUrl(img.imageUrl, appImages.noImage)}
                           alt={`View ${idx + 1}`}
                           fill
                           sizes="64px"
@@ -714,7 +714,7 @@ export default function ProductDetailPage() {
                 {!imageLoaded && <Skeleton className="absolute inset-0 rounded" />}
                 <Image
                   key={`main-${currentImageIndex}`}
-                  src={selectedImage || appImages.NoImage}
+                  src={selectedImage || appImages.noImage}
                   alt={product.name}
                   fill
                   sizes="(max-width: 640px) 85vw, (max-width: 1024px) 45vw, 40vw"
@@ -1134,7 +1134,7 @@ export default function ProductDetailPage() {
           >
             <img
               key={`lb-${lightboxIndex}`}
-              src={allImages[lightboxIndex]?.imageUrl || appImages.NoImage}
+              src={allImages[lightboxIndex]?.imageUrl || appImages.noImage}
               alt={product.name}
               className="max-w-[90vw] max-h-[80vh] object-contain rounded select-none"
             />
@@ -1170,7 +1170,7 @@ export default function ProductDetailPage() {
                 )}
               >
                 <img
-                  src={sanitizeImageUrl(img.imageUrl, appImages.NoImage)}
+                  src={sanitizeImageUrl(img.imageUrl, appImages.noImage)}
                   alt={`${i + 1}`}
                   className="w-full h-full object-cover"
                 />
