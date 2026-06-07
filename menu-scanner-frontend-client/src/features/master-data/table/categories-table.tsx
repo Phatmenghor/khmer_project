@@ -56,7 +56,8 @@ export const categoriesTableColumns = ({
       render: (categories) => {
         return (
           <TableImage
-            src={categories.image?.sm || categories.image?.md || categories.image?.o}
+            src={categories.image?.sm}
+            previewSrc={categories.image?.o}
             alt={categories?.name}
             fallbackText={categories?.name || "C"}
           />
