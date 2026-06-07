@@ -217,6 +217,7 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    e.nativeEvent.stopImmediatePropagation();
 
     if (!isAuthenticated) { setShowLoginModal(true); return; }
 
