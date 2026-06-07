@@ -1024,7 +1024,18 @@ export default function UserBusinessModal({
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeDocument(index)}
+                            onClick={() => {
+                              removeDocument(index);
+                              setDocumentKeys((prev) => {
+                                const next: Record<number, string> = {};
+                                Object.entries(prev).forEach(([k, v]) => {
+                                  const i = Number(k);
+                                  if (i < index) next[i] = v;
+                                  else if (i > index) next[i - 1] = v;
+                                });
+                                return next;
+                              });
+                            }}
                             disabled={isSubmitting}
                             className="h-4 w-4 p-0 absolute top-1 right-1 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                           >
@@ -1126,7 +1137,18 @@ export default function UserBusinessModal({
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeEducation(index)}
+                            onClick={() => {
+                              removeEducation(index);
+                              setEducationKeys((prev) => {
+                                const next: Record<number, string> = {};
+                                Object.entries(prev).forEach(([k, v]) => {
+                                  const i = Number(k);
+                                  if (i < index) next[i] = v;
+                                  else if (i > index) next[i - 1] = v;
+                                });
+                                return next;
+                              });
+                            }}
                             disabled={isSubmitting}
                             className="h-4 w-4 p-0 absolute top-1 right-1 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                           >
