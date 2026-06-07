@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, Trash2 } from "lucide-react";
-import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { SpacesMultiSizeResult } from "@/services/spaces-service";
@@ -72,12 +71,14 @@ export function ProfilePictureModal({
 
         <div className="p-4 flex flex-col items-center gap-4">
           {/* Circle preview */}
-          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 flex-shrink-0">
-            <CustomAvatar
-              imageUrl={previewUrl}
-              name={userName}
-              size="xxl"
-            />
+          <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 flex-shrink-0 bg-primary/10 flex items-center justify-center">
+            {previewUrl ? (
+              <img src={previewUrl} alt={userName || "Profile"} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-2xl font-bold text-primary/60 select-none">
+                {userName?.charAt(0)?.toUpperCase() || "?"}
+              </span>
+            )}
           </div>
 
           {/* Spaces upload widget */}
