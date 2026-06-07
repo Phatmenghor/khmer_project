@@ -21,28 +21,37 @@ export interface SpacesMultiSizeResult {
   o: SpacesUploadResult;
 }
 
-// Upload a single size
+function rethrowFriendly(err: any, fallback: string): never {
+  const msg =
+    err?.response?.data?.message ||
+    err?.response?.data?.error?.message ||
+    err?.message;
+  throw new Error(msg || fallback);
+}
+
+// Upload a single size — owner path, no businessId needed
 export async function uploadImage(
   file: File,
-  businessId: string,
   size: ImageSize = "o"
 ): Promise<SpacesUploadResult> {
   const form = new FormData();
   form.append("file", file);
-  form.append("businessId", businessId);
   form.append("size", size);
 
-  const res = await axiosClient.post<SpacesUploadResult>(
-    "/api/v1/spaces/upload",
-    form
-  );
-  return res.data;
+  try {
+    const res = await axiosClient.post<SpacesUploadResult>(
+      "/api/v1/spaces/upload",
+      form
+    );
+    return res.data;
+  } catch (err) {
+    rethrowFriendly(err, "Image upload failed — please try again");
+  }
 }
 
 // Upload all 4 sizes in parallel
 export async function uploadAllSizes(
   file: File,
-  businessId: string,
   onProgress?: (done: number, total: number) => void
 ): Promise<SpacesAllSizes> {
   const sizes: ImageSize[] = ["sm", "md", "lg", "o"];
@@ -50,7 +59,7 @@ export async function uploadAllSizes(
 
   const results = await Promise.all(
     sizes.map(async (size) => {
-      const result = await uploadImage(file, businessId, size);
+      const result = await uploadImage(file, size);
       done++;
       onProgress?.(done, sizes.length);
       return result;
@@ -65,22 +74,12 @@ export async function uploadAllSizes(
   };
 }
 
-// Upload all sizes in one request (server generates sm, md, o) — mirrors client project
+// Upload all sizes in one request (server generates sm, md, o) — no businessId needed
 export async function uploadMultiSize(
-  file: File,
-  businessId: string
+  file: File
 ): Promise<SpacesMultiSizeResult> {
   const form = new FormData();
   form.append("file", file);
-  form.append("businessId", businessId);
-
-  function rethrowFriendly(err: any, fallback: string): never {
-    const msg =
-      err?.response?.data?.message ||
-      err?.response?.data?.error?.message ||
-      err?.message;
-    throw new Error(msg || fallback);
-  }
 
   try {
     const res = await axiosClient.post<SpacesMultiSizeResult>(
@@ -99,11 +98,6 @@ export async function deleteImage(key: string): Promise<void> {
 }
 
 // Delete by date prefix
-export async function deleteByDate(
-  businessId: string,
-  prefix: string
-): Promise<void> {
-  await axiosClient.delete("/api/v1/spaces/date", {
-    params: { businessId, prefix },
-  });
+export async function deleteByDate(prefix: string): Promise<void> {
+  await axiosClient.delete("/api/v1/spaces/date", { params: { prefix } });
 }

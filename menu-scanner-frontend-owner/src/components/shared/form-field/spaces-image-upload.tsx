@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FieldError } from "react-hook-form";
-import { getUserInfo } from "@/utils/local-storage/userInfo";
 import {
   uploadAllSizes,
   uploadMultiSize,
@@ -108,12 +107,6 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
       return;
     }
 
-    const businessId = getUserInfo()?.businessId;
-    if (!businessId) {
-      setErrorMsg("Business not found — please log in again");
-      return;
-    }
-
     await deleteOldKeys();
     setErrorMsg(null);
     setUploadState("uploading");
@@ -121,11 +114,11 @@ export function SpacesImageUpload(props: SpacesImageUploadProps) {
 
     try {
       if (props.multiSize) {
-        const result = await uploadMultiSize(file, businessId);
+        const result = await uploadMultiSize(file);
         setUploadState("done");
         (props as MultiSizeProps).onChange(result);
       } else {
-        const result = await uploadAllSizes(file, businessId, (done, total) => {
+        const result = await uploadAllSizes(file, (done, total) => {
           setProgress(Math.round((done / total) * 100));
         });
         setUploadState("done");
