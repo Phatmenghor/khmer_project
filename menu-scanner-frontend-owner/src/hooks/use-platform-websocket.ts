@@ -58,7 +58,23 @@ export function usePlatformWebSocket() {
       },
       onStompError: (frame) => {
         setIsConnected(false);
-        console.error("[WS] STOMP error:", frame);
+        // STOMP frames don't serialize cleanly with console.error (logs as '{}').
+        // Pull the meaningful parts and skip empty frames entirely so the
+        // 5s reconnect loop doesn't spam the console.
+        const message = frame?.headers?.message;
+        const body = frame?.body;
+        if (!message && !body) return;
+        devLog(
+          "[WS] STOMP error:",
+          message || "(no message)",
+          body || "",
+        );
+      },
+      onWebSocketError: () => {
+        setIsConnected(false);
+        // SockJS surfaces a transport error every reconnect when the backend
+        // /ws endpoint isn't reachable — devLog only so production stays quiet.
+        devLog("[WS] socket error — /ws unreachable, will retry");
       },
     });
 

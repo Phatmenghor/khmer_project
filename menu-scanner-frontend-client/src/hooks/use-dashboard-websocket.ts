@@ -81,15 +81,20 @@ export function useDashboardWebSocket({
       },
       onStompError: (frame) => {
         setIsConnected(false);
-        console.error(
+        // Skip empty frames so the 5s reconnect loop doesn't spam the
+        // console. Surface real protocol errors via devLog only.
+        const message = frame?.headers?.message;
+        const body = frame?.body;
+        if (!message && !body) return;
+        devLog(
           "[WS] STOMP error:",
-          frame?.headers?.message || "(no message)",
-          frame?.body || "",
+          message || "(no message)",
+          body || "",
         );
       },
-      onWebSocketError: (event) => {
+      onWebSocketError: () => {
         setIsConnected(false);
-        console.error("[WS] socket error:", event);
+        devLog("[WS] socket error — /ws unreachable, will retry");
       },
     });
 
