@@ -51,6 +51,8 @@ telegram:
 
 # ── App dynamic config ────────────────────────────────────────────────────────
 app:
+  rate-limit:
+    enabled: false
   init:
     create-admin: true
     admin-email: "${APP_ADMIN_EMAIL:phatmenghor19@gmail.com}"

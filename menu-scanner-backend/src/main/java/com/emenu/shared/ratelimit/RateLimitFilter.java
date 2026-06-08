@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +35,7 @@ import java.time.Instant;
 @Component
 @Order(2)
 @Slf4j
+@ConditionalOnProperty(name = "app.rate-limit.enabled", havingValue = "true")
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final int GENERAL_LIMIT = 50;
