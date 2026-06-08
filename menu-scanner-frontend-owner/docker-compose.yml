@@ -1,0 +1,14 @@
+services:
+  owner-frontend:
+    container_name: emenu_owner_frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3443:3443"
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      PORT: "3443"
