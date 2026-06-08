@@ -12,19 +12,7 @@ const nextConfig = {
   trailingSlash: false,
 
   images: {
-    // Disable Next.js image optimization proxy so images load directly from
-    // their source URLs. Without this, /_next/image tries to download and
-    // re-encode every remote image, which times out for external CDN images
-    // (e.g. Unsplash premium photos) that require auth tokens or are slow.
-    // Images still benefit from browser-level caching via their original CDN.
     unoptimized: true,
-  },
-
-      {
-        source: "/ws/:path*",
-        destination: `${backendUrl}/ws/:path*`,
-      },
-    ];
   },
 
   async headers() {
