@@ -16,7 +16,7 @@
 -- ============================================================================
 INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
-  'r0000000-0000-0000-0000-000000000001',
+  'a1000000-0000-0000-0000-000000000001',
   'PLATFORM_OWNER',
   'Platform Owner — full access to all platform features and businesses',
   NULL,
@@ -27,7 +27,7 @@ VALUES (
 -- Also ensure CUSTOMER role exists (used by social auth auto-create)
 INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES (
-  'r0000000-0000-0000-0000-000000000002',
+  'a1000000-0000-0000-0000-000000000002',
   'CUSTOMER',
   'Customer — access to public menu and order features',
   NULL,
