@@ -535,18 +535,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
     private User createOwnerUser(BusinessOwnerCreateRequest creationRequestData, UUID businessId) {
         validateNoExistingBusinessOwner(businessId);
 
-        List<Role> systemRoles = roleRepository.findSystemRolesByName("BUSINESS_OWNER");
-        if (systemRoles.isEmpty()) {
-            log.warn("Business owner creation failed - system business owner role not found");
-            throw new NotFoundException("System configuration issue. Please contact support.");
-        }
-        Role systemRoleEntity = systemRoles.get(0);
-
-        if (!systemRoleEntity.isCompatibleWithUserType(UserType.BUSINESS_USER)) {
-            log.warn("Business owner creation failed - business owner role not compatible with user type");
-            throw new ValidationException("System configuration issue. Please contact support.");
-        }
-
         Role businessOwnerRole = createBusinessOwnerRole(businessId);
 
         User ownerUserEntity = new User();
