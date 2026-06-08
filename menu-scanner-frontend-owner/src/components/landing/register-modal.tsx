@@ -14,7 +14,7 @@ import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { showToast } from "@/components/shared/common/show-toast";
 import { axiosClient } from "@/utils/axios";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const subdomainRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
 
@@ -114,15 +114,15 @@ function RegistrationSuccessModal({
 }) {
   if (!info) return null;
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md p-0 gap-0 flex flex-col overflow-hidden">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="sm:max-w-md p-0 gap-0 flex flex-col overflow-hidden" onInteractOutside={(e) => e.preventDefault()}>
         {/* Header */}
         <div className="flex items-center gap-3 px-5 py-4 border-b bg-primary/5">
           <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
             <CheckCircle2 className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-foreground">Registration Successful!</h2>
+            <DialogTitle className="text-sm font-bold text-foreground">Registration Successful!</DialogTitle>
             <p className="text-xs text-muted-foreground">Your account is ready — sign in to get started</p>
           </div>
         </div>
@@ -209,7 +209,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
   const [successInfo, setSuccessInfo] = useState<SuccessInfo | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [subdomainStatus, setSubdomainStatus] = useState<SubdomainStatus>("idle");
-  const subdomainTouchedRef = useRef(false);
+  const lastAutoSlugRef = useRef("");
   const subdomainDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
@@ -242,23 +242,16 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
   const businessNameValue = watch("businessName");
   const subdomainValue = watch("subdomain");
 
+  // Auto-fill subdomain from business name, unless user has manually typed a different value
   useEffect(() => {
-    // Auto-fill subdomain from business name unless user has manually edited it
-    if (businessNameValue && !subdomainTouchedRef.current) {
-      const slug = slugify(businessNameValue);
-      setValue("subdomain", slug, { shouldValidate: false, shouldDirty: false });
+    if (!businessNameValue) return;
+    const autoSlug = slugify(businessNameValue);
+    // Only update if subdomain is still what we last auto-set (or empty)
+    if (subdomainValue === lastAutoSlugRef.current || subdomainValue === "") {
+      lastAutoSlugRef.current = autoSlug;
+      setValue("subdomain", autoSlug, { shouldValidate: false, shouldDirty: false });
     }
   }, [businessNameValue, setValue]);
-
-  // Track if user manually edited subdomain (differs from auto-generated)
-  useEffect(() => {
-    if (businessNameValue && subdomainValue !== undefined) {
-      const autoSlug = slugify(businessNameValue);
-      if (subdomainValue !== autoSlug && subdomainValue !== "") {
-        subdomainTouchedRef.current = true;
-      }
-    }
-  }, [subdomainValue, businessNameValue]);
 
   // Debounced subdomain availability check
   useEffect(() => {
@@ -336,7 +329,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       onClose();
       reset();
       setSubdomainStatus("idle");
-      subdomainTouchedRef.current = false;
+      lastAutoSlugRef.current = "";
     }
   };
 
@@ -350,9 +343,12 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
         className="w-screen sm:w-full sm:max-w-3xl max-h-[100dvh] sm:max-h-[92dvh] h-[100dvh] sm:h-auto p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
       >
         {/* Mobile drag handle */}
         <div className="sm:hidden h-1 bg-slate-300 rounded-full w-8 mx-auto mt-2" />
+        <DialogTitle className="sr-only">Create Your Account</DialogTitle>
 
         {/* Header */}
         <FormHeader
