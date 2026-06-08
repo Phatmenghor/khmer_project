@@ -1,0 +1,27 @@
+version: "3.9"
+
+# Run on server where postgres + redis are already running.
+# No .env file needed — all defaults are in application-prod.yaml.
+# Only override secrets that should not be in source code.
+
+services:
+  backend:
+    container_name: emenu_backend
+    image: eclipse-temurin:21-jre-alpine
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./:/app
+    entrypoint:
+      - sh
+      - -c
+      - java -XX:+UseZGC -XX:+ZGenerational -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -jar /app/*.jar
+    ports:
+      - "7070:7070"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JWT_SECRET: "emenu-cambodia-production-jwt-secret-change-this-to-random-xxxxxxxxxxxxxxxxxx"
+      APP_ADMIN_EMAIL: "phatmenghor19@gmail.com"
+      APP_ADMIN_PASSWORD: "88889999"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
