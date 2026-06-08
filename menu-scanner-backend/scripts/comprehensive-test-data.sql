@@ -470,17 +470,24 @@ CROSS JOIN (SELECT id FROM users WHERE user_identifier = 'phatmenghor21@gmail.co
 
 -- Update main users with full profile information
 UPDATE user_profiles
+SET nickname = 'Platform Owner',
+    gender = 'MALE',
+    date_of_birth = '1988-08-19'::date,
+    profile_image = '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb
+WHERE email = 'phatmenghor19@gmail.com';
+
+UPDATE user_profiles
 SET nickname = 'Phat',
     gender = 'MALE',
     date_of_birth = '1990-01-15'::date,
-    profile_image_url = 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+    profile_image = '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb
 WHERE email = 'phatmenghor20@gmail.com';
 
 UPDATE user_profiles
 SET nickname = 'Menghor',
     gender = 'FEMALE',
     date_of_birth = '1992-06-20'::date,
-    profile_image_url = 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+    profile_image = '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb
 WHERE email = 'phatmenghor21@gmail.com';
 
 -- Update all admin users
@@ -488,7 +495,7 @@ UPDATE user_profiles
 SET nickname = 'Admin',
     gender = 'MALE',
     date_of_birth = '1985-03-10'::date,
-    profile_image_url = 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+    profile_image = '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb
 WHERE email LIKE 'admin%@%.com' AND gender IS NULL;
 
 -- Update all manager users
@@ -496,7 +503,7 @@ UPDATE user_profiles
 SET nickname = 'Manager',
     gender = 'MALE',
     date_of_birth = '1988-05-15'::date,
-    profile_image_url = 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+    profile_image = '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb
 WHERE email LIKE 'manager%@%.com' AND gender IS NULL;
 
 -- Update all staff users
@@ -504,12 +511,25 @@ UPDATE user_profiles
 SET nickname = 'Staff',
     gender = 'MALE',
     date_of_birth = '1995-07-20'::date,
-    profile_image_url = 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'
+    profile_image = '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb
 WHERE email LIKE 'staff%@%.com' AND gender IS NULL;
 
 -- 6.5. ASSIGN USER ROLES
 
 -- ============================================================================
+
+-- Assign PLATFORM_OWNER role to phatmenghor19
+INSERT INTO user_roles (user_id, role_id)
+SELECT
+  u.id,
+  r.id
+FROM users u
+CROSS JOIN roles r
+WHERE u.user_identifier = 'phatmenghor19@gmail.com'
+  AND u.user_type = 'PLATFORM_USER'
+  AND r.name = 'PLATFORM_OWNER'
+  AND NOT EXISTS (SELECT 1 FROM user_roles WHERE user_id = u.id AND role_id = r.id)
+ON CONFLICT DO NOTHING;
 
 -- Assign BUSINESS_OWNER role to main business users
 INSERT INTO user_roles (user_id, role_id)
@@ -1793,7 +1813,7 @@ DECLARE
   -- Shared constants
   -- -------------------------------------------------------------------------
   v_password  TEXT := '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW';
-  v_avatar    TEXT := 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce';
+  v_avatar    JSONB := '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb;
 
   -- -------------------------------------------------------------------------
   -- Province / Khmer name arrays
@@ -2201,7 +2221,7 @@ BEGIN
       0, false, NOW(), NOW(), 'admin', 'admin'
     ) ON CONFLICT DO NOTHING;
 
-    INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image, version, is_deleted, created_at, updated_at, created_by, updated_by)
     VALUES (
       profile_id,
       user_id,
@@ -2238,7 +2258,7 @@ BEGIN
       0, false, NOW(), NOW(), 'admin', 'admin'
     ) ON CONFLICT DO NOTHING;
 
-    INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image, version, is_deleted, created_at, updated_at, created_by, updated_by)
     VALUES (
       profile_id,
       user_id,
@@ -2286,7 +2306,7 @@ BEGIN
         0, false, NOW(), NOW(), 'admin', 'admin'
       ) ON CONFLICT DO NOTHING;
 
-      INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+      INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image, version, is_deleted, created_at, updated_at, created_by, updated_by)
       VALUES (
         profile_id,
         user_id,
@@ -2335,7 +2355,7 @@ BEGIN
       0, false, NOW(), NOW(), 'admin', 'admin'
     ) ON CONFLICT DO NOTHING;
 
-    INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+    INSERT INTO user_profiles (id, user_id, email, first_name, last_name, phone_number, nickname, gender, date_of_birth, profile_image, version, is_deleted, created_at, updated_at, created_by, updated_by)
     VALUES (
       profile_id,
       user_id,
