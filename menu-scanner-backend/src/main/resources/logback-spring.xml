@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <!-- Register Spring Boot's %clr color converter and other extensions -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
     <springProperty scope="context" name="appName"    source="spring.application.name" defaultValue="emenu"/>
     <springProperty scope="context" name="appVersion" source="app.version"             defaultValue="1.0.0"/>
 
