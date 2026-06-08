@@ -15,7 +15,13 @@ interface ResolveResponse {
 export function SubdomainProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const subdomain = getSubdomain();
-    if (!subdomain) return;
+    // On plain localhost / no base domain match → skip entirely, use default businessId
+    if (!subdomain) {
+      if (!localStorage.getItem("businessId")) {
+        localStorage.setItem("businessId", AppDefault.BUSINESS_ID);
+      }
+      return;
+    }
 
     axiosClient
       .get<{ data: ResolveResponse }>(`/api/v1/public/businesses/resolve-subdomain?subdomain=${subdomain}`)
