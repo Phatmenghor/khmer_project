@@ -185,13 +185,19 @@ function RegistrationSuccessModal({
             <Button variant="outline" onClick={onClose} className="h-8 text-xs px-4">
               Close
             </Button>
-            <Button
-              onClick={onClose}
-              className="h-8 text-xs px-4 bg-primary hover:bg-primary/90 gap-1.5"
-            >
-              <LogIn className="w-3 h-3" />
-              Sign In Now
-            </Button>
+            {info.subdomain && (
+              <Button
+                onClick={() => {
+                  const base = process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "emenu-cambodia.com";
+                  window.open(`https://${info.subdomain}.${base}/login`, "_blank", "noopener,noreferrer");
+                  onClose();
+                }}
+                className="h-8 text-xs px-4 bg-primary hover:bg-primary/90 gap-1.5"
+              >
+                <LogIn className="w-3 h-3" />
+                Sign In Now
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>

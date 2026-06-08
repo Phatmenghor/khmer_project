@@ -195,7 +195,7 @@ export default function PricingSection() {
                   <Button
                     onClick={() => handlePlanClick(planData)}
                     className={cn(
-                      "w-full h-10 mt-5 font-bold text-xs rounded transition-all duration-300",
+                      "w-full h-8 mt-5 font-bold text-xs rounded transition-all duration-300",
                       highlighted
                         ? "bg-primary text-white shadow-lg hover:shadow-xl hover:bg-primary/90"
                         : "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-white"

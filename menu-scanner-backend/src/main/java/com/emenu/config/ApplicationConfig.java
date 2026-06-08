@@ -86,7 +86,7 @@ public class ApplicationConfig {
         public Optional<String> getCurrentAuditor() {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-                return Optional.of("SYSTEM");
+                return Optional.empty();
             }
             return Optional.of(auth.getName());
         }
