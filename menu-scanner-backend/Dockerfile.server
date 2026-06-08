@@ -1,0 +1,15 @@
+FROM eclipse-temurin:21-jre-alpine
+LABEL maintainer="emenu-cambodia"
+LABEL description="E-Menu Cambodia Backend API"
+WORKDIR /app
+COPY e_menu_cambodia.jar .
+ENTRYPOINT ["java", \
+  "-XX:+UseZGC", \
+  "-XX:+ZGenerational", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-XX:+ExitOnOutOfMemoryError", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "/app/e_menu_cambodia.jar"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
+  CMD wget -q --spider http://localhost:7070/actuator/health || exit 1
