@@ -102,13 +102,13 @@ VALUES (
 ) ON CONFLICT DO NOTHING;
 
 -- Mega Store Social Media Links
-INSERT INTO social_media (id, business_setting_id, name, image_url, link_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO social_media (id, business_setting_id, name, image, link_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES
-  ('550e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440002', 'Facebook', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://facebook.com/megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('550e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440002', 'Instagram', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://instagram.com/megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('550e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440002', 'TikTok', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://tiktok.com/@megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('550e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440002', 'WhatsApp', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://wa.me/85512345678', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('550e8400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440002', 'Telegram', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://t.me/megastore_cambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
+  ('550e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440002', 'Facebook', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb, 'https://facebook.com/megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440002', 'Instagram', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb, 'https://instagram.com/megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440002', 'TikTok', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb, 'https://tiktok.com/@megastore.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440002', 'WhatsApp', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb, 'https://wa.me/85512345678', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('550e8400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440002', 'Telegram', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb, 'https://t.me/megastore_cambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
 ON CONFLICT DO NOTHING;
 
 -- Mega Store Business Hours
@@ -140,12 +140,12 @@ VALUES (
 ) ON CONFLICT DO NOTHING;
 
 -- Fashion Hub Social Media Links
-INSERT INTO social_media (id, business_setting_id, name, image_url, link_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO social_media (id, business_setting_id, name, image, link_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
 VALUES
-  ('660e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440003', 'Facebook', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://facebook.com/fashionhub.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('660e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440003', 'Instagram', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://instagram.com/fashionhub.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('660e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440003', 'YouTube', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://youtube.com/@fashionhubcambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
-  ('660e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440003', 'Pinterest', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'https://pinterest.com/fashionhubcambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
+  ('660e8400-e29b-41d4-a716-446655440001', '770e8400-e29b-41d4-a716-446655440003', 'Facebook', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb, 'https://facebook.com/fashionhub.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('660e8400-e29b-41d4-a716-446655440002', '770e8400-e29b-41d4-a716-446655440003', 'Instagram', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb, 'https://instagram.com/fashionhub.cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('660e8400-e29b-41d4-a716-446655440003', '770e8400-e29b-41d4-a716-446655440003', 'YouTube', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb, 'https://youtube.com/@fashionhubcambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('660e8400-e29b-41d4-a716-446655440004', '770e8400-e29b-41d4-a716-446655440003', 'Pinterest', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb, 'https://pinterest.com/fashionhubcambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
 ON CONFLICT DO NOTHING;
 
 -- Fashion Hub Business Hours
@@ -168,11 +168,11 @@ DO $$ BEGIN RAISE NOTICE '  5%% [█░░░░░░░░░░░░░░�
 
 -- ============================================================================
 
-INSERT INTO banners (id, business_id, image_url, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO banners (id, business_id, image, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
   'Banner ' || i || ' Description',
   CASE WHEN i <= 8 THEN 'ACTIVE' ELSE 'INACTIVE' END,
   0,
@@ -254,13 +254,13 @@ VALUES (
 
 -- ============================================================================
 
-INSERT INTO delivery_options (id, business_id, name, description, image_url, price, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO delivery_options (id, business_id, name, description, image, price, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   '550cad56-cafd-4aba-baef-c4dcd53940d0'::uuid,
   'Delivery Option ' || i,
   'Delivery option ' || i || ' - Standard delivery with ' || (i * 30) || ' minute estimate',
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
   ROUND(((i - 1)::numeric * 10 / 15), 2),
   'ACTIVE',
   0, false, NOW(), NOW(), 'admin', 'admin'
@@ -611,12 +611,12 @@ DO $$ BEGIN RAISE NOTICE ' 25%% [█████░░░░░░░░░░�
 -- 7. CREATE CATEGORIES (18 for Mega Store)
 
 -- ============================================================================
-INSERT INTO categories (id, business_id, name, image_url, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO categories (id, business_id, name, image, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   'Category ' || i,
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
   'ACTIVE',
   0,
   false,
@@ -631,12 +631,12 @@ DO $$ BEGIN RAISE NOTICE ' 30%% [██████░░░░░░░░░�
 -- 8. CREATE BRANDS (18)
 
 -- ============================================================================
-INSERT INTO brands (id, business_id, name, image_url, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO brands (id, business_id, name, image, description, status, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   'Brand ' || i,
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
   'Brand ' || i || ' - Premium quality products',
   'ACTIVE',
   0,
@@ -654,7 +654,7 @@ DO $$ BEGIN RAISE NOTICE ' 35%% [███████░░░░░░░░�
 -- ============================================================================
 INSERT INTO products (
   id, business_id, category_id, brand_id, name, description, price,
-  main_image_url, barcode, sku, status, stock_status, has_sizes,
+  main_image, barcode, sku, status, stock_status, has_sizes,
   view_count, favorite_count, category_name, brand_name, business_name, version, is_deleted,
   created_at, updated_at, created_by, updated_by, promotion_type, promotion_value,
   promotion_from_date, promotion_to_date
@@ -667,7 +667,7 @@ SELECT
   'Product ' || i,
   'High quality product ' || i || ' with premium features and excellent durability',
   (10 + (i % 200))::numeric,
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
   '1000000000' || LPAD(i::text, 7, '0'),
   'SKU-' || LPAD(i::text, 7, '0'),
   'ACTIVE',
@@ -771,11 +771,11 @@ DO $$ BEGIN RAISE NOTICE ' 50%% [██████████░░░░░�
 -- 11. CREATE PRODUCT IMAGES (5 per product = 50,000 total)
 
 -- ============================================================================
-INSERT INTO product_images (id, product_id, image_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+INSERT INTO product_images (id, product_id, image, version, is_deleted, created_at, updated_at, created_by, updated_by)
 SELECT
   gen_random_uuid(),
   p.id,
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
   0,
   false,
   NOW(), NOW(), 'admin', 'admin'
@@ -1115,7 +1115,7 @@ DO $$ BEGIN RAISE NOTICE ' 80%% [███████████████�
 -- instead of LATERAL+OFFSET scanning — much faster for large order sets.
 -- ============================================================================
 WITH prods AS (
-  SELECT id, name, sku, barcode, main_image_url, price,
+  SELECT id, name, sku, barcode, main_image, price,
          ((ROW_NUMBER() OVER (ORDER BY id)) - 1)::int AS idx
   FROM products
   WHERE business_id = '550cad56-cafd-4aba-baef-c4dcd53940d0'
@@ -1133,7 +1133,7 @@ INSERT INTO order_items (
 -- Item 1
 SELECT
   gen_random_uuid(), o.id, p1.id, NULL::uuid,
-  p1.name, p1.main_image_url, 'Standard', p1.sku, p1.barcode,
+  p1.name, p1.main_image, 'Standard', p1.sku, p1.barcode,
   (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3)::int,
   p1.price, p1.price, p1.price,
   p1.price * (1 + EXTRACT(MINUTE FROM o.created_at)::int % 3),
@@ -1147,7 +1147,7 @@ UNION ALL
 -- Item 2 (different product offset by 50)
 SELECT
   gen_random_uuid(), o.id, p2.id, NULL::uuid,
-  p2.name, p2.main_image_url, 'Standard', p2.sku, p2.barcode,
+  p2.name, p2.main_image, 'Standard', p2.sku, p2.barcode,
   1, p2.price, p2.price, p2.price, p2.price,
   false, NULL, NULL::numeric, NULL::date, NULL::date,
   0.00,
@@ -1461,7 +1461,7 @@ DO $$ BEGIN RAISE NOTICE ' 95%% [███████████████�
 -- PORTFOLIO PROFILES (Updated Schema with Dynamic Data)
 INSERT INTO portfolio_profile (
   id, business_id, business_name, description,
-  logo_url, cover_image_url,
+  logo, cover_image,
   contact_email, contact_phone, contact_whatsapp, contact_telegram,
   address, map_link,
   version, is_deleted, created_at, updated_at, created_by, updated_by
@@ -1471,8 +1471,8 @@ VALUES (
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   'Mega Store',
   'Mega Store is Cambodia''s premier retail destination offering over 10,000 quality products across fashion, electronics, home goods, and more. Founded in 2016, we have served over 10,000 happy customers with a commitment to authenticity, value, and excellent service. Shop with confidence — every product is carefully curated and backed by our 30-day return policy.',
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
   'megastore@example.com',
   '+855-12-345-678',
   '+855-12-345-678',
@@ -1484,7 +1484,7 @@ VALUES (
 
 INSERT INTO portfolio_profile (
   id, business_id, business_name, description,
-  logo_url, cover_image_url,
+  logo, cover_image,
   contact_email, contact_phone, contact_whatsapp, contact_telegram,
   address, map_link,
   version, is_deleted, created_at, updated_at, created_by, updated_by
@@ -1494,8 +1494,8 @@ VALUES (
   '660cad56-cafd-4aba-baef-c4dcd53940d0',
   'Fashion Hub',
   'Fashion Hub is Siem Reap''s leading fashion boutique, blending contemporary trends with Khmer craftsmanship. Since 2019, we have dressed thousands of style-conscious customers with our curated collections of local and international designers. From casual wear to formal attire, our experienced stylists are ready to help you find your perfect look.',
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
   'fashionhub@example.com',
   '+855-87-654-321',
   '+855-87-654-321',
@@ -1588,17 +1588,17 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO GALLERY
 -- ============================================================================
 
-INSERT INTO portfolio_gallery (id, profile_id, url, title, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.url, v.title, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_gallery (id, profile_id, image, title, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.image::jsonb, v.title, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('770e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Store Entrance'),
-  ('770e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Electronics Section'),
-  ('770e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Fashion Floor'),
-  ('770e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Home Goods Display'),
-  ('770e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Boutique Front'),
-  ('770e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Collections'),
-  ('770e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce', 'Style Showcase')
-) AS v(id, profile_id, url, title)
+  ('770e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}', 'Store Entrance'),
+  ('770e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}', 'Electronics Section'),
+  ('770e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}', 'Fashion Floor'),
+  ('770e8400-e29b-41d4-a716-446655440004', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}', 'Home Goods Display'),
+  ('770e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}', 'Boutique Front'),
+  ('770e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}', 'Collections'),
+  ('770e8400-e29b-41d4-a716-446655440007', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}', 'Style Showcase')
+) AS v(id, profile_id, image, title)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_gallery WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
@@ -1625,16 +1625,16 @@ ON CONFLICT DO NOTHING;
 -- PORTFOLIO TEAM MEMBERS
 -- ============================================================================
 
-INSERT INTO portfolio_team_member (id, profile_id, name, position, bio, photo_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
-SELECT v.id::uuid, v.profile_id::uuid, v.name, v.position, v.bio, v.photo_url, 0, false, NOW(), NOW(), 'admin', 'admin'
+INSERT INTO portfolio_team_member (id, profile_id, name, position, bio, photo, version, is_deleted, created_at, updated_at, created_by, updated_by)
+SELECT v.id::uuid, v.profile_id::uuid, v.name, v.position, v.bio, v.photo::jsonb, 0, false, NOW(), NOW(), 'admin', 'admin'
 FROM (VALUES
-  ('aa0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Sokha Pou',   'Store Manager',        'With over 12 years of retail experience, Sokha leads Mega Store with passion for customer satisfaction.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
-  ('aa0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Kosal Touch', 'Sales Director',       'Kosal ensures our team delivers the best shopping experience with expert product knowledge.',              'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
-  ('aa0e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Srey Mom',    'Customer Service Lead', 'Srey Mom heads our dedicated customer support team, available 24/7 to assist you.',                       'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
-  ('aa0e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Dina Savuth', 'Boutique Owner',        'Dina founded Fashion Hub with a vision to bring quality fashion to Siem Reap with a personal touch.',    'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
-  ('aa0e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Chanthy Ros', 'Senior Stylist',        'With expertise in both traditional and contemporary fashion, Chanthy helps clients discover their unique style.', 'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce'),
-  ('aa0e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Piseth Rith', 'Tailor Master',         'Piseth brings 20+ years of tailoring expertise, ensuring perfect fits for all our customers.',             'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce')
-) AS v(id, profile_id, name, position, bio, photo_url)
+  ('aa0e8400-e29b-41d4-a716-446655440001', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Sokha Pou',   'Store Manager',        'With over 12 years of retail experience, Sokha leads Mega Store with passion for customer satisfaction.', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'),
+  ('aa0e8400-e29b-41d4-a716-446655440002', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Kosal Touch', 'Sales Director',       'Kosal ensures our team delivers the best shopping experience with expert product knowledge.',              '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'),
+  ('aa0e8400-e29b-41d4-a716-446655440003', 'aa1cad56-cafd-4aba-baef-c4dcd53940d0', 'Srey Mom',    'Customer Service Lead', 'Srey Mom heads our dedicated customer support team, available 24/7 to assist you.',                       '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'),
+  ('aa0e8400-e29b-41d4-a716-446655440004', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Dina Savuth', 'Boutique Owner',        'Dina founded Fashion Hub with a vision to bring quality fashion to Siem Reap with a personal touch.',    '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'),
+  ('aa0e8400-e29b-41d4-a716-446655440005', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Chanthy Ros', 'Senior Stylist',        'With expertise in both traditional and contemporary fashion, Chanthy helps clients discover their unique style.', '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'),
+  ('aa0e8400-e29b-41d4-a716-446655440006', 'bb1cad56-cafd-4aba-baef-c4dcd53940d0', 'Piseth Rith', 'Tailor Master',         'Piseth brings 20+ years of tailoring expertise, ensuring perfect fits for all our customers.',             '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}')
+) AS v(id, profile_id, name, position, bio, photo)
 WHERE NOT EXISTS (SELECT 1 FROM portfolio_team_member WHERE id = v.id::uuid)
 ON CONFLICT DO NOTHING;
 
