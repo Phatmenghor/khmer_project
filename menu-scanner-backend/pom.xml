@@ -225,6 +225,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>e_menu_cambodia</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
