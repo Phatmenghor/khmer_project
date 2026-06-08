@@ -6,9 +6,9 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "3443:3443"
+      - "3000:3000"
     env_file:
       - .env.production
     environment:
       NODE_ENV: production
-      PORT: "3443"
+      PORT: "3000"
