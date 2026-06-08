@@ -1,15 +1,9 @@
-version: "3.9"
-
-# Run on server where postgres + redis are already running.
-# No .env file needed — all defaults are in application-prod.yaml.
-# Only override secrets that should not be in source code.
-
 services:
   backend:
     container_name: emenu_backend
     build:
       context: /opt/apps/emenu-backend
-      dockerfile: Dockerfile.server
+      dockerfile: Dockerfile
     image: emenu-cambodia/backend:1.0.0
     restart: unless-stopped
     volumes:
