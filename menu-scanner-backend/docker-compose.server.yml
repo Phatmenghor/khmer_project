@@ -12,6 +12,7 @@ services:
       - "7070:7070"
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      TELEGRAM_WEBHOOK_URL: "https://api.emenu-cambodia.com"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     # No memory limit — JVM reads full host RAM via UseContainerSupport
