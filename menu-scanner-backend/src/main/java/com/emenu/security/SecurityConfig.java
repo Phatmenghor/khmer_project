@@ -5,7 +5,6 @@ import com.emenu.security.jwt.JwtAccessDeniedHandler;
 import com.emenu.security.jwt.JwtAuthEntryPoint;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,7 +23,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -40,9 +38,6 @@ public class SecurityConfig {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
-
-    @Value("${app.security.cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
-    private String[] allowedOrigins;
 
     // ─── Fail-fast JWT secret validation ─────────────────────────────────────
 
@@ -110,11 +105,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Explicit allowlist — NEVER use allowedOriginPatterns("*") with allowCredentials(true)
-        config.setAllowedOrigins(Arrays.asList(allowedOrigins));
+        // allowedOriginPatterns("*") works with allowCredentials(true); setAllowedOrigins("*") does not
+        config.addAllowedOriginPattern("*");
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-ID", "X-Requested-With"));
-        config.setExposedHeaders(List.of("Authorization", "X-Request-ID", "Content-Disposition", "Content-Type"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization", "X-Request-ID", "X-Trace-ID", "Content-Disposition", "Content-Type"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
