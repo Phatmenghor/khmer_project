@@ -7,13 +7,15 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { RegisterModal } from "./register-modal";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [registerOpen, setRegisterOpen] = useState(false);
+
+  const scrollToPricing = () => {
+    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,7 +78,7 @@ export default function Navbar() {
               <div className="flex items-center gap-2">
                 <Button
                   className="h-7 px-5 text-xs bg-primary hover:bg-primary/90 text-white rounded"
-                  onClick={() => setRegisterOpen(true)}
+                  onClick={scrollToPricing}
                 >
                   Get Started Free
                 </Button>
@@ -117,7 +119,7 @@ export default function Navbar() {
                 className="w-full h-7 text-xs bg-primary hover:bg-primary/90 text-white"
                 onClick={() => {
                   setMobileOpen(false);
-                  setRegisterOpen(true);
+                  scrollToPricing();
                 }}
               >
                 Get Started Free
@@ -127,7 +129,6 @@ export default function Navbar() {
         )}
       </header>
 
-      <RegisterModal isOpen={registerOpen} onClose={() => setRegisterOpen(false)} />
     </>
   );
 }

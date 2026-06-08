@@ -4,14 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  Loader2,
-  UserPlus,
-  User,
-  Building2,
-  Settings as SettingsIcon,
-  CheckCircle2,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -59,37 +52,24 @@ interface RegisterModalProps {
   plan?: PlanData;
 }
 
-// Compact admin-modal section heading. Mirrors the pattern used in other
-// owner modals (icon tile + sm title + xs subtitle).
 function SectionHeading({
   step,
-  icon: Icon,
   title,
   subtitle,
 }: {
   step: number;
-  icon: React.ComponentType<{ className?: string }>;
   title: string;
   subtitle?: string;
 }) {
   return (
     <div className="flex items-center gap-2 mb-3">
-      <div className="relative flex-shrink-0">
-        <div className="p-1.5 rounded-md bg-primary/10 text-primary">
-          <Icon className="w-4 h-4" />
-        </div>
-        <span className="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center shadow">
-          {step}
-        </span>
-      </div>
+      <span className="w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+        {step}
+      </span>
       <div className="min-w-0">
-        <h3 className="text-xs font-semibold text-foreground leading-tight">
-          {title}
-        </h3>
+        <h3 className="text-xs font-semibold text-foreground leading-tight">{title}</h3>
         {subtitle && (
-          <p className="text-[11px] text-muted-foreground leading-snug">
-            {subtitle}
-          </p>
+          <p className="text-[11px] text-muted-foreground leading-snug">{subtitle}</p>
         )}
       </div>
     </div>
@@ -179,34 +159,24 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         {/* Mobile drag handle */}
         <div className="sm:hidden h-1 bg-slate-300 rounded-full w-8 mx-auto mt-2" />
 
-        {/* Header — admin FormHeader style */}
+        {/* Header */}
         <FormHeader
           title="Create Your Account"
           description="Register your business — every plan unlocks every feature."
-          icon={UserPlus}
         />
 
         {/* Selected plan strip (only when arriving from pricing) */}
         {plan && (
           <div className="px-3 py-2 border-b bg-primary/5 flex-shrink-0">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="p-1 rounded bg-primary/10 text-primary shrink-0">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-foreground truncate">
-                  {plan.name}
-                  <span className="text-muted-foreground font-normal ml-1">
-                    · {plan.price} {plan.period}
-                  </span>
-                </p>
-                {plan.description && (
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {plan.description}
-                  </p>
-                )}
-              </div>
-            </div>
+            <p className="text-xs font-semibold text-foreground truncate">
+              {plan.name}
+              <span className="text-muted-foreground font-normal ml-1">
+                · {plan.price} {plan.period}
+              </span>
+            </p>
+            {plan.description && (
+              <p className="text-[11px] text-muted-foreground truncate">{plan.description}</p>
+            )}
           </div>
         )}
 
@@ -220,7 +190,6 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
             <section>
               <SectionHeading
                 step={1}
-                icon={User}
                 title="Account Credentials"
                 subtitle="Your sign-in details and personal contact info"
               />
@@ -292,7 +261,6 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
             <section>
               <SectionHeading
                 step={2}
-                icon={Building2}
                 title="Business Information"
                 subtitle="How your business appears to customers"
               />
@@ -342,7 +310,6 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
             <section>
               <SectionHeading
                 step={3}
-                icon={SettingsIcon}
                 title="Settings"
                 subtitle="Branding and inventory preferences (you can change these later)"
               />

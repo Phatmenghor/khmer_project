@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -187,7 +186,7 @@ export default function PricingSection() {
                   <ul className="space-y-3 flex-1">
                     {features.map((f) => (
                       <li key={f} className="flex items-start gap-2 text-xs text-slate-700 font-medium">
-                        <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0 mt-0.5 animate-scale-in" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0 mt-1.5" />
                         <span>{f}</span>
                       </li>
                     ))}
