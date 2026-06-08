@@ -4,6 +4,8 @@ import { z } from "zod";
 /**
  * Create Subscription Schema
  */
+const subdomainRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
+
 export const createBusinessOwnerSchema = z.object({
   userIdentifier: z
     .string()
@@ -22,6 +24,11 @@ export const createBusinessOwnerSchema = z.object({
     .string()
     .regex(/^\+?[\d\s-()]+$/, "Invalid phone number format"),
   businessName: z.string().min(1, "Business name is required"),
+  subdomain: z
+    .string()
+    .min(1, "Subdomain is required")
+    .max(63, "Subdomain must be 63 characters or less")
+    .regex(subdomainRegex, "Only lowercase letters, numbers, hyphens (not at start/end)"),
   businessEmail: z
     .string()
     .min(1, "Business email is required")

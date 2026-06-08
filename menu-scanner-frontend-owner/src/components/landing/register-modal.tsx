@@ -39,10 +39,9 @@ const schema = z
     businessName: z.string().min(1, "Business name is required"),
     subdomain: z
       .string()
-      .min(3, "Subdomain must be at least 3 characters")
-      .max(50, "Subdomain must be 50 characters or less")
-      .regex(subdomainRegex, "Only lowercase letters, numbers, hyphens (not at start/end)")
-      .or(z.literal("")),
+      .min(1, "Subdomain is required")
+      .max(63, "Subdomain must be 63 characters or less")
+      .regex(subdomainRegex, "Only lowercase letters, numbers, hyphens (not at start/end)"),
     businessEmail: z.string().email("Invalid business email"),
     businessPhone: z.string().min(6, "Business phone is required"),
     businessAddress: z.string().min(1, "Business address is required"),
@@ -297,7 +296,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         primaryColor: values.primaryColor,
       };
 
-      if (values.subdomain) payload.subdomain = values.subdomain;
+      payload.subdomain = values.subdomain;
       if (plan?.id) payload.planId = plan.id;
 
       await axiosClient.post("/api/v1/business-owners/register", payload);
