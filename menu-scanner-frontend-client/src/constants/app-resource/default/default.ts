@@ -1,7 +1,18 @@
+const FALLBACK_BUSINESS_ID = "550cad56-cafd-4aba-baef-c4dcd53940d0";
+
+function getBusinessId(): string {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("businessId") ?? FALLBACK_BUSINESS_ID;
+  }
+  return FALLBACK_BUSINESS_ID;
+}
+
 export const AppDefault = {
   RESET_PASSWORD: "88889999",
 
-  BUSINESS_ID: "550cad56-cafd-4aba-baef-c4dcd53940d0",
+  get BUSINESS_ID(): string {
+    return getBusinessId();
+  },
   PAGE_SIZE: 15,
   PAGE_SIZE_OPTIONS: [10, 15, 20, 50, 100],
 };

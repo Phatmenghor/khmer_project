@@ -8,6 +8,7 @@ import PageProgressBar from "@/components/shared/progress/global-n-progress";
 import { LocaleProvider } from "@/providers/locale-provider";
 import { ScrollToTop } from "@/components/shared/common/scroll-to-top";
 import { AuthProvider } from "@/providers/auth-provider";
+import { SubdomainProvider } from "@/providers/subdomain-provider";
 import { ThemeInitializer } from "@/components/shared/theme/theme-initializer";
 import { defaultLocale, type Locale } from "@/i18n/request";
 import { buildMetadata } from "@/utils/metadata/metadata-builder";
@@ -89,11 +90,13 @@ export default async function RootLayout({
         <ThemeInitializer />
         <LocaleProvider initialLocale={locale} initialMessages={messages}>
           <ClientProviders>
+            <SubdomainProvider>
             <AuthProvider>
               <PageProgressBar />
               {children}
               <ScrollToTop />
             </AuthProvider>
+            </SubdomainProvider>
           </ClientProviders>
         </LocaleProvider>
       </body>
