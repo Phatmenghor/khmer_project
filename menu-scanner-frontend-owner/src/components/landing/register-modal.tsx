@@ -159,7 +159,7 @@ function RegistrationSuccessModal({
               <div className="flex items-center gap-3 px-3 py-2.5">
                 <Globe className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                 <span className="text-muted-foreground w-24 flex-shrink-0">Subdomain</span>
-                <span className="font-medium text-foreground truncate">{info.subdomain}.emenu.kh</span>
+                <span className="font-medium text-foreground truncate">{info.subdomain}.emenu-cambodia.com</span>
               </div>
             )}
             {info.plan && (
@@ -236,12 +236,25 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
   });
 
   const businessNameValue = watch("businessName");
+  const subdomainValue = watch("subdomain");
+
   useEffect(() => {
-    if (!subdomainTouchedRef.current && businessNameValue) {
+    // Auto-fill subdomain from business name unless user has manually edited it
+    if (businessNameValue && !subdomainTouchedRef.current) {
       const slug = slugify(businessNameValue);
-      if (slug.length >= 3) setValue("subdomain", slug, { shouldValidate: true });
+      setValue("subdomain", slug, { shouldValidate: false, shouldDirty: false });
     }
   }, [businessNameValue, setValue]);
+
+  // Track if user manually edited subdomain (differs from auto-generated)
+  useEffect(() => {
+    if (businessNameValue && subdomainValue !== undefined) {
+      const autoSlug = slugify(businessNameValue);
+      if (subdomainValue !== autoSlug && subdomainValue !== "") {
+        subdomainTouchedRef.current = true;
+      }
+    }
+  }, [subdomainValue, businessNameValue]);
 
   async function onSubmit(values: FormData) {
     setIsSubmitting(true);
@@ -432,12 +445,11 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                     control={control}
                     error={errors.subdomain}
                     disabled={isSubmitting}
-                    onChange={() => { subdomainTouchedRef.current = true; }}
                   />
                   <p className="text-[11px] text-muted-foreground -mt-1">
                     Your menu URL:{" "}
                     <span className="font-medium text-foreground">
-                      {watch("subdomain") || "your-business"}.emenu.kh
+                      {watch("subdomain") || "your-business"}.emenu-cambodia.com
                     </span>
                   </p>
                 </div>
