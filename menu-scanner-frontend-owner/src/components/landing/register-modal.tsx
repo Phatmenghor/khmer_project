@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, CheckCircle2, Building2, User, Mail, Phone, CreditCard, LogIn } from "lucide-react";
+import { Loader2, CheckCircle2, Building2, User, Mail, Phone, CreditCard, LogIn, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,18 @@ import { showToast } from "@/components/shared/common/show-toast";
 import { axiosClient } from "@/utils/axios";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
+const subdomainRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
+
+function slugify(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s]+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 const schema = z
   .object({
     ownerFullName: z.string().min(1, "Full name is required"),
@@ -25,6 +37,12 @@ const schema = z
     ownerPassword: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
     businessName: z.string().min(1, "Business name is required"),
+    subdomain: z
+      .string()
+      .min(3, "Subdomain must be at least 3 characters")
+      .max(50, "Subdomain must be 50 characters or less")
+      .regex(subdomainRegex, "Only lowercase letters, numbers, hyphens (not at start/end)")
+      .or(z.literal("")),
     businessEmail: z.string().email("Invalid business email"),
     businessPhone: z.string().min(6, "Business phone is required"),
     businessAddress: z.string().min(1, "Business address is required"),
@@ -81,6 +99,7 @@ interface SuccessInfo {
   ownerEmail: string;
   ownerPhone: string;
   businessName: string;
+  subdomain?: string;
   plan?: PlanData;
 }
 
@@ -136,6 +155,13 @@ function RegistrationSuccessModal({
               <span className="text-muted-foreground w-24 flex-shrink-0">Business</span>
               <span className="font-medium text-foreground truncate">{info.businessName}</span>
             </div>
+            {info.subdomain && (
+              <div className="flex items-center gap-3 px-3 py-2.5">
+                <Globe className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                <span className="text-muted-foreground w-24 flex-shrink-0">Subdomain</span>
+                <span className="font-medium text-foreground truncate">{info.subdomain}.emenu.kh</span>
+              </div>
+            )}
             {info.plan && (
               <div className="flex items-center gap-3 px-3 py-2.5">
                 <CreditCard className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
@@ -180,6 +206,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successInfo, setSuccessInfo] = useState<SuccessInfo | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const subdomainTouchedRef = useRef(false);
 
   const {
     control,
@@ -198,6 +225,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       ownerPassword: "",
       confirmPassword: "",
       businessName: "",
+      subdomain: "",
       businessEmail: "",
       businessPhone: "",
       businessAddress: "",
@@ -206,6 +234,14 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     },
     mode: "onChange",
   });
+
+  const businessNameValue = watch("businessName");
+  useEffect(() => {
+    if (!subdomainTouchedRef.current && businessNameValue) {
+      const slug = slugify(businessNameValue);
+      if (slug.length >= 3) setValue("subdomain", slug, { shouldValidate: true });
+    }
+  }, [businessNameValue, setValue]);
 
   async function onSubmit(values: FormData) {
     setIsSubmitting(true);
@@ -224,9 +260,8 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         primaryColor: values.primaryColor,
       };
 
-      if (plan?.id) {
-        payload.planId = plan.id;
-      }
+      if (values.subdomain) payload.subdomain = values.subdomain;
+      if (plan?.id) payload.planId = plan.id;
 
       await axiosClient.post("/api/v1/business-owners/register", payload);
       setSuccessInfo({
@@ -234,6 +269,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         ownerEmail: values.ownerEmail,
         ownerPhone: values.ownerPhone,
         businessName: values.businessName,
+        subdomain: values.subdomain || slugify(values.businessName),
         plan,
       });
       reset();
@@ -255,6 +291,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     if (!isSubmitting) {
       onClose();
       reset();
+      subdomainTouchedRef.current = false;
     }
   };
 
@@ -387,6 +424,23 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   disabled={isSubmitting}
                   required
                 />
+                <div className="flex flex-col gap-1 w-full">
+                  <TextField
+                    name="subdomain"
+                    label="Subdomain"
+                    placeholder="e.g. mega-store"
+                    control={control}
+                    error={errors.subdomain}
+                    disabled={isSubmitting}
+                    onChange={() => { subdomainTouchedRef.current = true; }}
+                  />
+                  <p className="text-[11px] text-muted-foreground -mt-1">
+                    Your menu URL:{" "}
+                    <span className="font-medium text-foreground">
+                      {watch("subdomain") || "your-business"}.emenu.kh
+                    </span>
+                  </p>
+                </div>
                 <TextField
                   name="businessEmail"
                   label="Business Email"

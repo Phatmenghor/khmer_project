@@ -48,4 +48,6 @@ public class BusinessOwnerPublicRegisterRequest {
     private Boolean enableStockManagement;
 
     private String primaryColor;
+
+    private String subdomain;
 }

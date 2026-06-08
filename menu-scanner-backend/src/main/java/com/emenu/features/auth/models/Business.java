@@ -38,6 +38,9 @@ public class Business extends BaseUUIDEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "subdomain", unique = true)
+    private String subdomain;
+
     @Column(name = "owner_id")
     private UUID ownerId;
 

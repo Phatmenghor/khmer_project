@@ -165,6 +165,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 .planId(registerRequest.getPlanId())
                 .enableStockManagement(registerRequest.getEnableStockManagement())
                 .primaryColor(registerRequest.getPrimaryColor())
+                .subdomain(registerRequest.getSubdomain())
                 .build();
 
         // Validate using existing validation
@@ -516,6 +517,12 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
             throw new ValidationException("This username is already taken. Please choose a different username or sign in if you already have an account.");
         }
 
+        if (creationRequestData.getSubdomain() != null && !creationRequestData.getSubdomain().isBlank()) {
+            if (businessRepository.existsBySubdomainAndIsDeletedFalse(creationRequestData.getSubdomain())) {
+                throw new ValidationException("This subdomain is already taken. Please choose a different one.");
+            }
+        }
+
         if (creationRequestData.getPlanId() != null && !planRepository.existsById(creationRequestData.getPlanId())) {
             log.warn("Business owner creation failed - plan not found: plan_id={}", creationRequestData.getPlanId());
             throw new NotFoundException("The selected plan is no longer available. Please choose another plan.");
@@ -529,7 +536,34 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         businessEntity.setPhone(creationRequestData.getBusinessPhone());
         businessEntity.setAddress(creationRequestData.getBusinessAddress());
         businessEntity.setStatus(BusinessStatus.PENDING);
+        businessEntity.setSubdomain(resolveSubdomain(creationRequestData));
         return businessRepository.save(businessEntity);
+    }
+
+    private String resolveSubdomain(BusinessOwnerCreateRequest req) {
+        String base = (req.getSubdomain() != null && !req.getSubdomain().isBlank())
+                ? req.getSubdomain().trim().toLowerCase()
+                : slugify(req.getBusinessName());
+
+        if (!businessRepository.existsBySubdomainAndIsDeletedFalse(base)) {
+            return base;
+        }
+        for (int i = 2; i <= 9999; i++) {
+            String candidate = base + "-" + i;
+            if (!businessRepository.existsBySubdomainAndIsDeletedFalse(candidate)) {
+                return candidate;
+            }
+        }
+        return base + "-" + UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    private String slugify(String name) {
+        if (name == null) return "business";
+        return name.trim().toLowerCase()
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .replaceAll("[\\s]+", "-")
+                .replaceAll("-{2,}", "-")
+                .replaceAll("^-|-$", "");
     }
 
     private User createOwnerUser(BusinessOwnerCreateRequest creationRequestData, UUID businessId) {

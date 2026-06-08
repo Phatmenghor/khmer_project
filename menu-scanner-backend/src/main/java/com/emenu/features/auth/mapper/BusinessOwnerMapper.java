@@ -23,6 +23,7 @@ public interface BusinessOwnerMapper {
     @Mapping(target = "businessName", source = "business.name")
     @Mapping(target = "businessEmail", source = "business.email")
     @Mapping(target = "businessStatus", source = "business.status")
+    @Mapping(target = "subdomain", source = "business.subdomain")
     @Mapping(target = "subscriptionId", expression = "java(subscription != null ? subscription.getId() : null)")
     @Mapping(target = "planName", expression = "java(subscription != null && subscription.getPlan() != null ? subscription.getPlan().getName() : null)")
     @Mapping(target = "planPrice", expression = "java(subscription != null && subscription.getPlan() != null ? subscription.getPlan().getPrice() : null)")
@@ -54,6 +55,7 @@ public interface BusinessOwnerMapper {
     @Mapping(target = "businessPhone", source = "business.phone")
     @Mapping(target = "businessAddress", source = "business.address")
     @Mapping(target = "businessStatus", source = "business.status")
+    @Mapping(target = "subdomain", source = "business.subdomain")
     @Mapping(target = "isSubscriptionActive", source = "business.isSubscriptionActive")
     BusinessOwnerDetailResponse toDetailResponse(User owner);
 

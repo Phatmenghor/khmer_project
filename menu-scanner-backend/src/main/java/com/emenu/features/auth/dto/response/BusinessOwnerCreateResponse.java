@@ -27,6 +27,7 @@ public class BusinessOwnerCreateResponse {
     private String businessName;
     private String businessEmail;
     private String businessStatus;
+    private String subdomain;
     private UUID subscriptionId;
     private String planName;
     private BigDecimal planPrice;

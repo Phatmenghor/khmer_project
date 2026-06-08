@@ -55,6 +55,8 @@ public class BusinessOwnerCreateRequest {
     private String paymentMethod;
     private String paymentReference;
     private String paymentNotes;
+
+    private String subdomain;
     
     public boolean hasPaymentInfo() {
         return paymentAmount != null;

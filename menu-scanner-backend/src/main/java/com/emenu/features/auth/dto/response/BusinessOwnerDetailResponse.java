@@ -31,6 +31,7 @@ public class BusinessOwnerDetailResponse extends BaseAuditResponse {
     private String businessPhone;
     private String businessAddress;
     private BusinessStatus businessStatus;
+    private String subdomain;
     private Boolean isSubscriptionActive;
 
     // Business Setting Info
