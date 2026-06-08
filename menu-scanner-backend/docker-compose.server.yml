@@ -7,16 +7,13 @@ version: "3.9"
 services:
   backend:
     container_name: emenu_backend
-    image: eclipse-temurin:21-jre-alpine
+    build:
+      context: /opt/apps/emenu-backend
+      dockerfile: Dockerfile.server
+    image: emenu-cambodia/backend:1.0.0
     restart: unless-stopped
-    working_dir: /app
     volumes:
-      - /opt/apps/emenu-backend/e_menu_cambodia.jar:/app/e_menu_cambodia.jar
       - /opt/apps/emenu-backend/logs:/app/logs
-    entrypoint:
-      - sh
-      - -c
-      - "java -XX:+UseZGC -XX:+ZGenerational -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -jar /app/e_menu_cambodia.jar"
     ports:
       - "7070:7070"
     environment:
