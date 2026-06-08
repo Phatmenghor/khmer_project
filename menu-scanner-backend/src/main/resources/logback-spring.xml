@@ -21,7 +21,7 @@
             <onMismatch>ACCEPT</onMismatch>
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/e-menu-scanner-info-%d{yyyy-MM-dd-hh-a}.log</fileNamePattern>
+            <fileNamePattern>logs/%d{yyyy-MM-dd}/e-menu-scanner-info-%d{yyyy-MM-dd-hh-a}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
             <totalSizeCap>3GB</totalSizeCap>
         </rollingPolicy>
@@ -37,7 +37,7 @@
             <level>ERROR</level>
         </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/e-menu-scanner-error-%d{yyyy-MM-dd-hh-a}.log</fileNamePattern>
+            <fileNamePattern>logs/%d{yyyy-MM-dd}/e-menu-scanner-error-%d{yyyy-MM-dd-hh-a}.log</fileNamePattern>
             <maxHistory>90</maxHistory>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
