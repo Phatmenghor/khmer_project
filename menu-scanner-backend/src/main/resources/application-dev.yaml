@@ -80,13 +80,13 @@ logging:
   level:
     root: INFO
     com.emenu: INFO
-    com.emenu.features.auth.controller: WARN
-    com.emenu.features.main.controller: WARN
-    com.emenu.features.order.controller: WARN
-    com.emenu.features.hr.controller: WARN
-    com.emenu.features.portfolio.controller: WARN
-    com.emenu.features.subscription.controller: WARN
-    com.emenu.features.spaces.controller: WARN
+    com.emenu.features.auth.controller: INFO
+    com.emenu.features.main.controller: INFO
+    com.emenu.features.order.controller: INFO
+    com.emenu.features.hr.controller: INFO
+    com.emenu.features.portfolio.controller: INFO
+    com.emenu.features.subscription.controller: INFO
+    com.emenu.features.spaces.controller: INFO
     com.emenu.features.audit: WARN
     org.springframework: WARN
     org.hibernate: WARN
