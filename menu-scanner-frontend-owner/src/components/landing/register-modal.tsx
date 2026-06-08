@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, CheckCircle2, Building2, User, Mail, Phone, CreditCard, LogIn, Globe } from "lucide-react";
+import { Loader2, CheckCircle2, Building2, User, Mail, Phone, CreditCard, LogIn, Globe, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -200,13 +200,17 @@ function RegistrationSuccessModal({
   );
 }
 
+type SubdomainStatus = "idle" | "checking" | "available" | "taken";
+
 export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successInfo, setSuccessInfo] = useState<SuccessInfo | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [subdomainStatus, setSubdomainStatus] = useState<SubdomainStatus>("idle");
   const subdomainTouchedRef = useRef(false);
+  const subdomainDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const {
     control,
@@ -256,6 +260,33 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     }
   }, [subdomainValue, businessNameValue]);
 
+  // Debounced subdomain availability check
+  useEffect(() => {
+    if (subdomainDebounceRef.current) clearTimeout(subdomainDebounceRef.current);
+
+    const val = subdomainValue ?? "";
+    if (!val || val.length < 3 || !subdomainRegex.test(val)) {
+      setSubdomainStatus("idle");
+      return;
+    }
+
+    setSubdomainStatus("checking");
+    subdomainDebounceRef.current = setTimeout(async () => {
+      try {
+        const res = await axiosClient.get<{ data: boolean }>(
+          `/api/v1/public/businesses/check-subdomain?subdomain=${encodeURIComponent(val)}`
+        );
+        setSubdomainStatus(res.data.data ? "available" : "taken");
+      } catch {
+        setSubdomainStatus("idle");
+      }
+    }, 500);
+
+    return () => {
+      if (subdomainDebounceRef.current) clearTimeout(subdomainDebounceRef.current);
+    };
+  }, [subdomainValue]);
+
   async function onSubmit(values: FormData) {
     setIsSubmitting(true);
     try {
@@ -304,6 +335,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     if (!isSubmitting) {
       onClose();
       reset();
+      setSubdomainStatus("idle");
       subdomainTouchedRef.current = false;
     }
   };
@@ -438,15 +470,36 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
                   required
                 />
                 <div className="flex flex-col gap-1 w-full">
-                  <TextField
-                    name="subdomain"
-                    label="Subdomain"
-                    placeholder="e.g. mega-store"
-                    control={control}
-                    error={errors.subdomain}
-                    disabled={isSubmitting}
-                  />
-                  <p className="text-[11px] text-muted-foreground -mt-1">
+                  <div className="relative">
+                    <TextField
+                      name="subdomain"
+                      label="Subdomain"
+                      placeholder="e.g. mega-store"
+                      control={control}
+                      error={errors.subdomain}
+                      disabled={isSubmitting}
+                    />
+                    {/* availability badge — positioned top-right of label row */}
+                    {subdomainStatus !== "idle" && (
+                      <span className={`absolute right-0 top-0 flex items-center gap-1 text-[10px] font-medium ${
+                        subdomainStatus === "checking" ? "text-muted-foreground" :
+                        subdomainStatus === "available" ? "text-emerald-600" : "text-rose-500"
+                      }`}>
+                        {subdomainStatus === "checking" && (
+                          <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                        )}
+                        {subdomainStatus === "available" && (
+                          <CheckCircle2 className="w-2.5 h-2.5" />
+                        )}
+                        {subdomainStatus === "taken" && (
+                          <XCircle className="w-2.5 h-2.5" />
+                        )}
+                        {subdomainStatus === "checking" ? "Checking..." :
+                         subdomainStatus === "available" ? "Available" : "Already taken"}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
                     Your menu URL:{" "}
                     <span className="font-medium text-foreground">
                       {watch("subdomain") || "your-business"}.emenu-cambodia.com

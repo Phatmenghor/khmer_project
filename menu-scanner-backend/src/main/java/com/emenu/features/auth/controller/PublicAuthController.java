@@ -58,4 +58,12 @@ public class PublicAuthController {
 
         return ResponseEntity.ok(ApiResponse.success("Business resolved", response));
     }
+
+    @GetMapping("/businesses/check-subdomain")
+    public ResponseEntity<ApiResponse<Boolean>> checkSubdomainAvailable(
+            @RequestParam String subdomain) {
+        boolean available = !businessRepository.existsBySubdomainAndIsDeletedFalse(subdomain);
+        String message = available ? "Subdomain is available" : "Subdomain is already taken";
+        return ResponseEntity.ok(ApiResponse.success(message, available));
+    }
 }
