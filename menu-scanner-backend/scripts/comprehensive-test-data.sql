@@ -88,7 +88,7 @@ VALUES (
 -- Mega Store Settings
 INSERT INTO business_settings (
   id, business_id, use_brands, tax_percentage,
-  logo_business_url, enable_stock, primary_color,
+  logo_business, enable_stock, primary_color,
   telegram_group_chat_id, version, is_deleted,
   created_at, updated_at, created_by, updated_by
 )
@@ -96,7 +96,7 @@ VALUES (
   '770e8400-e29b-41d4-a716-446655440002',
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   true, 0.0,
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
   'ENABLED', '#FF6B6B', NULL,
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
@@ -126,7 +126,7 @@ ON CONFLICT DO NOTHING;
 -- Fashion Hub Settings
 INSERT INTO business_settings (
   id, business_id, use_brands, tax_percentage,
-  logo_business_url, enable_stock, primary_color,
+  logo_business, enable_stock, primary_color,
   telegram_group_chat_id, version, is_deleted,
   created_at, updated_at, created_by, updated_by
 )
@@ -134,7 +134,7 @@ VALUES (
   '770e8400-e29b-41d4-a716-446655440003',
   '660cad56-cafd-4aba-baef-c4dcd53940d0',
   true, 0.0,
-  'https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce',
+  '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
   'ENABLED', '#6B6BFF', NULL,
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
@@ -1954,7 +1954,7 @@ BEGIN
     biz_set_id := gen_random_uuid();
     INSERT INTO business_settings (
       id, business_id, use_brands, tax_percentage,
-      logo_business_url, enable_stock, primary_color,
+      logo_business, enable_stock, primary_color,
       telegram_group_chat_id, version, is_deleted,
       created_at, updated_at, created_by, updated_by
     ) VALUES (
