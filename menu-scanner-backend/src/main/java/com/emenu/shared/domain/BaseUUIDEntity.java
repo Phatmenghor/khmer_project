@@ -92,7 +92,7 @@ public abstract class BaseUUIDEntity {
     private String resolveCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            return "SYSTEM";
+            return null;
         }
         return auth.getName();
     }
