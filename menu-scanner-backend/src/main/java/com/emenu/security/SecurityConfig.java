@@ -1,6 +1,7 @@
 package com.emenu.security;
 
 import com.emenu.security.jwt.JWTAuthenticationFilter;
+import com.emenu.security.jwt.JwtAccessDeniedHandler;
 import com.emenu.security.jwt.JwtAuthEntryPoint;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthEntryPoint authEntryPoint;
+    private final JwtAccessDeniedHandler accessDeniedHandler;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
     @Value("${jwt.secret}")
@@ -59,7 +61,9 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers
                         .contentTypeOptions(contentType -> {})
