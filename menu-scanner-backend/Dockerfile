@@ -12,8 +12,14 @@ ENTRYPOINT ["java", \
   "-XX:+UseZGC", \
   "-XX:+ZGenerational", \
   "-XX:+UseContainerSupport", \
-  "-XX:MaxRAMPercentage=75.0", \
+  "-XX:MaxRAMPercentage=90.0", \
+  "-XX:InitialRAMPercentage=50.0", \
+  "-XX:+AlwaysPreTouch", \
+  "-XX:+TieredCompilation", \
+  "-XX:+OptimizeStringConcat", \
   "-XX:+ExitOnOutOfMemoryError", \
+  "-XX:+HeapDumpOnOutOfMemoryError", \
+  "-XX:HeapDumpPath=/app/logs/heapdump.hprof", \
   "-Djava.security.egd=file:/dev/./urandom", \
   "-jar", "/app/e_menu_cambodia.jar"]
 

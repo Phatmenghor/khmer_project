@@ -14,3 +14,10 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    # No memory limit — JVM reads full host RAM via UseContainerSupport
+    # MaxRAMPercentage=90 uses 90% of total host RAM
+    deploy:
+      resources:
+        limits:
+          cpus: "0"       # 0 = no limit, use all CPUs
+          memory: "0"     # 0 = no limit, use all RAM
