@@ -34,7 +34,7 @@ import { ROUTES } from "@/constants/app-routes/routes";
 import { clearAllTokens } from "@/utils/local-storage/token";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
 import { CustomAvatar } from "@/components/shared/avator/custom-avator";
-import { isBase64Image, uploadImage } from "@/utils/common/upload-image";
+import { SpacesMultiSizeResult } from "@/services/spaces-service";
 import { GENDER_OPTIONS } from "@/constants/app-resource/status/create-update-status";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
 import Loading from "@/components/shared/common/loading";
@@ -59,13 +59,12 @@ export default function AdminProfilePage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("profile");
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isSavingImage, setIsSavingImage] = useState(false);
 
   const {
     control,
     handleSubmit,
     reset,
-    setValue,
     watch,
     formState: { errors, isDirty },
   } = useForm<ProfileFormData>({
@@ -99,7 +98,7 @@ export default function AdminProfilePage() {
     if (userProfile) {
       reset({
         id: userProfile.id || "",
-        profileImageUrl: userProfile.profileImageUrl || "",
+        profileImageUrl: userProfile.profileImage?.sm || userProfile.profileImageUrl || "",
         firstName: userProfile.firstName || "",
         lastName: userProfile.lastName || "",
         nickname: userProfile.nickname || "",
@@ -121,21 +120,6 @@ export default function AdminProfilePage() {
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
-      setIsUploadingImage(true);
-
-      let profileImageUrl = data.profileImageUrl;
-      if (profileImageUrl && isBase64Image(profileImageUrl)) {
-        try {
-          profileImageUrl = await uploadImage(profileImageUrl);
-        } catch {
-          showToast.error("Failed to upload profile image");
-          setIsUploadingImage(false);
-          return;
-        }
-      }
-
-      setIsUploadingImage(false);
-
       const payload: any = {};
       if (data.firstName) payload.firstName = data.firstName;
       if (data.lastName) payload.lastName = data.lastName;
@@ -144,7 +128,6 @@ export default function AdminProfilePage() {
       if (data.nickname) payload.nickname = data.nickname;
       if (data.gender) payload.gender = data.gender;
       if (data.dateOfBirth) payload.dateOfBirth = data.dateOfBirth;
-      if (profileImageUrl) payload.profileImageUrl = profileImageUrl;
       if (data.remark) payload.remark = data.remark;
 
       await dispatch(updateBusinessProfileService(payload)).unwrap();
@@ -153,33 +136,36 @@ export default function AdminProfilePage() {
       setIsEditing(false);
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || "Failed to update profile");
-      setIsUploadingImage(false);
     }
   };
 
-  const handleAutoUploadProfilePicture = async (imageData: string) => {
+  // Called by ProfilePictureModal after Spaces upload completes
+  const handleProfilePictureUploaded = async (result: SpacesMultiSizeResult) => {
     try {
-      setIsUploadingImage(true);
-      let profileImageUrl = imageData;
-      if (isBase64Image(profileImageUrl)) {
-        try {
-          profileImageUrl = await uploadImage(profileImageUrl);
-        } catch {
-          showToast.error("Failed to upload profile image");
-          setIsUploadingImage(false);
-          return;
-        }
-      }
-      setValue("profileImageUrl", profileImageUrl, { shouldDirty: true });
-      await dispatch(updateBusinessProfileService({ profileImageUrl })).unwrap();
+      setIsSavingImage(true);
+      const profileImage = { sm: result.sm.url, md: result.md.url, o: result.o.url };
+      await dispatch(updateBusinessProfileService({ profileImage })).unwrap();
       await dispatch(getBusinessProfileService()).unwrap();
       showToast.success("Profile picture updated successfully");
+      setIsProfilePictureModalOpen(false);
     } catch (error: unknown) {
       showToast.error((error as { message?: string })?.message || "Failed to update profile picture");
-      if (userProfile?.profileImageUrl) setValue("profileImageUrl", userProfile.profileImageUrl);
     } finally {
-      setIsUploadingImage(false);
+      setIsSavingImage(false);
+    }
+  };
+
+  const handleProfilePictureRemove = async () => {
+    try {
+      setIsSavingImage(true);
+      await dispatch(updateBusinessProfileService({ profileImage: null })).unwrap();
+      await dispatch(getBusinessProfileService()).unwrap();
+      showToast.success("Profile picture removed successfully");
       setIsProfilePictureModalOpen(false);
+    } catch (error: unknown) {
+      showToast.error((error as { message?: string })?.message || "Failed to remove profile picture");
+    } finally {
+      setIsSavingImage(false);
     }
   };
 
@@ -187,7 +173,7 @@ export default function AdminProfilePage() {
     if (userProfile) {
       reset({
         id: userProfile.id || "",
-        profileImageUrl: userProfile.profileImageUrl || "",
+        profileImageUrl: userProfile.profileImage?.sm || userProfile.profileImageUrl || "",
         firstName: userProfile.firstName || "",
         lastName: userProfile.lastName || "",
         nickname: userProfile.nickname || "",
@@ -213,6 +199,8 @@ export default function AdminProfilePage() {
     }
   };
 
+  const currentAvatarUrl = userProfile?.profileImage?.sm || userProfile?.profileImageUrl;
+
   if (isProfileLoading && !userProfile) {
     return <Loading />;
   }
@@ -230,7 +218,7 @@ export default function AdminProfilePage() {
               >
                 <div className="relative ring-2 ring-primary/20 rounded">
                   <CustomAvatar
-                    imageUrl={userProfile?.profileImageUrl}
+                    imageUrl={currentAvatarUrl}
                     name={userProfile?.fullName}
                     size="xl"
                   />
@@ -259,7 +247,7 @@ export default function AdminProfilePage() {
                           variant="outline"
                           size="sm"
                           onClick={handleCancel}
-                          disabled={isProfileLoading || isUploadingImage}
+                          disabled={isProfileLoading}
                           className="border-primary/30 hover:bg-primary/5 hover:text-primary hover:border-primary/50"
                         >
                           Cancel
@@ -267,13 +255,13 @@ export default function AdminProfilePage() {
                         <Button
                           size="sm"
                           onClick={handleSubmit(onSubmit)}
-                          disabled={isProfileLoading || isUploadingImage || !isDirty}
+                          disabled={isProfileLoading || !isDirty}
                           className="bg-primary hover:bg-primary/90"
                         >
-                          {isProfileLoading || isUploadingImage ? (
+                          {isProfileLoading ? (
                             <>
                               <Loader2 className="h-2 w-2 mr-1 animate-spin" />
-                              {isUploadingImage ? "Uploading..." : "Saving..."}
+                              Saving...
                             </>
                           ) : (
                             "Save"
@@ -473,23 +461,11 @@ export default function AdminProfilePage() {
       <ProfilePictureModal
         isOpen={isProfilePictureModalOpen}
         onClose={() => setIsProfilePictureModalOpen(false)}
-        currentImageUrl={userProfile?.profileImageUrl}
+        currentImageUrl={currentAvatarUrl}
         userName={userProfile?.fullName}
-        onImageSelect={handleAutoUploadProfilePicture}
-        onImageRemove={async () => {
-          try {
-            setIsUploadingImage(true);
-            await dispatch(updateBusinessProfileService({ profileImageUrl: "" })).unwrap();
-            await dispatch(getBusinessProfileService()).unwrap();
-            showToast.success("Profile picture removed successfully");
-            setIsProfilePictureModalOpen(false);
-          } catch (error: unknown) {
-            showToast.error((error as { message?: string })?.message || "Failed to remove profile picture");
-          } finally {
-            setIsUploadingImage(false);
-          }
-        }}
-        isLoading={isUploadingImage}
+        onUploaded={handleProfilePictureUploaded}
+        onRemove={handleProfilePictureRemove}
+        isLoading={isSavingImage}
       />
 
       <ChangePasswordModal
