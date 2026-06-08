@@ -10,13 +10,12 @@ function PromotionsHero() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   const businessSettings = useAppSelector(selectBusinessSettings);
-  const primaryColor = mounted ? (businessSettings?.primaryColor ?? undefined) : undefined;
+  const primaryColor = mounted ? (businessSettings?.primaryColor ?? "#3b82f6") : "#3b82f6";
 
   return (
-    <div 
+    <div
       className="rounded p-4 sm:p-5 text-white shadow-xl overflow-hidden relative"
       style={{
-        backgroundColor: primaryColor,
         background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor}cc 100%)`,
       }}
     >
