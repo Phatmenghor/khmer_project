@@ -80,7 +80,17 @@ logging:
   level:
     root: INFO
     com.emenu: DEBUG
+    com.emenu.features.auth.controller: WARN
+    com.emenu.features.main.controller: WARN
+    com.emenu.features.order.controller: WARN
+    com.emenu.features.hr.controller: WARN
+    com.emenu.features.portfolio.controller: WARN
+    com.emenu.features.subscription.controller: WARN
+    com.emenu.features.spaces.controller: WARN
+    com.emenu.features.audit: WARN
     org.springframework: WARN
     org.hibernate: WARN
+    org.apache.catalina: WARN
+    org.apache.tomcat: WARN
   pattern:
-    console: "%d{HH:mm:ss.SSS} %-5level [%X{requestId}] %logger{30} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} %-5level %-35.35logger{35} [%X{traceId:--}] %msg%n"
