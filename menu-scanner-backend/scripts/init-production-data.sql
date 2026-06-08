@@ -1,7 +1,7 @@
 -- ============================================================================
 -- PRODUCTION INIT DATA
 -- Run once on a fresh production database after the backend starts up.
--- Safe to re-run — all inserts use ON CONFLICT DO NOTHING.
+-- Safe to re-run — all inserts use WHERE NOT EXISTS checks.
 --
 -- Creates:
 --   1. PLATFORM_OWNER role (global)
@@ -15,25 +15,19 @@
 -- 1. PLATFORM_OWNER ROLE (global — no business)
 -- ============================================================================
 INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
-  'a1000000-0000-0000-0000-000000000001',
-  'PLATFORM_OWNER',
-  'Platform Owner — full access to all platform features and businesses',
-  NULL,
-  'PLATFORM_USER',
-  0, false, NOW(), NOW(), 'system', 'system'
-) ON CONFLICT DO NOTHING;
+SELECT gen_random_uuid(), 'PLATFORM_OWNER', 'Platform Owner — full access to all platform features and businesses',
+  NULL, 'PLATFORM_USER', 0, false, NOW(), NOW(), 'system', 'system'
+WHERE NOT EXISTS (
+  SELECT 1 FROM roles WHERE name = 'PLATFORM_OWNER' AND business_id IS NULL AND is_deleted = false
+);
 
--- Also ensure CUSTOMER role exists (used by social auth auto-create)
+-- CUSTOMER role (used by social auth auto-create)
 INSERT INTO roles (id, name, description, business_id, user_type, version, is_deleted, created_at, updated_at, created_by, updated_by)
-VALUES (
-  'a1000000-0000-0000-0000-000000000002',
-  'CUSTOMER',
-  'Customer — access to public menu and order features',
-  NULL,
-  'CUSTOMER',
-  0, false, NOW(), NOW(), 'system', 'system'
-) ON CONFLICT DO NOTHING;
+SELECT gen_random_uuid(), 'CUSTOMER', 'Customer — access to public menu and order features',
+  NULL, 'CUSTOMER', 0, false, NOW(), NOW(), 'system', 'system'
+WHERE NOT EXISTS (
+  SELECT 1 FROM roles WHERE name = 'CUSTOMER' AND business_id IS NULL AND is_deleted = false
+);
 
 -- ============================================================================
 -- 2. PLATFORM OWNER USER
@@ -44,14 +38,16 @@ INSERT INTO users (
   account_status, status, business_id,
   version, is_deleted, created_at, updated_at, created_by, updated_by
 )
-VALUES (
-  '550e8400-e29b-41d4-a716-446655440019',
+SELECT
+  gen_random_uuid(),
   'phatmenghor19@gmail.com',
   '$2a$12$STgqMsjrgi5GweWm/gry2eZIrmD.fnmGzNH7krWKZKeklw9/sXjvW',
   'PLATFORM_USER',
   'ACTIVE', 'ACTIVE', NULL,
   0, false, NOW(), NOW(), 'system', 'system'
-) ON CONFLICT DO NOTHING;
+WHERE NOT EXISTS (
+  SELECT 1 FROM users WHERE user_identifier = 'phatmenghor19@gmail.com' AND is_deleted = false
+);
 
 -- ============================================================================
 -- 3. USER PROFILE
@@ -62,15 +58,9 @@ INSERT INTO user_profiles (
   version, is_deleted, created_at, updated_at, created_by, updated_by
 )
 SELECT
-  gen_random_uuid(),
-  u.id,
-  'phatmenghor19@gmail.com',
-  'Phat',
-  'Menghor',
-  '+855-19-000-019',
-  'Platform Owner',
-  'MALE',
-  '1988-08-19'::date,
+  gen_random_uuid(), u.id,
+  'phatmenghor19@gmail.com', 'Phat', 'Menghor',
+  '+855-19-000-019', 'Platform Owner', 'MALE', '1988-08-19'::date,
   0, false, NOW(), NOW(), 'system', 'system'
 FROM users u
 WHERE u.user_identifier = 'phatmenghor19@gmail.com'
@@ -102,35 +92,34 @@ INSERT INTO subscription_plans (
   id, name, description, price, status, duration_type,
   version, is_deleted, created_at, updated_at, created_by, updated_by
 )
-VALUES
-  (
-    'a0000000-0000-0000-0000-000000000001',
-    '1 Week',
-    'Weekly plan — perfect for trying out eMenu Cambodia. Includes full access to menu management, QR code generation, order tracking, and customer analytics for 7 days.',
-    0.00,
-    'PUBLIC',
-    'WEEKLY',
-    0, false, NOW(), NOW(), 'system', 'system'
-  ),
-  (
-    'a0000000-0000-0000-0000-000000000002',
-    '1 Month',
-    'Monthly plan — ideal for growing businesses. Get unlimited products, staff accounts, real-time orders, payment tracking, HR management, and priority support for 30 days.',
-    0.00,
-    'PUBLIC',
-    'MONTHLY',
-    0, false, NOW(), NOW(), 'system', 'system'
-  ),
-  (
-    'a0000000-0000-0000-0000-000000000003',
-    '1 Year',
-    'Annual plan — best value for established businesses. Everything in the monthly plan plus advanced reports, multi-branch support, custom branding, and dedicated account manager for 365 days.',
-    0.00,
-    'PUBLIC',
-    'YEARLY',
-    0, false, NOW(), NOW(), 'system', 'system'
-  )
-ON CONFLICT (id) DO NOTHING;
+SELECT gen_random_uuid(), '1 Week',
+  'Weekly plan — perfect for trying out eMenu Cambodia. Includes full access to menu management, QR code generation, order tracking, and customer analytics for 7 days.',
+  0.00, 'PUBLIC', 'WEEKLY', 0, false, NOW(), NOW(), 'system', 'system'
+WHERE NOT EXISTS (
+  SELECT 1 FROM subscription_plans WHERE name = '1 Week' AND is_deleted = false
+);
+
+INSERT INTO subscription_plans (
+  id, name, description, price, status, duration_type,
+  version, is_deleted, created_at, updated_at, created_by, updated_by
+)
+SELECT gen_random_uuid(), '1 Month',
+  'Monthly plan — ideal for growing businesses. Get unlimited products, staff accounts, real-time orders, payment tracking, HR management, and priority support for 30 days.',
+  0.00, 'PUBLIC', 'MONTHLY', 0, false, NOW(), NOW(), 'system', 'system'
+WHERE NOT EXISTS (
+  SELECT 1 FROM subscription_plans WHERE name = '1 Month' AND is_deleted = false
+);
+
+INSERT INTO subscription_plans (
+  id, name, description, price, status, duration_type,
+  version, is_deleted, created_at, updated_at, created_by, updated_by
+)
+SELECT gen_random_uuid(), '1 Year',
+  'Annual plan — best value for established businesses. Everything in the monthly plan plus advanced reports, multi-branch support, custom branding, and dedicated account manager for 365 days.',
+  0.00, 'PUBLIC', 'YEARLY', 0, false, NOW(), NOW(), 'system', 'system'
+WHERE NOT EXISTS (
+  SELECT 1 FROM subscription_plans WHERE name = '1 Year' AND is_deleted = false
+);
 
 -- ============================================================================
 -- VERIFY
@@ -150,4 +139,4 @@ JOIN roles r ON ur.role_id = r.id
 WHERE u.user_identifier = 'phatmenghor19@gmail.com';
 
 SELECT '=== SUBSCRIPTION PLANS ===' AS info;
-SELECT id, name, price, status, duration_type FROM subscription_plans ORDER BY created_at;
+SELECT id, name, price, status, duration_type FROM subscription_plans WHERE is_deleted = false ORDER BY created_at;
