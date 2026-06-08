@@ -5,14 +5,14 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { Button } from "@/components/ui/button";
 import { Camera, Download, Loader2, Trash2 } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { uploadMultiSize, SpacesMultiSizeResult } from "@/services/spaces-service";
+import { uploadMultiSize, uploadMultiSizeCustomer, SpacesMultiSizeResult } from "@/services/spaces-service";
 
 interface ProfilePictureModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentImageUrl?: string;
   userName?: string;
-  businessId: string;
+  businessId?: string;
   onUploaded: (result: SpacesMultiSizeResult) => void;
   onRemove: () => void;
   isLoading?: boolean;
@@ -63,7 +63,9 @@ export function ProfilePictureModal({
 
     try {
       setIsUploading(true);
-      const result = await uploadMultiSize(selectedFile, businessId);
+      const result = businessId
+        ? await uploadMultiSize(selectedFile, businessId)
+        : await uploadMultiSizeCustomer(selectedFile);
       onUploaded(result);
     } catch {
       // error handled by parent

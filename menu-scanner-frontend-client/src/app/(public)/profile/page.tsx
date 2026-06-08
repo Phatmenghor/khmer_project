@@ -36,7 +36,6 @@ import { useRouter } from "next/navigation";
 import { clearToken } from "@/utils/local-storage/token";
 import { clearUserInfo } from "@/utils/local-storage/userInfo";
 import { SpacesMultiSizeResult } from "@/services/spaces-service";
-import { AppDefault } from "@/constants/app-resource/default/default";
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import { TelegramSyncCard } from "@/components/shared/telegram/telegram-sync-card";
 import { PageContainer } from "@/components/shared/common/page-container";
@@ -635,7 +634,6 @@ export default function PublicProfilePage() {
             onClose={() => setIsProfilePictureModalOpen(false)}
             currentImageUrl={watch("profileImageUrl") || userProfile?.profileImage?.md}
             userName={userProfile?.fullName}
-            businessId={userProfile?.businessId || AppDefault.BUSINESS_ID}
             onUploaded={handleProfileUploaded}
             onRemove={handleProfileRemove}
             isLoading={isUploadingImage}

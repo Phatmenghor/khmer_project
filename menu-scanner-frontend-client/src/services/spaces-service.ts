@@ -60,6 +60,23 @@ export async function uploadMultiSize(
   }
 }
 
+/** Upload for customer profile — stored under customer/yyyy-MM-dd/, no businessId needed */
+export async function uploadMultiSizeCustomer(
+  file: File
+): Promise<SpacesMultiSizeResult> {
+  const form = new FormData();
+  form.append("file", file);
+  try {
+    const res = await axiosClient.post<SpacesMultiSizeResult>(
+      "/api/v1/spaces/upload-multi-customer",
+      form
+    );
+    return res.data;
+  } catch (err) {
+    rethrowFriendly(err, "Image upload failed — please try again");
+  }
+}
+
 export async function deleteImage(key: string): Promise<void> {
   await axiosClient.delete("/api/v1/spaces/object", { params: { key } });
 }

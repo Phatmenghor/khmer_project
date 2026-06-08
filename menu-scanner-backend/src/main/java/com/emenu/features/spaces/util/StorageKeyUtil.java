@@ -20,4 +20,9 @@ public final class StorageKeyUtil {
     public static String ownerKey(String name) {
         return "owner/" + StorageNameUtil.dateFolder() + "/" + name;
     }
+
+    /** customer/yyyy-MM-dd/20240607T143022-a3f2.webp — shared customer path, no id needed */
+    public static String customerKey(String name) {
+        return "customer/" + StorageNameUtil.dateFolder() + "/" + name;
+    }
 }
