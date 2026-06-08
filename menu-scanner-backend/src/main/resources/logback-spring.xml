@@ -98,10 +98,19 @@
             <appender-ref ref="FILE"/>
             <appender-ref ref="ERROR_FILE"/>
         </root>
-        <logger name="com.emenu"                   level="DEBUG"/>
-        <logger name="org.hibernate.SQL"           level="WARN"/>
+        <logger name="com.emenu"                    level="DEBUG"/>
+        <!-- Controllers just echo what the access log already shows — keep quiet -->
+        <logger name="com.emenu.features.auth.controller"         level="WARN"/>
+        <logger name="com.emenu.features.main.controller"         level="WARN"/>
+        <logger name="com.emenu.features.order.controller"        level="WARN"/>
+        <logger name="com.emenu.features.hr.controller"           level="WARN"/>
+        <logger name="com.emenu.features.portfolio.controller"    level="WARN"/>
+        <logger name="com.emenu.features.subscription.controller" level="WARN"/>
+        <logger name="com.emenu.features.spaces.controller"       level="WARN"/>
+        <logger name="com.emenu.features.audit"                   level="WARN"/>
+        <logger name="org.hibernate.SQL"            level="WARN"/>
         <logger name="org.springframework.security" level="INFO"/>
-        <logger name="org.springframework.web"     level="INFO"/>
+        <logger name="org.springframework.web"      level="INFO"/>
     </springProfile>
 
     <!-- ─── prod profile ─────────────────────────────────────────────────────── -->
@@ -124,7 +133,16 @@
     <logger name="org.springframework.data.redis"           level="WARN"/>
     <logger name="org.springframework.messaging.simp"       level="WARN"/>
     <logger name="org.springframework.web.socket"          level="WARN"/>
-    <!-- Audit service: access summary already in RequestIdFilter access log -->
+    <!-- Controllers: "Endpoint: ..." INFO lines are redundant — access log covers it -->
+    <logger name="com.emenu.features.auth.controller"      level="WARN"/>
+    <logger name="com.emenu.features.main.controller"      level="WARN"/>
+    <logger name="com.emenu.features.order.controller"     level="WARN"/>
+    <logger name="com.emenu.features.hr.controller"        level="WARN"/>
+    <logger name="com.emenu.features.portfolio.controller" level="WARN"/>
+    <logger name="com.emenu.features.subscription.controller" level="WARN"/>
+    <logger name="com.emenu.features.spaces.controller"    level="WARN"/>
+    <logger name="com.emenu.features.audit.controller"     level="WARN"/>
+    <!-- Audit service: request summary already in RequestIdFilter access log -->
     <logger name="com.emenu.features.audit"                level="WARN"/>
     <!-- Tomcat servlet init chatter -->
     <logger name="org.apache.catalina"                     level="WARN"/>
