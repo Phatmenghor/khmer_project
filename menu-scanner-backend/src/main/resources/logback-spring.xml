@@ -55,15 +55,6 @@
 
     <logger name="com.emenu" level="INFO"/>
 
-    <logger name="com.emenu.features.auth.controller"         level="INFO"/>
-    <logger name="com.emenu.features.main.controller"         level="INFO"/>
-    <logger name="com.emenu.features.order.controller"        level="INFO"/>
-    <logger name="com.emenu.features.hr.controller"           level="INFO"/>
-    <logger name="com.emenu.features.portfolio.controller"    level="INFO"/>
-    <logger name="com.emenu.features.subscription.controller" level="INFO"/>
-    <logger name="com.emenu.features.spaces.controller"       level="INFO"/>
-    <logger name="com.emenu.features.audit"                   level="WARN"/>
-
     <!-- ─── Framework noise suppression ─────────────────────────────────────────── -->
     <logger name="org.springframework"            level="WARN"/>
     <logger name="org.hibernate"                  level="WARN"/>
