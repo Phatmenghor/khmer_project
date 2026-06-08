@@ -46,7 +46,7 @@ export function TopProductsCard({ topProducts, loading }: TopProductsCardProps) 
       <CardHeader className="pb-1">
         <div>
           <CardTitle className="text-xs">Top Selling Products</CardTitle>
-          <CardDescription>Best performers this period</CardDescription>
+          <CardDescription className="text-xs">Best performers this period</CardDescription>
         </div>
       </CardHeader>
       <CardContent>

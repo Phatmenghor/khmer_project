@@ -48,11 +48,11 @@ export function SalesAnalyticsCard({ sales, loading }: SalesAnalyticsCardProps) 
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xs">Sales Analytics</CardTitle>
-            <CardDescription>Revenue &amp; orders over time — last 7 days</CardDescription>
+            <CardDescription className="text-xs">Revenue &amp; orders over time — last 7 days</CardDescription>
           </div>
           {sales && (
             <div className="text-right">
-              <p className="text-sm font-bold text-primary">{formatCurrency(sales.totalRevenue)}</p>
+              <p className="text-xs font-bold text-primary">{formatCurrency(sales.totalRevenue)}</p>
               <p className="text-xs text-muted-foreground">{sales.totalOrders} orders</p>
             </div>
           )}

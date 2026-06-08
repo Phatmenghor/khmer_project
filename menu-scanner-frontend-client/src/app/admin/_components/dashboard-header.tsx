@@ -25,7 +25,7 @@ export function DashboardHeader({ today, period, isLive, onPeriodChange, onRefre
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-bold tracking-tight text-foreground">Dashboard</h1>
+          <h1 className="text-sm font-bold tracking-tight text-foreground">Dashboard</h1>
           <span
             className={cn(
               "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border",
@@ -43,7 +43,7 @@ export function DashboardHeader({ today, period, isLive, onPeriodChange, onRefre
             {isLive ? "Live" : "Connecting..."}
           </span>
         </div>
-        <p className="text-sm text-muted-foreground mt-1">{today}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{today}</p>
       </div>
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex bg-muted rounded-md p-1 gap-0.5">

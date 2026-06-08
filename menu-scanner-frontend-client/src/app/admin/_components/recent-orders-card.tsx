@@ -43,7 +43,7 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <CardTitle className="text-sm font-semibold">Recent Orders</CardTitle>
+            <CardTitle className="text-xs font-semibold">Recent Orders</CardTitle>
             <CardDescription className="text-xs mt-0.5">
               {orders?.totalElements
                 ? `${orders.totalElements} total orders this period`
@@ -73,7 +73,7 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
         ) : !orders?.data?.length ? (
           <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
             <ShoppingCart className="h-7 w-7 opacity-30" />
-            <p className="text-sm">No orders for this period</p>
+            <p className="text-xs">No orders for this period</p>
           </div>
         ) : (
           <>

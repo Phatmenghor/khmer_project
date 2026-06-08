@@ -39,7 +39,7 @@ export function InventoryStatusCard({ stock, loading }: InventoryStatusCardProps
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <CardTitle className="text-sm font-semibold">Inventory Status</CardTitle>
+            <CardTitle className="text-xs font-semibold">Inventory Status</CardTitle>
             <CardDescription className="text-xs mt-0.5">
               Items requiring attention
             </CardDescription>
@@ -87,7 +87,7 @@ export function InventoryStatusCard({ stock, loading }: InventoryStatusCardProps
         ) : !stock?.data?.length ? (
           <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
             <Package className="h-7 w-7 opacity-30" />
-            <p className="text-sm">All items fully stocked</p>
+            <p className="text-xs">All items fully stocked</p>
           </div>
         ) : (
           <div className="divide-y">

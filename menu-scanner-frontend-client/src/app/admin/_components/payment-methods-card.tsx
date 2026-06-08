@@ -45,7 +45,7 @@ export function PaymentMethodsCard({ payments, loading }: PaymentMethodsCardProp
     <Card>
       <CardHeader className="pb-1">
         <CardTitle className="text-xs">Payment Methods</CardTitle>
-        <CardDescription>Revenue by payment type</CardDescription>
+        <CardDescription className="text-xs">Revenue by payment type</CardDescription>
       </CardHeader>
       <CardContent>
         {loading ? (

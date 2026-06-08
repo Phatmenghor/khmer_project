@@ -27,7 +27,7 @@ export function PromotionPerformanceCard({ promotions, loading }: PromotionPerfo
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xs">Promotion Performance</CardTitle>
-            <CardDescription>Discount impact today</CardDescription>
+            <CardDescription className="text-xs">Discount impact today</CardDescription>
           </div>
           {activePromoCount > 0 && (
             <Badge variant="outline" className="text-xs text-emerald-600 border-emerald-200 gap-1">

@@ -25,7 +25,7 @@ export function BranchPerformanceCard({ branches, loading }: BranchPerformanceCa
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xs">Branch Performance</CardTitle>
-            <CardDescription>Revenue ranking by branch</CardDescription>
+            <CardDescription className="text-xs">Revenue ranking by branch</CardDescription>
           </div>
           <Award className="h-3 w-3 text-amber-500" />
         </div>

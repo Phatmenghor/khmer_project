@@ -67,7 +67,7 @@ export function HourlySalesCard({ hourlySales, loading, currentHour }: HourlySal
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xs">Hourly Sales Pattern</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs">
               Today's revenue by hour (current: {formatHour(currentHour)})
             </CardDescription>
           </div>
