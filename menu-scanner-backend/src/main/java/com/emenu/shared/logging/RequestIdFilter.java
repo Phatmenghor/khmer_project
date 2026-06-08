@@ -32,6 +32,7 @@ import java.util.UUID;
 public class RequestIdFilter extends OncePerRequestFilter {
 
     private static final String REQUEST_ID_HEADER = "X-Request-ID";
+    private static final String TRACE_ID_HEADER   = "X-Trace-ID";
 
     // Skip noisy health/metrics probes from access logs
     private static final Set<String> SKIP_PATHS = Set.of(
@@ -54,16 +55,17 @@ public class RequestIdFilter extends OncePerRequestFilter {
             return;
         }
 
-        String requestId = resolveOrGenerate(request);
+        String traceId = resolveOrGenerate(request);
         long start = System.currentTimeMillis();
 
         // Populate MDC — JWTAuthFilter will add userId/userType after authentication
-        MDC.put("requestId", requestId);
-        MDC.put("method",    request.getMethod());
-        MDC.put("path",      path);
+        MDC.put("traceId", traceId);
+        MDC.put("method",  request.getMethod());
+        MDC.put("path",    path);
 
-        // Echo back to caller so they can correlate with their logs
-        response.setHeader(REQUEST_ID_HEADER, requestId);
+        // Echo back to caller for correlation
+        response.setHeader(REQUEST_ID_HEADER, traceId);
+        response.setHeader(TRACE_ID_HEADER,   traceId);
 
         try {
             chain.doFilter(request, response);
@@ -72,7 +74,8 @@ public class RequestIdFilter extends OncePerRequestFilter {
             MDC.put("statusCode", String.valueOf(response.getStatus()));
             MDC.put("duration",   String.valueOf(duration));
 
-            log.info("{} {} → {} ({}ms)", request.getMethod(), path, response.getStatus(), duration);
+            log.info("{} {} → {} in {}ms [{}]",
+                    request.getMethod(), path, response.getStatus(), duration, traceId);
 
             // Single authoritative MDC.clear() — covers all keys set by this filter and by JWTAuthFilter
             MDC.clear();
