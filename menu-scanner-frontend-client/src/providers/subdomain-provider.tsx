@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { axiosClient } from "@/utils/axios";
 import { getSubdomain } from "@/utils/subdomain/subdomain-resolver";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -12,14 +12,20 @@ interface ResolveResponse {
   primaryColor: string | null;
 }
 
+type Status = "loading" | "ready" | "not-found";
+
 export function SubdomainProvider({ children }: { children: React.ReactNode }) {
+  const [status, setStatus] = useState<Status>("loading");
+
   useEffect(() => {
     const subdomain = getSubdomain();
-    // On plain localhost / no base domain match → skip entirely, use default businessId
+
+    // No subdomain (localhost / base domain) → use default businessId
     if (!subdomain) {
       if (!localStorage.getItem("businessId")) {
         localStorage.setItem("businessId", AppDefault.BUSINESS_ID);
       }
+      setStatus("ready");
       return;
     }
 
@@ -27,12 +33,13 @@ export function SubdomainProvider({ children }: { children: React.ReactNode }) {
       .get<{ data: ResolveResponse }>(`/api/v1/public/businesses/resolve-subdomain?subdomain=${subdomain}`)
       .then(({ data }) => {
         const biz = data.data;
-        if (!biz?.businessId) return;
+        if (!biz?.businessId) {
+          setStatus("not-found");
+          return;
+        }
 
-        // Store so all other parts of the app (thunks, ThemeInitializer, etc.) pick it up
         localStorage.setItem("businessId", biz.businessId);
 
-        // Persist theme so ThemeInitializer can read it on next load without a flash
         if (biz.primaryColor || biz.businessName) {
           const cacheKey = `theme_colors_${biz.businessId}`;
           const existing = (() => {
@@ -46,7 +53,6 @@ export function SubdomainProvider({ children }: { children: React.ReactNode }) {
           }));
         }
 
-        // Reload only if we just switched to a different business
         const prev = localStorage.getItem("resolvedSubdomain");
         if (prev && prev !== subdomain) {
           localStorage.setItem("resolvedSubdomain", subdomain);
@@ -54,14 +60,42 @@ export function SubdomainProvider({ children }: { children: React.ReactNode }) {
         } else {
           localStorage.setItem("resolvedSubdomain", subdomain);
         }
+
+        setStatus("ready");
       })
       .catch(() => {
-        // Subdomain not found — fall back to default businessId silently
-        if (!localStorage.getItem("businessId")) {
-          localStorage.setItem("businessId", AppDefault.BUSINESS_ID);
-        }
+        setStatus("not-found");
       });
   }, []);
+
+  if (status === "not-found") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4 text-center">
+        <h1 className="text-8xl font-bold text-gray-900">404</h1>
+        <h2 className="mt-4 text-2xl font-semibold text-gray-700">
+          Restaurant Not Found
+        </h2>
+        <p className="mt-2 text-gray-500">
+          The restaurant you&apos;re looking for doesn&apos;t exist or has been
+          removed.
+        </p>
+        <a
+          href="https://emenu-cambodia.com"
+          className="mt-8 rounded-lg bg-orange-500 px-6 py-3 text-white hover:bg-orange-600"
+        >
+          Go to eMenu Cambodia
+        </a>
+      </div>
+    );
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-orange-500 border-t-transparent" />
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }
