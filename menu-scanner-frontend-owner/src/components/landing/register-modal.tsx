@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle2, Building2, User, Mail, Phone, CreditCard, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -76,10 +76,110 @@ function SectionHeading({
   );
 }
 
+interface SuccessInfo {
+  ownerFullName: string;
+  ownerEmail: string;
+  ownerPhone: string;
+  businessName: string;
+  plan?: PlanData;
+}
+
+function RegistrationSuccessModal({
+  isOpen,
+  onClose,
+  info,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  info: SuccessInfo | null;
+}) {
+  if (!info) return null;
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center gap-3 px-5 py-4 border-b bg-primary/5">
+          <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+            <CheckCircle2 className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-foreground">Registration Successful!</h2>
+            <p className="text-xs text-muted-foreground">Your account is ready — sign in to get started</p>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 py-4 space-y-4">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Welcome to <span className="font-semibold text-foreground">Emenu Cambodia</span>! Your business account has been created. Here&apos;s a summary of your registration:
+          </p>
+
+          {/* Details */}
+          <div className="rounded-lg border bg-muted/30 divide-y text-xs">
+            <div className="flex items-center gap-3 px-3 py-2.5">
+              <User className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <span className="text-muted-foreground w-24 flex-shrink-0">Owner Name</span>
+              <span className="font-medium text-foreground truncate">{info.ownerFullName}</span>
+            </div>
+            <div className="flex items-center gap-3 px-3 py-2.5">
+              <Mail className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <span className="text-muted-foreground w-24 flex-shrink-0">Email</span>
+              <span className="font-medium text-foreground truncate">{info.ownerEmail}</span>
+            </div>
+            <div className="flex items-center gap-3 px-3 py-2.5">
+              <Phone className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <span className="text-muted-foreground w-24 flex-shrink-0">Phone</span>
+              <span className="font-medium text-foreground truncate">{info.ownerPhone}</span>
+            </div>
+            <div className="flex items-center gap-3 px-3 py-2.5">
+              <Building2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <span className="text-muted-foreground w-24 flex-shrink-0">Business</span>
+              <span className="font-medium text-foreground truncate">{info.businessName}</span>
+            </div>
+            {info.plan && (
+              <div className="flex items-center gap-3 px-3 py-2.5">
+                <CreditCard className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                <span className="text-muted-foreground w-24 flex-shrink-0">Plan</span>
+                <span className="font-medium text-foreground truncate">
+                  {info.plan.name}
+                  <span className="text-muted-foreground font-normal ml-1">· {info.plan.price} {info.plan.period}</span>
+                </span>
+              </div>
+            )}
+          </div>
+
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            Use your <span className="font-medium text-foreground">username</span> and <span className="font-medium text-foreground">password</span> to sign in to the owner dashboard.
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-2 px-5 py-3 border-t bg-muted/20">
+          <p className="text-[11px] text-muted-foreground">You can sign in at any time</p>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose} className="h-8 text-xs px-4">
+              Close
+            </Button>
+            <Button
+              onClick={onClose}
+              className="h-8 text-xs px-4 bg-primary hover:bg-primary/90 gap-1.5"
+            >
+              <LogIn className="w-3 h-3" />
+              Sign In Now
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successInfo, setSuccessInfo] = useState<SuccessInfo | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const {
     control,
@@ -129,9 +229,16 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       }
 
       await axiosClient.post("/api/v1/business-owners/register", payload);
-      showToast.success("Account created! Please sign in to continue.");
+      setSuccessInfo({
+        ownerFullName: values.ownerFullName,
+        ownerEmail: values.ownerEmail,
+        ownerPhone: values.ownerPhone,
+        businessName: values.businessName,
+        plan,
+      });
       reset();
       onClose();
+      setShowSuccess(true);
     } catch (err: any) {
       const errorMessage =
         err?.response?.data?.message ||
@@ -152,6 +259,12 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
   };
 
   return (
+    <>
+    <RegistrationSuccessModal
+      isOpen={showSuccess}
+      onClose={() => setShowSuccess(false)}
+      info={successInfo}
+    />
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
         className="w-screen sm:w-full sm:max-w-3xl max-h-[100dvh] sm:max-h-[92dvh] h-[100dvh] sm:h-auto p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded"
@@ -426,5 +539,5 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         </form>
       </DialogContent>
     </Dialog>
-  );
+    </>;
 }
