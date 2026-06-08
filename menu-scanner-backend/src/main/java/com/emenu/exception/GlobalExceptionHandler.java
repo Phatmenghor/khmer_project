@@ -29,6 +29,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import org.slf4j.MDC;
+
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,6 +38,11 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    /** Put message into MDC so RequestIdFilter can append it to the access log line. */
+    private static void tagResponse(String message) {
+        if (message != null) MDC.put("responseMessage", message);
+    }
 
     // =========================================================================
     // PRIMARY: BusinessException — handles all domain errors
@@ -45,6 +52,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(
             BusinessException ex, HttpServletRequest request) {
         log.warn("[{}] {} — {}", ex.getErrorCode(), request.getRequestURI(), ex.getMessage());
+        tagResponse(ex.getMessage());
 
         Object responseData = ex.getDetails() != null
                 ? Map.of("errorCode", ex.getErrorCode(), "details", ex.getDetails())
@@ -62,6 +70,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleBadCredentials(
             BadCredentialsException ex, HttpServletRequest request) {
         log.warn("Auth failed from ip={}", clientIp(request));
+        tagResponse("Invalid email or password");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.failure("Invalid email or password",
                         Map.of("errorCode", "INVALID_CREDENTIALS")));
@@ -71,6 +80,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleAuthentication(
             AuthenticationException ex, HttpServletRequest request) {
         log.warn("Authentication failed: {} from ip={}", ex.getMessage(), clientIp(request));
+        tagResponse("Authentication failed. Please check your credentials.");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.failure("Authentication failed. Please check your credentials.",
                         Map.of("errorCode", "INVALID_CREDENTIALS")));
@@ -80,6 +90,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleAccessDenied(
             AccessDeniedException ex, HttpServletRequest request) {
         log.warn("Access denied: {} — {}", request.getRequestURI(), ex.getMessage());
+        tagResponse("Access denied. You don't have permission to perform this action.");
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.failure("Access denied. You don't have permission to perform this action.",
                         Map.of("errorCode", "INSUFFICIENT_PERMISSIONS")));
@@ -89,6 +100,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleDisabled(
             DisabledException ex, HttpServletRequest request) {
         log.warn("Disabled account login attempt: {}", ex.getMessage());
+        tagResponse("Your account has been disabled. Please contact support.");
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.failure("Your account has been disabled. Please contact support.",
                         Map.of("errorCode", "ACCOUNT_DISABLED")));
@@ -98,6 +110,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleLocked(
             LockedException ex, HttpServletRequest request) {
         log.warn("Locked account login attempt: {}", ex.getMessage());
+        tagResponse("Your account has been locked. Please contact support.");
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.failure("Your account has been locked. Please contact support.",
                         Map.of("errorCode", "ACCOUNT_LOCKED")));
@@ -111,6 +124,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleNotFound(
             RuntimeException ex, HttpServletRequest request) {
         log.warn("Not found: {}", ex.getMessage());
+        tagResponse(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.failure(ex.getMessage(),
                         Map.of("errorCode", "RESOURCE_NOT_FOUND")));
@@ -120,6 +134,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleLegacyValidation(
             RuntimeException ex, HttpServletRequest request) {
         log.warn("Validation error: {}", ex.getMessage());
+        tagResponse(ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.failure(ex.getMessage(),
                         Map.of("errorCode", "VALIDATION_ERROR")));
@@ -129,6 +144,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleAccountStatus(
             RuntimeException ex, HttpServletRequest request) {
         log.warn("Account status error: {}", ex.getMessage());
+        tagResponse(ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.failure(ex.getMessage(),
                         Map.of("errorCode", "ACCOUNT_LOCKED")));
@@ -138,6 +154,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleCustom(
             CustomException ex, HttpServletRequest request) {
         log.warn("Custom exception [{}]: {}", ex.getErrorCode(), ex.getMessage());
+        tagResponse(ex.getMessage());
         return ResponseEntity.status(ex.getHttpStatus())
                 .body(ApiResponse.failure(ex.getMessage(),
                         Map.of("errorCode", ex.getErrorCode())));
@@ -147,6 +164,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleInvalidOperation(
             InvalidOperationException ex, HttpServletRequest request) {
         log.warn("Invalid operation: {}", ex.getMessage());
+        tagResponse(ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(ApiResponse.failure(ex.getMessage(),
                         Map.of("errorCode", "INVALID_OPERATION")));
@@ -183,6 +201,7 @@ public class GlobalExceptionHandler {
         }
 
         log.warn("Validation failed for {} — {} field error(s)", request.getRequestURI(), fieldErrors.size());
+        tagResponse(String.format("Validation failed: %s", String.join(", ", invalidFields.isEmpty() ? missingFields : invalidFields)));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 ApiResponse.failure(
@@ -292,6 +311,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleOptimisticLock(
             Exception ex, HttpServletRequest request) {
         log.warn("Optimistic lock conflict for {}: {}", request.getRequestURI(), ex.getMessage());
+        tagResponse("The data was modified by another request. Please try again.");
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResponse.failure("The data was modified by another request. Please try again.",
                         Map.of("errorCode", "CONFLICT")));
@@ -333,6 +353,7 @@ public class GlobalExceptionHandler {
         }
 
         log.warn("Data integrity violation [{}]: {}", errorCode, full);
+        tagResponse(message);
         detail.put("errorCode", errorCode);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.failure(message, detail));
@@ -342,6 +363,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleDataAccess(
             DataAccessException ex, HttpServletRequest request) {
         log.error("DB access error for {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+        tagResponse("Database operation failed. Please try again.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.failure("Database operation failed. Please try again.",
                         Map.of("errorCode", "DATABASE_ERROR")));
@@ -351,6 +373,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleSQL(
             SQLException ex, HttpServletRequest request) {
         log.error("SQL error for {} [state={}]: {}", request.getRequestURI(), ex.getSQLState(), ex.getMessage(), ex);
+        tagResponse("Database query failed. Please try again.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.failure("Database query failed. Please try again.",
                         Map.of("errorCode", "DATABASE_ERROR")));
@@ -374,6 +397,7 @@ public class GlobalExceptionHandler {
             Exception ex, HttpServletRequest request) {
         String traceId = UUID.randomUUID().toString();
         log.error("Unhandled exception [traceId={}] for {}: {}", traceId, request.getRequestURI(), ex.getMessage(), ex);
+        tagResponse("An unexpected error occurred. [" + traceId + "]");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.failure("An unexpected error occurred. Our team has been notified.",
                         Map.of("errorCode", "INTERNAL_SERVER_ERROR", "traceId", traceId)));

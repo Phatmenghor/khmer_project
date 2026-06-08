@@ -71,11 +71,24 @@ public class RequestIdFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
         } finally {
             long duration = System.currentTimeMillis() - start;
-            MDC.put("statusCode", String.valueOf(response.getStatus()));
+            int status = response.getStatus();
+            MDC.put("statusCode", String.valueOf(status));
             MDC.put("duration",   String.valueOf(duration));
 
-            log.info("{} {} → {} in {}ms [{}]",
-                    request.getMethod(), path, response.getStatus(), duration, traceId);
+            String responseMessage = MDC.get("responseMessage");
+
+            if (status >= 400 && responseMessage != null && !responseMessage.isBlank()) {
+                if (status >= 500) {
+                    log.error("{} {} → {} in {}ms [{}] — {}",
+                            request.getMethod(), path, status, duration, traceId, responseMessage);
+                } else {
+                    log.warn("{} {} → {} in {}ms [{}] — {}",
+                            request.getMethod(), path, status, duration, traceId, responseMessage);
+                }
+            } else {
+                log.info("{} {} → {} in {}ms [{}]",
+                        request.getMethod(), path, status, duration, traceId);
+            }
 
             // Single authoritative MDC.clear() — covers all keys set by this filter and by JWTAuthFilter
             MDC.clear();
