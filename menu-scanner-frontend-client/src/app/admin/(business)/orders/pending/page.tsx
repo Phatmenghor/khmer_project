@@ -16,7 +16,6 @@ import {
 import {
   setPageNo,
   setSearchFilter,
-  setOrderStatusFilter,
   setPaymentStatusFilter,
   resetState,
 } from "@/features/business/store/slice/order-admin-slice";
@@ -72,12 +71,6 @@ function PendingOrdersAdminPageInner() {
     baseRoute: ROUTES.ADMIN.ORDERS,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
-  useEffect(() => {
-    if (!filters.orderStatus || filters.orderStatus === "ALL") {
-      dispatch(setOrderStatusFilter("PENDING"));
-    }
-  }, []);
 
   useEffect(() => {
     const requestParams: Record<string, unknown> = {
