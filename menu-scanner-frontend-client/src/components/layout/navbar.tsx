@@ -230,7 +230,7 @@ export function Navbar() {
                 />
 
                 {businessName && (
-                  <button onClick={handleNavigateToHome} className="flex flex-col gap-0.5 group min-w-0">
+                  <button onClick={handleNavigateToHome} className="flex flex-col items-start gap-0.5 group min-w-0">
                     <span className="text-foreground font-bold text-xs leading-tight line-clamp-1">
                       {businessName}
                     </span>
@@ -293,7 +293,7 @@ export function Navbar() {
                     </div>
                     <div className="absolute -inset-1 rounded bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
-                  <div className="hidden md:flex flex-col">
+                  <div className="hidden md:flex flex-col items-start">
                     <span className="text-foreground font-bold text-xs leading-tight">
                       {businessName}
                     </span>
