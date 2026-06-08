@@ -12,6 +12,7 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
+      - /opt/apps/emenu-backend/logs:/app/logs
     entrypoint:
       - sh
       - -c
