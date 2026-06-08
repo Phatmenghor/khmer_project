@@ -79,8 +79,7 @@ app:
 logging:
   level:
     root: INFO
-    com.emenu: DEBUG
-    # Controllers just repeat what the access log already shows
+    com.emenu: INFO
     com.emenu.features.auth.controller: WARN
     com.emenu.features.main.controller: WARN
     com.emenu.features.order.controller: WARN

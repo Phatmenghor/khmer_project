@@ -88,7 +88,7 @@ spaces:
 logging:
   level:
     root: INFO
-    com.emenu: DEBUG
+    com.emenu: INFO
     com.emenu.features.auth.controller: WARN
     com.emenu.features.main.controller: WARN
     com.emenu.features.order.controller: WARN

@@ -78,7 +78,7 @@ app:
 
 logging:
   level:
-    root: WARN
+    root: INFO
     com.emenu: INFO
     com.emenu.features.auth.controller: WARN
     com.emenu.features.main.controller: WARN
