@@ -605,5 +605,6 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         </form>
       </DialogContent>
     </Dialog>
-    </>;
+    </>
+  );
 }
