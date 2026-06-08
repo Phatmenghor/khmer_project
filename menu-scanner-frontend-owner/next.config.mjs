@@ -10,20 +10,6 @@ const nextConfig = {
     unoptimized: true,
   },
 
-  async rewrites() {
-    const backendUrl = process.env.BACKEND_API_URL || "http://localhost:8080";
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${backendUrl}/api/:path*`,
-      },
-      {
-        source: "/ws/:path*",
-        destination: `${backendUrl}/ws/:path*`,
-      },
-    ];
-  },
-
   async headers() {
     return [
       {

@@ -622,7 +622,41 @@ const createAxiosInstance = (requiresAuth = false): AxiosInstance => {
         logger.error(`Error response data:`, formattedErrorData, requestId);
       }
 
-      return Promise.reject(error);
+      // Normalize error so callers always get a friendly message via err.message
+      const status = err.response?.status;
+      const rawData = err.response?.data as any;
+      const backendMessage =
+        rawData?.message ||
+        rawData?.error ||
+        rawData?.data?.message ||
+        null;
+
+      let friendlyMessage: string;
+      if (!err.response) {
+        friendlyMessage = "Cannot connect to the server. Please check your connection.";
+      } else if (status === 403) {
+        friendlyMessage = backendMessage || "Access denied. You don't have permission to perform this action.";
+      } else if (status === 401) {
+        friendlyMessage = backendMessage || "Authentication required. Please sign in.";
+      } else if (status === 503 || status === 502) {
+        friendlyMessage = backendMessage || "Service unavailable. The server is not reachable. Please try again later.";
+      } else if (status === 404) {
+        friendlyMessage = backendMessage || "The requested resource was not found.";
+      } else if (status === 422 || status === 400) {
+        friendlyMessage = backendMessage || "Invalid request. Please check your input.";
+      } else if (status && status >= 500) {
+        friendlyMessage = backendMessage || "Server error. Please try again later.";
+      } else {
+        friendlyMessage = backendMessage || err.message || "An unexpected error occurred.";
+      }
+
+      // Mutate so callers using err.message or err.response.data.message both get it
+      (err as any).message = friendlyMessage;
+      if (err.response && rawData && typeof rawData === "object") {
+        rawData.message = friendlyMessage;
+      }
+
+      return Promise.reject(err);
     }
   );
 
