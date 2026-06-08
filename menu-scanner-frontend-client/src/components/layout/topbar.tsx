@@ -4,20 +4,28 @@ import {
   LogOut,
   Menu,
   ChevronRight,
-  UserCircle,
   Maximize2,
-  CreditCard,
   ChevronDown,
   LogIn,
+  User,
+  KeyRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { ROUTES } from "@/constants/app-routes/routes";
+import Link from "next/link";
+import { ROUTES, getBreadcrumbs } from "@/constants/app-routes/routes";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useLogout } from "@/hooks/use-logout";
-import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
-import { CustomDropdownMenu } from "@/components/shared/common/custom-dropdown-menu";
 import { SignoutModal } from "@/components/shared/common/signout-modal";
 
 interface TopBarProps {
@@ -25,18 +33,13 @@ interface TopBarProps {
   onFullscreenClick?: () => void;
 }
 
-function getBreadcrumbs(pathname: string) {
-  const parts = pathname.split("/").filter(Boolean);
-  const crumbs: { label: string; href: string }[] = [];
-  let path = "";
-  for (const part of parts) {
-    path += `/${part}`;
-    const label = part
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase());
-    crumbs.push({ label, href: path });
-  }
-  return crumbs;
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 }
 
 export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
@@ -44,7 +47,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
   const pathname = usePathname();
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { profile, fullName, profileImage } = useAuthState();
+  const { profile, fullName, profileImage, roles } = useAuthState();
   const { logout: handleLogout } = useLogout();
 
   const breadcrumbs = getBreadcrumbs(pathname);
@@ -58,7 +61,9 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
 
   const displayName = fullName || profile?.fullName || "Admin";
   const displayEmail = profile?.email || "";
-  const avatarImage = profileImage?.sm ?? profile?.profileImage?.sm;
+  const profileImageUrl = profileImage?.sm ?? profile?.profileImage?.sm ?? "";
+  const initials = getInitials(displayName);
+  const primaryRole = roles?.[0];
 
   return (
     <>
@@ -77,7 +82,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
 
           <nav className="hidden md:flex items-center gap-1 text-xs min-w-0">
             {breadcrumbs.map((crumb, i) => (
-              <div key={crumb.href} className="flex items-center gap-1 min-w-0">
+              <div key={i} className="flex items-center gap-1 min-w-0">
                 {i > 0 && (
                   <ChevronRight className="h-2 w-2 text-muted-foreground/50 shrink-0" />
                 )}
@@ -88,7 +93,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
                       : "text-muted-foreground truncate hover:text-foreground cursor-pointer transition-colors"
                   }
                   onClick={() =>
-                    i < breadcrumbs.length - 1 && router.push(crumb.href)
+                    crumb.href && i < breadcrumbs.length - 1 && router.push(crumb.href)
                   }
                 >
                   {crumb.label}
@@ -103,7 +108,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3">
           {onFullscreenClick && pathname.includes("/admin/pos") && (
             <Button
               variant="ghost"
@@ -129,75 +134,71 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             </Button>
           )}
 
-          {/* Profile dropdown — only shown when authenticated */}
+          {/* Profile dropdown */}
           {profile && (
-            <CustomDropdownMenu
-              trigger={
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-border bg-muted/40 hover:bg-muted hover:border-primary/30 transition-all duration-150 cursor-pointer group">
-                  <CustomAvatar
-                    imageUrl={avatarImage}
-                    name={displayName}
-                    size="sm"
-                  />
-                  <div className="hidden sm:flex flex-col min-w-0">
-                    <span className="text-[11px] font-semibold leading-tight text-foreground truncate max-w-[96px]">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-accent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <Avatar className="h-7 w-7 border border-border shadow-sm">
+                    <AvatarImage src={profileImageUrl} alt={displayName} />
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="hidden sm:flex flex-col items-start leading-none">
+                    <span className="text-xs font-medium truncate max-w-[120px]">
                       {displayName}
                     </span>
-                    {displayEmail && (
-                      <span className="text-[9px] text-muted-foreground leading-tight truncate max-w-[96px]">
-                        {displayEmail}
+                    {primaryRole && (
+                      <span className="text-[10px] text-muted-foreground capitalize">
+                        {primaryRole.toLowerCase().replace(/_/g, " ")}
                       </span>
                     )}
                   </div>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
-                </div>
-              }
-              header={
-                <div className="flex items-center gap-2">
-                  <CustomAvatar
-                    imageUrl={avatarImage}
-                    name={displayName}
-                    size="lg"
-                  />
-                  <div className="flex flex-col space-y-0.5 flex-1 min-w-0">
-                    <p className="text-xs font-semibold line-clamp-1">
-                      {displayName}
-                    </p>
-                    <p className="text-xs text-muted-foreground line-clamp-1">
+                  <ChevronDown className="h-3 w-3 text-muted-foreground hidden sm:block" />
+                </button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" className="w-56" sideOffset={8}>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-semibold truncate">{displayName}</span>
+                    <span className="text-xs text-muted-foreground truncate">
                       {displayEmail}
-                    </p>
+                    </span>
                   </div>
-                </div>
-              }
-              sections={[
-                {
-                  items: [
-                    {
-                      label: "My Profile",
-                      icon: <UserCircle className="h-3 w-3" />,
-                      onClick: () => router.push(ROUTES.ADMIN.PROFILE),
-                    },
-                    {
-                      label: "My Plan",
-                      icon: <CreditCard className="h-3 w-3" />,
-                      onClick: () => router.push("/admin/plan"),
-                    },
-                  ],
-                },
-                {
-                  items: [
-                    {
-                      label: "Sign Out",
-                      icon: <LogOut className="h-3 w-3" />,
-                      onClick: () => setShowLogoutAlert(true),
-                      variant: "destructive" as const,
-                    },
-                  ],
-                },
-              ]}
-              align="right"
-              openOnHover={false}
-            />
+                </DropdownMenuLabel>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem asChild>
+                  <Link href={ROUTES.ADMIN.PROFILE} className="cursor-pointer">
+                    <User className="h-4 w-4 mr-2" />
+                    My Profile
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                  <Link
+                    href={`${ROUTES.ADMIN.PROFILE}?tab=security`}
+                    className="cursor-pointer"
+                  >
+                    <KeyRound className="h-4 w-4 mr-2" />
+                    Change Password
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+                  onSelect={() => setShowLogoutAlert(true)}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </header>
