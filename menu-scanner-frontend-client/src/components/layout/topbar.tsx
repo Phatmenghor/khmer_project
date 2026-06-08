@@ -9,6 +9,7 @@ import {
   LogIn,
   User,
   KeyRound,
+  CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -185,6 +186,13 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
                   >
                     <KeyRound className="h-4 w-4 mr-2" />
                     Change Password
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/plan" className="cursor-pointer">
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    My Plan
                   </Link>
                 </DropdownMenuItem>
 
