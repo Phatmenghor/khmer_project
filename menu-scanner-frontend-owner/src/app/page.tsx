@@ -38,7 +38,7 @@ export default function LandingPage() {
   return (
     <>
       <Navbar />
-      <main className="overflow-x-hidden">
+      <main className="overflow-x-hidden md:px-[8%]">
         <HeroSection />
         <StatsSection />
         <FeaturesSection />
