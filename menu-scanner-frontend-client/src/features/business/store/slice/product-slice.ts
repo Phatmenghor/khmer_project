@@ -20,6 +20,7 @@ import { selectCategories } from "@/features/master-data/store/selectors/categor
 
 const initialState: ProductManagementState = {
   data: null,
+  rollbackSnapshot: null,
   selectedProduct: null,
   isLoading: true,
   error: null,
@@ -488,28 +489,31 @@ const productSlice = createSlice({
       });
 
     builder
-      .addCase(deleteProductService.pending, (state) => {
+      .addCase(deleteProductService.pending, (state, action) => {
         state.operations.isDeleting = true;
         state.error = null;
-      })
-      .addCase(deleteProductService.fulfilled, (state, action) => {
+        state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+        const id = action.meta.arg as string;
         if (state.data) {
-          state.data.content = state.data.content.filter(
-            (user) => user.id !== action.payload
-          );
+          state.data.content = state.data.content.filter((item) => item.id !== id);
           state.data.totalElements -= 1;
-          state.data.totalPages = Math.ceil(
-            state.data.totalElements / state.data.pageSize
-          );
+          state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
           state.data.last = state.data.pageNo >= state.data.totalPages;
           state.data.hasNext = !state.data.last;
           state.data.hasPrevious = state.data.pageNo > 1;
         }
+      })
+      .addCase(deleteProductService.fulfilled, (state) => {
         state.operations.isDeleting = false;
+        state.rollbackSnapshot = null;
       })
       .addCase(deleteProductService.rejected, (state, action) => {
-        state.error = action.payload as string;
         state.operations.isDeleting = false;
+        state.error = action.payload as string;
+        if (state.rollbackSnapshot) {
+          state.data = state.rollbackSnapshot;
+          state.rollbackSnapshot = null;
+        }
       });
 
     builder

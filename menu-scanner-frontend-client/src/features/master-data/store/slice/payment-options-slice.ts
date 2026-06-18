@@ -17,6 +17,7 @@ import {
 
 const initialState: PaymentOptionsManagementState = {
   data: null,
+  rollbackSnapshot: null,
   selectedPaymentOption: null,
   isLoading: true,
   error: null,
@@ -179,30 +180,31 @@ const paymentOptionsSlice = createSlice({
       });
 
     builder
-      .addCase(deletePaymentOptionService.pending, (state) => {
+      .addCase(deletePaymentOptionService.pending, (state, action) => {
         state.operations.isDeleting = true;
         state.error = null;
-      })
-      .addCase(deletePaymentOptionService.fulfilled, (state, action) => {
+        state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+        const id = action.meta.arg as string;
         if (state.data) {
-
-          const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
-          state.data.content = state.data.content.filter(
-            (option) => option.id !== deletedId
-          );
+          state.data.content = state.data.content.filter((item) => item.id !== id);
           state.data.totalElements -= 1;
-          state.data.totalPages = Math.ceil(
-            state.data.totalElements / state.data.pageSize
-          );
+          state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
           state.data.last = state.data.pageNo >= state.data.totalPages;
           state.data.hasNext = !state.data.last;
           state.data.hasPrevious = state.data.pageNo > 1;
         }
+      })
+      .addCase(deletePaymentOptionService.fulfilled, (state) => {
         state.operations.isDeleting = false;
+        state.rollbackSnapshot = null;
       })
       .addCase(deletePaymentOptionService.rejected, (state, action) => {
-        state.error = action.payload as string;
         state.operations.isDeleting = false;
+        state.error = action.payload as string;
+        if (state.rollbackSnapshot) {
+          state.data = state.rollbackSnapshot;
+          state.rollbackSnapshot = null;
+        }
       });
 
   },

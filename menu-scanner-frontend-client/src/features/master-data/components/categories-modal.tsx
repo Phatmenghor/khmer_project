@@ -7,9 +7,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
-import { TextAreaField } from "@/components/shared/form-field/textarea-field";
-import { CancelButton } from "@/components/shared/form-field/cancel-button";
-import { SubmitButton } from "@/components/shared/form-field/submid-button";
+import { TextareaField } from "@/components/shared/form-field/text-area-field";
+import { CancelButton } from "@/components/shared/button/cancel-button";
+import { SubmitButton } from "@/components/shared/button/submit-button";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
@@ -280,7 +280,7 @@ export default function CategoriesModal({
                   />
                 </div>
 
-                <TextAreaField
+                <TextareaField
                   control={control}
                   name="description"
                   label="Description"

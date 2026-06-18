@@ -1,4 +1,4 @@
-﻿
+
 
 
 import {
@@ -109,6 +109,7 @@ export interface CustomerRegisterRequest {
   profileImageUrl?: string;
   phoneNumber?: string;
   address?: string;
+  businessId?: string;
 }
 
 

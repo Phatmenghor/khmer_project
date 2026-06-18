@@ -17,6 +17,7 @@ import {
 
 const initialState: DeliveryOptionsManagementState = {
   data: null,
+  rollbackSnapshot: null,
   selectedDeliveryOptions: null,
   isLoading: true,
   error: null,
@@ -165,28 +166,31 @@ const deliveryOptionsSlice = createSlice({
       });
 
     builder
-      .addCase(deleteDeliveryOptionsService.pending, (state) => {
+      .addCase(deleteDeliveryOptionsService.pending, (state, action) => {
         state.operations.isDeleting = true;
         state.error = null;
-      })
-      .addCase(deleteDeliveryOptionsService.fulfilled, (state, action) => {
+        state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+        const id = action.meta.arg as string;
         if (state.data) {
-          state.data.content = state.data.content.filter(
-            (user) => user.id !== action.payload
-          );
+          state.data.content = state.data.content.filter((item) => item.id !== id);
           state.data.totalElements -= 1;
-          state.data.totalPages = Math.ceil(
-            state.data.totalElements / state.data.pageSize
-          );
+          state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
           state.data.last = state.data.pageNo >= state.data.totalPages;
           state.data.hasNext = !state.data.last;
           state.data.hasPrevious = state.data.pageNo > 1;
         }
+      })
+      .addCase(deleteDeliveryOptionsService.fulfilled, (state) => {
         state.operations.isDeleting = false;
+        state.rollbackSnapshot = null;
       })
       .addCase(deleteDeliveryOptionsService.rejected, (state, action) => {
-        state.error = action.payload as string;
         state.operations.isDeleting = false;
+        state.error = action.payload as string;
+        if (state.rollbackSnapshot) {
+          state.data = state.rollbackSnapshot;
+          state.rollbackSnapshot = null;
+        }
       });
 
     builder

@@ -18,6 +18,7 @@ export interface OperationStates {
 
 export interface DeliveryOptionsManagementState {
   data: AllDeliveryOptionsResponseModel | null;
+  rollbackSnapshot: AllDeliveryOptionsResponseModel | null;
   selectedDeliveryOptions: DeliveryOptionsResponseModel | null;
   isLoading: boolean;
   error: string | null;

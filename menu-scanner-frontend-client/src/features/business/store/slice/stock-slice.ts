@@ -9,6 +9,7 @@ import { ProductStatus } from "@/constants/status/status";
 
 const initialState: ProductManagementState = {
   data: null,
+  rollbackSnapshot: null,
   selectedProduct: null,
   isLoading: true,
   error: null,

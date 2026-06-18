@@ -26,7 +26,7 @@ import { telegramAuthenticateService } from "@/features/auth/store/thunks/social
 import { showToast } from "@/components/shared/common/show-toast";
 import { TelegramLoginButton } from "@/components/shared/telegram/telegram-login-widget";
 import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
-import { SocialAuthConfig } from "@/constants/app-resource/default/default";
+import { AppDefault, SocialAuthConfig } from "@/constants/app-resource/default/default";
 import { useAppSelector } from "@/store";
 import { selectBusinessName } from "@/features/business/store/selectors/business-settings-selector";
 
@@ -93,6 +93,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
           lastName: values.lastName,
           phoneNumber: values.phone,
           userType: "CUSTOMER",
+          businessId: AppDefault.BUSINESS_ID,
         }),
       ).unwrap();
 
@@ -106,7 +107,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
             loginService({
               userIdentifier: values.userIdentifier,
               password: values.password,
-              businessId: undefined,
+              businessId: AppDefault.BUSINESS_ID,
               userType: "CUSTOMER",
             }),
           ).unwrap();
@@ -157,7 +158,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
     setIsTelegramLoading(true);
     try {
       const result = await dispatch(
-        telegramAuthenticateService({ telegramData, userType: "CUSTOMER" }),
+        telegramAuthenticateService({ telegramData, userType: "CUSTOMER", businessId: AppDefault.BUSINESS_ID }),
       ).unwrap();
 
       if (result?.userType === "BUSINESS_USER") {

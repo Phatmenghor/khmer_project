@@ -17,6 +17,7 @@ import {
 
 const initialState: ExchangeRateManagementState = {
   data: null,
+  rollbackSnapshot: null,
   selectedExchangeRate: null,
   isLoading: true,
   error: null,
@@ -251,48 +252,31 @@ const exchnageRateSlice = createSlice({
       });
 
     builder
-      .addCase(deleteExchangeRateService.pending, (state) => {
+      .addCase(deleteExchangeRateService.pending, (state, action) => {
         state.operations.isDeleting = true;
         state.error = null;
-      })
-      .addCase(deleteExchangeRateService.fulfilled, (state, action) => {
+        state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+        const id = action.meta.arg as string;
         if (state.data) {
-
-          const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
-          const deletedRate = state.data.content.find((rate) => rate.id === deletedId);
-
-
-          if (deletedRate?.status === "ACTIVE") {
-            const inactiveRates = state.data.content
-              .filter((rate) => rate.status === "INACTIVE" && rate.id !== deletedId)
-              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-            if (inactiveRates.length > 0) {
-
-              const rateToActivate = inactiveRates[0];
-              state.data.content = state.data.content.map((rate) =>
-                rate.id === rateToActivate.id ? { ...rate, status: "ACTIVE" as const } : rate
-              );
-            }
-          }
-
-
-          state.data.content = state.data.content.filter(
-            (rate) => rate.id !== deletedId
-          );
+          state.data.content = state.data.content.filter((item) => item.id !== id);
           state.data.totalElements -= 1;
-          state.data.totalPages = Math.ceil(
-            state.data.totalElements / state.data.pageSize
-          );
+          state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
           state.data.last = state.data.pageNo >= state.data.totalPages;
           state.data.hasNext = !state.data.last;
           state.data.hasPrevious = state.data.pageNo > 1;
         }
+      })
+      .addCase(deleteExchangeRateService.fulfilled, (state) => {
         state.operations.isDeleting = false;
+        state.rollbackSnapshot = null;
       })
       .addCase(deleteExchangeRateService.rejected, (state, action) => {
-        state.error = action.payload as string;
         state.operations.isDeleting = false;
+        state.error = action.payload as string;
+        if (state.rollbackSnapshot) {
+          state.data = state.rollbackSnapshot;
+          state.rollbackSnapshot = null;
+        }
       });
   },
 });

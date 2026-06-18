@@ -3,6 +3,7 @@
 import { Controller, FieldValues } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import type { TextFormFieldProps } from "./form-field-types";
 
 export function TextField<T extends FieldValues = FieldValues>({
@@ -85,11 +86,11 @@ export function TextField<T extends FieldValues = FieldValues>({
               }
             }}
             pattern={pattern}
-            className={`h-[26px] transition-all duration-200 border ${disabled ? "bg-muted/50" : ""} ${
-              error
-                ? "border-red-500 focus:border-red-500"
-                : "border-input focus:border-primary focus:ring-2 focus:ring-primary/30"
-            } ${inputClassName}`}
+            className={cn(
+              disabled && "bg-muted/50",
+              error && "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
+              inputClassName
+            )}
           />
         )}
       />

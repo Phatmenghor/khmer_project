@@ -699,6 +699,9 @@
     /* Prevent rubber-band scroll from bleeding into parent (Telegram
        container) or pulling-to-refresh inside modals. */
     overscroll-behavior-y: contain;
+    /* No horizontal overflow — prevents layout shift and accidental
+       side-scrolling on narrow viewports (WebView / Mini App). */
+    overflow-x: hidden;
   }
 
   body {
@@ -722,6 +725,18 @@
   .overflow-auto,
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* iOS Safari input zoom prevention — Safari zooms the viewport when a
+     focused input has a computed font-size below 16 px. Force all text
+     inputs to at least 1rem (16 px at default browser settings) so the
+     viewport stays stable inside WebView / Mini App / Safari. The visual
+     appearance inside the app is unaffected because our UI is already
+     scaled via Tailwind utilities and CSS custom properties. */
+  input:not([type="hidden"]):not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: max(1rem, 0.875em);
   }
 
   ::-webkit-scrollbar {

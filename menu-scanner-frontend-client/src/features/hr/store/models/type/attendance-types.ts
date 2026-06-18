@@ -22,6 +22,7 @@ export interface OperationStates {
 
 export interface AttendanceManagementState {
   data: AllAttendanceResponseModel | null;
+  rollbackSnapshot: AllAttendanceResponseModel | null;
   selectedAttendance: AttendanceResponseModel | null;
   isLoading: boolean;
   error: string | null;

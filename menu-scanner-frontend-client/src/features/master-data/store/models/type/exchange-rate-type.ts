@@ -18,6 +18,7 @@ export interface OperationStates {
 
 export interface ExchangeRateManagementState {
   data: AllExchangeRateResponseModel | null;
+  rollbackSnapshot: AllExchangeRateResponseModel | null;
   selectedExchangeRate: ExchangeRateResponseModel | null;
   isLoading: boolean;
   error: string | null;

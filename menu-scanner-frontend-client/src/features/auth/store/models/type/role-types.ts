@@ -17,6 +17,7 @@ export interface OperationStates {
 
 export interface RoleManagementState {
   data: AllRoleResponseModel | null;
+  rollbackSnapshot: AllRoleResponseModel | null;
   selectedRole: RoleResponseModel | null;
   rolesList: RoleResponseModel[];
   isLoading: boolean;

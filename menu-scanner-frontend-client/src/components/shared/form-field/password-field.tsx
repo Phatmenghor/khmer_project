@@ -4,6 +4,7 @@ import { Controller, FieldValues } from "react-hook-form";
 import { PasswordFormFieldProps } from "./form-field-types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
 
 export function PasswordField<T extends FieldValues = FieldValues>({
@@ -38,11 +39,11 @@ export function PasswordField<T extends FieldValues = FieldValues>({
               placeholder={placeholder}
               disabled={disabled}
               autoComplete="new-password"
-              className={`h-[26px] pr-8 transition-all duration-200 ${
-                error
-                  ? "border-red-500 focus:border-red-500"
-                  : "focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/30"
-              } ${inputClassName}`}
+              className={cn(
+                "pr-8",
+                error && "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
+                inputClassName
+              )}
             />
           )}
         />
@@ -54,9 +55,9 @@ export function PasswordField<T extends FieldValues = FieldValues>({
             tabIndex={-1}
           >
             {showPassword ? (
-              <EyeOff className="h-3 w-3 text-gray-500" />
+              <EyeOff className="h-4 w-4 text-gray-500" />
             ) : (
-              <Eye className="h-3 w-3 text-gray-500" />
+              <Eye className="h-4 w-4 text-gray-500" />
             )}
           </button>
         )}

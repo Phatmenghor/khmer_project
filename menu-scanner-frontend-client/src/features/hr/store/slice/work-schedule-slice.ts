@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { WorkScheduleManagementState } from "../models/type/work-schedule";
+import { WorkScheduleResponseModel } from "../models/response/work-schedule-response";
 import {
   createWorkScheduleService,
   deleteWorkScheduleService,
@@ -10,6 +11,7 @@ import {
 
 const initialState: WorkScheduleManagementState = {
   data: null,
+  rollbackSnapshot: null,
   selectedWorkSchedule: null,
   isLoading: true,
   error: null,
@@ -55,6 +57,43 @@ const workScheduleSlice = createSlice({
 
     resetState: () => {
       return initialState;
+    },
+
+    optimisticAdd: (state, action: PayloadAction<WorkScheduleResponseModel>) => {
+      state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+      if (state.data) {
+        state.data.content = [action.payload, ...state.data.content];
+        state.data.totalElements += 1;
+        state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
+      }
+    },
+
+    optimisticUpdate: (state, action: PayloadAction<WorkScheduleResponseModel>) => {
+      state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+      if (state.data) {
+        state.data.content = state.data.content.map((item) =>
+          item.id === action.payload.id ? action.payload : item,
+        );
+      }
+    },
+
+    optimisticDelete: (state, action: PayloadAction<string>) => {
+      state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+      if (state.data) {
+        state.data.content = state.data.content.filter((item) => item.id !== action.payload);
+        state.data.totalElements -= 1;
+        state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
+        state.data.last = state.data.pageNo >= state.data.totalPages;
+        state.data.hasNext = !state.data.last;
+        state.data.hasPrevious = state.data.pageNo > 1;
+      }
+    },
+
+    rollbackOptimistic: (state) => {
+      if (state.rollbackSnapshot) {
+        state.data = state.rollbackSnapshot;
+        state.rollbackSnapshot = null;
+      }
     },
   },
 
@@ -139,28 +178,33 @@ const workScheduleSlice = createSlice({
       });
 
     builder
-      .addCase(deleteWorkScheduleService.pending, (state) => {
+      .addCase(deleteWorkScheduleService.pending, (state, action) => {
         state.operations.isDeleting = true;
         state.error = null;
-      })
-      .addCase(deleteWorkScheduleService.fulfilled, (state, action) => {
-        state.operations.isDeleting = false;
+        // Optimistically remove from list immediately
+        state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+        const id = action.meta.arg as string;
         if (state.data) {
-          state.data.content = state.data.content.filter(
-            (user) => user.id !== action.payload,
-          );
+          state.data.content = state.data.content.filter((item) => item.id !== id);
           state.data.totalElements -= 1;
-          state.data.totalPages = Math.ceil(
-            state.data.totalElements / state.data.pageSize,
-          );
+          state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
           state.data.last = state.data.pageNo >= state.data.totalPages;
           state.data.hasNext = !state.data.last;
           state.data.hasPrevious = state.data.pageNo > 1;
         }
       })
+      .addCase(deleteWorkScheduleService.fulfilled, (state) => {
+        state.operations.isDeleting = false;
+        state.rollbackSnapshot = null;
+      })
       .addCase(deleteWorkScheduleService.rejected, (state, action) => {
         state.operations.isDeleting = false;
         state.error = action.payload as string;
+        // Rollback the optimistic delete
+        if (state.rollbackSnapshot) {
+          state.data = state.rollbackSnapshot;
+          state.rollbackSnapshot = null;
+        }
       });
   },
 });
@@ -172,6 +216,10 @@ export const {
   clearSelectedWorkSchedule,
   resetFilters,
   resetState,
+  optimisticAdd,
+  optimisticUpdate,
+  optimisticDelete,
+  rollbackOptimistic,
 } = workScheduleSlice.actions;
 
 export default workScheduleSlice.reducer;

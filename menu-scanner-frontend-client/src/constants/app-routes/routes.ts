@@ -24,6 +24,7 @@ export const ROUTES = {
     PROFILE: "/admin/profile",
     ADMIN_SESSIONS: "/admin/admin-sessions",
     USERS: "/admin/users",
+    CUSTOMERS: "/admin/customers",
     ROLES: "/admin/users/roles",
     USER_SESSIONS: "/admin/users/sessions",
     BRAND: "/admin/brand",
@@ -52,6 +53,7 @@ export const ROUTES = {
 
   HR: {
     WORK_SCHEDULE: "/admin/hr/work-schedule",
+    WORK_SCHEDULE_FORM: "/admin/hr/work-schedule/form",
     WORK_SCHEDULE_TYPE: "/admin/hr/work-schedule-type",
     LEAVE_TYPE: "/admin/hr/leave-type",
     LEAVE: "/admin/hr/leave",
@@ -88,6 +90,10 @@ export const SIDEBAR_MENU: MenuItem[] = [
       {
         title: "All Users",
         href: ROUTES.ADMIN.USERS,
+      },
+      {
+        title: "Customers",
+        href: ROUTES.ADMIN.CUSTOMERS,
       },
 
 

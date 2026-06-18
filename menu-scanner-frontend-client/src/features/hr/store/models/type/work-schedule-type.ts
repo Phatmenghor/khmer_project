@@ -17,6 +17,7 @@ export interface OperationStates {
 
 export interface WorkScheduleTypeManagementState {
   data: AllWorkScheduleTypeResponseModel | null;
+  rollbackSnapshot: AllWorkScheduleTypeResponseModel | null;
   selectedWorkSchedule: WorkScheduleTypeResponseModel | null;
   isLoading: boolean;
   error: string | null;

@@ -59,7 +59,7 @@ export function SelectField<T extends FieldValues = FieldValues>({
                   role="combobox"
                   disabled={disabled || loading}
                   className={cn(
-                    "w-full justify-between h-[26px] px-2 transition-all duration-200 border-input",
+                    "w-full justify-between h-10 md:h-9 px-3 text-base md:text-sm font-normal transition-all duration-200 border-input",
 
                     "hover:bg-primary/10 hover:border-primary hover:text-primary",
 
@@ -83,7 +83,7 @@ export function SelectField<T extends FieldValues = FieldValues>({
                       : selectedOption?.label || placeholder}
                   </span>
                   <ChevronDown className={cn(
-                    "ml-1 h-3 w-3 shrink-0 transition-all duration-200",
+                    "ml-1 h-4 w-4 shrink-0 transition-all duration-200",
                     !open && "opacity-50",
                     open && "opacity-100 text-primary rotate-180"
                   )} />

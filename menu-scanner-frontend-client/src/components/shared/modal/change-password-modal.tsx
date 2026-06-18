@@ -10,8 +10,8 @@ import { PasswordField } from "@/components/shared/form-field/password-field";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { CancelButton } from "@/components/shared/form-field/cancel-button";
-import { SubmitButton } from "@/components/shared/form-field/submid-button";
+import { CancelButton } from "@/components/shared/button/cancel-button";
+import { SubmitButton } from "@/components/shared/button/submit-button";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { changePasswordService } from "@/features/auth/store/thunks/auth-thunks";
 import {

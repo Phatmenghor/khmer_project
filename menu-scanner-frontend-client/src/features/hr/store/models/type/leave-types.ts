@@ -17,6 +17,7 @@ export interface OperationStates {
 
 export interface LeaveManagementState {
   data: AllLeaveResponseModel | null;
+  rollbackSnapshot: AllLeaveResponseModel | null;
   selectedLeave: LeaveResponseModel | null;
   isLoading: boolean;
   error: string | null;

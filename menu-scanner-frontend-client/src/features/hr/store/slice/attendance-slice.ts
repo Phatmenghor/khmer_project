@@ -10,6 +10,7 @@ import {
 
 const initialState: AttendanceManagementState = {
   data: null,
+  rollbackSnapshot: null,
   selectedAttendance: null,
   isLoading: true,
   error: null,
@@ -140,28 +141,31 @@ const attendanceSlice = createSlice({
       });
 
     builder
-      .addCase(deleteAttendanceService.pending, (state) => {
+      .addCase(deleteAttendanceService.pending, (state, action) => {
         state.operations.isDeleting = true;
         state.error = null;
-      })
-      .addCase(deleteAttendanceService.fulfilled, (state, action) => {
-        state.operations.isDeleting = false;
+        state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+        const id = action.meta.arg as string;
         if (state.data) {
-          state.data.content = state.data.content.filter(
-            (user) => user.id !== action.payload,
-          );
+          state.data.content = state.data.content.filter((item) => item.id !== id);
           state.data.totalElements -= 1;
-          state.data.totalPages = Math.ceil(
-            state.data.totalElements / state.data.pageSize,
-          );
+          state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
           state.data.last = state.data.pageNo >= state.data.totalPages;
           state.data.hasNext = !state.data.last;
           state.data.hasPrevious = state.data.pageNo > 1;
         }
       })
+      .addCase(deleteAttendanceService.fulfilled, (state) => {
+        state.operations.isDeleting = false;
+        state.rollbackSnapshot = null;
+      })
       .addCase(deleteAttendanceService.rejected, (state, action) => {
         state.operations.isDeleting = false;
         state.error = action.payload as string;
+        if (state.rollbackSnapshot) {
+          state.data = state.rollbackSnapshot;
+          state.rollbackSnapshot = null;
+        }
       });
   },
 });

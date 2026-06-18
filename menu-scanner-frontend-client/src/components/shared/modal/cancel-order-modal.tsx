@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { TextAreaField } from "@/components/shared/form-field/textarea-field";
+import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 
@@ -128,7 +128,7 @@ export function CancelOrderModal({
 
             {}
             <div className="space-y-1">
-              <TextAreaField
+              <TextareaField
                 control={control}
                 name="customerNote"
                 label="Cancellation Note (Optional)"

@@ -24,8 +24,8 @@ import {
 import { showToast } from "@/components/shared/common/show-toast";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { TextField } from "@/components/shared/form-field/text-field";
-import { CancelButton } from "@/components/shared/form-field/cancel-button";
-import { SubmitButton } from "@/components/shared/form-field/submid-button";
+import { CancelButton } from "@/components/shared/button/cancel-button";
+import { SubmitButton } from "@/components/shared/button/submit-button";
 import { Package, Edit } from "lucide-react";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import {

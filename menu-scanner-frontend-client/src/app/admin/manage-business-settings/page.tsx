@@ -21,8 +21,8 @@ import {
   Clock,
   Share2,
 } from "lucide-react";
-import { SubmitButton } from "@/components/shared/form-field/submid-button";
-import { CancelButton } from "@/components/shared/form-field/cancel-button";
+import { SubmitButton } from "@/components/shared/button/submit-button";
+import { CancelButton } from "@/components/shared/button/cancel-button";
 import { type SocialMedia } from "@/features/business/store/services/business-settings-service";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";

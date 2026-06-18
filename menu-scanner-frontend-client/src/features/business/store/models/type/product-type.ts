@@ -26,6 +26,7 @@ export interface OperationStates {
 
 export interface ProductManagementState {
   data: AllProductResponseModel | null;
+  rollbackSnapshot: AllProductResponseModel | null;
   selectedProduct: ProductDetailResponseModel | null;
   isLoading: boolean;
   error: string | null;

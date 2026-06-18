@@ -2,15 +2,15 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { CardHeaderSection } from "@/components/layout/card-header-section";
-import { QRInputPanel } from "./_components/qr-input-panel";
-import { QRPreviewPanel } from "./_components/qr-preview-panel";
-import { QRSettingsPanel } from "./_components/qr-settings-panel";
+import { QRInputPanel } from "@/components/admin/qr-generator/qr-input-panel";
+import { QRPreviewPanel } from "@/components/admin/qr-generator/qr-preview-panel";
+import { QRSettingsPanel } from "@/components/admin/qr-generator/qr-settings-panel";
 import {
   DEFAULT_CONFIG,
   DEFAULT_STYLE,
   type QRConfig,
   type QRStyle,
-} from "./_components/use-qr-generator";
+} from "@/components/admin/qr-generator/use-qr-generator";
 
 export default function QRGeneratorPage() {
   const [config, setConfig] = useState<QRConfig>(DEFAULT_CONFIG);

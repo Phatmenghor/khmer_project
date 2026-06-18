@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useMemo, useState, Suspense} from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
@@ -12,7 +12,6 @@ import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { usePagination } from "@/hooks/use-pagination";
 import { useWorkScheduleState } from "@/features/hr/store/state/work-schedule-state";
-import { ModalMode } from "@/constants/status/status";
 import { WorkScheduleResponseModel } from "@/features/hr/store/models/response/work-schedule-response";
 import {
   resetState,
@@ -24,7 +23,6 @@ import {
   fetchAllWorkScheduleService,
 } from "@/features/hr/store/thunks/work-schedule-thunks";
 import { workScheduleTableColumns } from "@/features/hr/table/work-schedule-table";
-import WorkScheduleModal from "@/features/hr/components/work-schedule-modal";
 import { WorkScheduleDetailModal } from "@/features/hr/components/work-schedule-detail-modal";
 import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
@@ -35,6 +33,7 @@ import { useAppSelector } from "@/store";
 function WorkSchedulePageInner() {
   useAdminCleanup(resetState);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
 
   const {
@@ -48,12 +47,6 @@ function WorkSchedulePageInner() {
     dispatch,
   } = useWorkScheduleState();
 
-
-  const [modalState, setModalState] = useState({
-    isOpen: false,
-    mode: ModalMode.CREATE_MODE,
-    id: "",
-  });
 
   const [detailModalState, setDetailModalState] = useState({
     isOpen: false,
@@ -97,19 +90,11 @@ function WorkSchedulePageInner() {
 
 
   const handleCreate = () => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.CREATE_MODE,
-      id: "",
-    });
+    router.push(ROUTES.HR.WORK_SCHEDULE_FORM);
   };
 
   const handleEditItem = (schedule: WorkScheduleResponseModel) => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.UPDATE_MODE,
-      id: schedule?.id || "",
-    });
+    router.push(`${ROUTES.HR.WORK_SCHEDULE_FORM}?id=${schedule.id}`);
   };
 
   const handleViewDetailItem = (schedule: WorkScheduleResponseModel) => {
@@ -185,14 +170,6 @@ function WorkSchedulePageInner() {
     }
   };
 
-  const closeModal = () => {
-    setModalState({
-      isOpen: false,
-      mode: ModalMode.CREATE_MODE,
-      id: "",
-    });
-  };
-
   const closeDetailModal = () => {
     setDetailModalState({
       isOpen: false,
@@ -237,14 +214,6 @@ function WorkSchedulePageInner() {
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
-
-      {}
-      <WorkScheduleModal
-        isOpen={modalState.isOpen}
-        onClose={closeModal}
-        workScheduleId={modalState.id}
-        mode={modalState.mode}
-      />
 
       {}
       <WorkScheduleDetailModal

@@ -8,8 +8,8 @@ import { Plus, Trash2 } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
-import { CancelButton } from "@/components/shared/form-field/cancel-button";
-import { SubmitButton } from "@/components/shared/form-field/submid-button";
+import { CancelButton } from "@/components/shared/button/cancel-button";
+import { SubmitButton } from "@/components/shared/button/submit-button";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { uploadMultiSize } from "@/services/spaces-service";
 import { useDeferredUploads } from "@/hooks/use-deferred-upload";
@@ -77,6 +77,7 @@ type Props = {
   userId?: string;
   onClose: () => void;
   isOpen: boolean;
+  defaultUserType?: string;
 };
 
 export default function UserBusinessModal({
@@ -84,6 +85,7 @@ export default function UserBusinessModal({
   onClose,
   userId,
   mode,
+  defaultUserType,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
@@ -215,11 +217,11 @@ export default function UserBusinessModal({
           pageSize: 100,
           includeAll: false,
           businessId: AppDefault.BUSINESS_ID,
-          userTypes: [UserGropeType.BUSINESS_USER],
+          userTypes: [defaultUserType || UserGropeType.BUSINESS_USER],
         }),
       );
     }
-  }, [isOpen, dispatch]);
+  }, [isOpen, dispatch, defaultUserType]);
 
 
   useEffect(() => {
@@ -289,8 +291,8 @@ export default function UserBusinessModal({
         nickname: "",
         phoneNumber: "",
         password: "",
-        userType: UserGropeType.BUSINESS_USER,
-        roles: [],
+        userType: defaultUserType || UserGropeType.BUSINESS_USER,
+        roles: defaultUserType === "CUSTOMER" ? ["CUSTOMER"] : [],
         accountStatus: AccountStatus.ACTIVE,
         gender: "",
         dateOfBirth: "",
@@ -559,22 +561,24 @@ export default function UserBusinessModal({
                         error={errors.password}
                       />
 
-                      <SelectField
-                        control={control}
-                        name="roles"
-                        label="User Role"
-                        placeholder="Select user role"
-                        options={roleOptions}
-                        required
-                        disabled={isSubmitting || roleOptions.length === 0}
-                        error={getArrayFieldError(errors.roles)}
-                        onValueChange={(value) => {
-                          setValue("roles", [String(value)], {
-                            shouldDirty: true,
-                            shouldValidate: true,
-                          });
-                        }}
-                      />
+                      {defaultUserType !== "CUSTOMER" && (
+                        <SelectField
+                          control={control}
+                          name="roles"
+                          label="User Role"
+                          placeholder="Select user role"
+                          options={roleOptions}
+                          required
+                          disabled={isSubmitting || roleOptions.length === 0}
+                          error={getArrayFieldError(errors.roles)}
+                          onValueChange={(value) => {
+                            setValue("roles", [String(value)], {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
+                      )}
 
                       <SelectField
                         control={control}
@@ -599,23 +603,25 @@ export default function UserBusinessModal({
                   <div className="space-y-3">
                     {}
                     {!isCreate && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <SelectField
-                          control={control}
-                          name="roles"
-                          label="User Role"
-                          placeholder="Select user role"
-                          options={roleOptions}
-                          required
-                          disabled={isSubmitting || roleOptions.length === 0 || isBusinessOwner}
-                          error={getArrayFieldError(errors.roles)}
-                          onValueChange={(value) => {
-                            setValue("roles", [String(value)], {
-                              shouldDirty: true,
-                              shouldValidate: true,
-                            });
-                          }}
-                        />
+                      <div className={defaultUserType === "CUSTOMER" ? "grid grid-cols-1 gap-3" : "grid grid-cols-1 md:grid-cols-2 gap-3"}>
+                        {defaultUserType !== "CUSTOMER" && (
+                          <SelectField
+                            control={control}
+                            name="roles"
+                            label="User Role"
+                            placeholder="Select user role"
+                            options={roleOptions}
+                            required
+                            disabled={isSubmitting || roleOptions.length === 0 || isBusinessOwner}
+                            error={getArrayFieldError(errors.roles)}
+                            onValueChange={(value) => {
+                              setValue("roles", [String(value)], {
+                                shouldDirty: true,
+                                shouldValidate: true,
+                              });
+                            }}
+                          />
+                        )}
 
                         <SelectField
                           control={control}
@@ -720,78 +726,80 @@ export default function UserBusinessModal({
                 </div>
 
                 {}
-                <div className="space-y-3">
-                  <h3 className="text-xs font-semibold">
-                    Employment Information
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <TextField
-                      control={control}
-                      name="employeeId"
-                      label="Employee ID"
-                      placeholder="Enter employee ID"
-                      disabled={isSubmitting}
-                      error={errors.employeeId}
-                    />
+                {defaultUserType !== "CUSTOMER" && (
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-semibold">
+                      Employment Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <TextField
+                        control={control}
+                        name="employeeId"
+                        label="Employee ID"
+                        placeholder="Enter employee ID"
+                        disabled={isSubmitting}
+                        error={errors.employeeId}
+                      />
 
-                    <TextField
-                      control={control}
-                      name="position"
-                      label="Position"
-                      placeholder="Enter position"
-                      disabled={isSubmitting}
-                      error={errors.position}
-                    />
+                      <TextField
+                        control={control}
+                        name="position"
+                        label="Position"
+                        placeholder="Enter position"
+                        disabled={isSubmitting}
+                        error={errors.position}
+                      />
 
-                    <TextField
-                      control={control}
-                      name="department"
-                      label="Department"
-                      placeholder="Enter department"
-                      disabled={isSubmitting}
-                      error={errors.department}
-                    />
+                      <TextField
+                        control={control}
+                        name="department"
+                        label="Department"
+                        placeholder="Enter department"
+                        disabled={isSubmitting}
+                        error={errors.department}
+                      />
 
-                    <SelectField
-                      control={control}
-                      name="employmentType"
-                      label="Employment Type"
-                      placeholder="Select employment type"
-                      options={EMPLOYMENT_TYPE_OPTIONS}
-                      disabled={isSubmitting}
-                      error={errors.employmentType}
-                    />
+                      <SelectField
+                        control={control}
+                        name="employmentType"
+                        label="Employment Type"
+                        placeholder="Select employment type"
+                        options={EMPLOYMENT_TYPE_OPTIONS}
+                        disabled={isSubmitting}
+                        error={errors.employmentType}
+                      />
 
-                    <DateTimePickerField
-                      control={control}
-                      name="joinDate"
-                      label="Join Date"
-                      mode="date"
-                      placeholder="Select join date"
-                      disabled={isSubmitting}
-                      error={errors.joinDate}
-                    />
+                      <DateTimePickerField
+                        control={control}
+                        name="joinDate"
+                        label="Join Date"
+                        mode="date"
+                        placeholder="Select join date"
+                        disabled={isSubmitting}
+                        error={errors.joinDate}
+                      />
 
-                    <DateTimePickerField
-                      control={control}
-                      name="leaveDate"
-                      label="Leave Date"
-                      mode="date"
-                      placeholder="Select leave date"
-                      disabled={isSubmitting}
-                      error={errors.leaveDate}
-                    />
+                      <DateTimePickerField
+                        control={control}
+                        name="leaveDate"
+                        label="Leave Date"
+                        mode="date"
+                        placeholder="Select leave date"
+                        disabled={isSubmitting}
+                        error={errors.leaveDate}
+                      />
 
-                    <TextField
-                      control={control}
-                      name="shift"
-                      label="Shift"
-                      placeholder="Enter shift"
-                      disabled={isSubmitting}
-                      error={errors.shift}
-                    />
+                      <TextField
+                        control={control}
+                        name="shift"
+                        label="Shift"
+                        placeholder="Enter shift"
+                        disabled={isSubmitting}
+                        error={errors.shift}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {}
                 <div className="space-y-3">

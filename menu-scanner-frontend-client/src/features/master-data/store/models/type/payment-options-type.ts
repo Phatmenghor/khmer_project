@@ -6,6 +6,7 @@ import {
 
 export interface PaymentOptionsManagementState {
   data: AllPaymentOptionResponseModel | null;
+  rollbackSnapshot: AllPaymentOptionResponseModel | null;
   selectedPaymentOption: PaymentOptionResponse | null;
   isLoading: boolean;
   error: string | null;

@@ -18,6 +18,7 @@ export interface OperationStates {
 
 export interface BrandManagementState {
   data: AllBrandResponseModel | null;
+  rollbackSnapshot: AllBrandResponseModel | null;
   selectedBrand: BrandResponseModel | null;
   isLoading: boolean;
   error: string | null;

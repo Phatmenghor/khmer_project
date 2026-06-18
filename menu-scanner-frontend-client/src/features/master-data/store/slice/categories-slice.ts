@@ -17,6 +17,7 @@ import {
 
 const initialState: CategoriesManagementState = {
   data: null,
+  rollbackSnapshot: null,
   dataWithProductCount: null,
   selectedCategories: null,
   isLoading: true,
@@ -183,45 +184,31 @@ const categoriesSlice = createSlice({
       });
 
     builder
-      .addCase(deleteCategoriesService.pending, (state) => {
+      .addCase(deleteCategoriesService.pending, (state, action) => {
         state.operations.isDeleting = true;
         state.error = null;
-      })
-      .addCase(deleteCategoriesService.fulfilled, (state, action) => {
-
-        const deletedId = typeof action.payload === 'string' ? action.payload : action.payload?.id;
-
-
+        state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+        const id = action.meta.arg as string;
         if (state.data) {
-          state.data.content = state.data.content.filter(
-            (user) => user.id !== deletedId
-          );
+          state.data.content = state.data.content.filter((item) => item.id !== id);
           state.data.totalElements -= 1;
-          state.data.totalPages = Math.ceil(
-            state.data.totalElements / state.data.pageSize
-          );
+          state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
           state.data.last = state.data.pageNo >= state.data.totalPages;
           state.data.hasNext = !state.data.last;
           state.data.hasPrevious = state.data.pageNo > 1;
         }
-
-        if (state.dataWithProductCount) {
-          state.dataWithProductCount.content = state.dataWithProductCount.content.filter(
-            (user) => user.id !== deletedId
-          );
-          state.dataWithProductCount.totalElements -= 1;
-          state.dataWithProductCount.totalPages = Math.ceil(
-            state.dataWithProductCount.totalElements / state.dataWithProductCount.pageSize
-          );
-          state.dataWithProductCount.last = state.dataWithProductCount.pageNo >= state.dataWithProductCount.totalPages;
-          state.dataWithProductCount.hasNext = !state.dataWithProductCount.last;
-          state.dataWithProductCount.hasPrevious = state.dataWithProductCount.pageNo > 1;
-        }
+      })
+      .addCase(deleteCategoriesService.fulfilled, (state) => {
         state.operations.isDeleting = false;
+        state.rollbackSnapshot = null;
       })
       .addCase(deleteCategoriesService.rejected, (state, action) => {
-        state.error = action.payload as string;
         state.operations.isDeleting = false;
+        state.error = action.payload as string;
+        if (state.rollbackSnapshot) {
+          state.data = state.rollbackSnapshot;
+          state.rollbackSnapshot = null;
+        }
       });
 
 

@@ -18,6 +18,7 @@ export interface OperationStates {
 
 export interface BannerManagementState {
   data: AllBannerResponseModel | null;
+  rollbackSnapshot: AllBannerResponseModel | null;
   selectedBanner: BannerResponseModel | null;
   isLoading: boolean;
   error: string | null;

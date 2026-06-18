@@ -245,7 +245,7 @@ export function CustomDateTimePicker({
           id={id}
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal h-[26px] px-2 text-xs transition-all duration-200 border-input",
+            "w-full justify-start text-left font-normal h-10 md:h-9 px-3 text-base md:text-sm transition-all duration-200 border-input",
             !selectedDate && "text-muted-foreground",
 
             "hover:bg-primary/10 hover:border-primary hover:text-primary",
@@ -261,16 +261,16 @@ export function CustomDateTimePicker({
           disabled={disabled}
         >
           {mode === "datetime" ? (
-            <Clock className="mr-1 h-3 w-3" />
+            <Clock className="mr-2 h-4 w-4 shrink-0" />
           ) : (
-            <Calendar className="mr-1 h-3 w-3" />
+            <Calendar className="mr-2 h-4 w-4 shrink-0" />
           )}
-          <span className="flex-1">
+          <span className="flex-1 truncate">
             {selectedDate ? formatDate(selectedDate) : placeholder}
           </span>
           {selectedDate && !disabled && (
             <div
-              className="ml-1 h-4 w-4 p-0 flex items-center justify-center rounded hover:bg-destructive/10 hover:text-destructive cursor-pointer transition-colors"
+              className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded hover:bg-destructive/10 hover:text-destructive cursor-pointer transition-colors"
               onClick={clearSelection}
               role="button"
               tabIndex={0}
@@ -281,7 +281,7 @@ export function CustomDateTimePicker({
                 }
               }}
             >
-              <X className="h-2 w-2" />
+              <X className="h-3 w-3" />
             </div>
           )}
         </Button>

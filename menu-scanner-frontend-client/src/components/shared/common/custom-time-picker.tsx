@@ -114,7 +114,7 @@ export function CustomTimePicker({
       <PopoverTrigger asChild>
         <div
           className={cn(
-            "relative w-full h-[26px] rounded border border-input bg-background",
+            "relative w-full h-10 md:h-9 rounded-md border border-input bg-background",
             "transition-all duration-200",
             !value && "text-muted-foreground",
             isOpen && "bg-primary/20 border-primary",
@@ -126,8 +126,8 @@ export function CustomTimePicker({
             type="button"
             disabled={disabled}
             className={cn(
-              "w-full h-full px-2 text-xs font-normal text-left flex items-center gap-1",
-              "rounded transition-colors min-w-0",
+              "w-full h-full px-3 text-base md:text-sm font-normal text-left flex items-center gap-2",
+              "rounded-md transition-colors min-w-0",
               !disabled && "hover:bg-primary/10 hover:border-primary",
               "focus:outline-none focus:ring-2 focus:ring-primary/30",
               disabled && "cursor-not-allowed"
@@ -135,11 +135,11 @@ export function CustomTimePicker({
             onClick={() => setIsOpen(true)}
             title={displayValue || placeholder}
           >
-            <Clock className="h-3 w-3 flex-shrink-0" />
+            <Clock className="h-4 w-4 flex-shrink-0 opacity-50" />
             <span className="flex-1 truncate line-clamp-1">{displayValue || placeholder}</span>
             {value && !disabled && (
               <div
-                className="h-3 w-3 flex-shrink-0 flex items-center justify-center rounded hover:bg-destructive/10"
+                className="h-5 w-5 flex-shrink-0 flex items-center justify-center rounded hover:bg-destructive/10"
                 onClick={(e) => {
                   e.stopPropagation();
                   clearSelection();
@@ -147,7 +147,7 @@ export function CustomTimePicker({
                 role="button"
                 tabIndex={0}
               >
-                <X className="h-2 w-2 text-destructive" />
+                <X className="h-3 w-3 text-destructive" />
               </div>
             )}
           </button>
@@ -175,7 +175,7 @@ export function CustomTimePicker({
             <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-11 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Hour</label>
               <Select value={selectedHour} onValueChange={setSelectedHour}>
-                <SelectTrigger className="h-[26px] w-full xs:w-11 text-xs font-medium border-input">
+                <SelectTrigger className="h-10 md:h-9 w-full xs:w-16 text-base md:text-sm font-medium border-input">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-32 min-w-8">
@@ -189,13 +189,13 @@ export function CustomTimePicker({
             </div>
 
             {/* Separator */}
-            <div className="text-xs sm:text-sm font-bold text-muted-foreground xs:mt-3 flex-shrink-0">:</div>
+            <div className="text-sm font-bold text-muted-foreground xs:mt-4 flex-shrink-0">:</div>
 
             {/* Minute Selector */}
-            <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-11 min-w-0">
+            <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-16 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Min</label>
               <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                <SelectTrigger className="h-[26px] w-full xs:w-11 text-xs font-medium border-input">
+                <SelectTrigger className="h-10 md:h-9 w-full xs:w-16 text-base md:text-sm font-medium border-input">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-32 min-w-8">
@@ -211,14 +211,14 @@ export function CustomTimePicker({
             {/* Period Selector */}
             <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-14 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Period</label>
-              <div className="flex gap-1 border rounded p-1 bg-muted">
+              <div className="flex gap-1 border rounded-md p-1 bg-muted h-10 md:h-9 items-center">
                 {["AM", "PM"].map((period) => (
                   <button
                     key={period}
                     type="button"
                     onClick={() => setSelectedPeriod(period as "AM" | "PM")}
                     className={cn(
-                      "flex-1 px-1 sm:px-2 py-1 text-xs sm:text-xs font-semibold rounded transition-all truncate",
+                      "flex-1 h-full px-2 text-base md:text-sm font-semibold rounded-sm transition-all truncate flex items-center justify-center",
                       selectedPeriod === period
                         ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-background text-muted-foreground hover:text-foreground hover:bg-accent"

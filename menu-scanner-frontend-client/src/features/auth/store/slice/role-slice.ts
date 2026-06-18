@@ -15,6 +15,7 @@ import { deleteUserService } from "../thunks/users-thunks";
 
 const initialState: RoleManagementState = {
   data: null,
+  rollbackSnapshot: null,
   selectedRole: null,
   rolesList: [],
   isLoading: true,
@@ -158,28 +159,31 @@ const roleSlice = createSlice({
       });
 
     builder
-      .addCase(deleteRoleService.pending, (state) => {
+      .addCase(deleteRoleService.pending, (state, action) => {
         state.operations.isDeleting = true;
         state.error = null;
-      })
-      .addCase(deleteRoleService.fulfilled, (state, action) => {
-        state.operations.isDeleting = false;
+        state.rollbackSnapshot = state.data ? JSON.parse(JSON.stringify(state.data)) : null;
+        const id = action.meta.arg as string;
         if (state.data) {
-          state.data.content = state.data.content.filter(
-            (role) => role.id !== action.payload,
-          );
+          state.data.content = state.data.content.filter((item) => item.id !== id);
           state.data.totalElements -= 1;
-          state.data.totalPages = Math.ceil(
-            state.data.totalElements / state.data.pageSize,
-          );
+          state.data.totalPages = Math.ceil(state.data.totalElements / state.data.pageSize);
           state.data.last = state.data.pageNo >= state.data.totalPages;
           state.data.hasNext = !state.data.last;
           state.data.hasPrevious = state.data.pageNo > 1;
         }
       })
+      .addCase(deleteRoleService.fulfilled, (state) => {
+        state.operations.isDeleting = false;
+        state.rollbackSnapshot = null;
+      })
       .addCase(deleteRoleService.rejected, (state, action) => {
         state.operations.isDeleting = false;
         state.error = action.payload as string;
+        if (state.rollbackSnapshot) {
+          state.data = state.rollbackSnapshot;
+          state.rollbackSnapshot = null;
+        }
       });
   },
 });

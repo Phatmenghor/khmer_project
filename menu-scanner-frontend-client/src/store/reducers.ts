@@ -37,6 +37,7 @@ import myOrdersReducer from "@/features/main/store/slice/my-orders-slice";
 import scrollReducer from "@/features/main/store/slice/scroll-slice";
 import cartReducer from "@/features/main/store/slice/cart-slice";
 import globalSettingsReducer from "./slices/global-settings-slice";
+import uiReducer from "./slices/ui-slice";
 import dashboardReducer from "@/features/dashboard/store/slice/dashboard-slice";
 import locationReducer from "@/features/location/store/slice/location-slice";
 import publicLocationReducer from "@/features/location/store/slice/public-location-slice";
@@ -48,6 +49,7 @@ import portfolioReviewsReducer from "@/features/portfolio/store/slice/portfolio-
 
 export const reducers = {
 
+  ui: uiReducer,
   globalSettings: globalSettingsReducer,
   dashboard: dashboardReducer,
 

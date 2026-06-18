@@ -20,6 +20,7 @@ export interface OperationStates {
 
 export interface UserManagementState {
   data: AllUserResponseModel | null;
+  rollbackSnapshot: AllUserResponseModel | null;
   selectedUser: UserResponseModel | null;
   isLoading: boolean;
   error: string | null;
