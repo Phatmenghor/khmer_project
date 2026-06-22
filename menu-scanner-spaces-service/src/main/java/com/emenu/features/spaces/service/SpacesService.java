@@ -11,24 +11,24 @@ import org.springframework.web.multipart.MultipartFile;
  * ({@link ApiKeyContext}) — no businessId form field, no project-code header
  * is required on any endpoint.</p>
  *
- * <ul>
- *   <li>{@code projectCode} — e.g. "emenu"</li>
- *   <li>{@code path}        — e.g. "b/abc-123", "owner", "customer"</li>
- * </ul>
+ * <p>{@code pathStore} (the API key's stored path, e.g. "b/abc-123", "owner",
+ * "customer") combined with the required {@code customPath} request param
+ * forms the storage key. {@code projectCode} is not part of the storage
+ * path — it is only used when creating the API key.</p>
  *
  * <p>Storage key pattern:
  * <pre>
- *   {projectCode}/{path}/{yyyy-MM-dd}/{filename}
+ *   {pathStore}/{customPath}/{yyyy-MM-dd}/{filename}
  * </pre>
  */
 public interface SpacesService {
 
     /**
      * Upload a file and generate sm / md / o (original) variants.
-     * Context (projectCode + path) is taken from the API key, combined with customPath.
+     * Path is taken from the API key's pathStore, combined with customPath.
      */
     SpacesMultiUploadResponse upload(MultipartFile file, String customPath, ApiKeyContext ctx);
 
-    /** Delete ALL objects stored under the key's projectCode/path. */
+    /** Delete ALL objects stored under the key's resolved path. */
     void deleteAll(String customPath, ApiKeyContext ctx);
 }

@@ -20,17 +20,17 @@ public class SpacesController {
     /**
      * Upload a file.
      * <p>Generates sm / md / o (original) variants automatically.
-     * {@code projectCode} and {@code path} come from the API key; the optional
-     * {@code path} request param ({@code customPath}) is appended after it:
+     * {@code pathStore} comes from the API key; the required {@code path}
+     * request param ({@code customPath}) is appended after it:
      * <pre>
-     *   {projectCode}/{path from ApiKey}/{customPath}/{yyyy-MM-dd}/{filename}
+     *   {pathStore}/{customPath}/{yyyy-MM-dd}/{filename}
      * </pre>
-     * Only send the file — no businessId, no project-code header required.
+     * No businessId, no project-code header required — only the file and path.
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SpacesMultiUploadResponse> upload(
             @RequestPart("file") MultipartFile file,
-            @RequestParam(value = "path", required = false) String customPath,
+            @RequestParam("path") String customPath,
             HttpServletRequest request
     ) {
         ApiKeyContext ctx = ApiKeyContext.from(request);

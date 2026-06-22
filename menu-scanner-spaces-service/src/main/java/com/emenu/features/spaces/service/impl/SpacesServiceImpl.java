@@ -49,7 +49,7 @@ public class SpacesServiceImpl implements SpacesService {
 
             SpacesUploadResponse sm = uploadResized(original, ctx.getProjectCode(), resolvedPath, base + "-sm.jpg", 300, originalFilename);
             SpacesUploadResponse md = uploadResized(original, ctx.getProjectCode(), resolvedPath, base + "-md.jpg", 600, originalFilename);
-            SpacesUploadResponse o  = uploadResized(original, ctx.getProjectCode(), resolvedPath, base + ".jpg",      0, originalFilename);
+            SpacesUploadResponse o  = uploadResized(original, ctx.getProjectCode(), resolvedPath, base + ".jpg", 0, originalFilename);
 
             log.info("[{}][{}] Uploaded sm/md/o: {}", ctx.getProjectCode(), resolvedPath, base);
             return SpacesMultiUploadResponse.builder()
@@ -71,7 +71,7 @@ public class SpacesServiceImpl implements SpacesService {
     @Transactional
     public void deleteAll(String customPath, ApiKeyContext ctx) {
         String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
-        String prefix = StorageKeyUtil.prefix(ctx.getProjectCode(), resolvedPath);
+        String prefix = StorageKeyUtil.prefix(resolvedPath);
         deleteByPrefix(prefix);
         spacesImageRepository.deleteByProjectCodeAndPath(ctx.getProjectCode(), resolvedPath);
         log.info("[{}][{}] Deleted all objects", ctx.getProjectCode(), resolvedPath);
@@ -82,7 +82,7 @@ public class SpacesServiceImpl implements SpacesService {
     private SpacesUploadResponse uploadResized(byte[] original, String projectCode, String resolvedPath,
                                                String name, int maxWidth,
                                                String originalFilename) throws IOException {
-        String key = StorageKeyUtil.key(projectCode, resolvedPath, name);
+        String key = StorageKeyUtil.key(resolvedPath, name);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         var builder = Thumbnails.of(new ByteArrayInputStream(original))
