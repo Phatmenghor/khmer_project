@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin/spaces")
 @RequiredArgsConstructor
-@Tag(name = "Spaces Admin", description = "Bulk delete — subscription expiry and business cleanup. Auth via API Key.")
 public class SpacesAdminController {
 
     private final SpacesService spacesService;
