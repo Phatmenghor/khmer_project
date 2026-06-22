@@ -26,7 +26,7 @@ public class StorageApplication {
 
         log.info("Resource Storage Service started. timezone={}, time={}, hour={}",
                 TimeZone.getDefault().getID(), jvmNow, jvmNow.getHour());
-        log.info("Swagger UI: http://localhost:7072/swagger-ui.html");
+        log.info("Swagger UI: http://localhost:7072/swagger-ui/index.html");
         log.info("Health check: http://localhost:7072/actuator/health");
     }
 }
