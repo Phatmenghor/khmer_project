@@ -4,14 +4,14 @@ import com.emenu.features.apikey.dto.request.ApiKeyCreateRequest;
 import com.emenu.features.apikey.dto.response.ApiKeyResponse;
 import com.emenu.features.apikey.model.ApiKey;
 import com.emenu.features.apikey.repository.ApiKeyRepository;
+import com.emenu.features.apikey.util.ApiKeyUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,14 +27,14 @@ public class ApiKeyController {
     @Operation(summary = "List all API keys")
     public ResponseEntity<List<ApiKeyResponse>> list() {
         return ResponseEntity.ok(
-                apiKeyRepository.findAll().stream().map(this::toResponse).toList()
+                apiKeyRepository.findAll().stream().map(ApiKeyUtil::toResponse).toList()
         );
     }
 
     @PostMapping
     @Operation(summary = "Create a new API key with projectCode and optional path")
-    public ResponseEntity<ApiKeyResponse> create(@RequestBody ApiKeyCreateRequest req) {
-        String rawKey = generateKey(req.getProjectCode());
+    public ResponseEntity<ApiKeyResponse> create(@Valid @RequestBody ApiKeyCreateRequest req) {
+        String rawKey = ApiKeyUtil.generateKey(req.getProjectCode());
         ApiKey saved = apiKeyRepository.save(ApiKey.builder()
                 .apiKey(rawKey)
                 .projectCode(req.getProjectCode())
@@ -42,7 +42,7 @@ public class ApiKeyController {
                 .label(req.getLabel())
                 .active(true)
                 .build());
-        return ResponseEntity.ok(toResponse(saved));
+        return ResponseEntity.ok(ApiKeyUtil.toResponse(saved));
     }
 
     @DeleteMapping("/{id}")
@@ -53,27 +53,5 @@ public class ApiKeyController {
             apiKeyRepository.save(k);
         });
         return ResponseEntity.noContent().build();
-    }
-
-    // ── Internals ────────────────────────────────────────────────────────────
-
-    private String generateKey(String projectCode) {
-        byte[] bytes = new byte[24];
-        new SecureRandom().nextBytes(bytes);
-        String randomPart = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-        String cleanPrefix = projectCode.toLowerCase().replaceAll("[^a-z0-9]", "");
-        return "sk_" + cleanPrefix + "_" + randomPart;
-    }
-
-    private ApiKeyResponse toResponse(ApiKey k) {
-        return ApiKeyResponse.builder()
-                .id(k.getId())
-                .apiKey(k.getApiKey())
-                .projectCode(k.getProjectCode())
-                .path(k.getPath())
-                .label(k.getLabel())
-                .active(k.isActive())
-                .createdAt(k.getCreatedAt())
-                .build();
     }
 }

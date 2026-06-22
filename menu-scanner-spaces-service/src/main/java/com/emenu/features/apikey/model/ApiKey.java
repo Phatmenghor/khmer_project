@@ -12,7 +12,7 @@ import java.util.UUID;
  * Registered API key record.
  *
  * <p>Each key belongs to a specific project (<code>projectCode</code>)
- * and optionally a <code>path</code> prefix (e.g. "b/123" or "owner").
+ * and a <code>path</code> prefix (e.g. "b/123" or "owner").
  * When the filter resolves the key it populates an
  * {@link com.emenu.config.security.model.ApiKeyContext} into the request
  * attributes so that the service layer can use projectCode + path without
@@ -40,14 +40,13 @@ public class ApiKey {
     private String projectCode;
 
     /**
-     * Optional sub-folder / business path.
+     * Sub-folder / business path.
      * e.g. "b/abc-123", "owner", "customer", "shared"
-     * When null, the files go under projectCode/yyyy-MM-dd/
      */
-    @Column(name = "path", nullable = true, length = 255)
+    @Column(name = "path", nullable = false, length = 255)
     private String path;
 
-    @Column(name = "label", length = 255)
+    @Column(name = "label", nullable = false, length = 255)
     private String label;
 
     @Column(name = "active", nullable = false)
