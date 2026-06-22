@@ -1,4 +1,4 @@
-package com.emenu.config.security.dto;
+package com.emenu.features.apikey.dto.request;
 
 import lombok.Data;
 

@@ -2,7 +2,6 @@ package com.emenu.features.spaces.service.impl;
 
 import com.emenu.config.security.model.ApiKeyContext;
 import com.emenu.config.spaces.SpacesProperties;
-import com.emenu.features.spaces.dto.response.SpacesImageResponse;
 import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import com.emenu.features.spaces.dto.response.SpacesUploadResponse;
 import com.emenu.features.spaces.model.SpacesImage;
@@ -70,46 +69,12 @@ public class SpacesServiceImpl implements SpacesService {
 
     @Override
     @Transactional
-    public void deleteByKey(String key) {
-        spacesS3Client.deleteObject(DeleteObjectRequest.builder()
-                .bucket(spacesProperties.getBucket())
-                .key(key)
-                .build());
-        spacesImageRepository.deleteByObjectKey(key);
-        log.info("Deleted key: {}", key);
-    }
-
-    @Override
-    @Transactional
-    public void deleteByDate(String datePrefix, String customPath, ApiKeyContext ctx) {
-        String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
-        String fullPrefix = StorageKeyUtil.datePrefix(ctx.getProjectCode(), resolvedPath, datePrefix);
-        List<String> deleted = deleteByPrefix(fullPrefix);
-        deleted.forEach(spacesImageRepository::deleteByObjectKey);
-        log.info("[{}][{}] Deleted {} objects for date {}",
-                ctx.getProjectCode(), resolvedPath, deleted.size(), datePrefix);
-    }
-
-    @Override
-    @Transactional
     public void deleteAll(String customPath, ApiKeyContext ctx) {
         String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
         String prefix = StorageKeyUtil.prefix(ctx.getProjectCode(), resolvedPath);
         deleteByPrefix(prefix);
         spacesImageRepository.deleteByProjectCodeAndPath(ctx.getProjectCode(), resolvedPath);
         log.info("[{}][{}] Deleted all objects", ctx.getProjectCode(), resolvedPath);
-    }
-
-    // ── Query ────────────────────────────────────────────────────────────────
-
-    @Override
-    public List<SpacesImageResponse> getLogs(String customPath, ApiKeyContext ctx) {
-        String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
-        return spacesImageRepository
-                .findByProjectCodeAndPathOrderByCreatedAtDesc(ctx.getProjectCode(), resolvedPath)
-                .stream()
-                .map(this::toResponse)
-                .toList();
     }
 
     // ── Internals ─────────────────────────────────────────────────────────────
@@ -189,18 +154,5 @@ public class SpacesServiceImpl implements SpacesService {
 
         log.info("Deleted {} objects with prefix: {}", toDelete.size(), prefix);
         return toDelete.stream().map(ObjectIdentifier::key).toList();
-    }
-
-    private SpacesImageResponse toResponse(SpacesImage image) {
-        return SpacesImageResponse.builder()
-                .id(image.getId())
-                .projectCode(image.getProjectCode())
-                .path(image.getPath())
-                .objectKey(image.getObjectKey())
-                .url(image.getUrl())
-                .originalFilename(image.getOriginalFilename())
-                .fileSize(image.getFileSize())
-                .createdAt(image.getCreatedAt())
-                .build();
     }
 }

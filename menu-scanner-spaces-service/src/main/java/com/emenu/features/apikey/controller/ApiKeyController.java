@@ -1,9 +1,9 @@
-package com.emenu.config.security.controller;
+package com.emenu.features.apikey.controller;
 
-import com.emenu.config.security.dto.ApiKeyCreateRequest;
-import com.emenu.config.security.dto.ApiKeyResponse;
-import com.emenu.config.security.model.ApiKey;
-import com.emenu.config.security.repository.ApiKeyRepository;
+import com.emenu.features.apikey.dto.request.ApiKeyCreateRequest;
+import com.emenu.features.apikey.dto.response.ApiKeyResponse;
+import com.emenu.features.apikey.model.ApiKey;
+import com.emenu.features.apikey.repository.ApiKeyRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

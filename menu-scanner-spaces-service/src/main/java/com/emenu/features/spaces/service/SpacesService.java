@@ -1,14 +1,11 @@
 package com.emenu.features.spaces.service;
 
 import com.emenu.config.security.model.ApiKeyContext;
-import com.emenu.features.spaces.dto.response.SpacesImageResponse;
 import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 /**
- * All upload / delete / query operations.
+ * Upload / delete operations.
  *
  * <p><strong>Context</strong> is always resolved from the registered API key
  * ({@link ApiKeyContext}) — no businessId form field, no project-code header
@@ -34,15 +31,6 @@ public interface SpacesService {
      */
     SpacesMultiUploadResponse upload(MultipartFile file, String customPath, ApiKeyContext ctx);
 
-    /** Delete a single object by its full storage key. */
-    void deleteByKey(String key);
-
-    /** Delete all objects under a given date prefix for the key's path. */
-    void deleteByDate(String datePrefix, String customPath, ApiKeyContext ctx);
-
     /** Delete ALL objects stored under the key's projectCode/path. */
     void deleteAll(String customPath, ApiKeyContext ctx);
-
-    /** Return all image log entries matching the key's projectCode + path. */
-    List<SpacesImageResponse> getLogs(String customPath, ApiKeyContext ctx);
 }

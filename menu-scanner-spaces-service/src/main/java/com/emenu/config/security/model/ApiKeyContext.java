@@ -1,5 +1,6 @@
 package com.emenu.config.security.model;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -19,4 +20,8 @@ public class ApiKeyContext {
     private final String path;
 
     public static final String REQUEST_ATTR = "API_KEY_CONTEXT";
+
+    public static ApiKeyContext from(HttpServletRequest request) {
+        return (ApiKeyContext) request.getAttribute(REQUEST_ATTR);
+    }
 }

@@ -27,8 +27,7 @@ public class SpacesAdminController {
             @RequestParam(value = "path", required = false) String customPath,
             HttpServletRequest request
     ) {
-        ApiKeyContext ctx = (ApiKeyContext) request.getAttribute(ApiKeyContext.REQUEST_ATTR);
-        spacesService.deleteAll(customPath, ctx);
+        spacesService.deleteAll(customPath, ApiKeyContext.from(request));
         return ResponseEntity.noContent().build();
     }
 }

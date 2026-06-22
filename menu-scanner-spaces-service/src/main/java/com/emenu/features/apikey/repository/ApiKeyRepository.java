@@ -1,6 +1,6 @@
-package com.emenu.config.security.repository;
+package com.emenu.features.apikey.repository;
 
-import com.emenu.config.security.model.ApiKey;
+import com.emenu.features.apikey.model.ApiKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

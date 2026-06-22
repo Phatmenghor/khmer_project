@@ -37,11 +37,4 @@ public final class StorageKeyUtil {
         }
         return projectCode + "/";
     }
-
-    /**
-     * Prefix scoped to a specific date folder.
-     */
-    public static String datePrefix(String projectCode, String resolvedPath, String date) {
-        return prefix(projectCode, resolvedPath) + date + "/";
-    }
 }

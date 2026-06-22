@@ -1,4 +1,4 @@
-package com.emenu.config.security.model;
+package com.emenu.features.apikey.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,9 +13,10 @@ import java.util.UUID;
  *
  * <p>Each key belongs to a specific project (<code>projectCode</code>)
  * and optionally a <code>path</code> prefix (e.g. "b/123" or "owner").
- * When the filter resolves the key it populates an {@link ApiKeyContext}
- * into the request attributes so that the service layer can use
- * projectCode + path without any extra headers or form fields.</p>
+ * When the filter resolves the key it populates an
+ * {@link com.emenu.config.security.model.ApiKeyContext} into the request
+ * attributes so that the service layer can use projectCode + path without
+ * any extra headers or form fields.</p>
  */
 @Entity
 @Table(name = "api_keys", uniqueConstraints = @UniqueConstraint(columnNames = "api_key"))

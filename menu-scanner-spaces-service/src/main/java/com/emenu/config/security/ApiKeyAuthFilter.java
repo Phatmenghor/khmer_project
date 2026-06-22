@@ -1,8 +1,8 @@
 package com.emenu.config.security;
 
-import com.emenu.config.security.model.ApiKey;
 import com.emenu.config.security.model.ApiKeyContext;
-import com.emenu.config.security.repository.ApiKeyRepository;
+import com.emenu.features.apikey.model.ApiKey;
+import com.emenu.features.apikey.repository.ApiKeyRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
