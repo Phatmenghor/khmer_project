@@ -13,5 +13,4 @@ public class SubdomainResolveResponse {
     private UUID businessId;
     private String businessName;
     private String subdomain;
-    private String primaryColor;
 }

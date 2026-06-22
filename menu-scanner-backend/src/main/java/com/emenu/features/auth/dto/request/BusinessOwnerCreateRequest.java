@@ -45,7 +45,6 @@ public class BusinessOwnerCreateRequest {
     private UUID planId;
     
     private Boolean enableStockManagement;
-    private String primaryColor;
     
     @Builder.Default
     private BigDecimal taxPercentage = BigDecimal.ZERO;

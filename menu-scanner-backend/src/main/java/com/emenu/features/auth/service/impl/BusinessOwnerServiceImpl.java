@@ -106,7 +106,7 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
         businessEntity.setOwnerId(ownerUserEntity.getId());
         businessRepository.save(businessEntity);
 
-        // Create business setting with stock management and primary color preferences
+        // Create business setting with stock management preferences
         createBusinessSetting(businessEntity.getId(), creationRequestData);
 
         // Initialize default business records
@@ -164,7 +164,6 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 .businessAddress(registerRequest.getBusinessAddress())
                 .planId(registerRequest.getPlanId())
                 .enableStockManagement(registerRequest.getEnableStockManagement())
-                .primaryColor(registerRequest.getPrimaryColor())
                 .subdomain(registerRequest.getSubdomain())
                 .build();
 
@@ -788,15 +787,14 @@ public class BusinessOwnerServiceImpl implements BusinessOwnerService {
                 ? creationRequestData.getTaxPercentage().doubleValue() : 0.0);
         businessSetting.setLowStockThreshold(creationRequestData.getLowStockThreshold() != null
                 ? creationRequestData.getLowStockThreshold() : 5);
-        businessSetting.setPrimaryColor(creationRequestData.getPrimaryColor());
 
         boolean enableStock = creationRequestData.getEnableStockManagement() != null
                 && creationRequestData.getEnableStockManagement();
         businessSetting.setEnableStock(enableStock ? StockStatus.ENABLED : StockStatus.DISABLED);
 
         businessSettingRepository.save(businessSetting);
-        log.info("Business setting created successfully: business_id={}, enable_stock={}, primary_color={}",
-                businessId, enableStock, creationRequestData.getPrimaryColor());
+        log.info("Business setting created successfully: business_id={}, enable_stock={}",
+                businessId, enableStock);
     }
 
     private void initializeBusinessDefaults(UUID businessId) {

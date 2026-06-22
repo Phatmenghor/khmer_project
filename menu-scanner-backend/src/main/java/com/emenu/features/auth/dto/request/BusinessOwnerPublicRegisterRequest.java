@@ -47,8 +47,6 @@ public class BusinessOwnerPublicRegisterRequest {
 
     private Boolean enableStockManagement;
 
-    private String primaryColor;
-
     @NotBlank(message = "Subdomain is required")
     @Size(min = 1, max = 63, message = "Subdomain must be between 1 and 63 characters")
     private String subdomain;

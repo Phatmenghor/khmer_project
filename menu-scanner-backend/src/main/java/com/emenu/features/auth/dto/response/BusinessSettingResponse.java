@@ -22,7 +22,6 @@ public class BusinessSettingResponse extends BaseAuditResponse {
     private ImageUrls logoBusiness;
     private StockStatus enableStock;
     private List<SocialMediaResponse> socialMedia;
-    private String primaryColor;
     private List<BusinessHoursResponse> businessHours;
     private Boolean useBrands;
     private Integer lowStockThreshold;

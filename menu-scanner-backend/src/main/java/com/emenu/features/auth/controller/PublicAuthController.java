@@ -5,7 +5,6 @@ import com.emenu.features.auth.dto.response.BusinessOwnerCreateResponse;
 import com.emenu.features.auth.dto.response.SubdomainResolveResponse;
 import com.emenu.features.auth.models.Business;
 import com.emenu.features.auth.repository.BusinessRepository;
-import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.auth.service.BusinessOwnerService;
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.shared.dto.ApiResponse;
@@ -24,7 +23,6 @@ public class PublicAuthController {
 
     private final BusinessOwnerService businessOwnerService;
     private final BusinessRepository businessRepository;
-    private final BusinessSettingRepository businessSettingRepository;
 
     /**
      * Public endpoint for self-registration of new business owners
@@ -49,12 +47,8 @@ public class PublicAuthController {
         Business business = businessRepository.findBySubdomainAndIsDeletedFalse(subdomain)
                 .orElseThrow(() -> new NotFoundException("No business found for subdomain: " + subdomain));
 
-        String primaryColor = businessSettingRepository.findByBusinessIdAndIsDeletedFalse(business.getId())
-                .map(s -> s.getPrimaryColor())
-                .orElse(null);
-
         SubdomainResolveResponse response = new SubdomainResolveResponse(
-                business.getId(), business.getName(), business.getSubdomain(), primaryColor);
+                business.getId(), business.getName(), business.getSubdomain());
 
         return ResponseEntity.ok(ApiResponse.success("Business resolved", response));
     }

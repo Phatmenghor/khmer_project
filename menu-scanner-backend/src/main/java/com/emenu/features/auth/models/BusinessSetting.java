@@ -40,9 +40,6 @@ public class BusinessSetting extends BaseUUIDEntity {
     @Enumerated(EnumType.STRING)
     private StockStatus enableStock;
 
-    @Column(name = "primary_color")
-    private String primaryColor;
-
     @OneToMany(
         mappedBy = "businessSetting",
         cascade = CascadeType.ALL,
