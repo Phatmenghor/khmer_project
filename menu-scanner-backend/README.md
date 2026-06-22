@@ -34,7 +34,7 @@ A comprehensive SaaS platform for restaurant management with complete user manag
 - **Backend**: Spring Boot 3.2.5, Java 17
 - **Database**: PostgreSQL with JPA/Hibernate
 - **Security**: Spring Security with JWT
-- **Caching**: Caffeine/Redis
+- **Caching**: Caffeine
 - **Documentation**: OpenAPI/Swagger
 - **Monitoring**: Micrometer, Actuator
 - **Containerization**: Docker & Docker Compose

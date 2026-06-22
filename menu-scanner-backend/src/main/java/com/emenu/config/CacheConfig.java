@@ -2,7 +2,6 @@ package com.emenu.config;
 
 import com.emenu.shared.constants.CacheNames;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCache;
@@ -15,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableCaching
-@ConditionalOnProperty(name = "app.cache.provider", havingValue = "caffeine", matchIfMissing = true)
 public class CacheConfig {
 
     @Bean
