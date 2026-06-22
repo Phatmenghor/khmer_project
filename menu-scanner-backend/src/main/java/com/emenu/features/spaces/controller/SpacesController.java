@@ -1,6 +1,5 @@
 package com.emenu.features.spaces.controller;
 
-import com.emenu.features.spaces.dto.response.SpacesImageResponse;
 import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import com.emenu.features.spaces.service.SpacesService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,12 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/spaces")
 @RequiredArgsConstructor
-@Tag(name = "Spaces Storage", description = "Image upload / delete / log — proxied to Spaces microservice. No businessId needed.")
+@Tag(name = "Spaces Storage", description = "Image upload — proxied to resource-storage-service. No businessId needed.")
 public class SpacesController {
 
     private final SpacesService spacesService;
@@ -84,34 +81,5 @@ public class SpacesController {
             @RequestPart("file") MultipartFile file
     ) {
         return ResponseEntity.ok(spacesService.upload(file, "customer"));
-    }
-
-    @DeleteMapping("/object")
-    @Operation(summary = "Delete one image by its full storage key")
-    public ResponseEntity<Void> deleteByKey(@RequestParam String key) {
-        spacesService.deleteByKey(key);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/date")
-    @Operation(summary = "Delete all images under a specific date prefix and path")
-    public ResponseEntity<Void> deleteByDate(
-            @RequestParam String date,
-            @RequestParam(value = "path", required = false) String path,
-            @RequestParam(value = "businessId", required = false) String businessId
-    ) {
-        String resolvedPath = (path != null && !path.isBlank()) ? path : businessId;
-        spacesService.deleteByDate(date, resolvedPath);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/logs")
-    @Operation(summary = "Get all image log entries for a path")
-    public ResponseEntity<List<SpacesImageResponse>> getLogs(
-            @RequestParam(value = "path", required = false) String path,
-            @RequestParam(value = "businessId", required = false) String businessId
-    ) {
-        String resolvedPath = (path != null && !path.isBlank()) ? path : businessId;
-        return ResponseEntity.ok(spacesService.getLogs(resolvedPath));
     }
 }

@@ -1,12 +1,10 @@
 package com.emenu.features.spaces.service.impl;
 
 import com.emenu.config.spaces.SpacesProperties;
-import com.emenu.features.spaces.dto.response.SpacesImageResponse;
 import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import com.emenu.features.spaces.service.SpacesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -17,14 +15,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
- * Proxy implementation — forwards every call to the Spaces microservice.
+ * Proxy implementation — forwards every call to resource-storage-service.
  *
- * <p>Each upload scope (business / owner / customer) uses a dedicated API key
- * that is registered in the Spaces service with the correct projectCode + path.
- * No businessId or project-code headers are needed; the key carries all context.</p>
+ * <p>This project's single API key already carries projectCode + pathStore;
+ * each upload scope (business / owner / customer) is passed as the dynamic
+ * {@code path} (customPath) on the request.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -40,7 +37,7 @@ public class SpacesServiceImpl implements SpacesService {
     public SpacesMultiUploadResponse upload(MultipartFile file, String path) {
         try {
             String url = UriComponentsBuilder
-                    .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/spaces/upload")
+                    .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/storage/upload/multi")
                     .queryParam("path", path)
                     .build().toUriString();
 
@@ -50,7 +47,7 @@ public class SpacesServiceImpl implements SpacesService {
             return response;
         } catch (Exception e) {
             log.error("Proxy upload failed for path [{}]: {}", path, e.getMessage());
-            throw new RuntimeException("Spaces service error: " + e.getMessage(), e);
+            throw new RuntimeException("Storage service error: " + e.getMessage(), e);
         }
     }
 
@@ -72,88 +69,23 @@ public class SpacesServiceImpl implements SpacesService {
     // ── Delete ───────────────────────────────────────────────────────────────
 
     @Override
-    public void deleteByKey(String key) {
-        try {
-            String url = UriComponentsBuilder
-                    .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/spaces/object")
-                    .queryParam("key", key)
-                    .build().toUriString();
-
-            restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers(spacesProperties.getApiKey())), Void.class);
-            log.info("Proxy deleted key: {}", key);
-        } catch (Exception e) {
-            log.error("Failed to proxy delete by key {}: {}", key, e.getMessage());
-            throw new RuntimeException("Spaces service error: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void deleteByDate(String datePrefix, String path) {
-        try {
-            String url = UriComponentsBuilder
-                    .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/spaces/date")
-                    .queryParam("date", datePrefix)
-                    .queryParam("path", path)
-                    .build().toUriString();
-
-            restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers(spacesProperties.getApiKey())), Void.class);
-            log.info("Proxy deleted by date prefix: {}, path: {}", datePrefix, path);
-        } catch (Exception e) {
-            log.error("Failed to proxy delete by date {}, path {}: {}", datePrefix, path, e.getMessage());
-            throw new RuntimeException("Spaces service error: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void deleteByDate(String datePrefix) {
-        deleteByDate(datePrefix, "business");
-    }
-
-    @Override
     public void deleteAll(String path) {
         try {
             String url = UriComponentsBuilder
-                    .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/admin/spaces/all")
+                    .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/admin/storage/all")
                     .queryParam("path", path)
                     .build().toUriString();
             restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers(spacesProperties.getApiKey())), Void.class);
             log.info("Proxy deleted all objects for path: {}", path);
         } catch (Exception e) {
             log.error("Failed to proxy delete all for path {}: {}", path, e.getMessage());
-            throw new RuntimeException("Spaces service error: " + e.getMessage(), e);
+            throw new RuntimeException("Storage service error: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void deleteAll() {
         deleteAll("business");
-    }
-
-    // ── Query ────────────────────────────────────────────────────────────────
-
-    @Override
-    public List<SpacesImageResponse> getLogs(String path) {
-        try {
-            String url = UriComponentsBuilder
-                    .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/spaces/logs")
-                    .queryParam("path", path)
-                    .build().toUriString();
-            ResponseEntity<List<SpacesImageResponse>> response = restTemplate.exchange(
-                    url, HttpMethod.GET,
-                    new HttpEntity<>(headers(spacesProperties.getApiKey())),
-                    new ParameterizedTypeReference<>() {}
-            );
-            log.info("Proxy fetched image logs for path: {}", path);
-            return response.getBody();
-        } catch (Exception e) {
-            log.error("Failed to proxy fetch logs for path {}: {}", path, e.getMessage());
-            throw new RuntimeException("Spaces service error: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public List<SpacesImageResponse> getLogs() {
-        return getLogs("business");
     }
 
     // ── Internals ─────────────────────────────────────────────────────────────

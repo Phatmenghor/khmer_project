@@ -1,23 +1,14 @@
 package com.emenu.features.spaces.service;
 
-import com.emenu.features.spaces.dto.response.SpacesImageResponse;
 import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 /**
- * Proxy interface for the Spaces microservice.
+ * Proxy interface for the resource-storage-service.
  *
- * <p>Each caller uses a dedicated API key that already encodes
- * its own project code and path — callers do NOT pass businessId or
- * project-code separately. The API key on the request carries all context.</p>
- *
- * <ul>
- *   <li>{@code uploadForBusiness(file)} — uploads using the business-scoped API key.</li>
- *   <li>{@code uploadForOwner(file)}    — uploads using the owner-scoped API key.</li>
- *   <li>{@code uploadForCustomer(file)} — uploads using the customer-scoped API key.</li>
- * </ul>
+ * <p>This project uses a single configured API key (its {@code pathStore}
+ * is the project's storage scope); callers pass a dynamic {@code path}
+ * (customPath) per call — no businessId or project-code is needed.</p>
  */
 public interface SpacesService {
 
@@ -33,24 +24,9 @@ public interface SpacesService {
     /** Upload image for customer. Legacy method, delegates to upload(file, "customer"). */
     SpacesMultiUploadResponse uploadForCustomer(MultipartFile file);
 
-    /** Delete a single object by its full storage key. */
-    void deleteByKey(String key);
-
-    /** Delete all objects under a specific date prefix and path. */
-    void deleteByDate(String datePrefix, String path);
-
-    /** Legacy deleteByDate (defaults to "business"). */
-    void deleteByDate(String datePrefix);
-
     /** Delete ALL objects for a path. */
     void deleteAll(String path);
 
     /** Legacy deleteAll (defaults to "business"). */
     void deleteAll();
-
-    /** Return all image log entries for a specific path. */
-    List<SpacesImageResponse> getLogs(String path);
-
-    /** Legacy getLogs (defaults to "business"). */
-    List<SpacesImageResponse> getLogs();
 }
