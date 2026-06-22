@@ -73,9 +73,11 @@ public class SpacesServiceImpl implements SpacesService {
         try {
             String url = UriComponentsBuilder
                     .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/admin/storage/all")
+                    .queryParam("projectCode", spacesProperties.getProjectCode())
+                    .queryParam("pathStore", spacesProperties.getPathStore())
                     .queryParam("path", path)
                     .build().toUriString();
-            restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(headers(spacesProperties.getApiKey())), Void.class);
+            restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(adminHeaders()), Void.class);
             log.info("Proxy deleted all objects for path: {}", path);
         } catch (Exception e) {
             log.error("Failed to proxy delete all for path {}: {}", path, e.getMessage());
@@ -111,6 +113,12 @@ public class SpacesServiceImpl implements SpacesService {
     private HttpHeaders headers(String apiKey) {
         HttpHeaders h = new HttpHeaders();
         h.set("X-API-Key", apiKey);
+        return h;
+    }
+
+    private HttpHeaders adminHeaders() {
+        HttpHeaders h = new HttpHeaders();
+        h.setBasicAuth(spacesProperties.getAdminUsername(), spacesProperties.getAdminPassword());
         return h;
     }
 }

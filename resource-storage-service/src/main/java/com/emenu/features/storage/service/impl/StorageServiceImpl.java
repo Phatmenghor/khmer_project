@@ -89,12 +89,12 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     @Transactional
-    public void deleteAll(String customPath, ApiKeyContext ctx) {
-        String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
+    public void deleteAll(String projectCode, String pathStore, String customPath) {
+        String resolvedPath = StorageKeyUtil.resolvePath(pathStore, customPath);
         String prefix = StorageKeyUtil.prefix(resolvedPath);
         deleteByPrefix(prefix);
-        storageResourceRepository.deleteByProjectCodeAndPath(ctx.getProjectCode(), resolvedPath);
-        log.info("[{}][{}] Deleted all objects", ctx.getProjectCode(), resolvedPath);
+        storageResourceRepository.deleteByProjectCodeAndPath(projectCode, resolvedPath);
+        log.info("[{}][{}] Deleted all objects", projectCode, resolvedPath);
     }
 
     // ── Internals ─────────────────────────────────────────────────────────────

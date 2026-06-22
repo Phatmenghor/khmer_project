@@ -89,6 +89,12 @@ springdoc:
 spaces:
   service-url: "${SPACES_SERVICE_URL:http://localhost:7072}"
   api-key: "${SPACES_API_KEY:sk_emenu_default_key}"
+  # Needed only for the Basic-Auth-protected admin delete-all call — match the
+  # projectCode/pathStore registered for the api-key above (GET /api/v1/admin/keys).
+  project-code: "${SPACES_PROJECT_CODE:}"
+  path-store: "${SPACES_PATH_STORE:}"
+  admin-username: "${SPACES_ADMIN_USERNAME:phatmenghor}"
+  admin-password: "${SPACES_ADMIN_PASSWORD:Hour1819}"
 
 app:
   name: "Cambodia E-Menu Platform"

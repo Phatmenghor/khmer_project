@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="resource-storage-service"/>
+
+    <!-- ─── Console ─────────────────────────────────────────────────────────────── -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level){highlight} %clr(%-35.35logger{35}){cyan} %clr([%X{traceId:--}]){blue} %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ─── INFO file ──────────────────────────────────────────────────────────── -->
+    <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/resource-storage-service-info.log</file>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>ACCEPT</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/%d{yyyy-MM-dd}/resource-storage-service-info-%d{yyyy-MM-dd-hh-a}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-35.35logger{35} [%X{traceId:--}] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ─── ERROR file ─────────────────────────────────────────────────────────── -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/resource-storage-service-error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/%d{yyyy-MM-dd}/resource-storage-service-error-%d{yyyy-MM-dd-hh-a}.log</fileNamePattern>
+            <maxHistory>90</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} ERROR %-35.35logger{35} [%X{traceId:--}] %msg%n%ex{full}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ─── Root ───────────────────────────────────────────────────────────────── -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="INFO_FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+
+    <logger name="com.emenu" level="INFO"/>
+
+    <!-- ─── Framework noise suppression ───────────────────────────────────────── -->
+    <logger name="org.springframework"  level="WARN"/>
+    <logger name="org.hibernate"        level="WARN"/>
+    <logger name="org.apache.catalina"  level="WARN"/>
+    <logger name="org.apache.tomcat"    level="WARN"/>
+</configuration>

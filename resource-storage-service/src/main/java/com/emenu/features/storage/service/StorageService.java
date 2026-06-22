@@ -30,5 +30,6 @@ public interface StorageService {
     /** Upload a file and generate sm / md / o (original) size variants. */
     StorageMultiUploadResponse uploadMulti(MultipartFile file, String customPath, ApiKeyContext ctx);
 
-    void deleteAll(String customPath, ApiKeyContext ctx);
+    /** Admin-only: delete ALL objects for an explicit projectCode/pathStore scope. */
+    void deleteAll(String projectCode, String pathStore, String customPath);
 }
