@@ -1,6 +1,7 @@
 package com.emenu.config.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -29,6 +30,19 @@ import java.util.List;
 public class SecurityConfig {
 
     private final ApiKeyAuthFilter apiKeyAuthFilter;
+
+    /**
+     * ApiKeyAuthFilter is a {@code @Component}, so Spring Boot would otherwise
+     * auto-register it as a global servlet filter (running on every request,
+     * ahead of either SecurityFilterChain below). Disabling that auto-registration
+     * keeps it scoped to where it's explicitly wired via addFilterBefore.
+     */
+    @Bean
+    public FilterRegistrationBean<ApiKeyAuthFilter> disableApiKeyFilterAutoRegistration() {
+        FilterRegistrationBean<ApiKeyAuthFilter> registration = new FilterRegistrationBean<>(apiKeyAuthFilter);
+        registration.setEnabled(false);
+        return registration;
+    }
 
     /** Admin-only endpoints (API key management, bulk delete) — Basic Auth, separate from per-project API keys. */
     @Bean
