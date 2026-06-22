@@ -214,7 +214,7 @@ async function drawGradientCard(
   ctx.fillStyle = "#64748b";
   ctx.font = "28px Arial, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("eMenu", 80, FOOT_Y + FOOTER_H / 2 + 11);
+  ctx.fillText("ScanMeKH", 80, FOOT_Y + FOOTER_H / 2 + 11);
 
   // Dot row (three dots, decreasing opacity, right side)
   const dotBaseX = CARD_W - 80;

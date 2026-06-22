@@ -18,7 +18,7 @@ export default function Footer() {
               <Link href={ROUTES.PUBLIC.HOME} className="inline-block">
                 <Image
                   src={appImages.myLogo}
-                  alt="Emenu Cambodia Logo"
+                  alt="ScanMeKH Logo"
                   width={200}
                   height={110}
                   className="h-16 w-auto"

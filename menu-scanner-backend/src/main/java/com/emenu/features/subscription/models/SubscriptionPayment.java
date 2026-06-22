@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -31,6 +32,7 @@ public class SubscriptionPayment extends BaseUUIDEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id", insertable = false, updatable = false)
+    @ToString.Exclude
     private Business business;
 
     @Column(name = "subscription_id", nullable = false, unique = true)
@@ -38,6 +40,7 @@ public class SubscriptionPayment extends BaseUUIDEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id", insertable = false, updatable = false)
+    @ToString.Exclude
     private Subscription subscription;
 
     @Column(name = "plan_id", nullable = false)
@@ -45,6 +48,7 @@ public class SubscriptionPayment extends BaseUUIDEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", insertable = false, updatable = false)
+    @ToString.Exclude
     private SubscriptionPlan plan;
 
     @Column(name = "amount", precision = 10, scale = 2, nullable = false)

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,6 +33,7 @@ public class Subscription extends BaseUUIDEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id", insertable = false, updatable = false)
+    @ToString.Exclude
     private Business business;
 
     @Column(name = "plan_id", nullable = false)
@@ -39,6 +41,7 @@ public class Subscription extends BaseUUIDEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", insertable = false, updatable = false)
+    @ToString.Exclude
     private SubscriptionPlan plan;
 
     @Column(name = "start_date", nullable = false)
@@ -57,6 +60,7 @@ public class Subscription extends BaseUUIDEntity {
     private String planChangeReason;
 
     @OneToOne(mappedBy = "subscription", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private SubscriptionPayment payment;
 
     public boolean isCancelled() {

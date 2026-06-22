@@ -12,11 +12,11 @@ import Footer from "@/components/landing/footer";
 import { ScrollToTop } from "@/components/landing/scroll-to-top";
 
 export const metadata = {
-  title: "Emenu Cambodia — Transform Your Restaurant Into a Digital Powerhouse",
+  title: "ScanMeKH — Transform Your Restaurant Into a Digital Powerhouse",
   description:
     "Professional restaurant management platform with QR menus, integrated POS, real-time order management, customer loyalty programs, advanced analytics, and payment processing. Everything restaurant owners need to succeed.",
   keywords: [
-    "Emenu Cambodia",
+    "ScanMeKH",
     "digital menu platform",
     "QR code menu system",
     "POS system software",
@@ -27,7 +27,7 @@ export const metadata = {
     "restaurant analytics"
   ],
   openGraph: {
-    title: "Emenu Cambodia — Transform Your Restaurant Into a Digital Powerhouse",
+    title: "ScanMeKH — Transform Your Restaurant Into a Digital Powerhouse",
     description:
       "Complete restaurant platform with QR menus, POS, real-time orders, loyalty programs, analytics. Free trial available.",
     type: "website",

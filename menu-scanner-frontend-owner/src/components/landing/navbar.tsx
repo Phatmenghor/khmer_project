@@ -52,7 +52,7 @@ export default function Navbar() {
             <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-2">
               <Image
                 src={appImages.myLogo}
-                alt="Emenu Cambodia Logo"
+                alt="ScanMeKH Logo"
                 width={120}
                 height={120}
                 className="h-14 w-auto"

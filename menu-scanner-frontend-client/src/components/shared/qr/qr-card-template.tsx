@@ -116,7 +116,7 @@ export function QRCardTemplate({
       <div style={{ padding: "8px 16px", background: `${gradFrom}22`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div data-dl="emenu" style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <div style={{ width: 14, height: 14, borderRadius: 3, background: "rgba(0,0,0,0.18)", flexShrink: 0 }} />
-          <span style={{ fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: 1 }}>eMenu</span>
+          <span style={{ fontSize: 10, color: "#64748b", fontWeight: 500, lineHeight: 1 }}>ScanMeKH</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
           {[0.25, 0.55, 0.85].map((op, i) => (

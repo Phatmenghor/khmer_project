@@ -9,34 +9,6 @@ export interface ThemeCacheData {
 }
 
 
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  try {
-    const nameEQ = name + "=";
-    const cookies = document.cookie.split(";");
-    for (let cookie of cookies) {
-      cookie = cookie.trim();
-      if (cookie.indexOf(nameEQ) === 0) {
-        const value = decodeURIComponent(cookie.substring(nameEQ.length));
-        return value;
-      }
-    }
-    return null;
-  } catch (error) {
-    return null;
-  }
-}
-
-
-function setCookie(name: string, value: string, days: number = 30): void {
-  if (typeof document === "undefined") return;
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-
-  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
-}
-
-
 function getLocalStorageColors(businessId: string): ThemeCacheData | null {
   if (typeof window === "undefined" || !window.localStorage) return null;
   try {
@@ -61,19 +33,7 @@ function setLocalStorageColors(businessId: string, data: ThemeCacheData): void {
 
 
 export function getCachedThemeColors(businessId: string): ThemeCacheData | null {
-  try {
-
-    const localStorageData = getLocalStorageColors(businessId);
-    if (localStorageData) return localStorageData;
-
-
-    const cookieName = `theme_colors_${businessId}`;
-    const cookieValue = getCookie(cookieName);
-    if (!cookieValue) return null;
-    return JSON.parse(cookieValue) as ThemeCacheData;
-  } catch (error) {
-    return null;
-  }
+  return getLocalStorageColors(businessId);
 }
 
 
@@ -95,11 +55,6 @@ export function cacheThemeColors(
 
 
     setLocalStorageColors(businessId, cacheData);
-
-
-    const cookieName = `theme_colors_${businessId}`;
-    setCookie(cookieName, JSON.stringify(cacheData), 30);
-
   } catch (error) {
   }
 }

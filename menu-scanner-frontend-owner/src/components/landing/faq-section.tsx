@@ -51,7 +51,7 @@ export default function FaqSection() {
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Questions Answered</span>
             </h2>
             <p className="text-xs text-slate-700 font-medium">
-              Everything you need to know about Emenu Cambodia
+              Everything you need to know about ScanMeKH
             </p>
           </div>
         </FadeIn>

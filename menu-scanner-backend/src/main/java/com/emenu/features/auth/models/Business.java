@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -52,6 +53,7 @@ public class Business extends BaseUUIDEntity {
     private Boolean isSubscriptionActive = false;
 
     @OneToMany(mappedBy = "business", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Subscription> subscriptions;
 
     public boolean isActive() {

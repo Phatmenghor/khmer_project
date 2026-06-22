@@ -89,7 +89,7 @@ export function SubdomainProvider({ children }: { children: React.ReactNode }) {
           href="https://emenu-cambodia.com"
           className="mt-8 rounded-lg bg-primary px-6 py-3 text-white font-medium hover:bg-primary/90 transition-colors"
         >
-          Go to eMenu Cambodia
+          Go to ScanMeKH
         </a>
       </div>
     );

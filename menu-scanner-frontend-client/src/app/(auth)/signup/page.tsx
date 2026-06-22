@@ -102,7 +102,7 @@ export default function SignupPage() {
           <div className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg mb-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-white">eMenu Cambodia</h1>
+          <h1 className="text-xl font-bold tracking-tight text-white">ScanMeKH</h1>
           <p className="text-xs text-white/70">Admin Control Panel</p>
         </div>
 

@@ -84,7 +84,7 @@ export default function HeroSection() {
               <div className="relative h-auto min-h-[450px] lg:min-h-[550px] rounded overflow-hidden shadow-2xl group">
                 <Image
                   src={appImages.mobileRestaurant}
-                  alt="Emenu Cambodia Mobile App"
+                  alt="ScanMeKH Mobile App"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   priority

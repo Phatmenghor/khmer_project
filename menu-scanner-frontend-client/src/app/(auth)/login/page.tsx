@@ -97,31 +97,26 @@ export default function LoginPage() {
   const isAnyLoading = isLoading || isTelegramLoading;
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-x-hidden">
-      {/* Full screen background image */}
-      <div className="absolute inset-0 z-0">
+    <div className="relative min-h-screen w-full flex overflow-x-hidden">
+      {/* Background image: full-screen on small screens, left 50% panel on lg+ */}
+      <div className="absolute inset-0 lg:relative lg:inset-auto lg:w-1/2 lg:h-screen">
         <Image
           src={appImages.loginBg}
           alt="Background"
           fill
-          sizes="100vw"
+          sizes="(min-width: 1024px) 50vw, 100vw"
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+        {/* Dark overlay for readability, only needed when form sits on top of the image (small screens) */}
+        <div className="absolute inset-0 bg-black/50 lg:hidden" />
       </div>
 
-      <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-4">
-        {/* Branding Header */}
-        <div className="flex flex-col items-center text-center text-white mb-2">
-          <div className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg mb-2">
-            <ShieldCheck className="h-5 w-5 text-primary" />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight text-white">eMenu Cambodia</h1>
-          <p className="text-xs text-white/70">Admin Control Panel</p>
-        </div>
+      {/* Form panel: overlays the image on small screens, plain right-hand panel on lg+ */}
+      <div className="relative z-10 w-full min-h-screen flex items-center justify-center p-4 lg:w-1/2 lg:bg-background">
+        <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-4">
 
-        <Card className="w-full shadow-2xl border border-border/60 rounded overflow-hidden bg-background/95 backdrop-blur-md">
+        <Card className="w-full shadow-2xl border border-border/60 rounded overflow-hidden bg-background">
           {/* Card header */}
           <div className="bg-primary/5 border-b border-border/50 px-4 pt-4 pb-3">
             <div className="flex items-center gap-2">
@@ -218,6 +213,7 @@ export default function LoginPage() {
 
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );

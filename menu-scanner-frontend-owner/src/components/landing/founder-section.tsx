@@ -22,7 +22,7 @@ export default function FounderSection() {
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
               <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Meet the Founder</span>
             </h2>
-            <p className="text-xs text-slate-700 font-medium">The vision behind Emenu Cambodia</p>
+            <p className="text-xs text-slate-700 font-medium">The vision behind ScanMeKH</p>
           </div>
         </FadeIn>
 
@@ -101,7 +101,7 @@ export default function FounderSection() {
               <Card className="bg-white border-2 border-slate-200 hover:border-primary/30 group overflow-hidden">
                 <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-300 -mr-8 -mt-8"></div>
                 <CardContent className="p-5 relative z-10 flex flex-col">
-                  <h4 className="text-xs font-bold text-slate-900 mb-2">Why Emenu Cambodia?</h4>
+                  <h4 className="text-xs font-bold text-slate-900 mb-2">Why ScanMeKH?</h4>
                   <p className="text-xs text-slate-700 leading-relaxed font-medium">
                     {founder.story}
                   </p>

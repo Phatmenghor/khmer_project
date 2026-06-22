@@ -128,7 +128,7 @@ function RegistrationSuccessModal({
         {/* Body */}
         <div className="px-5 py-4 space-y-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Welcome to <span className="font-semibold text-foreground">Emenu Cambodia</span>! Your business account has been created. Here&apos;s a summary of your registration:
+            Welcome to <span className="font-semibold text-foreground">ScanMeKH</span>! Your business account has been created. Here&apos;s a summary of your registration:
           </p>
 
           {/* Details */}

@@ -21,7 +21,7 @@ export const ALL_PLATFORM_FEATURES = [
 export const LANDING_CONFIG = {
   // Navigation
   nav: {
-    logo: "Emenu Cambodia",
+    logo: "ScanMeKH",
     logoUrl: "/logo.png",
   },
 
@@ -30,7 +30,7 @@ export const LANDING_CONFIG = {
     tag: "All-in-one digital menu + storefront + POS",
     headline: "Run your whole business from one dashboard",
     subheadline:
-      "Emenu Cambodia is a complete platform for restaurants and retail shops: a public QR storefront for your customers, a real-time order system for your staff, stock and promotion management, branded business profiles with reviews, and a live analytics dashboard — all in a single product, with full access on every plan.",
+      "ScanMeKH is a complete platform for restaurants and retail shops: a public QR storefront for your customers, a real-time order system for your staff, stock and promotion management, branded business profiles with reviews, and a live analytics dashboard — all in a single product, with full access on every plan.",
     primaryCTA: "Start Free",
     secondaryCTA: "See How It Works",
     features: [
@@ -134,7 +134,7 @@ export const LANDING_CONFIG = {
     image: appImages.founder,
     bio: "A passionate software engineer from Cambodia who wanted to give local food and retail businesses the same kind of digital tools the big chains use — without the enterprise price tag.",
     story:
-      "Emenu Cambodia started as a side project after watching too many restaurants struggle with paper menus, lost orders, and spreadsheets for stock. The goal was to build one platform that handled the storefront, the orders, the stock, and the analytics — and to give every customer the same complete feature set instead of locking things behind tiers.",
+      "ScanMeKH started as a side project after watching too many restaurants struggle with paper menus, lost orders, and spreadsheets for stock. The goal was to build one platform that handled the storefront, the orders, the stock, and the analytics — and to give every customer the same complete feature set instead of locking things behind tiers.",
     vision:
       "Help every small and medium business go digital with a single tool they can actually afford and actually use. Every plan should unlock every feature — the only thing that changes is how long you subscribe.",
     highlights: [
@@ -283,7 +283,7 @@ export const LANDING_CONFIG = {
 
   // Footer
   footer: {
-    company: "Emenu Cambodia",
+    company: "ScanMeKH",
     tagline:
       "Digital storefront, real-time orders, stock, and analytics — one platform for your whole business.",
     description:

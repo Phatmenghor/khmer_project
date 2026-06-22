@@ -341,7 +341,7 @@ function QRDisplayComponent({
                 lineHeight: 1,
               }}
             >
-              eMenu
+              ScanMeKH
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
