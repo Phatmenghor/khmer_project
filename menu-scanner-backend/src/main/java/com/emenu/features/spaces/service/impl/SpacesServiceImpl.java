@@ -70,17 +70,16 @@ public class SpacesServiceImpl implements SpacesService {
 
     @Override
     public void deleteAll(String path) {
+        String resolvedPath = spacesProperties.getPathStore() + "/" + path;
         try {
             String url = UriComponentsBuilder
                     .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/admin/storage/all")
-                    .queryParam("projectCode", spacesProperties.getProjectCode())
-                    .queryParam("pathStore", spacesProperties.getPathStore())
-                    .queryParam("path", path)
+                    .queryParam("path", resolvedPath)
                     .build().toUriString();
             restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(adminHeaders()), Void.class);
-            log.info("Proxy deleted all objects for path: {}", path);
+            log.info("Proxy deleted all objects for path: {}", resolvedPath);
         } catch (Exception e) {
-            log.error("Failed to proxy delete all for path {}: {}", path, e.getMessage());
+            log.error("Failed to proxy delete all for path {}: {}", resolvedPath, e.getMessage());
             throw new RuntimeException("Storage service error: " + e.getMessage(), e);
         }
     }

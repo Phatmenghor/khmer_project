@@ -9,5 +9,5 @@ import java.util.UUID;
 @Repository
 public interface StorageResourceRepository extends JpaRepository<StorageResource, UUID> {
 
-    void deleteByProjectCodeAndPath(String projectCode, String path);
+    void deleteByPath(String path);
 }

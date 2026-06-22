@@ -10,19 +10,15 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin/storage")
 @RequiredArgsConstructor
-@Tag(name = "Storage Admin", description = "Bulk delete — Basic Auth protected, requires explicit projectCode + pathStore")
+@Tag(name = "Storage Admin", description = "Bulk delete — Basic Auth protected")
 public class StorageAdminController {
 
     private final StorageService storageService;
 
     @DeleteMapping("/all")
-    @Operation(summary = "Delete ALL objects for a project's path scope")
-    public ResponseEntity<Void> deleteAll(
-            @RequestParam("projectCode") String projectCode,
-            @RequestParam("pathStore") String pathStore,
-            @RequestParam("path") String customPath
-    ) {
-        storageService.deleteAll(projectCode, pathStore, customPath);
+    @Operation(summary = "Delete ALL objects under a path prefix")
+    public ResponseEntity<Void> deleteAll(@RequestParam("path") String path) {
+        storageService.deleteAll(path);
         return ResponseEntity.noContent().build();
     }
 }
