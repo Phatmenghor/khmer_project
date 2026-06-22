@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/spaces")
 @RequiredArgsConstructor
-@Tag(name = "Spaces Storage", description = "Image upload / delete / log — secured by API Key. No businessId or projectCode params needed; all context is resolved from the registered API key.")
 public class SpacesController {
 
     private final SpacesService spacesService;
