@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { LANDING_CONFIG } from "@/constants/landing-config";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 
 const scrollStyles = `
   @keyframes scroll-bounce-updown {
@@ -82,7 +83,7 @@ export default function HeroSection() {
             <FadeIn direction="left" delay={100}>
               <div className="relative h-auto min-h-[450px] lg:min-h-[550px] rounded overflow-hidden shadow-2xl group">
                 <Image
-                  src="/images/hero/mobile-restaurant.jpg"
+                  src={appImages.mobileRestaurant}
                   alt="Emenu Cambodia Mobile App"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"

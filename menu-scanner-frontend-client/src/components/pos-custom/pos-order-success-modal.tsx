@@ -32,7 +32,7 @@ export function POSOrderSuccessModal({
       <VisuallyHidden>
         <DialogTitle>Order Success</DialogTitle>
       </VisuallyHidden>
-      <DialogContent className="w-full sm:max-w-lg max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent aria-describedby={undefined} className="w-full sm:max-w-lg max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-const FALLBACK_BUSINESS_ID = "550cad56-cafd-4aba-baef-c4dcd53940d0";
+const FALLBACK_BUSINESS_ID = "3f6214b2-da95-4a68-8c8e-63157a7c673b";
 
 function getBusinessId(): string {
   if (typeof window !== "undefined") {

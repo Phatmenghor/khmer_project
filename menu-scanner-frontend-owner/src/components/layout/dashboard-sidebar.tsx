@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ROUTES, sidebarItems } from "@/constants/app-routes/routes";
 import Image from "next/image";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 import { UserAvatarCard } from "../shared/avator/user-avatar-card";
 import { useIsMobile } from "@/redux/store/use-mobile";
 import { useAuthState } from "@/redux/features/auth/store/state/auth-state";
@@ -191,7 +192,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               className="relative flex items-center gap-2 group transition-all duration-300 hover:scale-[1.02]"
             >
               <Image
-                src="/images/logo/my_logo.png"
+                src={appImages.myLogo}
                 alt="Emenu Cambodia Logo"
                 width={120}
                 height={120}
@@ -212,7 +213,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             >
               <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                 <Image
-                  src="/images/logo/my_logo.png"
+                  src={appImages.myLogo}
                   alt="Emenu Cambodia Logo"
                   width={40}
                   height={40}

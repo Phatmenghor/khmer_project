@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/constants/app-routes/routes";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -50,7 +51,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link href={ROUTES.PUBLIC.HOME} className="flex items-center gap-2">
               <Image
-                src="/images/logo/my_logo.png"
+                src={appImages.myLogo}
                 alt="Emenu Cambodia Logo"
                 width={120}
                 height={120}

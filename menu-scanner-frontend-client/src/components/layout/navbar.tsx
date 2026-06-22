@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { readBusinessCache } from "@/lib/business-cache";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 import { useRouter, usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
@@ -283,11 +284,11 @@ export function Navbar() {
                     <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                       <img
                         key={businessLogoUrl}
-                        src={businessLogoUrl || "/assets/image/menu-logo.png"}
+                        src={businessLogoUrl || appImages.menuLogo}
                         alt={businessName}
                         className="w-full h-full object-cover rounded"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/assets/image/menu-logo.png";
+                          (e.target as HTMLImageElement).src = appImages.menuLogo;
                         }}
                       />
                     </div>

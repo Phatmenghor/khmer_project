@@ -3,7 +3,7 @@ export const appImages = {
   instagram: "/assets/icons/instagram.svg",
   telegram: "/assets/icons/telegram.svg",
   excel: "/assets/icons/excel.png",
-  cpBank: "/assets/image/cpbank.png",
+  loginBg: "/assets/image/emenu-bg.jpg",
   noImage: "/assets/image/no-image.svg",
   menuLogo: "/assets/image/menu-logo.png",
 };

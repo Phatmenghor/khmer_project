@@ -3,6 +3,7 @@ import Image from "next/image";
 import FadeIn from "@/components/landing/fade-in";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { LANDING_CONFIG } from "@/constants/landing-config";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 
 export default function Footer() {
   const { footer } = LANDING_CONFIG;
@@ -16,7 +17,7 @@ export default function Footer() {
             <div>
               <Link href={ROUTES.PUBLIC.HOME} className="inline-block">
                 <Image
-                  src="/images/logo/my_logo.png"
+                  src={appImages.myLogo}
                   alt="Emenu Cambodia Logo"
                   width={200}
                   height={110}

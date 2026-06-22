@@ -1124,3 +1124,60 @@ gmp-placeautocomplete {
   display: block;
   width: 100%;
 }
+
+/* ==========================================================================
+   MOBILE APP SYSTEM OVERRIDES
+   ========================================================================== */
+:root {
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sat: env(safe-area-inset-top, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --radius-card: 0.75rem; /* rounded-xl */
+  --radius-modal: 1.25rem; /* rounded-t-2xl */
+}
+
+/* Reset layout constraints for mobile apps */
+html, body {
+  overscroll-behavior-y: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+body {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Force 16px minimum font size for inputs to completely prevent iOS auto-zoom on focus */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+}
+
+/* Hide default scrollbars for modern, clean viewports */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Safe area padding utilities */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+}
+
+.h-touch {
+  height: 44px !important;
+}
+
+/* Constrain popover alignments within safe viewports */
+[data-radix-popper-content-wrapper] {
+  max-width: calc(100vw - 32px) !important;
+}
+

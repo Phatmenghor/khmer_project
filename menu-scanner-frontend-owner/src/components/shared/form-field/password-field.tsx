@@ -18,10 +18,12 @@ export function PasswordField<T extends FieldValues = FieldValues>({
   onTogglePassword,
   showPassword = false,
   className = "",
+  inputClassName = "",
+  labelClassName = "",
 }: PasswordFieldProps<T>) {
   return (
     <div className={`space-y-1 ${className}`}>
-      <Label htmlFor={name} className="text-xs sm:text-xs font-semibold text-foreground">
+      <Label htmlFor={name} className={`text-xs sm:text-xs font-semibold text-foreground ${labelClassName}`}>
         {label} {required && <span className="text-destructive">*</span>}
       </Label>
       <div className="relative">
@@ -39,7 +41,7 @@ export function PasswordField<T extends FieldValues = FieldValues>({
               autoComplete="new-password"
               className={`pr-8 transition-colors ${
                 error ? "border-destructive focus:border-destructive" : ""
-              }`}
+              } ${inputClassName}`}
             />
           )}
         />

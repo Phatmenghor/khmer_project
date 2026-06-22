@@ -16,10 +16,12 @@ export function TextField<T extends FieldValues = FieldValues>({
   type = "text",
   placeholder = "",
   className = "",
+  inputClassName = "",
+  labelClassName = "",
 }: TextFieldProps<T>) {
   return (
     <div className={`space-y-1 ${className}`}>
-      <Label htmlFor={name} className="text-xs sm:text-xs font-semibold text-foreground">
+      <Label htmlFor={name} className={`text-xs sm:text-xs font-semibold text-foreground ${labelClassName}`}>
         {label} {required && <span className="text-destructive ml-1">*</span>}
       </Label>
       <Controller
@@ -36,7 +38,7 @@ export function TextField<T extends FieldValues = FieldValues>({
             autoComplete="off"
             className={`transition-colors ${disabled ? "bg-muted/50" : ""} ${
               error ? "border-destructive focus:border-destructive" : ""
-            }`}
+            } ${inputClassName}`}
           />
         )}
       />

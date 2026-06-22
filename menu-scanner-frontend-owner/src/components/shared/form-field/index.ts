@@ -15,6 +15,8 @@ export interface BaseFieldProps<T extends FieldValues = FieldValues> {
   disabled?: boolean;
   required?: boolean;
   className?: string;
+  inputClassName?: string;
+  labelClassName?: string;
 }
 
 export interface TextFieldProps<T extends FieldValues = FieldValues>

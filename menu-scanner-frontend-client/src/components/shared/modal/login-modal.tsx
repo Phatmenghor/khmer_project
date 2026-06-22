@@ -130,9 +130,9 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
     }
   };
 
-  // Match admin modal: all interactive elements at h-[26px], compact text,
+  // Match admin modal: all interactive elements at h-[32px], compact text,
   // tight padding. Single token kept so the unified height stays obvious.
-  const fieldHeight = "h-[26px]";
+  const fieldHeight = "h-[32px] md:h-[32px]";
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -167,6 +167,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               error={loginForm.formState.errors.userIdentifier}
               disabled={isAnyLoading}
               required
+              inputClassName={fieldHeight}
             />
             <PasswordField
               name="password"
@@ -178,6 +179,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
               required
               showPassword={showPassword}
               onTogglePassword={() => setShowPassword((v) => !v)}
+              inputClassName={fieldHeight}
             />
 
             {/* Divider */}

@@ -174,7 +174,7 @@ export function TelegramLoginButton({
       type="button"
       onClick={handleClick}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-1.5 rounded bg-[#0088cc] px-3 font-medium text-white shadow-sm transition-all hover:bg-[#0077b3] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded bg-[#0088cc] px-3 font-medium text-white shadow-sm transition-all hover:bg-[#0077b3] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed h-[32px] md:h-[32px] text-xs py-0 ${className}`}
     >
       {loading ? (
         <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24">

@@ -187,8 +187,8 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
     }
   };
 
-  // Admin-modal sizing: every interactive element is h-[26px] tall.
-  const fieldHeight = "h-[26px]";
+  // Admin-modal sizing: every interactive element is h-[32px] tall.
+  const fieldHeight = "h-[32px]";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

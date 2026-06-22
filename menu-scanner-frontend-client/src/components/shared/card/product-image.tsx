@@ -9,6 +9,7 @@ import { CustomButton } from "../button/custom-button";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 
 interface ProductImageProps {
   product: ProductDetailResponseModel;
@@ -40,7 +41,7 @@ function ProductImageComponent({
       {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
 
       <Image
-        src={imageError ? "/assets/image/no-image.svg" : imageUrl}
+        src={imageError ? appImages.noImage : imageUrl}
         alt={product.name || "Product Image"}
         fill
         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

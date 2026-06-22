@@ -1,4 +1,5 @@
-// Landing Page Configuration — describes the actual Emenu Cambodia
+import { appImages } from "./app-resource/icons/app-images";
+
 // platform features. Pricing plans all share the same feature list
 // because every plan unlocks every feature; the only thing that
 // changes between plans is the subscription duration.
@@ -130,7 +131,7 @@ export const LANDING_CONFIG = {
   founder: {
     name: "Phat Menghor",
     title: "Founder & Full-Stack Software Engineer",
-    image: "/images/hero/founder.jpg",
+    image: appImages.founder,
     bio: "A passionate software engineer from Cambodia who wanted to give local food and retail businesses the same kind of digital tools the big chains use — without the enterprise price tag.",
     story:
       "Emenu Cambodia started as a side project after watching too many restaurants struggle with paper menus, lost orders, and spreadsheets for stock. The goal was to build one platform that handled the storefront, the orders, the stock, and the analytics — and to give every customer the same complete feature set instead of locking things behind tiers.",

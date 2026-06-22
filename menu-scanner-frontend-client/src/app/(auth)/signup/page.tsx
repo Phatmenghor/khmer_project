@@ -82,37 +82,31 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-
-      {/* ── Left — hero image ── */}
-      <div className="hidden lg:flex flex-1 relative overflow-hidden">
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-x-hidden">
+      {/* Full screen background image */}
+      <div className="absolute inset-0 z-0">
         <Image
-          src={appImages.cpBank}
+          src={appImages.loginBg}
           alt="Background"
           fill
-          sizes="50vw"
+          sizes="100vw"
           className="object-cover"
           priority
         />
-        {/* gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
-
-        {/* bottom branding */}
-        <div className="absolute bottom-7 left-7 right-7 text-white">
-          <p className="text-xs font-semibold uppercase tracking-widest text-white/50 mb-2">
-            Management System
-          </p>
-          <h2 className="text-xs font-bold leading-snug">Admin Control Panel</h2>
-          <p className="text-xs text-white/50 mt-1 max-w-xs leading-relaxed">
-            Secure access to manage your business operations and team.
-          </p>
-        </div>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
       </div>
 
-      {/* ── Right — form panel ── */}
-      <div className="flex flex-1 items-center justify-center bg-muted/40 p-4">
-        <Card className="w-full max-w-lg shadow-2xl border border-border/60 rounded overflow-hidden">
+      <div className="relative z-10 w-full max-w-lg flex flex-col items-center gap-4">
+        {/* Branding Header */}
+        <div className="flex flex-col items-center text-center text-white mb-2">
+          <div className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg mb-2">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-white">eMenu Cambodia</h1>
+          <p className="text-xs text-white/70">Admin Control Panel</p>
+        </div>
 
+        <Card className="w-full shadow-2xl border border-border/60 rounded overflow-hidden bg-background/95 backdrop-blur-md">
           {/* Card header */}
           <div className="bg-primary/5 border-b border-border/50 px-5 pt-5 pb-4">
             <div className="flex items-center gap-2 mb-3">
@@ -236,7 +230,7 @@ export default function SignupPage() {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                    <Loader2 className="mr-1 h-3 w-5 animate-spin" />
                     Creating account...
                   </>
                 ) : (

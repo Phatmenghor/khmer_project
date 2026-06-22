@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { BannerResponseModel } from "@/features/master-data/store/models/response/banner-response";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 import {
   Carousel,
   CarouselContent,
@@ -14,9 +15,7 @@ import { cn } from "@/lib/utils";
 import Autoplay from "embla-carousel-autoplay";
 
 
-const appImages = {
-  noImage: "/assets/image/no-image.svg",
-};
+
 
 interface BannerSectionProps {
   banners: BannerResponseModel[];
