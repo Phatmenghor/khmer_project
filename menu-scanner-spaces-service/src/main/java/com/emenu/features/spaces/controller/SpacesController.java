@@ -3,8 +3,6 @@ package com.emenu.features.spaces.controller;
 import com.emenu.config.security.model.ApiKeyContext;
 import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import com.emenu.features.spaces.service.SpacesService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -22,9 +20,10 @@ public class SpacesController {
     /**
      * Upload a file.
      * <p>Generates sm / md / o (original) variants automatically.
-     * Storage path is determined entirely by the API key:
+     * {@code projectCode} and {@code path} come from the API key; the optional
+     * {@code path} request param ({@code customPath}) is appended after it:
      * <pre>
-     *   {projectCode}/{path}/{yyyy-MM-dd}/{filename}
+     *   {projectCode}/{path from ApiKey}/{customPath}/{yyyy-MM-dd}/{filename}
      * </pre>
      * Only send the file — no businessId, no project-code header required.
      */
