@@ -18,10 +18,10 @@ public class SpacesImage extends BaseUUIDEntity {
     private String projectCode;
 
     /**
-     * The path segment from the API key.
-     * e.g. "b/abc-123", "owner", "customer", or null for key-level scope.
+     * The resolved path: the API key's path, with the optional customPath appended.
+     * e.g. "b/abc-123", "owner", "customer".
      */
-    @Column(name = "path", nullable = true, length = 255)
+    @Column(name = "path", nullable = false, length = 255)
     private String path;
 
     @Column(name = "object_key", nullable = false, length = 500)

@@ -13,14 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * <ul>
  *   <li>{@code projectCode} — e.g. "emenu"</li>
- *   <li>{@code path}        — e.g. "b/abc-123", "owner", "customer",
- *                             or null → files land at projectCode/yyyy-MM-dd/</li>
+ *   <li>{@code path}        — e.g. "b/abc-123", "owner", "customer"</li>
  * </ul>
  *
  * <p>Storage key pattern:
  * <pre>
- *   {projectCode}/{path}/{yyyy-MM-dd}/{filename}   (when path != null)
- *   {projectCode}/{yyyy-MM-dd}/{filename}           (when path == null)
+ *   {projectCode}/{path}/{yyyy-MM-dd}/{filename}
  * </pre>
  */
 public interface SpacesService {

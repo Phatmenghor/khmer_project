@@ -5,12 +5,10 @@ public final class StorageKeyUtil {
     private StorageKeyUtil() {}
 
     /**
-     * Build the resolved path.
+     * Build the resolved path: the API key's path, with the optional
+     * customPath appended.
      */
     public static String resolvePath(String keyPath, String customPath) {
-        if (keyPath == null || keyPath.isBlank()) {
-            return (customPath == null || customPath.isBlank()) ? null : customPath;
-        }
         if (customPath == null || customPath.isBlank()) {
             return keyPath;
         }
@@ -21,10 +19,7 @@ public final class StorageKeyUtil {
      * Build a full storage key from projectCode, resolved path, and filename.
      */
     public static String key(String projectCode, String resolvedPath, String name) {
-        if (resolvedPath != null && !resolvedPath.isBlank()) {
-            return projectCode + "/" + resolvedPath + "/" + StorageNameUtil.dateFolder() + "/" + name;
-        }
-        return projectCode + "/" + StorageNameUtil.dateFolder() + "/" + name;
+        return projectCode + "/" + resolvedPath + "/" + StorageNameUtil.dateFolder() + "/" + name;
     }
 
     /**
@@ -32,9 +27,6 @@ public final class StorageKeyUtil {
      * Used for bulk-delete operations.
      */
     public static String prefix(String projectCode, String resolvedPath) {
-        if (resolvedPath != null && !resolvedPath.isBlank()) {
-            return projectCode + "/" + resolvedPath + "/";
-        }
-        return projectCode + "/";
+        return projectCode + "/" + resolvedPath + "/";
     }
 }
