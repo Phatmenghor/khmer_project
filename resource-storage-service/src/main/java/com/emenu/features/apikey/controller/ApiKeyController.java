@@ -18,7 +18,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/admin/keys")
 @RequiredArgsConstructor
-@Tag(name = "API Key Management", description = "Create, list and revoke API keys — each key carries projectCode + pathStore")
 public class ApiKeyController {
 
     private final ApiKeyRepository apiKeyRepository;
@@ -32,7 +31,6 @@ public class ApiKeyController {
     }
 
     @PostMapping
-    @Operation(summary = "Create a new API key with projectCode and pathStore")
     public ResponseEntity<ApiKeyResponse> create(@Valid @RequestBody ApiKeyCreateRequest req) {
         String rawKey = ApiKeyUtil.generateKey(req.getProjectCode());
         ApiKey saved = apiKeyRepository.save(ApiKey.builder()
@@ -46,7 +44,6 @@ public class ApiKeyController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Revoke (deactivate) an API key")
     public ResponseEntity<Void> revoke(@PathVariable UUID id) {
         apiKeyRepository.findById(id).ifPresent(k -> {
             k.setActive(false);
