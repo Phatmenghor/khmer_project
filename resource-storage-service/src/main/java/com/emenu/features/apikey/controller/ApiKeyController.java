@@ -23,7 +23,6 @@ public class ApiKeyController {
     private final ApiKeyRepository apiKeyRepository;
 
     @GetMapping
-    @Operation(summary = "List all API keys")
     public ResponseEntity<List<ApiKeyResponse>> list() {
         return ResponseEntity.ok(
                 apiKeyRepository.findAll().stream().map(ApiKeyUtil::toResponse).toList()
