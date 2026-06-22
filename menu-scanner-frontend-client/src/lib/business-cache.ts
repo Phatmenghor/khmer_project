@@ -15,7 +15,6 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 export interface BusinessCacheData {
   businessName?: string;
   logoBusinessUrl?: string;
-  primaryColor?: string;
   taxPercentage?: number;
 }
 

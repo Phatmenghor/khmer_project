@@ -28,7 +28,6 @@ export interface BusinessSettingsResponse {
   logoBusiness?: ImageUrls;
   enableStock: StockStatus;
   socialMedia: SocialMedia[];
-  primaryColor?: string;
 
   contactAddress?: string;
   contactPhone?: string;

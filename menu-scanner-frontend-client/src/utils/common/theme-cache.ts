@@ -2,7 +2,6 @@
 
 
 export interface ThemeCacheData {
-  primaryColor: string;
   businessName?: string;
   logoBusinessUrl?: string;
   taxPercentage?: number;
@@ -81,7 +80,6 @@ export function getCachedThemeColors(businessId: string): ThemeCacheData | null 
 export function cacheThemeColors(
   businessId: string,
   colors: {
-    primaryColor: string;
     businessName?: string;
     logoBusinessUrl?: string;
     taxPercentage?: number;
@@ -89,7 +87,6 @@ export function cacheThemeColors(
 ): void {
   try {
     const cacheData: ThemeCacheData = {
-      primaryColor: colors.primaryColor,
       businessName: colors.businessName,
       logoBusinessUrl: colors.logoBusinessUrl,
       taxPercentage: colors.taxPercentage,
@@ -108,51 +105,9 @@ export function cacheThemeColors(
 }
 
 
-export function applyThemeColors(primaryColor?: string): void {
-  const hexToHsl = (hex: string): string => {
-    if (!hex) return "";
-
-    hex = hex.replace("#", "");
-    const r = parseInt(hex.substring(0, 2), 16) / 255;
-    const g = parseInt(hex.substring(2, 4), 16) / 255;
-    const b = parseInt(hex.substring(4, 6), 16) / 255;
-
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h = 0,
-      s = 0;
-    const l = (max + min) / 2;
-
-    if (max !== min) {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-      switch (max) {
-        case r:
-          h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-          break;
-        case g:
-          h = ((b - r) / d + 2) / 6;
-          break;
-        case b:
-          h = ((r - g) / d + 4) / 6;
-          break;
-      }
-    }
-
-    const hue = Math.round(h * 360);
-    const saturation = Math.round(s * 100);
-    const lightness = Math.round(l * 100);
-
-    return `${hue} ${saturation}% ${lightness}%`;
-  };
-
-  if (primaryColor) {
-    const hsl = hexToHsl(primaryColor);
-    if (hsl) {
-      document.documentElement.style.setProperty("--primary", hsl);
-    }
-  }
+// Primary color is now fixed in CSS — this function is kept for compatibility but does nothing
+export function applyThemeColors(_primaryColor?: string): void {
+  // No-op: color is fixed via CSS variables in globals.css
 }
 
 
@@ -174,7 +129,6 @@ export function getCachedBusinessInfo(businessId: string): {
 export function hasThemeChanged(
   cached: ThemeCacheData | null,
   current: {
-    primaryColor: string;
     businessName?: string;
     logoBusinessUrl?: string;
     taxPercentage?: number;
@@ -182,7 +136,6 @@ export function hasThemeChanged(
 ): boolean {
   if (!cached) return true;
   return (
-    cached.primaryColor !== current.primaryColor ||
     cached.businessName !== current.businessName ||
     cached.logoBusinessUrl !== current.logoBusinessUrl ||
     cached.taxPercentage !== current.taxPercentage

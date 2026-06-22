@@ -45,7 +45,6 @@ export function BusinessSettingsForm({
       contactAddress: "",
       contactPhone: "",
       contactEmail: "",
-      primaryColor: "#000000",
       lowStockThreshold: 5,
       enableStock: "DISABLED",
     },
@@ -67,7 +66,6 @@ export function BusinessSettingsForm({
         contactAddress: settings.contactAddress || "",
         contactPhone: settings.contactPhone || "",
         contactEmail: settings.contactEmail || "",
-        primaryColor: settings.primaryColor || "#000000",
         lowStockThreshold: settings.lowStockThreshold || 5,
         enableStock: settings.enableStock || "DISABLED",
       });
@@ -197,13 +195,6 @@ export function BusinessSettingsForm({
               label="Contact Email"
               placeholder="Enter email"
               type="email"
-            />
-
-            <TextField
-              control={control}
-              name="primaryColor"
-              label="Primary Color"
-              type="color"
             />
 
             <TextField

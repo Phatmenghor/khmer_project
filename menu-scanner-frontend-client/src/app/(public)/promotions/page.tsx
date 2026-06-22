@@ -1,23 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Flame, Zap } from "lucide-react";
-import { useAppSelector } from "@/store";
-import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
 import { ProductListPage } from "@/features/main/components/product/product-list-page";
 
 function PromotionsHero() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-  const businessSettings = useAppSelector(selectBusinessSettings);
-  const primaryColor = mounted ? (businessSettings?.primaryColor ?? "#3b82f6") : "#3b82f6";
-
   return (
     <div
-      className="rounded p-4 sm:p-5 text-white shadow-xl overflow-hidden relative"
-      style={{
-        background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor}cc 100%)`,
-      }}
+      className="rounded p-4 sm:p-5 text-white shadow-xl overflow-hidden relative bg-primary"
     >
       {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full blur-3xl -mr-14 -mt-14" />

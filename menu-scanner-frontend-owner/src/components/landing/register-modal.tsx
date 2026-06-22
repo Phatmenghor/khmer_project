@@ -46,7 +46,6 @@ const schema = z
     businessPhone: z.string().min(6, "Business phone is required"),
     businessAddress: z.string().min(1, "Business address is required"),
     enableStockManagement: z.boolean().default(false),
-    primaryColor: z.string().regex(/^#[0-9A-F]{6}$/i, "Invalid color format"),
   })
   .refine((d) => d.ownerPassword === d.confirmPassword, {
     message: "Passwords do not match",
@@ -239,7 +238,6 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
       businessPhone: "",
       businessAddress: "",
       enableStockManagement: false,
-      primaryColor: "#A32D62",
     },
     mode: "onChange",
   });
@@ -299,7 +297,6 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
         businessPhone: values.businessPhone,
         businessAddress: values.businessAddress,
         enableStockManagement: values.enableStockManagement,
-        primaryColor: values.primaryColor,
       };
 
       payload.subdomain = values.subdomain;
@@ -544,71 +541,27 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
               <SectionHeading
                 step={3}
                 title="Settings"
-                subtitle="Branding and inventory preferences (you can change these later)"
+                subtitle="Inventory preferences (you can change these later)"
               />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1 w-full">
-                  <Label className="text-xs font-medium text-foreground">
-                    Stock Management
-                  </Label>
-                  <div className="flex items-center gap-2 h-[26px] px-2 border border-input rounded bg-muted/30">
-                    <Switch
-                      checked={watch("enableStockManagement")}
-                      onCheckedChange={(checked) =>
-                        setValue("enableStockManagement", checked, {
-                          shouldDirty: true,
-                        })
-                      }
-                      disabled={isSubmitting}
-                    />
-                    <span className="text-xs text-muted-foreground">
-                      {watch("enableStockManagement")
-                        ? "Track stock levels"
-                        : "Skip stock tracking"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1 w-full">
-                  <Label className="text-xs font-medium text-foreground">
-                    Primary Color
-                    <span className="text-red-500 ml-1">*</span>
-                  </Label>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={watch("primaryColor")}
-                      onChange={(e) =>
-                        setValue("primaryColor", e.target.value, {
-                          shouldDirty: true,
-                        })
-                      }
-                      disabled={isSubmitting}
-                      className="w-12 h-[26px] cursor-pointer rounded border border-input"
-                    />
-                    <input
-                      placeholder="#RRGGBB"
-                      value={watch("primaryColor")}
-                      onChange={(e) =>
-                        setValue("primaryColor", e.target.value, {
-                          shouldDirty: true,
-                        })
-                      }
-                      disabled={isSubmitting}
-                      className={`flex h-[26px] flex-1 rounded border bg-transparent px-2 py-0.5 text-xs shadow-sm transition-all focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 ${
-                        errors.primaryColor
-                          ? "border-red-500"
-                          : "border-input"
-                      }`}
-                    />
-                  </div>
-                  <p
-                    className={`text-[11px] text-red-500 ${
-                      errors.primaryColor?.message ? "min-h-[14px]" : ""
-                    }`}
-                  >
-                    {errors.primaryColor?.message || ""}
-                  </p>
+              <div className="flex flex-col gap-1 w-full">
+                <Label className="text-xs font-medium text-foreground">
+                  Stock Management
+                </Label>
+                <div className="flex items-center gap-2 h-[26px] px-2 border border-input rounded bg-muted/30 w-fit">
+                  <Switch
+                    checked={watch("enableStockManagement")}
+                    onCheckedChange={(checked) =>
+                      setValue("enableStockManagement", checked, {
+                        shouldDirty: true,
+                      })
+                    }
+                    disabled={isSubmitting}
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    {watch("enableStockManagement")
+                      ? "Track stock levels"
+                      : "Skip stock tracking"}
+                  </span>
                 </div>
               </div>
             </section>

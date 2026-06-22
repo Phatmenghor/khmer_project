@@ -6,7 +6,6 @@ import { ActionButton } from "@/components/shared/button/action-button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { useBusinessColors } from "@/hooks/use-business-colors";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { TableImage } from "@/components/shared/table/table-image";
 import {
@@ -35,8 +34,6 @@ interface ProductPromotionTableOptions {
 }
 
 function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
-  const { primary: secondary } = useBusinessColors();
-
   if (!sizes || sizes.length === 0) {
     return <span className="text-xs text-muted-foreground">No sizes</span>;
   }
@@ -46,10 +43,7 @@ function SizesDisplay({ sizes }: { sizes: any[] | undefined }) {
       {sizes.map((size) => (
         <div
           key={size.id}
-          className="px-1 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap"
-          style={{
-            border: `0.5px solid ${secondary}`,
-          }}
+          className="px-1 py-1 rounded bg-gray-50 text-xs text-foreground whitespace-nowrap border-[0.5px] border-primary"
         >
           {size.name} ${size.finalPrice}
           {size.hasPromotion && (

@@ -16,7 +16,6 @@ export interface BusinessSettingsResponse {
   businessLongitude?: number;
   logoBusiness?: ImageUrls;
   coverBusinessUrl?: string;
-  primaryColor?: string;
   secondaryColor?: string;
   accentColor?: string;
   backgroundColor?: string;
@@ -55,7 +54,6 @@ export const businessSettingsApi = {
   generateSettingsHash: (settings: BusinessSettingsResponse): string => {
     const hashString = JSON.stringify({
       id: settings.id,
-      primaryColor: settings.primaryColor,
       secondaryColor: settings.secondaryColor,
       accentColor: settings.accentColor,
       backgroundColor: settings.backgroundColor,
