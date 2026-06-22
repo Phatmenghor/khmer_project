@@ -1,0 +1,46 @@
+spring:
+  profiles:
+    active: "${SPRING_PROFILES_ACTIVE:prod}"
+  application:
+    name: resource-storage-service
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+          fetch_size: 50
+          time_zone: Asia/Phnom_Penh
+        order_inserts: true
+        order_updates: true
+        default_batch_fetch_size: 25
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 25MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when-authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+spaces:
+  endpoint: "${SPACES_ENDPOINT:https://sgp1.digitaloceanspaces.com}"
+  region: "${SPACES_REGION:sgp1}"
+  bucket: "${SPACES_BUCKET:emenu-cambodia}"
+  access-key: "${SPACES_ACCESS_KEY:DO00QQ6TAV62YPV3DC4U}"
+  secret-key: "${SPACES_SECRET_KEY:+ye4MKS7msULnLoNvmEy60KpBGaG8IWGepnTNrdTfTw}"
+  cdn-base-url: "${SPACES_CDN_BASE_URL:https://emenu-cambodia.sgp1.cdn.digitaloceanspaces.com}"
+  # API keys are now stored in the database (api_keys table).
+  # Use POST /api/v1/admin/keys to create keys — no YAML config needed.
