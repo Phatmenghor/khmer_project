@@ -2,10 +2,12 @@ package com.emenu.features.storage.service.impl;
 
 import com.emenu.config.security.model.ApiKeyContext;
 import com.emenu.config.storage.StorageProperties;
+import com.emenu.features.storage.dto.response.StorageDeleteResponse;
 import com.emenu.features.storage.dto.response.StorageMultiUploadResponse;
 import com.emenu.features.storage.dto.response.StorageUploadResponse;
 import com.emenu.features.storage.model.StorageResource;
 import com.emenu.features.storage.repository.StorageResourceRepository;
+import com.emenu.features.storage.service.StorageAuditService;
 import com.emenu.features.storage.service.StorageService;
 import com.emenu.features.storage.util.StorageKeyUtil;
 import com.emenu.features.storage.util.StorageNameUtil;
@@ -13,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -34,22 +35,21 @@ public class StorageServiceImpl implements StorageService {
     private final S3Client storageS3Client;
     private final StorageProperties storageProperties;
     private final StorageResourceRepository storageResourceRepository;
+    private final StorageAuditService storageAuditService;
 
     // ── Upload ───────────────────────────────────────────────────────────────
 
     @Override
-    @Transactional
     public StorageUploadResponse upload(MultipartFile file, String customPath, ApiKeyContext ctx) {
         try {
             byte[] original = file.getBytes();
             String name = StorageNameUtil.generateName();
             String originalFilename = file.getOriginalFilename();
-
             String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
 
             StorageUploadResponse response = uploadResized(original, ctx.getProjectCode(), resolvedPath, name, 0, originalFilename);
 
-            log.info("[{}][{}] Uploaded: {}", ctx.getProjectCode(), resolvedPath, name);
+            log.info("[{}][{}] Upload succeeded: key=[{}]", ctx.getProjectCode(), resolvedPath, response.getKey());
             return response;
         } catch (IOException e) {
             log.error("[{}][{}] Upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage());
@@ -58,20 +58,18 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    @Transactional
     public StorageMultiUploadResponse uploadMulti(MultipartFile file, String customPath, ApiKeyContext ctx) {
         try {
             byte[] original = file.getBytes();
             String base = StorageNameUtil.generateBase();
             String originalFilename = file.getOriginalFilename();
-
             String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
 
             StorageUploadResponse sm = uploadResized(original, ctx.getProjectCode(), resolvedPath, base + "-sm.jpg", 300, originalFilename);
             StorageUploadResponse md = uploadResized(original, ctx.getProjectCode(), resolvedPath, base + "-md.jpg", 600, originalFilename);
             StorageUploadResponse o  = uploadResized(original, ctx.getProjectCode(), resolvedPath, base + ".jpg", 0, originalFilename);
 
-            log.info("[{}][{}] Uploaded sm/md/o: {}", ctx.getProjectCode(), resolvedPath, base);
+            log.info("[{}][{}] Multi-upload succeeded: base=[{}]", ctx.getProjectCode(), resolvedPath, base);
             return StorageMultiUploadResponse.builder()
                     .key(o.getKey())
                     .url(o.getUrl())
@@ -80,7 +78,7 @@ public class StorageServiceImpl implements StorageService {
                     .o(o)
                     .build();
         } catch (IOException e) {
-            log.error("[{}][{}] Upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage());
+            log.error("[{}][{}] Multi-upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage());
             throw new RuntimeException("Multi-size image upload failed: " + e.getMessage());
         }
     }
@@ -88,19 +86,27 @@ public class StorageServiceImpl implements StorageService {
     // ── Delete ───────────────────────────────────────────────────────────────
 
     @Override
-    @Transactional
-    public void deleteAll(String path) {
+    public StorageDeleteResponse deleteAll(String path) {
         String prefix = StorageKeyUtil.prefix(path);
-        deleteByPrefix(prefix);
+        List<String> deletedKeys = deleteByPrefix(prefix);
         storageResourceRepository.deleteByPath(path);
-        log.info("[{}] Deleted all objects", path);
+
+        log.info("[{}] Delete-all succeeded: deletedCount=[{}]", path, deletedKeys.size());
+        return StorageDeleteResponse.builder()
+                .path(path)
+                .deletedCount(deletedKeys.size())
+                .build();
     }
 
     // ── Internals ─────────────────────────────────────────────────────────────
 
+    /**
+     * Resizes (if requested), uploads to S3, and responds immediately on success.
+     * The audit row is persisted asynchronously so the DB write never blocks the response.
+     */
     private StorageUploadResponse uploadResized(byte[] original, String projectCode, String resolvedPath,
-                                               String name, int maxWidth,
-                                               String originalFilename) throws IOException {
+                                                 String name, int maxWidth,
+                                                 String originalFilename) throws IOException {
         String key = StorageKeyUtil.key(resolvedPath, name);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -132,7 +138,7 @@ public class StorageServiceImpl implements StorageService {
 
         String url = storageProperties.getCdnBaseUrl() + "/" + key;
 
-        storageResourceRepository.save(StorageResource.builder()
+        storageAuditService.saveAsync(StorageResource.builder()
                 .projectCode(projectCode)
                 .path(resolvedPath)
                 .objectKey(key)
@@ -171,7 +177,7 @@ public class StorageServiceImpl implements StorageService {
                     .build());
         }
 
-        log.info("Deleted {} objects with prefix: {}", toDelete.size(), prefix);
+        log.info("Deleted {} object(s) with prefix: {}", toDelete.size(), prefix);
         return toDelete.stream().map(ObjectIdentifier::key).toList();
     }
 }

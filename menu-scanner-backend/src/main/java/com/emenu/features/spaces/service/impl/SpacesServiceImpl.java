@@ -1,6 +1,8 @@
 package com.emenu.features.spaces.service.impl;
 
 import com.emenu.config.spaces.SpacesProperties;
+import com.emenu.features.spaces.dto.request.SpacesDeleteRequest;
+import com.emenu.features.spaces.dto.response.SpacesDeleteResponse;
 import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import com.emenu.features.spaces.service.SpacesService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +14,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
@@ -21,7 +22,7 @@ import java.io.IOException;
  *
  * <p>This project's single API key already carries projectCode + pathStore;
  * each upload scope (business / owner / customer) is passed as the dynamic
- * {@code path} (customPath) on the request.</p>
+ * {@code path} (customPath) on the multipart request body.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -36,17 +37,14 @@ public class SpacesServiceImpl implements SpacesService {
     @Override
     public SpacesMultiUploadResponse upload(MultipartFile file, String path) {
         try {
-            String url = UriComponentsBuilder
-                    .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/storage/upload/multi")
-                    .queryParam("path", path)
-                    .build().toUriString();
+            String url = spacesProperties.getServiceUrl() + "/api/v1/storage/upload/multi";
 
-            HttpEntity<MultiValueMap<String, Object>> entity = buildMultipart(file, spacesProperties.getApiKey());
+            HttpEntity<MultiValueMap<String, Object>> entity = buildMultipart(file, path, spacesProperties.getApiKey());
             SpacesMultiUploadResponse response = restTemplate.postForObject(url, entity, SpacesMultiUploadResponse.class);
-            log.info("Proxy uploaded path [{}]: {}", path, response != null ? response.getKey() : null);
+            log.info("Proxy upload succeeded: path=[{}], key=[{}]", path, response != null ? response.getKey() : null);
             return response;
         } catch (Exception e) {
-            log.error("Proxy upload failed for path [{}]: {}", path, e.getMessage());
+            log.error("Proxy upload failed: path=[{}], error=[{}]", path, e.getMessage());
             throw new RuntimeException("Storage service error: " + e.getMessage(), e);
         }
     }
@@ -69,29 +67,35 @@ public class SpacesServiceImpl implements SpacesService {
     // ── Delete ───────────────────────────────────────────────────────────────
 
     @Override
-    public void deleteAll(String path) {
+    public SpacesDeleteResponse deleteAll(String path) {
         String resolvedPath = spacesProperties.getPathStore() + "/" + path;
         try {
-            String url = UriComponentsBuilder
-                    .fromHttpUrl(spacesProperties.getServiceUrl() + "/api/v1/admin/storage/all")
-                    .queryParam("path", resolvedPath)
-                    .build().toUriString();
-            restTemplate.exchange(url, HttpMethod.DELETE, new HttpEntity<>(adminHeaders()), Void.class);
-            log.info("Proxy deleted all objects for path: {}", resolvedPath);
+            String url = spacesProperties.getServiceUrl() + "/api/v1/admin/storage/all";
+
+            SpacesDeleteRequest body = new SpacesDeleteRequest();
+            body.setPath(resolvedPath);
+
+            ResponseEntity<SpacesDeleteResponse> response = restTemplate.exchange(
+                    url, HttpMethod.DELETE, new HttpEntity<>(body, adminHeaders()), SpacesDeleteResponse.class);
+
+            SpacesDeleteResponse result = response.getBody();
+            log.info("Proxy delete-all succeeded: path=[{}], deletedCount=[{}]",
+                    resolvedPath, result != null ? result.getDeletedCount() : 0);
+            return result;
         } catch (Exception e) {
-            log.error("Failed to proxy delete all for path {}: {}", resolvedPath, e.getMessage());
+            log.error("Proxy delete-all failed: path=[{}], error=[{}]", resolvedPath, e.getMessage());
             throw new RuntimeException("Storage service error: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public void deleteAll() {
-        deleteAll("business");
+    public SpacesDeleteResponse deleteAll() {
+        return deleteAll("business");
     }
 
     // ── Internals ─────────────────────────────────────────────────────────────
 
-    private HttpEntity<MultiValueMap<String, Object>> buildMultipart(MultipartFile file, String apiKey) {
+    private HttpEntity<MultiValueMap<String, Object>> buildMultipart(MultipartFile file, String path, String apiKey) {
         try {
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("file", new ByteArrayResource(file.getBytes()) {
@@ -100,6 +104,7 @@ public class SpacesServiceImpl implements SpacesService {
                     return file.getOriginalFilename();
                 }
             });
+            body.add("path", path);
 
             HttpHeaders h = headers(apiKey);
             h.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -118,6 +123,7 @@ public class SpacesServiceImpl implements SpacesService {
     private HttpHeaders adminHeaders() {
         HttpHeaders h = new HttpHeaders();
         h.setBasicAuth(spacesProperties.getAdminUsername(), spacesProperties.getAdminPassword());
+        h.setContentType(MediaType.APPLICATION_JSON);
         return h;
     }
 }

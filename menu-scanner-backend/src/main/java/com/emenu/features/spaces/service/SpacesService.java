@@ -1,5 +1,6 @@
 package com.emenu.features.spaces.service;
 
+import com.emenu.features.spaces.dto.response.SpacesDeleteResponse;
 import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,9 +25,9 @@ public interface SpacesService {
     /** Upload image for customer. Legacy method, delegates to upload(file, "customer"). */
     SpacesMultiUploadResponse uploadForCustomer(MultipartFile file);
 
-    /** Delete ALL objects for a path. */
-    void deleteAll(String path);
+    /** Delete ALL objects under a path scope. Requires admin Basic Auth credentials. */
+    SpacesDeleteResponse deleteAll(String path);
 
     /** Legacy deleteAll (defaults to "business"). */
-    void deleteAll();
+    SpacesDeleteResponse deleteAll();
 }

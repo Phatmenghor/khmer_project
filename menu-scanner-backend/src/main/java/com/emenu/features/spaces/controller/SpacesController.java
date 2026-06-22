@@ -5,6 +5,7 @@ import com.emenu.features.spaces.service.SpacesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/spaces")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Spaces Storage", description = "Image upload — proxied to resource-storage-service. No businessId needed.")
 public class SpacesController {
 
@@ -26,6 +28,7 @@ public class SpacesController {
             @RequestParam(value = "businessId", required = false) String businessId
     ) {
         String resolvedPath = (path != null && !path.isBlank()) ? path : businessId;
+        log.info("Upload requested: path=[{}], filename=[{}]", resolvedPath, file.getOriginalFilename());
         return ResponseEntity.ok(spacesService.upload(file, resolvedPath));
     }
 
@@ -37,6 +40,7 @@ public class SpacesController {
             @RequestParam(value = "businessId", required = false) String businessId
     ) {
         String resolvedPath = (path != null && !path.isBlank()) ? path : businessId;
+        log.info("Multi-upload requested: path=[{}], filename=[{}]", resolvedPath, file.getOriginalFilename());
         return ResponseEntity.ok(spacesService.upload(file, resolvedPath));
     }
 
@@ -45,6 +49,7 @@ public class SpacesController {
     public ResponseEntity<SpacesMultiUploadResponse> uploadMultiOwner(
             @RequestPart("file") MultipartFile file
     ) {
+        log.info("Owner upload requested: filename=[{}]", file.getOriginalFilename());
         return ResponseEntity.ok(spacesService.upload(file, "owner"));
     }
 
@@ -53,6 +58,7 @@ public class SpacesController {
     public ResponseEntity<SpacesMultiUploadResponse> uploadMultiCustomer(
             @RequestPart("file") MultipartFile file
     ) {
+        log.info("Customer upload requested: filename=[{}]", file.getOriginalFilename());
         return ResponseEntity.ok(spacesService.upload(file, "customer"));
     }
 
@@ -62,6 +68,7 @@ public class SpacesController {
     public ResponseEntity<SpacesMultiUploadResponse> uploadBusiness(
             @RequestPart("file") MultipartFile file
     ) {
+        log.info("Business upload requested: filename=[{}]", file.getOriginalFilename());
         return ResponseEntity.ok(spacesService.upload(file, "business"));
     }
 
@@ -71,6 +78,7 @@ public class SpacesController {
     public ResponseEntity<SpacesMultiUploadResponse> uploadOwner(
             @RequestPart("file") MultipartFile file
     ) {
+        log.info("Owner upload requested: filename=[{}]", file.getOriginalFilename());
         return ResponseEntity.ok(spacesService.upload(file, "owner"));
     }
 
@@ -80,6 +88,7 @@ public class SpacesController {
     public ResponseEntity<SpacesMultiUploadResponse> uploadCustomer(
             @RequestPart("file") MultipartFile file
     ) {
+        log.info("Customer upload requested: filename=[{}]", file.getOriginalFilename());
         return ResponseEntity.ok(spacesService.upload(file, "customer"));
     }
 }
