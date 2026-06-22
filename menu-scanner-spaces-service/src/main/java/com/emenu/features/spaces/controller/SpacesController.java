@@ -29,7 +29,6 @@ public class SpacesController {
      * Only send the file — no businessId, no project-code header required.
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Upload image → sm / md / o variants. Path resolved from API key + optional custom path.")
     public ResponseEntity<SpacesMultiUploadResponse> upload(
             @RequestPart("file") MultipartFile file,
             @RequestParam(value = "path", required = false) String customPath,

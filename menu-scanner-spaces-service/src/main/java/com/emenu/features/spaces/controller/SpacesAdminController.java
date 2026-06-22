@@ -21,7 +21,6 @@ public class SpacesAdminController {
      * Typically called on subscription expiry or when a business/tenant is removed.
      */
     @DeleteMapping("/all")
-    @Operation(summary = "Delete ALL images for the API key's project + optional custom path scope")
     public ResponseEntity<Void> deleteAll(
             @RequestParam(value = "path", required = false) String customPath,
             HttpServletRequest request
