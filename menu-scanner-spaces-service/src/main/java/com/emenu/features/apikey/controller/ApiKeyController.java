@@ -7,6 +7,7 @@ import com.emenu.features.apikey.repository.ApiKeyRepository;
 import com.emenu.features.apikey.util.ApiKeyUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class ApiKeyController {
 
     @PostMapping
     @Operation(summary = "Create a new API key with projectCode and optional path")
-    public ResponseEntity<ApiKeyResponse> create(@RequestBody ApiKeyCreateRequest req) {
+    public ResponseEntity<ApiKeyResponse> create(@Valid @RequestBody ApiKeyCreateRequest req) {
         String rawKey = ApiKeyUtil.generateKey(req.getProjectCode());
         ApiKey saved = apiKeyRepository.save(ApiKey.builder()
                 .apiKey(rawKey)
