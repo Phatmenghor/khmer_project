@@ -1,10 +1,12 @@
 package com.emenu.features.storage.controller;
 
+import com.emenu.config.OpenApiConfig;
 import com.emenu.config.security.model.ApiKeyContext;
 import com.emenu.features.storage.dto.response.StorageMultiUploadResponse;
 import com.emenu.features.storage.dto.response.StorageUploadResponse;
 import com.emenu.features.storage.service.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Storage", description = "Upload — authenticated via X-API-Key")
+@SecurityRequirement(name = OpenApiConfig.API_KEY_SCHEME)
 public class StorageController {
 
     private final StorageService storageService;

@@ -1,9 +1,11 @@
 package com.emenu.features.storage.controller;
 
+import com.emenu.config.OpenApiConfig;
 import com.emenu.features.storage.dto.request.StorageDeleteRequest;
 import com.emenu.features.storage.dto.response.StorageDeleteResponse;
 import com.emenu.features.storage.service.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Storage Admin", description = "Bulk delete — Basic Auth protected")
+@SecurityRequirement(name = OpenApiConfig.BASIC_AUTH_SCHEME)
 public class StorageAdminController {
 
     private final StorageService storageService;

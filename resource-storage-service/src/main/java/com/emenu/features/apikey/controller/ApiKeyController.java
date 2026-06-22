@@ -4,8 +4,10 @@ import com.emenu.features.apikey.dto.request.ApiKeyCreateRequest;
 import com.emenu.features.apikey.dto.response.ApiKeyResponse;
 import com.emenu.features.apikey.model.ApiKey;
 import com.emenu.features.apikey.repository.ApiKeyRepository;
+import com.emenu.config.OpenApiConfig;
 import com.emenu.features.apikey.util.ApiKeyUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "API Keys", description = "Issue / revoke project API keys — Basic Auth protected")
+@SecurityRequirement(name = OpenApiConfig.BASIC_AUTH_SCHEME)
 public class ApiKeyController {
 
     private final ApiKeyRepository apiKeyRepository;
