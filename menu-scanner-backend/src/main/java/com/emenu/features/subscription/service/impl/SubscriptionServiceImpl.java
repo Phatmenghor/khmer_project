@@ -51,7 +51,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     @Transactional(readOnly = true)
     public SubscriptionHistoryResponse getSubscriptionById(UUID subscriptionId) {
-        log.debug("Getting subscription by ID: {}", subscriptionId);
+        log.info("Getting subscription by ID: {}", subscriptionId);
         Subscription subscription = subscriptionRepository.findByIdAndIsDeletedFalse(subscriptionId)
                 .orElseThrow(() -> new NotFoundException("Subscription not found: " + subscriptionId));
         subscription = subscriptionRepository.findByIdWithRelationships(subscription.getId()).orElse(subscription);

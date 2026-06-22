@@ -659,7 +659,7 @@ public class OrderServiceImpl implements OrderService {
                 orderItem.setPromotionValue(item.getPromotionValue());
                 orderItem.setPromotionFromDate(item.getPromotionFromDate());
                 orderItem.setPromotionToDate(item.getPromotionToDate());
-                log.debug("Item {} has promotion: type={}, value={}",
+                log.info("Item {} has promotion: type={}, value={}",
                     item.getProductId(), item.getPromotionType(), item.getPromotionValue());
             }
 

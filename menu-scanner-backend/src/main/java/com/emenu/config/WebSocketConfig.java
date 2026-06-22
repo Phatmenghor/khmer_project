@@ -89,7 +89,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
                     String subject = claims.get().getSubject();
                     accessor.setUser(new StompPrincipal(subject));
-                    log.debug("[WS] CONNECT authenticated: subject={}", subject);
+                    log.info("[WS] CONNECT authenticated: subject={}", subject);
                 }
 
                 return message;

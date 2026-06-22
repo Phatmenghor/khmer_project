@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:e_menu_platform}"
+    username: "${DB_USERNAME:postgres}"
+    password: "${DB_PASSWORD:Hour1819}"
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: SpacesPool
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # auto-creates api_keys table + path column on first run
+    show-sql: false
+
+server:
+  port: "${SERVER_PORT:7072}"
+
+spaces:
+  endpoint: "https://sgp1.digitaloceanspaces.com"
+  region: "sgp1"
+  bucket: "emenu-cambodia"
+  access-key: "DO00QQ6TAV62YPV3DC4U"
+  secret-key: "+ye4MKS7msULnLoNvmEy60KpBGaG8IWGepnTNrdTfTw"
+  cdn-base-url: "https://emenu-cambodia.sgp1.cdn.digitaloceanspaces.com"
+
+logging:
+  level:
+    root: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level %-35.35logger{35} [%X{traceId:--}] %msg%n"

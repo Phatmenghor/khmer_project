@@ -76,27 +76,16 @@ app:
       app-secret: "${FACEBOOK_APP_SECRET:disabled}"
       enabled: false
 
-# ── DigitalOcean Spaces ───────────────────────────────────────────────────────
+# ── Remote Spaces Microservice ────────────────────────────────────────────────
+# Each key is registered in the Spaces service api_keys table with its own
+# projectCode + path. No businessId or X-Project-Code header is needed.
 spaces:
-  endpoint: "https://sgp1.digitaloceanspaces.com"
-  region: "sgp1"
-  bucket: "emenu-cambodia"
-  access-key: "DO00QQ6TAV62YPV3DC4U"
-  secret-key: "+ye4MKS7msULnLoNvmEy60KpBGaG8IWGepnTNrdTfTw"
-  cdn-base-url: "https://emenu-cambodia.sgp1.cdn.digitaloceanspaces.com"
+  service-url: "${SPACES_SERVICE_URL:http://localhost:7072}"
+  api-key: "${SPACES_API_KEY:sk_emenu_default_key}"
 
 logging:
   level:
     root: INFO
-    com.emenu: INFO
-    com.emenu.features.auth.controller: INFO
-    com.emenu.features.main.controller: INFO
-    com.emenu.features.order.controller: INFO
-    com.emenu.features.hr.controller: INFO
-    com.emenu.features.portfolio.controller: INFO
-    com.emenu.features.subscription.controller: INFO
-    com.emenu.features.spaces.controller: INFO
-    com.emenu.features.audit: WARN
     org.springframework: WARN
     org.hibernate: WARN
     org.apache.catalina: WARN

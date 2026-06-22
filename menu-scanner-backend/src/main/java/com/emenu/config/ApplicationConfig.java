@@ -46,20 +46,24 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public RestTemplate restTemplate() {
+    public RestTemplate restTemplate(com.emenu.shared.logging.RestTemplateLoggingInterceptor loggingInterceptor) {
         // Always set timeouts — an unconfigured RestTemplate blocks the thread indefinitely
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5_000);
         factory.setReadTimeout(15_000);
-        return new RestTemplate(factory);
+        RestTemplate restTemplate = new RestTemplate(factory);
+        restTemplate.setInterceptors(java.util.List.of(loggingInterceptor));
+        return restTemplate;
     }
 
     @Bean(name = "telegramRestTemplate")
-    public RestTemplate telegramRestTemplate() {
+    public RestTemplate telegramRestTemplate(com.emenu.shared.logging.RestTemplateLoggingInterceptor loggingInterceptor) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5_000);
         factory.setReadTimeout(10_000);
-        return new RestTemplate(factory);
+        RestTemplate restTemplate = new RestTemplate(factory);
+        restTemplate.setInterceptors(java.util.List.of(loggingInterceptor));
+        return restTemplate;
     }
 
     @Bean(name = "taskExecutor")

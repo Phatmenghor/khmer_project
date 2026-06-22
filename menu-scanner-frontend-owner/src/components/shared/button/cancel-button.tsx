@@ -1,4 +1,3 @@
-// components/shared/form/CancelButton.tsx
 "use client";
 
 import React from "react";
@@ -18,6 +17,7 @@ interface CancelButtonProps {
     | "secondary"
     | "ghost"
     | "link";
+  size?: "default" | "sm" | "lg" | "icon";
   showIcon?: boolean;
 }
 
@@ -27,17 +27,19 @@ export function CancelButton({
   text = "Cancel",
   className,
   variant = "outline",
+  size = "default",
   showIcon = false,
 }: CancelButtonProps) {
   return (
     <Button
       type="button"
       variant={variant}
+      size={size}
       onClick={onClick}
       disabled={disabled}
       className={cn("transition-all", className)}
     >
-      {showIcon && <X className="mr-1 h-3 w-3" />}
+      {showIcon && <X className="mr-1.5 h-4 w-4 shrink-0" />}
       {text}
     </Button>
   );

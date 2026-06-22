@@ -4,8 +4,6 @@ import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "spaces_images")
 @Getter
@@ -15,8 +13,16 @@ import java.util.UUID;
 @Builder
 public class SpacesImage extends BaseUUIDEntity {
 
-    @Column(name = "business_id", nullable = true)
-    private UUID businessId;
+    /** e.g. "emenu", "ab" — comes from the API key */
+    @Column(name = "project_code", nullable = false, length = 100)
+    private String projectCode;
+
+    /**
+     * The path segment from the API key.
+     * e.g. "b/abc-123", "owner", "customer", or null for key-level scope.
+     */
+    @Column(name = "path", nullable = true, length = 255)
+    private String path;
 
     @Column(name = "object_key", nullable = false, length = 500)
     private String objectKey;

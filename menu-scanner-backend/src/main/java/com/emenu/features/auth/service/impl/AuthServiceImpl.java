@@ -81,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
             subscriptionWarning = validateBusinessSubscriptionAndStatus(userEntity);
         } else if (userEntity.isPlatformUser() || userEntity.isCustomer()) {
             // PLATFORM_USER and CUSTOMER only need account status validation (already done above)
-            log.debug("User type {} requires only account status validation", userEntity.getUserType());
+            log.info("User type {} requires only account status validation", userEntity.getUserType());
         }
 
         List<String> roleNames = userEntity.getRoles().stream()
@@ -162,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
         // Check subscription status
         if (businessEntity.hasActiveSubscription()) {
             // Subscription is active, proceed
-            log.debug("Business subscription is active: business_id={}", userEntity.getBusinessId());
+            log.info("Business subscription is active: business_id={}", userEntity.getBusinessId());
             return null;
         }
 
@@ -202,19 +202,21 @@ public class AuthServiceImpl implements AuthService {
             );
         }
 
-        if (userTypeEnum == UserType.BUSINESS_USER) {
+        if (userTypeEnum == UserType.BUSINESS_USER || userTypeEnum == UserType.CUSTOMER) {
             if (businessIdValue == null) {
-                log.warn("User login failed - missing business ID: identifier={}", userIdentifier);
+                log.warn("User login failed - missing business ID: identifier={}, type={}", userIdentifier, userTypeEnum);
                 throw new ValidationException(
-                        "Business ID is required for business user login. Please provide businessId in your login request."
+                        "Business ID is required for " + userTypeEnum.name().toLowerCase().replace("_", " ") + " login. Please provide businessId in your login request."
                 );
             }
 
             return userRepository.findByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessIdValue)
                     .orElseThrow(() -> {
-                        log.warn("User login failed - user not found in business: identifier={}, business_id={}", userIdentifier, businessIdValue);
+                        log.warn("User login failed - user not found in business: identifier={}, business_id={}, type={}", userIdentifier, businessIdValue, userTypeEnum);
+                        String userTypeLabel = userTypeEnum.name().toLowerCase().replace("_", " ");
+                        String capUserTypeLabel = userTypeLabel.substring(0, 1).toUpperCase() + userTypeLabel.substring(1);
                         return new ValidationException(
-                                "Business user account not found. Please check your email or username and ensure you're using the correct business account."
+                                capUserTypeLabel + " account not found. Please check your email or username and ensure you're using the correct business account."
                         );
                     });
         }
@@ -238,7 +240,7 @@ public class AuthServiceImpl implements AuthService {
             );
         }
 
-        if (loginRequestData.getUserType() == UserType.BUSINESS_USER) {
+        if (loginRequestData.getUserType() == UserType.BUSINESS_USER || loginRequestData.getUserType() == UserType.CUSTOMER) {
             if (userEntity.getBusinessId() == null) {
                 log.warn("User login failed - user not associated with business: user_id={}", userEntity.getId());
                 throw new ValidationException("User is not associated with any business");
@@ -253,16 +255,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserResponse registerCustomer(RegisterRequest registrationRequestData) {
-        log.info("Customer registration initiated: identifier={}", registrationRequestData.getUserIdentifier());
+        log.info("Customer registration initiated: identifier={}, business_id={}", registrationRequestData.getUserIdentifier(), registrationRequestData.getBusinessId());
 
         userValidationService.validateUsernameUniqueness(
                 registrationRequestData.getUserIdentifier(),
                 UserType.CUSTOMER,
-                null
+                registrationRequestData.getBusinessId()
         );
 
         User userEntity = userMapper.toEntity(registrationRequestData);
         userEntity.setUserType(UserType.CUSTOMER);
+        userEntity.setBusinessId(registrationRequestData.getBusinessId());
         userEntity.setPassword(passwordEncoder.encode(registrationRequestData.getPassword()));
 
         List<Role> customerRoles = roleRepository.findSystemRolesByName("CUSTOMER");
@@ -387,7 +390,7 @@ public class AuthServiceImpl implements AuthService {
             subscriptionWarning = validateBusinessSubscriptionAndStatus(userEntity);
         } else if (userEntity.isPlatformUser() || userEntity.isCustomer()) {
             // PLATFORM_USER and CUSTOMER only need account status validation (already done above)
-            log.debug("User type {} requires only account status validation", userEntity.getUserType());
+            log.info("User type {} requires only account status validation", userEntity.getUserType());
         }
 
         List<String> roleNames = userEntity.getRoles().stream()
@@ -436,10 +439,10 @@ public class AuthServiceImpl implements AuthService {
             throw new ValidationException("Invalid refresh token: invalid user type");
         }
 
-        if (userTypeEnum == UserType.BUSINESS_USER) {
+        if (userTypeEnum == UserType.BUSINESS_USER || userTypeEnum == UserType.CUSTOMER) {
             if (businessIdString == null) {
-                log.warn("Refresh token validation failed - missing business ID: identifier={}", userIdentifier);
-                throw new ValidationException("Invalid refresh token: missing business ID for business user");
+                log.warn("Refresh token validation failed - missing business ID: identifier={}, type={}", userIdentifier, userTypeEnum);
+                throw new ValidationException("Invalid refresh token: missing business ID for " + userTypeEnum.name().toLowerCase().replace("_", " "));
             }
 
             UUID businessIdValue;

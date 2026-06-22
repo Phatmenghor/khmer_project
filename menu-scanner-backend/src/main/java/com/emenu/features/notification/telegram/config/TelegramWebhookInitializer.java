@@ -34,17 +34,17 @@ public class TelegramWebhookInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (!telegramEnabled) {
-            log.debug("[Telegram] Bot is disabled, skipping webhook initialization");
+            log.info("[Telegram] Bot is disabled, skipping webhook initialization");
             return;
         }
 
         if (!autoSetup) {
-            log.debug("[Telegram] Auto-setup is disabled, skipping webhook initialization");
+            log.info("[Telegram] Auto-setup is disabled, skipping webhook initialization");
             return;
         }
 
         if (webhookUrl == null || webhookUrl.isBlank()) {
-            log.debug("[Telegram] No webhook URL configured, skipping auto-setup");
+            log.info("[Telegram] No webhook URL configured, skipping auto-setup");
             log.info("[Telegram] To enable auto-setup, set TELEGRAM_WEBHOOK_URL environment variable");
             return;
         }

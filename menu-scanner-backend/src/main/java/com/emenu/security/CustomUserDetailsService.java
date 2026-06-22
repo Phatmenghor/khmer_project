@@ -66,6 +66,23 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public UserDetails loadUserById(String userIdStr) throws UsernameNotFoundException {
+        try {
+            java.util.UUID userId = java.util.UUID.fromString(userIdStr);
+            User user = userRepository.findByIdAndIsDeletedFalse(userId)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found for ID: " + userIdStr));
+
+            return new org.springframework.security.core.userdetails.User(
+                    user.getUserIdentifier(),
+                    user.getPassword(),
+                    mapRolesToAuthorities(user.getRoles())
+            );
+        } catch (IllegalArgumentException e) {
+            throw new UsernameNotFoundException("Invalid user ID format: " + userIdStr);
+        }
+    }
+
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(List<Role> roles) {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))

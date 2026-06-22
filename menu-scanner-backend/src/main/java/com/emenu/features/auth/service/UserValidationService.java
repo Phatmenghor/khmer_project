@@ -18,16 +18,16 @@ public class UserValidationService {
     public boolean isUsernameAvailable(String userIdentifier, UserType userType, UUID businessId) {
         switch (userType) {
             case PLATFORM_USER:
-            case CUSTOMER:
-                // For platform users and customers, check global uniqueness within their user type
+                // For platform users, check global uniqueness within their user type
                 boolean existsByType = userRepository.existsByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userType);
                 return !existsByType;
 
+            case CUSTOMER:
             case BUSINESS_USER:
-                // For business users, check uniqueness within the specific business
+                // For customers and business users, check uniqueness within the specific business
                 if (businessId == null) {
-                    log.warn("Username validation failed - missing business ID for business user");
-                    throw new IllegalArgumentException("Business ID is required for BUSINESS_USER type");
+                    log.warn("Username validation failed - missing business ID for user type {}", userType);
+                    throw new IllegalArgumentException("Business ID is required for " + userType + " type");
                 }
                 boolean existsInBusiness = userRepository.existsByUserIdentifierAndBusinessIdAndIsDeletedFalse(userIdentifier, businessId);
                 return !existsInBusiness;
@@ -40,7 +40,7 @@ public class UserValidationService {
 
     public void validateUsernameUniqueness(String userIdentifier, UserType userType, UUID businessId) {
         if (!isUsernameAvailable(userIdentifier, userType, businessId)) {
-            String context = userType == UserType.BUSINESS_USER
+            String context = (userType == UserType.BUSINESS_USER || userType == UserType.CUSTOMER)
                     ? " in this business"
                     : " for " + userType.name().toLowerCase().replace("_", " ");
             throw new com.emenu.exception.custom.ValidationException(

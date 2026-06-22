@@ -7,24 +7,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/v1/admin/spaces")
 @RequiredArgsConstructor
-@Tag(name = "Spaces Admin", description = "Admin-level bulk delete — subscription expiry and business cleanup")
+@Tag(name = "Spaces Admin", description = "Bulk delete — subscription expiry / tenant cleanup")
 public class SpacesAdminController {
 
     private final SpacesService spacesService;
 
-    /**
-     * Delete every object under b/{businessId}/.
-     * Called on subscription expiry or when a business is deleted.
-     */
-    @DeleteMapping("/business/{businessId}")
-    @Operation(summary = "Delete ALL images for a business (subscription expiry / business deletion)")
-    public ResponseEntity<Void> deleteAllForBusiness(@PathVariable UUID businessId) {
-        spacesService.deleteAllByBusiness(businessId);
+    @DeleteMapping("/all")
+    @Operation(summary = "Delete ALL images for a path scope")
+    public ResponseEntity<Void> deleteAll(
+            @RequestParam(value = "path", required = false) String path,
+            @RequestParam(value = "businessId", required = false) String businessId
+    ) {
+        String resolvedPath = (path != null && !path.isBlank()) ? path : businessId;
+        spacesService.deleteAll(resolvedPath);
         return ResponseEntity.noContent().build();
     }
 }

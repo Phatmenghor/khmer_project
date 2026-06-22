@@ -42,4 +42,6 @@ public class RegisterRequest {
     private String address;
 
     private AccountStatus accountStatus = AccountStatus.ACTIVE;
+
+    private java.util.UUID businessId;
 }

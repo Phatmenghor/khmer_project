@@ -45,7 +45,28 @@ public class SecurityUtils {
             String token = bearerToken.substring(7);
             return jwtGenerator.getUserTypeFromJWT(token);
         } catch (Exception e) {
-            log.debug("Could not extract userType from token: {}", e.getMessage());
+            log.warn("Could not extract userType from token: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String extractUserIdFromToken() {
+        try {
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes == null) {
+                return null;
+            }
+
+            HttpServletRequest request = attributes.getRequest();
+            String bearerToken = request.getHeader("Authorization");
+            if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
+                return null;
+            }
+
+            String token = bearerToken.substring(7);
+            return jwtGenerator.getUserIdFromJWT(token);
+        } catch (Exception e) {
+            log.warn("Could not extract userId from token: {}", e.getMessage());
             return null;
         }
     }
@@ -55,6 +76,17 @@ public class SecurityUtils {
 
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new ValidationException("User not authenticated");
+        }
+
+        String userIdStr = extractUserIdFromToken();
+        if (userIdStr != null) {
+            try {
+                UUID userId = UUID.fromString(userIdStr);
+                return userRepository.findByIdAndIsDeletedFalse(userId)
+                        .orElseThrow(() -> new ValidationException("User not found for ID: " + userId));
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid userId from token: {}", userIdStr);
+            }
         }
 
         String userIdentifier = authentication.getName();
@@ -115,6 +147,26 @@ public class SecurityUtils {
                 return Optional.empty();
             }
 
+            String userIdStr = extractUserIdFromToken();
+            if (userIdStr != null) {
+                try {
+                    UUID userId = UUID.fromString(userIdStr);
+                    Optional<User> userOpt = userRepository.findByIdAndIsDeletedFalse(userId);
+                    if (userOpt.isPresent()) {
+                        User user = userOpt.get();
+                        try {
+                            validateAccountStatus(user);
+                            return Optional.of(user);
+                        } catch (Exception e) {
+                            log.warn("User account validation failed: ID={} - {}", userId, e.getMessage());
+                            return Optional.empty();
+                        }
+                    }
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid userId from token: {}", userIdStr);
+                }
+            }
+
             String userIdentifier = authentication.getName();
             String userTypeStr = extractUserTypeFromToken();
 
@@ -124,7 +176,7 @@ public class SecurityUtils {
                     UserType userType = UserType.valueOf(userTypeStr);
                     userOpt = userRepository.findByUserIdentifierAndUserTypeAndIsDeletedFalse(userIdentifier, userType);
                 } catch (IllegalArgumentException e) {
-                    log.debug("Invalid userType from token: {}", userTypeStr);
+                    log.warn("Invalid userType from token: {}", userTypeStr);
                     userOpt = userRepository.findByUserIdentifierAndIsDeletedFalse(userIdentifier);
                 }
             } else {
@@ -148,7 +200,7 @@ public class SecurityUtils {
             return Optional.of(user);
 
         } catch (Exception e) {
-            log.debug("Error getting current user (public access mode): {}", e.getMessage());
+            log.warn("Error getting current user (public access mode): {}", e.getMessage());
             return Optional.empty();
         }
     }
@@ -158,7 +210,7 @@ public class SecurityUtils {
             User currentUser = getCurrentUser();
             return currentUser.getBusinessId();
         } catch (Exception e) {
-            log.debug("Error getting business ID: {}", e.getMessage());
+            log.warn("Error getting business ID: {}", e.getMessage());
             return null;
         }
     }
@@ -172,7 +224,7 @@ public class SecurityUtils {
             User currentUser = getCurrentUser();
             return currentUser.getUserType();
         } catch (Exception e) {
-            log.debug("Error getting user type: {}", e.getMessage());
+            log.warn("Error getting user type: {}", e.getMessage());
             return null;
         }
     }

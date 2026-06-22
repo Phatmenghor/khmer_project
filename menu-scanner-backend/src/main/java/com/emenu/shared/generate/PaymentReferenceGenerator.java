@@ -16,7 +16,7 @@ public class PaymentReferenceGenerator {
 
     public String generateUniqueReference() {
         String reference = generateReference();
-        log.debug("Generated reference: {}", reference);
+        log.info("Generated reference: {}", reference);
         return reference;
     }
 

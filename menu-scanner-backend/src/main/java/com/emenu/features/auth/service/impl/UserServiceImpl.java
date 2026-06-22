@@ -20,6 +20,7 @@ import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.features.auth.specification.UserSpecification;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.features.auth.service.UserService;
+import com.emenu.features.auth.service.UserValidationService;
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.security.SecurityUtils;
@@ -62,6 +63,7 @@ public class UserServiceImpl implements UserService {
     private final UserNestedEntitiesMapper userNestedEntitiesMapper;
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtils securityUtils;
+    private final UserValidationService userValidationService;
     private final PaginationMapper paginationMapper;
     private final TelegramNotificationService telegramNotificationService;
     private final WebSocketNotificationService webSocketNotificationService;
@@ -118,10 +120,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateUserCreationRequest(UserCreateRequest req) {
-        if (userRepository.findByUserIdentifierAndIsDeletedFalse(req.getUserIdentifier()).isPresent()) {
-            log.warn("User creation failed - duplicate identifier: identifier={}", req.getUserIdentifier());
-            throw new ValidationException("User identifier already exists");
-        }
+        userValidationService.validateUsernameUniqueness(req.getUserIdentifier(), req.getUserType(), req.getBusinessId());
 
         if (req.getUserType() == UserType.BUSINESS_USER && req.getBusinessId() == null) {
             log.warn("User creation failed - missing business ID");

@@ -83,7 +83,7 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     @Async("taskExecutor")
     public void sendAdminAlert(String message) {
         if (!enabled || adminGroupChatId == null || adminGroupChatId.isBlank()) {
-            log.debug("[Telegram] Admin alerts disabled or no admin group chat ID configured");
+            log.info("[Telegram] Admin alerts disabled or no admin group chat ID configured");
             return;
         }
         sendToChatId(adminGroupChatId, message, "MarkdownV2");
@@ -188,7 +188,7 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
 
         String chatId = resolveChatId(businessId);
         if (chatId == null || chatId.isBlank()) {
-            log.debug("[Telegram] No group chat ID for business={}", businessId);
+            log.info("[Telegram] No group chat ID for business={}", businessId);
             return;
         }
 
@@ -210,7 +210,7 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
             body.put("parse_mode", parseMode);
 
             restTemplate.postForObject(url, new HttpEntity<>(body, headers), String.class);
-            log.debug("[Telegram] Message sent to chat_id={}", chatId);
+            log.info("[Telegram] Message sent to chat_id={}", chatId);
         } catch (Exception e) {
             log.warn("[Telegram] Failed to send to chat_id={}: {}", chatId, e.getMessage());
         }

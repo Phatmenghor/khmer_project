@@ -62,7 +62,7 @@ public class SubscriptionExpiryCheckScheduler {
                         expiryDate
                 );
 
-                log.debug("[Scheduler] Notification sent for business: {}, days remaining: {}",
+                log.info("[Scheduler] Notification sent for business: {}, days remaining: {}",
                         businessName, daysRemaining);
             } catch (Exception e) {
                 log.error("[Scheduler] Error sending notification for subscription: {}",

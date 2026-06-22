@@ -1,16 +1,22 @@
 package com.emenu.features.spaces.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SpacesImageResponse {
     private UUID id;
-    private UUID businessId;
+    private String businessId;
+    private String path;
+    private String projectCode;
     private String objectKey;
     private String url;
     private String originalFilename;

@@ -89,7 +89,7 @@ public class AuditLogServiceImpl implements AuditLogService {
                 try {
                     userId = java.util.UUID.fromString(authUserId);
                 } catch (Exception e) {
-                    log.debug("Invalid userId format from token: {}", authUserId);
+                    log.warn("Invalid userId format from token: {}", authUserId);
                 }
             }
             userIdentifier = authUserIdentifier;
@@ -105,7 +105,7 @@ public class AuditLogServiceImpl implements AuditLogService {
         try {
             sessionId = request.getSession(false) != null ? request.getSession().getId() : null;
         } catch (Exception e) {
-            log.debug("Session not available for audit logging");
+            log.info("Session not available for audit logging");
         }
 
         // Extract email from request body for public endpoints (registration, etc)
@@ -218,7 +218,7 @@ public class AuditLogServiceImpl implements AuditLogService {
 
             return email != null ? email.toString() : null;
         } catch (Exception e) {
-            log.debug("Could not extract email from request body: {}", e.getMessage());
+            log.info("Could not extract email from request body: {}", e.getMessage());
             return null;
         }
     }

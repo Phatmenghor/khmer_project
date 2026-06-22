@@ -10,9 +10,10 @@ import java.util.UUID;
 @Repository
 public interface SpacesImageRepository extends JpaRepository<SpacesImage, UUID> {
 
-    List<SpacesImage> findByBusinessIdOrderByCreatedAtDesc(UUID businessId);
+    /** Fetch all log entries for a given project + path (from the API key). */
+    List<SpacesImage> findByProjectCodeAndPathOrderByCreatedAtDesc(String projectCode, String path);
 
     void deleteByObjectKey(String objectKey);
 
-    void deleteByBusinessId(UUID businessId);
+    void deleteByProjectCodeAndPath(String projectCode, String path);
 }

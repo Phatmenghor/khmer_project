@@ -79,15 +79,6 @@ app:
 logging:
   level:
     root: INFO
-    com.emenu: INFO
-    com.emenu.features.auth.controller: INFO
-    com.emenu.features.main.controller: INFO
-    com.emenu.features.order.controller: INFO
-    com.emenu.features.hr.controller: INFO
-    com.emenu.features.portfolio.controller: INFO
-    com.emenu.features.subscription.controller: INFO
-    com.emenu.features.spaces.controller: INFO
-    com.emenu.features.audit: WARN
     org.springframework: WARN
     org.hibernate: WARN
     org.apache.catalina: WARN

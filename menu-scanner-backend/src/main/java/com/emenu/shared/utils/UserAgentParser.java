@@ -56,7 +56,7 @@ public class UserAgentParser {
                 }
             }
         } catch (Exception e) {
-            log.debug("Error parsing browser version: {}", e.getMessage());
+            log.warn("Error parsing browser version: {}", e.getMessage());
         }
         return "";
     }

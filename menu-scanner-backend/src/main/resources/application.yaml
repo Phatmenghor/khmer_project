@@ -83,14 +83,12 @@ springdoc:
     path: /v3/api-docs
     enabled: true
 
-# ── Application (static metadata only) ────────────────────────────────────────
+# ── Application (static metadata only) ────────────────────────────────────
+# Each key is registered in the Spaces service api_keys table with its own
+# projectCode + path. No businessId or X-Project-Code header is needed.
 spaces:
-  endpoint: "${SPACES_ENDPOINT:https://sgp1.digitaloceanspaces.com}"
-  region: "${SPACES_REGION:sgp1}"
-  bucket: "${SPACES_BUCKET:emenu-cambodia}"
-  access-key: "${SPACES_ACCESS_KEY:DO00QQ6TAV62YPV3DC4U}"
-  secret-key: "${SPACES_SECRET_KEY:+ye4MKS7msULnLoNvmEy60KpBGaG8IWGepnTNrdTfTw}"
-  cdn-base-url: "${SPACES_CDN_BASE_URL:https://emenu-cambodia.sgp1.cdn.digitaloceanspaces.com}"
+  service-url: "${SPACES_SERVICE_URL:http://localhost:7072}"
+  api-key: "${SPACES_API_KEY:sk_emenu_default_key}"
 
 app:
   name: "Cambodia E-Menu Platform"

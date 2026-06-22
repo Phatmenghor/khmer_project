@@ -76,12 +76,15 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        String userId = claims.get("userId", String.class);
         String username = claims.getSubject();
         String userType = claims.get("userType", String.class);
 
-        UserDetails userDetails = (userType != null)
-                ? customUserDetailsService.loadUserByUsernameAndUserType(username, userType)
-                : customUserDetailsService.loadUserByUsername(username);
+        UserDetails userDetails = (userId != null)
+                ? customUserDetailsService.loadUserById(userId)
+                : (userType != null)
+                        ? customUserDetailsService.loadUserByUsernameAndUserType(username, userType)
+                        : customUserDetailsService.loadUserByUsername(username);
 
         var authToken = new UsernamePasswordAuthenticationToken(
                 userDetails, null, userDetails.getAuthorities());
@@ -101,7 +104,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             if (userIdentifier != null) { ctx.put("userIdentifier", userIdentifier); MDC.put("userIdentifier", userIdentifier); }
             if (userType       != null) { ctx.put("userType",       userType);       MDC.put("userType",       userType);       }
         } catch (Exception e) {
-            log.debug("Could not populate auth context: {}", e.getMessage());
+            log.warn("Could not populate auth context: {}", e.getMessage());
         }
     }
 

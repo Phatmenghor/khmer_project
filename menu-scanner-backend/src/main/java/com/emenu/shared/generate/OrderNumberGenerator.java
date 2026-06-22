@@ -81,7 +81,7 @@ public class OrderNumberGenerator {
             log.warn("Had to retry order number generation {} times for business {}", attempts, businessId);
         }
 
-        log.debug("Generated order number: {} for business: {}", orderNumber, businessId);
+        log.info("Generated order number: {} for business: {}", orderNumber, businessId);
         return orderNumber;
     }
 
