@@ -2,6 +2,7 @@ package com.emenu.features.storage.service;
 
 import com.emenu.config.security.model.ApiKeyContext;
 import com.emenu.features.storage.dto.response.StorageMultiUploadResponse;
+import com.emenu.features.storage.dto.response.StorageUploadResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -23,7 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface StorageService {
 
-    StorageMultiUploadResponse upload(MultipartFile file, String customPath, ApiKeyContext ctx);
+    /** Upload a single file, stored as one image. */
+    StorageUploadResponse upload(MultipartFile file, String customPath, ApiKeyContext ctx);
+
+    /** Upload a file and generate sm / md / o (original) size variants. */
+    StorageMultiUploadResponse uploadMulti(MultipartFile file, String customPath, ApiKeyContext ctx);
 
     void deleteAll(String customPath, ApiKeyContext ctx);
 }

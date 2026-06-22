@@ -39,7 +39,27 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     @Transactional
-    public StorageMultiUploadResponse upload(MultipartFile file, String customPath, ApiKeyContext ctx) {
+    public StorageUploadResponse upload(MultipartFile file, String customPath, ApiKeyContext ctx) {
+        try {
+            byte[] original = file.getBytes();
+            String name = StorageNameUtil.generateName();
+            String originalFilename = file.getOriginalFilename();
+
+            String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
+
+            StorageUploadResponse response = uploadResized(original, ctx.getProjectCode(), resolvedPath, name, 0, originalFilename);
+
+            log.info("[{}][{}] Uploaded: {}", ctx.getProjectCode(), resolvedPath, name);
+            return response;
+        } catch (IOException e) {
+            log.error("[{}][{}] Upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage());
+            throw new RuntimeException("Image upload failed: " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public StorageMultiUploadResponse uploadMulti(MultipartFile file, String customPath, ApiKeyContext ctx) {
         try {
             byte[] original = file.getBytes();
             String base = StorageNameUtil.generateBase();
