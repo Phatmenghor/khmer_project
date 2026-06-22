@@ -38,7 +38,7 @@ public class ApiKeyController {
         ApiKey saved = apiKeyRepository.save(ApiKey.builder()
                 .apiKey(rawKey)
                 .projectCode(req.getProjectCode())
-                .path(req.getPath())
+                .pathStore(req.getPathStore())
                 .label(req.getLabel())
                 .active(true)
                 .build());

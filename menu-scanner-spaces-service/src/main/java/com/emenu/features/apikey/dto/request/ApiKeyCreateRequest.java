@@ -13,7 +13,7 @@ public class ApiKeyCreateRequest {
      * e.g. "b/abc-123", "owner", "customer", "shared"
      */
     @NotBlank
-    private String path;
+    private String pathStore;
     /** Human-readable label, e.g. "Menu Scanner backend production key" */
     @NotBlank
     private String label;

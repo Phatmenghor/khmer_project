@@ -12,7 +12,7 @@ public class ApiKeyResponse {
     private UUID id;
     private String apiKey;
     private String projectCode;
-    private String path;
+    private String pathStore;
     private String label;
     private boolean active;
     private LocalDateTime createdAt;

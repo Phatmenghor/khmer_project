@@ -25,7 +25,7 @@ public final class ApiKeyUtil {
                 .id(k.getId())
                 .apiKey(k.getApiKey())
                 .projectCode(k.getProjectCode())
-                .path(k.getPath())
+                .pathStore(k.getPathStore())
                 .label(k.getLabel())
                 .active(k.isActive())
                 .createdAt(k.getCreatedAt())

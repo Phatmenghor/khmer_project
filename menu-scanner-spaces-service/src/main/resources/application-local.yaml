@@ -14,7 +14,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update   # auto-creates api_keys table + path column on first run
+      ddl-auto: update   # auto-creates api_keys table + path_store column on first run
     show-sql: false
 
 server:
