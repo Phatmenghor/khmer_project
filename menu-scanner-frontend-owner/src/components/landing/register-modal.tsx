@@ -113,7 +113,7 @@ function RegistrationSuccessModal({
   if (!info) return null;
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="sm:max-w-md p-0 gap-0 flex flex-col overflow-hidden" onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent aria-describedby={undefined} className="sm:max-w-md p-0 gap-0 flex flex-col overflow-hidden" onInteractOutside={(e) => e.preventDefault()}>
         {/* Header */}
         <div className="flex items-center gap-3 px-5 py-4 border-b bg-primary/5">
           <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
@@ -344,6 +344,7 @@ export function RegisterModal({ isOpen, onClose, plan }: RegisterModalProps) {
     />
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
+        aria-describedby={undefined}
         className="w-screen sm:w-full sm:max-w-3xl max-h-[100dvh] sm:max-h-[92dvh] h-[100dvh] sm:h-auto p-0 gap-0 flex flex-col overflow-hidden rounded-none sm:rounded"
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
