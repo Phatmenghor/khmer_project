@@ -93,12 +93,6 @@
 			<artifactId>flyway-database-postgresql</artifactId>
 		</dependency>
 
-		<!-- ===== Redis (Cache + Rate Limiting) ===== -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-redis</artifactId>
-		</dependency>
-
 		<!-- ===== Bucket4j Rate Limiting ===== -->
 		<dependency>
 			<groupId>com.bucket4j</groupId>

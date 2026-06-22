@@ -37,14 +37,6 @@ spring:
   cache:
     type: none
 
-  data:
-    redis:
-      host: "${REDIS_HOST:167.172.88.194}"
-      port: "${REDIS_PORT:6379}"
-      password: "${REDIS_PASSWORD:}"
-      database: "${REDIS_DATABASE:0}"
-      timeout: 2000
-
 # ── Actuator & Monitoring ─────────────────────────────────────────────────────
 management:
   endpoints:
