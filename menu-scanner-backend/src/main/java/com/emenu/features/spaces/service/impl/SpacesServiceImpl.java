@@ -1,8 +1,6 @@
 package com.emenu.features.spaces.service.impl;
 
 import com.emenu.config.spaces.SpacesProperties;
-import com.emenu.features.spaces.dto.request.SpacesDeleteRequest;
-import com.emenu.features.spaces.dto.response.SpacesDeleteResponse;
 import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import com.emenu.features.spaces.service.SpacesService;
 import lombok.RequiredArgsConstructor;
@@ -64,35 +62,6 @@ public class SpacesServiceImpl implements SpacesService {
         return upload(file, "customer");
     }
 
-    // ── Delete ───────────────────────────────────────────────────────────────
-
-    @Override
-    public SpacesDeleteResponse deleteAll(String path) {
-        String resolvedPath = spacesProperties.getPathStore() + "/" + path;
-        try {
-            String url = spacesProperties.getServiceUrl() + "/api/v1/admin/storage/all";
-
-            SpacesDeleteRequest body = new SpacesDeleteRequest();
-            body.setPath(resolvedPath);
-
-            ResponseEntity<SpacesDeleteResponse> response = restTemplate.exchange(
-                    url, HttpMethod.DELETE, new HttpEntity<>(body, adminHeaders()), SpacesDeleteResponse.class);
-
-            SpacesDeleteResponse result = response.getBody();
-            log.info("Proxy delete-all succeeded: path=[{}], deletedCount=[{}]",
-                    resolvedPath, result != null ? result.getDeletedCount() : 0);
-            return result;
-        } catch (Exception e) {
-            log.error("Proxy delete-all failed: path=[{}], error=[{}]", resolvedPath, e.getMessage());
-            throw new RuntimeException("Storage service error: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public SpacesDeleteResponse deleteAll() {
-        return deleteAll("business");
-    }
-
     // ── Internals ─────────────────────────────────────────────────────────────
 
     private HttpEntity<MultiValueMap<String, Object>> buildMultipart(MultipartFile file, String path, String apiKey) {
@@ -117,13 +86,6 @@ public class SpacesServiceImpl implements SpacesService {
     private HttpHeaders headers(String apiKey) {
         HttpHeaders h = new HttpHeaders();
         h.set("X-API-Key", apiKey);
-        return h;
-    }
-
-    private HttpHeaders adminHeaders() {
-        HttpHeaders h = new HttpHeaders();
-        h.setBasicAuth(spacesProperties.getAdminUsername(), spacesProperties.getAdminPassword());
-        h.setContentType(MediaType.APPLICATION_JSON);
         return h;
     }
 }

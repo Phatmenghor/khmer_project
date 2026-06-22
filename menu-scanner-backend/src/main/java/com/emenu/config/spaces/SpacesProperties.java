@@ -18,11 +18,4 @@ public class SpacesProperties {
     private String serviceUrl;
     /** The single API key for the project registered in the Spaces service */
     private String apiKey;
-
-    /** pathStore registered for {@link #apiKey} — needed to build the full path for the admin delete-all call. */
-    private String pathStore;
-
-    /** Basic Auth credentials for resource-storage-service's admin endpoints. */
-    private String adminUsername;
-    private String adminPassword;
 }

@@ -1,6 +1,5 @@
 package com.emenu.features.spaces.service;
 
-import com.emenu.features.spaces.dto.response.SpacesDeleteResponse;
 import com.emenu.features.spaces.dto.response.SpacesMultiUploadResponse;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,6 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
  * <p>This project uses a single configured API key (its {@code pathStore}
  * is the project's storage scope); callers pass a dynamic {@code path}
  * (customPath) per call — no businessId or project-code is needed.</p>
+ *
+ * <p>Bulk delete is intentionally not exposed here — it requires the
+ * resource-storage-service's admin Basic Auth credentials, which belong
+ * only to that project.</p>
  */
 public interface SpacesService {
 
@@ -24,10 +27,4 @@ public interface SpacesService {
 
     /** Upload image for customer. Legacy method, delegates to upload(file, "customer"). */
     SpacesMultiUploadResponse uploadForCustomer(MultipartFile file);
-
-    /** Delete ALL objects under a path scope. Requires admin Basic Auth credentials. */
-    SpacesDeleteResponse deleteAll(String path);
-
-    /** Legacy deleteAll (defaults to "business"). */
-    SpacesDeleteResponse deleteAll();
 }

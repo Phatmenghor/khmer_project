@@ -82,11 +82,6 @@ app:
 spaces:
   service-url: "${SPACES_SERVICE_URL:http://localhost:7072}"
   api-key: "${SPACES_API_KEY:sk_emenutest_Cfk8IIisHl6bPfW7Cqd5DsQTo2i2Fx2j}"
-  # Needed only for the Basic-Auth-protected admin delete-all call — match the
-  # pathStore registered for the api-key above (GET /api/v1/admin/keys).
-  path-store: "${SPACES_PATH_STORE:emenu-test}"
-  admin-username: "${SPACES_ADMIN_USERNAME:phatmenghor}"
-  admin-password: "${SPACES_ADMIN_PASSWORD:Hour1819}"
 
 logging:
   level:
