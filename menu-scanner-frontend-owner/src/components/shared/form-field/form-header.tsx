@@ -71,7 +71,7 @@ export function FormHeader({
 
   return (
     <DialogHeader
-      className={cn("px-3 pt-3 pb-2 border-b flex-shrink-0", className)}
+      className={cn("-mx-4 -mt-4 px-4 pt-3 pb-3.5 border-b border-primary/30 flex-shrink-0", className)}
     >
       <div className="flex items-center gap-2">
         {showLegacyAvatar ? (

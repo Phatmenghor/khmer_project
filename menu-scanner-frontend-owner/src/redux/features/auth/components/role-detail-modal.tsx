@@ -2,12 +2,13 @@
 
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { convertEnumOrString } from "@/utils/common/enum-convert";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
 import { selectRoleContent } from "../store/selectors/role-selectors";
 import { clearSelectedRole } from "../store/slice/role-slice";
 import { DisplayField } from "@/components/shared/form-field/display-field";
+import { DetailModal } from "@/components/shared/modal/detail-modal";
+import { SectionTitle } from "@/components/shared/common/section-title";
+import { Shield, Info, History } from "lucide-react";
 
 interface RoleDetailModalProps {
   roleId?: string;
@@ -29,66 +30,44 @@ export function RoleDetailModal({
     onClose();
   };
 
-  if (!roleData) {
-    return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogTitle className="sr-only">Role Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-full">
-            <p className="text-muted-foreground">No role data available</p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogTitle className="sr-only">Role Details - {roleData.name}</DialogTitle>
-      <DialogContent className="w-full sm:max-w-7xl max-h-[92dvh] p-0 gap-0 flex flex-col overflow-hidden">
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-xs font-semibold text-foreground">
-              Role Details
-            </h2>
-            <p className="text-xs text-foreground mt-1">
-              Detailed information about the selected role
-            </p>
+    <DetailModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      isLoading={isOpen && !roleData}
+      isEmpty={!roleData}
+      emptyMessage="No role data available"
+      title={roleData ? `Role Details - ${convertEnumOrString(roleData.name)}` : "Role Details"}
+      description="Detailed information about the selected role"
+      icon={Shield}
+      maxWidthClass="sm:max-w-2xl"
+    >
+      {roleData && (
+        <div className="space-y-5 p-1">
+          {/* Role Information Group */}
+          <div className="space-y-3">
+            <SectionTitle icon={Info} title="Role Information" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <DisplayField label="Role Name" value={convertEnumOrString(roleData.name)} />
+              <DisplayField label="User Type" value={convertEnumOrString(roleData.userType)} />
+              <div className="md:col-span-2">
+                <DisplayField label="Description" value={roleData.description || "-"} />
+              </div>
+            </div>
+          </div>
+
+          {/* Audit Information Group */}
+          <div className="space-y-3">
+            <SectionTitle icon={History} title="Audit Information" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <DisplayField label="Created At" value={dateTimeFormat(roleData.createdAt ?? "")} />
+              <DisplayField label="Created By" value={roleData.createdBy || "-"} />
+              <DisplayField label="Last Updated" value={dateTimeFormat(roleData.updatedAt ?? "")} />
+              <DisplayField label="Updated By" value={roleData.updatedBy || "-"} />
+            </div>
           </div>
         </div>
-
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Role Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Role Name" value={convertEnumOrString(roleData.name)} />
-                  <DisplayField label="User Type" value={convertEnumOrString(roleData.userType)} />
-                  <DisplayField label="Description" value={roleData.description || "-"} />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>System Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <DisplayField label="Role ID" value={roleData.id} />
-                  <DisplayField label="Created At" value={dateTimeFormat(roleData.createdAt ?? "")} />
-                  <DisplayField label="Created By" value={roleData.createdBy || "-"} />
-                  <DisplayField label="Last Updated" value={dateTimeFormat(roleData.updatedAt ?? "")} />
-                  <DisplayField label="Updated By" value={roleData.updatedBy || "-"} />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </DetailModal>
   );
 }

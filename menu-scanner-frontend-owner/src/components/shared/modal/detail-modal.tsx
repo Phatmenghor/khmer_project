@@ -35,6 +35,8 @@ interface DetailModalProps {
   badges?: ReactNode;
   /** Override the max-width. Default is sm:max-w-5xl (matches client modals). */
   maxWidthClass?: string;
+  isEmpty?: boolean;
+  emptyMessage?: string;
   children: ReactNode;
 }
 
@@ -56,6 +58,8 @@ export function DetailModal({
   icon: Icon = Eye,
   badges,
   maxWidthClass = "sm:max-w-5xl",
+  isEmpty = false,
+  emptyMessage = "No data available",
   children,
 }: DetailModalProps) {
   const image = imageUrl || avatarUrl;
@@ -69,7 +73,7 @@ export function DetailModal({
           maxWidthClass,
         )}
       >
-        <DialogHeader className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
+        <DialogHeader className="px-4 pt-3 pb-3.5 border-b border-primary/30 -mx-4 -mt-4 bg-muted/30 flex-shrink-0">
           <div className="flex items-center gap-3">
             {/* 12x12 image tile — image opens a click-to-zoom preview when present */}
             <ImageTile
@@ -79,11 +83,11 @@ export function DetailModal({
             />
 
             <div className="flex flex-col gap-0.5 flex-1 min-w-0 text-left">
-              <DialogTitle className="text-sm font-bold text-foreground leading-tight truncate">
+              <DialogTitle className="text-xs font-semibold leading-tight text-foreground truncate">
                 {title}
               </DialogTitle>
               {description && (
-                <DialogDescription className="text-xs text-muted-foreground leading-snug truncate">
+                <DialogDescription className="text-[11px] text-muted-foreground leading-snug truncate">
                   {description}
                 </DialogDescription>
               )}
@@ -97,10 +101,14 @@ export function DetailModal({
         </DialogHeader>
 
         <ScrollArea className="flex-1 min-h-0">
-          <div className="p-3 space-y-3">
+          <div className="py-3 px-0.5 space-y-3">
             {isLoading ? (
               <div className="flex items-center justify-center min-h-[300px]">
                 <Loading />
+              </div>
+            ) : isEmpty ? (
+              <div className="flex items-center justify-center min-h-[200px]">
+                <p className="text-xs text-muted-foreground">{emptyMessage}</p>
               </div>
             ) : (
               children

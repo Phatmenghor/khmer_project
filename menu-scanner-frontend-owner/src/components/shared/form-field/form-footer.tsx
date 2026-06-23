@@ -37,7 +37,7 @@ export function FormFooter({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1.5 px-2.5 py-2 border-t bg-muted/30 flex-shrink-0",
+        "flex flex-col gap-1.5 px-2.5 py-2 border-t border-primary/30 bg-muted/30 flex-shrink-0",
         "sm:flex-row sm:items-center sm:justify-between sm:px-3",
         className,
       )}
