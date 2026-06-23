@@ -89,26 +89,33 @@ export const roleTableColumns = ({
       label: "Actions",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (user) => (
-        <div className="flex items-center gap-1">
-          <ActionButton
-            icon={<Eye className="w-3 h-3" />}
-            tooltip="View Details"
-            onClick={() => handleViewDetailItem(user)}
-          />
-          <ActionButton
-            icon={<Edit className="w-3 h-3" />}
-            tooltip="Edit Role"
-            onClick={() => handleEditItem(user)}
-          />
-          <ActionButton
-            icon={<Trash className="w-3 h-3" />}
-            tooltip="Delete Role"
-            onClick={() => handleDeleteItem(user)}
-            variant="destructive"
-          />
-        </div>
-      ),
+      render: (user) => {
+        const isBusinessOwnerRole = user?.name === "BUSINESS_OWNER";
+        return (
+          <div className="flex items-center gap-1">
+            <ActionButton
+              icon={<Eye className="w-3 h-3" />}
+              tooltip="View Details"
+              onClick={() => handleViewDetailItem(user)}
+            />
+            {!isBusinessOwnerRole && (
+              <>
+                <ActionButton
+                  icon={<Edit className="w-3 h-3" />}
+                  tooltip="Edit Role"
+                  onClick={() => handleEditItem(user)}
+                />
+                <ActionButton
+                  icon={<Trash className="w-3 h-3" />}
+                  tooltip="Delete Role"
+                  onClick={() => handleDeleteItem(user)}
+                  variant="destructive"
+                />
+              </>
+            )}
+          </div>
+        );
+      },
     },
   ];
 };

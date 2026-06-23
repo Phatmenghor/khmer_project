@@ -1023,11 +1023,11 @@ export default function AdminProfilePage() {
                       No emergency contacts added
                     </p>
                   ) : isEditing ? (
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {contactFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border-l-4 border-l-primary/40 rounded p-3 relative bg-primary/5"
+                          className="border-l-4 border-l-primary/40 rounded p-2 relative bg-primary/5"
                         >
                           <CustomButton
                             type="button"
@@ -1038,7 +1038,7 @@ export default function AdminProfilePage() {
                           >
                             <Trash2 className="h-3 w-3" />
                           </CustomButton>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-1">
                             <TextField
                               control={typedControl}
                               name={`emergencyContacts.${index}.name`}
@@ -1072,10 +1072,10 @@ export default function AdminProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       {contactFields.map((field: any, index) => (
-                        <div key={field.id} className="border-b pb-3">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div key={field.id} className="border-b pb-2">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                             <DisplayField label="Name" value={field?.name} />
                             <DisplayField label="Phone" value={field?.phone} />
                             <DisplayField label="Relationship" value={field?.relationship} />
@@ -1118,11 +1118,11 @@ export default function AdminProfilePage() {
                       No documents added
                     </p>
                   ) : isEditing ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {documentFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border-l-4 border-l-primary/40 rounded p-3 relative bg-primary/5"
+                          className="border-l-4 border-l-primary/40 rounded p-2 relative bg-primary/5"
                         >
                           <CustomButton
                             type="button"
@@ -1133,8 +1133,8 @@ export default function AdminProfilePage() {
                           >
                             <Trash2 className="h-3 w-3" />
                           </CustomButton>
-                          <div className="space-y-3 pt-1">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-2 pt-1">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               <SelectField
                                 control={typedControl}
                                 name={`documents.${index}.type`}
@@ -1186,11 +1186,11 @@ export default function AdminProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {documentFields.map((field: any, index) => (
-                        <div key={field.id} className="border-l-4 border-l-primary/40 rounded p-3 bg-primary/5">
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div key={field.id} className="border-l-4 border-l-primary/40 rounded p-2 bg-primary/5">
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               <DisplayField
                                 label="Type"
                                 value={
@@ -1202,7 +1202,7 @@ export default function AdminProfilePage() {
                               <DisplayField label="Number" value={field?.number} />
                             </div>
                             {field?.fileUrl && (
-                              <div className="mt-3">
+                              <div className="mt-2">
                                 <label className="text-xs font-medium text-muted-foreground">
                                   File
                                 </label>
@@ -1258,11 +1258,11 @@ export default function AdminProfilePage() {
                       No education added
                     </p>
                   ) : isEditing ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {educationFields.map((field, index) => (
                         <div
                           key={field.id}
-                          className="border-l-4 border-l-primary/40 rounded p-3 relative bg-primary/5"
+                          className="border-l-4 border-l-primary/40 rounded p-2 relative bg-primary/5"
                         >
                           <CustomButton
                             type="button"
@@ -1273,8 +1273,8 @@ export default function AdminProfilePage() {
                           >
                             <Trash2 className="h-3 w-3" />
                           </CustomButton>
-                          <div className="space-y-3 pt-1">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-2 pt-1">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               <SelectField
                                 control={typedControl}
                                 name={`educations.${index}.level`}
@@ -1371,11 +1371,11 @@ export default function AdminProfilePage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {educationFields.map((field: any, index) => (
-                        <div key={field.id} className="border-l-4 border-l-primary/40 rounded p-3 bg-primary/5">
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div key={field.id} className="border-l-4 border-l-primary/40 rounded p-2 bg-primary/5">
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               <DisplayField
                                 label="Level"
                                 value={
@@ -1386,11 +1386,11 @@ export default function AdminProfilePage() {
                               />
                               <DisplayField label="School" value={field?.schoolName} />
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               <DisplayField label="Field of Study" value={field?.fieldOfStudy} />
                               <DisplayField label="Start Year" value={field?.startYear} />
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               <DisplayField label="End Year" value={field?.endYear} />
                               <DisplayField
                                 label="Graduated"

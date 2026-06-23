@@ -38,6 +38,7 @@ export interface TextFormFieldProps<T extends FieldValues = FieldValues> extends
   allowZero?: boolean;
   pattern?: string;
   onCustomChange?: (value: string) => void;
+  autoComplete?: string;
 }
 
 /**

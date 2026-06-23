@@ -37,8 +37,14 @@ export function DetailModal({
   children,
 }: DetailModalProps) {
   return (
-    <CustomModal isOpen={isOpen} onClose={onClose} size={size} className="max-h-[92vh] gap-0 flex flex-col">
-      <DialogHeader className="px-4 pt-3 pb-3.5 border-b border-primary/30 -mx-4 -mt-4 bg-muted/30 flex-shrink-0">
+    <CustomModal
+      isOpen={isOpen}
+      onClose={onClose}
+      size={size}
+      className="max-h-[92vh] gap-0 flex flex-col"
+      disableScrollWrapper={true}
+    >
+      <DialogHeader className="p-4 border-b border-primary/30 m-0 mx-0 mt-0 bg-muted/30 flex-shrink-0">
         <div className="flex items-center gap-2 pr-4">
           {(avatarUrl || avatarName) && (
             <CustomAvatar imageUrl={avatarUrl} name={avatarName} size="xl" />
@@ -60,7 +66,7 @@ export function DetailModal({
         </div>
       </DialogHeader>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto px-4">
         <div className="py-3 px-0.5">
           {isLoading ? (
             <Loading />

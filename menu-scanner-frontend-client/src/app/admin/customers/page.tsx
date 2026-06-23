@@ -30,6 +30,7 @@ import {
   AccountStatus,
   ModalMode,
   UserGropeType,
+  UserRole,
 } from "@/constants/status/status";
 import UserBusinessModal from "@/features/auth/components/user-business-modal";
 import { UserBusinessDetailModal } from "@/features/auth/components/user-business-detail-modal";
@@ -37,9 +38,13 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
+import { selectUser } from "@/features/auth/store/selectors/auth-selectors";
 
 function CustomerPageInner() {
   useAdminCleanup(resetState);
+
+  const currentUser = useAppSelector(selectUser);
+  const currentUserId = currentUser?.userId;
 
   const {
     filters,
@@ -108,17 +113,26 @@ function CustomerPageInner() {
   const handleCreateCustomer = () =>
     setModalState({ isOpen: true, mode: ModalMode.CREATE_MODE, userId: "" });
 
-  const handleEditCustomer = (customer: UserResponseModel) =>
+  const handleEditCustomer = (customer: UserResponseModel) => {
+    const isSelf = customer?.id === currentUserId;
+    const isBusinessOwner = customer?.roles?.includes(UserRole.BUSINESS_OWNER);
+    if (isSelf || isBusinessOwner) return;
+
     setModalState({
       isOpen: true,
       mode: ModalMode.UPDATE_MODE,
       userId: customer?.id || "",
     });
+  };
 
   const handleViewDetail = (customer: UserResponseModel) =>
     setDetailModalState({ isOpen: true, userBusinessId: customer.id || "" });
 
-  const handleResetPassword = (customer: UserResponseModel) =>
+  const handleResetPassword = (customer: UserResponseModel) => {
+    const isSelf = customer?.id === currentUserId;
+    const isBusinessOwner = customer?.roles?.includes(UserRole.BUSINESS_OWNER);
+    if (isSelf || isBusinessOwner) return;
+
     setResetPasswordState({
       isOpen: true,
       userBusinessId: customer.id || "",
@@ -126,12 +140,22 @@ function CustomerPageInner() {
       roles: customer.roles || [],
       profileImageUrl: customer.profileImage?.sm || "",
     });
+  };
 
-  const handleDeleteCustomer = (customer: UserResponseModel) =>
+  const handleDeleteCustomer = (customer: UserResponseModel) => {
+    const isSelf = customer?.id === currentUserId;
+    const isBusinessOwner = customer?.roles?.includes(UserRole.BUSINESS_OWNER);
+    if (isSelf || isBusinessOwner) return;
+
     setDeleteState({ isOpen: true, customer });
+  };
 
   const handleToggleStatus = async (customer: UserResponseModel) => {
     if (!customer?.id) return;
+    const isSelf = customer?.id === currentUserId;
+    const isBusinessOwner = customer?.roles?.includes(UserRole.BUSINESS_OWNER);
+    if (isSelf || isBusinessOwner) return;
+
     try {
       await dispatch(toggleUserStatusService(customer)).unwrap();
       showToast.success(Messages.users.statusUpdated);
@@ -148,13 +172,17 @@ function CustomerPageInner() {
       handleDeleteCustomer,
       handleToggleStatus,
     }),
-    [],
+    [currentUserId],
   );
 
   const columns = useMemo(
     () =>
-      customerTableColumns({ data: usersData, handlers: tableHandlers }),
-    [userState, tableHandlers],
+      customerTableColumns({
+        data: usersData,
+        handlers: tableHandlers,
+        currentUserId,
+      }),
+    [userState, tableHandlers, currentUserId],
   );
 
   const handlePageChangeWrapper = (page: number) => {

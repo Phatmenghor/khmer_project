@@ -29,6 +29,8 @@ interface CustomSelectProps {
   required?: boolean;
   layout?: "vertical" | "horizontal";
   labelSize?: "xs" | "sm" | "md";
+  error?: boolean;
+  id?: string;
 }
 
 const CUSTOM_SELECT_SIZES = {
@@ -67,6 +69,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   required = false,
   layout = "vertical",
   labelSize = "xs",
+  error = false,
+  id,
 }) => {
   const [open, setOpen] = useState(false);
   const sizeConfig = CUSTOM_SELECT_SIZES[size];
@@ -93,18 +97,20 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <CustomButton
+            id={id}
             variant="outline"
             role="combobox"
             disabled={disabled}
             className={cn(
               "w-full justify-between gap-1 transition-all duration-200",
               "border-input",
-              "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
-              open && "bg-primary/20 border-primary text-primary",
+              "hover:bg-primary/10 hover:border-primary",
+              "focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/20",
+              open && "bg-primary/20 border-primary",
               sizeConfig.button,
               className,
-              disabled && "opacity-50 cursor-not-allowed"
+              disabled && "opacity-50 cursor-not-allowed",
+              error && "border-red-500 focus:border-red-500 focus:ring-red-500/30"
             )}
             aria-expanded={open}
             aria-haspopup="listbox"
@@ -113,17 +119,15 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
             <span
               className={cn(
                 "truncate",
-                selectedOption ? "text-foreground" : "text-muted-foreground",
-                open && "text-primary"
+                selectedOption ? "text-foreground" : "text-muted-foreground/75"
               )}
             >
               {selectedOption?.label || placeholder}
             </span>
             <ChevronDown
               className={cn(
-                `${sizeConfig.icon} shrink-0 transition-all duration-200`,
-                !open && "opacity-50",
-                open && "opacity-100 text-primary rotate-180"
+                `${sizeConfig.icon} shrink-0 transition-all duration-200 text-muted-foreground/80`,
+                open && "text-primary rotate-180"
               )}
             />
           </CustomButton>

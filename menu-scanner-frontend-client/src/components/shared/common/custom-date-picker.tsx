@@ -246,14 +246,9 @@ export function CustomDateTimePicker({
           variant="outline"
           className={cn(
             "w-full justify-start text-left font-normal h-[32px] px-3 text-base md:text-sm transition-all duration-200 border-input",
-            !selectedDate && "text-muted-foreground",
-
-            "hover:bg-primary/10 hover:border-primary hover:text-primary",
-
-            "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
-
-            isOpen && "bg-primary/20 border-primary text-primary",
-
+            "hover:bg-primary/10 hover:border-primary",
+            "focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/20",
+            isOpen && "bg-primary/20 border-primary",
             error && "border-red-500 focus:border-red-500",
             disabled && "opacity-50 cursor-not-allowed",
             className
@@ -261,11 +256,16 @@ export function CustomDateTimePicker({
           disabled={disabled}
         >
           {mode === "datetime" ? (
-            <Clock className="mr-2 h-4 w-4 shrink-0" />
+            <Clock className="mr-2 h-4 w-4 shrink-0 text-muted-foreground/60" />
           ) : (
-            <Calendar className="mr-2 h-4 w-4 shrink-0" />
+            <Calendar className="mr-2 h-4 w-4 shrink-0 text-muted-foreground/60" />
           )}
-          <span className="flex-1 truncate">
+          <span
+            className={cn(
+              "flex-1 truncate text-base md:text-sm",
+              selectedDate ? "text-foreground" : "text-muted-foreground/75"
+            )}
+          >
             {selectedDate ? formatDate(selectedDate) : placeholder}
           </span>
           {selectedDate && !disabled && (
@@ -286,16 +286,16 @@ export function CustomDateTimePicker({
           )}
         </CustomButton>
       </PopoverTrigger>
-      <PopoverContent className="w-52 p-0" align="start">
-        {}
+      <PopoverContent className="w-[280px] p-0" align="start">
+        {/* Header */}
         <div className="flex items-center justify-between p-2 border-b bg-muted/30">
           <div className="flex items-center gap-1">
             <CustomButton
               variant="ghost"
-              size="sm"
+              size="unstyled"
               onClick={() => navigateMonth("prev")}
-              className="h-4 w-4 p-0 hover:bg-accent"
-              icon={<ChevronLeft className="h-2 w-2" />}
+              className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center"
+              icon={<ChevronLeft className="h-4 w-4" />}
             />
 
             <div className="flex gap-1">
@@ -303,12 +303,12 @@ export function CustomDateTimePicker({
                 value={MONTHS[viewDate.getMonth()]}
                 onValueChange={handleMonthChange}
               >
-                <SelectTrigger className="h-5 text-xs w-auto min-w-[60px] border-0 bg-transparent hover:bg-primary/10 hover:text-primary transition-colors">
+                <SelectTrigger className="h-7 text-xs font-semibold px-2 border border-input rounded-md bg-background hover:bg-accent transition-colors flex items-center gap-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {MONTHS.map((month) => (
-                    <SelectItem key={month} value={month}>
+                    <SelectItem key={month} value={month} className="text-xs">
                       {month}
                     </SelectItem>
                   ))}
@@ -319,12 +319,12 @@ export function CustomDateTimePicker({
                 value={viewDate.getFullYear().toString()}
                 onValueChange={handleYearChange}
               >
-                <SelectTrigger className="h-5 text-xs w-auto min-w-[65px] border-0 bg-transparent hover:bg-primary/10 hover:text-primary transition-colors">
+                <SelectTrigger className="h-7 text-xs font-semibold px-2 border border-input rounded-md bg-background hover:bg-accent transition-colors flex items-center gap-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {yearOptions.map((year) => (
-                    <SelectItem key={year} value={year}>
+                    <SelectItem key={year} value={year} className="text-xs">
                       {year}
                     </SelectItem>
                   ))}
@@ -334,52 +334,52 @@ export function CustomDateTimePicker({
 
             <CustomButton
               variant="ghost"
-              size="sm"
+              size="unstyled"
               onClick={() => navigateMonth("next")}
-              className="h-4 w-4 p-0 hover:bg-accent"
-              icon={<ChevronRight className="h-2 w-2" />}
+              className="h-7 w-7 p-0 hover:bg-accent rounded-md flex items-center justify-center"
+              icon={<ChevronRight className="h-4 w-4" />}
             />
           </div>
 
           <CustomButton
             variant="ghost"
-            size="sm"
+            size="unstyled"
             onClick={() => setIsOpen(false)}
-            className="h-4 w-4 p-0 opacity-50 hover:opacity-100 hover:bg-accent"
-            icon={<X className="h-2 w-2" />}
+            className="h-7 w-7 p-0 opacity-65 hover:opacity-100 hover:bg-accent rounded-full flex items-center justify-center"
+            icon={<X className="h-4 w-4" />}
           />
         </div>
 
-        {}
-        <div className="p-2">
-          <div className="grid grid-cols-7 gap-1 mb-1">
+        {/* Days grid */}
+        <div className="p-3">
+          <div className="grid grid-cols-7 gap-1 mb-1 justify-items-center">
             {DAYS.map((day, index) => (
               <div
                 key={index}
-                className="h-5 w-5 flex items-center justify-center text-xs font-medium text-muted-foreground"
+                className="h-8 w-8 flex items-center justify-center text-xs font-bold text-muted-foreground"
               >
                 {day}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-1 justify-items-center">
             {calendarDays.map((dayObj, index) => (
               <CustomButton
                 key={index}
                 variant="ghost"
-                size="sm"
+                size="unstyled"
                 onClick={() => handleDateSelect(dayObj.day)}
                 disabled={!dayObj.isCurrentMonth}
                 className={cn(
-                  "h-5 w-5 p-0 text-xs font-normal transition-all hover:bg-primary/10 hover:text-primary",
+                  "h-8 w-8 p-0 text-xs font-medium transition-all rounded-md flex items-center justify-center",
                   !dayObj.isCurrentMonth &&
                     "text-muted-foreground/30 hover:text-muted-foreground/30 hover:bg-transparent cursor-not-allowed",
                   dayObj.isSelected &&
-                    "bg-primary/20 text-primary font-medium hover:bg-primary/20",
+                    "bg-primary text-primary-foreground font-bold hover:bg-primary/95",
                   dayObj.isToday &&
                     !dayObj.isSelected &&
-                    "bg-primary/10 text-primary font-semibold ring-1 ring-primary/20"
+                    "bg-primary/10 text-primary font-bold ring-1 ring-primary/30"
                 )}
               >
                 {dayObj.day}
@@ -388,54 +388,58 @@ export function CustomDateTimePicker({
           </div>
         </div>
 
-        {}
+        {/* DateTime selection mode */}
         {mode === "datetime" && (
-          <div className="p-2 border-t">
-            <div className="flex items-center justify-center gap-1">
-              <Clock className="h-3 w-3 text-muted-foreground" />
+          <div className="p-3 border-t bg-muted/5">
+            <div className="flex items-center justify-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              
               <Select value={selectedHour} onValueChange={setSelectedHour}>
-                <SelectTrigger className="h-6 w-11 text-xs border-input hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors">
+                <SelectTrigger className="h-8 w-14 text-xs font-semibold border-input bg-background">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-48">
                   {hours.map((hour) => (
-                    <SelectItem key={hour} value={hour}>
+                    <SelectItem key={hour} value={hour} className="font-medium text-xs">
                       {hour}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <span className="text-xs font-medium">:</span>
+              
+              <span className="text-xs font-bold text-muted-foreground">:</span>
+              
               <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                <SelectTrigger className="h-6 w-11 text-xs border-input hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors">
+                <SelectTrigger className="h-8 w-14 text-xs font-semibold border-input bg-background">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-48">
                   {minutes.map((minute) => (
-                    <SelectItem key={minute} value={minute}>
+                    <SelectItem key={minute} value={minute} className="font-medium text-xs">
                       {minute}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              
               <Select
                 value={selectedPeriod}
                 onValueChange={(val) => setSelectedPeriod(val as "AM" | "PM")}
               >
-                <SelectTrigger className="h-6 w-11 text-xs border-input hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors">
+                <SelectTrigger className="h-8 w-14 text-xs font-semibold border-input bg-background">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="AM">AM</SelectItem>
-                  <SelectItem value="PM">PM</SelectItem>
+                  <SelectItem value="AM" className="font-medium text-xs">AM</SelectItem>
+                  <SelectItem value="PM" className="font-medium text-xs">PM</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
         )}
 
-        {}
-        <div className="p-2 border-t bg-muted/30 flex gap-1">
+        {/* Footer actions */}
+        <div className="p-3 border-t bg-muted/20 flex gap-2">
           <CustomButton
             variant="outline"
             size="sm"
@@ -455,7 +459,7 @@ export function CustomDateTimePicker({
               onChange(formatDateForForm(today));
               setIsOpen(false);
             }}
-            className="flex-1 h-5 text-xs hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors"
+            className="flex-1 h-8 text-xs font-semibold"
           >
             Now
           </CustomButton>
@@ -465,7 +469,7 @@ export function CustomDateTimePicker({
             size="sm"
             onClick={applyDateTime}
             disabled={!selectedDate}
-            className="flex-1 h-5 text-xs bg-primary hover:bg-primary/90"
+            className="flex-1 h-8 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             Apply
           </CustomButton>

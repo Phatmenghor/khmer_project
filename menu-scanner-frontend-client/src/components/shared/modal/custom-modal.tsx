@@ -28,6 +28,7 @@ export interface CustomModalProps {
   size?: ModalSize;
   className?: string;
   hideCloseButton?: boolean;
+  disableScrollWrapper?: boolean;
 }
 
 export function CustomModal({
@@ -37,12 +38,14 @@ export function CustomModal({
   size = "default",
   className,
   hideCloseButton = false,
+  disableScrollWrapper = false,
 }: CustomModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={cn("w-full max-h-[92vh] p-0 flex flex-col", SIZE_CLASSES[size], className)}
         closeButtonClassName={hideCloseButton ? "hidden" : ""}
+        disableScrollWrapper={disableScrollWrapper}
       >
         {children}
       </DialogContent>

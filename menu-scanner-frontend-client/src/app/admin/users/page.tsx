@@ -42,9 +42,13 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
+import { selectUser } from "@/features/auth/store/selectors/auth-selectors";
 
 function UserBusinessPageInner() {
   useAdminCleanup(resetState);
+
+  const currentUser = useAppSelector(selectUser);
+  const currentUserId = currentUser?.userId;
 
   const {
     filters,
@@ -135,17 +139,26 @@ function UserBusinessPageInner() {
   const handleCreateUser = () =>
     setModalState({ isOpen: true, mode: ModalMode.CREATE_MODE, userId: "" });
 
-  const handleEditUser = (user: UserResponseModel) =>
+  const handleEditUser = (user: UserResponseModel) => {
+    const isSelf = user?.id === currentUserId;
+    const isBusinessOwner = user?.roles?.includes(UserRole.BUSINESS_OWNER);
+    if (isSelf || isBusinessOwner) return;
+
     setModalState({
       isOpen: true,
       mode: ModalMode.UPDATE_MODE,
       userId: user?.id || "",
     });
+  };
 
   const handleViewDetail = (user: UserResponseModel) =>
     setDetailModalState({ isOpen: true, userBusinessId: user.id || "" });
 
-  const handleResetPassword = (user: UserResponseModel) =>
+  const handleResetPassword = (user: UserResponseModel) => {
+    const isSelf = user?.id === currentUserId;
+    const isBusinessOwner = user?.roles?.includes(UserRole.BUSINESS_OWNER);
+    if (isSelf || isBusinessOwner) return;
+
     setResetPasswordState({
       isOpen: true,
       userBusinessId: user.id || "",
@@ -153,12 +166,22 @@ function UserBusinessPageInner() {
       roles: user.roles || [],
       profileImageUrl: user.profileImage?.sm || "",
     });
+  };
 
-  const handleDeleteUser = (user: UserResponseModel) =>
+  const handleDeleteUser = (user: UserResponseModel) => {
+    const isSelf = user?.id === currentUserId;
+    const isBusinessOwner = user?.roles?.includes(UserRole.BUSINESS_OWNER);
+    if (isSelf || isBusinessOwner) return;
+
     setDeleteState({ isOpen: true, user });
+  };
 
   const handleToggleStatus = async (user: UserResponseModel) => {
     if (!user?.id) return;
+    const isSelf = user?.id === currentUserId;
+    const isBusinessOwner = user?.roles?.includes(UserRole.BUSINESS_OWNER);
+    if (isSelf || isBusinessOwner) return;
+
     try {
       await dispatch(toggleUserStatusService(user)).unwrap();
       showToast.success(Messages.users.statusUpdated);
@@ -175,13 +198,17 @@ function UserBusinessPageInner() {
       handleDeleteUser,
       handleToggleStatus,
     }),
-    [],
+    [currentUserId],
   );
 
   const columns = useMemo(
     () =>
-      userBusinessTableColumns({ data: usersData, handlers: tableHandlers }),
-    [userState, tableHandlers],
+      userBusinessTableColumns({
+        data: usersData,
+        handlers: tableHandlers,
+        currentUserId,
+      }),
+    [userState, tableHandlers, currentUserId],
   );
 
   const handlePageChangeWrapper = (page: number) => {

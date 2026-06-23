@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { CancelButton, SubmitButton } from "@/components/shared/button/custom-button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import { useAppDispatch, useAppSelector } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -43,6 +44,7 @@ type Props = {
 };
 
 export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
+  const isMobile = useIsMobile();
   const isCreate = mode === ModalMode.CREATE_MODE;
   const dispatch = useAppDispatch();
 
@@ -159,7 +161,10 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-xl p-0 flex flex-col">
+      <DialogContent
+        className="w-full max-w-xl max-h-[92vh] p-0 flex flex-col overflow-hidden"
+        disableScrollWrapper={true}
+      >
         <FormHeader
           title={isCreate ? "Create New Role" : "Edit Role"}
           description={
@@ -168,13 +173,14 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
               : "Update role information below"
           }
           isCreate={isCreate}
+          className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
         />
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-visible"
+          className="flex flex-col flex-1 min-h-0 overflow-hidden"
         >
-            <FormBody>
+            <FormBody className="px-4">
               {reduxError && (
                 <div className="p-3 bg-destructive/10 border border-destructive rounded">
                   <p className="text-xs text-destructive font-medium">
@@ -205,7 +211,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
                 name="description"
                 label="Description"
                 placeholder="Enter any description (optional)"
-                rows={5}
+                rows={isMobile ? 3 : 5}
                 disabled={isSubmitting}
                 error={errors.description}
               />
@@ -217,6 +223,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
               isCreate={isCreate}
               createMessage="Creating role..."
               updateMessage="Updating role..."
+              className="m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4"
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
               <SubmitButton

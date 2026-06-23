@@ -9,6 +9,7 @@ import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { uploadMultiSize } from "@/services/spaces-service";
@@ -87,6 +88,7 @@ export default function UserBusinessModal({
   mode,
   defaultUserType,
 }: Props) {
+  const isMobile = useIsMobile();
   const isCreate = mode === ModalMode.CREATE_MODE;
   const [showPassword, setShowPassword] = useState(false);
   const [pendingProfileFile, setPendingProfileFile] = useState<File | null>(null);
@@ -115,10 +117,12 @@ export default function UserBusinessModal({
   const { isCreating, isUpdating } = operations;
 
 
-  const roleOptions = rolesContent.map((role) => ({
-    value: role.name,
-    label: formatEnumValue(role.name),
-  }));
+  const roleOptions = rolesContent
+    .filter((role) => role.name !== "BUSINESS_OWNER")
+    .map((role) => ({
+      value: role.name,
+      label: formatEnumValue(role.name),
+    }));
 
   const isBusinessOwner = !isCreate && userData?.roles?.includes("BUSINESS_OWNER");
 
@@ -491,16 +495,23 @@ export default function UserBusinessModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-7xl max-h-[92vh] p-0 flex flex-col">
+      <DialogContent
+        className="w-full sm:max-w-7xl max-h-[92vh] p-0 flex flex-col overflow-hidden"
+        onOpenAutoFocus={(e) => {
+          e.preventDefault();
+          (e.currentTarget as HTMLElement)?.focus();
+        }}
+        disableScrollWrapper={true}
+      >
         <FormHeader
-          title={isCreate ? "Create New User Business" : "Edit User Business"}
+          title={isCreate ? "Create User" : "Update User"}
           description={
             isCreate
-              ? "Fill out the form to create a new user business account"
-              : "Update user business information below"
+              ? "Fill out the form to create a new user"
+              : "Update user information below"
           }
-          avatarName={userIdentifier || email}
           isCreate={isCreate}
+          className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
         />
 
         {!isCreate && isFetchingDetail ? (
@@ -510,9 +521,10 @@ export default function UserBusinessModal({
         ) : (
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-visible"
+            className="flex flex-col flex-1 min-h-0 overflow-hidden"
+            autoComplete="off"
           >
-            <FormBody>
+            <FormBody className="px-4">
               {reduxError && (
                 <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">
                   <p className="text-xs text-destructive font-medium">
@@ -528,7 +540,7 @@ export default function UserBusinessModal({
                     <h3 className="text-xs font-semibold">
                       Account Credentials <span className="text-red-500">*</span>
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <TextField
                         control={control}
                         name="userIdentifier"
@@ -537,17 +549,7 @@ export default function UserBusinessModal({
                         required
                         disabled={isSubmitting}
                         error={errors.userIdentifier}
-                      />
-
-                      <TextField
-                        control={control}
-                        name="email"
-                        label="Email"
-                        type="email"
-                        placeholder="Enter email address"
-                        required
-                        disabled={isSubmitting}
-                        error={errors.email}
+                        autoComplete="new-password"
                       />
 
                       <TextField
@@ -559,6 +561,19 @@ export default function UserBusinessModal({
                         required
                         disabled={isSubmitting}
                         error={errors.password}
+                        autoComplete="new-password"
+                      />
+
+                      <TextField
+                        control={control}
+                        name="email"
+                        label="Email"
+                        type="email"
+                        placeholder="Enter email address"
+                        required
+                        disabled={isSubmitting}
+                        error={errors.email}
+                        autoComplete="new-password"
                       />
 
                       {defaultUserType !== "CUSTOMER" && (
@@ -580,16 +595,7 @@ export default function UserBusinessModal({
                         />
                       )}
 
-                      <SelectField
-                        control={control}
-                        name="accountStatus"
-                        label="Account Status"
-                        placeholder="Select account status"
-                        options={ACCOUNT_STATUS_CREATE_UPDATE}
-                        required
-                        disabled={isSubmitting}
-                        error={errors.accountStatus}
-                      />
+                      {/* Account status is hidden on create and defaults to ACTIVE */}
                     </div>
                   </div>
                 )}
@@ -603,7 +609,7 @@ export default function UserBusinessModal({
                   <div className="space-y-3">
                     {}
                     {!isCreate && (
-                      <div className={defaultUserType === "CUSTOMER" ? "grid grid-cols-1 gap-3" : "grid grid-cols-1 md:grid-cols-2 gap-3"}>
+                      <div className={defaultUserType === "CUSTOMER" ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
                         {defaultUserType !== "CUSTOMER" && (
                           <SelectField
                             control={control}
@@ -637,7 +643,7 @@ export default function UserBusinessModal({
                     )}
 
                     {}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <TextField
                         control={control}
                         name="firstName"
@@ -645,6 +651,7 @@ export default function UserBusinessModal({
                         placeholder="Enter first name"
                         disabled={isSubmitting}
                         error={errors.firstName}
+                        autoComplete="new-password"
                       />
 
                       <TextField
@@ -654,6 +661,7 @@ export default function UserBusinessModal({
                         placeholder="Enter last name"
                         disabled={isSubmitting}
                         error={errors.lastName}
+                        autoComplete="new-password"
                       />
 
                       <TextField
@@ -663,6 +671,7 @@ export default function UserBusinessModal({
                         placeholder="Enter nickname"
                         disabled={isSubmitting}
                         error={errors.nickname}
+                        autoComplete="new-password"
                       />
 
                       <TextField
@@ -672,6 +681,7 @@ export default function UserBusinessModal({
                         placeholder="Enter phone number"
                         disabled={isSubmitting}
                         error={errors.phoneNumber}
+                        autoComplete="new-password"
                       />
 
                       <SelectField
@@ -696,7 +706,7 @@ export default function UserBusinessModal({
                     </div>
 
                     {}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <SpacesImageUpload
                         multiSize
                         deferred
@@ -731,7 +741,7 @@ export default function UserBusinessModal({
                     <h3 className="text-xs font-semibold">
                       Employment Information
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <TextField
                         control={control}
                         name="employeeId"
@@ -739,6 +749,7 @@ export default function UserBusinessModal({
                         placeholder="Enter employee ID"
                         disabled={isSubmitting}
                         error={errors.employeeId}
+                        autoComplete="new-password"
                       />
 
                       <TextField
@@ -748,6 +759,7 @@ export default function UserBusinessModal({
                         placeholder="Enter position"
                         disabled={isSubmitting}
                         error={errors.position}
+                        autoComplete="new-password"
                       />
 
                       <TextField
@@ -757,6 +769,7 @@ export default function UserBusinessModal({
                         placeholder="Enter department"
                         disabled={isSubmitting}
                         error={errors.department}
+                        autoComplete="new-password"
                       />
 
                       <SelectField
@@ -796,6 +809,7 @@ export default function UserBusinessModal({
                         placeholder="Enter shift"
                         disabled={isSubmitting}
                         error={errors.shift}
+                        autoComplete="new-password"
                       />
                     </div>
                   </div>
@@ -848,21 +862,20 @@ export default function UserBusinessModal({
                   ) : (
                     <div className="space-y-3">
                       {addressFields.map((field, index) => (
-                            <div key={field.id} className="pb-3 border-b last:border-0 last:pb-0">
-                              <div className="flex items-center justify-between mb-2">
-                                <p className="text-xs font-medium">Address {index + 1}</p>
-                                <CustomButton
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeAddress(index)}
-                                  disabled={isSubmitting}
-                                  className="h-4 w-4 p-0 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
-                                >
-                                  <Trash2 className="h-2 w-2 text-primary" />
-                                </CustomButton>
-                              </div>
-                              <div className="grid grid-cols-2 gap-2">
+                            <div key={field.id} className="border rounded p-3 relative">
+                              <CustomButton
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeAddress(index)}
+                                disabled={isSubmitting}
+                                className="h-4 w-4 p-0 absolute top-1 right-1 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
+                              >
+                                <Trash2 className="h-2 w-2 text-primary" />
+                              </CustomButton>
+                              <div className="space-y-3 pt-1">
+                                <p className="text-xs font-semibold">Address {index + 1}</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <SelectField
                                   control={control}
                                   name={`addresses.${index}.addressType`}
@@ -883,6 +896,7 @@ export default function UserBusinessModal({
                                   error={
                                     errors.addresses?.[index]?.houseNo as any
                                   }
+                                  autoComplete="new-password"
                                 />
                                 <TextField
                                   control={control}
@@ -893,6 +907,7 @@ export default function UserBusinessModal({
                                   error={
                                     errors.addresses?.[index]?.street as any
                                   }
+                                  autoComplete="new-password"
                                 />
                                 <TextField
                                   control={control}
@@ -903,6 +918,7 @@ export default function UserBusinessModal({
                                   error={
                                     errors.addresses?.[index]?.village as any
                                   }
+                                  autoComplete="new-password"
                                 />
                                 <TextField
                                   control={control}
@@ -913,6 +929,7 @@ export default function UserBusinessModal({
                                   error={
                                     errors.addresses?.[index]?.commune as any
                                   }
+                                  autoComplete="new-password"
                                 />
                                 <TextField
                                   control={control}
@@ -923,6 +940,7 @@ export default function UserBusinessModal({
                                   error={
                                     errors.addresses?.[index]?.district as any
                                   }
+                                  autoComplete="new-password"
                                 />
                                 <TextField
                                   control={control}
@@ -933,6 +951,7 @@ export default function UserBusinessModal({
                                   error={
                                     errors.addresses?.[index]?.province as any
                                   }
+                                  autoComplete="new-password"
                                 />
                                 <TextField
                                   control={control}
@@ -943,16 +962,18 @@ export default function UserBusinessModal({
                                   error={
                                     errors.addresses?.[index]?.country as any
                                   }
+                                  autoComplete="new-password"
                                 />
                               </div>
                             </div>
-                          ))}
+                          </div>
+                        ))}
                     </div>
                   )}
                 </div>
 
                 {}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xs font-semibold">Emergency Contacts</h3>
@@ -991,13 +1012,13 @@ export default function UserBusinessModal({
                       </p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {contactFields.map((field, index) => (
                             <div
                               key={field.id}
-                              className="border rounded p-3 relative lg:col-span-2"
+                              className="border rounded p-2 relative lg:col-span-2"
                             >
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                                 <TextField
                                   control={control}
                                   name={`emergencyContacts.${index}.name`}
@@ -1007,6 +1028,7 @@ export default function UserBusinessModal({
                                   error={
                                     errors.emergencyContacts?.[index]?.name as any
                                   }
+                                  autoComplete="new-password"
                                 />
                                 <TextField
                                   control={control}
@@ -1017,6 +1039,7 @@ export default function UserBusinessModal({
                                   error={
                                     errors.emergencyContacts?.[index]?.phone as any
                                   }
+                                  autoComplete="new-password"
                                 />
                                 <TextField
                                   control={control}
@@ -1028,6 +1051,7 @@ export default function UserBusinessModal({
                                     errors.emergencyContacts?.[index]
                                       ?.relationship as any
                                   }
+                                  autoComplete="new-password"
                                 />
                               </div>
                               {!isSubmitting && (
@@ -1048,7 +1072,7 @@ export default function UserBusinessModal({
                 </div>
 
                 {}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xs font-semibold">Documents</h3>
@@ -1083,9 +1107,9 @@ export default function UserBusinessModal({
                       <p className="text-xs text-muted-foreground">No documents added</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {documentFields.map((field, index) => (
-                        <div key={field.id} className="border rounded p-3 relative">
+                        <div key={field.id} className="border rounded p-2 relative">
                           <CustomButton
                             type="button"
                             variant="ghost"
@@ -1099,8 +1123,8 @@ export default function UserBusinessModal({
                           >
                             <Trash2 className="h-2 w-2" />
                           </CustomButton>
-                          <div className="space-y-3 pt-1">
-                            <div className="grid grid-cols-2 gap-1">
+                          <div className="space-y-2 pt-1">
+                            <div className="grid grid-cols-2 gap-2">
                               <SelectField
                                 control={control}
                                 name={`documents.${index}.type`}
@@ -1117,6 +1141,7 @@ export default function UserBusinessModal({
                                 placeholder="No"
                                 disabled={isSubmitting}
                                 error={errors.documents?.[index]?.number as any}
+                                autoComplete="new-password"
                               />
                             </div>
                             <div className="w-1/2">
@@ -1159,7 +1184,7 @@ export default function UserBusinessModal({
                 </div>
 
                 {}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xs font-semibold">Education</h3>
@@ -1198,9 +1223,9 @@ export default function UserBusinessModal({
                       <p className="text-xs text-muted-foreground">No education added</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {educationFields.map((field, index) => (
-                        <div key={field.id} className="border rounded p-3 relative">
+                        <div key={field.id} className="border rounded p-2 relative">
                           <CustomButton
                             type="button"
                             variant="ghost"
@@ -1214,8 +1239,8 @@ export default function UserBusinessModal({
                           >
                             <Trash2 className="h-2 w-2" />
                           </CustomButton>
-                          <div className="space-y-3 pt-1">
-                            <div className="grid grid-cols-2 gap-1">
+                          <div className="space-y-2 pt-1">
+                            <div className="grid grid-cols-2 gap-2">
                               <SelectField
                                 control={control}
                                 name={`educations.${index}.level`}
@@ -1232,6 +1257,7 @@ export default function UserBusinessModal({
                                 placeholder="School"
                                 disabled={isSubmitting}
                                 error={errors.educations?.[index]?.schoolName as any}
+                                autoComplete="new-password"
                               />
                               <TextField
                                 control={control}
@@ -1240,6 +1266,7 @@ export default function UserBusinessModal({
                                 placeholder="Field"
                                 disabled={isSubmitting}
                                 error={errors.educations?.[index]?.fieldOfStudy as any}
+                                autoComplete="new-password"
                               />
                               <DateTimePickerField
                                 control={control}
@@ -1316,7 +1343,7 @@ export default function UserBusinessModal({
                     name="remark"
                     label="Remarks"
                     placeholder="Enter any remarks"
-                    rows={3}
+                    rows={isMobile ? 3 : 5}
                     disabled={isSubmitting}
                     error={errors.remark}
                   />
@@ -1330,6 +1357,7 @@ export default function UserBusinessModal({
               isCreate={isCreate}
               createMessage="Creating user..."
               updateMessage="Updating user..."
+              className="m-0 mx-0 mb-0 md:mx-0 md:mb-0 p-4 md:p-4"
             >
               <CancelButton onClick={handleClose} disabled={isSubmitting} />
               <SubmitButton

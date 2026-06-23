@@ -10,6 +10,7 @@ import {
 import { ActionButton } from "@/components/shared/button/custom-button";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { Switch } from "@/components/ui/switch";
+import { UserRole } from "@/constants/status/status";
 
 interface UserTableHandlers {
   handleEditUser: (user: UserResponseModel) => void;
@@ -22,11 +23,13 @@ interface UserTableHandlers {
 interface UserTableOptions {
   data: AllUserResponseModel | null;
   handlers: UserTableHandlers;
+  currentUserId?: string;
 }
 
 export const userBusinessTableColumns = ({
   data,
   handlers,
+  currentUserId,
 }: UserTableOptions): TableColumn<UserResponseModel>[] => {
   const {
     handleEditUser,
@@ -131,17 +134,27 @@ export const userBusinessTableColumns = ({
       minWidth: "10px",
       maxWidth: "400px",
       truncate: true,
-      render: (user) => (
-        <div className="flex items-center gap-1">
-          <Switch
-            checked={user?.accountStatus === "ACTIVE"}
-            onCheckedChange={() => handleToggleStatus(user)}
-          />
-          <span className="text-xs text-muted-foreground">
-            {user?.accountStatus ? formatEnumValue(user.accountStatus) : "---"}
-          </span>
-        </div>
-      ),
+      render: (user) => {
+        const isSelf = user?.id === currentUserId;
+        const isBusinessOwner = user?.roles?.includes(UserRole.BUSINESS_OWNER);
+        const isDisabled = isSelf || isBusinessOwner;
+
+        return (
+          <div className="flex items-center gap-1">
+            {!isDisabled && (
+              <Switch
+                checked={user?.accountStatus === "ACTIVE"}
+                onCheckedChange={() => handleToggleStatus(user)}
+              />
+            )}
+            <span className="text-xs text-muted-foreground">
+              {user?.accountStatus
+                ? formatEnumValue(user.accountStatus)
+                : "---"}
+            </span>
+          </div>
+        );
+      },
     },
     {
       key: "createdAt",
@@ -159,31 +172,43 @@ export const userBusinessTableColumns = ({
       label: "Actions",
       minWidth: "10px",
       maxWidth: "400px",
-      render: (user) => (
-        <div className="flex items-center gap-1">
-          <ActionButton
-            icon={<Eye className="w-3 h-3" />}
-            tooltip="View Details"
-            onClick={() => handleViewUserDetail(user)}
-          />
-          <ActionButton
-            icon={<Edit className="w-3 h-3" />}
-            tooltip="Edit User"
-            onClick={() => handleEditUser(user)}
-          />
-          <ActionButton
-            icon={<RotateCw className="w-3 h-3" />}
-            tooltip="Reset Password"
-            onClick={() => handleResetPassword(user)}
-          />
-          <ActionButton
-            icon={<Trash className="w-3 h-3" />}
-            tooltip="Delete User"
-            onClick={() => handleDeleteUser(user)}
-            variant="destructive"
-          />
-        </div>
-      ),
+      render: (user) => {
+        const isSelf = user?.id === currentUserId;
+        const isBusinessOwner = user?.roles?.includes(UserRole.BUSINESS_OWNER);
+        const hideActions = isSelf || isBusinessOwner;
+
+        return (
+          <div className="flex items-center gap-1">
+            <ActionButton
+              icon={<Eye className="w-3 h-3" />}
+              tooltip="View Details"
+              onClick={() => handleViewUserDetail(user)}
+            />
+            {!hideActions && (
+              <ActionButton
+                icon={<Edit className="w-3 h-3" />}
+                tooltip="Edit User"
+                onClick={() => handleEditUser(user)}
+              />
+            )}
+            {!hideActions && (
+              <ActionButton
+                icon={<RotateCw className="w-3 h-3" />}
+                tooltip="Reset Password"
+                onClick={() => handleResetPassword(user)}
+              />
+            )}
+            {!hideActions && (
+              <ActionButton
+                icon={<Trash className="w-3 h-3" />}
+                tooltip="Delete User"
+                onClick={() => handleDeleteUser(user)}
+                variant="destructive"
+              />
+            )}
+          </div>
+        );
+      },
     },
   ];
 };

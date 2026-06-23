@@ -27,12 +27,13 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
   closeButtonClassName?: string;
+  disableScrollWrapper?: boolean;
 }
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, closeButtonClassName = "", style, ...props }, ref) => {
+>(({ className, children, closeButtonClassName = "", disableScrollWrapper = false, style, ...props }, ref) => {
   const closeRef = React.useRef<HTMLButtonElement>(null);
   const dragState = React.useRef({ startY: 0, dragging: false });
   const [dragY, setDragY] = React.useState(0);
@@ -62,7 +63,10 @@ const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      onOpenAutoFocus={(e) => e.preventDefault()}
+      onOpenAutoFocus={(e) => {
+        e.preventDefault();
+        (e.currentTarget as HTMLElement)?.focus();
+      }}
       style={{
         ...style,
         ...(dragY ? { transform: `translateY(${dragY}px)`, transition: "none" } : undefined),
@@ -97,9 +101,13 @@ const DialogContent = React.forwardRef<
       />
 
       {/* Content scroll area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 no-scrollbar flex flex-col min-h-0">
-        {children}
-      </div>
+      {disableScrollWrapper ? (
+        children
+      ) : (
+        <div className="flex-1 overflow-y-auto px-4 py-4 no-scrollbar flex flex-col min-h-0">
+          {children}
+        </div>
+      )}
 
       <DialogPrimitive.Close ref={closeRef} className={cn("absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none", closeButtonClassName)}>
         <X className="h-4 w-4" />

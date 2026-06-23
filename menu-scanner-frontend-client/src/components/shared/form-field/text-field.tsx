@@ -25,6 +25,7 @@ export function TextField<T extends FieldValues = FieldValues>({
   onCustomChange,
   inputClassName = "",
   labelClassName = "",
+  autoComplete,
 }: TextFormFieldProps<T>) {
   return (
     <div className={`flex flex-col gap-1 w-full ${className}`}>
@@ -45,7 +46,7 @@ export function TextField<T extends FieldValues = FieldValues>({
             min={min}
             max={max}
             step={step}
-            autoComplete="off"
+            autoComplete={autoComplete || "off"}
             onChange={(e) => {
               if (valueAsNumber && type === "number") {
                 const value = e.target.valueAsNumber;
