@@ -1,6 +1,6 @@
 "use client";
 
-import { CustomModal } from "./custom-modal";
+import { CustomModal, type ModalSize } from "./custom-modal";
 import type React from "react";
 import { ReactNode } from "react";
 import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -16,6 +16,9 @@ interface DetailModalProps {
   avatarUrl?: string;
   avatarName?: string;
   badges?: ReactNode;
+  size?: ModalSize;
+  isEmpty?: boolean;
+  emptyMessage?: string;
   children: ReactNode;
 }
 
@@ -28,39 +31,48 @@ export function DetailModal({
   avatarUrl,
   avatarName,
   badges,
+  size = "6xl",
+  isEmpty = false,
+  emptyMessage = "No data available",
   children,
 }: DetailModalProps) {
   return (
-    <CustomModal isOpen={isOpen} onClose={onClose} size="6xl" className="max-h-[92vh] gap-0 -col">
-      
-        {}
-        <DialogHeader className="px-3 py-2 border-b bg-muted/30 flex-shrink-0">
-          <div className="flex items-center gap-2 pr-4">
-            {(avatarUrl || avatarName) && (
-              <CustomAvatar imageUrl={avatarUrl} name={avatarName} size="xl" />
+    <CustomModal isOpen={isOpen} onClose={onClose} size={size} className="max-h-[92vh] gap-0 flex flex-col">
+      <DialogHeader className="px-4 pt-3 pb-3.5 border-b border-primary/30 -mx-4 -mt-4 bg-muted/30 flex-shrink-0">
+        <div className="flex items-center gap-2 pr-4">
+          {(avatarUrl || avatarName) && (
+            <CustomAvatar imageUrl={avatarUrl} name={avatarName} size="xl" />
+          )}
+
+          <div className="flex-1 min-w-0 text-left">
+            <DialogTitle className="text-sm md:text-base font-semibold leading-tight text-foreground truncate">
+              {title}
+            </DialogTitle>
+            {description && (
+              <DialogDescription className="text-xs text-muted-foreground leading-snug truncate">
+                {description}
+              </DialogDescription>
             )}
-
-            <div className="flex-1">
-              <DialogTitle className="text-xs font-semibold">
-                {title}
-              </DialogTitle>
-              {description && (
-                <DialogDescription className="text-[11px] text-muted-foreground">
-                  {description}
-                </DialogDescription>
-              )}
-              {badges && (
-                <div className="flex items-center gap-1 mt-1">{badges}</div>
-              )}
-            </div>
+            {badges && (
+              <div className="flex items-center gap-1 mt-1">{badges}</div>
+            )}
           </div>
-        </DialogHeader>
-
-        {}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-3">{isLoading ? <Loading /> : children}</div>
         </div>
-      
+      </DialogHeader>
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="py-3 px-0.5">
+          {isLoading ? (
+            <Loading />
+          ) : isEmpty ? (
+            <div className="flex items-center justify-center min-h-[200px]">
+              <p className="text-xs text-muted-foreground">{emptyMessage}</p>
+            </div>
+          ) : (
+            children
+          )}
+        </div>
+      </div>
     </CustomModal>
   );
 }

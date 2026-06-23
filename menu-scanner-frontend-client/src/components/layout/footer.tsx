@@ -49,7 +49,7 @@ export function Footer() {
                   <div className="w-8 h-8 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden flex-shrink-0">
                     <SmartImage
                       src={businessLogoUrl}
-                      fallbackSrc={appImages.menuLogo}
+                      fallbackSrc={appImages.scanmekhLogo}
                       alt={businessName}
                       fill
                       rounded="md"

@@ -33,24 +33,24 @@ interface CustomSelectProps {
 
 const CUSTOM_SELECT_SIZES = {
   sm: {
-    button: "h-5 text-xs",
-    icon: "h-2 w-2",
-    item: "text-xs py-1 px-1",
+    button: "h-7 text-xs",
+    icon: "h-3 w-3",
+    item: "text-xs py-1 px-2",
   },
   md: {
-    button: "h-[26px] text-xs",
-    icon: "h-3 w-3",
-    item: "text-xs py-1 px-2",
+    button: "h-[32px] text-base md:text-sm",
+    icon: "h-4 w-4",
+    item: "text-base md:text-sm py-2 px-3",
   },
   lg: {
-    button: "h-[26px] text-xs",
-    icon: "h-3 w-3",
-    item: "text-xs py-1 px-2",
+    button: "h-10 md:h-9 text-base md:text-sm",
+    icon: "h-4 w-4",
+    item: "text-base md:text-sm py-2 px-3",
   },
   xl: {
-    button: "h-[26px] text-xs",
-    icon: "h-3 w-3",
-    item: "text-xs py-1 px-2",
+    button: "h-11 md:h-10 text-base md:text-sm",
+    icon: "h-4 w-4",
+    item: "text-base md:text-sm py-2.5 px-3",
   },
 } as const;
 
@@ -100,7 +100,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
               "w-full justify-between gap-1 transition-all duration-200",
               "border-input",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
               open && "bg-primary/20 border-primary text-primary",
               sizeConfig.button,
               className,

@@ -59,11 +59,11 @@ export function SelectField<T extends FieldValues = FieldValues>({
                   role="combobox"
                   disabled={disabled || loading}
                   className={cn(
-                    "w-full justify-between h-10 md:h-9 px-3 text-base md:text-sm font-normal transition-all duration-200 border-input",
+                    "w-full justify-between h-[32px] px-3 text-base md:text-sm font-normal transition-all duration-200 border-input",
 
                     "hover:bg-primary/10 hover:border-primary hover:text-primary",
 
-                    "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+                    "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
 
                     open && "bg-primary/20 border-primary text-primary",
 

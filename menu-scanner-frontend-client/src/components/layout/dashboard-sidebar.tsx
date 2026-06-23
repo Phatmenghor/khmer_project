@@ -10,6 +10,7 @@ import { readBusinessCache } from "@/lib/business-cache";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ROUTES, SIDEBAR_MENU } from "@/constants/app-routes/routes";
 import { SmartImage } from "@/components/shared/image/smart-image";
+import { appImages } from "@/constants/app-resource/icons/app-images";
 import { UserAvatarCard } from "../shared/avatar/user-avatar-card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
@@ -249,17 +250,15 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               href="/"
               className="relative flex items-center gap-2 group transition-all duration-300 hover:scale-[1.02]"
             >
-              <div className="relative">
-                <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                  <SmartImage
-                    src={logoUrl}
-                    alt={businessName || "Logo"}
-                    fill
-                    rounded="md"
-                    showSkeleton={false}
-                  />
-                </div>
-                <div className="absolute -inset-1 rounded bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative w-11 h-11 shrink-0 translate-y-[2px]">
+                <SmartImage
+                  src={logoUrl}
+                  fallbackSrc={appImages.scanmekhLogo}
+                  alt={businessName || "Logo"}
+                  fill
+                  objectFit="contain"
+                  showSkeleton={false}
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-foreground font-bold text-xs leading-tight tracking-tight">

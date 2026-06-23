@@ -70,9 +70,9 @@ function ComboboxSelectCategoriesPublicComponent({
   }, [loading, lastPage]);
 
   const sizeClasses = {
-    sm: "h-5 text-xs",
-    md: "h-6 text-xs",
-    lg: "h-7 text-xs",
+    sm: "h-7 text-xs",
+    md: "h-[32px] text-base md:text-sm",
+    lg: "h-9 text-base md:text-sm",
   };
 
   const removeDuplicates = (
@@ -183,7 +183,7 @@ function ComboboxSelectCategoriesPublicComponent({
               sizeClasses[size],
               !selectedCategory && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
               open && "bg-primary/20 border-primary text-primary",
               disabled && "opacity-50 cursor-not-allowed",
             )}

@@ -39,7 +39,7 @@ export function FormFooter({
     <div
       className={cn(
         "-mx-4 -mb-4 px-4 py-3 md:-mx-6 md:-mb-4 md:px-6 md:py-4",
-        "flex flex-row items-center justify-between gap-3 border-t border-border/60 bg-muted/30 flex-shrink-0",
+        "flex flex-row items-center justify-between gap-3 border-t border-primary/30 bg-muted/30 flex-shrink-0",
         className
       )}
     >

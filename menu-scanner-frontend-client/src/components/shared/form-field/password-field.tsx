@@ -42,7 +42,7 @@ export function PasswordField<T extends FieldValues = FieldValues>({
               autoComplete="new-password"
               className={cn(
                 "pr-8",
-                error && "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/30",
+                error && "border-red-500 focus:border-red-500 focus:ring-red-500/30",
                 inputClassName
               )}
             />

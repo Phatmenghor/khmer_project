@@ -175,10 +175,10 @@ export function ComboboxSelectDelivery({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between px-3 py-1 h-8 text-xs transition-all duration-200 border-input",
+              "w-full justify-between px-3 h-[32px] text-base md:text-sm transition-all duration-200 border-input",
               !dataSelect && "text-muted-foreground",
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
+              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
               open && "bg-primary/20 border-primary text-primary",
               error && "border-red-500",
               disabled && "opacity-50 cursor-not-allowed"

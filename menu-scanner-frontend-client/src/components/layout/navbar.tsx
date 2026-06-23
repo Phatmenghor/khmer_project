@@ -286,7 +286,7 @@ export function Navbar() {
                     <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                       <SmartImage
                         src={businessLogoUrl}
-                        fallbackSrc={appImages.menuLogo}
+                        fallbackSrc={appImages.scanmekhLogo}
                         alt={businessName}
                         fill
                         rounded="md"

@@ -46,6 +46,25 @@ export const CustomButton = React.forwardRef<
     );
   }
 
+  // Radix Slot (activated via asChild) expects exactly one React child element.
+  // We pass children directly to avoid breaking Slot with conditional icons or text wrappers.
+  if (props.asChild) {
+    return (
+      <Button
+        ref={ref}
+        type={type}
+        onClick={handleClick}
+        className={cn(className)}
+        disabled={isLoading || disabled}
+        variant={variant as any}
+        size={size as any}
+        {...props}
+      >
+        {children}
+      </Button>
+    );
+  }
+
   return (
     <Button
       ref={ref}

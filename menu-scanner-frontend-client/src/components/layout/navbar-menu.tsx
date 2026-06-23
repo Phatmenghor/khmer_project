@@ -83,7 +83,7 @@ function NavbarMenuComponent({
                 <div className="w-8 h-8 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
                   <SmartImage
                     src={businessLogoUrl}
-                    fallbackSrc={appImages.menuLogo}
+                    fallbackSrc={appImages.scanmekhLogo}
                     alt={businessName}
                     fill
                     rounded="md"

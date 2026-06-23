@@ -32,7 +32,7 @@ export function TextareaField<T extends FieldValues = FieldValues>({
             placeholder={placeholder}
             disabled={disabled}
             rows={rows}
-            className={`transition-colors resize-none !text-[11px] md:!text-[11px] leading-relaxed ${
+            className={`transition-colors resize-none leading-relaxed ${
               error ? "border-red-500 focus:border-red-500" : ""
             }`}
           />

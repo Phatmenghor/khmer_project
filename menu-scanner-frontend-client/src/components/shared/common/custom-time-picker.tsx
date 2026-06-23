@@ -114,7 +114,7 @@ export function CustomTimePicker({
       <PopoverTrigger asChild>
         <div
           className={cn(
-            "relative w-full h-10 md:h-9 rounded-md border border-input bg-background",
+            "relative w-full h-[32px] rounded-md border border-input bg-background",
             "transition-all duration-200",
             !value && "text-muted-foreground",
             isOpen && "bg-primary/20 border-primary",
@@ -129,7 +129,7 @@ export function CustomTimePicker({
               "w-full h-full px-3 text-base md:text-sm font-normal text-left flex items-center gap-2",
               "rounded-md transition-colors min-w-0",
               !disabled && "hover:bg-primary/10 hover:border-primary",
-              "focus:outline-none focus:ring-2 focus:ring-primary/30",
+              "focus:outline-none focus:ring-2 focus:ring-primary/20",
               disabled && "cursor-not-allowed"
             )}
             onClick={() => setIsOpen(true)}
@@ -175,7 +175,7 @@ export function CustomTimePicker({
             <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-11 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Hour</label>
               <Select value={selectedHour} onValueChange={setSelectedHour}>
-                <SelectTrigger className="h-10 md:h-9 w-full xs:w-16 text-base md:text-sm font-medium border-input">
+                <SelectTrigger className="h-[32px] w-full xs:w-16 text-base md:text-sm font-medium border-input">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-32 min-w-8">
@@ -195,7 +195,7 @@ export function CustomTimePicker({
             <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-16 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Min</label>
               <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                <SelectTrigger className="h-10 md:h-9 w-full xs:w-16 text-base md:text-sm font-medium border-input">
+                <SelectTrigger className="h-[32px] w-full xs:w-16 text-base md:text-sm font-medium border-input">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="max-h-32 min-w-8">
@@ -211,7 +211,7 @@ export function CustomTimePicker({
             {/* Period Selector */}
             <div className="flex flex-col gap-1 flex-1 xs:flex-none xs:min-w-14 min-w-0">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Period</label>
-              <div className="flex gap-1 border rounded-md p-1 bg-muted h-10 md:h-9 items-center">
+              <div className="flex gap-1 border rounded-md p-1 bg-muted h-[32px] items-center">
                 {["AM", "PM"].map((period) => (
                   <CustomButton variant="unstyled" size="unstyled"
                     key={period}

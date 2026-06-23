@@ -39,7 +39,7 @@ export function MobileSelect({
           type="button"
           disabled={disabled}
           className={cn(
-            "flex w-full items-center justify-between rounded-xl border border-input bg-transparent px-3.5 text-left text-sm transition-all shadow-sm",
+            "flex w-full items-center justify-between rounded-xl border border-input bg-transparent px-3.5 text-left text-base md:text-sm transition-all shadow-sm",
             "h-11 touch-target", /* Fixed 44px touch height */
             "focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",
             "disabled:cursor-not-allowed disabled:opacity-50"
