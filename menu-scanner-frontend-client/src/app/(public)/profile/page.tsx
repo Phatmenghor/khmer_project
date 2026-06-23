@@ -8,6 +8,7 @@ import * as z from "zod";
 import { Edit, Loader2, Trash2, Lock, User, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -258,10 +259,11 @@ export default function PublicProfilePage() {
                 >
                   <div className="relative h-14 w-14 rounded-full overflow-hidden ring-2 ring-primary/20 bg-primary/10">
                     {(watch("profileImageUrl") || userProfile?.profileImage?.md) ? (
-                      <img
+                      <SmartImage
                         src={watch("profileImageUrl") || userProfile?.profileImage?.md}
                         alt={userProfile?.fullName || "User"}
-                        className="absolute inset-0 h-full w-full object-cover"
+                        fill
+                        showSkeleton={false}
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-primary font-semibold">

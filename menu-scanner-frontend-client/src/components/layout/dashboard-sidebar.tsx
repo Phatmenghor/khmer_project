@@ -9,8 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { readBusinessCache } from "@/lib/business-cache";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ROUTES, SIDEBAR_MENU } from "@/constants/app-routes/routes";
-import Image from "next/image";
-import { appImages } from "@/constants/app-resource/icons/app-images";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { UserAvatarCard } from "../shared/avatar/user-avatar-card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
@@ -252,14 +251,12 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             >
               <div className="relative">
                 <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                  <img
-                    key={logoUrl}
-                    src={logoUrl || appImages.noImage}
-                    alt={businessName}
-                    className="w-full h-full object-cover rounded"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = appImages.noImage;
-                    }}
+                  <SmartImage
+                    src={logoUrl}
+                    alt={businessName || "Logo"}
+                    fill
+                    rounded="md"
+                    showSkeleton={false}
                   />
                 </div>
                 <div className="absolute -inset-1 rounded bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

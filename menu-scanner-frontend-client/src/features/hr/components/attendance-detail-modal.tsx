@@ -16,6 +16,7 @@ import {
 import { fetchAttendanceByIdService } from "../store/thunks/attendance-thunks";
 import { clearSelectedAttendance } from "../store/slice/attendance-slice";
 import { MapPin, ExternalLink, Loader2, Navigation, Info } from "lucide-react";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import {
   calculateDistance,
   formatCoordinates,
@@ -233,12 +234,11 @@ export function AttendanceDetailModal({
 
             {}
             {staticMapUrl && (
-              <div className="rounded border overflow-hidden">
-                <img
+              <div className="relative rounded border overflow-hidden h-32 w-full">
+                <SmartImage
                   src={staticMapUrl}
                   alt="Location map"
-                  className="w-full h-32 object-cover"
-                  onError={() => undefined}
+                  fill
                 />
               </div>
             )}

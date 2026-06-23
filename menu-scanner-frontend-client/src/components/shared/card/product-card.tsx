@@ -39,8 +39,6 @@ interface ProductCardProps {
 }
 
 
-const imageLoadedCache = new Set<string>();
-
 function ProductCardComponent({ product, className, imageLoading = "lazy" }: ProductCardProps) {
   const { dispatch: cartDispatch, items: cartItems } = useCartState();
   const { dispatch: favoriteDispatch, items: favoriteItems, loaded: favLoaded } = useFavoriteState();
@@ -84,24 +82,6 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
 
 
   const imageUrl = sanitizeImageUrl(product.mainImage?.md || product.mainImage?.sm, appImages.noImage);
-
-  const [imageLoaded, setImageLoaded] = useState(imageLoadedCache.has(imageUrl));
-  const [imageError, setImageError] = useState(false);
-
-  const handleImageLoad = () => {
-    setImageLoaded(true);
-    setImageError(false);
-    imageLoadedCache.add(imageUrl);
-  };
-
-  const handleImageError = () => {
-    if (imageUrl !== appImages.noImage) {
-      setImageError(true);
-      setImageLoaded(true);
-      imageLoadedCache.add(appImages.noImage);
-    }
-  };
-
 
   const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -351,13 +331,9 @@ function ProductCardComponent({ product, className, imageLoading = "lazy" }: Pro
           <ProductImage
             product={product}
             imageUrl={imageUrl}
-            imageLoaded={imageLoaded}
-            imageError={imageError}
             isOutOfStock={isOutOfStock}
             isFavorited={isFavorited}
             loading={imageLoading}
-            onImageLoad={handleImageLoad}
-            onImageError={handleImageError}
             onToggleFavorite={handleToggleFavorite}
           />
 

@@ -1,10 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { sanitizeImageUrl } from "@/utils/common/common";
-import { appImages } from "@/constants/app-resource/icons/app-images";
 import { OrderItemResponse } from "@/features/main/store/models/response/order-response";
 
 interface OrderItemCardProps {
@@ -17,11 +15,10 @@ export function OrderItemCard({ item }: OrderItemCardProps) {
       <div className="flex gap-3">
         {/* Image */}
         <div className="relative w-[80px] h-[80px] rounded overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
-          <Image
-            src={sanitizeImageUrl(item.product?.imageUrl, appImages.noImage)}
+          <SmartImage
+            src={item.product?.imageUrl}
             alt={item.product?.name || "Product"}
             fill
-            className="object-cover"
           />
           {item.hasPromotion && (
             <div className="absolute top-1 left-1 z-10 pointer-events-none">

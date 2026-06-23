@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { Upload, X, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { FieldError } from "react-hook-form";
 
 type AspectRatio = "square" | "banner" | "portrait" | "landscape" | "auto" | "video";
@@ -147,19 +148,23 @@ export function ClickableImageUpload({
             <>
               {isSquare ? (
                 <div className="w-full h-full flex items-center justify-center bg-muted/10">
-                  <div className="w-40 h-40 rounded overflow-hidden flex-shrink-0">
-                    <img
+                  <div className="relative w-40 h-40 rounded overflow-hidden flex-shrink-0">
+                    <SmartImage
                       src={value}
                       alt="Preview"
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      fill
+                      showSkeleton={false}
+                      className="hover:scale-105"
                     />
                   </div>
                 </div>
               ) : (
-                <img
+                <SmartImage
                   src={value}
                   alt="Preview"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  fill
+                  showSkeleton={false}
+                  className="hover:scale-105"
                 />
               )}
 

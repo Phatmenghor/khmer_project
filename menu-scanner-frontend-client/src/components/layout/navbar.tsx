@@ -4,6 +4,7 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { useState, useEffect, useRef } from "react";
 import { readBusinessCache } from "@/lib/business-cache";
 import { appImages } from "@/constants/app-resource/icons/app-images";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { useRouter, usePathname } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
@@ -283,14 +284,13 @@ export function Navbar() {
                 <CustomButton variant="unstyled" size="unstyled" onClick={handleNavigateToHome} className="flex items-center gap-1 group">
                   <div className="relative">
                     <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
-                      <img
-                        key={businessLogoUrl}
-                        src={businessLogoUrl || appImages.menuLogo}
+                      <SmartImage
+                        src={businessLogoUrl}
+                        fallbackSrc={appImages.menuLogo}
                         alt={businessName}
-                        className="w-full h-full object-cover rounded"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = appImages.menuLogo;
-                        }}
+                        fill
+                        rounded="md"
+                        showSkeleton={false}
                       />
                     </div>
                     <div className="absolute -inset-1 rounded bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

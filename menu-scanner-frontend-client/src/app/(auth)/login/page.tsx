@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import { useState } from "react";
-import Image from "next/image";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -100,12 +100,11 @@ export default function LoginPage() {
     <div className="relative min-h-screen w-full flex overflow-x-hidden">
       {/* Background image: full-screen on small screens, left 50% panel on lg+ */}
       <div className="absolute inset-0 lg:relative lg:inset-auto lg:w-1/2 lg:h-screen">
-        <Image
+        <SmartImage
           src={appImages.loginBg}
           alt="Background"
           fill
           sizes="(min-width: 1024px) 50vw, 100vw"
-          className="object-cover"
           priority
         />
         {/* Dark overlay for readability, only needed when form sits on top of the image (small screens) */}

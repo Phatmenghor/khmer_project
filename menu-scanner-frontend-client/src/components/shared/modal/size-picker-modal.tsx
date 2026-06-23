@@ -4,7 +4,7 @@ import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
-import Image from "next/image";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { buildCustomizationMapKey, getQuantityForCombo } from "@/utils/common/customization-utils";
 import { DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,6 @@ import { CancelButton, SubmitButton } from "@/components/shared/button/custom-bu
 
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel, ProductSize } from "@/features/business/store/models/response/product-response";
-import { appImages } from "@/constants/app-resource/icons/app-images";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PosPageCartItem } from "@/features/business/store/models/type/pos-page-type";
 import { SizeSelector } from "./size-selector";
@@ -496,11 +495,10 @@ export function SizePickerModal({
           {}
           <div className="flex gap-3 mb-3">
             <div className="relative w-14 h-14 rounded overflow-hidden bg-muted flex-shrink-0">
-              <Image
-                src={product?.mainImage?.md || product?.mainImage?.sm || appImages.noImage}
+              <SmartImage
+                src={product?.mainImage?.md || product?.mainImage?.sm}
                 alt={product?.name || "Product"}
                 fill
-                className="object-cover"
               />
             </div>
             <div className="flex-1 min-w-0">

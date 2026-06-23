@@ -1,34 +1,28 @@
 "use client";
 
 import { memo } from "react";
-import Image from "next/image";
 import { Ruler, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { CustomButton } from "../button/custom-button";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel } from "@/features/business/store/models/response/product-response";
-import { appImages } from "@/constants/app-resource/icons/app-images";
 
 interface ProductImageProps {
   product: ProductDetailResponseModel;
   imageUrl: string;
-  imageLoaded: boolean;
-  imageError: boolean;
   isOutOfStock: boolean;
   isFavorited: boolean;
   loading?: "eager" | "lazy";
-  onImageLoad: () => void;
-  onImageError: () => void;
+  onImageLoad?: () => void;
+  onImageError?: () => void;
   onToggleFavorite: (e: React.MouseEvent) => void;
 }
 
 function ProductImageComponent({
   product,
   imageUrl,
-  imageLoaded,
-  imageError,
   isOutOfStock,
   isFavorited,
   loading = "lazy",
@@ -38,18 +32,13 @@ function ProductImageComponent({
 }: ProductImageProps) {
   return (
     <div className="relative aspect-square overflow-hidden bg-muted/30">
-      {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
-
-      <Image
-        src={imageError ? appImages.noImage : imageUrl}
+      <SmartImage
+        src={imageUrl}
         alt={product.name || "Product Image"}
         fill
         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         loading={loading}
-        className={cn(
-          "object-cover transition-all duration-300 group-hover:scale-105",
-          imageLoaded ? "opacity-100" : "opacity-0"
-        )}
+        className="group-hover:scale-105"
         onLoad={onImageLoad}
         onError={onImageError}
       />

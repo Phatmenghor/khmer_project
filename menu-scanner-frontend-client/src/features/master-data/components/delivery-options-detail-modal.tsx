@@ -6,6 +6,7 @@ import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { DeliveryOptionsResponseModel } from "../store/models/response/delivery-options-response";
 import { cn } from "@/lib/utils";
 import { Truck } from "lucide-react";
+import { SmartImage } from "@/components/shared/image/smart-image";
 
 interface DetailModalProps {
   deliveryOptions: DeliveryOptionsResponseModel | null;
@@ -64,9 +65,14 @@ export function DeliveryOptionsDetailModal({
       <DialogContent className="w-full sm:max-w-2xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
-          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+          <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
             {(deliveryOptions.image?.sm || deliveryOptions.image?.md || deliveryOptions.image?.o) ? (
-              <img src={deliveryOptions.image?.md || deliveryOptions.image?.o || deliveryOptions.image?.sm} alt={deliveryOptions.name} className="w-full h-full object-cover" />
+              <SmartImage
+                src={deliveryOptions.image?.md || deliveryOptions.image?.o || deliveryOptions.image?.sm}
+                alt={deliveryOptions.name || "Delivery option"}
+                fill
+                showSkeleton={false}
+              />
             ) : (
               <Truck className="h-5 w-5 text-muted-foreground" />
             )}

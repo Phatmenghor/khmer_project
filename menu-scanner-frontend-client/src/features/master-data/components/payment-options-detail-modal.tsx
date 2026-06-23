@@ -6,6 +6,7 @@ import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { PaymentOptionResponse } from "../store/models/response/payment-option-response";
 import { cn } from "@/lib/utils";
 import { CreditCard } from "lucide-react";
+import { SmartImage } from "@/components/shared/image/smart-image";
 
 interface PaymentOptionDetailModalProps {
   paymentOption: PaymentOptionResponse | null;
@@ -64,9 +65,14 @@ export function PaymentOptionDetailModal({
       <DialogContent className="w-full sm:max-w-2xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
-          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+          <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
             {(paymentOption.image?.sm || paymentOption.image?.md || paymentOption.image?.o) ? (
-              <img src={paymentOption.image?.md || paymentOption.image?.o || paymentOption.image?.sm} alt={paymentOption.name} className="w-full h-full object-cover" />
+              <SmartImage
+                src={paymentOption.image?.md || paymentOption.image?.o || paymentOption.image?.sm}
+                alt={paymentOption.name || "Payment option"}
+                fill
+                showSkeleton={false}
+              />
             ) : (
               <CreditCard className="h-5 w-5 text-muted-foreground" />
             )}

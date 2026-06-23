@@ -4,6 +4,7 @@ import { memo, useCallback } from "react";
 import { useAppSelector } from "@/store";
 import { ShoppingCart, Plus, Minus, Ruler, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { CustomButton } from "../button/custom-button";
@@ -82,11 +83,12 @@ function POSProductCardComponent({
       {}
       <div className={cn("relative aspect-square overflow-hidden bg-muted/30")}>
         {(product.mainImage?.md || product.mainImage?.sm) ? (
-          <img
+          <SmartImage
             src={product.mainImage?.md || product.mainImage?.sm}
             alt={product.name}
-            className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110"
-            loading="lazy"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="group-hover:scale-110"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">

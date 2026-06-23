@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { Separator } from "@/components/ui/separator";
 import { ImagePlus, X, Check, Palette } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -225,11 +226,12 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
           {style.logoDataUrl ? (
             <>
               <div className="flex items-center gap-2 p-1 rounded border border-border bg-muted/40">
-                <div className="w-7 h-7 rounded-full overflow-hidden border border-border flex-shrink-0 bg-white">
-                  <img
+                <div className="relative w-7 h-7 rounded-full overflow-hidden border border-border flex-shrink-0 bg-white">
+                  <SmartImage
                     src={style.logoDataUrl}
                     alt="Logo preview"
-                    className="w-full h-full object-cover"
+                    fill
+                    showSkeleton={false}
                   />
                 </div>
                 <div className="flex-1 min-w-0">

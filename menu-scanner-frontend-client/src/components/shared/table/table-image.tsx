@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Eye, Download, X, MoreHorizontal, ExternalLink, Image as ImageIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,10 +59,11 @@ export function TableImage({
       >
         {src && !thumbErrored ? (
           <>
-            <img
+            <SmartImage
               src={src}
               alt={alt}
-              className="w-full h-full object-cover"
+              fill
+              showSkeleton={false}
               onError={() => setThumbErrored(true)}
             />
             {/* View — top left */}
@@ -136,12 +138,16 @@ export function TableImage({
           {/* Body */}
           <div className="flex items-center justify-center bg-muted/20 min-h-[240px] p-4">
             {effectivePreview && !previewErrored ? (
-              <img
-                src={effectivePreview}
-                alt={alt}
-                className="max-w-full max-h-[60vh] object-contain rounded"
-                onError={() => setPreviewErrored(true)}
-              />
+              <div className="relative w-full max-w-full h-[60vh]">
+                <SmartImage
+                  src={effectivePreview}
+                  alt={alt}
+                  fill
+                  objectFit="contain"
+                  rounded="md"
+                  onError={() => setPreviewErrored(true)}
+                />
+              </div>
             ) : (
               <div className="flex flex-col items-center gap-2 text-muted-foreground">
                 <ImageIcon className="h-12 w-12 opacity-30" />

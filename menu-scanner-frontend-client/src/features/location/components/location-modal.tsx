@@ -31,6 +31,7 @@ import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { showToast } from "@/components/shared/common/show-toast";
 import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
+import { SmartImage } from "@/components/shared/image/smart-image";
 
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -157,7 +158,16 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
     <div className="space-y-1">
       {lightbox && (
         <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center" onClick={() => setLightbox(null)}>
-          <img src={lightbox} alt="Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded shadow-2xl" />
+          <div className="relative w-[90vw] h-[90vh] max-w-3xl">
+            <SmartImage
+              src={lightbox}
+              alt="Preview"
+              fill
+              showSkeleton={false}
+              objectFit="contain"
+              containerClassName="rounded shadow-2xl"
+            />
+          </div>
           <CustomButton variant="unstyled" size="unstyled" type="button" onClick={() => setLightbox(null)} className="absolute top-3 right-3 rounded-full bg-white/20 text-white p-1 hover:bg-white/40 transition-colors">
             <X className="h-3 w-3" />
           </CustomButton>
@@ -173,7 +183,7 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1">
         {images.map((img, idx) => (
           <div key={idx} className="relative aspect-square rounded overflow-hidden border bg-muted cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setLightbox(img.imageUrl)}>
-            <img src={img.imageUrl} alt={`Location ${idx + 1}`} className="w-full h-full object-cover" />
+            <SmartImage src={img.imageUrl} alt={`Location ${idx + 1}`} fill />
             {!disabled && (
               <CustomButton variant="unstyled" size="unstyled" type="button" onClick={(e) => { e.stopPropagation(); onRemove(idx); }} className="absolute top-0.5 right-0.5 rounded-full bg-destructive/90 text-white p-0.5 hover:bg-destructive transition-colors">
                 <X className="h-2 w-2" />

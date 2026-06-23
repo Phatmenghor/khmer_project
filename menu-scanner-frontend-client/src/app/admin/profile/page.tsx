@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -461,10 +462,11 @@ export default function AdminProfilePage() {
               >
                 <div className="relative h-14 w-14 rounded-full overflow-hidden ring-2 ring-primary/20 bg-primary/10">
                   {(watch("profileImageUrl") || userProfile?.profileImage?.md) ? (
-                    <img
+                    <SmartImage
                       src={watch("profileImageUrl") || userProfile?.profileImage?.md}
                       alt={userProfile?.fullName || "User"}
-                      className="absolute inset-0 h-full w-full object-cover"
+                      fill
+                      showSkeleton={false}
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-primary font-semibold">
@@ -1204,11 +1206,13 @@ export default function AdminProfilePage() {
                                 <label className="text-xs font-medium text-muted-foreground">
                                   File
                                 </label>
-                                <img
-                                  src={field?.fileUrl}
-                                  alt="Document"
-                                  className="w-1/2 h-24 object-cover rounded mt-1"
-                                />
+                                <div className="relative w-1/2 h-24 rounded mt-1 overflow-hidden">
+                                  <SmartImage
+                                    src={field?.fileUrl}
+                                    alt="Document"
+                                    fill
+                                  />
+                                </div>
                               </div>
                             )}
                           </div>
@@ -1399,11 +1403,13 @@ export default function AdminProfilePage() {
                               <label className="text-xs font-medium text-muted-foreground">
                                 Certificate
                               </label>
-                              <img
-                                src={field?.certificateUrl}
-                                alt="Certificate"
-                                className="w-1/2 h-24 object-cover rounded mt-1"
-                              />
+                              <div className="relative w-1/2 h-24 rounded mt-1 overflow-hidden">
+                                <SmartImage
+                                  src={field?.certificateUrl}
+                                  alt="Certificate"
+                                  fill
+                                />
+                              </div>
                             </div>
                           )}
                         </div>

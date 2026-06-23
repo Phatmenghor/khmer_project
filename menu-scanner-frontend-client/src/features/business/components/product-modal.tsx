@@ -49,6 +49,7 @@ import {
 } from "../store/models/schema/product-schema";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { Loading } from "@/components/shared/common/loading";
+import { SmartImage } from "@/components/shared/image/smart-image";
 
 type Props = {
   mode: ModalMode;
@@ -793,12 +794,13 @@ export default function ProductModal({
                       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                         {imageFields.map((field, index) => (
                           <div key={field.id} className="relative aspect-square group">
-                            <div className="w-full h-full rounded overflow-hidden border border-border/50 bg-muted">
+                            <div className="relative w-full h-full rounded overflow-hidden border border-border/50 bg-muted">
                               {watch(`images.${index}.image.sm`) ? (
-                                <img
+                                <SmartImage
                                   src={watch(`images.${index}.image.sm`)}
                                   alt={`Image ${index + 1}`}
-                                  className="w-full h-full object-cover"
+                                  fill
+                                  showSkeleton={false}
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">

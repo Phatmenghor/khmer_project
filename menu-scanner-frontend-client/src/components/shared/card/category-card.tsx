@@ -1,14 +1,12 @@
 "use client";
 
-import { memo, useState } from "react";
-import Image from "next/image";
+import { memo } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
-import { appImages } from "@/constants/app-resource/icons/app-images";
 
 interface CategoryCardProps {
   category: CategoriesResponseModel;
@@ -18,9 +16,6 @@ interface CategoryCardProps {
 
 
 function CategoryCardComponent({ category, className, loading = "lazy" }: CategoryCardProps) {
-  const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
   return (
     <Link
       href={`/products?categoryId=${category.id}`}
@@ -36,20 +31,13 @@ function CategoryCardComponent({ category, className, loading = "lazy" }: Catego
         <CardContent className="p-3 sm:p-3 flex flex-col items-center justify-center gap-2">
           {}
           <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded bg-muted/40 transition-all duration-300">
-            {!imageLoaded && (
-              <Skeleton className="absolute inset-0 w-full h-full rounded" />
-            )}
-            <Image
-              src={imageError || !category.image?.sm ? appImages.noImage : category.image.sm}
+            <SmartImage
+              src={category.image?.sm}
               alt={category.name}
               fill
+              rounded="md"
               loading={loading}
-              className={cn(
-                "object-cover transition-all duration-300 group-hover:scale-105",
-                imageLoaded ? "opacity-100" : "opacity-0"
-              )}
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageError(true)}
+              className="group-hover:scale-105"
             />
           </div>
 

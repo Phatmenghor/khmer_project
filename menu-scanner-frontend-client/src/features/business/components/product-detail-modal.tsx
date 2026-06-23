@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Loading } from "@/components/shared/common/loading";
 import { cn } from "@/lib/utils";
 import { Package, Eye, Heart, Box } from "lucide-react";
+import { SmartImage } from "@/components/shared/image/smart-image";
 
 interface ProductDetailModalProps {
   productId?: string;
@@ -116,12 +117,13 @@ export function ProductDetailModal({
 
         {/* ── Header ── */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
-          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+          <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
             {(productData.mainImage?.md || productData.mainImage?.sm) ? (
-              <img
+              <SmartImage
                 src={productData.mainImage?.md || productData.mainImage?.sm}
-                alt={productData.name}
-                className="w-full h-full object-cover"
+                alt={productData.name || "Product"}
+                fill
+                showSkeleton={false}
               />
             ) : (
               <Package className="h-5 w-5 text-muted-foreground" />
@@ -317,12 +319,13 @@ export function ProductDetailModal({
                     {productData.images.map((image, idx) => (
                       <div
                         key={image.id}
-                        className="aspect-square rounded overflow-hidden border border-border/50 hover:border-primary/50 transition-colors"
+                        className="relative aspect-square rounded overflow-hidden border border-border/50 hover:border-primary/50 transition-colors"
                       >
-                        <img
+                        <SmartImage
                           src={image.image?.md || image.image?.sm}
                           alt={`Image ${idx + 1}`}
-                          className="object-cover w-full h-full"
+                          fill
+                          showSkeleton={false}
                         />
                       </div>
                     ))}

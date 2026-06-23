@@ -6,18 +6,16 @@ import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { BannerResponseModel } from "../store/models/response/banner-response";
 import { cn } from "@/lib/utils";
 import { Image as ImageIcon } from "lucide-react";
-import { useState } from "react";
+import { SmartImage } from "@/components/shared/image/smart-image";
 
 function BannerDetailImage({ src, alt }: { src?: string; alt: string }) {
-  const [errored, setErrored] = useState(false);
   return (
-    <div className="w-full rounded overflow-hidden bg-muted border border-border/50 aspect-[16/5]">
-      {src && !errored ? (
-        <img
+    <div className="relative w-full rounded overflow-hidden bg-muted border border-border/50 aspect-[16/5]">
+      {src ? (
+        <SmartImage
           src={src}
           alt={alt}
-          className="w-full h-full object-cover"
-          onError={() => setErrored(true)}
+          fill
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center">

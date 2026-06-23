@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { MapPin, Phone, Clock, Mail } from "lucide-react";
 import { PageContainer } from "../shared/common/page-container";
 import { useAppSelector } from "@/store";
@@ -47,13 +47,13 @@ export function Footer() {
               <div className="flex items-center gap-2 group">
                 <div className="relative">
                   <div className="w-8 h-8 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden flex-shrink-0">
-                    <img
-                      src={businessLogoUrl || appImages.menuLogo}
+                    <SmartImage
+                      src={businessLogoUrl}
+                      fallbackSrc={appImages.menuLogo}
                       alt={businessName}
-                      className="w-full h-full object-cover rounded"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = appImages.menuLogo;
-                      }}
+                      fill
+                      rounded="md"
+                      showSkeleton={false}
                     />
                   </div>
                   <div className="absolute -inset-1 rounded bg-gradient-to-br from-primary/20 to-primary/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -149,12 +149,13 @@ export function Footer() {
                     className="flex items-center gap-1 text-white hover:text-white/80 transition-colors"
                   >
                     {social.image?.sm && (
-                      <Image
+                      <SmartImage
                         src={social.image.sm}
                         alt={social.name}
                         width={16}
                         height={16}
-                        className="rounded"
+                        rounded="sm"
+                        showSkeleton={false}
                       />
                     )}
                     <span>{social.name}</span>

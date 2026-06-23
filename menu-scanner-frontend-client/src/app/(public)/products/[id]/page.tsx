@@ -3,7 +3,7 @@
 import { Messages } from "@/constants/messages";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import {
   fetchPublicProductById,
   fetchPublicProducts,
@@ -100,7 +100,6 @@ export default function ProductDetailPage() {
   const [similarPage, setSimilarPage] = useState(1);
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -163,7 +162,6 @@ export default function ProductDetailPage() {
     if (!product) return;
     setSelectedImage(sanitizeImageUrl(product.mainImage?.md || product.mainImage?.sm, appImages.noImage));
     setCurrentImageIndex(0);
-    setImageLoaded(false);
     setThumbOffset(0);
     setShowAllCustomizations(false);
     setPendingQuantities(new Map());
@@ -237,7 +235,6 @@ export default function ProductDetailPage() {
     setCurrentImageIndex(index);
     if (url !== selectedImage) {
       setSelectedImage(url);
-      setImageLoaded(false);
     }
   };
   const prevImage = () => {
@@ -672,12 +669,11 @@ export default function ProductDetailPage() {
                             : "ring-1 ring-border/60 opacity-55 hover:opacity-90 hover:ring-primary/40",
                         )}
                       >
-                        <Image
-                          src={sanitizeImageUrl(img.imageUrl, appImages.noImage)}
+                        <SmartImage
+                          src={img.imageUrl}
                           alt={`View ${idx + 1}`}
                           fill
                           sizes="64px"
-                          className="object-cover"
                         />
                         {!isActive && (
                           <div className="absolute inset-0 bg-black/15 transition-opacity duration-200" />
@@ -711,18 +707,13 @@ export default function ProductDetailPage() {
                   "h-[260px] sm:h-[320px] md:h-[300px] lg:h-[380px]",
                 )}
               >
-                {!imageLoaded && <Skeleton className="absolute inset-0 rounded" />}
-                <Image
+                <SmartImage
                   key={`main-${currentImageIndex}`}
-                  src={selectedImage || appImages.noImage}
+                  src={selectedImage}
                   alt={product.name}
                   fill
+                  rounded="md"
                   sizes="(max-width: 640px) 85vw, (max-width: 1024px) 45vw, 40vw"
-                  className={cn(
-                    "object-cover transition-opacity duration-300",
-                    imageLoaded ? "opacity-100" : "opacity-0",
-                  )}
-                  onLoad={() => setImageLoaded(true)}
                   priority
                 />
 
@@ -1132,12 +1123,17 @@ export default function ProductDetailPage() {
             className="relative flex-1 w-full flex items-center justify-center px-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
-              key={`lb-${lightboxIndex}`}
-              src={allImages[lightboxIndex]?.imageUrl || appImages.noImage}
-              alt={product.name}
-              className="max-w-[90vw] max-h-[80vh] object-contain rounded select-none"
-            />
+            <div className="relative w-[90vw] h-[80vh]">
+              <SmartImage
+                key={`lb-${lightboxIndex}`}
+                src={allImages[lightboxIndex]?.imageUrl}
+                alt={product.name}
+                fill
+                objectFit="contain"
+                rounded="md"
+                className="select-none"
+              />
+            </div>
             {allImages.length > 1 && (
               <>
                 <CustomButton variant="unstyled" size="unstyled"
@@ -1169,11 +1165,7 @@ export default function ProductDetailPage() {
                   i === lightboxIndex ? "ring-2 ring-white scale-110" : "opacity-40 hover:opacity-80",
                 )}
               >
-                <img
-                  src={sanitizeImageUrl(img.imageUrl, appImages.noImage)}
-                  alt={`${i + 1}`}
-                  className="w-full h-full object-cover"
-                />
+                <SmartImage src={img.imageUrl} alt={`${i + 1}`} fill showSkeleton={false} />
               </CustomButton>
             ))}
           </div>

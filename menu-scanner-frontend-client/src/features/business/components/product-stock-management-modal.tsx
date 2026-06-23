@@ -21,6 +21,7 @@ import { TextField } from "@/components/shared/form-field/text-field";
 
 
 import { Package, Edit } from "lucide-react";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import {
   createProductStockService,
@@ -221,12 +222,13 @@ export function StockManagementModal({
         {}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 flex-shrink-0 rounded overflow-hidden border bg-muted">
+            <div className="relative w-14 h-14 flex-shrink-0 rounded overflow-hidden border bg-muted">
               {(product?.mainImage?.md || product?.mainImage?.sm) ? (
-                <img
+                <SmartImage
                   src={product.mainImage?.md || product.mainImage?.sm}
-                  alt={product?.name}
-                  className="w-full h-full object-cover"
+                  alt={product?.name || "Product"}
+                  fill
+                  showSkeleton={false}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">

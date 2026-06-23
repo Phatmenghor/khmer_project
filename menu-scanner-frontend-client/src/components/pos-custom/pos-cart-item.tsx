@@ -1,12 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { Plus, Minus, X, Edit2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { sanitizeImageUrl } from "@/utils/common/common";
-import { appImages } from "@/constants/app-resource/icons/app-images";
 
 interface POSCartItemProps {
   id: string;
@@ -70,12 +68,7 @@ export function POSCartItem({
       <div className="flex gap-3">
         {}
         <div className="relative w-[80px] h-[80px] rounded overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
-          <Image
-            src={sanitizeImageUrl(productImageUrl, appImages.noImage)}
-            alt={productName}
-            fill
-            className="object-cover"
-          />
+          <SmartImage src={productImageUrl} alt={productName} fill />
 
           {}
           {hasPromotion && (

@@ -11,6 +11,7 @@ import {
   cancelOrderService,
 } from "@/features/main/store/thunks/my-orders-thunks";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { showToast } from "@/components/shared/common/show-toast";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
@@ -443,12 +444,13 @@ export default function OrderDetailPage() {
                     className="flex gap-3 pb-3 border-b border-border/50 last:border-0 last:pb-0"
                   >
                     {}
-                    <div className="flex-shrink-0 w-14 h-14 rounded overflow-hidden bg-muted border border-border/50">
+                    <div className="relative flex-shrink-0 w-14 h-14 rounded overflow-hidden bg-muted border border-border/50">
                       {item.product?.imageUrl ? (
-                        <img
+                        <SmartImage
                           src={item.product.imageUrl}
                           alt={item.product.name}
-                          className="w-full h-full object-cover"
+                          fill
+                          showSkeleton={false}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">

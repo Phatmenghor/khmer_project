@@ -13,7 +13,7 @@ import {
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { Loading } from "@/components/shared/common/loading";
 import { cn } from "@/lib/utils";
-import { appImages } from "@/constants/app-resource/icons/app-images";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { User } from "lucide-react";
 
 interface UserDetailModalProps {
@@ -23,15 +23,13 @@ interface UserDetailModalProps {
 }
 
 function UserHeaderAvatar({ src, alt }: { src?: string; alt?: string }) {
-  const [errored, setErrored] = useState(false);
-  const effective = !errored && src ? src : appImages.noImage;
   return (
-    <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
-      <img
-        src={effective}
-        alt={alt}
-        className={cn("w-full h-full object-cover", (!src || errored) && "opacity-30")}
-        onError={() => setErrored(true)}
+    <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+      <SmartImage
+        src={src}
+        alt={alt || "User"}
+        fill
+        showSkeleton={false}
       />
     </div>
   );
@@ -306,11 +304,12 @@ export function UserBusinessDetailModal({
                         className="flex gap-2.5 p-2 rounded border border-border/40 bg-muted/20"
                       >
                         {doc.fileUrl && (
-                          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden border border-border/50">
-                            <img
+                          <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden border border-border/50">
+                            <SmartImage
                               src={doc.fileUrl}
                               alt="Document"
-                              className="w-full h-full object-cover"
+                              fill
+                              showSkeleton={false}
                             />
                           </div>
                         )}
@@ -341,11 +340,12 @@ export function UserBusinessDetailModal({
                         className="flex gap-2.5 p-2 rounded border border-border/40 bg-muted/20"
                       >
                         {edu.certificateUrl && (
-                          <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden border border-border/50">
-                            <img
+                          <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden border border-border/50">
+                            <SmartImage
                               src={edu.certificateUrl}
                               alt="Certificate"
-                              className="w-full h-full object-cover"
+                              fill
+                              showSkeleton={false}
                             />
                           </div>
                         )}

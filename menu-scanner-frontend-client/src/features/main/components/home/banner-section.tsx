@@ -2,9 +2,8 @@
 
 import { CustomButton } from "@/components/shared/button/custom-button";
 import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { BannerResponseModel } from "@/features/master-data/store/models/response/banner-response";
-import { appImages } from "@/constants/app-resource/icons/app-images";
 import {
   Carousel,
   CarouselContent,
@@ -32,9 +31,6 @@ const BannerSectionComponent = ({
 }: BannerSectionProps) => {
   const [current, setCurrent] = useState(0);
   const [carouselApi, setCarouselApi] = useState<any>();
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(
-    new Set(),
-  );
 
 
   // Guard against SSR — Autoplay accesses `window` on init, so only
@@ -60,10 +56,6 @@ const BannerSectionComponent = ({
       carouselApi.off("select", onSelect);
     };
   }, [carouselApi]);
-
-  const handleImageLoad = (index: number) => {
-    setLoadedImages((prev) => new Set(prev).add(index));
-  };
 
   if (loading) {
     return (
@@ -97,22 +89,12 @@ const BannerSectionComponent = ({
             {banners.map((banner, index) => (
               <CarouselItem key={banner.id + "-" + index}>
                 <div className="relative w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded overflow-hidden group">
-                  {!loadedImages.has(index) && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-muted via-muted/50 to-muted">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
-                    </div>
-                  )}
-
-                  <Image
-                    src={banner.image?.md || appImages.noImage}
+                  <SmartImage
+                    src={banner.image?.md}
                     alt={banner.businessName || "Banner"}
                     fill
-                    loading="eager"
-                    className={cn(
-                      "object-cover transition-opacity duration-300",
-                      loadedImages.has(index) ? "opacity-100" : "opacity-0",
-                    )}
-                    onLoad={() => handleImageLoad(index)}
+                    priority={index === 0}
+                    sizes="100vw"
                   />
                 </div>
               </CarouselItem>

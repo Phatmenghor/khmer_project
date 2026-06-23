@@ -12,6 +12,7 @@ import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { cn } from "@/lib/utils";
 import { ImageUrls } from "@/features/auth/store/models/request/users-request";
 import { appImages } from "@/constants/app-resource/icons/app-images";
+import { SmartImage } from "@/components/shared/image/smart-image";
 
 interface NavLink {
   name: string;
@@ -80,14 +81,13 @@ function NavbarMenuComponent({
             <div className="flex items-start gap-2">
               <div className="relative shrink-0">
                 <div className="w-8 h-8 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg overflow-hidden">
-                  <img
-                    src={businessLogoUrl || appImages.menuLogo}
+                  <SmartImage
+                    src={businessLogoUrl}
+                    fallbackSrc={appImages.menuLogo}
                     alt={businessName}
-                    className="w-full h-full object-cover rounded"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        appImages.menuLogo;
-                    }}
+                    fill
+                    rounded="md"
+                    showSkeleton={false}
                   />
                 </div>
               </div>

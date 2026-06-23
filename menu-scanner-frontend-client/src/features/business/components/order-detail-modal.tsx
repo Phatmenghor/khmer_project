@@ -27,6 +27,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SmartImage } from "@/components/shared/image/smart-image";
 
 const STATUS_CONFIG: Record<
   string,
@@ -461,10 +462,11 @@ export function OrderDetailModal({
                           {/* Image */}
                           <div className="relative flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted border border-border/50">
                             {item.product?.imageUrl ? (
-                              <img
+                              <SmartImage
                                 src={item.product.imageUrl}
                                 alt={name}
-                                className="w-full h-full object-cover"
+                                fill
+                                showSkeleton={false}
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">

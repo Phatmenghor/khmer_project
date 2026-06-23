@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -85,12 +85,11 @@ export default function SignupPage() {
     <div className="relative min-h-screen w-full flex items-center justify-center p-4 overflow-x-hidden">
       {/* Full screen background image */}
       <div className="absolute inset-0 z-0">
-        <Image
+        <SmartImage
           src={appImages.loginBg}
           alt="Background"
           fill
           sizes="100vw"
-          className="object-cover"
           priority
         />
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />

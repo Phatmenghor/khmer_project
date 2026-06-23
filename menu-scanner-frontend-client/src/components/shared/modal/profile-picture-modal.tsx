@@ -7,6 +7,7 @@ import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 import { Camera, Download, Loader2, Trash2 } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { uploadMultiSize, uploadMultiSizeCustomer, SpacesMultiSizeResult } from "@/services/spaces-service";
 
 interface ProfilePictureModalProps {
@@ -118,7 +119,12 @@ export function ProfilePictureModal({
             onClick={() => fileInputRef.current?.click()}
           >
             {previewUrl && !isRemoving ? (
-              <img src={previewUrl} alt={userName || "Profile"} className="w-full h-full object-cover" />
+              <SmartImage
+                src={previewUrl}
+                alt={userName || "Profile"}
+                fill
+                rounded="full"
+              />
             ) : (
               <span className="text-2xl font-bold text-primary/60 select-none">
                 {userName?.charAt(0)?.toUpperCase() || "?"}

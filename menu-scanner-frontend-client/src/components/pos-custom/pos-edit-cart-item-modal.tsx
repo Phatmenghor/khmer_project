@@ -3,14 +3,12 @@
 import { Messages } from "@/constants/messages";
 import { useState, useEffect } from "react";
 import { Edit, Plus, Minus } from "lucide-react";
-import Image from "next/image";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { sanitizeImageUrl } from "@/utils/common/common";
-import { appImages } from "@/constants/app-resource/icons/app-images";
 import {
   Select,
   SelectContent,
@@ -180,12 +178,7 @@ export function POSEditCartItemModal({
           {}
           <div className="flex gap-3 p-3 bg-muted/30 rounded border">
             <div className="relative w-14 h-14 rounded overflow-hidden bg-white border flex-shrink-0">
-              <Image
-                src={sanitizeImageUrl(item.productImageUrl, appImages.noImage)}
-                alt={item.productName}
-                fill
-                className="object-cover"
-              />
+              <SmartImage src={item.productImageUrl} alt={item.productName} fill />
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-xs mb-1">{item.productName}</h4>

@@ -1,11 +1,10 @@
 "use client";
 
 import { memo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { ArrowRight, ShoppingBag } from "lucide-react";
 
 export interface GenericCardProps {
@@ -50,7 +49,6 @@ function GenericCardComponent({
   loading = "lazy",
 }: GenericCardProps) {
   const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   const displayCount = countLabel || `${count} ${count === 1 ? countSingular : countPlural}`;
   const showCount = count > 0;
@@ -71,23 +69,16 @@ function GenericCardComponent({
           {/* Image Container */}
           <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded bg-gradient-to-br from-primary/5 to-primary/10 group-hover:from-primary/10 group-hover:to-primary/20 transition-all duration-300">
             {!imageError && imageUrl ? (
-              <>
-                {!imageLoaded && (
-                  <Skeleton className="absolute inset-0 w-full h-full rounded" />
-                )}
-                <Image
-                  src={imageUrl}
-                  alt={name}
-                  fill
-                  loading={loading}
-                  className={cn(
-                    "object-cover transition-all duration-300 group-hover:scale-105",
-                    imageLoaded ? "opacity-100" : "opacity-0"
-                  )}
-                  onLoad={() => setImageLoaded(true)}
-                  onError={() => setImageError(true)}
-                />
-              </>
+              <SmartImage
+                src={imageUrl}
+                alt={name}
+                fill
+                rounded="md"
+                loading={loading}
+                className="group-hover:scale-105"
+                showSkeleton={!imageError}
+                onError={() => setImageError(true)}
+              />
             ) : (
               <span className="text-xs font-bold text-primary/80 group-hover:text-primary transition-colors">
                 {name.charAt(0).toUpperCase()}

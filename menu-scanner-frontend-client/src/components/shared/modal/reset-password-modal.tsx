@@ -1,6 +1,7 @@
 "use client";
 
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import { useState } from "react";
@@ -111,9 +112,9 @@ export default function ResetPasswordModal({
             <Card>
               <CardContent className="pt-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="relative h-8 w-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {profileImageUrl ? (
-                      <img src={profileImageUrl} alt={userName} className="w-full h-full object-cover" />
+                      <SmartImage src={profileImageUrl} alt={userName || "User"} fill showSkeleton={false} />
                     ) : (
                       <span className="text-xs font-semibold text-primary">
                         {userName?.charAt(0)?.toUpperCase() || "U"}

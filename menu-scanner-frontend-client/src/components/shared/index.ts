@@ -19,6 +19,10 @@ export { ComboboxSelectFactory, createComboboxSelect } from "./combobox/combobox
 export { BrandCombobox, CategoryCombobox } from "./combobox/combobox-factory-examples";
 export type { ComboboxOption, ComboboxSelectFactoryProps } from "./combobox/combobox-select-factory";
 
+// Image Component
+export { SmartImage } from "./image/smart-image";
+export type { SmartImageProps } from "./image/smart-image";
+
 // Card Components
 export { BrandCard } from "./card/brand-card";
 export { CategoryCard } from "./card/category-card";

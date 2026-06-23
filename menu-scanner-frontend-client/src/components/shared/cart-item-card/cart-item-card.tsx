@@ -1,13 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Plus, Minus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { formatCurrency } from "@/utils/common/currency-format";
-import { sanitizeImageUrl } from "@/utils/common/common";
-import { appImages } from "@/constants/app-resource/icons/app-images";
 
 export interface CartItemCustomization {
   id: string;
@@ -76,20 +74,10 @@ export function CartItemCard({
         <div className="relative w-[80px] h-[80px] rounded overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200 flex-shrink-0 shadow-sm">
           {showLink ? (
             <Link href={`/products/${productId}`}>
-              <Image
-                src={sanitizeImageUrl(productImageUrl, appImages.noImage)}
-                alt={productName}
-                fill
-                className="object-cover"
-              />
+              <SmartImage src={productImageUrl} alt={productName} fill />
             </Link>
           ) : (
-            <Image
-              src={sanitizeImageUrl(productImageUrl, appImages.noImage)}
-              alt={productName}
-              fill
-              className="object-cover"
-            />
+            <SmartImage src={productImageUrl} alt={productName} fill />
           )}
           {hasPromotion && (
             <div className="absolute top-1 left-1 z-10 pointer-events-none">

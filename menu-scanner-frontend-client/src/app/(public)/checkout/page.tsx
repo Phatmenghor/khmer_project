@@ -5,7 +5,6 @@ import { useEffect, useState, useMemo } from "react";
 import { OrderStatus } from "@/enums/order-status.enum";
 import { OrderFromEnum } from "@/enums/order.enum";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { MapPin, CreditCard, MessageSquare, Lock, AlertCircle } from "lucide-react";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useCartState } from "@/features/main/store/state/cart-state";

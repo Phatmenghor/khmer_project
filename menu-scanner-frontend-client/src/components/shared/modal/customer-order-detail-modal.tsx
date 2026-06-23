@@ -1,6 +1,7 @@
 "use client";
 
 import { CustomButton } from "@/components/shared/button/custom-button";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { CustomModal } from "./custom-modal";
 import { useEffect, useState } from "react";
 import { DialogTitle } from "@/components/ui/dialog";
@@ -343,10 +344,11 @@ export function CustomerOrderDetailModal({
                           {/* Image */}
                           <div className="relative flex-shrink-0 w-10 h-10 rounded overflow-hidden bg-muted border border-border/50">
                             {item.product?.imageUrl ? (
-                              <img
+                              <SmartImage
                                 src={item.product.imageUrl}
                                 alt={name}
-                                className="w-full h-full object-cover"
+                                fill
+                                showSkeleton={false}
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">

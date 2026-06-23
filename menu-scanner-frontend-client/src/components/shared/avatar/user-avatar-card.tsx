@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { SmartImage } from "@/components/shared/image/smart-image";
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { appImages } from "@/constants/app-resource/icons/app-images";
@@ -38,7 +39,6 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
   avatarSize = "md",
 }) => {
   const [showPreview, setShowPreview] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
   const openTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const justOpenedRef = useRef(false);
@@ -82,7 +82,6 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
 
     openTimeoutRef.current = setTimeout(() => {
       setShowPreview(true);
-      setImageLoading(true);
       justOpenedRef.current = true;
 
 
@@ -146,32 +145,16 @@ export const UserAvatarCard: React.FC<UserAvatarCardProps> = ({
             <DialogTitle className="sr-only">{displayName || "Image Preview"}</DialogTitle>
             <div className="relative bg-white dark:bg-gray-900 p-4 rounded shadow-2xl border border-border">
               <div className="flex flex-col items-center gap-3">
-                {}
-                {imageLoading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 rounded z-10">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-                      <p className="text-xs text-muted-foreground">
-                        Loading image...
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <img
-                  src={previewSrc}
-                  alt={displayName}
-                  className="max-w-[70vw] max-h-[70vh] w-auto h-auto object-contain rounded"
-                  onLoad={() => setImageLoading(false)}
-                  onError={() => {
-                    setImageLoading(false);
-                    setPreviewErrored(true);
-                  }}
-                  style={{
-                    opacity: imageLoading ? 0 : 1,
-                    transition: "opacity 0.3s",
-                  }}
-                />
+                <div className="relative w-[70vw] h-[70vh] max-w-2xl">
+                  <SmartImage
+                    src={previewSrc}
+                    alt={displayName}
+                    fill
+                    objectFit="contain"
+                    rounded="md"
+                    onError={() => setPreviewErrored(true)}
+                  />
+                </div>
                 <p className="text-xs font-semibold text-center text-gray-900 dark:text-white">
                   {displayName}
                 </p>
