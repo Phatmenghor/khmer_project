@@ -26,8 +26,6 @@ public class BusinessSettingUpdateRequest {
 
     private List<SocialMediaRequest> socialMedia;
 
-    private String primaryColor;
-
     private String contactAddress;
 
     private String contactPhone;

@@ -30,7 +30,6 @@ export const businessSettingsSchema = z.object({
       }
     )
   ).optional(),
-  primaryColor: z.string().min(1, "Primary color is required"),
 
   contactAddress: z.string().optional(),
   contactPhone: z.string().optional(),

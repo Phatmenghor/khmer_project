@@ -25,7 +25,6 @@ export interface BusinessSettingsResponse {
   logoBusiness?: ImageUrls;
   enableStock: "ENABLED" | "DISABLED";
   socialMedia: SocialMedia[];
-  primaryColor?: string;
   contactAddress?: string;
   contactPhone?: string;
   contactEmail?: string;
@@ -42,7 +41,6 @@ export interface UpdateBusinessSettingsRequest {
   logoBusiness?: ImageUrls;
   enableStock?: "ENABLED" | "DISABLED";
   socialMedia?: SocialMedia[];
-  primaryColor?: string;
   contactAddress?: string;
   contactPhone?: string;
   contactEmail?: string;
@@ -87,7 +85,6 @@ export const fetchBusinessSettingsByBusinessId = async (
 export const generateBusinessSettingsHash = (settings: BusinessSettingsResponse): string => {
   const hashString = JSON.stringify({
     id: settings.id,
-    primaryColor: settings.primaryColor,
     logoBusiness: settings.logoBusiness?.sm,
     businessName: settings.businessName,
     taxPercentage: settings.taxPercentage,

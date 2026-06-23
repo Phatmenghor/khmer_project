@@ -9,7 +9,6 @@ import { LocaleProvider } from "@/providers/locale-provider";
 import { ScrollToTop } from "@/components/shared/common/scroll-to-top";
 import { AuthProvider } from "@/providers/auth-provider";
 import { SubdomainProvider } from "@/providers/subdomain-provider";
-import { ThemeInitializer } from "@/components/shared/theme/theme-initializer";
 import { defaultLocale, type Locale } from "@/i18n/request";
 import { buildMetadata } from "@/utils/metadata/metadata-builder";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
@@ -89,7 +88,6 @@ export default async function RootLayout({
             </Script>
           </>
         )}
-        <ThemeInitializer />
         <LocaleProvider initialLocale={locale} initialMessages={messages}>
           <ClientProviders>
             <SubdomainProvider>

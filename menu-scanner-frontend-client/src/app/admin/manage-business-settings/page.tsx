@@ -17,7 +17,6 @@ import {
   Building2,
   Image as ImageIcon,
   Phone,
-  Palette,
   Clock,
   Share2,
 } from "lucide-react";
@@ -48,12 +47,6 @@ import {
   type BusinessSettingsFormData,
 } from "./schema/business-settings.schema";
 import { BusinessSettingsResponse } from "@/features/business/store/services/business-settings-service";
-import {
-  getCachedThemeColors,
-  cacheThemeColors,
-  applyThemeColors,
-  hasThemeChanged,
-} from "@/utils/common/theme-cache";
 
 function convertResponseToFormData(
   response: BusinessSettingsResponse,
@@ -68,7 +61,6 @@ function convertResponseToFormData(
       linkUrl: sm.linkUrl,
       image: sm.image || {},
     })),
-    primaryColor: response.primaryColor || "",
     contactAddress: response.contactAddress || "",
     contactPhone: response.contactPhone || "",
     contactEmail: response.contactEmail || "",
@@ -142,7 +134,6 @@ export default function BusinessSettingsPage() {
       logoBusiness: {},
       enableStock: "DISABLED",
       socialMedia: [],
-      primaryColor: "",
       contactAddress: "",
       contactPhone: "",
       contactEmail: "",
@@ -168,15 +159,6 @@ export default function BusinessSettingsPage() {
     setPendingSocialFiles([]);
     setSocialBlobUrls([]);
     setIsLoading(false);
-
-    if (reduxBusinessSettings?.businessId) {
-      const cachedColors = getCachedThemeColors(
-        reduxBusinessSettings.businessId,
-      );
-      if (cachedColors) {
-        applyThemeColors(cachedColors.primaryColor);
-      }
-    }
   }, [reduxBusinessSettings, form]);
 
   const fetchBusinessSettings = async () => {
@@ -188,25 +170,8 @@ export default function BusinessSettingsPage() {
 
       if (action.meta.requestStatus === "fulfilled" && action.payload) {
         const data = action.payload as BusinessSettingsResponse;
-        const businessId = data.businessId;
-
         const formData = convertResponseToFormData(data);
         form.reset(formData);
-
-        const cachedData = getCachedThemeColors(businessId);
-        const apiData = {
-          primaryColor: data.primaryColor || "",
-          businessName: data.businessName,
-          logoBusinessUrl: data.logoBusiness?.sm,
-          taxPercentage: data.taxPercentage ?? undefined,
-        };
-
-        if (hasThemeChanged(cachedData, apiData)) {
-          cacheThemeColors(businessId, apiData);
-          applyThemeColors(data.primaryColor);
-        } else {
-          applyThemeColors(data.primaryColor);
-        }
       }
     } catch (error) {
     } finally {
@@ -302,7 +267,6 @@ export default function BusinessSettingsPage() {
         logoBusiness: logoBusiness && (logoBusiness.sm || logoBusiness.md || logoBusiness.o) ? logoBusiness : undefined,
         enableStock: data.enableStock,
         socialMedia: filteredSocialMedia,
-        primaryColor: data.primaryColor,
         contactAddress: data.contactAddress || undefined,
         contactPhone: data.contactPhone || undefined,
         contactEmail: data.contactEmail || undefined,
@@ -320,18 +284,6 @@ export default function BusinessSettingsPage() {
         const result = action.payload as BusinessSettingsResponse;
 
         localStorage.setItem("businessId", result.businessId);
-
-        const businessData = {
-          primaryColor: result.primaryColor || "",
-          businessName: result.businessName,
-          logoBusinessUrl: result.logoBusiness?.sm,
-          taxPercentage: result.taxPercentage ?? undefined,
-        };
-        cacheThemeColors(result.businessId, businessData);
-
-        if (result.primaryColor) {
-          applyThemeColors(result.primaryColor);
-        }
 
         form.reset(convertResponseToFormData(result));
         setPendingLogoFile(null);
@@ -521,59 +473,6 @@ export default function BusinessSettingsPage() {
                 type="email"
                 placeholder="support@example.com"
               />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Brand Color */}
-        <Card>
-          <CardHeader>
-            <SectionTitle
-              icon={Palette}
-              title="Brand Color"
-              subtitle="Main brand color applied site-wide"
-            />
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1 w-full">
-                <Label className="text-xs font-medium text-foreground">
-                  Primary Color <span className="text-red-500 ml-1">*</span>
-                </Label>
-                <Controller
-                  control={form.control}
-                  name="primaryColor"
-                  render={({ field }) => (
-                    <div className="flex gap-2">
-                      <input
-                        type="color"
-                        value={field.value || ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        disabled={isSaving}
-                        className="w-14 h-[26px] cursor-pointer rounded border border-input"
-                      />
-                      <input
-                        placeholder="#000000"
-                        value={field.value || ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        disabled={isSaving}
-                        className={`flex h-[26px] w-full rounded border bg-transparent px-2 py-0.5 text-[11px] shadow-sm transition-all duration-200 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 ${
-                          form.formState.errors.primaryColor
-                            ? "border-red-500"
-                            : "border-input"
-                        }`}
-                      />
-                    </div>
-                  )}
-                />
-                <p
-                  className={`text-xs text-red-500 ${
-                    form.formState.errors.primaryColor?.message ? "min-h-[16px]" : ""
-                  }`}
-                >
-                  {form.formState.errors.primaryColor?.message || ""}
-                </p>
-              </div>
             </div>
           </CardContent>
         </Card>

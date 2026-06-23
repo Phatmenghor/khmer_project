@@ -27,8 +27,6 @@ public class BusinessSettingCreateRequest {
 
     private List<SocialMediaRequest> socialMedia;
 
-    private String primaryColor;
-
     private List<BusinessHoursRequest> businessHours;
 
     @Min(value = 1, message = "Low stock threshold must be at least 1")

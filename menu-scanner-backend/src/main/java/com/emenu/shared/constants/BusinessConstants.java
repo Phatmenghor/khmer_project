@@ -8,9 +8,6 @@ public final class BusinessConstants {
 
     // Default Business Settings
     public static final String DEFAULT_BUSINESS_NAME = "Emenu Scanner";
-    public static final String DEFAULT_PRIMARY_COLOR = "#57823D";
-    public static final String DEFAULT_SECONDARY_COLOR = "#F4C430";
-    public static final String DEFAULT_ACCENT_COLOR = "#F2F3F7";
     public static final Double DEFAULT_TAX_PERCENTAGE = 0.0;
     public static final Integer DEFAULT_LOW_STOCK_THRESHOLD = 5;
 

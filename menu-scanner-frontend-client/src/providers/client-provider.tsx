@@ -5,16 +5,9 @@ import { Provider } from "react-redux";
 import { Toaster } from "sonner";
 import store from "@/store";
 import { useRouter } from "next/navigation";
-import { useBusinessTheme } from "@/hooks/use-business-theme";
 
 interface ClientProvidersProps {
   children: ReactNode;
-}
-
-
-function ThemeInitializer() {
-  useBusinessTheme();
-  return null;
 }
 
 // Forces a router refresh on bfcache restores (persisted=true) so React
@@ -39,7 +32,6 @@ export function ClientProviders({ children }: ClientProvidersProps) {
 
   const content = (
     <Provider store={store}>
-      <ThemeInitializer />
       <BfcacheRefreshHandler />
       {children}
       <Toaster position="top-right" richColors closeButton />

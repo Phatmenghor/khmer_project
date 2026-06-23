@@ -13,10 +13,6 @@ export const selectBusinessSettingsError = (state: RootState) => {
   return state.businessSettings.error;
 };
 
-export const selectBusinessPrimaryColor = (state: RootState) => {
-  return state.businessSettings.data?.primaryColor || defaultSettings.primaryColor;
-};
-
 export const selectBusinessLogo = (state: RootState) => {
   return state.businessSettings.data?.logoBusiness?.sm || (defaultSettings as any).logoBusinessUrl;
 };

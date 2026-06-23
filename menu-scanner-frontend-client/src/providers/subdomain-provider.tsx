@@ -9,7 +9,6 @@ interface ResolveResponse {
   businessId: string;
   businessName: string;
   subdomain: string;
-  primaryColor: string | null;
 }
 
 type Status = "loading" | "ready" | "not-found";
@@ -39,19 +38,6 @@ export function SubdomainProvider({ children }: { children: React.ReactNode }) {
         }
 
         localStorage.setItem("businessId", biz.businessId);
-
-        if (biz.primaryColor || biz.businessName) {
-          const cacheKey = `theme_colors_${biz.businessId}`;
-          const existing = (() => {
-            try { return JSON.parse(localStorage.getItem(cacheKey) ?? "{}"); }
-            catch { return {}; }
-          })();
-          localStorage.setItem(cacheKey, JSON.stringify({
-            ...existing,
-            businessName: biz.businessName,
-            primaryColor: biz.primaryColor ?? existing.primaryColor,
-          }));
-        }
 
         const prev = localStorage.getItem("resolvedSubdomain");
         if (prev && prev !== subdomain) {

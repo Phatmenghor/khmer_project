@@ -566,11 +566,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary color: Left BLANK by default - will be set by sync script from cache or API */
-    /* Default was: 97 36% 37%; (green) - now removed to prevent color flash */
+    /* Fixed brand color, matches menu-scanner-frontend-owner */
+    --primary: 334 51% 39%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 97 36% 32%;
-    --primary-active: 97 36% 27%;
+    --primary-hover: 334 51% 34%;
+    --primary-active: 334 51% 29%;
 
     /* SECONDARY - Golden Yellow #F4C430 */
     --secondary: 45 93% 56%;

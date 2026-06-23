@@ -6,8 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { selectBusinessSettings } from "@/features/business/store/selectors/business-settings-selector";
-import { useAppSelector } from "@/store";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
 
 interface POSOrderSuccessModalProps {
@@ -21,9 +19,6 @@ export function POSOrderSuccessModal({
   onClose,
   order,
 }: POSOrderSuccessModalProps) {
-  const businessSettings = useAppSelector(selectBusinessSettings);
-  const primaryColor = businessSettings?.primaryColor || "#000000";
-
   const { handleDownloadReceipt, handlePrintReceipt, downloadingOrderId, printingOrderId } = useDownloadReceipt();
 
   if (!order) return null;
@@ -96,7 +91,7 @@ export function POSOrderSuccessModal({
 
           <CustomButton
             onClick={onClose}
-            style={{ backgroundColor: primaryColor, color: "white" }}
+            style={{ backgroundColor: "hsl(var(--primary))", color: "white" }}
             className="w-full h-6 font-medium hover:opacity-90"
           >
             Done & Next Order

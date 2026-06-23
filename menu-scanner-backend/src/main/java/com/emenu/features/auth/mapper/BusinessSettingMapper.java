@@ -21,9 +21,6 @@ public interface BusinessSettingMapper {
 
     @AfterMapping
     default void applyDefaultsAfterResponse(@MappingTarget BusinessSettingResponse response) {
-        if (response.getPrimaryColor() == null) {
-            response.setPrimaryColor(BusinessConstants.DEFAULT_PRIMARY_COLOR);
-        }
         if (response.getLowStockThreshold() == null) {
             response.setLowStockThreshold(BusinessConstants.DEFAULT_LOW_STOCK_THRESHOLD);
         }
@@ -46,9 +43,6 @@ public interface BusinessSettingMapper {
 
     @AfterMapping
     default void applyDefaultsAfterCreate(@MappingTarget BusinessSetting businessSetting) {
-        if (businessSetting.getPrimaryColor() == null) {
-            businessSetting.setPrimaryColor(BusinessConstants.DEFAULT_PRIMARY_COLOR);
-        }
         if (businessSetting.getTaxPercentage() == null) {
             businessSetting.setTaxPercentage(BusinessConstants.DEFAULT_TAX_PERCENTAGE);
         }

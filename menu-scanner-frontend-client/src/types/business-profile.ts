@@ -41,9 +41,6 @@ export interface BusinessProfile {
   stats?: BusinessStats;
 
 
-  theme?: ThemeSettings;
-
-
   isPublished: boolean;
   customDomain?: string;
 
@@ -191,13 +188,6 @@ export interface CustomStat {
   value: string | number;
   icon?: string;
 }
-
-export interface ThemeSettings {
-  primaryColor: string;
-  fontFamily?: string;
-  layout?: "modern" | "classic" | "minimal" | "bold";
-}
-
 
 export interface ProfileSectionSettings {
   showHero: boolean;

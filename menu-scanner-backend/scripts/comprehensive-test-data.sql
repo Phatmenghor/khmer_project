@@ -88,7 +88,7 @@ VALUES (
 -- Mega Store Settings
 INSERT INTO business_settings (
   id, business_id, use_brands, tax_percentage,
-  logo_business, enable_stock, primary_color,
+  logo_business, enable_stock,
   telegram_group_chat_id, version, is_deleted,
   created_at, updated_at, created_by, updated_by
 )
@@ -97,7 +97,7 @@ VALUES (
   '550cad56-cafd-4aba-baef-c4dcd53940d0',
   true, 0.0,
   '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
-  'ENABLED', '#FF6B6B', NULL,
+  'ENABLED', NULL,
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
@@ -126,7 +126,7 @@ ON CONFLICT DO NOTHING;
 -- Fashion Hub Settings
 INSERT INTO business_settings (
   id, business_id, use_brands, tax_percentage,
-  logo_business, enable_stock, primary_color,
+  logo_business, enable_stock,
   telegram_group_chat_id, version, is_deleted,
   created_at, updated_at, created_by, updated_by
 )
@@ -135,7 +135,7 @@ VALUES (
   '660cad56-cafd-4aba-baef-c4dcd53940d0',
   true, 0.0,
   '{"sm":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","md":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce","o":"https://plus.unsplash.com/premium_photo-1673002094195-f18084be89ce"}'::jsonb,
-  'ENABLED', '#6B6BFF', NULL,
+  'ENABLED', NULL,
   0, false, NOW(), NOW(), 'admin', 'admin'
 ) ON CONFLICT DO NOTHING;
 
@@ -1954,13 +1954,12 @@ BEGIN
     biz_set_id := gen_random_uuid();
     INSERT INTO business_settings (
       id, business_id, use_brands, tax_percentage,
-      logo_business, enable_stock, primary_color,
+      logo_business, enable_stock,
       telegram_group_chat_id, version, is_deleted,
       created_at, updated_at, created_by, updated_by
     ) VALUES (
       biz_set_id, biz_id, true, 0.0,
       v_avatar, 'ENABLED',
-      '#' || LPAD(((i * 123456) % 16777215)::TEXT, 6, '0'),
       NULL, 0, false,
       NOW() - INTERVAL '1 day' * (22 - i),
       NOW() - INTERVAL '1 day' * (22 - i),
