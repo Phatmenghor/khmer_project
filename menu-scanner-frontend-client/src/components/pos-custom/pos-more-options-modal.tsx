@@ -133,7 +133,7 @@ export function POSMoreOptionsModal({
           </div>
 
           <div className="space-y-1 border-t pt-2">
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               type="button"
               onClick={() => setShowDiscount(!showDiscount)}
               className={cn(
@@ -150,7 +150,7 @@ export function POSMoreOptionsModal({
                 <span className="font-semibold text-xs">Apply Discount</span>
               </div>
               <ChevronRight className={cn("w-3 h-3 transition-transform duration-200", showDiscount && "rotate-90")} />
-            </button>
+            </CustomButton>
 
             {}
             {showDiscount && (
@@ -159,7 +159,7 @@ export function POSMoreOptionsModal({
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-700">Type</label>
                   <div className="grid grid-cols-2 gap-1">
-                    <button
+                    <CustomButton variant="unstyled" size="unstyled"
                       type="button"
                       onClick={() => {
                         setDiscountType("fixed");
@@ -174,8 +174,8 @@ export function POSMoreOptionsModal({
                     >
                       <DollarSign className="w-2 h-2" />
                       Fixed
-                    </button>
-                    <button
+                    </CustomButton>
+                    <CustomButton variant="unstyled" size="unstyled"
                       type="button"
                       onClick={() => {
                         setDiscountType("percentage");
@@ -190,7 +190,7 @@ export function POSMoreOptionsModal({
                     >
                       <Percent className="w-2 h-2" />
                       %
-                    </button>
+                    </CustomButton>
                   </div>
                 </div>
 

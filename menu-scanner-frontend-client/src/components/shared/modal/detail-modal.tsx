@@ -1,14 +1,9 @@
 "use client";
 
+import { CustomModal } from "./custom-modal";
 import type React from "react";
 import { ReactNode } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { Loading } from "../common/loading";
 
@@ -36,8 +31,8 @@ export function DetailModal({
   children,
 }: DetailModalProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full sm:max-w-6xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
+    <CustomModal isOpen={isOpen} onClose={onClose} size="6xl" className="max-h-[92vh] gap-0 -col">
+      
         {}
         <DialogHeader className="px-3 py-2 border-b bg-muted/30 flex-shrink-0">
           <div className="flex items-center gap-2 pr-4">
@@ -65,7 +60,7 @@ export function DetailModal({
         <div className="flex-1 overflow-y-auto">
           <div className="p-3">{isLoading ? <Loading /> : children}</div>
         </div>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

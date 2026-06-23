@@ -1,7 +1,7 @@
 import { indexDisplay } from "@/utils/common/common";
 import { Eye, Plus } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
-import { ActionButton } from "@/components/shared/button/action-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { getStockStatusLabel, getProductStatusLabel } from "@/constants/status/status";
 import { ProductStockItemDto, ProductStockItemsListResponse } from "../store/models/response/stock-response";

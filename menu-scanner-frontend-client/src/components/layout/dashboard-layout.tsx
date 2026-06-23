@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Maximize2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { TopBar } from "./topbar";
 import { AdminFooter } from "./admin-footer";
@@ -73,7 +73,7 @@ export default function DashboardLayout({
     return (
       <div className="fixed inset-0 z-40 bg-background flex flex-col">
         <div className="hidden md:flex h-11 items-center border-b bg-background/95 backdrop-blur px-3">
-          <Button
+          <CustomButton
             variant="ghost"
             size="icon"
             onClick={() => setIsFullscreen(false)}
@@ -81,7 +81,7 @@ export default function DashboardLayout({
             className="ml-auto h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors"
           >
             <Maximize2 className="h-3 w-3" />
-          </Button>
+          </CustomButton>
         </div>
         <main className="dashboard-main flex-1 overflow-hidden">{children}</main>
       </div>

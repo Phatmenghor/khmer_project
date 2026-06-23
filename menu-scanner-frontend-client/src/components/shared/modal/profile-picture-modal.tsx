@@ -1,8 +1,10 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "./custom-modal";
 import React, { useEffect, useRef, useState } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
+
 import { Camera, Download, Loader2, Trash2 } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { uploadMultiSize, uploadMultiSizeCustomer, SpacesMultiSizeResult } from "@/services/spaces-service";
@@ -96,8 +98,8 @@ export function ProfilePictureModal({
   const busy = isUploading || isLoading;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-sm p-0 overflow-hidden">
+    <CustomModal isOpen={isOpen} onClose={onClose} size="sm">
+      
         <DialogTitle asChild>
           <VisuallyHidden>Profile Picture Manager</VisuallyHidden>
         </DialogTitle>
@@ -136,17 +138,17 @@ export function ProfilePictureModal({
         </div>
 
         <div className="border-t px-4 py-3 space-y-2">
-          <Button
+          <CustomButton
             onClick={() => fileInputRef.current?.click()}
             className="w-full gap-1 bg-primary hover:bg-primary/90"
             disabled={busy}
           >
             <Camera className="h-3 w-3" />
             Select Photo
-          </Button>
+          </CustomButton>
 
           {currentImageUrl && (
-            <Button
+            <CustomButton
               onClick={handleDownload}
               variant="outline"
               className="w-full gap-1"
@@ -154,11 +156,11 @@ export function ProfilePictureModal({
             >
               <Download className="h-3 w-3" />
               Download
-            </Button>
+            </CustomButton>
           )}
 
           {currentImageUrl && !isRemoving && (
-            <Button
+            <CustomButton
               onClick={() => { setIsRemoving(true); setPreviewUrl(""); setSelectedFile(null); }}
               variant="outline"
               className="w-full gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
@@ -166,18 +168,18 @@ export function ProfilePictureModal({
             >
               <Trash2 className="h-3 w-3" />
               Remove Photo
-            </Button>
+            </CustomButton>
           )}
 
           <div className="flex gap-2 pt-1">
-            <Button onClick={onClose} variant="outline" className="flex-1" disabled={busy}>
+            <CustomButton onClick={onClose} variant="outline" className="flex-1" disabled={busy}>
               Cancel
-            </Button>
-            <Button onClick={handleSave} className="flex-1" disabled={busy || !hasChanges}>
+            </CustomButton>
+            <CustomButton onClick={handleSave} className="flex-1" disabled={busy || !hasChanges}>
               {isUploading ? (
                 <><Loader2 className="h-3 w-3 animate-spin mr-1" />Saving...</>
               ) : "Save"}
-            </Button>
+            </CustomButton>
           </div>
         </div>
 
@@ -188,7 +190,7 @@ export function ProfilePictureModal({
           className="hidden"
           onChange={handleFileSelect}
         />
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

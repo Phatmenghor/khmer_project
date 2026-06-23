@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { Search, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Input } from "@/components/ui/input";
 
 interface NavbarSearchProps {
@@ -43,7 +43,7 @@ function NavbarSearchComponent({
               onChange={(e) => onSearchQueryChange(e.target.value)}
             />
           </div>
-          <Button
+          <CustomButton
             type="button"
             variant="ghost"
             size="icon"
@@ -51,7 +51,7 @@ function NavbarSearchComponent({
             onClick={() => onMobileSearchOpen(false)}
           >
             <X className="h-3 w-3" />
-          </Button>
+          </CustomButton>
         </form>
       ) : null}
 

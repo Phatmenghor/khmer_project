@@ -8,7 +8,7 @@ import {
   fetchBusinessSettingsThunk,
   updateBusinessSettingsThunk,
 } from "../store/thunks/business-settings-thunks";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -106,10 +106,10 @@ export function BusinessSettingsForm({
       <Card className="border-destructive">
         <CardContent className="p-4">
           <p className="text-destructive mb-3">{error}</p>
-          <Button onClick={handleRefresh}>
+          <CustomButton onClick={handleRefresh}>
             <RefreshCw className="w-3 h-3 mr-1" />
             Retry
-          </Button>
+          </CustomButton>
         </CardContent>
       </Card>
     );
@@ -125,7 +125,7 @@ export function BusinessSettingsForm({
             Manage your business information and preferences
           </p>
         </div>
-        <Button
+        <CustomButton
           variant="outline"
           onClick={handleRefresh}
           disabled={isLoading}
@@ -133,7 +133,7 @@ export function BusinessSettingsForm({
         >
           <RefreshCw className="w-3 h-3" />
           {isLoading ? "Refreshing..." : "Refresh"}
-        </Button>
+        </CustomButton>
       </div>
 
       {/* Business Info */}
@@ -207,22 +207,22 @@ export function BusinessSettingsForm({
 
             {/* Action buttons */}
             <div className="flex gap-1 pt-3">
-              <Button
+              <CustomButton
                 type="submit"
                 disabled={isSaving || isLoading}
                 className="gap-1"
               >
                 <Save className="w-3 h-3" />
                 {isSaving ? "Saving..." : "Save Changes"}
-              </Button>
-              <Button
+              </CustomButton>
+              <CustomButton
                 type="button"
                 variant="outline"
                 onClick={() => reset()}
                 disabled={isLoading}
               >
                 Cancel
-              </Button>
+              </CustomButton>
             </div>
           </form>
         </CardContent>

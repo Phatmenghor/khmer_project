@@ -4,7 +4,7 @@ import { Messages } from "@/constants/messages";
 import { useEffect, useState, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -20,8 +20,8 @@ import {
   Clock,
   Share2,
 } from "lucide-react";
-import { SubmitButton } from "@/components/shared/button/submit-button";
-import { CancelButton } from "@/components/shared/button/cancel-button";
+
+
 import { type SocialMedia } from "@/features/business/store/services/business-settings-service";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { CustomTimePicker } from "@/components/shared/common/custom-time-picker";
@@ -509,7 +509,7 @@ export default function BusinessSettingsPage() {
                   : "No business hours configured"
               }
             />
-            <Button
+            <CustomButton
               type="button"
               variant="outline"
               size="sm"
@@ -527,7 +527,7 @@ export default function BusinessSettingsPage() {
               disabled={isSaving}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Day
-            </Button>
+            </CustomButton>
           </CardHeader>
           <CardContent>
             {businessHours.length === 0 ? (
@@ -548,7 +548,7 @@ export default function BusinessSettingsPage() {
                           : ""
                       }`}
                     >
-                      <Button
+                      <CustomButton
                         type="button"
                         variant="ghost"
                         size="sm"
@@ -565,7 +565,7 @@ export default function BusinessSettingsPage() {
                         disabled={isSaving}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      </CustomButton>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pr-10">
                         <TextField<BusinessSettingsFormData>
                           control={form.control}
@@ -634,7 +634,7 @@ export default function BusinessSettingsPage() {
                   : "No social media accounts added"
               }
             />
-            <Button
+            <CustomButton
               type="button"
               variant="outline"
               size="sm"
@@ -651,7 +651,7 @@ export default function BusinessSettingsPage() {
               disabled={isSaving}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Account
-            </Button>
+            </CustomButton>
           </CardHeader>
           <CardContent>
             {socialMedia.length === 0 ? (
@@ -676,7 +676,7 @@ export default function BusinessSettingsPage() {
                           : ""
                       }`}
                     >
-                      <Button
+                      <CustomButton
                         type="button"
                         variant="ghost"
                         size="sm"
@@ -695,7 +695,7 @@ export default function BusinessSettingsPage() {
                         disabled={isSaving}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      </CustomButton>
                       <div className="space-y-4 pr-10">
                         <SpacesImageUpload
                 businessId={AppDefault.BUSINESS_ID}

@@ -12,14 +12,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
-import { Button } from "@/components/ui/button";
+import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { showToast } from "@/components/shared/common/show-toast";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import { TextField } from "@/components/shared/form-field/text-field";
-import { CancelButton } from "@/components/shared/button/cancel-button";
-import { SubmitButton } from "@/components/shared/button/submit-button";
+
+
 import { Package, Edit } from "lucide-react";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import {
@@ -456,7 +456,7 @@ export function StockManagementModal({
 
             {}
             {editingStock && (
-              <Button
+              <CustomButton
                 type="button"
                 variant="outline"
                 size="sm"
@@ -478,7 +478,7 @@ export function StockManagementModal({
               >
                 <Edit className="w-3 h-3" />
                 Switch to Add
-              </Button>
+              </CustomButton>
             )}
             <div className="flex-1" />
 

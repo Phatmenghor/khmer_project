@@ -1,14 +1,10 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "./custom-modal";
 import * as React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Monitor, Smartphone, Tablet, Globe, MapPin, Clock, Calendar, Wifi, CheckCircle2, XCircle, User, Shield, LogOut } from "lucide-react";
@@ -70,8 +66,8 @@ export function AdminSessionDetailModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full sm:max-w-sm">
+    <CustomModal isOpen={isOpen} onClose={onClose} size="sm">
+      
         <DialogHeader>
           <DialogTitle>Session Details (Admin View)</DialogTitle>
         </DialogHeader>
@@ -236,12 +232,12 @@ export function AdminSessionDetailModal({
         </div>
 
         <DialogFooter className="mt-3">
-          <Button variant="outline" onClick={onClose}>
+          <CustomButton variant="outline" onClick={onClose}>
             Close
-          </Button>
+          </CustomButton>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }
 

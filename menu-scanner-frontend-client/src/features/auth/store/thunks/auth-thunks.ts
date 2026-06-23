@@ -38,8 +38,8 @@ export const loginService = createApiThunk<any, LoginCredentialsRequest>(
 
 export const getProfileService = createApiThunk<any, void>(
   "auth/getProfile",
-  async () => {
-    const response = await axiosClientWithAuth.get("/api/v1/users/profile");
+  async (_, signal) => {
+    const response = await axiosClientWithAuth.get("/api/v1/users/profile", { signal });
     return response.data.data;
   }
 );

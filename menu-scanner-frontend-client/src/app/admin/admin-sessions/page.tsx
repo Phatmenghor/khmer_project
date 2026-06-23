@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -165,7 +165,7 @@ export default function AdminSessionsPage() {
               View and manage all user sessions
             </p>
           </div>
-          <Button
+          <CustomButton
             variant="outline"
             size="sm"
             onClick={loadSessions}
@@ -175,7 +175,7 @@ export default function AdminSessionsPage() {
               className={`h-3 w-3 mr-1 ${isAdminLoading ? "animate-spin" : ""}`}
             />
             Refresh
-          </Button>
+          </CustomButton>
         </div>
 
         {}
@@ -330,7 +330,7 @@ export default function AdminSessionsPage() {
                       </p>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
+                      <CustomButton
                         variant="ghost"
                         size="sm"
                         onClick={(e) => {
@@ -339,7 +339,7 @@ export default function AdminSessionsPage() {
                         }}
                       >
                         <Eye className="h-3 w-3" />
-                      </Button>
+                      </CustomButton>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -366,25 +366,25 @@ export default function AdminSessionsPage() {
               {totalElements} sessions
             </p>
             <div className="flex items-center gap-1">
-              <Button
+              <CustomButton
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage <= 1 || isAdminLoading}
               >
                 <ChevronLeft className="h-3 w-3" />
-              </Button>
+              </CustomButton>
               <span className="text-xs">
                 Page {currentPage} of {totalPages}
               </span>
-              <Button
+              <CustomButton
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage >= totalPages || isAdminLoading}
               >
                 <ChevronRight className="h-3 w-3" />
-              </Button>
+              </CustomButton>
             </div>
           </div>
         )}

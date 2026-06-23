@@ -73,26 +73,29 @@ function DeliveryOptionsPageInner() {
 
   const debouncedSearch = useDebounce(filters.search, 400);
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
+  const { currentPage, updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.DELIVERY_OPTIONS,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
 
   useEffect(() => {
-    dispatch(
+    const promise = dispatch(
       fetchMyBusinessDeliveryOptionsService({
         search: debouncedSearch,
-        pageNo: filters.pageNo,
+        pageNo: currentPage,
         pageSize: globalPageSize,
         statuses: filters.status == Status.ALL ? [] : [filters.status],
       }),
     );
+    return () => {
+      promise.abort();
+    };
   }, [
     dispatch,
     debouncedSearch,
     filters.status,
-    filters.pageNo,
+    currentPage,
     globalPageSize,
   ]);
 

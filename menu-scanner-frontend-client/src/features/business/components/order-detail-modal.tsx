@@ -16,7 +16,7 @@ import { formatCurrency } from "@/utils/common/currency-format";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";
 import { Loading } from "@/components/shared/common/loading";
 import { showToast } from "@/components/shared/common/show-toast";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Download,
   Edit,
@@ -301,7 +301,7 @@ export function OrderDetailModal({
                 <p className="text-sm font-bold text-foreground font-mono truncate">
                   {orderData.orderNumber}
                 </p>
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   onClick={() => {
                     navigator.clipboard.writeText(orderData.orderNumber);
                     showToast.success(Messages.clipboard.addressCopied || "Copied!");
@@ -310,7 +310,7 @@ export function OrderDetailModal({
                   title="Copy order number"
                 >
                   <Copy className="h-3 w-3" />
-                </button>
+                </CustomButton>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {orderData.businessName} •{" "}
@@ -724,7 +724,7 @@ export function OrderDetailModal({
                       Delivery Address
                     </SectionTitle>
                     <div className="flex gap-1 flex-shrink-0 -mt-0.5">
-                      <button
+                      <CustomButton variant="unstyled" size="unstyled"
                         onClick={() => {
                           const text = orderData.deliveryAddress?.note
                             ? `${formattedAddress}\n\nNote: ${orderData.deliveryAddress.note}`
@@ -738,10 +738,10 @@ export function OrderDetailModal({
                         title="Copy address"
                       >
                         <Copy className="h-3 w-3" />
-                      </button>
+                      </CustomButton>
                       {orderData.deliveryAddress.latitude &&
                         orderData.deliveryAddress.longitude && (
-                          <button
+                          <CustomButton variant="unstyled" size="unstyled"
                             onClick={() =>
                               window.open(
                                 `https://www.google.com/maps?q=${orderData.deliveryAddress.latitude},${orderData.deliveryAddress.longitude}`,
@@ -752,7 +752,7 @@ export function OrderDetailModal({
                             title="View on Google Maps"
                           >
                             <MapPin className="h-3 w-3" />
-                          </button>
+                          </CustomButton>
                         )}
                     </div>
                   </div>
@@ -821,7 +821,7 @@ export function OrderDetailModal({
 
         {/* ── Footer ── */}
         <div className="flex-shrink-0 px-4 py-3 border-t bg-muted/20 flex items-center justify-end gap-2">
-          <Button
+          <CustomButton
             variant="outline"
             size="sm"
             onClick={handleDownloadReceipt}
@@ -829,10 +829,10 @@ export function OrderDetailModal({
           >
             <Download className="h-3 w-3" />
             Download Receipt
-          </Button>
+          </CustomButton>
 
           {onUpdateOrder && (
-            <Button
+            <CustomButton
               variant="default"
               size="sm"
               onClick={onUpdateOrder}
@@ -840,7 +840,7 @@ export function OrderDetailModal({
             >
               <Edit className="h-3 w-3" />
               Update Status
-            </Button>
+            </CustomButton>
           )}
         </div>
       </DialogContent>

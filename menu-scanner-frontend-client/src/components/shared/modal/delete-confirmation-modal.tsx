@@ -1,8 +1,10 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "./custom-modal";
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Trash2, Loader2, type LucideIcon } from "lucide-react";
@@ -79,8 +81,8 @@ export function DeleteConfirmationModal({
       : "Delete";
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-sm p-0 flex flex-col">
+    <CustomModal isOpen={isOpen} onClose={onClose} size="sm" className="-col">
+      
         <FormHeader
           title={title}
           description="Confirm deletion"
@@ -159,15 +161,15 @@ export function DeleteConfirmationModal({
                 : "Confirm to delete"
             }
           >
-            <Button
+            <CustomButton
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={inFlight}
             >
               Cancel
-            </Button>
-            <Button
+            </CustomButton>
+            <CustomButton
               type="button"
               variant="destructive"
               onClick={handleDelete}
@@ -181,10 +183,10 @@ export function DeleteConfirmationModal({
               ) : (
                 buttonLabel
               )}
-            </Button>
+            </CustomButton>
           </FormFooter>
         </div>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

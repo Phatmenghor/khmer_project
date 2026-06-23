@@ -1,7 +1,7 @@
 "use client";
 
 import { LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
@@ -51,7 +51,7 @@ export function SignoutModal({
         </FormBody>
 
         <div className="flex justify-end items-center gap-2 px-4 py-3 border-t bg-muted/30 flex-shrink-0">
-          <Button
+          <CustomButton
             variant="outline"
             size="sm"
             onClick={() => onOpenChange(false)}
@@ -59,16 +59,17 @@ export function SignoutModal({
             className="rounded"
           >
             Stay Signed In
-          </Button>
-          <Button
+          </CustomButton>
+          <CustomButton
             size="sm"
             onClick={onConfirm}
             disabled={isLoading}
+            isLoading={isLoading}
             className="rounded bg-red-600 hover:bg-red-700 focus:ring-red-600 gap-1.5"
+            icon={!isLoading ? <LogOut className="h-3 w-3" /> : undefined}
           >
-            <LogOut className="h-3 w-3" />
             {isLoading ? "Signing out…" : "Sign Out"}
-          </Button>
+          </CustomButton>
         </div>
       </DialogContent>
     </Dialog>

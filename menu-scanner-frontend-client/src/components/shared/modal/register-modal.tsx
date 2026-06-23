@@ -1,19 +1,15 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Loader2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
 import { Separator } from "@/components/ui/separator";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
@@ -191,8 +187,8 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
   const fieldHeight = "h-[32px]";
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm">
+    <CustomModal isOpen={open} onClose={() => onOpenChange(false)} size="sm">
+      
         <DialogHeader className="text-left">
           <DialogTitle className="text-xs font-semibold leading-tight">
             {businessName || "Create your account"}
@@ -271,7 +267,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
           />
 
           <DialogFooter className="pt-1">
-            <Button
+            <CustomButton
               type="submit"
               className={`w-full ${fieldHeight} text-xs font-semibold`}
               disabled={isAnyLoading}
@@ -281,7 +277,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
                 ? (isLoading ? "Logging in..." : "Creating account...")
                 : "Create Account"
               }
-            </Button>
+            </CustomButton>
           </DialogFooter>
 
           <Divider />
@@ -297,7 +293,7 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
 
           <p className="text-center text-[11px] text-muted-foreground">
             Already have an account?{" "}
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               type="button"
               onClick={() => {
                 onOpenChange(false);
@@ -306,10 +302,10 @@ export function RegisterModal({ open, onOpenChange, onLoginClick }: RegisterModa
               className="text-primary font-semibold hover:underline"
             >
               Sign In
-            </button>
+            </CustomButton>
           </p>
         </form>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

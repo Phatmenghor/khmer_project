@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { useEffect, useState } from "react";
 import { X, QrCode } from "lucide-react";
 import { QRGenerator } from "./qr-generator";
@@ -59,12 +60,12 @@ export function QRTemplateModal({
             <QrCode className="w-3 h-3 text-primary" />
             <span className="font-semibold text-xs text-foreground">QR Code</span>
           </div>
-          <button
+          <CustomButton variant="unstyled" size="unstyled"
             onClick={onClose}
             className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           >
             <X className="w-3 h-3" />
-          </button>
+          </CustomButton>
         </div>
 
         <div className="p-3">

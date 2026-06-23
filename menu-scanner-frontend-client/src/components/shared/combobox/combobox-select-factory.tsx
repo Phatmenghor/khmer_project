@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Command,
   CommandEmpty,
@@ -69,7 +69,7 @@ export function ComboboxSelectFactory({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
+        <CustomButton
           variant="outline"
           role="combobox"
           aria-expanded={open}
@@ -84,7 +84,7 @@ export function ComboboxSelectFactory({
             {isLoading ? "Loading..." : selectedLabel}
           </span>
           <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-        </Button>
+        </CustomButton>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
         <Command>

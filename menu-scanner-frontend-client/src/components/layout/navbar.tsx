@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { useState, useEffect, useRef } from "react";
 import { readBusinessCache } from "@/lib/business-cache";
 import { appImages } from "@/constants/app-resource/icons/app-images";
@@ -231,26 +232,26 @@ export function Navbar() {
                 />
 
                 {businessName && (
-                  <button onClick={handleNavigateToHome} className="flex flex-col items-start gap-0.5 group min-w-0">
+                  <CustomButton variant="unstyled" size="unstyled" onClick={handleNavigateToHome} className="flex flex-col items-start gap-0.5 group min-w-0">
                     <span className="text-foreground font-bold text-xs leading-tight line-clamp-1">
                       {businessName}
                     </span>
                     <span className="text-muted-foreground text-xs font-medium">
                       Shop Online
                     </span>
-                  </button>
+                  </CustomButton>
                 )}
               </div>
 
               <div className="flex items-center gap-1">
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   onClick={() => setMobileSearchOpen(true)}
                   className="lg:hidden h-6 w-6 hover:text-primary"
                 >
                   <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                </button>
+                </CustomButton>
 
                 <NavbarCart
                   cartItemCount={cartItemCount}
@@ -279,7 +280,7 @@ export function Navbar() {
           <div className="hidden lg:flex h-full w-full items-center justify-between gap-3">
             <div className="flex items-center gap-5">
               {businessName && (
-                <button onClick={handleNavigateToHome} className="flex items-center gap-1 group">
+                <CustomButton variant="unstyled" size="unstyled" onClick={handleNavigateToHome} className="flex items-center gap-1 group">
                   <div className="relative">
                     <div className="w-7 h-7 rounded bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-primary/20 transition-all duration-300 overflow-hidden">
                       <img
@@ -302,7 +303,7 @@ export function Navbar() {
                       Shop Online
                     </span>
                   </div>
-                </button>
+                </CustomButton>
               )}
 
               <NavbarLinks

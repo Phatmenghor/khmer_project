@@ -20,7 +20,7 @@ import {
   Tag,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
@@ -59,7 +59,7 @@ import { cn } from "@/lib/utils";
 import { ComboboxSelectDelivery } from "@/components/shared/combobox/combobox-select-delivery-option";
 import { ComboboxSelectPayment } from "@/components/shared/combobox/combobox-select-payment-option";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { CustomButton } from "@/components/shared/button/custom-button";
+
 import { useLocalStorageSync } from "@/hooks/use-local-storage-sync";
 import { useFilterURLSync } from "@/hooks/use-filter-url-sync";
 
@@ -827,7 +827,7 @@ function PosPageInner() {
             {}
             <Popover open={brandOpen} onOpenChange={(open) => dispatch(setBrandOpen(open))}>
               <PopoverTrigger asChild>
-                <Button
+                <CustomButton
                   variant="outline"
                   role="combobox"
                   aria-expanded={brandOpen}
@@ -835,7 +835,7 @@ function PosPageInner() {
                 >
                   {selectedBrand?.name || "All Brands"}
                   <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-                </Button>
+                </CustomButton>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0">
                 <Command>
@@ -886,7 +886,7 @@ function PosPageInner() {
             {}
             <Popover open={promotionOpen} onOpenChange={(open) => dispatch(setPromotionOpen(open))}>
               <PopoverTrigger asChild>
-                <Button
+                <CustomButton
                   variant="outline"
                   role="combobox"
                   aria-expanded={promotionOpen}
@@ -894,7 +894,7 @@ function PosPageInner() {
                 >
                   {promotionFilter === undefined ? "All Products" : "Promotion"}
                   <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-                </Button>
+                </CustomButton>
               </PopoverTrigger>
               <PopoverContent className="w-[130px] p-0">
                 <Command>
@@ -938,7 +938,7 @@ function PosPageInner() {
               </PopoverContent>
             </Popover>
             {}
-              <Button
+              <CustomButton
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-50"
@@ -951,12 +951,12 @@ function PosPageInner() {
                 title="Clear all filters"
               >
                 <X className="w-3 h-3" />
-              </Button>
+              </CustomButton>
           </div>
 
           {}
           <div className="shrink-0 border-b bg-muted/10 flex items-center gap-1 px-1 h-7 mt-1">
-            <Button
+            <CustomButton
               variant="outline"
               size="icon"
               className="h-7 w-7 shrink-0 hover:bg-primary/10"
@@ -964,10 +964,10 @@ function PosPageInner() {
               title="Scroll left"
             >
               <ChevronRight className="h-3 w-3 transform rotate-180" />
-            </Button>
+            </CustomButton>
             <ScrollArea className="flex-1 h-7 overflow-hidden" ref={categoryScrollRef}>
               <div className="flex gap-2 px-1 h-7 items-center">
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   onClick={() => dispatch(setSelectedCategory(null))}
                   className={cn(
                     "shrink-0 px-3 py-1 rounded text-xs font-semibold transition-all whitespace-nowrap shadow-sm hover:shadow-md cursor-pointer h-7 flex items-center",
@@ -977,14 +977,14 @@ function PosPageInner() {
                   )}
                 >
                   All
-                </button>
+                </CustomButton>
                 {categoriesLoading ? (
                   <div className="flex items-center gap-1 px-2 h-7">
                     <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
                   </div>
                 ) : (
                   categories.map((category) => (
-                    <button
+                    <CustomButton variant="unstyled" size="unstyled"
                       key={category.id}
                       onClick={() => dispatch(setSelectedCategory(category))}
                       className={cn(
@@ -996,12 +996,12 @@ function PosPageInner() {
                       title={category.name}
                     >
                       {category.name}
-                    </button>
+                    </CustomButton>
                   ))
                 )}
               </div>
             </ScrollArea>
-            <Button
+            <CustomButton
               variant="outline"
               size="icon"
               className="h-7 w-7 shrink-0 hover:bg-primary/10"
@@ -1009,7 +1009,7 @@ function PosPageInner() {
               title="Scroll right"
             >
               <ChevronRight className="h-3 w-3" />
-            </Button>
+            </CustomButton>
           </div>
 
           {}
@@ -1094,7 +1094,7 @@ function PosPageInner() {
 
           {}
           {showScrollToTop && (
-            <Button
+            <CustomButton
               variant="outline"
               size="icon"
               className="absolute bottom-3 right-3 h-7 w-7 rounded-full border-2 border-primary shadow-lg bg-background hover:bg-primary hover:text-primary-foreground transition-all duration-200 animate-fade-in"
@@ -1102,7 +1102,7 @@ function PosPageInner() {
               title="Scroll to top"
             >
               <ChevronRight className="h-3 w-3 transform -rotate-90" />
-            </Button>
+            </CustomButton>
           )}
         </div>
 
@@ -1126,7 +1126,7 @@ function PosPageInner() {
             </div>
             <div className="flex items-center gap-1">
               {cartItems.length > 0 && (
-                <Button
+                <CustomButton
                   variant="ghost"
                   size="sm"
                   onClick={clearCart}
@@ -1134,16 +1134,16 @@ function PosPageInner() {
                 >
                   <Trash2 className="w-2.5 h-2.5" />
                   Clear
-                </Button>
+                </CustomButton>
               )}
-              <Button
+              <CustomButton
                 variant="ghost"
                 size="icon"
                 className="h-5 w-5 lg:hidden"
                 onClick={() => dispatch(setShowCart(false))}
               >
                 <X className="w-3 h-3" />
-              </Button>
+              </CustomButton>
             </div>
           </div>
 
@@ -1254,14 +1254,14 @@ function PosPageInner() {
 
             <div className="px-2 pb-2">
               <div className="rounded overflow-hidden border border-border shadow-sm flex items-stretch">
-                <Button
+                <CustomButton
                   variant="ghost"
                   size="sm"
                   className="h-auto px-2 gap-1 text-xs font-semibold border-r border-border hover:bg-muted/50"
                   onClick={() => dispatch(setShowOrderDetailsModal(true))}
                 >
                   <Tag className="w-2.5 h-2.5" />
-                </Button>
+                </CustomButton>
                 <div className="flex-1 px-2 py-1 bg-muted/30 min-w-0 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] text-muted-foreground font-medium">
@@ -1275,7 +1275,7 @@ function PosPageInner() {
                     <p className="text-sm font-bold text-primary leading-tight">{formatCurrency(cartSummary.finalTotal)}</p>
                   </div>
                 </div>
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   onClick={handleSubmitOrder}
                   disabled={cartItems.length === 0 || isSubmitting}
                   className={cn(
@@ -1293,7 +1293,7 @@ function PosPageInner() {
                   <span className="text-[11px] font-semibold whitespace-nowrap">
                     {isSubmitting ? "Processing..." : "Place Order"}
                   </span>
-                </button>
+                </CustomButton>
               </div>
             </div>
           </div>

@@ -3,7 +3,7 @@
 import { memo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, LogOut, MapPin, ShoppingBag } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { CustomDropdownMenu } from "../shared/common/custom-dropdown-menu";
 import { SignoutModal } from "@/components/shared/common/signout-modal";
@@ -39,14 +39,14 @@ function NavbarAuthComponent({
 
   if (!isAuthenticated) {
     return (
-      <Button
+      <CustomButton
         variant="ghost"
         size="icon"
         className="h-6 w-6 lg:hover:bg-primary/10 lg:hover:text-primary transition-colors"
         onClick={onLoginClick}
       >
         <User className="h-3 w-3" />
-      </Button>
+      </CustomButton>
     );
   }
 

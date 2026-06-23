@@ -14,10 +14,11 @@ import { CreateCategoriesData } from "../models/schema/categories-schema";
 export const fetchAllCategoriesService = createApiThunk<
   any,
   AllCategoriesRequest
->("categories/fetchAll", async (params) => {
+>("categories/fetchAll", async (params, signal) => {
   const response = await axiosClientWithAuth.post(
     "/api/v1/categories/my-business/all",
-    params
+    params,
+    { signal }
   );
   return response.data.data;
 });
@@ -26,10 +27,11 @@ export const fetchAllCategoriesService = createApiThunk<
 export const fetchAllCategoriesWithProductCountService = createApiThunk<
   any,
   AllCategoriesRequest
->("categories/fetchAllWithProductCount", async (params) => {
+>("categories/fetchAllWithProductCount", async (params, signal) => {
   const response = await axiosClientWithAuth.post(
     "/api/v1/categories/my-business/product/all",
-    params
+    params,
+    { signal }
   );
   return response.data.data;
 });

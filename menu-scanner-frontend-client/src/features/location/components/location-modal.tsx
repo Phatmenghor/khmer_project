@@ -24,14 +24,14 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
-import { CancelButton } from "@/components/shared/button/cancel-button";
-import { SubmitButton } from "@/components/shared/button/submit-button";
+import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
+
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { showToast } from "@/components/shared/common/show-toast";
 import { uploadImage, isBase64Image } from "@/utils/common/upload-image";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -158,9 +158,9 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
       {lightbox && (
         <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center" onClick={() => setLightbox(null)}>
           <img src={lightbox} alt="Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded shadow-2xl" />
-          <button type="button" onClick={() => setLightbox(null)} className="absolute top-3 right-3 rounded-full bg-white/20 text-white p-1 hover:bg-white/40 transition-colors">
+          <CustomButton variant="unstyled" size="unstyled" type="button" onClick={() => setLightbox(null)} className="absolute top-3 right-3 rounded-full bg-white/20 text-white p-1 hover:bg-white/40 transition-colors">
             <X className="h-3 w-3" />
-          </button>
+          </CustomButton>
         </div>
       )}
 
@@ -175,17 +175,17 @@ function MultiImageUpload({ images, onAdd, onRemove, disabled }: MultiImageUploa
           <div key={idx} className="relative aspect-square rounded overflow-hidden border bg-muted cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setLightbox(img.imageUrl)}>
             <img src={img.imageUrl} alt={`Location ${idx + 1}`} className="w-full h-full object-cover" />
             {!disabled && (
-              <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(idx); }} className="absolute top-0.5 right-0.5 rounded-full bg-destructive/90 text-white p-0.5 hover:bg-destructive transition-colors">
+              <CustomButton variant="unstyled" size="unstyled" type="button" onClick={(e) => { e.stopPropagation(); onRemove(idx); }} className="absolute top-0.5 right-0.5 rounded-full bg-destructive/90 text-white p-0.5 hover:bg-destructive transition-colors">
                 <X className="h-2 w-2" />
-              </button>
+              </CustomButton>
             )}
           </div>
         ))}
         {!disabled && canAddMore && (
-          <button type="button" onClick={() => inputRef.current?.click()} className="aspect-square rounded border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 flex flex-col items-center justify-center gap-1 transition-colors text-muted-foreground hover:text-primary">
+          <CustomButton variant="unstyled" size="unstyled" type="button" onClick={() => inputRef.current?.click()} className="aspect-square rounded border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 flex flex-col items-center justify-center gap-1 transition-colors text-muted-foreground hover:text-primary">
             <Upload className="h-2.5 w-2.5" />
             <span className="text-[10px] font-medium">Add</span>
-          </button>
+          </CustomButton>
         )}
       </div>
       <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
@@ -681,14 +681,14 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <Button type="button" variant="outline" size="sm" onClick={handleMyLocation} className="gap-1 h-6">
+            <CustomButton type="button" variant="outline" size="sm" onClick={handleMyLocation} className="gap-1 h-6">
               <LocateFixed className="h-3 w-3" />
               <span className="hidden sm:inline">My Location</span>
-            </Button>
-            <Button type="button" variant="default" size="sm" onClick={() => { setIsFullScreen(false); }} className="gap-1 h-6">
+            </CustomButton>
+            <CustomButton type="button" variant="default" size="sm" onClick={() => { setIsFullScreen(false); }} className="gap-1 h-6">
               <Minimize2 className="h-3 w-3" />
               <span className="hidden sm:inline">Done</span>
-            </Button>
+            </CustomButton>
           </div>
         </div>
 
@@ -757,7 +757,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
             {}
             <div className="flex border-b -mx-4 px-4">
               {(["map", "select"] as SelectionMode[]).map((mode) => (
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   key={mode}
                   type="button"
                   onClick={() => handleModeChange(mode)}
@@ -769,7 +769,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
                   )}
                 >
                   {mode === "map" ? <><Map className="h-3 w-3" /> Map</> : <><ListFilter className="h-3 w-3" /> Select</>}
-                </button>
+                </CustomButton>
               ))}
             </div>
 
@@ -812,10 +812,10 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
                   </div>
                 )}
 
-                <Button type="button" variant="outline" onClick={handleMyLocation} className="w-full gap-1" disabled={isSubmitting}>
+                <CustomButton type="button" variant="outline" onClick={handleMyLocation} className="w-full gap-1" disabled={isSubmitting}>
                   <LocateFixed className="h-3 w-3" />
                   Use My Location
-                </Button>
+                </CustomButton>
               </div>
             </div>
 
@@ -857,7 +857,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
               <TextareaField control={control} name="note" label="Notes" placeholder="Delivery instructions…" rows={2} disabled={isSubmitting} error={errors.note} />
 
               {}
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 type="button"
                 onClick={() => setValue("isPrimary", !isPrimaryValue, { shouldDirty: true })}
                 disabled={isSubmitting}
@@ -878,7 +878,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
                   <p className="text-xs text-muted-foreground">Default address for deliveries</p>
                 </div>
                 {isPrimaryValue && <CheckCircle2 className="h-3 w-3 text-amber-500 shrink-0" />}
-              </button>
+              </CustomButton>
 
               {}
               <MultiImageUpload

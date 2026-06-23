@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Eye, Download, X, MoreHorizontal, ExternalLink, Image as ImageIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,23 +65,23 @@ export function TableImage({
               onError={() => setThumbErrored(true)}
             />
             {/* View — top left */}
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               type="button"
               onClick={(e) => { e.stopPropagation(); setViewOpen(true); }}
               className="absolute top-0.5 left-0.5 p-0.5 bg-black/55 hover:bg-black/80 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-150"
               title="View"
             >
               <Eye className="h-2.5 w-2.5 text-white" />
-            </button>
+            </CustomButton>
             {/* Download — top right */}
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               type="button"
               onClick={(e) => { e.stopPropagation(); handleDownload(e); }}
               className="absolute top-0.5 right-0.5 p-0.5 bg-black/55 hover:bg-black/80 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-150"
               title="Download"
             >
               <Download className="h-2.5 w-2.5 text-white" />
-            </button>
+            </CustomButton>
           </>
         ) : (
           <div className="h-full w-full flex items-center justify-center bg-primary/10 dark:bg-primary/20">
@@ -108,9 +108,7 @@ export function TableImage({
             <div className="flex items-center gap-1 flex-shrink-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
+                  <CustomButton variant="ghost" size="sm" className="h-7 w-7 p-0" icon={<MoreHorizontal className="h-4 w-4" />} />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => handleDownload()}>
@@ -125,14 +123,13 @@ export function TableImage({
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button
+              <CustomButton
                 variant="ghost"
                 size="sm"
                 className="h-7 w-7 p-0"
                 onClick={() => setViewOpen(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+                icon={<X className="h-4 w-4" />}
+              />
             </div>
           </div>
 

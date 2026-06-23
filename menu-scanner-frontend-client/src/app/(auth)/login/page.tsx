@@ -7,7 +7,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
@@ -162,7 +162,7 @@ export default function LoginPage() {
                 onTogglePassword={() => setShowPassword((v) => !v)}
               />
 
-              <Button
+              <CustomButton
                 type="submit"
                 className="w-full font-semibold"
                 disabled={isAnyLoading}
@@ -175,7 +175,7 @@ export default function LoginPage() {
                 ) : (
                   "Sign In"
                 )}
-              </Button>
+              </CustomButton>
             </form>
 
             {/* Divider */}

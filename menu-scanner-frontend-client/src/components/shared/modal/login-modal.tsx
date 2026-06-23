@@ -1,19 +1,15 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Loader2, LogIn } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+
 import { TextField } from "@/components/shared/form-field/text-field";
 import { PasswordField } from "@/components/shared/form-field/password-field";
 import { FormBody } from "@/components/shared/form-field/form-body";
@@ -135,8 +131,8 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
   const fieldHeight = "h-[32px] md:h-[32px]";
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-sm p-0 flex flex-col gap-0">
+    <CustomModal isOpen={open} onClose={handleClose} size="sm" className="-col gap-0">
+      
         {/* Header — admin FormHeader style */}
         <DialogHeader className="px-3 pt-3 pb-2 border-b flex-shrink-0">
           <div className="flex items-center gap-2">
@@ -209,7 +205,7 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
           <div className="flex flex-col gap-1.5 px-2.5 py-2 border-t bg-muted/30 flex-shrink-0 sm:flex-row sm:items-center sm:justify-between sm:px-3">
             <p className="text-[11px] text-muted-foreground order-2 sm:order-1">
               No account?{" "}
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 type="button"
                 onClick={() => {
                   onOpenChange(false);
@@ -219,10 +215,10 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
                 className="text-primary font-semibold hover:underline disabled:opacity-50"
               >
                 Register
-              </button>
+              </CustomButton>
             </p>
             <div className="flex gap-2 order-1 sm:order-2">
-              <Button
+              <CustomButton
                 type="button"
                 variant="outline"
                 onClick={handleClose}
@@ -230,8 +226,8 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
                 className={`${fieldHeight} px-3 text-xs`}
               >
                 Cancel
-              </Button>
-              <Button
+              </CustomButton>
+              <CustomButton
                 type="submit"
                 disabled={isAnyLoading}
                 className={`${fieldHeight} min-w-[96px] px-3 text-xs`}
@@ -244,11 +240,11 @@ export function LoginModal({ open, onOpenChange, onRegisterClick }: LoginModalPr
                 ) : (
                   "Sign In"
                 )}
-              </Button>
+              </CustomButton>
             </div>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { BannerResponseModel } from "@/features/master-data/store/models/response/banner-response";
@@ -135,7 +136,7 @@ const BannerSectionComponent = ({
               if (totalBanners <= maxDots) {
 
                 return banners.map((_, idx) => (
-                  <button
+                  <CustomButton variant="unstyled" size="unstyled"
                     key={idx}
                     onClick={(e) => {
                       e.preventDefault();
@@ -166,7 +167,7 @@ const BannerSectionComponent = ({
               return Array.from({ length: endIdx - startIdx }, (_, i) => {
                 const idx = startIdx + i;
                 return (
-                  <button
+                  <CustomButton variant="unstyled" size="unstyled"
                     key={idx}
                     onClick={(e) => {
                       e.preventDefault();

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Controller, FieldValues } from "react-hook-form";
 import { SelectFormFieldProps } from "./form-field-types";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Popover,
   PopoverContent,
@@ -53,7 +53,7 @@ export function SelectField<T extends FieldValues = FieldValues>({
           return (
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
-                <Button
+                <CustomButton
                   id={name as string}
                   variant="outline"
                   role="combobox"
@@ -87,12 +87,12 @@ export function SelectField<T extends FieldValues = FieldValues>({
                     !open && "opacity-50",
                     open && "opacity-100 text-primary rotate-180"
                   )} />
-                </Button>
+                </CustomButton>
               </PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                 <div className="max-h-[300px] overflow-y-auto">
                   {options.map((option) => (
-                    <button
+                    <CustomButton variant="unstyled" size="unstyled"
                       key={option.value}
                       type="button"
                       onClick={() => {
@@ -118,7 +118,7 @@ export function SelectField<T extends FieldValues = FieldValues>({
                         )}
                       />
                       {option.label}
-                    </button>
+                    </CustomButton>
                   ))}
                 </div>
               </PopoverContent>

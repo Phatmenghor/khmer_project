@@ -1,15 +1,10 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { ReactNode } from "react";
 import { Loader2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { cn } from "@/lib/utils";
 import type { FormDialogProps, ModalSize } from "./modal.types";
@@ -126,15 +121,15 @@ export function FormDialogBase({
         "bg-background sticky bottom-0"
       )}
     >
-      <Button
+      <CustomButton
         type="button"
         variant="outline"
         onClick={onClose}
         disabled={isLoading}
       >
         {cancelText}
-      </Button>
-      <Button
+      </CustomButton>
+      <CustomButton
         type={noForm ? "button" : "submit"}
         variant={submitVariant}
         disabled={isLoading || submitDisabled}
@@ -148,7 +143,7 @@ export function FormDialogBase({
         ) : (
           submitText
         )}
-      </Button>
+      </CustomButton>
     </div>
   );
 

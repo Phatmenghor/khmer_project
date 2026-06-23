@@ -8,13 +8,13 @@ import { Plus, Trash2 } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
-import { CancelButton } from "@/components/shared/button/cancel-button";
-import { SubmitButton } from "@/components/shared/button/submit-button";
+import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
+
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { uploadMultiSize } from "@/services/spaces-service";
 import { useDeferredUploads } from "@/hooks/use-deferred-upload";
 import { ImageUrls } from "../store/models/request/users-request";
-import { Button } from "@/components/ui/button";
+
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
 import {
   CreateUserRequest,
@@ -814,7 +814,7 @@ export default function UserBusinessModal({
                           : "No addresses added"}
                       </p>
                     </div>
-                    <Button
+                    <CustomButton
                       type="button"
                       variant="outline"
                       size="sm"
@@ -836,7 +836,7 @@ export default function UserBusinessModal({
                     >
                       <Plus className="h-3 w-3 mr-1" />
                       Add Address
-                    </Button>
+                    </CustomButton>
                   </div>
 
                   {addressFields.length === 0 ? (
@@ -851,7 +851,7 @@ export default function UserBusinessModal({
                             <div key={field.id} className="pb-3 border-b last:border-0 last:pb-0">
                               <div className="flex items-center justify-between mb-2">
                                 <p className="text-xs font-medium">Address {index + 1}</p>
-                                <Button
+                                <CustomButton
                                   type="button"
                                   variant="ghost"
                                   size="sm"
@@ -860,7 +860,7 @@ export default function UserBusinessModal({
                                   className="h-4 w-4 p-0 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                                 >
                                   <Trash2 className="h-2 w-2 text-primary" />
-                                </Button>
+                                </CustomButton>
                               </div>
                               <div className="grid grid-cols-2 gap-2">
                                 <SelectField
@@ -964,7 +964,7 @@ export default function UserBusinessModal({
                           : "No emergency contacts added"}
                       </p>
                     </div>
-                    <Button
+                    <CustomButton
                       type="button"
                       variant="outline"
                       size="sm"
@@ -981,7 +981,7 @@ export default function UserBusinessModal({
                     >
                       <Plus className="h-3 w-3 mr-1" />
                       Add Contact
-                    </Button>
+                    </CustomButton>
                   </div>
 
                   {contactFields.length === 0 ? (
@@ -1031,7 +1031,7 @@ export default function UserBusinessModal({
                                 />
                               </div>
                               {!isSubmitting && (
-                                <Button
+                                <CustomButton
                                   type="button"
                                   variant="ghost"
                                   size="sm"
@@ -1039,7 +1039,7 @@ export default function UserBusinessModal({
                                   onClick={() => removeContact(index)}
                                 >
                                   <Trash2 className="h-3 w-3" />
-                                </Button>
+                                </CustomButton>
                               )}
                             </div>
                       ))}
@@ -1058,7 +1058,7 @@ export default function UserBusinessModal({
                           : "No documents added"}
                       </p>
                     </div>
-                    <Button
+                    <CustomButton
                       type="button"
                       variant="outline"
                       size="sm"
@@ -1075,7 +1075,7 @@ export default function UserBusinessModal({
                     >
                       <Plus className="h-3 w-3 mr-1" />
                       Add Document
-                    </Button>
+                    </CustomButton>
                   </div>
 
                   {documentFields.length === 0 ? (
@@ -1086,7 +1086,7 @@ export default function UserBusinessModal({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {documentFields.map((field, index) => (
                         <div key={field.id} className="border rounded p-3 relative">
-                          <Button
+                          <CustomButton
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -1098,7 +1098,7 @@ export default function UserBusinessModal({
                             className="h-4 w-4 p-0 absolute top-1 right-1 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                           >
                             <Trash2 className="h-2 w-2" />
-                          </Button>
+                          </CustomButton>
                           <div className="space-y-3 pt-1">
                             <div className="grid grid-cols-2 gap-1">
                               <SelectField
@@ -1169,7 +1169,7 @@ export default function UserBusinessModal({
                           : "No education added"}
                       </p>
                     </div>
-                    <Button
+                    <CustomButton
                       type="button"
                       variant="outline"
                       size="sm"
@@ -1190,7 +1190,7 @@ export default function UserBusinessModal({
                     >
                       <Plus className="h-3 w-3 mr-1" />
                       Add Education
-                    </Button>
+                    </CustomButton>
                   </div>
 
                   {educationFields.length === 0 ? (
@@ -1201,7 +1201,7 @@ export default function UserBusinessModal({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {educationFields.map((field, index) => (
                         <div key={field.id} className="border rounded p-3 relative">
-                          <Button
+                          <CustomButton
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -1213,7 +1213,7 @@ export default function UserBusinessModal({
                             className="h-4 w-4 p-0 absolute top-1 right-1 hover:bg-primary/10 hover:border-primary text-primary hover:text-primary"
                           >
                             <Trash2 className="h-2 w-2" />
-                          </Button>
+                          </CustomButton>
                           <div className="space-y-3 pt-1">
                             <div className="grid grid-cols-2 gap-1">
                               <SelectField

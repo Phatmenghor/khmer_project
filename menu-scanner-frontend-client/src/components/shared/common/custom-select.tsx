@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -92,19 +92,15 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
       )}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
+          <CustomButton
             variant="outline"
             role="combobox"
             disabled={disabled}
             className={cn(
               "w-full justify-between gap-1 transition-all duration-200",
-
               "border-input",
-
               "hover:bg-primary/10 hover:border-primary hover:text-primary",
-
               "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/30",
-
               open && "bg-primary/20 border-primary text-primary",
               sizeConfig.button,
               className,
@@ -118,7 +114,6 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
               className={cn(
                 "truncate",
                 selectedOption ? "text-foreground" : "text-muted-foreground",
-
                 open && "text-primary"
               )}
             >
@@ -131,7 +126,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                 open && "opacity-100 text-primary rotate-180"
               )}
             />
-          </Button>
+          </CustomButton>
         </PopoverTrigger>
         <PopoverContent
           className="w-[--radix-popover-trigger-width] p-0"
@@ -145,7 +140,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
               </div>
             ) : (
               options.map((option) => (
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   key={option.value}
                   type="button"
                   role="option"
@@ -175,7 +170,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                     aria-hidden="true"
                   />
                   <span className="truncate">{option.label}</span>
-                </button>
+                </CustomButton>
               ))
             )}
           </div>

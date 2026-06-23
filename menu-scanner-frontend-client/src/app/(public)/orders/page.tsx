@@ -16,7 +16,7 @@ import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useMyOrdersState } from "@/features/main/store/state/my-orders-state";
 import { fetchMyOrdersService, cancelOrderService } from "@/features/main/store/thunks/my-orders-thunks";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { CustomButton } from "@/components/shared/button/custom-button";
+import { ActionButton, CustomButton } from "@/components/shared/button/custom-button";
 import { PageContainer } from "@/components/shared/common/page-container";
 import { PageHeader } from "@/components/shared/common/page-header";
 import { DataTableWithPagination, TableColumn } from "@/components/shared/common/data-table";
@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";
 import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { ActionButton } from "@/components/shared/button/action-button";
+
 import { CustomerOrderDetailModal } from "@/components/shared/modal/customer-order-detail-modal";
 import { CancelOrderModal } from "@/components/shared/modal/cancel-order-modal";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -249,7 +249,7 @@ export default function OrdersPage() {
                 className="pl-7 h-8 rounded border-border/70 bg-background text-xs"
               />
               {filters.search && (
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   onClick={() => {
                     setFilters((prev) => ({ ...prev, search: "" }));
                     setCurrentPage(1);
@@ -257,7 +257,7 @@ export default function OrdersPage() {
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="h-3 w-3" />
-                </button>
+                </CustomButton>
               )}
             </div>
           </div>

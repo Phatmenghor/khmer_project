@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Popover,
   PopoverContent,
@@ -37,7 +37,7 @@ export function PageSizeSelectField({
       )}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
+          <CustomButton
             variant="outline"
             role="combobox"
             className={cn(
@@ -55,7 +55,7 @@ export function PageSizeSelectField({
                 open && "rotate-180"
               )}
             />
-          </Button>
+          </CustomButton>
         </PopoverTrigger>
         <PopoverContent
           className="w-[100px] p-0"
@@ -64,7 +64,7 @@ export function PageSizeSelectField({
         >
           <div className="space-y-1 p-1" role="listbox">
             {pageSizeOptions.map((size) => (
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 key={size}
                 type="button"
                 role="option"
@@ -90,7 +90,7 @@ export function PageSizeSelectField({
                   aria-hidden="true"
                 />
                 <span>{size}</span>
-              </button>
+              </CustomButton>
             ))}
           </div>
         </PopoverContent>

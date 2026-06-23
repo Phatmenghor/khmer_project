@@ -68,25 +68,28 @@ function BrandPageInner() {
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, 400);
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
+  const { currentPage, updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.BRAND,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
   useEffect(() => {
-    dispatch(
+    const promise = dispatch(
       fetchAllBrandWithProductCountService({
         search: debouncedSearch,
-        pageNo: filters.pageNo,
+        pageNo: currentPage,
         pageSize: globalPageSize,
         status: filters.status == Status.ALL ? undefined : filters.status,
       }),
     );
+    return () => {
+      promise.abort();
+    };
   }, [
     dispatch,
     debouncedSearch,
     filters.status,
-    filters.pageNo,
+    currentPage,
     globalPageSize,
   ]);
 

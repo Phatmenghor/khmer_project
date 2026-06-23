@@ -10,7 +10,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { cn } from "@/lib/utils";
@@ -51,10 +51,10 @@ export function RecentOrdersCard({ orders, loading }: RecentOrdersCardProps) {
             </CardDescription>
           </div>
           <Link href={ROUTES.ADMIN.ORDERS}>
-            <Button variant="ghost" size="sm" className="gap-1 h-8 text-xs">
+            <CustomButton variant="ghost" size="sm" className="gap-1 h-8 text-xs">
               View all
               <ArrowUpRight className="h-3.5 w-3.5" />
-            </Button>
+            </CustomButton>
           </Link>
         </div>
       </CardHeader>

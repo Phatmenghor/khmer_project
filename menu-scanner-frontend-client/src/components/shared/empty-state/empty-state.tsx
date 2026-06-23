@@ -5,7 +5,7 @@
 
 import React from "react";
 import { LucideIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 
 export interface EmptyStateProps {
@@ -99,17 +99,17 @@ export function EmptyState({
       {(action || secondaryAction) && (
         <div className="flex items-center gap-2">
           {action && (
-            <Button
+            <CustomButton
               onClick={action.onClick}
               variant={action.variant || "default"}
             >
               {action.label}
-            </Button>
+            </CustomButton>
           )}
           {secondaryAction && (
-            <Button onClick={secondaryAction.onClick} variant="outline">
+            <CustomButton onClick={secondaryAction.onClick} variant="outline">
               {secondaryAction.label}
-            </Button>
+            </CustomButton>
           )}
         </div>
       )}

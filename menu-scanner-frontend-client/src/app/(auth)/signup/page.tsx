@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { axiosClient } from "@/utils/axios";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -223,7 +223,7 @@ export default function SignupPage() {
                 ]}
               />
 
-              <Button
+              <CustomButton
                 type="submit"
                 className="w-full h-7 font-semibold"
                 disabled={isLoading}
@@ -236,7 +236,7 @@ export default function SignupPage() {
                 ) : (
                   "Create Account"
                 )}
-              </Button>
+              </CustomButton>
             </form>
 
             {/* Sign in link */}

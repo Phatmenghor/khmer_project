@@ -35,8 +35,7 @@ import {
   PAYMENT_STATUS_ADMIN_FILTER,
 } from "@/constants/status/filter-status";
 import { useDownloadReceipt } from "@/hooks/use-download-receipt";
-import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
-import { FilterPanelConfig } from "@/features/business/components/filter-types";
+import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { useRouter } from "next/navigation";
 
 function OrdersAdminPageInner() {

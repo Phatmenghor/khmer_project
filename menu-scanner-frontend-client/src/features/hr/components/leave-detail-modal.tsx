@@ -14,7 +14,7 @@ import {
   selectSelectedLeave,
 } from "../store/selectors/leave-selectors";
 import { clearSelectedLeave } from "../store/slice/leave-slice";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Check, X, Edit } from "lucide-react";
 import { LeaveResponseModel } from "../store/models/response/leave-response";
 
@@ -182,33 +182,33 @@ export function LeaveDetailModal({
           {}
           <div className="flex items-center justify-end gap-2 pt-3 border-t">
             {onEdit && (
-              <Button
+              <CustomButton
                 variant="outline"
                 onClick={handleEdit}
                 className="flex items-center gap-1"
               >
                 <Edit className="w-3 h-3" />
                 Edit
-              </Button>
+              </CustomButton>
             )}
             {isPending && onApprove && (
-              <Button
+              <CustomButton
                 onClick={handleApprove}
                 className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
               >
                 <Check className="w-3 h-3" />
                 Approve
-              </Button>
+              </CustomButton>
             )}
             {isPending && onReject && (
-              <Button
+              <CustomButton
                 onClick={handleReject}
                 variant="destructive"
                 className="flex items-center gap-1"
               >
                 <X className="w-3 h-3" />
                 Reject
-              </Button>
+              </CustomButton>
             )}
           </div>
         </div>

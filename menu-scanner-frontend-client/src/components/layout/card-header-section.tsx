@@ -1,7 +1,8 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { ActionButton } from "../shared/button/custom-button";
 import {
   Tooltip,
   TooltipContent,
@@ -14,7 +15,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ActionButton } from "../shared/button/action-button";
+
 
 interface CardHeaderSectionProps {
   title?: string;
@@ -120,14 +121,14 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link href={buttonHref}>
-                        <Button>
+                        <CustomButton>
                           {buttonIcon && (
                             <span className="transition-transform duration-200 group-hover:scale-110">
                               {buttonIcon}
                             </span>
                           )}
                           {buttonText}
-                        </Button>
+                        </CustomButton>
                       </Link>
                     </TooltipTrigger>
                     {buttonTooltip && (
@@ -145,7 +146,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
+                      <CustomButton
                         variant="default"
                         className="h-[26px] px-3 text-white border-0 flex gap-1 font-medium transition-all duration-300 hover:shadow-lg hover:shadow-pink-500/25 group"
                         onClick={openModal}
@@ -156,7 +157,7 @@ export const CardHeaderSection: React.FC<CardHeaderSectionProps> = ({
                           </span>
                         )}
                         {buttonText}
-                      </Button>
+                      </CustomButton>
                     </TooltipTrigger>
                     {buttonTooltip && (
                       <TooltipContent>

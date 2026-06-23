@@ -1,7 +1,7 @@
 "use client";
 
 import { RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 import { DashboardPeriod } from "@/features/dashboard/store/models/response/dashboard-response";
 
@@ -48,7 +48,7 @@ export function DashboardHeader({ today, period, isLive, onPeriodChange, onRefre
       <div className="flex items-center gap-2 flex-wrap">
         <div className="flex bg-muted rounded-md p-1 gap-0.5">
           {PERIOD_OPTIONS.map((opt) => (
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               key={opt.value}
               onClick={() => onPeriodChange(opt.value)}
               className={cn(
@@ -59,13 +59,13 @@ export function DashboardHeader({ today, period, isLive, onPeriodChange, onRefre
               )}
             >
               {opt.label}
-            </button>
+            </CustomButton>
           ))}
         </div>
-        <Button variant="outline" size="sm" className="gap-1.5 h-8" onClick={onRefresh}>
+        <CustomButton variant="outline" size="sm" className="gap-1.5 h-8" onClick={onRefresh}>
           <RefreshCw className="h-3.5 w-3.5" />
           Refresh
-        </Button>
+        </CustomButton>
       </div>
     </div>
   );

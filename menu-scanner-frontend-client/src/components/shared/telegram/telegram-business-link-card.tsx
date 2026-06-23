@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -140,18 +140,13 @@ export function TelegramBusinessLinkCard({
                 readOnly
               />
               {isLinked && (
-                <Button
+                <CustomButton
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={copyLinkCommand}
-                >
-                  {copied ? (
-                    <Check className="h-3 w-3" />
-                  ) : (
-                    <Copy className="h-3 w-3" />
-                  )}
-                </Button>
+                  icon={copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                />
               )}
             </div>
           </div>
@@ -179,48 +174,31 @@ export function TelegramBusinessLinkCard({
               <code className="flex-1 p-2 bg-muted rounded font-mono text-xs overflow-auto">
                 /link {businessId}
               </code>
-              <Button
+              <CustomButton
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={copyLinkCommand}
                 className="flex-shrink-0"
+                icon={copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
               >
-                {copied ? (
-                  <>
-                    <Check className="h-3 w-3 mr-1" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3 w-3 mr-1" />
-                    Copy
-                  </>
-                )}
-              </Button>
+                {copied ? "Copied" : "Copy"}
+              </CustomButton>
             </div>
           </div>
         )}
 
         {/* Test Button */}
-        <Button
+        <CustomButton
           type="button"
           variant="outline"
           onClick={handleSendTestMessage}
           disabled={!isLinked || isTesting}
+          isLoading={isTesting}
           className="w-full"
         >
-          {isTesting ? (
-            <>
-              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              Sending Test Message...
-            </>
-          ) : (
-            <>
-              Send Test Message
-            </>
-          )}
-        </Button>
+          {isTesting ? "Sending Test Message..." : "Send Test Message"}
+        </CustomButton>
 
         {/* Status */}
         {isLinked ? (

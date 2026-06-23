@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import React, { useEffect, useState } from "react";
 import { Controller, ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 import { MultiSelectDaysFieldProps } from "./form-field-types";
@@ -146,7 +147,7 @@ function MultiSelectDaysContent({
           const isSelected = selectedDays.includes(day.value);
 
           return (
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               key={day.value}
               type="button"
               onClick={() => handleToggleDay(day.value)}
@@ -161,7 +162,7 @@ function MultiSelectDaysContent({
             >
               {isSelected && <Check className="w-3 h-3" />}
               {day.label}
-            </button>
+            </CustomButton>
           );
         })}
       </div>

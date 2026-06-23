@@ -15,7 +15,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 
 export type PageStateType =
   | "loading"
@@ -224,27 +224,27 @@ export function PageState({
         <div className={cn("flex flex-wrap items-center justify-center", s.gap)}>
           {primaryLabel && (
             actionHref ? (
-              <Button asChild size="sm" className="gap-1.5 h-8 px-4 rounded text-xs">
+              <CustomButton asChild size="sm" className="gap-1.5 h-8 px-4 rounded text-xs">
                 <Link href={actionHref}>
                   {PrimaryIcon && <PrimaryIcon className="h-3 w-3" aria-hidden />}
                   {primaryLabel}
                 </Link>
-              </Button>
+              </CustomButton>
             ) : onAction ? (
-              <Button
+              <CustomButton
                 size="sm"
                 className="gap-1.5 h-8 px-4 rounded text-xs"
                 onClick={onAction}
               >
                 {PrimaryIcon && <PrimaryIcon className="h-3 w-3" aria-hidden />}
                 {primaryLabel}
-              </Button>
+              </CustomButton>
             ) : null
           )}
 
           {secondaryActionLabel && (
             secondaryActionHref ? (
-              <Button
+              <CustomButton
                 asChild
                 size="sm"
                 variant="outline"
@@ -253,16 +253,16 @@ export function PageState({
                 <Link href={secondaryActionHref}>
                   {secondaryActionLabel}
                 </Link>
-              </Button>
+              </CustomButton>
             ) : onSecondaryAction ? (
-              <Button
+              <CustomButton
                 size="sm"
                 variant="outline"
                 className="gap-1.5 h-8 px-4 rounded text-xs"
                 onClick={onSecondaryAction}
               >
                 {secondaryActionLabel}
-              </Button>
+              </CustomButton>
             ) : null
           )}
         </div>

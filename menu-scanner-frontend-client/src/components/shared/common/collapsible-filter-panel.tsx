@@ -6,13 +6,94 @@ import { ComboboxSelectBrand } from "@/components/shared/combobox/combobox_selec
 import { ComboboxSelectCategories } from "@/components/shared/combobox/combobox_select_categories";
 import { CustomDateTimePicker } from "@/components/shared/common/custom-date-picker";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, ChevronDown, Search, X } from "lucide-react";
-import { FilterConfig, FilterPanelConfig } from "./filter-types";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
 import { Badge } from "@/components/ui/badge";
+
+// Filter Types
+export type FilterType = 'select' | 'combobox-brand' | 'combobox-categories' | 'input-number' | 'input-text' | 'date';
+
+export interface FilterOption {
+  value: string;
+  label: string;
+}
+
+export interface BaseFilterConfig {
+  id: string;
+  type: FilterType;
+  label: string;
+  placeholder?: string;
+  value: string | number | boolean | null | undefined;
+  onChange: (value: string | number | boolean | null | undefined) => void;
+  disabled?: boolean;
+}
+
+export interface SelectFilterConfig extends BaseFilterConfig {
+  type: 'select';
+  options: FilterOption[];
+}
+
+export interface ComboboxBrandFilterConfig extends Omit<BaseFilterConfig, 'value' | 'onChange'> {
+  type: 'combobox-brand';
+  value: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onChange: (value: any) => void;
+  showAllOption?: boolean;
+}
+
+export interface ComboboxCategoriesFilterConfig extends Omit<BaseFilterConfig, 'value' | 'onChange'> {
+  type: 'combobox-categories';
+  value: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onChange: (value: any) => void;
+  showAllOption?: boolean;
+}
+
+export interface InputNumberFilterConfig extends BaseFilterConfig {
+  type: 'input-number';
+  min?: number;
+  max?: number;
+}
+
+export interface InputTextFilterConfig extends BaseFilterConfig {
+  type: 'input-text';
+}
+
+export interface DateFilterConfig extends BaseFilterConfig {
+  type: 'date';
+}
+
+export type FilterConfig =
+  | SelectFilterConfig
+  | ComboboxBrandFilterConfig
+  | ComboboxCategoriesFilterConfig
+  | InputNumberFilterConfig
+  | InputTextFilterConfig
+  | DateFilterConfig;
+
+export interface FilterPanelConfig {
+  title: string;
+  /** Optional total-count chip rendered next to the title (e.g., 248 products). */
+  totalCount?: number;
+  /** Optional sentence rendered below the title. */
+  subtitle?: string;
+  searchValue: string;
+  searchPlaceholder: string;
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  filters: FilterConfig[];
+  /** Primary action button (right of the title row). */
+  buttonText?: string;
+  buttonDisabled?: boolean;
+  buttonTooltip?: string;
+  onButtonClick?: () => void;
+  /** Extra action buttons rendered before the primary button. */
+  extraActions?: React.ReactNode;
+  /** Called when the user clicks "Clear all" — invoked only when at least one filter is active. */
+  onClearAll?: () => void;
+}
 
 interface CollapsibleFilterPanelProps {
   config: FilterPanelConfig;
@@ -175,16 +256,16 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             {config.extraActions}
             {config.buttonText && (
-              <Button
+              <CustomButton
                 disabled={config.buttonDisabled}
                 variant="default"
                 onClick={config.onButtonClick}
                 className="gap-1 flex-shrink-0 h-[28px] px-3 text-xs"
                 title={config.buttonTooltip}
+                icon={<Plus className="w-3 h-3" />}
               >
-                <Plus className="w-3 h-3" />
                 {config.buttonText}
-              </Button>
+              </CustomButton>
             )}
           </div>
         </div>
@@ -201,7 +282,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               onChange={config.onSearchChange}
             />
             {config.searchValue && (
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 type="button"
                 onClick={() =>
                   config.onSearchChange({
@@ -212,7 +293,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                 aria-label="Clear search"
               >
                 <X className="h-3 w-3" />
-              </button>
+              </CustomButton>
             )}
           </div>
 
@@ -233,7 +314,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
         {advancedFilters.length > 0 && (
           <div className="border-t pt-3">
             <div className="flex items-center justify-between gap-2">
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
                 className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80 hover:text-foreground transition-colors"
@@ -252,15 +333,15 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                     showAdvanced ? "rotate-180" : ""
                   }`}
                 />
-              </button>
+              </CustomButton>
               {anyFilterActive && config.onClearAll && (
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   type="button"
                   onClick={config.onClearAll}
                   className="text-xs font-medium text-primary hover:underline"
                 >
                   Clear all
-                </button>
+                </CustomButton>
               )}
             </div>
 

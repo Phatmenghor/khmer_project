@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { memo } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -37,7 +38,7 @@ function SizeSelectorComponent({
           const badgeQty = getTotalQuantityForSize ? getTotalQuantityForSize(size.id) : getDisplayQuantity(size.id);
 
           return (
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               key={size.id}
               onClick={() => onSizeSelect(size)}
               className={cn(
@@ -78,7 +79,7 @@ function SizeSelectorComponent({
                   </div>
                 )}
               </div>
-            </button>
+            </CustomButton>
           );
         })}
       </div>

@@ -1,7 +1,9 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "./custom-modal";
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch } from "@/store";
 import { fetchOrderDetailsService } from "@/features/main/store/thunks/my-orders-thunks";
 import { Loading } from "@/components/shared/common/loading";
@@ -9,7 +11,7 @@ import { OrderResponse } from "@/features/main/store/models/response/order-respo
 import { formatCurrency } from "@/utils/common/currency-format";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";
-import { Button } from "@/components/ui/button";
+
 import { cn } from "@/lib/utils";
 import { Copy, MapPin, Package, Check, XCircle } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -134,29 +136,29 @@ export function CustomerOrderDetailModal({
 
   if (state.loading) {
     return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl" className="max-h-[92vh] gap-0 -col">
         <DialogTitle className="sr-only">Order Details Loading</DialogTitle>
-        <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
+        
           <div className="flex items-center justify-center h-64">
             <Loading />
           </div>
-        </DialogContent>
-      </Dialog>
+        
+      </CustomModal>
     );
   }
 
   if (!state.order) {
     return (
-      <Dialog open={isOpen} onOpenChange={handleClose}>
+      <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl" className="max-h-[92vh] gap-0 -col">
         <DialogTitle className="sr-only">Order Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
+        
           <div className="flex items-center justify-center h-64 flex-col gap-2">
             <p className="text-sm font-medium text-muted-foreground">
               {state.error ? `Error: ${state.error}` : "No order data available"}
             </p>
           </div>
-        </DialogContent>
-      </Dialog>
+        
+      </CustomModal>
     );
   }
 
@@ -179,12 +181,12 @@ export function CustomerOrderDetailModal({
     .join(", ");
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="5xl" className="max-h-[92vh] gap-0 -col">
       <DialogTitle className="sr-only">
         Order Details - {order.orderNumber}
       </DialogTitle>
 
-      <DialogContent className="w-full sm:max-w-5xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
+      
         {/* Header */}
         <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
@@ -193,7 +195,7 @@ export function CustomerOrderDetailModal({
                 <p className="text-sm font-bold text-foreground font-mono truncate">
                   {order.orderNumber}
                 </p>
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   onClick={() => {
                     navigator.clipboard.writeText(order.orderNumber);
                     showToast.success(
@@ -204,7 +206,7 @@ export function CustomerOrderDetailModal({
                   title="Copy order number"
                 >
                   <Copy className="h-3 w-3" />
-                </button>
+                </CustomButton>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {order.businessName}
@@ -577,7 +579,7 @@ export function CustomerOrderDetailModal({
                   <div className="flex items-start justify-between mb-2.5">
                     <SectionTitle>Delivery Address</SectionTitle>
                     <div className="flex gap-1 flex-shrink-0 -mt-0.5">
-                      <button
+                      <CustomButton variant="unstyled" size="unstyled"
                         onClick={() => {
                           const text = order.deliveryAddress?.note
                             ? `${formattedAddress}\n\nNote: ${order.deliveryAddress.note}`
@@ -591,10 +593,10 @@ export function CustomerOrderDetailModal({
                         title="Copy address"
                       >
                         <Copy className="h-3 w-3" />
-                      </button>
+                      </CustomButton>
                       {order.deliveryAddress.latitude &&
                         order.deliveryAddress.longitude && (
-                          <button
+                          <CustomButton variant="unstyled" size="unstyled"
                             onClick={() =>
                               window.open(
                                 `https://www.google.com/maps?q=${order.deliveryAddress.latitude},${order.deliveryAddress.longitude}`,
@@ -605,7 +607,7 @@ export function CustomerOrderDetailModal({
                             title="View on Google Maps"
                           >
                             <MapPin className="h-3 w-3" />
-                          </button>
+                          </CustomButton>
                         )}
                     </div>
                   </div>
@@ -643,11 +645,11 @@ export function CustomerOrderDetailModal({
 
         {/* Footer */}
         <div className="flex-shrink-0 px-4 py-3 border-t bg-muted/20 flex items-center justify-end">
-          <Button variant="outline" size="sm" onClick={handleClose} className="h-8">
+          <CustomButton variant="outline" size="sm" onClick={handleClose} className="h-8">
             Close
-          </Button>
+          </CustomButton>
         </div>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

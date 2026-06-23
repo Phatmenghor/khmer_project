@@ -11,7 +11,7 @@ import {
   KeyRound,
   CreditCard,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,7 +49,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
   const pathname = usePathname();
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { profile, fullName, profileImage, roles, isProfileLoading } = useAuthState();
+  const { user, profile, fullName, profileImage, roles, isProfileLoading } = useAuthState();
   const { logout: handleLogout } = useLogout();
 
   const breadcrumbs = getBreadcrumbs(pathname);
@@ -72,7 +72,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
       <header className="sticky top-0 z-20 flex h-12 items-center gap-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 shadow-sm">
         {/* Left: Mobile menu + Breadcrumbs */}
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <Button
+          <CustomButton
             variant="ghost"
             size="icon"
             onClick={onMenuClick}
@@ -80,7 +80,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             aria-label="Toggle menu"
           >
             <Menu className="h-4 w-4" />
-          </Button>
+          </CustomButton>
 
           <nav className="hidden md:flex items-center gap-1.5 text-sm min-w-0">
             {breadcrumbs.map((crumb, i) => (
@@ -112,7 +112,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
         {/* Right: Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
           {onFullscreenClick && pathname.includes("/admin/pos") && (
-            <Button
+            <CustomButton
               variant="ghost"
               size="icon"
               onClick={onFullscreenClick}
@@ -120,7 +120,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
               className="h-7 w-7 rounded hover:bg-primary/10 hover:text-primary transition-colors"
             >
               <Maximize2 className="h-4 w-4" />
-            </Button>
+            </CustomButton>
           )}
 
           {/* Profile is being fetched — show a skeleton instead of nothing */}
@@ -136,7 +136,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
 
           {/* No auth / session error — redirect to login */}
           {!profile && !isProfileLoading && (
-            <Button
+            <CustomButton
               variant="outline"
               size="sm"
               onClick={() => router.push(ROUTES.AUTH.LOGIN)}
@@ -144,32 +144,26 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             >
               <LogIn className="h-4 w-4" />
               <span className="hidden sm:inline">Sign In</span>
-            </Button>
+            </CustomButton>
           )}
 
           {/* Profile dropdown */}
           {profile && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-accent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar className="h-8 w-8 border border-border shadow-sm">
-                    <AvatarImage src={profileImageUrl} alt={displayName} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="hidden sm:flex flex-col items-start leading-none">
-                    <span className="text-sm font-medium truncate max-w-[120px]">
+                <CustomButton variant="unstyled" size="unstyled" className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-accent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <div className="flex flex-col items-start leading-none text-left">
+                    <span className="text-sm font-semibold truncate max-w-[120px]">
                       {displayName}
                     </span>
                     {primaryRole && (
-                      <span className="text-xs text-muted-foreground capitalize">
+                      <span className="text-[10px] text-muted-foreground/80 capitalize mt-0.5">
                         {primaryRole.toLowerCase().replace(/_/g, " ")}
                       </span>
                     )}
                   </div>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground hidden sm:block" />
-                </button>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </CustomButton>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end" className="w-56" sideOffset={8}>

@@ -3,7 +3,7 @@
 import { Messages } from "@/constants/messages";
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2, Unlink, Link2 } from "lucide-react";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
@@ -120,20 +120,17 @@ export function TelegramSyncCard() {
                   <span className="w-1 h-1 rounded-full bg-emerald-500" />
                   Connected
                 </span>
-                <Button
+                <CustomButton
                   variant="outline"
                   size="sm"
                   onClick={() => setIsConfirmDialogOpen(true)}
                   disabled={isSocialLoading}
+                  isLoading={isSocialLoading}
                   className="text-destructive hover:text-destructive hover:bg-destructive/5 hover:border-destructive/30 h-5 text-xs px-1"
+                  icon={!isSocialLoading ? <Unlink className="h-2 w-2" /> : undefined}
                 >
-                  {isSocialLoading ? (
-                    <Loader2 className="h-2 w-2 animate-spin mr-1" />
-                  ) : (
-                    <Unlink className="h-2 w-2 mr-1" />
-                  )}
                   Disconnect
-                </Button>
+                </CustomButton>
               </>
             ) : (
               <>

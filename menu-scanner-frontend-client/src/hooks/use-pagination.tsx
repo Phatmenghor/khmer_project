@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface UsePaginationOptions {
@@ -31,12 +31,16 @@ export function usePagination({
     return isNaN(parsed) || parsed < 1 ? 1 : parsed;
   }, [searchParams]);
 
+  const syncPageToReduxRef = useRef(syncPageToRedux);
+  useEffect(() => {
+    syncPageToReduxRef.current = syncPageToRedux;
+  }, [syncPageToRedux]);
 
   useEffect(() => {
-    if (syncPageToRedux) {
-      syncPageToRedux(currentPage);
+    if (syncPageToReduxRef.current) {
+      syncPageToReduxRef.current(currentPage);
     }
-  }, [currentPage, syncPageToRedux]);
+  }, [currentPage]);
 
   const updateUrlWithPage = useCallback(
     (newPage: number, replace: boolean = false) => {

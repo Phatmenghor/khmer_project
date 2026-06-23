@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Loader2 } from "lucide-react";
 import { TelegramIcon, TelegramLoginButton } from "./telegram-login-widget";
 import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
@@ -48,20 +48,17 @@ export function TelegramLoginModal({
   return (
     <>
       {}
-      <Button
+      <CustomButton
         type="button"
         variant="outline"
         onClick={() => setIsOpen(true)}
         disabled={disabled || loading}
+        isLoading={loading}
         className={`inline-flex items-center justify-center gap-1 ${className}`}
+        icon={!loading ? <TelegramIcon className="h-3 w-3 text-[#0088cc]" /> : undefined}
       >
-        {loading ? (
-          <Loader2 className="h-3 w-3 animate-spin" />
-        ) : (
-          <TelegramIcon className="h-3 w-3 text-[#0088cc]" />
-        )}
         {loading ? "Connecting..." : buttonLabel}
-      </Button>
+      </CustomButton>
 
       {}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

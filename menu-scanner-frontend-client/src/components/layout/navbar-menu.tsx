@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { LogOut, Menu, ShoppingBag } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Sheet,
   SheetContent,
@@ -61,7 +61,7 @@ function NavbarMenuComponent({
 }: NavbarMenuProps) {
   return (
     <>
-      <Button
+      <CustomButton
         variant="ghost"
         size="icon"
         className="lg:hidden h-7 w-7 shrink-0 hover:bg-primary/10 hover:text-primary transition-colors"
@@ -69,7 +69,7 @@ function NavbarMenuComponent({
         title="Menu"
       >
         <Menu className="h-3 w-3" />
-      </Button>
+      </CustomButton>
 
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent side="left" className="w-4/5 sm:w-64 p-0 flex flex-col">
@@ -114,7 +114,7 @@ function NavbarMenuComponent({
 
                 if (link.name === "Home") {
                   return (
-                    <button
+                    <CustomButton variant="unstyled" size="unstyled"
                       key={link.name}
                       onClick={() => {
                         onNavigateHome();
@@ -131,12 +131,12 @@ function NavbarMenuComponent({
                       {active && (
                         <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
                       )}
-                    </button>
+                    </CustomButton>
                   );
                 }
 
                 return (
-                  <button
+                  <CustomButton variant="unstyled" size="unstyled"
                     key={link.name}
                     onClick={() => {
                       onNavigate(link.href);
@@ -153,7 +153,7 @@ function NavbarMenuComponent({
                     {active && (
                       <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
                     )}
-                  </button>
+                  </CustomButton>
                 );
               })}
             </nav>
@@ -179,7 +179,7 @@ function NavbarMenuComponent({
                     </p>
                   </div>
                 </div>
-                <Button
+                <CustomButton
                   variant="outline"
                   size="sm"
                   className="w-full mb-1 transition-all duration-200"
@@ -190,8 +190,8 @@ function NavbarMenuComponent({
                 >
                   <ShoppingBag className="h-3 w-3 mr-1" />
                   My Orders
-                </Button>
-                <Button
+                </CustomButton>
+                <CustomButton
                   variant="outline"
                   size="sm"
                   className="w-full transition-all duration-200 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
@@ -202,11 +202,11 @@ function NavbarMenuComponent({
                 >
                   <LogOut className="h-3 w-3 mr-1" />
                   Logout
-                </Button>
+                </CustomButton>
               </div>
             ) : (
               <div className="px-3 py-3 mt-auto border-t border-border/40 bg-gradient-to-t from-muted/30 to-transparent flex gap-1">
-                <Button
+                <CustomButton
                   variant="outline"
                   size="sm"
                   className="flex-1 transition-all duration-200"
@@ -216,8 +216,8 @@ function NavbarMenuComponent({
                   }}
                 >
                   Login
-                </Button>
-                <Button
+                </CustomButton>
+                <CustomButton
                   size="sm"
                   className="flex-1 transition-all duration-200"
                   onClick={() => {
@@ -226,7 +226,7 @@ function NavbarMenuComponent({
                   }}
                 >
                   Register
-                </Button>
+                </CustomButton>
               </div>
             )}
           </div>

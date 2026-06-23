@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, memo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -215,23 +215,23 @@ function ProductFiltersComponent({
           />
         </div>
         <div className="flex gap-1">
-          <Button
+          <CustomButton
             size="sm"
             className="flex-1 h-6 text-xs"
             onClick={applyPrice}
             disabled={!minPrice && !maxPrice}
           >
             Apply
-          </Button>
+          </CustomButton>
           {hasPriceFilter && (
-            <Button
+            <CustomButton
               size="sm"
               variant="outline"
               className="h-6 px-2"
               onClick={clearPrice}
             >
               <X className="h-2.5 w-2.5" />
-            </Button>
+            </CustomButton>
           )}
         </div>
       </div>
@@ -256,7 +256,7 @@ function ProductFiltersComponent({
                 )}
               </div>
               {activeFiltersCount > 0 && (
-                <Button
+                <CustomButton
                   variant="ghost"
                   size="sm"
                   className="h-5 px-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1 text-xs"
@@ -264,7 +264,7 @@ function ProductFiltersComponent({
                 >
                   <FilterX className="h-2.5 w-2.5" />
                   Clear all
-                </Button>
+                </CustomButton>
               )}
             </div>
 
@@ -305,7 +305,7 @@ function ProductFiltersComponent({
 
           <div className="flex items-center gap-1 flex-shrink-0">
             {activeFiltersCount > 0 && (
-              <Button
+              <CustomButton
                 variant="outline"
                 size="sm"
                 className="h-6 px-2 text-muted-foreground hover:text-destructive hover:border-destructive/50 gap-1 text-xs"
@@ -313,11 +313,11 @@ function ProductFiltersComponent({
               >
                 <FilterX className="h-2.5 w-2.5" />
                 Clear
-              </Button>
+              </CustomButton>
             )}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="default" size="sm" className="h-6 gap-1">
+                <CustomButton variant="default" size="sm" className="h-6 gap-1">
                   <SlidersHorizontal className="h-3 w-3" />
                   Filters
                   {activeFiltersCount > 0 && (
@@ -328,7 +328,7 @@ function ProductFiltersComponent({
                       {activeFiltersCount}
                     </Badge>
                   )}
-                </Button>
+                </CustomButton>
               </SheetTrigger>
               <SheetContent
                 side="left"
@@ -346,7 +346,7 @@ function ProductFiltersComponent({
                       )}
                     </SheetTitle>
                     {activeFiltersCount > 0 && (
-                      <Button
+                      <CustomButton
                         variant="ghost"
                         size="sm"
                         className="h-5 px-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1 text-xs"
@@ -354,7 +354,7 @@ function ProductFiltersComponent({
                       >
                         <FilterX className="h-2.5 w-2.5" />
                         Clear all
-                      </Button>
+                      </CustomButton>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground text-left mt-1">

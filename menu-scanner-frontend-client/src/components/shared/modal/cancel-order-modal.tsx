@@ -1,13 +1,15 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
@@ -88,8 +90,8 @@ export function CancelOrderModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-lg max-h-[92vh] p-0 flex flex-col">
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="lg" className="max-h-[92vh] -col">
+      
         {}
         <FormHeader
           title="Cancel Order"
@@ -148,7 +150,7 @@ export function CancelOrderModal({
             createMessage=""
             updateMessage="Cancelling order..."
           >
-            <Button
+            <CustomButton
               type="button"
               variant="outline"
               onClick={handleClose}
@@ -156,19 +158,19 @@ export function CancelOrderModal({
               className="flex-1 sm:flex-initial"
             >
               Keep Order
-            </Button>
+            </CustomButton>
 
-            <Button
+            <CustomButton
               type="submit"
               variant="destructive"
               disabled={isSubmitting}
               className="flex-1 sm:flex-initial bg-red-600 hover:bg-red-700 focus:ring-red-600"
             >
               {isSubmitting ? "Cancelling..." : "Cancel Order"}
-            </Button>
+            </CustomButton>
           </FormFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

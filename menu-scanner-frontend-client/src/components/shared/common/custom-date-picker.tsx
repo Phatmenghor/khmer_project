@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Popover,
   PopoverContent,
@@ -241,7 +241,7 @@ export function CustomDateTimePicker({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button
+        <CustomButton
           id={id}
           variant="outline"
           className={cn(
@@ -284,20 +284,19 @@ export function CustomDateTimePicker({
               <X className="h-3 w-3" />
             </div>
           )}
-        </Button>
+        </CustomButton>
       </PopoverTrigger>
       <PopoverContent className="w-52 p-0" align="start">
         {}
         <div className="flex items-center justify-between p-2 border-b bg-muted/30">
           <div className="flex items-center gap-1">
-            <Button
+            <CustomButton
               variant="ghost"
               size="sm"
               onClick={() => navigateMonth("prev")}
               className="h-4 w-4 p-0 hover:bg-accent"
-            >
-              <ChevronLeft className="h-2 w-2" />
-            </Button>
+              icon={<ChevronLeft className="h-2 w-2" />}
+            />
 
             <div className="flex gap-1">
               <Select
@@ -333,24 +332,22 @@ export function CustomDateTimePicker({
               </Select>
             </div>
 
-            <Button
+            <CustomButton
               variant="ghost"
               size="sm"
               onClick={() => navigateMonth("next")}
               className="h-4 w-4 p-0 hover:bg-accent"
-            >
-              <ChevronRight className="h-2 w-2" />
-            </Button>
+              icon={<ChevronRight className="h-2 w-2" />}
+            />
           </div>
 
-          <Button
+          <CustomButton
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
             className="h-4 w-4 p-0 opacity-50 hover:opacity-100 hover:bg-accent"
-          >
-            <X className="h-2 w-2" />
-          </Button>
+            icon={<X className="h-2 w-2" />}
+          />
         </div>
 
         {}
@@ -368,7 +365,7 @@ export function CustomDateTimePicker({
 
           <div className="grid grid-cols-7 gap-1">
             {calendarDays.map((dayObj, index) => (
-              <Button
+              <CustomButton
                 key={index}
                 variant="ghost"
                 size="sm"
@@ -386,7 +383,7 @@ export function CustomDateTimePicker({
                 )}
               >
                 {dayObj.day}
-              </Button>
+              </CustomButton>
             ))}
           </div>
         </div>
@@ -439,7 +436,7 @@ export function CustomDateTimePicker({
 
         {}
         <div className="p-2 border-t bg-muted/30 flex gap-1">
-          <Button
+          <CustomButton
             variant="outline"
             size="sm"
             onClick={() => {
@@ -461,9 +458,9 @@ export function CustomDateTimePicker({
             className="flex-1 h-5 text-xs hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors"
           >
             Now
-          </Button>
+          </CustomButton>
 
-          <Button
+          <CustomButton
             variant="default"
             size="sm"
             onClick={applyDateTime}
@@ -471,7 +468,7 @@ export function CustomDateTimePicker({
             className="flex-1 h-5 text-xs bg-primary hover:bg-primary/90"
           >
             Apply
-          </Button>
+          </CustomButton>
         </div>
       </PopoverContent>
     </Popover>

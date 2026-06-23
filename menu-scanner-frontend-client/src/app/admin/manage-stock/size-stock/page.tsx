@@ -4,8 +4,7 @@ import { useEffect, useMemo, useState, useRef, useCallback, Suspense} from "reac
 
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
-import { FilterPanelConfig } from "@/features/business/components/filter-types";
+import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
 import { ModalMode, ProductStatus, Status } from "@/constants/status/status";

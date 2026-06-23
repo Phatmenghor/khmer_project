@@ -7,7 +7,7 @@ import {
   AllBannerResponseModel,
   BannerResponseModel,
 } from "../store/models/response/banner-response";
-import { ActionButton } from "@/components/shared/button/action-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 import { CustomAvatar } from "@/components/shared/avatar/custom-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";

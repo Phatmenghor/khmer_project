@@ -6,7 +6,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
-import { CancelButton } from "@/components/shared/button/cancel-button";
+import { CancelButton, SubmitButton } from "@/components/shared/button/custom-button";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
 import { FormBody } from "@/components/shared/form-field/form-body";
@@ -27,7 +27,7 @@ import {
   updateAttendanceService,
 } from "../store/thunks/attendance-thunks";
 import { UpdateAttendanceRequest } from "../store/models/request/attendance-request";
-import { SubmitButton } from "@/components/shared/button/submit-button";
+
 import { Loading } from "@/components/shared/common/loading";
 
 type Props = {

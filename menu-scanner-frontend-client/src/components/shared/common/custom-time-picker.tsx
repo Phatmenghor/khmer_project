@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Popover,
   PopoverContent,
@@ -122,7 +122,7 @@ export function CustomTimePicker({
             disabled && "opacity-50 cursor-not-allowed bg-muted"
           )}
         >
-          <button
+          <CustomButton variant="unstyled" size="unstyled"
             type="button"
             disabled={disabled}
             className={cn(
@@ -150,21 +150,21 @@ export function CustomTimePicker({
                 <X className="h-3 w-3 text-destructive" />
               </div>
             )}
-          </button>
+          </CustomButton>
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-[95vw] xs:w-64 sm:w-full md:w-[500px] p-0 max-w-[95vw] sm:max-w-2xl" align="start" side="bottom" sideOffset={8}>
         {}
         <div className="p-1 sm:p-2 border-b bg-muted/30 flex items-center justify-between sticky top-0 z-10 gap-1">
           <span className="text-xs sm:text-xs font-semibold truncate line-clamp-1">Select Time</span>
-          <button
+          <CustomButton variant="unstyled" size="unstyled"
             type="button"
             onClick={() => setIsOpen(false)}
             className="h-5 w-5 flex-shrink-0 flex items-center justify-center opacity-50 hover:opacity-100 hover:bg-accent rounded transition-colors"
             title="Close"
           >
             <X className="h-3 w-3" />
-          </button>
+          </CustomButton>
         </div>
 
         {}
@@ -213,7 +213,7 @@ export function CustomTimePicker({
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate line-clamp-1">Period</label>
               <div className="flex gap-1 border rounded-md p-1 bg-muted h-10 md:h-9 items-center">
                 {["AM", "PM"].map((period) => (
-                  <button
+                  <CustomButton variant="unstyled" size="unstyled"
                     key={period}
                     type="button"
                     onClick={() => setSelectedPeriod(period as "AM" | "PM")}
@@ -225,7 +225,7 @@ export function CustomTimePicker({
                     )}
                   >
                     {period}
-                  </button>
+                  </CustomButton>
                 ))}
               </div>
             </div>
@@ -242,7 +242,7 @@ export function CustomTimePicker({
 
         {}
         <div className="p-1 sm:p-2 border-t bg-muted/30 flex gap-1 sticky bottom-0">
-          <Button
+          <CustomButton
             variant="outline"
             size="sm"
             onClick={() => {
@@ -262,15 +262,15 @@ export function CustomTimePicker({
             className="flex-1 h-6 text-xs sm:text-xs font-medium truncate line-clamp-1"
           >
             Now
-          </Button>
-          <Button
+          </CustomButton>
+          <CustomButton
             variant="default"
             size="sm"
             onClick={applyTime}
             className="flex-1 h-6 text-xs sm:text-xs font-medium truncate line-clamp-1"
           >
             Apply
-          </Button>
+          </CustomButton>
         </div>
       </PopoverContent>
     </Popover>

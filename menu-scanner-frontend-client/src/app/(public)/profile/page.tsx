@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Edit, Loader2, Trash2, Lock, User, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -293,7 +293,7 @@ export default function PublicProfilePage() {
                     <div className="flex gap-1">
                       {isEditing ? (
                         <>
-                          <Button
+                          <CustomButton
                             variant="outline"
                             size="sm"
                             onClick={handleCancel}
@@ -301,8 +301,8 @@ export default function PublicProfilePage() {
                             className="border-primary/30 hover:bg-primary/5 hover:text-primary hover:border-primary/50"
                           >
                             Cancel
-                          </Button>
-                          <Button
+                          </CustomButton>
+                          <CustomButton
                             size="sm"
                             onClick={handleSubmit(onSubmit)}
                             disabled={
@@ -320,17 +320,17 @@ export default function PublicProfilePage() {
                             ) : (
                               "Save"
                             )}
-                          </Button>
+                          </CustomButton>
                         </>
                       ) : (
-                        <Button
+                        <CustomButton
                           size="sm"
                           onClick={() => setIsEditing(true)}
                           className="bg-primary hover:bg-primary/90 text-white"
                         >
                           <Edit className="h-2 w-2 mr-1" />
                           Edit
-                        </Button>
+                        </CustomButton>
                       )}
                     </div>
                   </div>
@@ -353,7 +353,7 @@ export default function PublicProfilePage() {
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20" />
 
             {}
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               onClick={() => setActiveSection("profile")}
               className={cn(
                 "flex-1 flex items-center justify-center gap-1 py-3 px-4 relative z-10",
@@ -371,10 +371,10 @@ export default function PublicProfilePage() {
                 )}
               />
               <span>Profile</span>
-            </button>
+            </CustomButton>
 
             {}
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               onClick={() => setActiveSection("security")}
               className={cn(
                 "flex-1 flex items-center justify-center gap-1 py-3 px-4 relative z-10",
@@ -391,7 +391,7 @@ export default function PublicProfilePage() {
                 )}
               />
               <span>Security</span>
-            </button>
+            </CustomButton>
           </div>
 
           {}
@@ -589,13 +589,13 @@ export default function PublicProfilePage() {
                         Update your password to keep your account secure
                       </p>
                     </div>
-                    <Button
+                    <CustomButton
                       onClick={() => setIsChangePasswordModalOpen(true)}
                       className="w-full sm:w-auto"
                     >
                       <Lock className="h-3 w-3 mr-1" />
                       Change Password
-                    </Button>
+                    </CustomButton>
                   </div>
                 </CardContent>
               </Card>
@@ -612,7 +612,7 @@ export default function PublicProfilePage() {
                         Permanently delete your account and all associated data
                       </p>
                     </div>
-                    <Button
+                    <CustomButton
                       variant="destructive"
                       size="sm"
                       onClick={() => setIsDeleteDialogOpen(true)}
@@ -620,7 +620,7 @@ export default function PublicProfilePage() {
                     >
                       <Trash2 className="h-3 w-3 mr-1" />
                       Delete Account
-                    </Button>
+                    </CustomButton>
                   </div>
                 </CardContent>
               </Card>

@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
-import { CancelButton } from "@/components/shared/button/cancel-button";
-import { SubmitButton } from "@/components/shared/button/submit-button";
+
+
 import { useAppDispatch, useAppSelector } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
 import { FormBody } from "@/components/shared/form-field/form-body";
@@ -286,7 +286,7 @@ export default function LeaveModal({
               <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-1">
                   {!isCreate && isPending && onApprove && (
-                    <Button
+                    <CustomButton
                       type="button"
                       onClick={handleApprove}
                       disabled={isSubmitting}
@@ -294,10 +294,10 @@ export default function LeaveModal({
                     >
                       <Check className="w-3 h-3 mr-1" />
                       Approve
-                    </Button>
+                    </CustomButton>
                   )}
                   {!isCreate && isPending && onReject && (
-                    <Button
+                    <CustomButton
                       type="button"
                       onClick={handleReject}
                       disabled={isSubmitting}
@@ -305,7 +305,7 @@ export default function LeaveModal({
                     >
                       <X className="w-3 h-3 mr-1" />
                       Reject
-                    </Button>
+                    </CustomButton>
                   )}
                 </div>
                 <div className="flex items-center gap-1">

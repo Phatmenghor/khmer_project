@@ -31,8 +31,7 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
-import { CollapsibleFilterPanel } from "@/features/business/components/collapsible-filter-panel";
-import { FilterPanelConfig } from "@/features/business/components/filter-types";
+import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { selectLowStockThreshold } from "@/features/business/store/selectors/business-settings-selector";
 
 

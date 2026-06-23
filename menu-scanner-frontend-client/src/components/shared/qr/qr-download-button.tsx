@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { Download, Share2, Copy, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 
 interface QRDownloadButtonProps {
   downloading: boolean;
@@ -30,43 +30,40 @@ function QRDownloadButtonComponent({
   return (
     <div className="flex gap-1 w-full flex-wrap justify-center">
       {showDownload && (
-        <Button
+        <CustomButton
           size="sm"
           className="gap-1"
           onClick={onDownload}
           disabled={downloading || !link}
+          isLoading={downloading}
+          icon={!downloading ? <Download className="w-2.5 h-2.5" /> : undefined}
         >
-          <Download className="w-2.5 h-2.5" />
           {downloading ? "Saving…" : "Download"}
-        </Button>
+        </CustomButton>
       )}
       {showCopy && (
-        <Button
+        <CustomButton
           size="sm"
           variant="outline"
           className="gap-1"
           onClick={onCopyUrl}
           disabled={!link}
+          icon={copied ? <Check className="w-2.5 h-2.5 text-green-500" /> : <Copy className="w-2.5 h-2.5" />}
         >
-          {copied ? (
-            <Check className="w-2.5 h-2.5 text-green-500" />
-          ) : (
-            <Copy className="w-2.5 h-2.5" />
-          )}
           {copied ? "Copied!" : "Copy URL"}
-        </Button>
+        </CustomButton>
       )}
       {showShare && (
-        <Button
+        <CustomButton
           size="sm"
           variant="outline"
           className="gap-1"
           onClick={onShare}
           disabled={!link}
+          icon={<Share2 className="w-2.5 h-2.5" />}
         >
-          <Share2 className="w-2.5 h-2.5" />
           Share
-        </Button>
+        </CustomButton>
       )}
     </div>
   );

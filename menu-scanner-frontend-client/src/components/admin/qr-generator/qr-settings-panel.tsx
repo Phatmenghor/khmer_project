@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Separator } from "@/components/ui/separator";
 import { ImagePlus, X, Check, Palette } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -110,7 +110,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
             {CARD_TEMPLATES.map((tpl) => {
               const isSelected = style.template === tpl.id;
               return (
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   key={tpl.id}
                   type="button"
                   onClick={() => handleSelectTemplate(tpl.id)}
@@ -135,13 +135,13 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                       <Check className="w-1 h-1 text-white" />
                     </div>
                   )}
-                </button>
+                </CustomButton>
               );
             })}
 
             {/* Custom color picker swatch */}
             <div className="relative">
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 type="button"
                 onClick={() => customColorInputRef.current?.click()}
                 className={`relative w-full rounded overflow-hidden border-2 transition-all duration-150 cursor-pointer ${
@@ -171,7 +171,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                     <Check className="w-1 h-1 text-white" />
                   </div>
                 )}
-              </button>
+              </CustomButton>
               {/* Hidden native color picker */}
               <input
                 ref={customColorInputRef}
@@ -236,14 +236,14 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
                   <p className="text-xs font-medium text-foreground truncate">Logo uploaded</p>
                   <p className="text-xs text-muted-foreground">Shown in QR card &amp; center of QR</p>
                 </div>
-                <Button
+                <CustomButton
                   variant="ghost"
                   size="icon"
                   className="h-5 w-5 flex-shrink-0 hover:text-destructive"
                   onClick={() => onUpdate({ logoDataUrl: null })}
                 >
                   <X className="w-2.5 h-2.5" />
-                </Button>
+                </CustomButton>
               </div>
 
               <div className="space-y-1">
@@ -269,7 +269,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
               </div>
             </>
           ) : (
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="w-full flex flex-col items-center justify-center gap-1 rounded border-2 border-dashed border-destructive/40 py-3 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors duration-200 cursor-pointer"
@@ -277,7 +277,7 @@ export function QRSettingsPanel({ style, onUpdate }: QRSettingsPanelProps) {
               <ImagePlus className="w-4 h-4" />
               <span className="text-xs font-medium">Upload logo <span className="text-destructive">*</span></span>
               <span className="text-[11px] opacity-60">PNG, JPG up to 2MB</span>
-            </button>
+            </CustomButton>
           )}
 
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />

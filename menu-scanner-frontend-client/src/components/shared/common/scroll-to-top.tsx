@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ArrowUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 
 export function ScrollToTop() {
@@ -30,7 +30,7 @@ export function ScrollToTop() {
   };
 
   return (
-    <Button
+    <CustomButton
       onClick={scrollToTop}
       size="icon"
       className={cn(
@@ -40,8 +40,7 @@ export function ScrollToTop() {
           : "translate-y-11 opacity-0 pointer-events-none"
       )}
       aria-label="Scroll to top"
-    >
-      <ArrowUp className="h-3 w-3" />
-    </Button>
+      icon={<ArrowUp className="h-3 w-3" />}
+    />
   );
 }

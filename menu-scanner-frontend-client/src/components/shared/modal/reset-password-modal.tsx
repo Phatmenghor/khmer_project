@@ -1,12 +1,11 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -98,8 +97,8 @@ export default function ResetPasswordModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-sm max-h-[92vh] p-0 flex flex-col">
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="sm" className="max-h-[92vh] -col">
+      
         <FormHeader
           title="Reset Password"
           description="Reset the user's password to the default value"
@@ -152,7 +151,7 @@ export default function ResetPasswordModal({
                   disabled={isResettingPassword}
                 />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-1">
-                  <Button
+                  <CustomButton
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -165,8 +164,8 @@ export default function ResetPasswordModal({
                     ) : (
                       <Eye className="h-3 w-3" />
                     )}
-                  </Button>
-                  <Button
+                  </CustomButton>
+                  <CustomButton
                     type="button"
                     variant="ghost"
                     size="sm"
@@ -175,7 +174,7 @@ export default function ResetPasswordModal({
                     title="Copy password"
                   >
                     <Copy className="h-3 w-3" />
-                  </Button>
+                  </CustomButton>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -203,15 +202,15 @@ export default function ResetPasswordModal({
         </FormBody>
 
         <div className="flex gap-2 px-3 py-3 border-t bg-muted/30 flex-shrink-0 sm:px-4 justify-end">
-          <Button
+          <CustomButton
             type="button"
             variant="outline"
             onClick={handleClose}
             disabled={isResettingPassword}
           >
             Cancel
-          </Button>
-          <Button
+          </CustomButton>
+          <CustomButton
             type="button"
             onClick={onReset}
             disabled={isResettingPassword}
@@ -225,9 +224,9 @@ export default function ResetPasswordModal({
             ) : (
               "Reset Password"
             )}
-          </Button>
+          </CustomButton>
         </div>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

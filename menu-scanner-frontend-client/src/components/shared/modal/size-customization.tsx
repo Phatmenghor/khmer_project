@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { memo } from "react";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -40,7 +41,7 @@ function SizeCustomizationComponent({
           const isSelected = selectedSizeCustoms.has(customization.id);
           const priceAdjustment = customization.priceAdjustment || 0;
           return (
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               key={customization.id}
               onClick={() => onToggleCustomization(customization.id)}
               className={cn(
@@ -75,7 +76,7 @@ function SizeCustomizationComponent({
               >
                 +{formatCurrency(priceAdjustment)}
               </span>
-            </button>
+            </CustomButton>
           );
         })}
       </div>

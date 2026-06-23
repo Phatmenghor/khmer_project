@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Download, Share2, Copy, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { QRCardTemplate } from "./qr-card-template";
 import { showToast } from "@/components/shared/common/show-toast";
 
@@ -350,40 +350,37 @@ export function QRCardWithDownload({
       {/* Actions */}
       {showActions && (
         <div className="flex gap-1 w-full flex-wrap justify-center">
-          <Button
+          <CustomButton
             size="sm"
             className="gap-1"
             onClick={handleDownload}
             disabled={downloading || !link}
+            isLoading={downloading}
+            icon={!downloading ? <Download className="w-2.5 h-2.5" /> : undefined}
           >
-            <Download className="w-2.5 h-2.5" />
             {downloading ? "Saving…" : "Download"}
-          </Button>
-          <Button
+          </CustomButton>
+          <CustomButton
             size="sm"
             variant="outline"
             className="gap-1"
             onClick={handleCopyUrl}
             disabled={!link}
+            icon={copied ? <Check className="w-2.5 h-2.5 text-green-500" /> : <Copy className="w-2.5 h-2.5" />}
           >
-            {copied ? (
-              <Check className="w-2.5 h-2.5 text-green-500" />
-            ) : (
-              <Copy className="w-2.5 h-2.5" />
-            )}
             {copied ? "Copied!" : "Copy URL"}
-          </Button>
+          </CustomButton>
           {showShare && (
-            <Button
+            <CustomButton
               size="sm"
               variant="outline"
               className="gap-1"
               onClick={handleShare}
               disabled={!link}
+              icon={<Share2 className="w-2.5 h-2.5" />}
             >
-              <Share2 className="w-2.5 h-2.5" />
               Share
-            </Button>
+            </CustomButton>
           )}
         </div>
       )}

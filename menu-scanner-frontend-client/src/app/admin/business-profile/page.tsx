@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Save, Eye, Upload, Plus, Trash2, Globe, Image as ImageIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -70,12 +70,12 @@ export default function BusinessProfileEditorPage() {
         </div>
         <div className="flex gap-1">
           <Link href="/business-profile" target="_blank">
-            <Button variant="outline" size="sm" className="gap-1">
+            <CustomButton variant="outline" size="sm" className="gap-1">
               <Eye className="w-3 h-3" />
               Preview
-            </Button>
+            </CustomButton>
           </Link>
-          <Button
+          <CustomButton
             size="sm"
             onClick={handleSubmit(onSubmit)}
             disabled={!isDirty}
@@ -83,7 +83,7 @@ export default function BusinessProfileEditorPage() {
           >
             <Save className="w-3 h-3" />
             Save Changes
-          </Button>
+          </CustomButton>
         </div>
       </div>
 
@@ -91,7 +91,7 @@ export default function BusinessProfileEditorPage() {
       <div className="border-b border-gray-200 mb-4">
         <nav className="flex gap-3 overflow-x-auto">
           {tabs.map((tab) => (
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`py-2 px-3 text-xs font-medium whitespace-nowrap border-b-2 transition-colors ${
@@ -101,7 +101,7 @@ export default function BusinessProfileEditorPage() {
               }`}
             >
               {tab.label}
-            </button>
+            </CustomButton>
           ))}
         </nav>
       </div>
@@ -368,10 +368,10 @@ export default function BusinessProfileEditorPage() {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Gallery</span>
-                  <Button size="sm" className="gap-1">
+                  <CustomButton size="sm" className="gap-1">
                     <Plus className="w-3 h-3" />
                     Add Photo
-                  </Button>
+                  </CustomButton>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -379,9 +379,9 @@ export default function BusinessProfileEditorPage() {
                   {profile.gallery?.map((item, index) => (
                     <div key={item.id} className="relative group aspect-square">
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors rounded flex items-center justify-center">
-                        <button className="opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-red-500 rounded-full text-white">
+                        <CustomButton variant="unstyled" size="unstyled" className="opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-red-500 rounded-full text-white">
                           <Trash2 className="w-3 h-3" />
-                        </button>
+                        </CustomButton>
                       </div>
                       <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center">
                         <ImageIcon className="w-5 h-5 text-gray-400" />
@@ -509,10 +509,10 @@ export default function BusinessProfileEditorPage() {
                     : "team members and customer testimonials"}
                   .
                 </p>
-                <Button className="mt-3 gap-1">
+                <CustomButton className="mt-3 gap-1">
                   <Plus className="w-3 h-3" />
                   Add {activeTab === "services" ? "Service" : "Team Member"}
-                </Button>
+                </CustomButton>
               </div>
             </CardContent>
           </Card>

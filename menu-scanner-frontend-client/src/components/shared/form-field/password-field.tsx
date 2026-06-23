@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Controller, FieldValues } from "react-hook-form";
 import { PasswordFormFieldProps } from "./form-field-types";
 import { Input } from "@/components/ui/input";
@@ -48,7 +49,7 @@ export function PasswordField<T extends FieldValues = FieldValues>({
           )}
         />
         {onTogglePassword && (
-          <button
+          <CustomButton variant="unstyled" size="unstyled"
             type="button"
             onClick={onTogglePassword}
             className="absolute inset-y-0 right-0 flex items-center pr-2"
@@ -59,7 +60,7 @@ export function PasswordField<T extends FieldValues = FieldValues>({
             ) : (
               <Eye className="h-4 w-4 text-gray-500" />
             )}
-          </button>
+          </CustomButton>
         )}
       </div>
       <p className={`text-xs text-red-600 ${error?.message ? "min-h-[16px]" : ""}`}>{error?.message || ""}</p>

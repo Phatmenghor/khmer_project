@@ -17,7 +17,7 @@ import { PortfolioPublicProfile, PortfolioHoursDto, ReviewStatsDto, PortfolioRev
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -129,9 +129,9 @@ function WriteReviewModal({
             <PenLine className="w-3 h-3 text-primary" />
             <span className="font-semibold text-xs text-foreground">Write a Review</span>
           </div>
-          <button onClick={handleClose} className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+          <CustomButton variant="unstyled" size="unstyled" onClick={handleClose} className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
             <X className="w-3 h-3" />
-          </button>
+          </CustomButton>
         </div>
 
         {submitted ? (
@@ -145,9 +145,9 @@ function WriteReviewModal({
                 Your review has been submitted and is pending approval by <span className="font-medium">{businessName}</span>.
               </p>
             </div>
-            <button onClick={handleClose} className="mt-1 px-4 py-1 rounded bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition-opacity">
+            <CustomButton variant="unstyled" size="unstyled" onClick={handleClose} className="mt-1 px-4 py-1 rounded bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition-opacity">
               Close
-            </button>
+            </CustomButton>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="px-3 py-3 space-y-3">
@@ -156,7 +156,7 @@ function WriteReviewModal({
               <label className="text-xs font-medium text-foreground">Your Rating <span className="text-destructive">*</span></label>
               <div className="flex items-center gap-1">
                 {[1,2,3,4,5].map((s) => (
-                  <button
+                  <CustomButton variant="unstyled" size="unstyled"
                     key={s} type="button"
                     onMouseEnter={() => setHover(s)}
                     onMouseLeave={() => setHover(0)}
@@ -167,7 +167,7 @@ function WriteReviewModal({
                       style={{ color: s <= (hover || form.rating) ? "#facc15" : "#e5e7eb",
                                fill:  s <= (hover || form.rating) ? "#facc15" : "#e5e7eb" }}
                     />
-                  </button>
+                  </CustomButton>
                 ))}
                 {(hover || form.rating) > 0 && (
                   <span className="text-xs text-muted-foreground ml-1">
@@ -211,11 +211,11 @@ function WriteReviewModal({
             </p>
 
             <div className="flex gap-1 pt-1">
-              <button type="button" onClick={handleClose}
+              <CustomButton variant="unstyled" size="unstyled" type="button" onClick={handleClose}
                 className="flex-1 py-1 rounded border border-border text-xs font-medium text-foreground hover:bg-muted transition-colors">
                 Cancel
-              </button>
-              <button
+              </CustomButton>
+              <CustomButton variant="unstyled" size="unstyled"
                 type="submit"
                 disabled={isSubmitting || !form.rating}
                 className="flex-1 py-1 rounded bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
@@ -223,7 +223,7 @@ function WriteReviewModal({
                 {isSubmitting ? (
                   <><span className="w-3 h-3 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />Submitting…</>
                 ) : "Submit Review"}
-              </button>
+              </CustomButton>
             </div>
           </form>
         )}
@@ -297,15 +297,15 @@ export default function BusinessProfilePage() {
 
             {/* Action buttons */}
             <div className="flex gap-1 flex-shrink-0 pb-1">
-              <Button size="sm" variant="outline" className="gap-1"
+              <CustomButton size="sm" variant="outline" className="gap-1"
                 onClick={() => { if (typeof navigator !== "undefined" && navigator.share) navigator.share({ title: profile.businessName, url: profileUrl }).catch(() => {}); }}>
                 <Share2 className="w-3 h-3" />
                 Share
-              </Button>
-              <Button size="sm" className="gap-1" onClick={() => setShowQRModal(true)}>
+              </CustomButton>
+              <CustomButton size="sm" className="gap-1" onClick={() => setShowQRModal(true)}>
                 <QrCode className="w-3 h-3" />
                 View QR
-              </Button>
+              </CustomButton>
             </div>
           </div>
 
@@ -473,10 +473,10 @@ export default function BusinessProfilePage() {
             <Card>
               <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <CardTitle className="text-xs">Customer Reviews</CardTitle>
-                <Button size="sm" variant="outline" className="gap-1 shrink-0" onClick={() => setShowReviewModal(true)}>
+                <CustomButton size="sm" variant="outline" className="gap-1 shrink-0" onClick={() => setShowReviewModal(true)}>
                   <PenLine className="w-2.5 h-2.5" />
                   Write a Review
-                </Button>
+                </CustomButton>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex gap-4 p-3 rounded bg-primary/5 border border-primary/10">
@@ -593,10 +593,10 @@ export default function BusinessProfilePage() {
                 {profile.contact.telegram && (
                   <a href={profile.contact.telegram}
                     target="_blank" rel="noopener noreferrer" className="block">
-                    <Button variant="outline" size="sm" className="w-full gap-1 border-sky-200 text-sky-600 hover:bg-sky-50">
+                    <CustomButton variant="outline" size="sm" className="w-full gap-1 border-sky-200 text-sky-600 hover:bg-sky-50">
                       <Send className="w-2.5 h-2.5" />
                       Chat on Telegram
-                    </Button>
+                    </CustomButton>
                   </a>
                 )}
               </CardContent>
@@ -612,10 +612,10 @@ export default function BusinessProfilePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button className="w-full gap-1" onClick={() => setShowQRModal(true)}>
+                <CustomButton className="w-full gap-1" onClick={() => setShowQRModal(true)}>
                   <QrCode className="w-3 h-3" />
                   View QR Code
-                </Button>
+                </CustomButton>
               </CardContent>
             </Card>
 

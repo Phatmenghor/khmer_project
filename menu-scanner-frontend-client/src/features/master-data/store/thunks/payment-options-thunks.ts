@@ -12,10 +12,11 @@ import { CreatePaymentOptionData } from "../models/schema/payment-options-schema
 
 export const fetchPublicPaymentOptionsService = createApiThunk<any, AllPaymentOptionsRequest>(
   "paymentOptions/fetchPublic",
-  async (params) => {
+  async (params, signal) => {
     const response = await axiosClient.post(
       "/api/v1/public/payment-options/all",
-      params
+      params,
+      { signal }
     );
     return response.data.data;
   }
@@ -24,10 +25,11 @@ export const fetchPublicPaymentOptionsService = createApiThunk<any, AllPaymentOp
 
 export const fetchAllPaymentOptionsService = createApiThunk<any, AllPaymentOptionsRequest>(
   "paymentOptions/fetchAll",
-  async (params) => {
+  async (params, signal) => {
     const response = await axiosClientWithAuth.post(
       "/api/v1/payment-options/all",
-      params
+      params,
+      { signal }
     );
     return response.data.data;
   }
@@ -36,10 +38,11 @@ export const fetchAllPaymentOptionsService = createApiThunk<any, AllPaymentOptio
 
 export const fetchMyBusinessPaymentOptionsService = createApiThunk<any, AllPaymentOptionsRequest>(
   "paymentOptions/fetchMyBusiness",
-  async (params) => {
+  async (params, signal) => {
     const response = await axiosClientWithAuth.post(
       "/api/v1/payment-options/my-business/all",
-      params
+      params,
+      { signal }
     );
     return response.data.data;
   }

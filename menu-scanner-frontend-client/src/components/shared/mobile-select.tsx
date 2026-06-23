@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,7 @@ export function MobileSelect({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button
+        <CustomButton variant="unstyled" size="unstyled"
           type="button"
           disabled={disabled}
           className={cn(
@@ -48,7 +49,7 @@ export function MobileSelect({
             {selectedLabel || placeholder}
           </span>
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-        </button>
+        </CustomButton>
       </DialogTrigger>
       
       <DialogContent className="p-0 gap-0">
@@ -64,7 +65,7 @@ export function MobileSelect({
         {/* Scrollable list items */}
         <div className="flex-1 overflow-y-auto max-h-[50vh] no-scrollbar py-1">
           {options.map((opt) => (
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               key={opt.value}
               type="button"
               onClick={() => {
@@ -79,7 +80,7 @@ export function MobileSelect({
               {value === opt.value && (
                 <Check className="h-4 w-4 text-primary shrink-0" />
               )}
-            </button>
+            </CustomButton>
           ))}
         </div>
       </DialogContent>

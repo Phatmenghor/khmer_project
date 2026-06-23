@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -105,7 +106,7 @@ export function QuantitySelector({
   return (
     <div className={cn("flex items-center", className)}>
       {/* Decrement button */}
-      <button
+      <CustomButton variant="unstyled" size="unstyled"
         type="button"
         onClick={handleDecrement}
         disabled={!canDecrement}
@@ -118,7 +119,7 @@ export function QuantitySelector({
         )}
       >
         <Minus className={cn(isSmall ? "h-2 w-2" : "h-3 w-3")} />
-      </button>
+      </CustomButton>
 
       {/* Input */}
       <input
@@ -139,7 +140,7 @@ export function QuantitySelector({
       />
 
       {/* Increment button */}
-      <button
+      <CustomButton variant="unstyled" size="unstyled"
         type="button"
         onClick={handleIncrement}
         disabled={displayValue >= max}
@@ -152,7 +153,7 @@ export function QuantitySelector({
         )}
       >
         <Plus className={cn(isSmall ? "h-2 w-2" : "h-3 w-3")} />
-      </button>
+      </CustomButton>
     </div>
   );
 }

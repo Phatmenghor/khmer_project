@@ -1,8 +1,10 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
+import { CustomModal } from "./custom-modal";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+
+import { DialogTitle } from "@/components/ui/dialog";
 import { AlertTriangle, RotateCcw, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FormBody } from "@/components/shared/form-field/form-body";
@@ -64,8 +66,8 @@ export function ConfirmationModal({
   const isDisabled = isSubmitting || isProcessing;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-md p-0 flex flex-col shadow-lg shadow-yellow-200">
+    <CustomModal isOpen={isOpen} onClose={onClose} size="md" className="-col shadow-lg shadow-yellow-200">
+      
         <VisuallyHidden asChild>
           <DialogTitle>{title}</DialogTitle>
         </VisuallyHidden>
@@ -105,15 +107,15 @@ export function ConfirmationModal({
         </FormBody>
 
         <FormFooter isSubmitting={isProcessing || isSubmitting} isDirty={true}>
-          <Button
+          <CustomButton
             variant="outline"
             onClick={onClose}
             disabled={isDisabled}
             className="flex-1 sm:flex-initial"
           >
             Cancel
-          </Button>
-          <Button
+          </CustomButton>
+          <CustomButton
             variant={actionVariant}
             onClick={handleConfirm}
             disabled={isDisabled}
@@ -130,9 +132,9 @@ export function ConfirmationModal({
                 <span>{actionLabel}</span>
               </>
             )}
-          </Button>
+          </CustomButton>
         </FormFooter>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

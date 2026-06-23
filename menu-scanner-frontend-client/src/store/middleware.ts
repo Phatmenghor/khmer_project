@@ -1,4 +1,6 @@
 import type { Middleware, UnknownAction } from "@reduxjs/toolkit";
+import { getProfileService } from "@/features/auth/store/thunks/auth-thunks";
+import { setProfileFetched } from "@/features/auth/store/slice/auth-slice";
 
 /**
  * On the first `auth/setUser` action after sign-in, kick off a profile
@@ -12,6 +14,7 @@ import type { Middleware, UnknownAction } from "@reduxjs/toolkit";
 interface AuthSlice {
   profile: unknown;
   profileFetched: boolean;
+  isProfileLoading: boolean;
 }
 
 export const autoFetchProfileMiddleware: Middleware =
@@ -21,26 +24,31 @@ export const autoFetchProfileMiddleware: Middleware =
     const result = next(action);
     const type = (action as UnknownAction)?.type;
 
-    if (type !== "auth/setUser") return result;
+    const userActions = [
+      "auth/setUser",
+      "auth/login/fulfilled",
+      "auth/telegramAuthenticate/fulfilled",
+      "auth/socialAuthenticate/fulfilled",
+    ];
+
+    if (!userActions.includes(type)) return result;
 
     const state = storeAPI.getState() as { auth: AuthSlice };
-    if (state.auth.profileFetched || state.auth.profile) return result;
+    if (
+      state.auth.profileFetched ||
+      state.auth.profile ||
+      state.auth.isProfileLoading
+    ) {
+      return result;
+    }
 
-    import("@/features/auth/store/thunks/auth-thunks").then(
-      ({ getProfileService }) => {
-        const promise = storeAPI.dispatch(getProfileService() as never) as {
-          unwrap: () => Promise<unknown>;
-        };
-        promise.unwrap().catch(() => {
-          // On failure, leave profileFetched false so a later setUser can retry.
-          import("@/features/auth/store/slice/auth-slice").then(
-            ({ setProfileFetched }) => {
-              storeAPI.dispatch(setProfileFetched(false));
-            }
-          );
-        });
-      }
-    );
+    const promise = storeAPI.dispatch(getProfileService() as never) as {
+      unwrap: () => Promise<unknown>;
+    };
+    promise.unwrap().catch(() => {
+      // On failure, leave profileFetched false so a later setUser can retry.
+      storeAPI.dispatch(setProfileFetched(false));
+    });
 
     return result;
   };

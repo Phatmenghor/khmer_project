@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { ArrowRight, LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -56,14 +56,14 @@ export const ViewAllButton = ({
   return (
     <div className={cn("flex justify-center mt-4 sm:mt-5", className)}>
       <Link href={href}>
-        <Button
+        <CustomButton
           size="default"
           variant="outline"
           className="gap-1 group border-2 hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all px-3 sm:px-3"
         >
           {text}
           <ArrowRight className="h-3 w-3 sm:h-3 sm:w-3 transition-transform group-hover:translate-x-1" />
-        </Button>
+        </CustomButton>
       </Link>
     </div>
   );

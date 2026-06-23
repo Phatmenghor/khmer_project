@@ -2,9 +2,9 @@
 
 import { ReactNode, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { PageSizeSelectField } from "@/components/shared/form-field/page-size-select-field";
 import { cn } from "@/lib/utils";
+import { CustomButton } from "@/components/shared/button/custom-button";
 
 
 const PAGINATION_ITEMS_THRESHOLD = 7;
@@ -298,7 +298,7 @@ export function DataTableWithPagination<T = any>({
           {totalPages > 1 && (
             <div className="flex items-center gap-1">
               {}
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
                 className={`
@@ -313,7 +313,7 @@ export function DataTableWithPagination<T = any>({
               >
                 <ChevronLeft className={classes.icon} />
                 <span className="hidden sm:inline">Previous</span>
-              </button>
+              </CustomButton>
 
               {}
               <div className="flex items-center gap-1">
@@ -330,7 +330,7 @@ export function DataTableWithPagination<T = any>({
                   }
 
                   return (
-                    <button
+                    <CustomButton variant="unstyled" size="unstyled"
                       key={item}
                       onClick={() => onPageChange(item)}
                       className={`
@@ -344,13 +344,13 @@ export function DataTableWithPagination<T = any>({
                     `}
                     >
                       {item}
-                    </button>
+                    </CustomButton>
                   );
                 })}
               </div>
 
               {}
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 onClick={() =>
                   currentPage < totalPages && onPageChange(currentPage + 1)
                 }
@@ -367,7 +367,7 @@ export function DataTableWithPagination<T = any>({
               >
                 <span className="hidden sm:inline">Next</span>
                 <ChevronRight className={classes.icon} />
-              </button>
+              </CustomButton>
             </div>
           )}
         </div>

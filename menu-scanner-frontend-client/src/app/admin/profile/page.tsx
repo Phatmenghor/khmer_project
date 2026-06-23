@@ -16,7 +16,7 @@ import {
   Camera,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -170,14 +170,6 @@ export default function AdminProfilePage() {
     name: "educations",
   });
 
-
-  const profileFetchedRef = useRef(false);
-  useEffect(() => {
-    if (authReady && accessToken && !userProfile && !isProfileLoading && !profileFetchedRef.current) {
-      profileFetchedRef.current = true;
-      dispatch(getProfileService());
-    }
-  }, [authReady, accessToken, dispatch, userProfile, isProfileLoading]);
 
 
   useEffect(() => {
@@ -504,7 +496,7 @@ export default function AdminProfilePage() {
                   <div className="flex gap-1">
                     {isEditing ? (
                       <>
-                        <Button
+                        <CustomButton
                           variant="outline"
                           size="sm"
                           onClick={handleCancel}
@@ -512,8 +504,8 @@ export default function AdminProfilePage() {
                           className="border-primary/30 hover:bg-primary/5 hover:text-primary hover:border-primary/50"
                         >
                           Cancel
-                        </Button>
-                        <Button
+                        </CustomButton>
+                        <CustomButton
                           size="sm"
                           onClick={handleSubmit(onSubmit)}
                           disabled={
@@ -532,17 +524,17 @@ export default function AdminProfilePage() {
                           ) : (
                             "Save"
                           )}
-                        </Button>
+                        </CustomButton>
                       </>
                     ) : (
-                      <Button
+                      <CustomButton
                         size="sm"
                         onClick={() => setIsEditing(true)}
                         className="bg-primary hover:bg-primary/90 text-white"
                       >
                         <Edit className="h-2 w-2 mr-1" />
                         Edit
-                      </Button>
+                      </CustomButton>
                     )}
                   </div>
                 </div>
@@ -565,7 +557,7 @@ export default function AdminProfilePage() {
           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/20" />
 
           {}
-          <button
+          <CustomButton variant="unstyled" size="unstyled"
             onClick={() => setActiveSection("profile")}
             className={cn(
               "flex-1 flex items-center justify-center gap-1 py-3 px-4 relative z-10",
@@ -581,10 +573,10 @@ export default function AdminProfilePage() {
               activeSection === "profile" ? "scale-110" : "scale-100"
             )} />
             <span>Profile</span>
-          </button>
+          </CustomButton>
 
           {}
-          <button
+          <CustomButton variant="unstyled" size="unstyled"
             onClick={() => setActiveSection("security")}
             className={cn(
               "flex-1 flex items-center justify-center gap-1 py-3 px-4 relative z-10",
@@ -599,7 +591,7 @@ export default function AdminProfilePage() {
               activeSection === "security" ? "scale-110" : "scale-100"
             )} />
             <span>Security</span>
-          </button>
+          </CustomButton>
         </div>
 
         {}
@@ -847,7 +839,7 @@ export default function AdminProfilePage() {
                   <div className="flex items-center justify-between">
                     <CardTitle>Addresses</CardTitle>
                     {isEditing && (
-                      <Button
+                      <CustomButton
                         type="button"
                         size="sm"
                         onClick={() =>
@@ -867,7 +859,7 @@ export default function AdminProfilePage() {
                       >
                         <Plus className="h-3 w-3 mr-1" />
                         Add Address
-                      </Button>
+                      </CustomButton>
                     )}
                   </div>
                 </CardHeader>
@@ -883,7 +875,7 @@ export default function AdminProfilePage() {
                           key={field.id}
                           className="border-l-4 border-l-primary/40 rounded p-3 relative bg-primary/5"
                         >
-                          <Button
+                          <CustomButton
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -891,7 +883,7 @@ export default function AdminProfilePage() {
                             className="absolute top-1 right-1 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-3 w-3" />
-                          </Button>
+                          </CustomButton>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
                             <SelectField
                               control={typedControl}
@@ -1004,7 +996,7 @@ export default function AdminProfilePage() {
                   <div className="flex items-center justify-between">
                     <CardTitle>Emergency Contacts</CardTitle>
                     {isEditing && (
-                      <Button
+                      <CustomButton
                         type="button"
                         size="sm"
                         onClick={() =>
@@ -1019,7 +1011,7 @@ export default function AdminProfilePage() {
                       >
                         <Plus className="h-3 w-3 mr-1" />
                         Add Contact
-                      </Button>
+                      </CustomButton>
                     )}
                   </div>
                 </CardHeader>
@@ -1035,7 +1027,7 @@ export default function AdminProfilePage() {
                           key={field.id}
                           className="border-l-4 border-l-primary/40 rounded p-3 relative bg-primary/5"
                         >
-                          <Button
+                          <CustomButton
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -1043,7 +1035,7 @@ export default function AdminProfilePage() {
                             className="absolute top-1 right-1 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-3 w-3" />
-                          </Button>
+                          </CustomButton>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
                             <TextField
                               control={typedControl}
@@ -1099,7 +1091,7 @@ export default function AdminProfilePage() {
                   <div className="flex items-center justify-between">
                     <CardTitle>Documents</CardTitle>
                     {isEditing && (
-                      <Button
+                      <CustomButton
                         type="button"
                         size="sm"
                         onClick={() =>
@@ -1114,7 +1106,7 @@ export default function AdminProfilePage() {
                       >
                         <Plus className="h-3 w-3 mr-1" />
                         Add Document
-                      </Button>
+                      </CustomButton>
                     )}
                   </div>
                 </CardHeader>
@@ -1130,7 +1122,7 @@ export default function AdminProfilePage() {
                           key={field.id}
                           className="border-l-4 border-l-primary/40 rounded p-3 relative bg-primary/5"
                         >
-                          <Button
+                          <CustomButton
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -1138,7 +1130,7 @@ export default function AdminProfilePage() {
                             className="absolute top-1 right-1 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-3 w-3" />
-                          </Button>
+                          </CustomButton>
                           <div className="space-y-3 pt-1">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               <SelectField
@@ -1233,7 +1225,7 @@ export default function AdminProfilePage() {
                   <div className="flex items-center justify-between">
                     <CardTitle>Education</CardTitle>
                     {isEditing && (
-                      <Button
+                      <CustomButton
                         type="button"
                         size="sm"
                         onClick={() =>
@@ -1252,7 +1244,7 @@ export default function AdminProfilePage() {
                       >
                         <Plus className="h-3 w-3 mr-1" />
                         Add Education
-                      </Button>
+                      </CustomButton>
                     )}
                   </div>
                 </CardHeader>
@@ -1268,7 +1260,7 @@ export default function AdminProfilePage() {
                           key={field.id}
                           className="border-l-4 border-l-primary/40 rounded p-3 relative bg-primary/5"
                         >
-                          <Button
+                          <CustomButton
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -1276,7 +1268,7 @@ export default function AdminProfilePage() {
                             className="absolute top-1 right-1 text-red-500 opacity-100"
                           >
                             <Trash2 className="h-3 w-3" />
-                          </Button>
+                          </CustomButton>
                           <div className="space-y-3 pt-1">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               <SelectField
@@ -1471,13 +1463,13 @@ export default function AdminProfilePage() {
                       Update your password to keep your account secure
                     </p>
                   </div>
-                  <Button
+                  <CustomButton
                     className="bg-primary hover:bg-primary/90 text-white"
                     onClick={() => setIsChangePasswordModalOpen(true)}
                   >
                     <Lock className="h-3 w-3 mr-1" />
                     Change Password
-                  </Button>
+                  </CustomButton>
                 </div>
               </CardContent>
             </Card>
@@ -1494,13 +1486,13 @@ export default function AdminProfilePage() {
                       Permanently delete your account and all associated data
                     </p>
                   </div>
-                  <Button
+                  <CustomButton
                     variant="destructive"
                     onClick={() => setIsDeleteDialogOpen(true)}
                   >
                     <Trash2 className="h-3 w-3 mr-1" />
                     Delete Account
-                  </Button>
+                  </CustomButton>
                 </div>
               </CardContent>
             </Card>

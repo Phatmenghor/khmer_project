@@ -5,11 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TextField } from "@/components/shared/form-field/text-field";
-import { CancelButton } from "@/components/shared/button/cancel-button";
-import { SubmitButton } from "@/components/shared/button/submit-button";
+
+
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { MultiSelectDaysField } from "@/components/shared/form-field/multi-select-days-field";
@@ -196,14 +196,14 @@ function WorkScheduleFormInner() {
       <Card>
         <CardContent className="py-2 sm:py-3">
           <div className="flex items-center gap-2">
-            <Button
+            <CustomButton
               variant="ghost"
               size="icon"
               onClick={handleBack}
               className="h-8 w-8"
             >
               <ArrowLeft className="w-5 h-5" />
-            </Button>
+            </CustomButton>
             <h1 className="text-xs sm:text-xs font-bold">
               {isCreate ? "Create Work Schedule" : "Edit Work Schedule"}
             </h1>

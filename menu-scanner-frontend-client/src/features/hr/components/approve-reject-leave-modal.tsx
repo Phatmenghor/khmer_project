@@ -6,7 +6,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
-import { CancelButton } from "@/components/shared/button/cancel-button";
+import { CancelButton, CustomButton } from "@/components/shared/button/custom-button";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
 import { FormBody } from "@/components/shared/form-field/form-body";
@@ -20,7 +20,7 @@ import {
 import { approveLeaveSchema } from "../store/models/schema/leave.schema";
 import { approveLeaveService } from "../store/thunks/leave-thunks";
 import { ApproveLeaveRequest } from "../store/models/request/leave-request";
-import { Button } from "@/components/ui/button";
+
 import { Check, X } from "lucide-react";
 
 type ApproveRejectAction = "APPROVED" | "REJECTED";
@@ -160,7 +160,7 @@ export default function ApproveRejectLeaveModal({
             }
           >
             <CancelButton onClick={handleClose} disabled={isUpdating} />
-            <Button
+            <CustomButton
               type="submit"
               disabled={isUpdating || !isDirty}
               className={
@@ -186,7 +186,7 @@ export default function ApproveRejectLeaveModal({
                   )}
                 </>
               )}
-            </Button>
+            </CustomButton>
           </FormFooter>
         </form>
       </DialogContent>

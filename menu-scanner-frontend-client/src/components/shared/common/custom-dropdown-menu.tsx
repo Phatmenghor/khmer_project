@@ -1,6 +1,7 @@
 
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
@@ -209,7 +210,7 @@ export function CustomDropdownMenu({
                 {}
                 {section.items.map((item, itemIndex) => (
                   <div key={itemIndex}>
-                    <button
+                    <CustomButton variant="unstyled" size="unstyled"
                       onClick={() => handleItemClick(item.onClick)}
                       className={cn(
                         "w-full flex items-center px-2 py-1 text-xs transition-colors cursor-pointer",
@@ -231,7 +232,7 @@ export function CustomDropdownMenu({
                       >
                         {item.label}
                       </span>
-                    </button>
+                    </CustomButton>
 
                     {}
                     {item.separator && <div className="my-1 h-px bg-border" />}

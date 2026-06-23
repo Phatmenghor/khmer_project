@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, Suspense, useCallback, useRef, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { MapPin, Plus, Loader2 } from "lucide-react";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -232,14 +232,14 @@ function LocationPageInner() {
         countLabel={locationCount === 1 ? "location" : "locations"}
         subtitle="Manage your saved addresses"
         actions={
-          <Button
+          <CustomButton
             onClick={handleAddLocation}
             size="sm"
             className="gap-1 h-6 rounded"
           >
             <Plus className="h-3 w-3" />
             <span className="hidden sm:inline">Add Location</span>
-          </Button>
+          </CustomButton>
         }
       />
 

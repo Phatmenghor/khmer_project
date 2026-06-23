@@ -13,20 +13,20 @@ import {
 export const fetchAllBrandService = createApiThunk<
   AllBrandResponseModel,
   AllBrandRequest
->("brands/fetchAll", async (params) => {
+>("brands/fetchAll", async (params, signal) => {
   const response = await axiosClientWithAuth.post<{
     data: AllBrandResponseModel;
-  }>("/api/v1/brands/my-business/all", params);
+  }>("/api/v1/brands/my-business/all", params, { signal });
   return response.data.data;
 });
 
 export const fetchAllBrandWithProductCountService = createApiThunk<
   AllBrandResponseModel,
   AllBrandRequest
->("brands/fetchAllWithProductCount", async (params) => {
+>("brands/fetchAllWithProductCount", async (params, signal) => {
   const response = await axiosClientWithAuth.post<{
     data: AllBrandResponseModel;
-  }>("/api/v1/brands/my-business/with-product-count", params);
+  }>("/api/v1/brands/my-business/with-product-count", params, { signal });
   return response.data.data;
 });
 

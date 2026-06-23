@@ -13,10 +13,11 @@ import { CreateDeliveryOptionsData } from "../models/schema/delivery-options-sch
 export const fetchAllDeliveryOptionsService = createApiThunk<
   any,
   AllDeliveryOptionsRequest
->("delivery-options/fetchAll", async (params) => {
+>("delivery-options/fetchAll", async (params, signal) => {
   const response = await axiosClientWithAuth.post(
     "/api/v1/delivery-options/all",
-    params
+    params,
+    { signal }
   );
   return response.data.data;
 });
@@ -25,10 +26,11 @@ export const fetchAllDeliveryOptionsService = createApiThunk<
 export const fetchMyBusinessDeliveryOptionsService = createApiThunk<
   any,
   AllDeliveryOptionsRequest
->("delivery-options/fetchMyBusiness", async (params) => {
+>("delivery-options/fetchMyBusiness", async (params, signal) => {
   const response = await axiosClientWithAuth.post(
     "/api/v1/delivery-options/my-business/all",
-    params
+    params,
+    { signal }
   );
   return response.data.data;
 });

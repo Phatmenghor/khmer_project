@@ -1,21 +1,18 @@
 "use client";
 
+import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
 import Image from "next/image";
 import { buildCustomizationMapKey, getQuantityForCombo } from "@/utils/common/customization-utils";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { CancelButton } from "@/components/shared/button/cancel-button";
-import { SubmitButton } from "@/components/shared/button/submit-button";
+import { CancelButton, SubmitButton } from "@/components/shared/button/custom-button";
+
 import { formatCurrency } from "@/utils/common/currency-format";
 import { ProductDetailResponseModel, ProductSize } from "@/features/business/store/models/response/product-response";
 import { appImages } from "@/constants/app-resource/icons/app-images";
@@ -474,8 +471,8 @@ export function SizePickerModal({
     : product?.hasPromotion;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full sm:max-w-[600px] max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden" aria-describedby="size-picker-description">
+    <CustomModal isOpen={open} onClose={() => onOpenChange(false)} className="sm:max-w-[600px] max-h-[90vh] -col gap-0" aria-describedby="size-picker-description">
+      
         <DialogDescription id="size-picker-description" className="sr-only">
           {product?.name}
         </DialogDescription>
@@ -642,7 +639,7 @@ export function SizePickerModal({
             updateText="Save Changes"
           />
         </FormFooter>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

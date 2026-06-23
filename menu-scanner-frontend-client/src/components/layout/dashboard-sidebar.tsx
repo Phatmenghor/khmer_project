@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { useEffect, useRef, useState } from "react";
 import { readBusinessCache } from "@/lib/business-cache";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,7 +14,6 @@ import { appImages } from "@/constants/app-resource/icons/app-images";
 import { UserAvatarCard } from "../shared/avatar/user-avatar-card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuthState } from "@/features/auth/store/state/auth-state";
-import { getProfileService } from "@/features/auth/store/thunks/auth-thunks";
 import { useAppSelector } from "@/store";
 import {
   selectBusinessSettings,
@@ -68,14 +67,6 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
   });
   const [collapsed, setCollapsed] = useState(false);
 
-  const profileFetchedRef = useRef(false);
-  useEffect(() => {
-    if (authReady && accessToken && !profile && !isProfileLoading && !profileFetchedRef.current) {
-      profileFetchedRef.current = true;
-      dispatch(getProfileService());
-    }
-  }, [authReady, accessToken, profile, isProfileLoading, dispatch]);
-
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
       ...prev,
@@ -113,7 +104,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
           return (
             <div key={route.title} className="w-full">
-              <Button
+              <CustomButton
                 variant="ghost"
                 className={cn(
                   "hover:bg-primary/10 hover:text-primary rounded relative transition-all duration-200",
@@ -149,7 +140,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                     </>
                   )}
                 </div>
-              </Button>
+              </CustomButton>
 
               {!isCollapsed && isOpen && (
                 <div className="relative ml-4 mt-1 space-y-1">
@@ -176,7 +167,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
 
                         <div className="absolute left-3 top-1/2 w-1 h-px z-0 transition-colors duration-200 bg-gray-200"></div>
 
-                        <Button
+                        <CustomButton
                           variant="ghost"
                           asChild
                           className={cn(
@@ -191,7 +182,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                           >
                             <span className="truncate">{subItem.title}</span>
                           </Link>
-                        </Button>
+                        </CustomButton>
                       </div>
                     );
                   })}
@@ -202,7 +193,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
         }
 
         return (
-          <Button
+          <CustomButton
             key={route.title}
             variant="ghost"
             asChild
@@ -224,7 +215,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
               {route.icon && <route.icon className="w-3 h-3 flex-shrink-0" />}
               {!isCollapsed && <span className="truncate">{route.title}</span>}
             </Link>
-          </Button>
+          </CustomButton>
         );
       })}
     </nav>
@@ -284,7 +275,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             </Link>
           )}
 
-          <Button
+          <CustomButton
             variant="ghost"
             size="icon"
             onClick={toggleCollapsed}
@@ -297,7 +288,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
                 collapsed && "rotate-180",
               )}
             />
-          </Button>
+          </CustomButton>
         </div>
 
         <ScrollArea className="flex-1 py-4">

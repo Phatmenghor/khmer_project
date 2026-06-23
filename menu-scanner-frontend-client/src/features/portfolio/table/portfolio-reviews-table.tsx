@@ -1,7 +1,7 @@
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { indexDisplay } from "@/utils/common/common";
 import { Eye, Star, Trash } from "lucide-react";
-import { ActionButton } from "@/components/shared/button/action-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { PortfolioReviewAdmin } from "../store/models/portfolio-types";
 import { PaginationResponseModel } from "@/features/master-data/store/models/response/pagination-response";

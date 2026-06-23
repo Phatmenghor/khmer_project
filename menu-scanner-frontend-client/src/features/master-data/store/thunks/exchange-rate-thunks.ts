@@ -14,10 +14,11 @@ import { ExchangeRateResponseModel } from "../models/response/exchange-rate-resp
 export const fetchAllExchangeRateService = createApiThunk<
   any,
   AllExchangeRateRequest
->("business-exchange-rates/fetchAll", async (params) => {
+>("business-exchange-rates/fetchAll", async (params, signal) => {
   const response = await axiosClientWithAuth.post(
     "/api/v1/business-exchange-rates/all",
-    params
+    params,
+    { signal }
   );
   return response.data.data;
 });
@@ -26,10 +27,11 @@ export const fetchAllExchangeRateService = createApiThunk<
 export const fetchAllMyBusinessExchangeRateService = createApiThunk<
   any,
   AllExchangeRateRequest
->("business-exchange-rates/fetchMyBusiness", async (params) => {
+>("business-exchange-rates/fetchMyBusiness", async (params, signal) => {
   const response = await axiosClientWithAuth.post(
     "/api/v1/business-exchange-rates/my-business/all",
-    params
+    params,
+    { signal }
   );
   return response.data.data;
 });

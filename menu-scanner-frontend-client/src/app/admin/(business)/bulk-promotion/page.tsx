@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { Button } from "@/components/ui/button";
+import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
 import { ArrowLeft, Trash2, Search, X } from "lucide-react";
 import { CustomCheckbox } from "@/components/shared/common/custom-checkbox";
-import { CustomButton } from "@/components/shared/button/custom-button";
-import { SubmitButton } from "@/components/shared/button/submit-button";
-import { CancelButton } from "@/components/shared/button/cancel-button";
+
+
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DateTimePickerField } from "@/components/shared/form-field/date-picker-field";
@@ -679,7 +679,7 @@ export default function BulkPromotionPage() {
       {}
       <div className="flex items-center justify-between px-3 sm:px-4 py-3 bg-background border-b border-border shrink-0">
         <div className="flex items-center gap-2">
-          <Button
+          <CustomButton
             variant="ghost"
             size="icon"
             onClick={() => router.push(ROUTES.ADMIN.PRODUCTS_PROMOTION)}
@@ -687,7 +687,7 @@ export default function BulkPromotionPage() {
             title="Go back"
           >
             <ArrowLeft className="h-3 w-3" />
-          </Button>
+          </CustomButton>
           <div className="flex flex-col">
             <h1 className="text-xs sm:text-sm font-bold text-foreground">
               Create Bulk Promotion
@@ -698,7 +698,7 @@ export default function BulkPromotionPage() {
           </div>
         </div>
         <div className="flex gap-1">
-          <Button
+          <CustomButton
             variant="outline"
             size="sm"
             onClick={handleClearSelectedPromotionsClick}
@@ -708,9 +708,9 @@ export default function BulkPromotionPage() {
           >
             <Trash2 className="h-3 w-3" />
             <span className="hidden sm:inline">Clear Promotion Selected</span>
-          </Button>
+          </CustomButton>
 
-          <Button
+          <CustomButton
             variant="destructive"
             size="sm"
             onClick={() => setShowResetModal(true)}
@@ -719,7 +719,7 @@ export default function BulkPromotionPage() {
           >
             <Trash2 className="h-3 w-3" />
             <span className="hidden sm:inline">Reset All</span>
-          </Button>
+          </CustomButton>
         </div>
       </div>
 
@@ -779,20 +779,20 @@ export default function BulkPromotionPage() {
                       className="w-full pl-6 pr-6 py-1 rounded border border-border bg-background text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
                     />
                     {searchQuery && (
-                      <button
+                      <CustomButton variant="unstyled" size="unstyled"
                         type="button"
                         onClick={handleClearSearch}
                         className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-muted rounded transition-colors"
                         title="Clear search"
                       >
                         <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-                      </button>
+                      </CustomButton>
                     )}
                   </div>
 
                   {}
                   {selectedIds.length > 0 && (
-                    <button
+                    <CustomButton variant="unstyled" size="unstyled"
                       type="button"
                       onClick={handleClearAllSelections}
                       className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-destructive border border-destructive/40 bg-destructive/5 hover:border-destructive/70 hover:bg-destructive/15 hover:text-destructive transition-colors duration-150 flex-shrink-0"
@@ -800,7 +800,7 @@ export default function BulkPromotionPage() {
                     >
                       <Trash2 className="h-2.5 w-2.5" />
                       <span className="hidden sm:inline">Clear</span>
-                    </button>
+                    </CustomButton>
                   )}
                 </div>
               </div>

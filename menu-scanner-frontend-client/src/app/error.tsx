@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { RefreshCw, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -21,12 +21,12 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         <h1 className="text-xs font-semibold">Something Went Wrong</h1>
         <p className="text-xs text-muted-foreground">An unexpected error occurred. Please try again.</p>
         <div className="flex gap-2 justify-center pt-1">
-          <Button variant="outline" size="sm" onClick={reset} className="gap-1">
+          <CustomButton variant="outline" size="sm" onClick={reset} className="gap-1">
             <RefreshCw className="h-3 w-3" /> Try Again
-          </Button>
-          <Button size="sm" onClick={() => router.push("/dashboard")} className="gap-1">
+          </CustomButton>
+          <CustomButton size="sm" onClick={() => router.push("/dashboard")} className="gap-1">
             <Home className="h-3 w-3" /> Dashboard
-          </Button>
+          </CustomButton>
         </div>
       </div>
     </div>

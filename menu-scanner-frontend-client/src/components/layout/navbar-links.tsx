@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
 
 interface NavLink {
@@ -31,7 +31,7 @@ function NavbarLinksComponent({
 
         if (link.name === "Home") {
           return (
-            <Button
+            <CustomButton
               key={link.name}
               variant="ghost"
               className={cn(
@@ -42,12 +42,12 @@ function NavbarLinksComponent({
               onClick={onNavigateHome}
             >
               {link.name}
-            </Button>
+            </CustomButton>
           );
         }
 
         return (
-          <Button
+          <CustomButton
             key={link.name}
             variant="ghost"
             className={cn(
@@ -58,7 +58,7 @@ function NavbarLinksComponent({
             onClick={() => onNavigate(link.href)}
           >
             {link.name}
-          </Button>
+          </CustomButton>
         );
       })}
     </div>

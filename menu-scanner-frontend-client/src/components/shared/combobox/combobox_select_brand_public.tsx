@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, memo } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Command,
   CommandEmpty,
@@ -172,7 +172,7 @@ function ComboboxSelectBrandPublicComponent({
       )}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
+          <CustomButton
             variant="outline"
             role="combobox"
             aria-expanded={open}
@@ -197,7 +197,7 @@ function ComboboxSelectBrandPublicComponent({
                 open && "opacity-100 text-primary rotate-180",
               )}
             />
-          </Button>
+          </CustomButton>
         </PopoverTrigger>
 
         <PopoverContent

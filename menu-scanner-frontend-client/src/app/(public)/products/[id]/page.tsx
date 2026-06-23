@@ -29,7 +29,7 @@ import { ProductCardSkeleton } from "@/components/shared/skeletons/product-card-
 import { PaginatedProductsGrid } from "@/components/shared/grid/paginated-products-grid";
 import { LoginModal } from "@/components/shared/modal/login-modal";
 import { showToast } from "@/components/shared/common/show-toast";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { PageState } from "@/components/shared/page-state";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -58,7 +58,7 @@ import {
   ProductDetailResponseModel,
   ProductSize,
 } from "@/features/business/store/models/response/product-response";
-import { CustomButton } from "@/components/shared/button/custom-button";
+
 import { PageContainer } from "@/components/shared/common/page-container";
 import { cn } from "@/lib/utils";
 import { useScrollToTop } from "@/hooks/use-scroll-restoration";
@@ -645,7 +645,7 @@ export default function ProductDetailPage() {
               {/* Vertical thumb strip — all sizes, width scales with screen */}
               {allImages.length > 1 && (
                 <div className="flex flex-col items-center justify-between w-[52px] sm:w-[60px] lg:w-[64px] shrink-0">
-                  <button
+                  <CustomButton variant="unstyled" size="unstyled"
                     onClick={scrollThumbsUp}
                     disabled={!canScrollUp}
                     className={cn(
@@ -656,13 +656,13 @@ export default function ProductDetailPage() {
                     )}
                   >
                     <ChevronUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                  </button>
+                  </CustomButton>
 
                   {visibleThumbs.map((img, i) => {
                     const idx = thumbOffset + i;
                     const isActive = idx === currentImageIndex;
                     return (
-                      <button
+                      <CustomButton variant="unstyled" size="unstyled"
                         key={idx}
                         onClick={() => selectImage(img.imageUrl, idx)}
                         className={cn(
@@ -685,11 +685,11 @@ export default function ProductDetailPage() {
                         {isActive && (
                           <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-primary rounded-r-lg" />
                         )}
-                      </button>
+                      </CustomButton>
                     );
                   })}
 
-                  <button
+                  <CustomButton variant="unstyled" size="unstyled"
                     onClick={scrollThumbsDown}
                     disabled={!canScrollDown}
                     className={cn(
@@ -700,7 +700,7 @@ export default function ProductDetailPage() {
                     )}
                   >
                     <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                  </button>
+                  </CustomButton>
                 </div>
               )}
 
@@ -735,27 +735,27 @@ export default function ProductDetailPage() {
                   </Badge>
                 )}
 
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   onClick={() => openLightbox(currentImageIndex)}
                   className="absolute bottom-1 right-1 bg-background/75 backdrop-blur-sm rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow cursor-zoom-in hover:bg-background"
                 >
                   <ZoomIn className="h-2.5 w-2.5 text-foreground/70" />
-                </button>
+                </CustomButton>
 
                 {allImages.length > 1 && (
                   <>
-                    <button
+                    <CustomButton variant="unstyled" size="unstyled"
                       onClick={(e) => { e.stopPropagation(); prevImage(); }}
                       className="absolute left-1 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-1 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
                     >
                       <ChevronLeft className="h-3 w-3" />
-                    </button>
-                    <button
+                    </CustomButton>
+                    <CustomButton variant="unstyled" size="unstyled"
                       onClick={(e) => { e.stopPropagation(); nextImage(); }}
                       className="absolute right-1 top-1/2 -translate-y-1/2 bg-background/85 hover:bg-background p-1 rounded-full shadow-md transition-all opacity-0 group-hover:opacity-100"
                     >
                       <ChevronRight className="h-3 w-3" />
-                    </button>
+                    </CustomButton>
                   </>
                 )}
 
@@ -831,7 +831,7 @@ export default function ProductDetailPage() {
                     const totalQty = getTotalQtyForSize(size.id);
                     const badgeAmber = isModified;
                     return (
-                      <button
+                      <CustomButton variant="unstyled" size="unstyled"
                         key={size.id}
                         onClick={() => handleSizeButtonClick(size)}
                         className={cn(
@@ -866,7 +866,7 @@ export default function ProductDetailPage() {
                             </div>
                           )}
                         </div>
-                      </button>
+                      </CustomButton>
                     );
                   })}
                 </div>
@@ -981,7 +981,7 @@ export default function ProductDetailPage() {
                   ).map((c, idx, arr) => {
                     const isSelected = selectedSizeCustoms.has(c.id);
                     return (
-                      <button
+                      <CustomButton variant="unstyled" size="unstyled"
                         key={c.id}
                         type="button"
                         onClick={() => toggleCustomization(c.id)}
@@ -1016,19 +1016,19 @@ export default function ProductDetailPage() {
                         ) : (
                           <span className="text-xs text-muted-foreground shrink-0">Free</span>
                         )}
-                      </button>
+                      </CustomButton>
                     );
                   })}
                 </div>
                 {product.customizations.length > CUSTOMIZATION_LIMIT && (
-                  <button
+                  <CustomButton variant="unstyled" size="unstyled"
                     onClick={() => setShowAllCustomizations((v) => !v)}
                     className="text-xs text-primary font-semibold hover:underline"
                   >
                     {showAllCustomizations
                       ? "Show less"
                       : `+${product.customizations.length - CUSTOMIZATION_LIMIT} more add-ons`}
-                  </button>
+                  </CustomButton>
                 )}
               </div>
             )}
@@ -1120,12 +1120,12 @@ export default function ProductDetailPage() {
             <span className="text-white/70 text-xs font-medium">
               {lightboxIndex + 1} / {allImages.length}
             </span>
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               onClick={() => setLightboxOpen(false)}
               className="bg-white/10 hover:bg-white/20 text-white p-1 rounded-full transition-colors"
             >
               <X className="h-3 w-3" />
-            </button>
+            </CustomButton>
           </div>
 
           <div
@@ -1140,18 +1140,18 @@ export default function ProductDetailPage() {
             />
             {allImages.length > 1 && (
               <>
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   onClick={prevLightbox}
                   className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-2 rounded-full transition-colors"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
+                </CustomButton>
+                <CustomButton variant="unstyled" size="unstyled"
                   onClick={nextLightbox}
                   className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white p-2 rounded-full transition-colors"
                 >
                   <ChevronRight className="h-4 w-4" />
-                </button>
+                </CustomButton>
               </>
             )}
           </div>
@@ -1161,7 +1161,7 @@ export default function ProductDetailPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {allImages.map((img, i) => (
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 key={`lb-th-${i}`}
                 onClick={() => setLightboxIndex(i)}
                 className={cn(
@@ -1174,7 +1174,7 @@ export default function ProductDetailPage() {
                   alt={`${i + 1}`}
                   className="w-full h-full object-cover"
                 />
-              </button>
+              </CustomButton>
             ))}
           </div>
         </div>

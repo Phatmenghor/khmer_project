@@ -2,7 +2,7 @@
 
 import { Messages } from "@/constants/messages";
 import { useEffect, useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Command,
   CommandEmpty,
@@ -167,7 +167,7 @@ export function ComboboxSelectVillage({
       )}
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
-          <Button
+          <CustomButton
             variant="outline"
             role="combobox"
             aria-expanded={open}
@@ -183,7 +183,7 @@ export function ComboboxSelectVillage({
           >
             {dataSelect ? dataSelect.villageEn : resolvedPlaceholder}
             <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-          </Button>
+          </CustomButton>
         </PopoverTrigger>
 
         <PopoverContent

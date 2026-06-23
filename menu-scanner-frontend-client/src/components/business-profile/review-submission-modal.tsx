@@ -4,7 +4,7 @@ import { Messages } from "@/constants/messages";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { X, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -71,12 +71,12 @@ export function ReviewSubmissionModal({
         {}
         <div className="sticky top-0 bg-white border-b px-4 py-3 flex items-center justify-between">
           <h2 className="text-xs font-bold">Write a Review</h2>
-          <button
+          <CustomButton variant="unstyled" size="unstyled"
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-full transition-colors"
           >
             <X className="w-3 h-3" />
-          </button>
+          </CustomButton>
         </div>
 
         {}
@@ -94,7 +94,7 @@ export function ReviewSubmissionModal({
             </label>
             <div className="flex items-center justify-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
-                <button
+                <CustomButton variant="unstyled" size="unstyled"
                   key={star}
                   type="button"
                   onClick={() => setRating(star)}
@@ -109,7 +109,7 @@ export function ReviewSubmissionModal({
                         : "text-gray-300"
                     }`}
                   />
-                </button>
+                </CustomButton>
               ))}
             </div>
             {rating > 0 && (
@@ -176,17 +176,17 @@ export function ReviewSubmissionModal({
             </p>
           </div>
           <div className="flex gap-2 pt-3">
-            <Button
+            <CustomButton
               type="button"
               variant="outline"
               onClick={onClose}
               className="flex-1"
             >
               Cancel
-            </Button>
-            <Button type="submit" className="flex-1">
+            </CustomButton>
+            <CustomButton type="submit" className="flex-1">
               Submit Review
-            </Button>
+            </CustomButton>
           </div>
         </form>
       </div>

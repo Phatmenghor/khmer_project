@@ -31,13 +31,13 @@ public class LoggingAspect {
         String username = getUsername();
         String methodName = joinPoint.getSignature().toShortString();
 
-        log.info("Received {} request to endpoint={} [user={}, method={}]", method, uri, username, methodName);
+        log.debug("Received {} request to endpoint={} [user={}, method={}]", method, uri, username, methodName);
 
         long start = System.currentTimeMillis();
         try {
             Object result = joinPoint.proceed();
             long duration = System.currentTimeMillis() - start;
-            log.info("Request completed successfully endpoint={} [duration={}ms, user={}]", uri, duration, username);
+            log.debug("Request completed successfully endpoint={} [duration={}ms, user={}]", uri, duration, username);
             return result;
         } catch (Throwable ex) {
             long duration = System.currentTimeMillis() - start;
@@ -52,13 +52,13 @@ public class LoggingAspect {
         Object[] args = joinPoint.getArgs();
         String sanitizedArgs = sanitizeArgs(args);
 
-        log.info("Entering service method: {} with args={}", methodName, sanitizedArgs);
+        log.debug("Entering service method: {} with args={}", methodName, sanitizedArgs);
 
         long start = System.currentTimeMillis();
         try {
             Object result = joinPoint.proceed();
             long duration = System.currentTimeMillis() - start;
-            log.info("Exiting service method: {} [duration={}ms, success=true]", methodName, duration);
+            log.debug("Exiting service method: {} [duration={}ms, success=true]", methodName, duration);
             return result;
         } catch (Throwable ex) {
             long duration = System.currentTimeMillis() - start;

@@ -7,7 +7,7 @@ import {
   setUser,
   setAuthReady,
 } from "@/features/auth/store/slice/auth-slice";
-import { selectAuthReady } from "@/features/auth/store/selectors/auth-selectors";
+import { selectAuthReady, selectUser } from "@/features/auth/store/selectors/auth-selectors";
 import { COOKIE_KEYS } from "@/constants/cookie-keys";
 
 
@@ -24,6 +24,7 @@ export function useAuthInit() {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const authReady = useAppSelector(selectAuthReady);
+  const currentUser = useAppSelector(selectUser);
 
   useEffect(() => {
 
@@ -39,15 +40,19 @@ export function useAuthInit() {
 
 
     if (token && userInfo) {
-      dispatch(setUser(userInfo));
-      dispatch(setAuthReady());
+      if (!currentUser || currentUser.userId !== userInfo.userId) {
+        dispatch(setUser(userInfo));
+      }
+      if (!authReady) {
+        dispatch(setAuthReady());
+      }
     } else {
 
       if (!authReady) {
         dispatch(setAuthReady());
       }
     }
-  }, [pathname, dispatch, authReady]);
+  }, [pathname, dispatch, authReady, currentUser]);
 
   return { authReady };
 }

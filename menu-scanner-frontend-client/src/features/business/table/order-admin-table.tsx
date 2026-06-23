@@ -2,7 +2,7 @@ import { indexDisplay } from "@/utils/common/common";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Eye, Trash, Download } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
-import { ActionButton } from "@/components/shared/button/action-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 import { OrderResponse } from "@/features/main/store/models/response/order-response";
 import { AllOrderResponseModel } from "../store/models/response/order-admin-response";
 import { getOrderStatusLabel } from "@/enums/order-status.enum";

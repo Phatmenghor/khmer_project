@@ -12,10 +12,11 @@ import { CreateBannerData } from "../models/schema/banner-schema";
 
 export const fetchAllBannerService = createApiThunk<any, AllBannerRequest>(
   "banners/fetchAll",
-  async (params) => {
+  async (params, signal) => {
     const response = await axiosClientWithAuth.post(
       "/api/v1/banners/my-business/all",
-      params
+      params,
+      { signal }
     );
     return response.data.data;
   }

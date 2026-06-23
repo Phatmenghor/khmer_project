@@ -6,7 +6,7 @@ import {
   AllExchangeRateResponseModel,
   ExchangeRateResponseModel,
 } from "../store/models/response/exchange-rate-response";
-import { ActionButton } from "@/components/shared/button/action-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 import { Switch } from "@/components/ui/switch";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { formatKhrRate } from "@/utils/format/exchange-rate-formatter";

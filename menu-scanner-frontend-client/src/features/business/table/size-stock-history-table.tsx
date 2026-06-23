@@ -1,6 +1,6 @@
 import { Edit, Trash2 } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
-import { ActionButton } from "@/components/shared/button/action-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { ProductStockDto } from "../store/models/response/stock-response";
 

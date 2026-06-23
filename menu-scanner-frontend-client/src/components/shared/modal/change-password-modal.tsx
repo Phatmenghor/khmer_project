@@ -1,8 +1,9 @@
 "use client";
 
+import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,8 +11,8 @@ import { PasswordField } from "@/components/shared/form-field/password-field";
 import { FormHeader } from "@/components/shared/form-field/form-header";
 import { FormBody } from "@/components/shared/form-field/form-body";
 import { FormFooter } from "@/components/shared/form-field/form-footer";
-import { CancelButton } from "@/components/shared/button/cancel-button";
-import { SubmitButton } from "@/components/shared/button/submit-button";
+import { CancelButton, SubmitButton } from "@/components/shared/button/custom-button";
+
 import { useAppDispatch, useAppSelector } from "@/store";
 import { changePasswordService } from "@/features/auth/store/thunks/auth-thunks";
 import {
@@ -93,8 +94,8 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="w-full sm:max-w-lg max-h-[92vh] p-0 flex flex-col">
+    <CustomModal isOpen={isOpen} onClose={handleClose} size="lg" className="max-h-[92vh] -col">
+      
         {}
         <FormHeader
           title="Change Password"
@@ -179,7 +180,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: Props) {
             />
           </FormFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      
+    </CustomModal>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, ShoppingBag, ShoppingCart, User } from "lucide-react";
@@ -48,7 +49,7 @@ export function BottomNav() {
             const needsAuth = tab.href === "/cart" || tab.href === "/profile";
 
             return (
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 key={tab.name}
                 type="button"
                 onClick={() =>
@@ -89,7 +90,7 @@ export function BottomNav() {
                 {active && (
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-primary rounded-full" />
                 )}
-              </button>
+              </CustomButton>
             );
           })}
         </div>

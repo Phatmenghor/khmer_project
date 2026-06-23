@@ -9,9 +9,9 @@ import { Plus, Trash2, X } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
 import { SelectField } from "@/components/shared/form-field/select-field";
-import { CancelButton } from "@/components/shared/button/cancel-button";
-import { SubmitButton } from "@/components/shared/button/submit-button";
-import { Button } from "@/components/ui/button";
+import { CancelButton, CustomButton, SubmitButton } from "@/components/shared/button/custom-button";
+
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   fetchProductByIdService,
@@ -648,7 +648,7 @@ export default function ProductModal({
                       <div className="flex items-center justify-between">
                         <CardTitle>Pricing Information</CardTitle>
                         {showPromotionFields && (
-                          <Button
+                          <CustomButton
                             type="button"
                             variant="outline"
                             size="sm"
@@ -661,7 +661,7 @@ export default function ProductModal({
                             disabled={isProcessing}
                           >
                             Reset Promotion
-                          </Button>
+                          </CustomButton>
                         )}
                       </div>
                     </CardHeader>
@@ -766,7 +766,7 @@ export default function ProductModal({
                             className="hidden"
                             disabled={isProcessing}
                           />
-                          <Button
+                          <CustomButton
                             type="button"
                             variant="outline"
                             size="sm"
@@ -777,7 +777,7 @@ export default function ProductModal({
                           >
                             <Plus className="h-3 w-3 mr-1" />
                             {isProcessingImages ? "Processing..." : "Upload"}
-                          </Button>
+                          </CustomButton>
                         </div>
                       )}
                     </div>
@@ -806,14 +806,14 @@ export default function ProductModal({
                                 </div>
                               )}
                             </div>
-                            <button
+                            <CustomButton variant="unstyled" size="unstyled"
                               type="button"
                               onClick={() => handleRemoveImage(index)}
                               disabled={isProcessing}
                               className="absolute top-1 right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
                             >
                               <X className="w-3 h-3" />
-                            </button>
+                            </CustomButton>
                           </div>
                         ))}
                       </div>
@@ -830,7 +830,7 @@ export default function ProductModal({
                           const sizePromotionType = watch(`sizes.${idx}.promotionType`);
                           return sizePromotionType && sizePromotionType !== "NONE";
                         }) && (
-                          <Button
+                          <CustomButton
                             type="button"
                             variant="outline"
                             size="sm"
@@ -845,9 +845,9 @@ export default function ProductModal({
                             disabled={isProcessing}
                           >
                             Reset All Promotions
-                          </Button>
+                          </CustomButton>
                         )}
-                        <Button
+                        <CustomButton
                           type="button"
                           variant="outline"
                           size="sm"
@@ -867,7 +867,7 @@ export default function ProductModal({
                         >
                           <Plus className="h-3 w-3 mr-1" />
                           Add Size
-                        </Button>
+                        </CustomButton>
                       </div>
                     </div>
                   </CardHeader>
@@ -898,7 +898,7 @@ export default function ProductModal({
                                 </h4>
                                 <div className="flex items-center gap-1">
                                   {showSizePromotionFields && (
-                                    <Button
+                                    <CustomButton
                                       type="button"
                                       variant="outline"
                                       size="sm"
@@ -911,9 +911,9 @@ export default function ProductModal({
                                       disabled={isProcessing}
                                     >
                                       Reset
-                                    </Button>
+                                    </CustomButton>
                                   )}
-                                  <Button
+                                  <CustomButton
                                     type="button"
                                     variant="destructive"
                                     size="sm"
@@ -922,7 +922,7 @@ export default function ProductModal({
                                   >
                                     <Trash2 className="h-3 w-3 mr-1" />
                                     Remove
-                                  </Button>
+                                  </CustomButton>
                                 </div>
                               </div>
 
@@ -1046,7 +1046,7 @@ export default function ProductModal({
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>Product Customizations</CardTitle>
-                      <Button
+                      <CustomButton
                         type="button"
                         variant="outline"
                         size="sm"
@@ -1060,7 +1060,7 @@ export default function ProductModal({
                       >
                         <Plus className="h-3 w-3 mr-1" />
                         Add Customization
-                      </Button>
+                      </CustomButton>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -1081,7 +1081,7 @@ export default function ProductModal({
                               <h4 className="font-semibold text-foreground">
                                 Customization {index + 1}
                               </h4>
-                              <Button
+                              <CustomButton
                                 type="button"
                                 variant="destructive"
                                 size="sm"
@@ -1090,7 +1090,7 @@ export default function ProductModal({
                               >
                                 <Trash2 className="h-3 w-3 mr-1" />
                                 Remove
-                              </Button>
+                              </CustomButton>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 auto-rows-max">

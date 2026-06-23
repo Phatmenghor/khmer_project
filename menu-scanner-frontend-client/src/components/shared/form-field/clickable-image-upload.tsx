@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Upload, X, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FieldError } from "react-hook-form";
@@ -171,15 +171,14 @@ export function ClickableImageUpload({
               </div>
 
               {!disabled && (
-                <Button
+                <CustomButton
                   type="button"
                   variant="destructive"
                   size="sm"
                   className="absolute top-2 right-2 z-10"
                   onClick={handleRemove}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
+                  icon={<X className="h-3 w-3" />}
+                />
               )}
             </>
           ) : (

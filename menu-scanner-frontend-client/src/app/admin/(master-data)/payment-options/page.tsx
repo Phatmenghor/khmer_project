@@ -73,26 +73,29 @@ function PaymentOptionsPageInner() {
 
   const debouncedSearch = useDebounce(filters.search, 400);
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
+  const { currentPage, updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.PAYMENT_OPTIONS,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
 
   useEffect(() => {
-    dispatch(
+    const promise = dispatch(
       fetchMyBusinessPaymentOptionsService({
         search: debouncedSearch,
-        pageNo: filters.pageNo,
+        pageNo: currentPage,
         pageSize: globalPageSize,
         ...(filters.status !== Status.ALL && { statuses: [filters.status] }),
       }),
     );
+    return () => {
+      promise.abort();
+    };
   }, [
     dispatch,
     debouncedSearch,
     filters.status,
-    filters.pageNo,
+    currentPage,
     globalPageSize,
   ]);
 

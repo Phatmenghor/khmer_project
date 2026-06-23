@@ -3,7 +3,7 @@ import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 
-import { ActionButton } from "@/components/shared/button/action-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 import {
   AllSessionsResponseModel,
   SessionResponseModel,

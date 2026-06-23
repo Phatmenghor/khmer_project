@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { dateTimeFormat, formatDate } from "@/utils/date/date-time-format";
 import { DetailModal } from "@/components/shared/modal/detail-modal";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   DetailRow,
   DetailSection,
@@ -149,7 +150,7 @@ export function AttendanceDetailModal({
         className="border rounded bg-muted/30 hover:bg-muted/50 transition-colors overflow-hidden"
       >
         {}
-        <button
+        <CustomButton variant="unstyled" size="unstyled"
           onClick={() => setExpandedCheckIn(isExpanded ? null : checkIn.id)}
           className="w-full p-3 text-left hover:bg-muted/70 transition-colors flex items-center justify-between"
         >
@@ -194,7 +195,7 @@ export function AttendanceDetailModal({
               <Info size={16} className="text-muted-foreground" />
             </div>
           </div>
-        </button>
+        </CustomButton>
 
         {}
         {isExpanded && (
@@ -271,7 +272,7 @@ export function AttendanceDetailModal({
               )}
 
               {}
-              <button
+              <CustomButton variant="unstyled" size="unstyled"
                 onClick={() => {
                   navigator.clipboard.writeText(
                     formatCoordinates(checkIn.latitude, checkIn.longitude),
@@ -281,7 +282,7 @@ export function AttendanceDetailModal({
                 className="inline-flex items-center gap-1 px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-xs font-medium transition-colors"
               >
                 📋 Copy Coords
-              </button>
+              </CustomButton>
             </div>
 
             {}

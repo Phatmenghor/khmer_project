@@ -21,7 +21,7 @@ import {
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Label } from "@/components/ui/label";
 import { showToast } from "@/components/shared/common/show-toast";
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
@@ -564,14 +564,14 @@ export default function PortfolioPage() {
                       : "No additional numbers"}
                   </p>
                 </div>
-                <Button
+                <CustomButton
                   type="button"
                   size="sm"
                   variant="outline"
                   onClick={() => appendContactPhone({ id: "", number: "" })}
                 >
                   <Plus className="w-3.5 h-3.5 mr-1" /> Add Phone
-                </Button>
+                </CustomButton>
               </div>
               {contactPhonesFields.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -587,7 +587,7 @@ export default function PortfolioPage() {
                           error={form.formState.errors.contact?.phones?.[index]?.number}
                         />
                       </div>
-                      <Button
+                      <CustomButton
                         type="button"
                         size="sm"
                         variant="ghost"
@@ -595,7 +595,7 @@ export default function PortfolioPage() {
                         onClick={() => removeContactPhone(index)}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+                      </CustomButton>
                     </div>
                   ))}
                 </div>
@@ -618,21 +618,21 @@ export default function PortfolioPage() {
                   : "No social media accounts added yet"
               }
             />
-            <Button
+            <CustomButton
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendSocialMedia({ id: "", name: "", url: "" })}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Account
-            </Button>
+            </CustomButton>
           </CardHeader>
           <CardContent>
             {socialMediaFields.length > 0 ? (
               <div className="space-y-3">
                 {socialMediaFields.map((field, index) => (
                   <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
-                    <Button
+                    <CustomButton
                       type="button"
                       variant="ghost"
                       size="sm"
@@ -640,7 +640,7 @@ export default function PortfolioPage() {
                       onClick={() => removeSocialMedia(index)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    </CustomButton>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
                       <TextField<PortfolioFormData>
                         control={form.control}
@@ -683,14 +683,14 @@ export default function PortfolioPage() {
                   : "No features added yet"
               }
             />
-            <Button
+            <CustomButton
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendFeature({ id: "", name: "" })}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Feature
-            </Button>
+            </CustomButton>
           </CardHeader>
           <CardContent>
             {featuresFields.length > 0 ? (
@@ -707,7 +707,7 @@ export default function PortfolioPage() {
                         error={form.formState.errors.features?.[index]?.name}
                       />
                     </div>
-                    <Button
+                    <CustomButton
                       type="button"
                       size="sm"
                       variant="ghost"
@@ -715,7 +715,7 @@ export default function PortfolioPage() {
                       onClick={() => removeFeature(index)}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
+                    </CustomButton>
                   </div>
                 ))}
               </div>
@@ -737,21 +737,21 @@ export default function PortfolioPage() {
                   : "No stats added yet"
               }
             />
-            <Button
+            <CustomButton
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendCustomStat({ id: "", label: "", value: "" })}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Stat
-            </Button>
+            </CustomButton>
           </CardHeader>
           <CardContent>
             {customStatsFields.length > 0 ? (
               <div className="space-y-3">
                 {customStatsFields.map((field, index) => (
                   <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
-                    <Button
+                    <CustomButton
                       type="button"
                       variant="ghost"
                       size="sm"
@@ -759,7 +759,7 @@ export default function PortfolioPage() {
                       onClick={() => removeCustomStat(index)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    </CustomButton>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10">
                       <TextField<PortfolioFormData>
                         control={form.control}
@@ -799,21 +799,21 @@ export default function PortfolioPage() {
                   : "No hours configured yet"
               }
             />
-            <Button
+            <CustomButton
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendBusinessHour({ id: "", day: "", openTime: "08:00", closeTime: "18:00" })}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Hours
-            </Button>
+            </CustomButton>
           </CardHeader>
           <CardContent>
             {businessHoursFields.length > 0 ? (
               <div className="space-y-3">
                 {businessHoursFields.map((field, index) => (
                   <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
-                    <Button
+                    <CustomButton
                       type="button"
                       variant="ghost"
                       size="sm"
@@ -821,7 +821,7 @@ export default function PortfolioPage() {
                       onClick={() => removeBusinessHour(index)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    </CustomButton>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pr-10">
                       <TextField<PortfolioFormData>
                         control={form.control}
@@ -880,7 +880,7 @@ export default function PortfolioPage() {
                   : "No gallery images added yet"
               }
             />
-            <Button
+            <CustomButton
               type="button"
               size="sm"
               variant="outline"
@@ -891,7 +891,7 @@ export default function PortfolioPage() {
               }}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Image
-            </Button>
+            </CustomButton>
           </CardHeader>
           <CardContent>
             {galleryFields.length > 0 ? (
@@ -900,7 +900,7 @@ export default function PortfolioPage() {
                   const watchImage = form.watch(`gallery.${index}.image`);
                   return (
                     <div key={field.id} className="border rounded-md p-4 space-y-3 hover:shadow-sm transition-shadow relative">
-                      <Button
+                      <CustomButton
                         type="button"
                         variant="ghost"
                         size="sm"
@@ -908,7 +908,7 @@ export default function PortfolioPage() {
                         onClick={() => handleRemoveGallery(index)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      </CustomButton>
                       <SpacesImageUpload
                 businessId={AppDefault.BUSINESS_ID}
                         label={`Image ${index + 1}`}
@@ -952,21 +952,21 @@ export default function PortfolioPage() {
                   : "No services added yet"
               }
             />
-            <Button
+            <CustomButton
               type="button"
               size="sm"
               variant="outline"
               onClick={() => appendService({ id: "", name: "", description: "" })}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Service
-            </Button>
+            </CustomButton>
           </CardHeader>
           <CardContent>
             {servicesFields.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {servicesFields.map((field, index) => (
                   <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
-                    <Button
+                    <CustomButton
                       type="button"
                       variant="ghost"
                       size="sm"
@@ -974,7 +974,7 @@ export default function PortfolioPage() {
                       onClick={() => removeService(index)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    </CustomButton>
                     <div className="space-y-3 pr-10">
                       <TextField<PortfolioFormData>
                         control={form.control}
@@ -1016,7 +1016,7 @@ export default function PortfolioPage() {
                   : "No team members added yet"
               }
             />
-            <Button
+            <CustomButton
               type="button"
               size="sm"
               variant="outline"
@@ -1027,7 +1027,7 @@ export default function PortfolioPage() {
               }}
             >
               <Plus className="w-3.5 h-3.5 mr-1" /> Add Member
-            </Button>
+            </CustomButton>
           </CardHeader>
           <CardContent>
             {teamFields.length > 0 ? (
@@ -1036,7 +1036,7 @@ export default function PortfolioPage() {
                   const watchPhoto = form.watch(`team.${index}.photo`);
                   return (
                     <div key={field.id} className="border rounded-md p-4 relative hover:shadow-sm transition-shadow">
-                      <Button
+                      <CustomButton
                         type="button"
                         size="sm"
                         variant="ghost"
@@ -1044,7 +1044,7 @@ export default function PortfolioPage() {
                         onClick={() => handleRemoveTeam(index)}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+                      </CustomButton>
                       <div className="space-y-4 pr-10">
                         <SpacesImageUpload
                 businessId={AppDefault.BUSINESS_ID}
@@ -1101,7 +1101,7 @@ export default function PortfolioPage() {
 
         {/* Save / Cancel */}
         <div className="flex gap-2 justify-end pt-4 border-t">
-          <Button
+          <CustomButton
             type="button"
             variant="outline"
             onClick={() => dispatch(fetchAdminPortfolioProfileThunk())}
@@ -1109,8 +1109,8 @@ export default function PortfolioPage() {
             className="min-w-[120px]"
           >
             Cancel
-          </Button>
-          <Button
+          </CustomButton>
+          <CustomButton
             type="submit"
             disabled={isSaving || !form.formState.isDirty}
             className="min-w-[140px] bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
@@ -1126,7 +1126,7 @@ export default function PortfolioPage() {
                 Save Changes
               </>
             )}
-          </Button>
+          </CustomButton>
         </div>
       </form>
     </div>

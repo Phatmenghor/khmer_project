@@ -7,7 +7,7 @@ import {
   AllUserResponseModel,
   UserResponseModel,
 } from "../store/models/response/users-response";
-import { ActionButton } from "@/components/shared/button/action-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { Switch } from "@/components/ui/switch";
 

@@ -74,17 +74,17 @@ function ExchangeRatePageInner() {
 
   const debouncedSearch = useDebounce(filters.search, 400);
 
-  const { updateUrlWithPage, handlePageChange } = usePagination({
+  const { currentPage, updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.EXCHANGE_RATE,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
 
   useEffect(() => {
-    dispatch(
+    const promise = dispatch(
       fetchAllMyBusinessExchangeRateService({
         search: debouncedSearch,
-        pageNo: filters.pageNo,
+        pageNo: currentPage,
         pageSize: globalPageSize,
         status:
           filters.isActive === ExchangeRateStatus.ALL
@@ -92,11 +92,14 @@ function ExchangeRatePageInner() {
             : (filters.isActive as "ACTIVE" | "INACTIVE"),
       }),
     );
+    return () => {
+      promise.abort();
+    };
   }, [
     dispatch,
     debouncedSearch,
     filters.isActive,
-    filters.pageNo,
+    currentPage,
     globalPageSize,
   ]);
 

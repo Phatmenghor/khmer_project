@@ -6,7 +6,7 @@ import { TableImage } from "@/components/shared/table/table-image";
 import { ProductDetailResponseModel } from "../store/models/response/product-response";
 import { Badge } from "@/components/ui/badge";
 import { Eye, RotateCcw } from "lucide-react";
-import { ActionButton } from "@/components/shared/button/action-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 
 interface BulkPromotionTableOptions {
   selectedProductIds: Map<string, boolean>;

@@ -9,7 +9,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import {
@@ -45,10 +45,10 @@ export function InventoryStatusCard({ stock, loading }: InventoryStatusCardProps
             </CardDescription>
           </div>
           <Link href={ROUTES.MANAGE_STOCK.STOCK_ITEMS}>
-            <Button variant="ghost" size="sm" className="gap-1 h-8 text-xs">
+            <CustomButton variant="ghost" size="sm" className="gap-1 h-8 text-xs">
               View all
               <ArrowUpRight className="h-3.5 w-3.5" />
-            </Button>
+            </CustomButton>
           </Link>
         </div>
       </CardHeader>

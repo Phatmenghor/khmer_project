@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
@@ -132,7 +132,7 @@ export function LocationCard({
             </div>
 
             {}
-            <button
+            <CustomButton variant="unstyled" size="unstyled"
               onClick={handleViewMap}
               disabled={!hasCoordinates}
               className={cn(
@@ -145,7 +145,7 @@ export function LocationCard({
               <p className="text-xs font-medium text-foreground line-clamp-2">
                 {location.fullAddress || "No address provided"}
               </p>
-            </button>
+            </CustomButton>
 
 
           </div>
@@ -153,7 +153,7 @@ export function LocationCard({
           {}
           <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end">
             {!isPrimary && (
-              <Button
+              <CustomButton
                 variant="outline"
                 size="sm"
                 onClick={() => onSetPrimary(location)}
@@ -162,9 +162,9 @@ export function LocationCard({
               >
                 <Star className="h-2.5 w-2.5" />
                 <span className="hidden sm:inline">Default</span>
-              </Button>
+              </CustomButton>
             )}
-            <Button
+            <CustomButton
               variant="outline"
               size="sm"
               onClick={() => onEdit(location)}
@@ -172,8 +172,8 @@ export function LocationCard({
               title="Edit"
             >
               <Edit2 className="h-2.5 w-2.5" />
-            </Button>
-            <Button
+            </CustomButton>
+            <CustomButton
               variant="outline"
               size="sm"
               onClick={() => onDelete(location)}
@@ -181,7 +181,7 @@ export function LocationCard({
               title="Delete"
             >
               <Trash2 className="h-2.5 w-2.5" />
-            </Button>
+            </CustomButton>
           </div>
         </div>
       </div>

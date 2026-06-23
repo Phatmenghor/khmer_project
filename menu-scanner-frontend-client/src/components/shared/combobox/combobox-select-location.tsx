@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Command,
   CommandEmpty,
@@ -157,14 +157,14 @@ export function ComboboxSelectLocation({
             {required && <span className="text-red-500 ml-1">*</span>}
           </Label>
         )}
-        <Button
+        <CustomButton
           onClick={() => router.push("/account/addresses")}
           variant="outline"
           className="w-full h-7 text-xs gap-1"
         >
           <Plus className="h-2.5 w-2.5" />
           Add Address
-        </Button>
+        </CustomButton>
         {error && <p className="text-xs text-red-500">{error}</p>}
       </div>
     );
@@ -180,7 +180,7 @@ export function ComboboxSelectLocation({
       )}
       <Popover open={open} onOpenChange={setOpen} modal={false}>
         <PopoverTrigger asChild>
-          <Button
+          <CustomButton
             variant="outline"
             role="combobox"
             aria-expanded={open}
@@ -199,7 +199,7 @@ export function ComboboxSelectLocation({
               {dataSelect ? dataSelect.fullAddress : placeholder}
             </span>
             <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-          </Button>
+          </CustomButton>
         </PopoverTrigger>
         <PopoverContent
           className="w-[var(--radix-popover-trigger-width)] p-0 shadow-lg border-border"
@@ -219,7 +219,7 @@ export function ComboboxSelectLocation({
               <CommandEmpty className="text-xs py-1">
                 <div className="flex flex-col items-center gap-1">
                   <span>No address found</span>
-                  <Button
+                  <CustomButton
                     onClick={() => {
                       setOpen(false);
                       router.push("/account/addresses");
@@ -230,7 +230,7 @@ export function ComboboxSelectLocation({
                   >
                     <Plus className="h-2 w-2" />
                     Add Address
-                  </Button>
+                  </CustomButton>
                 </div>
               </CommandEmpty>
               <CommandGroup>

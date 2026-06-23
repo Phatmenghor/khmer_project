@@ -3,7 +3,7 @@ import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { Edit, Eye, Trash } from "lucide-react";
 import { TableColumn } from "@/components/shared/common/data-table";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
-import { ActionButton } from "@/components/shared/button/action-button";
+import { ActionButton } from "@/components/shared/button/custom-button";
 import { Switch } from "@/components/ui/switch";
 import { TableImage } from "@/components/shared/table/table-image";
 import {

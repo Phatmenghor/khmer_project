@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomButton } from "@/components/shared/button/custom-button";
 import { useEffect, useRef, useCallback } from "react";
 import { TelegramAuthData } from "@/features/auth/store/models/request/social-auth-request";
 
@@ -170,7 +171,7 @@ export function TelegramLoginButton({
   }, [botName, botId, onAuth, disabled, loading]);
 
   return (
-    <button
+    <CustomButton variant="unstyled" size="unstyled"
       type="button"
       onClick={handleClick}
       disabled={disabled || loading}
@@ -197,7 +198,7 @@ export function TelegramLoginButton({
         <TelegramIcon className="h-3.5 w-3.5" />
       )}
       {children || "Continue with Telegram"}
-    </button>
+    </CustomButton>
   );
 }
 

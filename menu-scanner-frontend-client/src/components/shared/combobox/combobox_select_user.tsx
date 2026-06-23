@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import {
   Command,
   CommandEmpty,
@@ -156,7 +156,7 @@ export function ComboboxSelectUser({
       )}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
+          <CustomButton
             variant="outline"
             role="combobox"
             aria-expanded={open}
@@ -178,7 +178,7 @@ export function ComboboxSelectUser({
           >
             {dataSelect ? dataSelect.fullName : placeholder}
             <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-          </Button>
+          </CustomButton>
         </PopoverTrigger>
 
         <PopoverContent
