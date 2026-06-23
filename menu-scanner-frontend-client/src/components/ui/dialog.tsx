@@ -17,7 +17,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/60 backdrop-blur-[1px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -32,35 +32,83 @@ interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof Dialo
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, closeButtonClassName = "", ...props }, ref) => (
+>(({ className, children, closeButtonClassName = "", style, ...props }, ref) => {
+  const closeRef = React.useRef<HTMLButtonElement>(null);
+  const dragState = React.useRef({ startY: 0, dragging: false });
+  const [dragY, setDragY] = React.useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (typeof window !== "undefined" && window.innerWidth >= 768) return;
+    dragState.current = { startY: e.touches[0].clientY, dragging: true };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!dragState.current.dragging) return;
+    const delta = e.touches[0].clientY - dragState.current.startY;
+    if (delta > 0) setDragY(delta);
+  };
+
+  const handleTouchEnd = () => {
+    if (!dragState.current.dragging) return;
+    dragState.current.dragging = false;
+    if (dragY > 100) {
+      closeRef.current?.click();
+    }
+    setDragY(0);
+  };
+
+  return (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
+      onOpenAutoFocus={(e) => e.preventDefault()}
+      style={{
+        ...style,
+        ...(dragY ? { transform: `translateY(${dragY}px)`, transition: "none" } : undefined),
+      }}
       className={cn(
-        "fixed z-50 w-full max-w-md mx-auto bg-background border-t border-border shadow-2xl transition-all duration-300 outline-none",
-        "bottom-0 left-0 right-0 rounded-t-[20px] max-h-[92dvh] pb-safe flex flex-col translate-y-0",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-bottom-full data-[state=closed]:slide-out-to-bottom-full",
+        // Default (md and up): standard centered dialog with the default shadcn entrance animation
+        "fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2",
+        "border bg-background shadow-lg rounded-lg outline-none overflow-hidden",
+        "flex flex-col max-h-[85vh]",
+        "md:duration-200 md:data-[state=open]:animate-in md:data-[state=closed]:animate-out",
+        "md:data-[state=closed]:fade-out-0 md:data-[state=open]:fade-in-0",
+        "md:data-[state=closed]:zoom-out-95 md:data-[state=open]:zoom-in-95",
+        "md:data-[state=closed]:slide-out-to-left-1/2 md:data-[state=closed]:slide-out-to-top-[48%]",
+        "md:data-[state=open]:slide-in-from-left-1/2 md:data-[state=open]:slide-in-from-top-[48%]",
+        // <md: animated bottom sheet instead of a centered dialog
+        "max-md:left-0 max-md:right-0 max-md:top-auto max-md:bottom-0 max-md:translate-x-0 max-md:translate-y-0",
+        "max-md:max-w-none max-md:mx-0 max-md:max-h-[92dvh] max-md:pb-safe",
+        "max-md:rounded-b-none max-md:rounded-t-[20px] max-md:border-t max-md:border-x-0 max-md:border-b-0",
+        "max-md:data-[state=open]:animate-in max-md:data-[state=closed]:animate-out",
+        "max-md:data-[state=open]:slide-in-from-bottom-full max-md:data-[state=closed]:slide-out-to-bottom-full",
         className
       )}
       {...props}
       aria-describedby={props["aria-describedby"] ?? undefined}
     >
-      {/* Mobile drag handle */}
-      <div className="h-1 bg-muted rounded-full w-10 mx-auto my-3 shrink-0" />
-      
+      {/* Mobile drag handle — swipe down to dismiss; not shown in the centered desktop modal */}
+      <div
+        className="hidden max-md:block h-1 bg-muted rounded-full w-10 mx-auto mt-3 mb-1 shrink-0 touch-none"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      />
+
       {/* Content scroll area */}
-      <div className="flex-1 overflow-y-auto px-4 pb-5 no-scrollbar flex flex-col min-h-0">
+      <div className="flex-1 overflow-y-auto px-4 py-4 no-scrollbar flex flex-col min-h-0">
         {children}
       </div>
 
-      <DialogPrimitive.Close className={cn("absolute right-4 top-3 rounded-full p-1 bg-muted/60 text-muted-foreground transition-opacity hover:opacity-100 focus:outline-none", closeButtonClassName)}>
-        <X className="h-3.5 w-3.5" />
+      <DialogPrimitive.Close ref={closeRef} className={cn("absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none", closeButtonClassName)}>
+        <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
-))
+  );
+})
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({

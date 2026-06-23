@@ -89,7 +89,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex overflow-x-hidden h-screen w-full bg-background">
+    <div className="admin-shell flex overflow-x-hidden h-screen w-full bg-background">
       <DashboardSidebar
         isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -98,7 +98,7 @@ export default function DashboardLayout({
         className={cn(
           "dashboard-content flex flex-col flex-1 transition-all duration-300",
           isPosPage ? "overflow-hidden" : "overflow-y-auto",
-          isMobile ? "w-full" : isSidebarOpen ? "ml-40" : "ml-[60px]",
+          isMobile ? "w-full" : isSidebarOpen ? "ml-52" : "ml-14",
         )}
       >
         <TopBar
@@ -107,7 +107,7 @@ export default function DashboardLayout({
         />
         <main className={cn(
           "dashboard-main flex-1",
-          isPosPage ? "overflow-hidden" : "p-1 md:p-3"
+          isPosPage ? "overflow-hidden" : "px-1.5 py-1.5"
         )}>
           {children}
         </main>

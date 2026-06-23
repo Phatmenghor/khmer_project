@@ -488,7 +488,7 @@ export default function ProductModal({
         ) : (
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-hidden"
+            className="flex flex-col flex-1 overflow-visible"
           >
             <FormBody>
               <div className="space-y-2">

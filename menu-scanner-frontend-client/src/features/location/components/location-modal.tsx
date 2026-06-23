@@ -745,7 +745,7 @@ export default function LocationModal({ isOpen, onClose, editData, initialCoords
           isCreate={isCreate}
         />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-visible">
           <FormBody contentClassName="space-y-3">
             {}
             {reduxError && (

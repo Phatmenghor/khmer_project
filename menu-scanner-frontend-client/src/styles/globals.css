@@ -550,6 +550,19 @@
   grid-template-columns: repeat(var(--cols), minmax(200px, 1fr));
 }
 
+/* The admin dashboard/sidebar/navbar were built almost entirely with
+   Tailwind's text-xs (12px), which reads too small on a full desktop
+   screen. Bump it up within the admin shell only — the customer-facing
+   storefront keeps its original compact sizing. */
+.admin-shell .text-xs {
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.25rem;
+}
+
+.admin-shell .grid-header {
+  font-size: 0.8125rem;
+}
+
 @layer base {
   /* Root font-size 100% (16px). All rem-based Tailwind utilities and CSS custom
      properties below are pre-scaled to 0.7× so the visual appearance is identical

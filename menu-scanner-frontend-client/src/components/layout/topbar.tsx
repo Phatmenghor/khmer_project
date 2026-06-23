@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -48,7 +49,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
   const pathname = usePathname();
   const [showLogoutAlert, setShowLogoutAlert] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { profile, fullName, profileImage, roles } = useAuthState();
+  const { profile, fullName, profileImage, roles, isProfileLoading } = useAuthState();
   const { logout: handleLogout } = useLogout();
 
   const breadcrumbs = getBreadcrumbs(pathname);
@@ -68,24 +69,24 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-11 items-center gap-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 shadow-sm">
+      <header className="sticky top-0 z-20 flex h-12 items-center gap-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 shadow-sm">
         {/* Left: Mobile menu + Breadcrumbs */}
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <Button
             variant="ghost"
             size="icon"
             onClick={onMenuClick}
-            className="shrink-0 h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors md:hidden"
+            className="shrink-0 h-7 w-7 rounded hover:bg-primary/10 hover:text-primary transition-colors md:hidden"
             aria-label="Toggle menu"
           >
-            <Menu className="h-3 w-3" />
+            <Menu className="h-4 w-4" />
           </Button>
 
-          <nav className="hidden md:flex items-center gap-1 text-xs min-w-0">
+          <nav className="hidden md:flex items-center gap-1.5 text-sm min-w-0">
             {breadcrumbs.map((crumb, i) => (
-              <div key={i} className="flex items-center gap-1 min-w-0">
+              <div key={i} className="flex items-center gap-1.5 min-w-0">
                 {i > 0 && (
-                  <ChevronRight className="h-2 w-2 text-muted-foreground/50 shrink-0" />
+                  <ChevronRight className="h-3 w-3 text-muted-foreground/50 shrink-0" />
                 )}
                 <span
                   className={
@@ -103,7 +104,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             ))}
           </nav>
 
-          <span className="md:hidden font-semibold text-xs text-foreground truncate">
+          <span className="md:hidden font-semibold text-sm text-foreground truncate">
             {breadcrumbs[breadcrumbs.length - 1]?.label ?? "Dashboard"}
           </span>
         </div>
@@ -116,21 +117,32 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
               size="icon"
               onClick={onFullscreenClick}
               title="Fullscreen (F11)"
-              className="h-6 w-6 rounded hover:bg-primary/10 hover:text-primary transition-colors"
+              className="h-7 w-7 rounded hover:bg-primary/10 hover:text-primary transition-colors"
             >
-              <Maximize2 className="h-3 w-3" />
+              <Maximize2 className="h-4 w-4" />
             </Button>
           )}
 
+          {/* Profile is being fetched — show a skeleton instead of nothing */}
+          {!profile && isProfileLoading && (
+            <div className="flex items-center gap-2 px-2 py-1.5">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <div className="hidden sm:flex flex-col gap-1">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-2.5 w-10" />
+              </div>
+            </div>
+          )}
+
           {/* No auth / session error — redirect to login */}
-          {!profile && (
+          {!profile && !isProfileLoading && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => router.push(ROUTES.AUTH.LOGIN)}
-              className="h-7 rounded gap-1.5 text-xs border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
+              className="h-8 rounded gap-1.5 text-sm border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
             >
-              <LogIn className="h-3 w-3" />
+              <LogIn className="h-4 w-4" />
               <span className="hidden sm:inline">Sign In</span>
             </Button>
           )}
@@ -140,23 +152,23 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-accent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar className="h-7 w-7 border border-border shadow-sm">
+                  <Avatar className="h-8 w-8 border border-border shadow-sm">
                     <AvatarImage src={profileImageUrl} alt={displayName} />
-                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="hidden sm:flex flex-col items-start leading-none">
-                    <span className="text-xs font-medium truncate max-w-[120px]">
+                    <span className="text-sm font-medium truncate max-w-[120px]">
                       {displayName}
                     </span>
                     {primaryRole && (
-                      <span className="text-[10px] text-muted-foreground capitalize">
+                      <span className="text-xs text-muted-foreground capitalize">
                         {primaryRole.toLowerCase().replace(/_/g, " ")}
                       </span>
                     )}
                   </div>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground hidden sm:block" />
+                  <ChevronDown className="h-4 w-4 text-muted-foreground hidden sm:block" />
                 </button>
               </DropdownMenuTrigger>
 
@@ -164,7 +176,7 @@ export function TopBar({ onMenuClick, onFullscreenClick }: TopBarProps) {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col gap-0.5">
                     <span className="font-semibold truncate">{displayName}</span>
-                    <span className="text-xs text-muted-foreground truncate">
+                    <span className="text-sm text-muted-foreground truncate">
                       {displayEmail}
                     </span>
                   </div>

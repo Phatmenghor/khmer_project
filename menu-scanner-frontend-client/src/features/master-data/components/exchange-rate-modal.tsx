@@ -167,7 +167,7 @@ export default function ExchangeRateModal({
           isCreate={isCreate}
         />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-visible">
           <FormBody>
             {reduxError && (
               <div className="p-3 bg-destructive/10 border border-destructive rounded mb-3">

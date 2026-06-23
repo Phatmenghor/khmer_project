@@ -172,7 +172,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 overflow-hidden"
+          className="flex flex-col flex-1 overflow-visible"
         >
             <FormBody>
               {reduxError && (

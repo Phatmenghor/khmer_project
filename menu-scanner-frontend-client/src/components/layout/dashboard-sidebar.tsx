@@ -115,23 +115,31 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             <div key={route.title} className="w-full">
               <Button
                 variant="ghost"
-                className="w-full justify-start hover:bg-primary/10 hover:text-primary rounded relative transition-all duration-200"
+                className={cn(
+                  "hover:bg-primary/10 hover:text-primary rounded relative transition-all duration-200",
+                  isCollapsed ? "w-8 h-8 mx-auto px-0 justify-center" : "w-full justify-start",
+                )}
                 onClick={() =>
                   route.title && !isCollapsed && toggleSection(route.title)
                 }
                 aria-expanded={isOpen}
                 title={isCollapsed ? route.title : undefined}
               >
-                <div className="flex w-full items-center">
+                <div
+                  className={cn(
+                    "flex items-center",
+                    isCollapsed ? "justify-center" : "w-full min-w-0",
+                  )}
+                >
                   {route.icon && (
                     <route.icon className="w-3 h-3 flex-shrink-0 transition-colors duration-200" />
                   )}
                   {!isCollapsed && (
                     <>
-                      <span className="ml-2 truncate transition-colors duration-200">
+                      <span className="ml-2 truncate min-w-0 flex-1 text-left transition-colors duration-200">
                         {route.title}
                       </span>
-                      <div className="ml-auto">
+                      <div className="ml-2 pr-1 flex-shrink-0">
                         {isOpen ? (
                           <ChevronDown className="h-3 w-3 transition-colors duration-200" />
                         ) : (
@@ -199,18 +207,22 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             variant="ghost"
             asChild
             className={cn(
-              "w-full justify-start hover:bg-primary/10 hover:text-primary rounded transition-all duration-200",
+              "hover:bg-primary/10 hover:text-primary rounded transition-all duration-200",
+              isCollapsed ? "w-8 h-8 mx-auto px-0 justify-center" : "w-full justify-start",
               isActive &&
                 "bg-primary/20 text-primary font-medium border-l-2 border-primary",
             )}
           >
             <Link
               href={route.href || "#"}
-              className="flex items-center gap-2 px-2 py-1"
-              title={collapsed ? route.title : undefined}
+              className={cn(
+                "flex items-center",
+                isCollapsed ? "justify-center" : "gap-2 px-2 py-1",
+              )}
+              title={isCollapsed ? route.title : undefined}
             >
               {route.icon && <route.icon className="w-3 h-3 flex-shrink-0" />}
-              {!collapsed && <span className="truncate">{route.title}</span>}
+              {!isCollapsed && <span className="truncate">{route.title}</span>}
             </Link>
           </Button>
         );
@@ -230,12 +242,17 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border/50 bg-background/95 backdrop-blur-xl transition-all duration-300 ease-out shadow-xl",
-          collapsed ? "w-11" : "w-44",
+          collapsed ? "w-14" : "w-52",
           isMobile && !isOpen && "hidden",
         )}
       >
-        <div className="relative flex h-14 items-center justify-between border-b border-border/50 px-3 bg-gradient-to-br from-primary/5 via-background/50 to-primary/5">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/10 opacity-50 blur-3xl"></div>
+        <div
+          className={cn(
+            "relative flex h-14 items-center border-b border-border/50 bg-gradient-to-br from-primary/5 via-background/50 to-primary/5",
+            collapsed ? "justify-center px-2" : "justify-between px-3",
+          )}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/10 opacity-50 blur-3xl pointer-events-none"></div>
 
           {!collapsed && (
             <Link
@@ -271,10 +288,7 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
             variant="ghost"
             size="icon"
             onClick={toggleCollapsed}
-            className={cn(
-              "relative h-6 w-6 rounded transition-all duration-300 hover:bg-primary/10 hover:scale-110 group",
-              collapsed && "ml-auto",
-            )}
+            className="relative h-6 w-6 shrink-0 rounded transition-all duration-300 hover:bg-primary/10 hover:scale-110 group"
           >
             <div className="absolute inset-0 rounded bg-gradient-to-r from-primary/10 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <ChevronLeft
@@ -287,7 +301,9 @@ export function DashboardSidebar({ isOpen, onToggle }: SidebarProps) {
         </div>
 
         <ScrollArea className="flex-1 py-4">
-          <div className="px-3 space-y-1">{renderNavItems(collapsed)}</div>
+          <div className={cn("space-y-1", collapsed ? "px-2" : "px-3")}>
+            {renderNavItems(collapsed)}
+          </div>
         </ScrollArea>
 
         {profile && (

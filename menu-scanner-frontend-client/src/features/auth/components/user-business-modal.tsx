@@ -510,7 +510,7 @@ export default function UserBusinessModal({
         ) : (
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col flex-1 overflow-hidden"
+            className="flex flex-col flex-1 overflow-visible"
           >
             <FormBody>
               {reduxError && (

@@ -8,7 +8,7 @@ import { CustomDateTimePicker } from "@/components/shared/common/custom-date-pic
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, ChevronDown, Search } from "lucide-react";
+import { Plus, ChevronDown, Search, X } from "lucide-react";
 import { FilterConfig, FilterPanelConfig } from "./filter-types";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { CategoriesResponseModel } from "@/features/master-data/store/models/response/categories-response";
@@ -106,7 +106,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               }}
               min={(filter as any).min || "0"}
               max={(filter as any).max}
-              className="h-[26px] text-xs w-full"
+              className="h-[28px] text-xs w-full"
               disabled={filter.disabled}
             />
           </div>
@@ -123,7 +123,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
               placeholder={filter.placeholder || "Enter text..."}
               value={filter.value?.toString() || ""}
               onChange={(e) => filter.onChange(e.target.value)}
-              className="h-[26px] text-xs w-full"
+              className="h-[28px] text-xs w-full"
               disabled={filter.disabled}
             />
           </div>
@@ -179,7 +179,7 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
                 disabled={config.buttonDisabled}
                 variant="default"
                 onClick={config.onButtonClick}
-                className="gap-1 flex-shrink-0 h-[26px] px-3 text-xs"
+                className="gap-1 flex-shrink-0 h-[28px] px-3 text-xs"
                 title={config.buttonTooltip}
               >
                 <Plus className="w-3 h-3" />
@@ -189,17 +189,31 @@ export const CollapsibleFilterPanel: React.FC<CollapsibleFilterPanelProps> = ({
           </div>
         </div>
 
-        {/* Search + essential filters row — every control here is h-[26px] */}
+        {/* Search + essential filters row — every control here is h-[28px] */}
         <div className="flex flex-wrap items-end gap-2">
           <div className="relative w-full sm:w-[280px]">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
             <Input
-              type="search"
+              type="text"
               placeholder={config.searchPlaceholder}
-              className="pl-7 h-[26px] text-xs w-full focus:border-primary focus:ring-primary/30 hover:border-primary transition-colors"
+              className="pl-7 pr-7 h-[28px] text-xs w-full focus:border-primary focus:ring-primary/30 hover:border-primary transition-colors"
               value={config.searchValue}
               onChange={config.onSearchChange}
             />
+            {config.searchValue && (
+              <button
+                type="button"
+                onClick={() =>
+                  config.onSearchChange({
+                    target: { value: "" },
+                  } as React.ChangeEvent<HTMLInputElement>)
+                }
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
 
           {essentialFilters.length > 0 && (

@@ -32,7 +32,10 @@ export function useDashboardWebSocket({
   const connect = useCallback(() => {
     if (!businessId) return;
 
-    const wsUrl = `${window.location.origin}/ws`;
+    // The backend's STOMP endpoint lives on the API origin, not the
+    // frontend's own origin (they differ in both dev and prod).
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const wsUrl = `${apiBase || window.location.origin}/ws`;
 
     const devLog = (...args: unknown[]) => {
       if (process.env.NODE_ENV !== "production") {

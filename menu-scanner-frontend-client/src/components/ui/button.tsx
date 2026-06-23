@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-base md:text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-base font-medium transition-all duration-200 focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
   {
     variants: {
       variant: {
@@ -21,10 +21,10 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-[32px] md:h-[32px] px-4 py-0 flex items-center justify-center text-xs",
-        sm: "h-[32px] px-3 text-xs md:text-xs py-0 flex items-center justify-center",
+        default: "h-[32px] px-4 py-0 flex items-center justify-center text-xs",
+        sm: "h-[32px] px-3 text-xs py-0 flex items-center justify-center",
         lg: "h-12 px-8 text-base",
-        icon: "h-[32px] w-[32px] md:h-[32px] md:w-[32px]",
+        icon: "h-[32px] w-[32px]",
       },
     },
     defaultVariants: {

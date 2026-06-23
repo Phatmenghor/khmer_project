@@ -88,7 +88,7 @@ export function DeleteConfirmationModal({
           variant="destructive"
         />
 
-        <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex flex-col flex-1 overflow-visible">
           <FormBody>
             {description && (
               <p className="text-xs text-foreground leading-relaxed">
