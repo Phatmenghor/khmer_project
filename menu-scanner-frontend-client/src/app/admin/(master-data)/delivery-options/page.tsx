@@ -88,7 +88,7 @@ function DeliveryOptionsPageInner() {
   });
 
   useEffect(() => {
-    const promise = dispatch(
+    dispatch(
       fetchMyBusinessDeliveryOptionsService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
@@ -96,9 +96,6 @@ function DeliveryOptionsPageInner() {
         statuses: filters.status === Status.ALL ? [] : [filters.status],
       }),
     );
-    return () => {
-      promise.abort();
-    };
   }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize]);
 
   // ── Deep-link resolver ────────────────────────────────────────────────────

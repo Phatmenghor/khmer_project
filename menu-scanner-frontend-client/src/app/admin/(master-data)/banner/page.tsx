@@ -88,7 +88,7 @@ function BannerPageInner() {
   });
 
   useEffect(() => {
-    const promise = dispatch(
+    dispatch(
       fetchAllBannerService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
@@ -96,9 +96,6 @@ function BannerPageInner() {
         status: filters.status === Status.ALL ? undefined : filters.status,
       }),
     );
-    return () => {
-      promise.abort();
-    };
   }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize]);
 
   // ── Deep-link resolver ────────────────────────────────────────────────────

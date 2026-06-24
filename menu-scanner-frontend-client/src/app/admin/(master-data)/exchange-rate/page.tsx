@@ -89,7 +89,7 @@ function ExchangeRatePageInner() {
   });
 
   useEffect(() => {
-    const promise = dispatch(
+    dispatch(
       fetchAllMyBusinessExchangeRateService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
@@ -100,9 +100,6 @@ function ExchangeRatePageInner() {
             : (filters.isActive as "ACTIVE" | "INACTIVE"),
       }),
     );
-    return () => {
-      promise.abort();
-    };
   }, [dispatch, debouncedSearch, filters.isActive, filters.pageNo, globalPageSize]);
 
   // ── Deep-link resolver ────────────────────────────────────────────────────

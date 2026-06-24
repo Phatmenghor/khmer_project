@@ -91,7 +91,7 @@ function PaymentOptionsPageInner() {
   });
 
   useEffect(() => {
-    const promise = dispatch(
+    dispatch(
       fetchMyBusinessPaymentOptionsService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
@@ -99,9 +99,6 @@ function PaymentOptionsPageInner() {
         ...(filters.status !== Status.ALL && { statuses: [filters.status] }),
       }),
     );
-    return () => {
-      promise.abort();
-    };
   }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize]);
 
   // ── Deep-link resolver ────────────────────────────────────────────────────

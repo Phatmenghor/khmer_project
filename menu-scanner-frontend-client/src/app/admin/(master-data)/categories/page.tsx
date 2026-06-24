@@ -92,7 +92,7 @@ function CategoriesPageInner() {
   });
 
   useEffect(() => {
-    const promise = dispatch(
+    dispatch(
       fetchAllCategoriesWithProductCountService({
         search: debouncedSearch,
         pageNo: filters.pageNo,
@@ -100,9 +100,6 @@ function CategoriesPageInner() {
         status: filters.status === Status.ALL ? undefined : filters.status,
       }),
     );
-    return () => {
-      promise.abort();
-    };
   }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize]);
 
   // ── Deep-link resolver ────────────────────────────────────────────────────
