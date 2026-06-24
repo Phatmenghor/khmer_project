@@ -50,15 +50,6 @@ export const ROUTES = {
     SIZE_STOCK: "/admin/manage-stock/size-stock",
     STOCK_ITEMS: "/admin/manage-stock/stock-items",
   },
-
-  HR: {
-    WORK_SCHEDULE: "/admin/hr/work-schedule",
-    WORK_SCHEDULE_FORM: "/admin/hr/work-schedule/form",
-    WORK_SCHEDULE_TYPE: "/admin/hr/work-schedule-type",
-    LEAVE_TYPE: "/admin/hr/leave-type",
-    LEAVE: "/admin/hr/leave",
-    ATTENDANCE: "/admin/hr/attendance",
-  },
 } as const;
 
 

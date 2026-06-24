@@ -13,12 +13,6 @@ import exchangeRateReducer from "@/features/master-data/store/slice/exchange-rat
 import deliveryOptionsReducer from "@/features/master-data/store/slice/delivery-options-slice";
 import paymentOptionsReducer from "@/features/master-data/store/slice/payment-options-slice";
 
-import workScheduleTypeReducer from "@/features/hr/store/slice/work-schedule-type-slice";
-import leaveTypeReducer from "@/features/hr/store/slice/leave-type-slice";
-import workScheduleReducer from "@/features/hr/store/slice/work-schedule-slice";
-import leaveReducer from "@/features/hr/store/slice/leave-slice";
-import attendanceReducer from "@/features/hr/store/slice/attendance-slice";
-
 import favoritesReducer from "@/features/main/store/slice/favorite-slice";
 import productReducer from "@/features/business/store/slice/product-slice";
 import stockReducer from "@/features/business/store/slice/stock-slice";
@@ -79,13 +73,6 @@ export const reducers = {
   posPage: posPageReducer,
   bulkPromotion: bulkPromotionReducer,
   promotionSizeSelection: promotionSizeSelectionReducer,
-
-
-  workScheduleType: workScheduleTypeReducer,
-  leaveType: leaveTypeReducer,
-  leave: leaveReducer,
-  attendance: attendanceReducer,
-  workSchedule: workScheduleReducer,
 
 
   home: homeReducer,
