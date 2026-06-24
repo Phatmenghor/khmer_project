@@ -52,7 +52,7 @@ export interface AsyncComboboxProps<T> {
   required?: boolean;
   placeholder?: string;
   searchPlaceholder?: string;
-  emptyMessage?: string;
+  emptyMessage?: ReactNode;
   endOfListMessage?: string;
   error?: string;
   disabled?: boolean;
@@ -60,4 +60,5 @@ export interface AsyncComboboxProps<T> {
   className?: string;
 
   prefillSearchOnOpen?: boolean;
+  beforeOpen?: () => boolean;
 }

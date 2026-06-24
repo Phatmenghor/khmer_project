@@ -3,8 +3,10 @@
 import { dateTimeFormat } from "@/utils/date/date-time-format";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { selectRoleContent } from "../store/selectors/role-selectors";
+import { selectRoleContent, selectSelectedRole } from "../store/selectors/role-selectors";
 import { clearSelectedRole } from "../store/slice/role-slice";
+import { fetchRoleByIdService } from "../store/thunks/role-thunks";
+import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { DetailModal } from "@/components/shared/modal/detail-modal";
 
@@ -40,7 +42,14 @@ export function RoleDetailModal({
 }: RoleDetailModalProps) {
   const dispatch = useAppDispatch();
   const rolesContent = useAppSelector(selectRoleContent);
-  const roleData = rolesContent.find(role => role.id === roleId);
+  const selectedRole = useAppSelector(selectSelectedRole);
+  const roleData = rolesContent.find(role => role.id === roleId) || (selectedRole?.id === roleId ? selectedRole : null);
+
+  useEffect(() => {
+    if (isOpen && roleId && !roleData) {
+      dispatch(fetchRoleByIdService(roleId));
+    }
+  }, [isOpen, roleId, roleData, dispatch]);
 
   const handleClose = () => {
     dispatch(clearSelectedRole());

@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState, Suspense} from "react";
+import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
@@ -14,11 +14,12 @@ import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { RoleResponseModel } from "@/features/auth/store/models/response/role-response";
 import {
   deleteRoleService,
   fetchAllRoleService,
+  fetchRoleByIdService,
 } from "@/features/auth/store/thunks/role-thunks";
 import { roleTableColumns } from "@/features/auth/table/roles-table";
 import { useRolesState } from "@/features/auth/store/state/role-state";
@@ -29,6 +30,11 @@ import {
   setPageNo,
   setSearchFilter,
 } from "@/features/auth/store/slice/role-slice";
+import {
+  selectRoleContent,
+  selectSelectedRole,
+} from "@/features/auth/store/selectors/role-selectors";
+import { useActionRouting } from "@/hooks/use-action-routing";
 
 function RolesPageInner() {
   useAdminCleanup(resetState);
@@ -44,26 +50,20 @@ function RolesPageInner() {
     dispatch,
   } = useRolesState();
 
-
-  const [modalState, setModalState] = useState({
-    isOpen: false,
-    mode: ModalMode.CREATE_MODE,
-    id: "",
-  });
-
-  const [detailModalState, setDetailModalState] = useState({
-    isOpen: false,
-    id: "",
-  });
-
-  const [deleteState, setDeleteState] = useState({
-    isOpen: false,
-    roles: null as RoleResponseModel | null,
-  });
+  const {
+    viewId,
+    editId,
+    deleteId,
+    createMode,
+    openView,
+    openEdit,
+    openDelete,
+    openCreate,
+    closeModal,
+  } = useActionRouting();
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-
-  const debouncedSearch = useDebounce(filters.search, 400);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEBOUNCE_MS);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.HR.ATTENDANCE,
@@ -81,36 +81,27 @@ function RolesPageInner() {
     );
   }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
 
+  // Deep-link resolver: fetch role by ID when deleteId or viewId/editId is set but not in cache
+  const allRolesContent = useAppSelector(selectRoleContent);
+  const selectedRole = useAppSelector(selectSelectedRole);
 
-  const handleCreate = () => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.CREATE_MODE,
-      id: "",
-    });
+  const resolveRole = (id: string | null): RoleResponseModel | null => {
+    if (!id) return null;
+    return allRolesContent.find(r => r.id === id) || (selectedRole?.id === id ? selectedRole : null);
   };
 
-  const handleEditItem = (role: RoleResponseModel) => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.UPDATE_MODE,
-      id: role?.id || "",
-    });
-  };
+  const deleteRole = resolveRole(deleteId);
 
-  const handleViewDetailItem = (role: RoleResponseModel) => {
-    setDetailModalState({
-      isOpen: true,
-      id: role.id || "",
-    });
-  };
+  useEffect(() => {
+    if (deleteId && !deleteRole) {
+      dispatch(fetchRoleByIdService(deleteId));
+    }
+  }, [deleteId, deleteRole, dispatch]);
 
-  const handleDeleteItem = (role: RoleResponseModel) => {
-    setDeleteState({
-      isOpen: true,
-      roles: role,
-    });
-  };
+  const handleCreate = () => openCreate();
+  const handleEditItem = (role: RoleResponseModel) => openEdit(role.id || "");
+  const handleViewDetailItem = (role: RoleResponseModel) => openView(role.id || "");
+  const handleDeleteItem = (role: RoleResponseModel) => openDelete(role.id || "");
 
   const tableHandlers = useMemo(
     () => ({
@@ -156,16 +147,16 @@ function RolesPageInner() {
   }), [filters.search]);
 
   const handleDelete = async () => {
-    if (!deleteState.roles?.id) return;
+    if (!deleteId) return;
 
     try {
-      await dispatch(deleteRoleService(deleteState.roles.id)).unwrap();
+      await dispatch(deleteRoleService(deleteId)).unwrap();
 
       showToast.success(
-        `Roles "${deleteState?.roles?.name ?? ""}" deleted successfully`,
+        `Roles "${deleteRole?.name ?? ""}" deleted successfully`,
       );
 
-      closeDeleteModal();
+      closeModal();
 
       if (rolesContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
@@ -177,34 +168,11 @@ function RolesPageInner() {
     }
   };
 
-  const closeModal = () => {
-    setModalState({
-      isOpen: false,
-      mode: ModalMode.CREATE_MODE,
-      id: "",
-    });
-  };
-
-  const closeDetailModal = () => {
-    setDetailModalState({
-      isOpen: false,
-      id: "",
-    });
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteState({
-      isOpen: false,
-      roles: null,
-    });
-  };
-
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
         <CollapsibleFilterPanel config={filterConfig} />
 
-        {}
         <DataTableWithPagination
           data={rolesContent}
           columns={columns}
@@ -221,29 +189,26 @@ function RolesPageInner() {
         />
       </div>
 
-      {}
       <RoleModal
-        isOpen={modalState.isOpen}
+        isOpen={createMode || !!editId}
         onClose={closeModal}
-        mode={modalState.mode}
-        roleId={modalState.id}
+        mode={createMode ? ModalMode.CREATE_MODE : ModalMode.UPDATE_MODE}
+        roleId={editId || undefined}
       />
 
-      {}
       <RoleDetailModal
-        roleId={detailModalState.id}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        roleId={viewId || undefined}
+        isOpen={!!viewId}
+        onClose={closeModal}
       />
 
-      {}
       <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
+        isOpen={!!deleteId}
+        onClose={closeModal}
         onDelete={handleDelete}
         title="Delete Role"
-        description={`Are you sure you want to delete this role ${deleteState.roles?.name}?`}
-        itemName={deleteState.roles?.name || "this role"}
+        description={`Are you sure you want to delete this role ${deleteRole?.name}?`}
+        itemName={deleteRole?.name || "this role"}
         isSubmitting={operations.isDeleting}
       />
     </div>

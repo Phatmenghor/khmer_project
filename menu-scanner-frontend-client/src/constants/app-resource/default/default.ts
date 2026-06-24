@@ -15,6 +15,8 @@ export const AppDefault = {
   },
   PAGE_SIZE: 15,
   PAGE_SIZE_OPTIONS: [10, 15, 20, 50, 100],
+  DEFAULT_PAGE_SIZE: 15,
+  DEFAULT_DEBOUNCE_MS: 400,
 };
 
 export const SocialAuthConfig = {

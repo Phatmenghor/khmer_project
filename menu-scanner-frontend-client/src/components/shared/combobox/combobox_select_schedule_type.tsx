@@ -1,24 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CustomButton } from "@/components/shared/button/custom-button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import { useAppDispatch } from "@/store";
+import { AsyncCombobox } from "@/components/shared/async-combobox";
+import { useReduxCombobox } from "@/components/shared/async-combobox/useReduxCombobox";
 import { fetchAllWorkSchedulesTypeService } from "@/features/hr/store/thunks/work-schedule-type-thunks";
 
 interface ScheduleType {
@@ -45,138 +28,27 @@ export function ComboboxSelectScheduleType({
   placeholder = "Select schedule type...",
   error,
 }: ComboboxSelectScheduleTypeProps) {
-  const dispatch = useAppDispatch();
+  const controller = useReduxCombobox<ScheduleType>({
+    cacheKey: "scheduleTypes",
+    thunkService: fetchAllWorkSchedulesTypeService,
+  });
 
-  const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [scheduleTypes, setScheduleTypes] = useState<ScheduleType[]>([]);
-  const [loading, setLoading] = useState(false);
-
-
-  useEffect(() => {
-    if (!open || scheduleTypes.length > 0) return;
-
-    const fetchScheduleTypes = async () => {
-      setLoading(true);
-      try {
-        const result = await dispatch(
-          fetchAllWorkSchedulesTypeService({ search: "", pageNo: 1 }),
-        ).unwrap();
-
-        if (result?.content) {
-          setScheduleTypes(result.content);
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchScheduleTypes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  const handleSelect = (selectedValue: string) => {
-    onValueChange(selectedValue);
-    setOpen(false);
-  };
-
-
-  const filteredScheduleTypes = scheduleTypes.filter((type) =>
-    type.enumName.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-
-  const selectedScheduleType = scheduleTypes.find(
-    (type) => type.enumName === value,
-  );
-
-
-  const displayValue = selectedScheduleType
-    ? selectedScheduleType.enumName
-    : value || placeholder;
+  const selectedType = controller.data.find((type) => type.enumName === value) || null;
 
   return (
-    <div className="space-y-1 w-full">
-      {label && (
-        <Label className="text-xs font-medium">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </Label>
-      )}
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <CustomButton
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className={cn(
-              "w-full justify-between h-[32px] text-base md:text-sm transition-all duration-200 border-input",
-              !value && "text-muted-foreground",
-              "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
-              open && "bg-primary/20 border-primary text-primary",
-              error && "border-red-500",
-              disabled && "opacity-50 cursor-not-allowed"
-            )}
-            disabled={disabled}
-          >
-            {displayValue}
-            <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-          </CustomButton>
-        </PopoverTrigger>
-
-        <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0 shadow-lg border-border"
-          align="start"
-          side="bottom"
-          sideOffset={4}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-        >
-          <Command shouldFilter={false}>
-            <CommandInput
-              placeholder="Search schedule type..."
-              value={searchTerm}
-              onValueChange={setSearchTerm}
-            />
-            <CommandList className="max-h-44 overflow-y-auto">
-              {loading ? (
-                <div className="text-center py-4">
-                  <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Loading schedule types...
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <CommandEmpty>No schedule type found.</CommandEmpty>
-                  <CommandGroup>
-                    {filteredScheduleTypes.map((type) => (
-                      <CommandItem
-                        key={type.id}
-                        value={type.enumName}
-                        onSelect={() => handleSelect(type.enumName)}
-                        className="h-7 text-xs"
-                      >
-                        <Check
-                          className={cn(
-                            "mr-1 h-3 w-3",
-                            value === type.enumName
-                              ? "opacity-100"
-                              : "opacity-0",
-                          )}
-                        />
-                        {type.enumName}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </>
-              )}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-      {error && <p className="text-xs text-red-500">{error}</p>}
-    </div>
+    <AsyncCombobox<ScheduleType>
+      value={selectedType}
+      onChange={(item) => onValueChange(item ? item.enumName : "")}
+      controller={controller}
+      getId={(item) => item.id}
+      getLabel={(item) => item.enumName}
+      label={label}
+      required={required}
+      placeholder={placeholder}
+      searchPlaceholder="Search schedule type..."
+      emptyMessage="No schedule type found."
+      error={error}
+      disabled={disabled}
+    />
   );
 }

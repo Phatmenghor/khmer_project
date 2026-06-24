@@ -4,7 +4,7 @@ import { CustomButton } from "@/components/shared/button/custom-button";
 import { SmartImage } from "@/components/shared/image/smart-image";
 import { CustomModal } from "./custom-modal";
 import { Messages } from "@/constants/messages";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 import { Input } from "@/components/ui/input";
@@ -21,12 +21,13 @@ import {
 import { toast } from "sonner";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { adminChangePasswordService } from "@/features/auth/store/thunks/users-thunks";
-import { selectIsResettingPassword } from "@/features/auth/store/selectors/users-selectors";
+import { adminChangePasswordService, fetchUserByIdService } from "@/features/auth/store/thunks/users-thunks";
+import { selectIsResettingPassword, selectSelectedUser, selectUsersContent, selectIsFetchingDetail } from "@/features/auth/store/selectors/users-selectors";
 import { showToast } from "../common/show-toast";
 import { FormHeader } from "../form-field/form-header";
 import { FormBody } from "../form-field/form-body";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
+import { Loading } from "../common/loading";
 
 interface ResetPasswordModalProps {
   userId?: string;
@@ -47,8 +48,22 @@ export default function ResetPasswordModal({
 }: ResetPasswordModalProps) {
   const dispatch = useAppDispatch();
 
-
   const isResettingPassword = useAppSelector(selectIsResettingPassword);
+  const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
+  const selectedUser = useAppSelector(selectSelectedUser);
+  const usersContent = useAppSelector(selectUsersContent);
+
+  // Resolve user metadata for deep-link support (when no userName/userRole/profileImageUrl is passed)
+  const resolvedUser = usersContent.find(u => u.id === userId) || (selectedUser?.id === userId ? selectedUser : null);
+  const resolvedUserName = userName || resolvedUser?.userIdentifier || resolvedUser?.email || "";
+  const resolvedUserRole = userRole && userRole.length > 0 ? userRole : (resolvedUser?.roles || []);
+  const resolvedProfileImageUrl = profileImageUrl || resolvedUser?.profileImage?.sm || "";
+
+  useEffect(() => {
+    if (isOpen && userId && !userName && !resolvedUser) {
+      dispatch(fetchUserByIdService(userId));
+    }
+  }, [isOpen, userId, userName, resolvedUser, dispatch]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [customPassword, setCustomPassword] = useState(AppDefault.RESET_PASSWORD);
@@ -102,31 +117,36 @@ export default function ResetPasswordModal({
       <FormHeader
         title="Reset Password"
         description="Reset the user's password to the default value"
-        avatarName={userName}
-        avatarImageUrl={profileImageUrl}
+        avatarName={resolvedUserName}
+        avatarImageUrl={resolvedProfileImageUrl}
         showAvatar={true}
         className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
       />
+      {isFetchingDetail && !resolvedUserName ? (
+        <div className="p-4 flex items-center justify-center min-h-[200px] flex-1">
+          <Loading />
+        </div>
+      ) : (
 
       <FormBody className="px-4">
         <div className="space-y-4">
           <div className="border border-border/40 bg-muted/20 p-2.5 rounded-lg flex items-center gap-2.5 text-left">
             <div className="relative h-8 w-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
-              {profileImageUrl ? (
-                <SmartImage src={profileImageUrl} alt={userName || "User"} fill showSkeleton={false} />
+              {resolvedProfileImageUrl ? (
+                <SmartImage src={resolvedProfileImageUrl} alt={resolvedUserName || "User"} fill showSkeleton={false} />
               ) : (
                 <span className="text-xs font-semibold text-primary">
-                  {userName?.charAt(0)?.toUpperCase() || "U"}
+                  {resolvedUserName?.charAt(0)?.toUpperCase() || "U"}
                 </span>
               )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-foreground truncate">
-                {userName || "Unknown User"}
+                {resolvedUserName || "Unknown User"}
               </p>
               <p className="text-xs text-muted-foreground">
-                {userRole && userRole.length > 0
-                  ? userRole.map(role => formatEnumValue(role)).join(", ")
+                {resolvedUserRole && resolvedUserRole.length > 0
+                  ? resolvedUserRole.map(role => formatEnumValue(role)).join(", ")
                   : "User Account"}
               </p>
             </div>
@@ -218,6 +238,7 @@ export default function ResetPasswordModal({
           )}
         </CustomButton>
       </div>
+      )}
     </CustomModal>
   );
 }

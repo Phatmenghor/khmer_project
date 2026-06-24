@@ -46,6 +46,7 @@ export function AsyncCombobox<T>({
   size = "md",
   className,
   prefillSearchOnOpen = false,
+  beforeOpen,
 }: AsyncComboboxProps<T>) {
   const [open, setOpen] = useState(false);
   const {
@@ -60,6 +61,9 @@ export function AsyncCombobox<T>({
   const selectedLabel = value ? getLabel(value) : placeholder;
 
   const handleOpenChange = (next: boolean) => {
+    if (next && beforeOpen && !beforeOpen()) {
+      return;
+    }
     if (prefillSearchOnOpen) {
       if (next && value) setSearchTerm(getLabel(value));
       else if (!next) setSearchTerm("");

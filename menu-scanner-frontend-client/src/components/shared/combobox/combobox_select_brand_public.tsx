@@ -1,29 +1,12 @@
 "use client";
 
-import { useEffect, useState, useRef, memo } from "react";
-import { CustomButton } from "@/components/shared/button/custom-button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { memo } from "react";
+import { Tag } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import { useInView } from "react-intersection-observer";
-import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/store";
+import { AsyncCombobox } from "@/components/shared/async-combobox";
+import { useReduxCombobox } from "@/components/shared/async-combobox/useReduxCombobox";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { fetchPublicBrands } from "@/features/main/store/thunks/public-brands-thunks";
-import { Tag } from "lucide-react";
 
 interface ComboboxSelectBrandPublicProps {
   selectedBrand: string;
@@ -48,117 +31,14 @@ function ComboboxSelectBrandPublicComponent({
   size = "md",
   placeholder = "All Brands",
 }: ComboboxSelectBrandPublicProps) {
-  const dispatch = useAppDispatch();
+  const controller = useReduxCombobox<BrandResponseModel>({
+    cacheKey: "brands_public",
+    thunkService: fetchPublicBrands,
+    extraParams: { status: "ACTIVE" },
+    prependFirstPage: (search) => (search ? [] : [ALL_OPTION]),
+  });
 
-  const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [data, setData] = useState<BrandResponseModel[]>([]);
-  const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const { ref: lastItemRef, inView } = useInView({ threshold: 0.5 });
-  const debouncedSearch = useDebounce(searchTerm, 400);
-
-  const loadingRef = useRef(false);
-  const lastPageRef = useRef(false);
-  const initialFetchRef = useRef(false);
-
-  useEffect(() => {
-    loadingRef.current = loading;
-    lastPageRef.current = lastPage;
-  }, [loading, lastPage]);
-
-  const sizeClasses = {
-    sm: "h-7 text-xs",
-    md: "h-[32px] text-base md:text-sm",
-    lg: "h-9 text-base md:text-sm",
-  };
-
-  const removeDuplicates = (
-    items: BrandResponseModel[],
-  ): BrandResponseModel[] => {
-    const seen = new Set<string>();
-    return items.filter((item) => {
-      if (seen.has(item.id)) {
-        return false;
-      }
-      seen.add(item.id);
-      return true;
-    });
-  };
-
-  const fetchData = async (search: string, newPage: number) => {
-    if (loadingRef.current || (lastPageRef.current && newPage > 1)) return;
-
-    setLoading(true);
-
-    try {
-      const result = await dispatch(
-        fetchPublicBrands({
-          search,
-          pageNo: newPage,
-          pageSize: 15,
-          status: "ACTIVE",
-        }),
-      ).unwrap();
-
-      if (!result) {
-        return;
-      }
-
-      const items = result.content || [];
-
-      if (newPage === 1) {
-        if (!search) {
-          setData(removeDuplicates([ALL_OPTION, ...items]));
-        } else {
-          setData(removeDuplicates(items));
-        }
-      } else {
-        setData((prev) => removeDuplicates([...prev, ...items]));
-      }
-
-      setPage(result.pageNo || newPage);
-      setLastPage(result.last || false);
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  useEffect(() => {
-    if (initialFetchRef.current || data.length > 0) return;
-    initialFetchRef.current = true;
-    fetchData(debouncedSearch, 1);
-  }, []);
-
-
-  useEffect(() => {
-    if (!open) return;
-
-    setPage(1);
-    setLastPage(false);
-    setData([]);
-    fetchData(debouncedSearch, 1);
-  }, [debouncedSearch, open]);
-
-
-  useEffect(() => {
-    if (!open || !inView || loadingRef.current || lastPageRef.current || data.length === 0) {
-      return;
-    }
-
-    fetchData(debouncedSearch, page + 1);
-  }, [inView, open, page, data.length, debouncedSearch]);
-
-  const handleSelect = (brandId: string) => {
-    onChangeSelected(brandId);
-    setOpen(false);
-  };
-
-  const selectedBrandName = data.find((b) => b.id === selectedBrand)?.name;
+  const value = controller.data.find((b) => b.id === selectedBrand) || null;
 
   return (
     <div className="flex flex-col gap-1 w-full">
@@ -170,95 +50,19 @@ function ComboboxSelectBrandPublicComponent({
           <Label className="text-xs font-medium text-foreground">{label}</Label>
         </div>
       )}
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <CustomButton
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className={cn(
-              "w-full justify-between min-w-[150px] px-2 py-1 transition-all duration-200 border-input",
-              sizeClasses[size],
-              !selectedBrand && "text-muted-foreground",
-              "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
-              open && "bg-primary/20 border-primary text-primary",
-              disabled && "opacity-50 cursor-not-allowed",
-            )}
-            disabled={disabled}
-          >
-            <span className="truncate">
-              {selectedBrandName || placeholder}
-            </span>
-            <ChevronsUpDown
-              className={cn(
-                "ml-1 h-3 w-3 shrink-0 transition-all duration-200",
-                !open && "opacity-50",
-                open && "opacity-100 text-primary rotate-180",
-              )}
-            />
-          </CustomButton>
-        </PopoverTrigger>
-
-        <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0 shadow-lg border-border"
-          align="start"
-          side="bottom"
-          sideOffset={4}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-        >
-          <Command shouldFilter={false}>
-            <CommandInput
-              placeholder="Search brand..."
-              value={searchTerm}
-              onValueChange={setSearchTerm}
-            />
-            <CommandList className="max-h-44 overflow-y-auto">
-              <CommandEmpty>No brand found.</CommandEmpty>
-              <CommandGroup>
-                {data.map((item, index) => (
-                  <CommandItem
-                    key={item.id || `all-${index}`}
-                    value={item.name}
-                    onSelect={() => handleSelect(item.id)}
-                    ref={index === data.length - 1 ? lastItemRef : null}
-                    className={cn(
-                      sizeClasses[size],
-                      "hover:bg-primary/10 hover:text-primary cursor-pointer",
-                      (selectedBrand === item.id ||
-                        (!selectedBrand && item.id === "")) &&
-                        "bg-primary/20 text-primary font-medium",
-                    )}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-1 h-3 w-3",
-                        (selectedBrand === item.id ||
-                          (!selectedBrand && item.id === ""))
-                          ? "opacity-100"
-                          : "opacity-0",
-                      )}
-                    />
-                    {item.name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-
-              {loading && (
-                <div className="text-center py-1">
-                  <Loader2 className="animate-spin text-primary h-3 w-3 mx-auto" />
-                </div>
-              )}
-
-              {!loading && lastPage && data.length > 0 && (
-                <div className="text-center py-1 text-xs text-muted-foreground">
-                  No more brands
-                </div>
-              )}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+      <AsyncCombobox<BrandResponseModel>
+        value={value}
+        onChange={(item) => onChangeSelected(item ? item.id : "")}
+        controller={controller}
+        getId={(item) => item.id}
+        getLabel={(item) => item.name}
+        placeholder={placeholder}
+        searchPlaceholder="Search brand..."
+        emptyMessage="No brand found."
+        endOfListMessage="No more brands"
+        disabled={disabled}
+        size={size}
+      />
     </div>
   );
 }

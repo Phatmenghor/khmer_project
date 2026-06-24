@@ -1,28 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { CustomButton } from "@/components/shared/button/custom-button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import { useInView } from "react-intersection-observer";
-import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/store";
-import { fetchAllDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
 import { formatCurrency } from "@/utils/common/currency-format";
+import { AsyncCombobox } from "@/components/shared/async-combobox";
+import { useReduxCombobox } from "@/components/shared/async-combobox/useReduxCombobox";
+import { fetchAllDeliveryOptionsService } from "@/features/master-data/store/thunks/delivery-options-thunks";
 
 interface DeliveryOption {
   id: string;
@@ -44,6 +25,14 @@ interface ComboboxSelectDeliveryProps {
   statuses?: string[];
 }
 
+const FALLBACK_DELIVERY: DeliveryOption[] = [{
+  id: "pickup-default",
+  name: "Pickup",
+  description: "Pickup from store",
+  price: 0,
+  imageUrl: ""
+}];
+
 export function ComboboxSelectDelivery({
   dataSelect,
   onChangeSelected,
@@ -55,204 +44,38 @@ export function ComboboxSelectDelivery({
   businessId,
   statuses = ["ACTIVE"],
 }: ComboboxSelectDeliveryProps) {
-  const dispatch = useAppDispatch();
-  const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [data, setData] = useState<DeliveryOption[]>([]);
-  const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const { ref, inView } = useInView({ threshold: 0.5 });
-  const debouncedSearch = useDebounce(searchTerm, 400);
-  const loadingRef = useRef(false);
-  const lastPageRef = useRef(false);
-
-  useEffect(() => {
-    loadingRef.current = loading;
-    lastPageRef.current = lastPage;
-  }, [loading, lastPage]);
-
-  const removeDuplicates = (items: DeliveryOption[]): DeliveryOption[] => {
-    const seen = new Set<string>();
-    return items.filter((item) => {
-      if (seen.has(item.id)) {
-        return false;
-      }
-      seen.add(item.id);
-      return true;
-    });
-  };
-
-  const fetchData = async (search: string, newPage: number) => {
-    if (loadingRef.current || (lastPageRef.current && newPage > 1)) return;
-    setLoading(true);
-    try {
-      const result = await dispatch(
-        fetchAllDeliveryOptionsService({
-          search,
-          pageNo: newPage,
-          pageSize: 15,
-          ...(businessId && { businessId }),
-          ...(statuses && { statuses }),
-        })
-      ).unwrap();
-
-      if (!result) return;
-
-      if (newPage === 1) {
-        const newData = result.content && result.content.length > 0
-          ? result.content
-          : [{
-              id: "pickup-default",
-              name: "Pickup",
-              description: "Pickup from store",
-              price: 0,
-              imageUrl: ""
-            }];
-        setData(removeDuplicates(newData));
-      } else {
-        setData((prev) => removeDuplicates([...prev, ...result.content]));
-      }
-
-      setPage(result.pageNo);
-      setLastPage(result.last);
-    } catch (error) {
-      if (newPage === 1) {
-        setData([{
-          id: "pickup-default",
-          name: "Pickup",
-          description: "Pickup from store",
-          price: 0,
-          imageUrl: ""
-        }]);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    setPage(1);
-    setLastPage(false);
-    setData([]);
-    fetchData(debouncedSearch, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch]);
-
-  useEffect(() => {
-    if (
-      inView &&
-      !loadingRef.current &&
-      !lastPageRef.current &&
-      data.length > 0
-    ) {
-      fetchData(debouncedSearch, page + 1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, page, data.length]);
-
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-  };
-
-  const handleSelect = (item: DeliveryOption) => {
-    onChangeSelected(item);
-    setOpen(false);
-  };
+  const controller = useReduxCombobox<DeliveryOption>({
+    cacheKey: `deliveryOptions-${businessId || "default"}`,
+    thunkService: fetchAllDeliveryOptionsService,
+    extraParams: {
+      ...(businessId && { businessId }),
+      ...(statuses && { statuses }),
+    },
+    fallbackData: FALLBACK_DELIVERY,
+  });
 
   return (
-    <div className="space-y-1 w-full">
-      {label && (
-        <Label className="text-xs font-semibold">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </Label>
+    <AsyncCombobox<DeliveryOption>
+      value={dataSelect}
+      onChange={onChangeSelected}
+      controller={controller}
+      getId={(item) => item.id}
+      getLabel={(item) => item.price > 0 ? `${item.name} (+${formatCurrency(item.price)})` : item.name}
+      renderItem={(item) => (
+        <div className="flex items-center justify-between w-full text-xs">
+          <span className="truncate line-clamp-1 flex-1">{item.name}</span>
+          <span className="text-xs font-semibold text-primary flex-shrink-0 ml-1 whitespace-nowrap">
+            +{formatCurrency(item.price || 0)}
+          </span>
+        </div>
       )}
-      <Popover open={open} onOpenChange={setOpen} modal={false}>
-        <PopoverTrigger asChild>
-          <CustomButton
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className={cn(
-              "w-full justify-between px-3 h-[32px] text-base md:text-sm transition-all duration-200 border-input",
-              !dataSelect && "text-muted-foreground",
-              "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
-              open && "bg-primary/20 border-primary text-primary",
-              error && "border-red-500",
-              disabled && "opacity-50 cursor-not-allowed"
-            )}
-            disabled={disabled}
-          >
-            <span className="truncate line-clamp-1">
-              {dataSelect ? dataSelect.name : placeholder}
-            </span>
-            {dataSelect && (
-              <span className="text-xs font-semibold text-primary flex-shrink-0 ml-1 whitespace-nowrap">
-                +{formatCurrency(dataSelect.price || 0)}
-              </span>
-            )}
-            <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-          </CustomButton>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-64 p-0 shadow-lg border-border"
-          align="start"
-          side="bottom"
-          sideOffset={4}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-        >
-          <Command shouldFilter={false}>
-            <CommandInput
-              placeholder="Search delivery option..."
-              value={searchTerm}
-              onValueChange={handleSearchChange}
-              className="text-xs h-8 px-2 border-b"
-            />
-            <CommandList className="max-h-32 overflow-y-auto">
-              <CommandEmpty className="text-xs py-3 text-center text-muted-foreground">
-                No delivery option found.
-              </CommandEmpty>
-              <CommandGroup>
-                {data.map((item, index) => (
-                  <CommandItem
-                    key={item.id}
-                    value={item.name}
-                    onSelect={() => handleSelect(item)}
-                    ref={index === data.length - 1 ? ref : null}
-                    className="text-xs py-1"
-                  >
-                    <Check
-                      className={cn(
-                        "mr-1 h-3 w-3 flex-shrink-0",
-                        dataSelect?.id === item.id ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    <span className="truncate line-clamp-1 flex-1">
-                      {item.name}
-                    </span>
-                    <span className="text-xs font-semibold text-primary flex-shrink-0 ml-1 whitespace-nowrap">
-                      +{formatCurrency(item.price || 0)}
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-              {loading && (
-                <div className="text-center py-1">
-                  <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
-                </div>
-              )}
-              {!loading && lastPage && data.length > 0 && (
-                <div className="text-center py-1 text-xs text-gray-400">
-                  No more options
-                </div>
-              )}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-      {error && <p className="text-xs text-red-500">{error}</p>}
-    </div>
+      label={label}
+      required={required}
+      placeholder={placeholder}
+      searchPlaceholder="Search delivery option..."
+      emptyMessage="No delivery option found."
+      error={error}
+      disabled={disabled}
+    />
   );
 }

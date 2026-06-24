@@ -3,13 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useDebounce } from "@/utils/debounce/debounce";
+import { AppDefault } from "@/constants/app-resource/default/default";
 import type {
   UseInfiniteComboboxOptions,
   UseInfiniteComboboxResult,
 } from "./types";
-
-const DEFAULT_PAGE_SIZE = 15;
-const DEFAULT_DEBOUNCE_MS = 400;
 
 export function useInfiniteComboboxData<T, P extends object = object>(
   options: UseInfiniteComboboxOptions<T, P>
@@ -18,8 +16,8 @@ export function useInfiniteComboboxData<T, P extends object = object>(
     fetcher,
     extraParams,
     enabled = true,
-    pageSize = DEFAULT_PAGE_SIZE,
-    debounceMs = DEFAULT_DEBOUNCE_MS,
+    pageSize = AppDefault.DEFAULT_PAGE_SIZE,
+    debounceMs = AppDefault.DEFAULT_DEBOUNCE_MS,
     getId,
     prependFirstPage,
   } = options;

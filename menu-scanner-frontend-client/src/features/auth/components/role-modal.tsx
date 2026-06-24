@@ -19,6 +19,7 @@ import {
   selectError,
   selectOperations,
   selectRoleContent,
+  selectSelectedRole,
 } from "../store/selectors/role-selectors";
 import {
   createRoleSchema,
@@ -28,7 +29,9 @@ import {
 import {
   createRoleService,
   updateRoleService,
+  fetchRoleByIdService,
 } from "../store/thunks/role-thunks";
+import { Loading } from "@/components/shared/common/loading";
 import { clearError, clearSelectedRole } from "../store/slice/role-slice";
 import {
   CreateRoleRequest,
@@ -51,9 +54,10 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
   const operations = useAppSelector(selectOperations);
   const rolesContent = useAppSelector(selectRoleContent);
   const reduxError = useAppSelector(selectError);
-  const { isCreating, isUpdating } = operations;
+  const { isCreating, isUpdating, isFetchingDetail } = operations;
 
-  const roleData = rolesContent.find(role => role.id === roleId);
+  const selectedRole = useAppSelector(selectSelectedRole);
+  const roleData = rolesContent.find(role => role.id === roleId) || (selectedRole?.id === roleId ? selectedRole : null);
 
   const {
     control: formControl,
@@ -84,6 +88,12 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ");
   };
+
+  useEffect(() => {
+    if (isOpen && !isCreate && roleId && !roleData) {
+      dispatch(fetchRoleByIdService(roleId));
+    }
+  }, [isOpen, isCreate, roleId, roleData, dispatch]);
 
   useEffect(() => {
     if (!roleId || !isOpen || isCreate || !roleData) return;
@@ -176,10 +186,15 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
           className="m-0 mx-0 mt-0 md:mx-0 md:mt-0 p-4 md:p-4"
         />
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col flex-1 min-h-0 overflow-hidden"
-        >
+        {!isCreate && isFetchingDetail ? (
+          <div className="p-4 flex items-center justify-center min-h-[200px] flex-1">
+            <Loading />
+          </div>
+        ) : (
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col flex-1 min-h-0 overflow-hidden"
+          >
             <FormBody className="px-4">
               {reduxError && (
                 <div className="p-3 bg-destructive/10 border border-destructive rounded">
@@ -237,6 +252,7 @@ export default function RoleModal({ isOpen, onClose, roleId, mode }: Props) {
               />
             </FormFooter>
           </form>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -1,12 +1,8 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import {
-  AsyncCombobox,
-  useInfiniteComboboxData,
-  type AsyncFetcher,
-} from "@/components/shared/async-combobox";
-import { useAppDispatch } from "@/store";
+import { useMemo } from "react";
+import { AsyncCombobox } from "@/components/shared/async-combobox";
+import { useReduxCombobox } from "@/components/shared/async-combobox/useReduxCombobox";
 import { BrandResponseModel } from "@/features/master-data/store/models/response/brand-response";
 import { fetchAllBrandService } from "@/features/master-data/store/thunks/brand-thunks";
 
@@ -39,25 +35,14 @@ export function ComboboxSelectBrand({
   showAllOption = true,
   error,
 }: ComboboxSelectBrandProps) {
-  const dispatch = useAppDispatch();
-
-  const fetcher = useCallback<AsyncFetcher<BrandResponseModel>>(
-    async ({ search, pageNo, pageSize }) => {
-      return dispatch(
-        fetchAllBrandService({ search, pageNo, pageSize })
-      ).unwrap();
-    },
-    [dispatch]
-  );
-
   const prependFirstPage = useMemo(() => {
     if (!showAllOption) return undefined;
     return (search: string) => (search ? [] : [ALL_OPTION]);
   }, [showAllOption]);
 
-  const controller = useInfiniteComboboxData<BrandResponseModel>({
-    fetcher,
-    getId: (item) => item.id,
+  const controller = useReduxCombobox<BrandResponseModel>({
+    cacheKey: "brands",
+    thunkService: fetchAllBrandService,
     prependFirstPage,
   });
 

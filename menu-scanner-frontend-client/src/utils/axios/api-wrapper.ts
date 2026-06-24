@@ -12,6 +12,8 @@ interface AxiosLikeError {
   message?: string;
 }
 
+const activeRequests = new Map<string, Promise<any>>();
+
 export const createApiThunk = <ReturnType, ArgType = void>(
   typePrefix: string,
   apiCall: (arg: ArgType, signal: AbortSignal) => Promise<ReturnType>,
@@ -25,8 +27,21 @@ export const createApiThunk = <ReturnType, ArgType = void>(
     ArgType,
     { rejectValue: ApiThunkRejectValue }
   >(typePrefix, async (arg, { rejectWithValue, signal }) => {
+    const requestKey = `${typePrefix}-${JSON.stringify(arg || "")}`;
+
+    let promise = activeRequests.get(requestKey);
+    if (!promise) {
+      const controller = new AbortController();
+      promise = apiCall(arg, controller.signal);
+      activeRequests.set(requestKey, promise);
+
+      promise.finally(() => {
+        activeRequests.delete(requestKey);
+      });
+    }
+
     try {
-      const response = await apiCall(arg, signal);
+      const response = await promise;
 
       if (signal.aborted) {
         return rejectWithValue({

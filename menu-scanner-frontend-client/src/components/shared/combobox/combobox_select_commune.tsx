@@ -1,29 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { CustomButton } from "@/components/shared/button/custom-button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import { useInView } from "react-intersection-observer";
-import { useDebounce } from "@/utils/debounce/debounce";
-import { useAppDispatch } from "@/store";
-import { showToast } from "@/components/shared/common/show-toast";
+import { AsyncCombobox } from "@/components/shared/async-combobox";
+import { useReduxCombobox } from "@/components/shared/async-combobox/useReduxCombobox";
 import { CommuneResponseModel } from "@/features/location/store/models/response/location-response";
 import { fetchCommunesService } from "@/features/location/store/thunks/public-location-thunks";
+import { showToast } from "@/components/shared/common/show-toast";
 
 interface ComboboxSelectCommuneProps {
   dataSelect: CommuneResponseModel | null;
@@ -46,198 +27,44 @@ export function ComboboxSelectCommune({
   placeholder,
   error,
 }: ComboboxSelectCommuneProps) {
-  const dispatch = useAppDispatch();
-
-  const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [data, setData] = useState<CommuneResponseModel[]>([]);
-  const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const { ref, inView } = useInView({ threshold: 0.5 });
-  const debouncedSearch = useDebounce(searchTerm, 400);
-
-  const loadingRef = useRef(false);
-  const lastPageRef = useRef(false);
-
-  useEffect(() => {
-    loadingRef.current = loading;
-    lastPageRef.current = lastPage;
-  }, [loading, lastPage]);
-
-  const removeDuplicates = (
-    items: CommuneResponseModel[]
-  ): CommuneResponseModel[] => {
-    const seen = new Set<string>();
-    return items.filter((item) => {
-      if (seen.has(item.id)) return false;
-      seen.add(item.id);
-      return true;
-    });
-  };
-
-  const fetchData = async (search: string, newPage: number) => {
-    if (!districtCode) return;
-    if (loadingRef.current || (lastPageRef.current && newPage > 1)) return;
-
-    setLoading(true);
-    try {
-      const result = await dispatch(
-        fetchCommunesService({
-          search,
-          pageNo: newPage,
-          pageSize: 15,
-          districtCode,
-        })
-      ).unwrap();
-
-      if (!result) return;
-
-      if (newPage === 1) {
-        setData(removeDuplicates(result.content));
-      } else {
-        setData((prev) => removeDuplicates([...prev, ...result.content]));
-      }
-
-      setPage(result.pageNo);
-      setLastPage(result.last);
-    } catch (err) {
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  useEffect(() => {
-    setPage(1);
-    setLastPage(false);
-    setData([]);
-    if (districtCode) {
-      fetchData(debouncedSearch, 1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, districtCode]);
-
-  useEffect(() => {
-    if (
-      inView &&
-      !loadingRef.current &&
-      !lastPageRef.current &&
-      data.length > 0
-    ) {
-      fetchData(debouncedSearch, page + 1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, page, data.length]);
-
-  const handleSelect = (item: CommuneResponseModel) => {
-    onChangeSelected(item);
-    setOpen(false);
-  };
+  const controller = useReduxCombobox<CommuneResponseModel>({
+    cacheKey: `communes-${districtCode || "none"}`,
+    thunkService: fetchCommunesService,
+    extraParams: { districtCode },
+    enabled: !!districtCode,
+  });
 
   const resolvedPlaceholder =
     placeholder ??
     (!districtCode ? "Select district first" : "Select commune...");
 
-  const handleOpenChange = (newOpen: boolean) => {
-    if (newOpen && !districtCode) {
-      showToast.info("Please select a district first");
-      return;
-    }
-    if (newOpen && dataSelect) {
-      setSearchTerm(dataSelect.communeEn);
-    } else if (!newOpen) {
-      setSearchTerm("");
-    }
-    setOpen(newOpen);
-  };
-
   return (
-    <div className="space-y-1 w-full">
-      {label && (
-        <Label className="text-xs font-medium">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </Label>
+    <AsyncCombobox<CommuneResponseModel>
+      value={dataSelect}
+      onChange={onChangeSelected}
+      controller={controller}
+      getId={(item) => item.id}
+      getLabel={(item) => item.communeEn}
+      renderItem={(item) => (
+        <div className="flex items-center justify-between w-full">
+          <span>{item.communeEn}</span>
+          <span className="text-muted-foreground text-xs">{item.communeKh}</span>
+        </div>
       )}
-      <Popover open={open} onOpenChange={handleOpenChange}>
-        <PopoverTrigger asChild>
-          <CustomButton
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className={cn(
-              "w-full justify-between h-[32px] text-base md:text-sm transition-all duration-200 border-input",
-              !dataSelect && "text-muted-foreground",
-              "hover:bg-primary/10 hover:border-primary hover:text-primary",
-              "focus:bg-primary/10 focus:border-primary focus:text-primary focus:ring-2 focus:ring-primary/20",
-              open && "bg-primary/20 border-primary text-primary",
-              error && "border-red-500"
-            )}
-            disabled={disabled}
-          >
-            {dataSelect ? dataSelect.communeEn : resolvedPlaceholder}
-            <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-          </CustomButton>
-        </PopoverTrigger>
-
-        <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0 shadow-lg border-border"
-          align="start"
-          side="bottom"
-          sideOffset={4}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-        >
-          <Command shouldFilter={false}>
-            <CommandInput
-              placeholder="Search commune..."
-              value={searchTerm}
-              onValueChange={setSearchTerm}
-            />
-            <CommandList className="max-h-44 overflow-y-auto">
-              <CommandEmpty>No commune found.</CommandEmpty>
-              <CommandGroup>
-                {data.map((item, index) => (
-                  <CommandItem
-                    key={item.id}
-                    value={item.communeCode}
-                    onSelect={() => handleSelect(item)}
-                    ref={index === data.length - 1 ? ref : null}
-                    className="h-7 text-xs"
-                  >
-                    <Check
-                      className={cn(
-                        "mr-1 h-3 w-3",
-                        dataSelect?.id === item.id
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
-                    {item.communeEn}
-                    <span className="ml-1 text-muted-foreground text-xs">
-                      {item.communeKh}
-                    </span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-
-              {loading && (
-                <div className="text-center py-1">
-                  <Loader2 className="animate-spin text-gray-500 h-3 w-3 mx-auto" />
-                </div>
-              )}
-
-              {!loading && lastPage && data.length > 0 && (
-                <div className="text-center py-1 text-xs text-gray-400">
-                  No more communes
-                </div>
-              )}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-      {error && <p className="text-xs text-red-500">{error}</p>}
-    </div>
+      label={label}
+      required={required}
+      placeholder={resolvedPlaceholder}
+      searchPlaceholder="Search commune..."
+      emptyMessage="No commune found."
+      error={error}
+      disabled={disabled}
+      beforeOpen={() => {
+        if (!districtCode) {
+          showToast.info("Please select a district first");
+          return false;
+        }
+        return true;
+      }}
+    />
   );
 }

@@ -32,7 +32,7 @@ import {
   UserGropeType,
   UserRole,
 } from "@/constants/status/status";
-import UserBusinessModal from "@/features/auth/components/user-business-modal";
+import UserCustomerModal from "@/features/auth/components/user-customer-modal";
 import { UserBusinessDetailModal } from "@/features/auth/components/user-business-detail-modal";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
@@ -211,7 +211,7 @@ function CustomerPageInner() {
         placeholder: "All Status",
         value: filters.accountStatus,
         onChange: (value) => dispatch(setAccountStatusFilter(value as AccountStatus)),
-        options: ACCOUNT_STATUS_FILTER,
+        options: ACCOUNT_STATUS_FILTER.filter(status => status.value !== AccountStatus.END_WORK),
       },
     ],
   }), [filters.search, filters.accountStatus]);
@@ -272,12 +272,11 @@ function CustomerPageInner() {
         />
       </div>
 
-      <UserBusinessModal
+      <UserCustomerModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
         userId={modalState.userId}
         mode={modalState.mode}
-        defaultUserType="CUSTOMER"
       />
 
       <UserBusinessDetailModal

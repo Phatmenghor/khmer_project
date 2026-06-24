@@ -80,13 +80,15 @@ function UserBusinessPageInner() {
 
 
   useEffect(() => {
-    dispatch(
-      fetchAllRolesListService({
-        includeAll: false,
-        userTypes: [UserGropeType.BUSINESS_USER],
-      }),
-    );
-  }, [dispatch]);
+    if (!rolesContent || rolesContent.length === 0) {
+      dispatch(
+        fetchAllRolesListService({
+          includeAll: false,
+          userTypes: [UserGropeType.BUSINESS_USER],
+        }),
+      );
+    }
+  }, [dispatch, rolesContent]);
 
 
   useEffect(() => {

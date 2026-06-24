@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
 import { TextField } from "@/components/shared/form-field/text-field";
@@ -56,10 +56,10 @@ import {
   ACCOUNT_STATUS_CREATE_UPDATE,
 } from "@/constants/status/create-update-status";
 import { Loading } from "@/components/shared/common/loading";
-import { fetchAllRoleService } from "../store/thunks/role-thunks";
-import { selectRoleContent } from "../store/selectors/role-selectors";
+
 import { formatEnumValue } from "@/utils/format/enum-formatter";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { ComboboxSelectRole } from "@/components/shared/combobox/combobox_select_role";
 import {
   AddressType,
   ADDRESS_TYPE_OPTIONS,
@@ -78,7 +78,6 @@ type Props = {
   userId?: string;
   onClose: () => void;
   isOpen: boolean;
-  defaultUserType?: string;
 };
 
 export default function UserBusinessModal({
@@ -86,7 +85,6 @@ export default function UserBusinessModal({
   onClose,
   userId,
   mode,
-  defaultUserType,
 }: Props) {
   const isMobile = useIsMobile();
   const isCreate = mode === ModalMode.CREATE_MODE;
@@ -113,16 +111,7 @@ export default function UserBusinessModal({
   const isFetchingDetail = useAppSelector(selectIsFetchingDetail);
   const reduxError = useAppSelector(selectError);
   const userData = useAppSelector(selectSelectedUser);
-  const rolesContent = useAppSelector(selectRoleContent);
   const { isCreating, isUpdating } = operations;
-
-
-  const roleOptions = rolesContent
-    .filter((role) => role.name !== "BUSINESS_OWNER")
-    .map((role) => ({
-      value: role.name,
-      label: formatEnumValue(role.name),
-    }));
 
   const isBusinessOwner = !isCreate && userData?.roles?.includes("BUSINESS_OWNER");
 
@@ -213,19 +202,7 @@ export default function UserBusinessModal({
   const email = watch("email");
 
 
-  useEffect(() => {
-    if (isOpen) {
-      dispatch(
-        fetchAllRoleService({
-          pageNo: 1,
-          pageSize: 100,
-          includeAll: false,
-          businessId: AppDefault.BUSINESS_ID,
-          userTypes: [defaultUserType || UserGropeType.BUSINESS_USER],
-        }),
-      );
-    }
-  }, [isOpen, dispatch, defaultUserType]);
+
 
 
   useEffect(() => {
@@ -295,8 +272,8 @@ export default function UserBusinessModal({
         nickname: "",
         phoneNumber: "",
         password: "",
-        userType: defaultUserType || UserGropeType.BUSINESS_USER,
-        roles: defaultUserType === "CUSTOMER" ? ["CUSTOMER"] : [],
+        userType: UserGropeType.BUSINESS_USER,
+        roles: [],
         accountStatus: AccountStatus.ACTIVE,
         gender: "",
         dateOfBirth: "",
@@ -576,24 +553,27 @@ export default function UserBusinessModal({
                         autoComplete="new-password"
                       />
 
-                      {defaultUserType !== "CUSTOMER" && (
-                        <SelectField
-                          control={control}
-                          name="roles"
-                          label="User Role"
-                          placeholder="Select user role"
-                          options={roleOptions}
-                          required
-                          disabled={isSubmitting || roleOptions.length === 0}
-                          error={getArrayFieldError(errors.roles)}
-                          onValueChange={(value) => {
-                            setValue("roles", [String(value)], {
-                              shouldDirty: true,
-                              shouldValidate: true,
-                            });
-                          }}
-                        />
-                      )}
+                      <Controller
+                        control={control}
+                        name="roles"
+                        render={({ field }) => {
+                          const currentValue = field.value && field.value.length > 0 ? field.value[0] : "";
+                          return (
+                            <ComboboxSelectRole
+                              value={currentValue}
+                              onValueChange={(val) => {
+                                setValue("roles", [val], {
+                                  shouldDirty: true,
+                                  shouldValidate: true,
+                                });
+                              }}
+                              required
+                              disabled={isSubmitting}
+                              error={getArrayFieldError(errors.roles)?.message}
+                            />
+                          );
+                        }}
+                      />
 
                       {/* Account status is hidden on create and defaults to ACTIVE */}
                     </div>
@@ -609,25 +589,28 @@ export default function UserBusinessModal({
                   <div className="space-y-3">
                     {}
                     {!isCreate && (
-                      <div className={defaultUserType === "CUSTOMER" ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
-                        {defaultUserType !== "CUSTOMER" && (
-                          <SelectField
-                            control={control}
-                            name="roles"
-                            label="User Role"
-                            placeholder="Select user role"
-                            options={roleOptions}
-                            required
-                            disabled={isSubmitting || roleOptions.length === 0 || isBusinessOwner}
-                            error={getArrayFieldError(errors.roles)}
-                            onValueChange={(value) => {
-                              setValue("roles", [String(value)], {
-                                shouldDirty: true,
-                                shouldValidate: true,
-                              });
-                            }}
-                          />
-                        )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Controller
+                          control={control}
+                          name="roles"
+                          render={({ field }) => {
+                            const currentValue = field.value && field.value.length > 0 ? field.value[0] : "";
+                            return (
+                              <ComboboxSelectRole
+                                value={currentValue}
+                                onValueChange={(val) => {
+                                  setValue("roles", [val], {
+                                    shouldDirty: true,
+                                    shouldValidate: true,
+                                  });
+                                }}
+                                required
+                                disabled={isSubmitting || isBusinessOwner}
+                                error={getArrayFieldError(errors.roles)?.message}
+                              />
+                            );
+                          }}
+                        />
 
                         <SelectField
                           control={control}
@@ -736,84 +719,82 @@ export default function UserBusinessModal({
                 </div>
 
                 {}
-                {defaultUserType !== "CUSTOMER" && (
-                  <div className="space-y-3">
-                    <h3 className="text-xs font-semibold">
-                      Employment Information
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <TextField
-                        control={control}
-                        name="employeeId"
-                        label="Employee ID"
-                        placeholder="Enter employee ID"
-                        disabled={isSubmitting}
-                        error={errors.employeeId}
-                        autoComplete="new-password"
-                      />
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold">
+                    Employment Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <TextField
+                      control={control}
+                      name="employeeId"
+                      label="Employee ID"
+                      placeholder="Enter employee ID"
+                      disabled={isSubmitting}
+                      error={errors.employeeId}
+                      autoComplete="new-password"
+                    />
 
-                      <TextField
-                        control={control}
-                        name="position"
-                        label="Position"
-                        placeholder="Enter position"
-                        disabled={isSubmitting}
-                        error={errors.position}
-                        autoComplete="new-password"
-                      />
+                    <TextField
+                      control={control}
+                      name="position"
+                      label="Position"
+                      placeholder="Enter position"
+                      disabled={isSubmitting}
+                      error={errors.position}
+                      autoComplete="new-password"
+                    />
 
-                      <TextField
-                        control={control}
-                        name="department"
-                        label="Department"
-                        placeholder="Enter department"
-                        disabled={isSubmitting}
-                        error={errors.department}
-                        autoComplete="new-password"
-                      />
+                    <TextField
+                      control={control}
+                      name="department"
+                      label="Department"
+                      placeholder="Enter department"
+                      disabled={isSubmitting}
+                      error={errors.department}
+                      autoComplete="new-password"
+                    />
 
-                      <SelectField
-                        control={control}
-                        name="employmentType"
-                        label="Employment Type"
-                        placeholder="Select employment type"
-                        options={EMPLOYMENT_TYPE_OPTIONS}
-                        disabled={isSubmitting}
-                        error={errors.employmentType}
-                      />
+                    <SelectField
+                      control={control}
+                      name="employmentType"
+                      label="Employment Type"
+                      placeholder="Select employment type"
+                      options={EMPLOYMENT_TYPE_OPTIONS}
+                      disabled={isSubmitting}
+                      error={errors.employmentType}
+                    />
 
-                      <DateTimePickerField
-                        control={control}
-                        name="joinDate"
-                        label="Join Date"
-                        mode="date"
-                        placeholder="Select join date"
-                        disabled={isSubmitting}
-                        error={errors.joinDate}
-                      />
+                    <DateTimePickerField
+                      control={control}
+                      name="joinDate"
+                      label="Join Date"
+                      mode="date"
+                      placeholder="Select join date"
+                      disabled={isSubmitting}
+                      error={errors.joinDate}
+                    />
 
-                      <DateTimePickerField
-                        control={control}
-                        name="leaveDate"
-                        label="Leave Date"
-                        mode="date"
-                        placeholder="Select leave date"
-                        disabled={isSubmitting}
-                        error={errors.leaveDate}
-                      />
+                    <DateTimePickerField
+                      control={control}
+                      name="leaveDate"
+                      label="Leave Date"
+                      mode="date"
+                      placeholder="Select leave date"
+                      disabled={isSubmitting}
+                      error={errors.leaveDate}
+                    />
 
-                      <TextField
-                        control={control}
-                        name="shift"
-                        label="Shift"
-                        placeholder="Enter shift"
-                        disabled={isSubmitting}
-                        error={errors.shift}
-                        autoComplete="new-password"
-                      />
-                    </div>
+                    <TextField
+                      control={control}
+                      name="shift"
+                      label="Shift"
+                      placeholder="Enter shift"
+                      disabled={isSubmitting}
+                      error={errors.shift}
+                      autoComplete="new-password"
+                    />
                   </div>
-                )}
+                </div>
 
                 {}
                 <div className="space-y-3">
