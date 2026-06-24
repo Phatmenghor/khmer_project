@@ -1,7 +1,7 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState, Suspense} from "react";
+import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
@@ -15,6 +15,7 @@ import { usePagination } from "@/hooks/use-pagination";
 import {
   deleteUserService,
   fetchAllUsersService,
+  fetchUserByIdService,
   toggleUserStatusService,
 } from "@/features/auth/store/thunks/users-thunks";
 import { fetchAllRolesListService } from "@/features/auth/store/thunks/role-thunks";
@@ -41,8 +42,14 @@ import { UserBusinessDetailModal } from "@/features/auth/components/user-busines
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { selectUser } from "@/features/auth/store/selectors/auth-selectors";
+import {
+  selectUsersContent,
+  selectSelectedUser,
+} from "@/features/auth/store/selectors/users-selectors";
+import { useActionRouting } from "@/hooks/use-action-routing";
+import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function UserBusinessPageInner() {
   useAdminCleanup(resetState);
@@ -60,10 +67,66 @@ function UserBusinessPageInner() {
     operations,
     dispatch,
   } = useUsersState();
+
+  const {
+    viewId,
+    editId,
+    deleteId,
+    createMode,
+    resetPasswordId,
+    openView,
+    openEdit,
+    openDelete,
+    openCreate,
+    openResetPassword,
+    closeModal,
+  } = useActionRouting();
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, 400);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
   const rolesContent = useAppSelector(selectRolesList);
 
+  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
+  useAdminFilterUrlSync({
+    filters: {
+      search: filters.search,
+      accountStatus: filters.accountStatus !== AccountStatus.ALL ? filters.accountStatus : "",
+      role: filters.role !== UserRole.ALL ? filters.role : "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.accountStatus) dispatch(setAccountStatusFilter(params.accountStatus as AccountStatus));
+      if (params.role) dispatch(setRoleFilter(params.role as UserRole));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+    },
+  });
+
+  // ── Deep-link resolver ────────────────────────────────────────────────────
+  const allUsersContent = useAppSelector(selectUsersContent);
+  const selectedUser = useAppSelector(selectSelectedUser);
+
+  const resolveUser = (id: string | null): UserResponseModel | null => {
+    if (!id) return null;
+    return allUsersContent.find(u => u.id === id) || (selectedUser?.id === id ? selectedUser : null);
+  };
+
+  const deleteUser = resolveUser(deleteId);
+  const resetPasswordUser = resolveUser(resetPasswordId);
+
+  useEffect(() => {
+    if (deleteId && !deleteUser) {
+      dispatch(fetchUserByIdService(deleteId));
+    }
+  }, [deleteId, deleteUser, dispatch]);
+
+  useEffect(() => {
+    if (resetPasswordId && !resetPasswordUser) {
+      dispatch(fetchUserByIdService(resetPasswordId));
+    }
+  }, [resetPasswordId, resetPasswordUser, dispatch]);
 
   const roleFilterOptions = [
     { value: UserRole.ALL, label: "All Roles" },
@@ -78,7 +141,6 @@ function UserBusinessPageInner() {
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
-
   useEffect(() => {
     if (!rolesContent || rolesContent.length === 0) {
       dispatch(
@@ -89,7 +151,6 @@ function UserBusinessPageInner() {
       );
     }
   }, [dispatch, rolesContent]);
-
 
   useEffect(() => {
     const filterPayload = {
@@ -114,68 +175,30 @@ function UserBusinessPageInner() {
     globalPageSize,
   ]);
 
-  const [modalState, setModalState] = useState({
-    isOpen: false,
-    mode: ModalMode.CREATE_MODE,
-    userId: "",
-  });
-
-  const [detailModalState, setDetailModalState] = useState({
-    isOpen: false,
-    userBusinessId: "",
-  });
-
-  const [resetPasswordState, setResetPasswordState] = useState({
-    isOpen: false,
-    userBusinessId: "",
-    userName: "",
-    roles: [] as string[],
-    profileImageUrl: "",
-  });
-
-  const [deleteState, setDeleteState] = useState({
-    isOpen: false,
-    user: null as UserResponseModel | null,
-  });
-
-  const handleCreateUser = () =>
-    setModalState({ isOpen: true, mode: ModalMode.CREATE_MODE, userId: "" });
+  // ── Table action handlers ─────────────────────────────────────────────────
+  const handleCreateUser = () => openCreate();
 
   const handleEditUser = (user: UserResponseModel) => {
     const isSelf = user?.id === currentUserId;
     const isBusinessOwner = user?.roles?.includes(UserRole.BUSINESS_OWNER);
     if (isSelf || isBusinessOwner) return;
-
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.UPDATE_MODE,
-      userId: user?.id || "",
-    });
+    openEdit(user?.id || "");
   };
 
-  const handleViewDetail = (user: UserResponseModel) =>
-    setDetailModalState({ isOpen: true, userBusinessId: user.id || "" });
+  const handleViewDetail = (user: UserResponseModel) => openView(user.id || "");
 
   const handleResetPassword = (user: UserResponseModel) => {
     const isSelf = user?.id === currentUserId;
     const isBusinessOwner = user?.roles?.includes(UserRole.BUSINESS_OWNER);
     if (isSelf || isBusinessOwner) return;
-
-    setResetPasswordState({
-      isOpen: true,
-      userBusinessId: user.id || "",
-      userName: user.userIdentifier || "",
-      roles: user.roles || [],
-      profileImageUrl: user.profileImage?.sm || "",
-    });
+    openResetPassword(user.id || "");
   };
 
   const handleDeleteUser = (user: UserResponseModel) => {
     const isSelf = user?.id === currentUserId;
     const isBusinessOwner = user?.roles?.includes(UserRole.BUSINESS_OWNER);
     if (isSelf || isBusinessOwner) return;
-
-    setDeleteState({ isOpen: true, user });
+    openDelete(user.id || "");
   };
 
   const handleToggleStatus = async (user: UserResponseModel) => {
@@ -254,13 +277,13 @@ function UserBusinessPageInner() {
   }), [filters.search, filters.accountStatus, filters.role, roleFilterOptions]);
 
   const handleDelete = async () => {
-    if (!deleteState.user?.id) return;
+    if (!deleteId) return;
     try {
-      await dispatch(deleteUserService(deleteState.user.id)).unwrap();
+      await dispatch(deleteUserService(deleteId)).unwrap();
       showToast.success(
-        `User business "${deleteState.user.fullName ?? ""}" deleted successfully`,
+        `User business "${deleteUser?.fullName ?? ""}" deleted successfully`,
       );
-      closeDeleteModal();
+      closeModal();
       if (usersContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -270,23 +293,6 @@ function UserBusinessPageInner() {
       showToast.error((error as { message?: string })?.message || Messages.users.deleteFailed);
     }
   };
-
-  const closeModal = () =>
-    setModalState({ isOpen: false, mode: ModalMode.CREATE_MODE, userId: "" });
-
-  const closeDetailModal = () =>
-    setDetailModalState({ isOpen: false, userBusinessId: "" });
-
-  const closeResetPasswordModal = () =>
-    setResetPasswordState({
-      isOpen: false,
-      userBusinessId: "",
-      userName: "",
-      roles: [] as string[],
-      profileImageUrl: "",
-    });
-
-  const closeDeleteModal = () => setDeleteState({ isOpen: false, user: null });
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
@@ -310,34 +316,34 @@ function UserBusinessPageInner() {
       </div>
 
       <UserBusinessModal
-        isOpen={modalState.isOpen}
+        isOpen={createMode || !!editId}
         onClose={closeModal}
-        userId={modalState.userId}
-        mode={modalState.mode}
+        userId={editId || undefined}
+        mode={createMode ? ModalMode.CREATE_MODE : ModalMode.UPDATE_MODE}
       />
 
       <UserBusinessDetailModal
-        userId={detailModalState.userBusinessId}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        userId={viewId || undefined}
+        isOpen={!!viewId}
+        onClose={closeModal}
       />
 
       <ResetPasswordModal
-        isOpen={resetPasswordState.isOpen}
-        userName={resetPasswordState.userName}
-        userRole={resetPasswordState.roles}
-        profileImageUrl={resetPasswordState.profileImageUrl}
-        onClose={closeResetPasswordModal}
-        userId={resetPasswordState.userBusinessId}
+        isOpen={!!resetPasswordId}
+        userName={resetPasswordUser?.userIdentifier}
+        userRole={resetPasswordUser?.roles}
+        profileImageUrl={resetPasswordUser?.profileImage?.sm}
+        onClose={closeModal}
+        userId={resetPasswordId || undefined}
       />
 
       <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
+        isOpen={!!deleteId}
+        onClose={closeModal}
         onDelete={handleDelete}
         title="Delete User"
-        description={`Are you sure you want to delete this user ${deleteState.user?.userIdentifier}?`}
-        itemName={deleteState.user?.fullName || deleteState.user?.email}
+        description={`Are you sure you want to delete this user ${deleteUser?.userIdentifier}?`}
+        itemName={deleteUser?.fullName || deleteUser?.email}
         isSubmitting={operations.isDeleting}
       />
     </div>

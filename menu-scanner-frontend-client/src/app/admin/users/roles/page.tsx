@@ -35,6 +35,7 @@ import {
   selectSelectedRole,
 } from "@/features/auth/store/selectors/role-selectors";
 import { useActionRouting } from "@/hooks/use-action-routing";
+import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function RolesPageInner() {
   useAdminCleanup(resetState);
@@ -63,10 +64,24 @@ function RolesPageInner() {
   } = useActionRouting();
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, AppDefault.DEBOUNCE_MS);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
+
+  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
+  useAdminFilterUrlSync({
+    filters: {
+      search: filters.search,
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+    },
+  });
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
-    baseRoute: ROUTES.HR.ATTENDANCE,
+    baseRoute: ROUTES.ADMIN.ROLES,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
 
@@ -81,7 +96,7 @@ function RolesPageInner() {
     );
   }, [dispatch, debouncedSearch, filters.pageNo, globalPageSize]);
 
-  // Deep-link resolver: fetch role by ID when deleteId or viewId/editId is set but not in cache
+  // ── Deep-link resolver ────────────────────────────────────────────────────
   const allRolesContent = useAppSelector(selectRoleContent);
   const selectedRole = useAppSelector(selectSelectedRole);
 
@@ -98,6 +113,7 @@ function RolesPageInner() {
     }
   }, [deleteId, deleteRole, dispatch]);
 
+  // ── Table action handlers ─────────────────────────────────────────────────
   const handleCreate = () => openCreate();
   const handleEditItem = (role: RoleResponseModel) => openEdit(role.id || "");
   const handleViewDetailItem = (role: RoleResponseModel) => openView(role.id || "");
@@ -121,10 +137,6 @@ function RolesPageInner() {
     [rolesState, tableHandlers],
   );
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchFilter(e.target.value));
-  };
-
   const handlePageChangeWrapper = (page: number) => {
     dispatch(setPageNo(page));
     handlePageChange(page);
@@ -139,7 +151,7 @@ function RolesPageInner() {
     title: "Roles Management",
     searchValue: filters.search,
     searchPlaceholder: "Search roles...",
-    onSearchChange: handleSearchChange,
+    onSearchChange: (e) => dispatch(setSearchFilter(e.target.value)),
     buttonText: "Create Role",
     buttonDisabled: false,
     onButtonClick: handleCreate,

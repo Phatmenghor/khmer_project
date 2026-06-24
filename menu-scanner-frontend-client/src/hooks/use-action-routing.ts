@@ -3,6 +3,13 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback } from "react";
 
+const ACTION_PARAMS = ["view", "edit", "delete", "create", "resetPassword"] as const;
+
+/**
+ * Manages action-based modals via URL query parameters.
+ * Uses router.replace so modal open/close doesn't pollute browser history;
+ * all existing filter/search params are preserved when switching actions.
+ */
 export function useActionRouting() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -14,65 +21,54 @@ export function useActionRouting() {
   const createMode = searchParams.get("create") === "true";
   const resetPasswordId = searchParams.get("resetPassword");
 
-  const openView = useCallback((id: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("edit");
-    params.delete("delete");
-    params.delete("create");
-    params.delete("resetPassword");
-    params.set("view", id);
-    router.push(`${pathname}?${params.toString()}`);
-  }, [searchParams, pathname, router]);
+  /** Build a params object with all action params cleared, then set the given key. */
+  const buildParams = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      ACTION_PARAMS.forEach((p) => params.delete(p));
+      params.set(key, value);
+      return params;
+    },
+    [searchParams],
+  );
 
-  const openEdit = useCallback((id: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("view");
-    params.delete("delete");
-    params.delete("create");
-    params.delete("resetPassword");
-    params.set("edit", id);
-    router.push(`${pathname}?${params.toString()}`);
-  }, [searchParams, pathname, router]);
+  const openView = useCallback(
+    (id: string) => {
+      router.push(`${pathname}?${buildParams("view", id).toString()}`);
+    },
+    [buildParams, pathname, router],
+  );
 
-  const openDelete = useCallback((id: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("view");
-    params.delete("edit");
-    params.delete("create");
-    params.delete("resetPassword");
-    params.set("delete", id);
-    router.push(`${pathname}?${params.toString()}`);
-  }, [searchParams, pathname, router]);
+  const openEdit = useCallback(
+    (id: string) => {
+      router.push(`${pathname}?${buildParams("edit", id).toString()}`);
+    },
+    [buildParams, pathname, router],
+  );
+
+  const openDelete = useCallback(
+    (id: string) => {
+      router.push(`${pathname}?${buildParams("delete", id).toString()}`);
+    },
+    [buildParams, pathname, router],
+  );
 
   const openCreate = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("view");
-    params.delete("edit");
-    params.delete("delete");
-    params.delete("resetPassword");
-    params.set("create", "true");
-    router.push(`${pathname}?${params.toString()}`);
-  }, [searchParams, pathname, router]);
+    router.push(`${pathname}?${buildParams("create", "true").toString()}`);
+  }, [buildParams, pathname, router]);
 
-  const openResetPassword = useCallback((id: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("view");
-    params.delete("edit");
-    params.delete("delete");
-    params.delete("create");
-    params.set("resetPassword", id);
-    router.push(`${pathname}?${params.toString()}`);
-  }, [searchParams, pathname, router]);
+  const openResetPassword = useCallback(
+    (id: string) => {
+      router.push(`${pathname}?${buildParams("resetPassword", id).toString()}`);
+    },
+    [buildParams, pathname, router],
+  );
 
   const closeModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
-    params.delete("view");
-    params.delete("edit");
-    params.delete("delete");
-    params.delete("create");
-    params.delete("resetPassword");
+    ACTION_PARAMS.forEach((p) => params.delete(p));
     const queryStr = params.toString();
-    router.push(queryStr ? `${pathname}?${queryStr}` : pathname);
+    router.replace(queryStr ? `${pathname}?${queryStr}` : pathname);
   }, [searchParams, pathname, router]);
 
   return {

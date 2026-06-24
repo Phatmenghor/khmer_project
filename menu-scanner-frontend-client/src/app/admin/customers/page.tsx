@@ -1,9 +1,8 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState, Suspense } from "react";
+import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
@@ -15,6 +14,7 @@ import { usePagination } from "@/hooks/use-pagination";
 import {
   deleteUserService,
   fetchAllUsersService,
+  fetchUserByIdService,
   toggleUserStatusService,
 } from "@/features/auth/store/thunks/users-thunks";
 import {
@@ -37,8 +37,14 @@ import { UserBusinessDetailModal } from "@/features/auth/components/user-busines
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
-import { useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { selectUser } from "@/features/auth/store/selectors/auth-selectors";
+import {
+  selectUsersContent,
+  selectSelectedUser,
+} from "@/features/auth/store/selectors/users-selectors";
+import { useActionRouting } from "@/hooks/use-action-routing";
+import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function CustomerPageInner() {
   useAdminCleanup(resetState);
@@ -56,8 +62,63 @@ function CustomerPageInner() {
     operations,
     dispatch,
   } = useUsersState();
+
+  const {
+    viewId,
+    editId,
+    deleteId,
+    createMode,
+    resetPasswordId,
+    openView,
+    openEdit,
+    openDelete,
+    openCreate,
+    openResetPassword,
+    closeModal,
+  } = useActionRouting();
+
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, 400);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
+
+  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
+  useAdminFilterUrlSync({
+    filters: {
+      search: filters.search,
+      accountStatus: filters.accountStatus !== AccountStatus.ALL ? filters.accountStatus : "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.accountStatus) dispatch(setAccountStatusFilter(params.accountStatus as AccountStatus));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+    },
+  });
+
+  // ── Deep-link resolver ────────────────────────────────────────────────────
+  const allUsersContent = useAppSelector(selectUsersContent);
+  const selectedUser = useAppSelector(selectSelectedUser);
+
+  const resolveUser = (id: string | null): UserResponseModel | null => {
+    if (!id) return null;
+    return allUsersContent.find(u => u.id === id) || (selectedUser?.id === id ? selectedUser : null);
+  };
+
+  const deleteCustomer = resolveUser(deleteId);
+  const resetPasswordCustomer = resolveUser(resetPasswordId);
+
+  useEffect(() => {
+    if (deleteId && !deleteCustomer) {
+      dispatch(fetchUserByIdService(deleteId));
+    }
+  }, [deleteId, deleteCustomer, dispatch]);
+
+  useEffect(() => {
+    if (resetPasswordId && !resetPasswordCustomer) {
+      dispatch(fetchUserByIdService(resetPasswordId));
+    }
+  }, [resetPasswordId, resetPasswordCustomer, dispatch]);
 
   const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: "/admin/customers",
@@ -86,68 +147,30 @@ function CustomerPageInner() {
     globalPageSize,
   ]);
 
-  const [modalState, setModalState] = useState({
-    isOpen: false,
-    mode: ModalMode.CREATE_MODE,
-    userId: "",
-  });
-
-  const [detailModalState, setDetailModalState] = useState({
-    isOpen: false,
-    userBusinessId: "",
-  });
-
-  const [resetPasswordState, setResetPasswordState] = useState({
-    isOpen: false,
-    userBusinessId: "",
-    userName: "",
-    roles: [] as string[],
-    profileImageUrl: "",
-  });
-
-  const [deleteState, setDeleteState] = useState({
-    isOpen: false,
-    customer: null as UserResponseModel | null,
-  });
-
-  const handleCreateCustomer = () =>
-    setModalState({ isOpen: true, mode: ModalMode.CREATE_MODE, userId: "" });
+  // ── Table action handlers ─────────────────────────────────────────────────
+  const handleCreateCustomer = () => openCreate();
 
   const handleEditCustomer = (customer: UserResponseModel) => {
     const isSelf = customer?.id === currentUserId;
     const isBusinessOwner = customer?.roles?.includes(UserRole.BUSINESS_OWNER);
     if (isSelf || isBusinessOwner) return;
-
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.UPDATE_MODE,
-      userId: customer?.id || "",
-    });
+    openEdit(customer?.id || "");
   };
 
-  const handleViewDetail = (customer: UserResponseModel) =>
-    setDetailModalState({ isOpen: true, userBusinessId: customer.id || "" });
+  const handleViewDetail = (customer: UserResponseModel) => openView(customer.id || "");
 
   const handleResetPassword = (customer: UserResponseModel) => {
     const isSelf = customer?.id === currentUserId;
     const isBusinessOwner = customer?.roles?.includes(UserRole.BUSINESS_OWNER);
     if (isSelf || isBusinessOwner) return;
-
-    setResetPasswordState({
-      isOpen: true,
-      userBusinessId: customer.id || "",
-      userName: customer.userIdentifier || "",
-      roles: customer.roles || [],
-      profileImageUrl: customer.profileImage?.sm || "",
-    });
+    openResetPassword(customer.id || "");
   };
 
   const handleDeleteCustomer = (customer: UserResponseModel) => {
     const isSelf = customer?.id === currentUserId;
     const isBusinessOwner = customer?.roles?.includes(UserRole.BUSINESS_OWNER);
     if (isSelf || isBusinessOwner) return;
-
-    setDeleteState({ isOpen: true, customer });
+    openDelete(customer.id || "");
   };
 
   const handleToggleStatus = async (customer: UserResponseModel) => {
@@ -217,13 +240,13 @@ function CustomerPageInner() {
   }), [filters.search, filters.accountStatus]);
 
   const handleDelete = async () => {
-    if (!deleteState.customer?.id) return;
+    if (!deleteId) return;
     try {
-      await dispatch(deleteUserService(deleteState.customer.id)).unwrap();
+      await dispatch(deleteUserService(deleteId)).unwrap();
       showToast.success(
-        `Customer "${deleteState.customer.fullName || deleteState.customer.userIdentifier}" deleted successfully`,
+        `Customer "${deleteCustomer?.fullName || deleteCustomer?.userIdentifier}" deleted successfully`,
       );
-      closeDeleteModal();
+      closeModal();
       if (usersContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -233,23 +256,6 @@ function CustomerPageInner() {
       showToast.error((error as { message?: string })?.message || Messages.users.deleteFailed);
     }
   };
-
-  const closeModal = () =>
-    setModalState({ isOpen: false, mode: ModalMode.CREATE_MODE, userId: "" });
-
-  const closeDetailModal = () =>
-    setDetailModalState({ isOpen: false, userBusinessId: "" });
-
-  const closeResetPasswordModal = () =>
-    setResetPasswordState({
-      isOpen: false,
-      userBusinessId: "",
-      userName: "",
-      roles: [] as string[],
-      profileImageUrl: "",
-    });
-
-  const closeDeleteModal = () => setDeleteState({ isOpen: false, customer: null });
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
@@ -273,34 +279,34 @@ function CustomerPageInner() {
       </div>
 
       <UserCustomerModal
-        isOpen={modalState.isOpen}
+        isOpen={createMode || !!editId}
         onClose={closeModal}
-        userId={modalState.userId}
-        mode={modalState.mode}
+        userId={editId || undefined}
+        mode={createMode ? ModalMode.CREATE_MODE : ModalMode.UPDATE_MODE}
       />
 
       <UserBusinessDetailModal
-        userId={detailModalState.userBusinessId}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        userId={viewId || undefined}
+        isOpen={!!viewId}
+        onClose={closeModal}
       />
 
       <ResetPasswordModal
-        isOpen={resetPasswordState.isOpen}
-        userName={resetPasswordState.userName}
-        userRole={resetPasswordState.roles}
-        profileImageUrl={resetPasswordState.profileImageUrl}
-        onClose={closeResetPasswordModal}
-        userId={resetPasswordState.userBusinessId}
+        isOpen={!!resetPasswordId}
+        userName={resetPasswordCustomer?.userIdentifier}
+        userRole={resetPasswordCustomer?.roles}
+        profileImageUrl={resetPasswordCustomer?.profileImage?.sm}
+        onClose={closeModal}
+        userId={resetPasswordId || undefined}
       />
 
       <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
+        isOpen={!!deleteId}
+        onClose={closeModal}
         onDelete={handleDelete}
         title="Delete Customer"
-        description={`Are you sure you want to delete customer ${deleteState.customer?.userIdentifier}?`}
-        itemName={deleteState.customer?.fullName || deleteState.customer?.email}
+        description={`Are you sure you want to delete customer ${deleteCustomer?.userIdentifier}?`}
+        itemName={deleteCustomer?.fullName || deleteCustomer?.email}
         isSubmitting={operations.isDeleting}
       />
     </div>

@@ -127,7 +127,7 @@ export default function ResetPasswordModal({
           <Loading />
         </div>
       ) : (
-
+        <>
       <FormBody className="px-4">
         <div className="space-y-4">
           <div className="border border-border/40 bg-muted/20 p-2.5 rounded-lg flex items-center gap-2.5 text-left">
@@ -238,6 +238,7 @@ export default function ResetPasswordModal({
           )}
         </CustomButton>
       </div>
+        </>
       )}
     </CustomModal>
   );
