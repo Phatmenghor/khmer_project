@@ -1,12 +1,10 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState, Suspense} from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
-import { CustomSelect } from "@/components/shared/common/custom-select";
+import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -19,6 +17,7 @@ import { ExchangeRateResponseModel } from "@/features/master-data/store/models/r
 import {
   deleteExchangeRateService,
   fetchAllMyBusinessExchangeRateService,
+  fetchExchangeRateByIdService,
   toggleExchangeRateStatusService,
 } from "@/features/master-data/store/thunks/exchange-rate-thunks";
 import {
@@ -35,11 +34,12 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
+import { selectExchangeRateContent, selectSelectedExchangeRate } from "@/features/master-data/store/selectors/exchange-rate-selector";
+import { useActionRouting } from "@/hooks/use-action-routing";
+import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function ExchangeRatePageInner() {
-
   useAdminCleanup(resetState);
-
 
   const {
     exchangeRateState,
@@ -52,39 +52,47 @@ function ExchangeRatePageInner() {
     dispatch,
   } = useExchangeRateState();
 
-
-  const [modalState, setModalState] = useState({
-    isOpen: false,
-    mode: ModalMode.CREATE_MODE,
-    exchangeRate: null as ExchangeRateResponseModel | null,
-  });
-
-  const [detailModalState, setDetailModalState] = useState({
-    isOpen: false,
-    exchangeRate: null as ExchangeRateResponseModel | null,
-  });
-
-  const [deleteState, setDeleteState] = useState({
-    isOpen: false,
-    exchage: null as ExchangeRateResponseModel | null,
-  });
-
+  const {
+    viewId,
+    editId,
+    deleteId,
+    createMode,
+    openView,
+    openEdit,
+    openDelete,
+    openCreate,
+    closeModal,
+  } = useActionRouting();
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
 
-  const debouncedSearch = useDebounce(filters.search, 400);
+  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
+  useAdminFilterUrlSync({
+    filters: {
+      search: filters.search,
+      status: filters.isActive !== ExchangeRateStatus.ALL ? filters.isActive : "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.status) dispatch(setExchangeRateStatusFilter(params.status as ExchangeRateStatus));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+    },
+  });
 
-  const { currentPage, updateUrlWithPage, handlePageChange } = usePagination({
+  const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.EXCHANGE_RATE,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
 
   useEffect(() => {
     const promise = dispatch(
       fetchAllMyBusinessExchangeRateService({
         search: debouncedSearch,
-        pageNo: currentPage,
+        pageNo: filters.pageNo,
         pageSize: globalPageSize,
         status:
           filters.isActive === ExchangeRateStatus.ALL
@@ -95,37 +103,29 @@ function ExchangeRatePageInner() {
     return () => {
       promise.abort();
     };
-  }, [
-    dispatch,
-    debouncedSearch,
-    filters.isActive,
-    currentPage,
-    globalPageSize,
-  ]);
+  }, [dispatch, debouncedSearch, filters.isActive, filters.pageNo, globalPageSize]);
 
+  // ── Deep-link resolver ────────────────────────────────────────────────────
+  const allExchangeRateContent = useAppSelector(selectExchangeRateContent);
+  const selectedExchangeRate = useAppSelector(selectSelectedExchangeRate);
 
-  const handleCreateUser = () => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.CREATE_MODE,
-      exchangeRate: null,
-    });
+  const resolveExchangeRate = (id: string | null): ExchangeRateResponseModel | null => {
+    if (!id) return null;
+    return allExchangeRateContent.find(r => r.id === id) || (selectedExchangeRate?.id === id ? selectedExchangeRate : null);
   };
 
-  const handleEditRate = (exchage: ExchangeRateResponseModel) => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.UPDATE_MODE,
-      exchangeRate: exchage,
-    });
-  };
+  const deleteRate = resolveExchangeRate(deleteId);
 
-  const handleViewRateDetail = (exchage: ExchangeRateResponseModel) => {
-    setDetailModalState({
-      isOpen: true,
-      exchangeRate: exchage,
-    });
-  };
+  useEffect(() => {
+    if (deleteId && !deleteRate) {
+      dispatch(fetchExchangeRateByIdService(deleteId));
+    }
+  }, [deleteId, deleteRate, dispatch]);
+
+  // ── Table action handlers ─────────────────────────────────────────────────
+  const handleCreateRate = () => openCreate();
+  const handleEditRate = (rate: ExchangeRateResponseModel) => openEdit(rate.id || "");
+  const handleViewRateDetail = (rate: ExchangeRateResponseModel) => openView(rate.id || "");
 
   const handleToggleExchangeRateStatus = async (rate: ExchangeRateResponseModel) => {
     if (!rate?.id) return;
@@ -138,19 +138,14 @@ function ExchangeRatePageInner() {
     }
   };
 
-  const handleDeleteRate = (exchage: ExchangeRateResponseModel) => {
-
+  const handleDeleteRate = (rate: ExchangeRateResponseModel) => {
     if (exchangeRateContent.length === 1) {
       showToast.error(
         "Cannot delete the only exchange rate. At least one rate must exist."
       );
       return;
     }
-
-    setDeleteState({
-      isOpen: true,
-      exchage: exchage,
-    });
+    openDelete(rate.id || "");
   };
 
   const tableHandlers = useMemo(
@@ -172,15 +167,8 @@ function ExchangeRatePageInner() {
     [exchangeRateState, tableHandlers],
   );
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchFilter(e.target.value));
-  };
-
-  const handleStatusChange = (status: ExchangeRateStatus) => {
-    dispatch(setExchangeRateStatusFilter(status));
-  };
-
   const handlePageChangeWrapper = (page: number) => {
+    dispatch(setPageNo(page));
     handlePageChange(page);
   };
 
@@ -189,23 +177,35 @@ function ExchangeRatePageInner() {
     dispatch(setPageNo(1));
   };
 
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Exchange Rate",
+    searchValue: filters.search,
+    searchPlaceholder: "Search exchange rate...",
+    onSearchChange: (e) => dispatch(setSearchFilter(e.target.value)),
+    buttonText: "New",
+    buttonTooltip: "Create a new exchange rate",
+    onButtonClick: handleCreateRate,
+    filters: [
+      {
+        id: "status",
+        type: "select",
+        label: "ExchangeRate Status",
+        placeholder: "All Status",
+        value: filters.isActive,
+        onChange: (value) => dispatch(setExchangeRateStatusFilter(value as ExchangeRateStatus)),
+        options: EXCHAGE_RATE_FILTER,
+      },
+    ],
+  }), [filters.search, filters.isActive]);
+
   const handleDelete = async () => {
-    if (!deleteState.exchage?.id) return;
-
+    if (!deleteId) return;
     try {
-      await dispatch(
-        deleteExchangeRateService(deleteState.exchage.id),
-      ).unwrap();
-
+      await dispatch(deleteExchangeRateService(deleteId)).unwrap();
       showToast.success(
-        `Exchange Rate "${
-          deleteState.exchage.usdToKhrRate ?? ""
-        }" deleted successfully`,
+        `Exchange Rate "${deleteRate?.usdToKhrRate ?? ""}" deleted successfully`,
       );
-
-      closeDeleteModal();
-
-
+      closeModal();
       if (exchangeRateContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -216,62 +216,18 @@ function ExchangeRatePageInner() {
     }
   };
 
-  const closeModal = () => {
-    setModalState({
-      isOpen: false,
-      mode: ModalMode.CREATE_MODE,
-      exchangeRate: null,
-    });
-  };
-
-  const closeDetailModal = () => {
-    setDetailModalState({
-      isOpen: false,
-      exchangeRate: null,
-    });
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteState({
-      isOpen: false,
-      exchage: null,
-    });
-  };
-
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
-        <CardHeaderSection
-          title="Exchange Rate"
-          buttonTooltip="Create a new exchange rate"
-          searchValue={filters.search}
-          searchPlaceholder="Search exchange rate..."
-          buttonIcon={<Plus className="w-2 h-2" />}
-          buttonText="New"
-          onSearchChange={handleSearchChange}
-          openModal={handleCreateUser}
-        >
-          <div className="flex flex-wrap items-center gap-1">
-            <CustomSelect
-              options={EXCHAGE_RATE_FILTER}
-              value={filters.isActive}
-              placeholder="All Status"
-              onValueChange={(value) =>
-                handleStatusChange(value as ExchangeRateStatus)
-              }
-              label="ExchangeRate Status"
-            />
-          </div>
-        </CardHeaderSection>
+        <CollapsibleFilterPanel config={filterConfig} essentialFilterIds={["status"]} />
 
-        {}
         <DataTableWithPagination
           data={exchangeRateContent}
           columns={columns}
           loading={isLoading}
           emptyMessage="No Exchange Rate found"
           getRowKey={(exchange) => exchange.id}
-          currentPage={filters.pageNo}
+          currentPage={pagination.currentPage}
           totalElements={pagination.totalElements}
           totalPages={pagination.totalPages}
           onPageChange={handlePageChangeWrapper}
@@ -281,36 +237,33 @@ function ExchangeRatePageInner() {
         />
       </div>
 
-      {}
       <ExchangeRateModal
-        isOpen={modalState.isOpen}
+        isOpen={createMode || !!editId}
         onClose={closeModal}
-        exchangeRate={modalState.exchangeRate}
-        mode={modalState.mode}
+        exchangeRateId={editId || undefined}
+        mode={createMode ? ModalMode.CREATE_MODE : ModalMode.UPDATE_MODE}
       />
 
-      {}
       <ExchangeRateDetailModal
-        exchangeRate={detailModalState.exchangeRate}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        exchangeRateId={viewId || undefined}
+        isOpen={!!viewId}
+        onClose={closeModal}
       />
 
-      {}
       <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
+        isOpen={!!deleteId}
+        onClose={closeModal}
         onDelete={handleDelete}
         title="Delete Exchange Rate"
         description={
-          deleteState.exchage?.status === "ACTIVE" && exchangeRateContent.filter(r => r.status === "ACTIVE").length === 1
+          deleteRate?.status === "ACTIVE" && exchangeRateContent.filter(r => r.status === "ACTIVE").length === 1
             ? `This is the only ACTIVE exchange rate. When deleted, the next most recent exchange rate will be automatically activated to maintain business operations.`
             : `Are you sure you want to delete this exchange rate?`
         }
         itemName={
-          deleteState.exchage
-            ? `USD to KHR: ${deleteState.exchage.usdToKhrRate}${
-                deleteState.exchage.notes ? ` (${deleteState.exchage.notes})` : ""
+          deleteRate
+            ? `USD to KHR: ${deleteRate.usdToKhrRate}${
+                deleteRate.notes ? ` (${deleteRate.notes})` : ""
               }`
             : ""
         }

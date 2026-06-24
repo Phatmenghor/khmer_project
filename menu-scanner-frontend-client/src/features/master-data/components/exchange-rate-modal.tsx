@@ -15,7 +15,10 @@ import { ModalMode } from "@/constants/status/status";
 import { SelectField } from "@/components/shared/form-field/select-field";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { showToast } from "@/components/shared/common/show-toast";
+import { Loading } from "@/components/shared/common/loading";
 import {
+  selectExchangeRateContent,
+  selectSelectedExchangeRate,
   selectError,
   selectOperations,
 } from "../store/selectors/exchange-rate-selector";
@@ -27,6 +30,7 @@ import {
 } from "../store/models/schema/exchange-rate-schema";
 import {
   createExchangeRateService,
+  fetchExchangeRateByIdService,
   updateExchangeRateService,
 } from "../store/thunks/exchange-rate-thunks";
 import {
@@ -39,7 +43,7 @@ import { ExchangeRateResponseModel } from "../store/models/response/exchange-rat
 
 type Props = {
   mode: ModalMode;
-  exchangeRate?: ExchangeRateResponseModel | null;
+  exchangeRateId?: string;
   onClose: () => void;
   isOpen: boolean;
 };
@@ -47,7 +51,7 @@ type Props = {
 export default function ExchangeRateModal({
   isOpen,
   onClose,
-  exchangeRate,
+  exchangeRateId,
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
@@ -55,7 +59,11 @@ export default function ExchangeRateModal({
   const dispatch = useAppDispatch();
   const operations = useAppSelector(selectOperations);
   const reduxError = useAppSelector(selectError);
-  const { isCreating, isUpdating } = operations;
+  const { isCreating, isUpdating, isFetchingDetail } = operations;
+
+  const exchangeRateContent = useAppSelector(selectExchangeRateContent);
+  const selectedExchangeRate = useAppSelector(selectSelectedExchangeRate);
+  const exchangeRate = exchangeRateContent.find(r => r.id === exchangeRateId) || (selectedExchangeRate?.id === exchangeRateId ? selectedExchangeRate : null);
 
   const {
     control,
@@ -71,6 +79,12 @@ export default function ExchangeRateModal({
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (isOpen && !isCreate && exchangeRateId && !exchangeRate) {
+      dispatch(fetchExchangeRateByIdService(exchangeRateId));
+    }
+  }, [isOpen, isCreate, exchangeRateId, exchangeRate, dispatch]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -167,6 +181,11 @@ export default function ExchangeRateModal({
           isCreate={isCreate}
         />
 
+        {!isCreate && isFetchingDetail ? (
+          <div className="p-4 flex items-center justify-center min-h-[200px] flex-1">
+            <Loading />
+          </div>
+        ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-visible">
           <FormBody>
             {reduxError && (
@@ -233,6 +252,7 @@ export default function ExchangeRateModal({
             />
           </FormFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -1,12 +1,10 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState, Suspense} from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
-import { CustomSelect } from "@/components/shared/common/custom-select";
+import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -16,7 +14,7 @@ import { useAdminCleanup } from "@/hooks/use-cleanup-on-unmount";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
-import { useAppDispatch, useAppSelector } from "@/store";
+import { useAppSelector } from "@/store";
 import PaymentOptionsModal from "@/features/master-data/components/payment-options-modal";
 import { PaymentOptionDetailModal } from "@/features/master-data/components/payment-options-detail-modal";
 import { STATUS_FILTER } from "@/constants/status/filter-status";
@@ -30,15 +28,20 @@ import {
 import {
   deletePaymentOptionService,
   fetchMyBusinessPaymentOptionsService,
+  fetchPaymentOptionByIdService,
   updatePaymentOptionService,
 } from "@/features/master-data/store/thunks/payment-options-thunks";
 import { paymentOptionsTableColumns } from "@/features/master-data/table/payment-options-table";
 import { PaymentOptionResponse } from "@/features/master-data/store/models/response/payment-option-response";
+import {
+  selectPaymentOptionsContent,
+  selectSelectedPaymentOption,
+} from "@/features/master-data/store/selectors/payment-options-selectors";
+import { useActionRouting } from "@/hooks/use-action-routing";
+import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function PaymentOptionsPageInner() {
-
   useAdminCleanup(resetState);
-
 
   const {
     paymentOptionsState,
@@ -51,39 +54,47 @@ function PaymentOptionsPageInner() {
     dispatch,
   } = usePaymentOptionsState();
 
-
-  const [modalState, setModalState] = useState({
-    isOpen: false,
-    mode: ModalMode.CREATE_MODE,
-    paymentOption: null as PaymentOptionResponse | null,
-  });
-
-  const [deleteState, setDeleteState] = useState({
-    isOpen: false,
-    paymentOption: null as PaymentOptionResponse | null,
-  });
-
-  const [detailModalState, setDetailModalState] = useState({
-    isOpen: false,
-    paymentOption: null as PaymentOptionResponse | null,
-  });
-
+  const {
+    viewId,
+    editId,
+    deleteId,
+    createMode,
+    openView,
+    openEdit,
+    openDelete,
+    openCreate,
+    closeModal,
+  } = useActionRouting();
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
 
-  const debouncedSearch = useDebounce(filters.search, 400);
+  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
+  useAdminFilterUrlSync({
+    filters: {
+      search: filters.search,
+      status: filters.status !== Status.ALL ? filters.status : "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.status) dispatch(setStatusFilter(params.status as Status));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+    },
+  });
 
-  const { currentPage, updateUrlWithPage, handlePageChange } = usePagination({
+  const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.PAYMENT_OPTIONS,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
 
   useEffect(() => {
     const promise = dispatch(
       fetchMyBusinessPaymentOptionsService({
         search: debouncedSearch,
-        pageNo: currentPage,
+        pageNo: filters.pageNo,
         pageSize: globalPageSize,
         ...(filters.status !== Status.ALL && { statuses: [filters.status] }),
       }),
@@ -91,41 +102,32 @@ function PaymentOptionsPageInner() {
     return () => {
       promise.abort();
     };
-  }, [
-    dispatch,
-    debouncedSearch,
-    filters.status,
-    currentPage,
-    globalPageSize,
-  ]);
+  }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize]);
 
+  // ── Deep-link resolver ────────────────────────────────────────────────────
+  const allPaymentOptionsContent = useAppSelector(selectPaymentOptionsContent);
+  const selectedPaymentOption = useAppSelector(selectSelectedPaymentOption);
 
-  const handleCreatePaymentOption = () => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.CREATE_MODE,
-      paymentOption: null,
-    });
+  const resolvePaymentOption = (id: string | null): PaymentOptionResponse | null => {
+    if (!id) return null;
+    return allPaymentOptionsContent.find(p => p.id === id) || (selectedPaymentOption?.id === id ? selectedPaymentOption : null);
   };
 
-  const handleEditPaymentOption = (paymentOption: PaymentOptionResponse) => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.UPDATE_MODE,
-      paymentOption: paymentOption,
-    });
-  };
+  const deletePaymentOption = resolvePaymentOption(deleteId);
 
-  const handleDeletePaymentOption = (paymentOption: PaymentOptionResponse) => {
-    setDeleteState({
-      isOpen: true,
-      paymentOption: paymentOption,
-    });
-  };
+  useEffect(() => {
+    if (deleteId && !deletePaymentOption) {
+      dispatch(fetchPaymentOptionByIdService(deleteId));
+    }
+  }, [deleteId, deletePaymentOption, dispatch]);
 
-  const handleTogglePaymentOptionStatus = async (
-    paymentOption: PaymentOptionResponse,
-  ) => {
+  // ── Table action handlers ─────────────────────────────────────────────────
+  const handleCreatePaymentOption = () => openCreate();
+  const handleEditPaymentOption = (paymentOption: PaymentOptionResponse) => openEdit(paymentOption.id || "");
+  const handleViewPaymentOption = (paymentOption: PaymentOptionResponse) => openView(paymentOption.id || "");
+  const handleDeletePaymentOption = (paymentOption: PaymentOptionResponse) => openDelete(paymentOption.id || "");
+
+  const handleTogglePaymentOptionStatus = async (paymentOption: PaymentOptionResponse) => {
     try {
       const newStatus =
         paymentOption.status === Status.ACTIVE
@@ -148,15 +150,6 @@ function PaymentOptionsPageInner() {
     }
   };
 
-  const handleViewPaymentOption = (
-    paymentOption: PaymentOptionResponse,
-  ) => {
-    setDetailModalState({
-      isOpen: true,
-      paymentOption: paymentOption,
-    });
-  };
-
   const tableHandlers = useMemo(
     () => ({
       handleViewPaymentOption,
@@ -176,14 +169,6 @@ function PaymentOptionsPageInner() {
     [paymentOptionsData, tableHandlers],
   );
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchFilter(e.target.value));
-  };
-
-  const handleStatusChange = (status: string) => {
-    dispatch(setStatusFilter(status as Status));
-  };
-
   const handlePageChangeWrapper = (page: number) => {
     dispatch(setPageNo(page));
     handlePageChange(page);
@@ -194,23 +179,35 @@ function PaymentOptionsPageInner() {
     dispatch(setPageNo(1));
   };
 
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Payment Options Information",
+    searchValue: filters.search,
+    searchPlaceholder: "Search payment options...",
+    onSearchChange: (e) => dispatch(setSearchFilter(e.target.value)),
+    buttonText: "New",
+    buttonTooltip: "Create a new payment option",
+    onButtonClick: handleCreatePaymentOption,
+    filters: [
+      {
+        id: "status",
+        type: "select",
+        label: "Payment Options Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => dispatch(setStatusFilter(value as Status)),
+        options: STATUS_FILTER,
+      },
+    ],
+  }), [filters.search, filters.status]);
+
   const handleDelete = async () => {
-    if (!deleteState.paymentOption?.id) return;
-
+    if (!deleteId) return;
     try {
-      await dispatch(
-        deletePaymentOptionService(deleteState.paymentOption.id),
-      ).unwrap();
-
+      await dispatch(deletePaymentOptionService(deleteId)).unwrap();
       showToast.success(
-        `Payment option "${
-          deleteState.paymentOption.name ?? ""
-        }" deleted successfully`,
+        `Payment option "${deletePaymentOption?.name ?? ""}" deleted successfully`,
       );
-
-      closeDeleteModal();
-
-
+      closeModal();
       if (paymentOptionsContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -221,52 +218,11 @@ function PaymentOptionsPageInner() {
     }
   };
 
-  const closeModal = () => {
-    setModalState({
-      isOpen: false,
-      mode: ModalMode.CREATE_MODE,
-      paymentOption: null,
-    });
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteState({
-      isOpen: false,
-      paymentOption: null,
-    });
-  };
-
-  const closeDetailModal = () => {
-    setDetailModalState({
-      isOpen: false,
-      paymentOption: null,
-    });
-  };
-
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
-        <CardHeaderSection
-          title="Payment Options Information"
-          buttonTooltip="Create a new payment option"
-          searchValue={filters.search}
-          searchPlaceholder="Search payment options..."
-          buttonIcon={<Plus className="w-2 h-2" />}
-          buttonText="New"
-          onSearchChange={handleSearchChange}
-          openModal={handleCreatePaymentOption}
-        >
-          <div className="flex flex-wrap items-center gap-1">
-            <CustomSelect
-              options={STATUS_FILTER}
-              value={filters.status}
-              onValueChange={handleStatusChange}
-              placeholder="All Status"
-            />
-          </div>
-        </CardHeaderSection>
+        <CollapsibleFilterPanel config={filterConfig} essentialFilterIds={["status"]} />
 
-        {}
         <DataTableWithPagination
           data={paymentOptionsContent}
           columns={columns}
@@ -283,26 +239,27 @@ function PaymentOptionsPageInner() {
         />
       </div>
 
-      {}
       <PaymentOptionsModal
-        isOpen={modalState.isOpen}
-        mode={modalState.mode}
-        paymentOption={modalState.paymentOption}
+        isOpen={createMode || !!editId}
+        mode={createMode ? ModalMode.CREATE_MODE : ModalMode.UPDATE_MODE}
+        paymentOptionId={editId || undefined}
+        onClose={closeModal}
+      />
+
+      <PaymentOptionDetailModal
+        paymentOptionId={viewId || undefined}
+        isOpen={!!viewId}
         onClose={closeModal}
       />
 
       <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
+        isOpen={!!deleteId}
+        onClose={closeModal}
         onDelete={handleDelete}
         title="Delete Payment Option"
-        description={`Are you sure you want to delete the payment option "${deleteState.paymentOption?.name}"? This action cannot be undone.`}
-      />
-
-      <PaymentOptionDetailModal
-        paymentOption={detailModalState.paymentOption}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        description={`Are you sure you want to delete the payment option "${deletePaymentOption?.name || ""}"? This action cannot be undone.`}
+        itemName={deletePaymentOption?.name || ""}
+        isSubmitting={operations.isDeleting}
       />
     </div>
   );

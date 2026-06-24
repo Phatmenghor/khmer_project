@@ -20,7 +20,10 @@ import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-st
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { uploadMultiSize } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
+import { Loading } from "@/components/shared/common/loading";
 import {
+  selectCategoriesWithProductCountContent,
+  selectSelectedCategories,
   selectError,
   selectOperations,
 } from "../store/selectors/categories-selector";
@@ -31,17 +34,17 @@ import {
 } from "../store/models/schema/categories-schema";
 import {
   createCategoriesService,
+  fetchCategoriesByIdService,
   updateCategoriesService,
 } from "../store/thunks/categories-thunks";
 import {
   clearError,
   clearSelectedCategories,
 } from "../store/slice/categories-slice";
-import { CategoriesResponseModel } from "../store/models/response/categories-response";
 
 type Props = {
   mode: ModalMode;
-  categories?: CategoriesResponseModel | null;
+  categoriesId?: string;
   onClose: () => void;
   isOpen: boolean;
 };
@@ -49,7 +52,7 @@ type Props = {
 export default function CategoriesModal({
   isOpen,
   onClose,
-  categories,
+  categoriesId,
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
@@ -69,7 +72,11 @@ export default function CategoriesModal({
 
   const operations = useAppSelector(selectOperations);
   const reduxError = useAppSelector(selectError);
-  const { isCreating, isUpdating } = operations;
+  const { isCreating, isUpdating, isFetchingDetail } = operations;
+
+  const categoriesContent = useAppSelector(selectCategoriesWithProductCountContent);
+  const selectedCategories = useAppSelector(selectSelectedCategories);
+  const categories = categoriesContent.find(c => c.id === categoriesId) || (selectedCategories?.id === categoriesId ? selectedCategories : null);
 
   const {
     control,
@@ -89,6 +96,12 @@ export default function CategoriesModal({
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (isOpen && !isCreate && categoriesId && !categories) {
+      dispatch(fetchCategoriesByIdService(categoriesId));
+    }
+  }, [isOpen, isCreate, categoriesId, categories, dispatch]);
 
   useEffect(() => {
     if (isOpen) {
@@ -201,6 +214,11 @@ export default function CategoriesModal({
           isCreate={isCreate}
         />
 
+        {!isCreate && isFetchingDetail ? (
+          <div className="p-4 flex items-center justify-center min-h-[200px] flex-1">
+            <Loading />
+          </div>
+        ) : (
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-visible"
@@ -312,6 +330,7 @@ export default function CategoriesModal({
             />
           </FormFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

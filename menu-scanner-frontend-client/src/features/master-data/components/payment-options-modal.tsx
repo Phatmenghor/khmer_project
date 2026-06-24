@@ -21,18 +21,21 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import {
   createPaymentOptionService,
   updatePaymentOptionService,
+  fetchPaymentOptionByIdService,
 } from "../store/thunks/payment-options-thunks";
 import {
   selectPaymentOptionsOperations,
   selectPaymentOptionsError,
+  selectPaymentOptionsContent,
+  selectSelectedPaymentOption,
 } from "../store/selectors/payment-options-selectors";
-import { clearError } from "../store/slice/payment-options-slice";
+import { clearError, clearSelectedPaymentOption } from "../store/slice/payment-options-slice";
 import {
   createPaymentOptionSchema,
   updatePaymentOptionSchema,
   CreatePaymentOptionData,
 } from "../store/models/schema/payment-options-schema";
-import { PaymentOptionResponse } from "../store/models/response/payment-option-response";
+import { Loading } from "@/components/shared/common/loading";
 
 const PAYMENT_OPTION_TYPE_OPTIONS = [
   { value: "CASH", label: "Cash" },
@@ -47,20 +50,27 @@ const STATUS_OPTIONS = [
 interface PaymentOptionsModalProps {
   isOpen: boolean;
   mode: ModalMode;
-  paymentOption: PaymentOptionResponse | null;
+  paymentOptionId?: string;
   onClose: () => void;
 }
 
 export default function PaymentOptionsModal({
   isOpen,
   mode,
-  paymentOption,
+  paymentOptionId,
   onClose,
 }: PaymentOptionsModalProps) {
   const dispatch = useAppDispatch();
   const operations = useAppSelector(selectPaymentOptionsOperations);
   const reduxError = useAppSelector(selectPaymentOptionsError);
   const isCreate = mode === ModalMode.CREATE_MODE;
+  const { isFetchingDetail } = operations;
+
+  const paymentOptionsContent = useAppSelector(selectPaymentOptionsContent);
+  const selectedPaymentOption = useAppSelector(selectSelectedPaymentOption);
+  const paymentOption =
+    paymentOptionsContent.find(p => p.id === paymentOptionId) ||
+    (selectedPaymentOption?.id === paymentOptionId ? selectedPaymentOption : null);
 
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
@@ -127,6 +137,12 @@ export default function PaymentOptionsModal({
     }
   }, [isOpen, dispatch]);
 
+  useEffect(() => {
+    if (isOpen && !isCreate && paymentOptionId && !paymentOption) {
+      dispatch(fetchPaymentOptionByIdService(paymentOptionId));
+    }
+  }, [isOpen, isCreate, paymentOptionId, paymentOption, dispatch]);
+
   const onSubmit = async (data: CreatePaymentOptionData) => {
     setIsProcessing(true);
     try {
@@ -180,6 +196,7 @@ export default function PaymentOptionsModal({
     setPendingFile(null);
     setPreviewUrl("");
     dispatch(clearError());
+    dispatch(clearSelectedPaymentOption());
     onClose();
   };
 
@@ -201,6 +218,11 @@ export default function PaymentOptionsModal({
           isCreate={isCreate}
         />
 
+        {!isCreate && isFetchingDetail ? (
+          <div className="p-4 flex items-center justify-center min-h-[200px] flex-1">
+            <Loading />
+          </div>
+        ) : (
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-visible"
@@ -307,6 +329,7 @@ export default function PaymentOptionsModal({
             />
           </FormFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

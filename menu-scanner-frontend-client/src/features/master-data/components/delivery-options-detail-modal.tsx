@@ -1,36 +1,39 @@
 "use client";
 
 import { dateTimeFormat } from "@/utils/date/date-time-format";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { formatEnumValue } from "@/utils/format/enum-formatter";
-import { DeliveryOptionsResponseModel } from "../store/models/response/delivery-options-response";
 import { cn } from "@/lib/utils";
 import { Truck } from "lucide-react";
 import { SmartImage } from "@/components/shared/image/smart-image";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { useEffect } from "react";
+import { DetailModal } from "@/components/shared/modal/detail-modal";
+import {
+  selecDeliveryOptionsContent,
+  selectSelectedDeliveryOptions,
+} from "../store/selectors/delivery-options-selector";
+import { clearSelectedDeliveryOptions } from "../store/slice/delivery-options-slice";
+import { fetchDeliveryOptionsByIdService } from "../store/thunks/delivery-options-thunks";
 
-interface DetailModalProps {
-  deliveryOptions: DeliveryOptionsResponseModel | null;
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
+function DeliveryOptionsDetailImage({ src, alt }: { src?: string; alt: string }) {
   return (
-    <div className="mb-2.5">
-      <h3 className="text-xs font-bold text-foreground">{children}</h3>
+    <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
+      {src ? (
+        <SmartImage src={src} alt={alt} fill showSkeleton={false} />
+      ) : (
+        <Truck className="h-5 w-5 text-muted-foreground" />
+      )}
     </div>
   );
 }
 
-function InfoRow({
-  label,
-  value,
-  fullWidth,
-}: {
-  label: string;
-  value: React.ReactNode;
-  fullWidth?: boolean;
-}) {
+interface DetailModalProps {
+  deliveryOptionsId?: string;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+function InfoRow({ label, value, fullWidth }: { label: string; value: React.ReactNode; fullWidth?: boolean }) {
   return (
     <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
       <span className="text-xs font-semibold text-muted-foreground">{label}</span>
@@ -39,91 +42,81 @@ function InfoRow({
   );
 }
 
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="col-span-2 mt-2 mb-0.5 first:mt-0 border-b border-border/40 pb-1">
+      <h3 className="text-xs font-bold text-primary">{children}</h3>
+    </div>
+  );
+}
+
 export function DeliveryOptionsDetailModal({
-  deliveryOptions,
+  deliveryOptionsId,
   isOpen,
   onClose,
 }: DetailModalProps) {
-  if (!deliveryOptions) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogTitle className="sr-only">Delivery Options Details</DialogTitle>
-        <DialogContent className="w-full sm:max-w-2xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-center h-full">
-            <p className="text-muted-foreground">No delivery options data available</p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
+  const dispatch = useAppDispatch();
+  const deliveryOptionsContent = useAppSelector(selecDeliveryOptionsContent);
+  const selectedDeliveryOptions = useAppSelector(selectSelectedDeliveryOptions);
+  const deliveryOptions = deliveryOptionsContent.find(d => d.id === deliveryOptionsId) || (selectedDeliveryOptions?.id === deliveryOptionsId ? selectedDeliveryOptions : null);
 
-  const isActive = deliveryOptions.status === "ACTIVE";
+  useEffect(() => {
+    if (isOpen && deliveryOptionsId && !deliveryOptions) {
+      dispatch(fetchDeliveryOptionsByIdService(deliveryOptionsId));
+    }
+  }, [isOpen, deliveryOptionsId, deliveryOptions, dispatch]);
+
+  const handleClose = () => {
+    dispatch(clearSelectedDeliveryOptions());
+    onClose();
+  };
+
+  const isActive = deliveryOptions?.status === "ACTIVE";
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogTitle className="sr-only">Delivery Options Details - {deliveryOptions.name}</DialogTitle>
-      <DialogContent className="w-full sm:max-w-2xl max-h-[92vh] p-0 gap-0 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="px-4 py-3 border-b bg-muted/30 flex-shrink-0 flex items-center gap-3">
-          <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-muted border border-border/50 flex items-center justify-center">
-            {(deliveryOptions.image?.sm || deliveryOptions.image?.md || deliveryOptions.image?.o) ? (
-              <SmartImage
-                src={deliveryOptions.image?.md || deliveryOptions.image?.o || deliveryOptions.image?.sm}
-                alt={deliveryOptions.name || "Delivery option"}
-                fill
-                showSkeleton={false}
-              />
-            ) : (
-              <Truck className="h-5 w-5 text-muted-foreground" />
-            )}
+    <DetailModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      isLoading={isOpen && !deliveryOptions}
+      isEmpty={!deliveryOptions}
+      emptyMessage="No delivery options data available"
+      title="Delivery Options"
+      description="Manage delivery methods for your business"
+      size="xl"
+    >
+      {deliveryOptions && (
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 p-1 text-left">
+          <SectionTitle>Delivery Options Image</SectionTitle>
+          <div className="col-span-2">
+            <DeliveryOptionsDetailImage
+              src={deliveryOptions.image?.md ?? deliveryOptions.image?.o ?? deliveryOptions.image?.sm}
+              alt={deliveryOptions.name || "Delivery option"}
+            />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground">Delivery Options</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Manage delivery methods for your business</p>
-          </div>
-        </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
-            {/* Left column */}
-            <div className="lg:col-span-2 space-y-3">
-              <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle>Delivery Options Information</SectionTitle>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-                  <InfoRow label="Name" value={deliveryOptions.name} />
-                  <InfoRow
-                    label="Status"
-                    value={
-                      <span className={cn("font-semibold", isActive ? "text-green-700" : "text-gray-500")}>
-                        {deliveryOptions.status ? formatEnumValue(deliveryOptions.status) : "-"}
-                      </span>
-                    }
-                  />
-                  <InfoRow
-                    label="Price"
-                    value={deliveryOptions.price != null ? `$${deliveryOptions.price.toFixed(2)}` : "-"}
-                  />
-                  <InfoRow label="Description" value={deliveryOptions.description} fullWidth />
-                </div>
-              </div>
-            </div>
+          <SectionTitle>Delivery Options Information</SectionTitle>
+          <InfoRow label="Name" value={deliveryOptions.name || "-"} />
+          <InfoRow
+            label="Status"
+            value={
+              <span className={cn("font-semibold", isActive ? "text-green-700" : "text-gray-500")}>
+                {deliveryOptions.status ? formatEnumValue(deliveryOptions.status) : "-"}
+              </span>
+            }
+          />
+          <InfoRow
+            label="Price"
+            value={deliveryOptions.price != null ? `$${deliveryOptions.price.toFixed(2)}` : "-"}
+          />
+          <InfoRow label="Description" value={deliveryOptions.description || "-"} fullWidth />
 
-            {/* Right sidebar */}
-            <div className="space-y-3">
-              <div className="rounded border border-border/50 bg-card p-3">
-                <SectionTitle>System Info</SectionTitle>
-                <div className="space-y-2.5">
-                  <InfoRow label="Created By" value={deliveryOptions.createdBy || "-"} />
-                  <InfoRow label="Created At" value={dateTimeFormat(deliveryOptions.createdAt ?? "")} />
-                  <InfoRow label="Updated By" value={deliveryOptions.updatedBy || "-"} />
-                  <InfoRow label="Last Updated" value={dateTimeFormat(deliveryOptions.updatedAt ?? "")} />
-                </div>
-              </div>
-            </div>
-          </div>
+          <SectionTitle>Audit Information</SectionTitle>
+          <InfoRow label="Created By" value={deliveryOptions.createdBy || "-"} />
+          <InfoRow label="Created At" value={dateTimeFormat(deliveryOptions.createdAt ?? "")} />
+          <InfoRow label="Updated By" value={deliveryOptions.updatedBy || "-"} />
+          <InfoRow label="Last Updated" value={dateTimeFormat(deliveryOptions.updatedAt ?? "")} />
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </DetailModal>
   );
 }

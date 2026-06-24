@@ -1,12 +1,10 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState, Suspense} from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
-import { CustomSelect } from "@/components/shared/common/custom-select";
+import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -23,6 +21,7 @@ import {
 } from "@/features/master-data/store/slice/delivery-options-slice";
 import {
   deleteDeliveryOptionsService,
+  fetchDeliveryOptionsByIdService,
   fetchMyBusinessDeliveryOptionsService,
   toggleDeliveryOptionsStatusService,
 } from "@/features/master-data/store/thunks/delivery-options-thunks";
@@ -34,11 +33,12 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
+import { selecDeliveryOptionsContent, selectSelectedDeliveryOptions } from "@/features/master-data/store/selectors/delivery-options-selector";
+import { useActionRouting } from "@/hooks/use-action-routing";
+import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function DeliveryOptionsPageInner() {
-
   useAdminCleanup(resetState);
-
 
   const {
     deliveryOptionsState,
@@ -51,90 +51,78 @@ function DeliveryOptionsPageInner() {
     dispatch,
   } = useDeliveryOptionsState();
 
-
-  const [modalState, setModalState] = useState({
-    isOpen: false,
-    mode: ModalMode.CREATE_MODE,
-    deliveryOptions: null as DeliveryOptionsResponseModel | null,
-  });
-
-  const [detailModalState, setDetailModalState] = useState({
-    isOpen: false,
-    deliveryOptions: null as DeliveryOptionsResponseModel | null,
-  });
-
-  const [deleteState, setDeleteState] = useState({
-    isOpen: false,
-    deliveryOptions: null as DeliveryOptionsResponseModel | null,
-  });
-
+  const {
+    viewId,
+    editId,
+    deleteId,
+    createMode,
+    openView,
+    openEdit,
+    openDelete,
+    openCreate,
+    closeModal,
+  } = useActionRouting();
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
 
-  const debouncedSearch = useDebounce(filters.search, 400);
+  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
+  useAdminFilterUrlSync({
+    filters: {
+      search: filters.search,
+      status: filters.status !== Status.ALL ? filters.status : "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.status) dispatch(setStatusFilter(params.status as Status));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+    },
+  });
 
-  const { currentPage, updateUrlWithPage, handlePageChange } = usePagination({
+  const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.DELIVERY_OPTIONS,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
-
 
   useEffect(() => {
     const promise = dispatch(
       fetchMyBusinessDeliveryOptionsService({
         search: debouncedSearch,
-        pageNo: currentPage,
+        pageNo: filters.pageNo,
         pageSize: globalPageSize,
-        statuses: filters.status == Status.ALL ? [] : [filters.status],
+        statuses: filters.status === Status.ALL ? [] : [filters.status],
       }),
     );
     return () => {
       promise.abort();
     };
-  }, [
-    dispatch,
-    debouncedSearch,
-    filters.status,
-    currentPage,
-    globalPageSize,
-  ]);
+  }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize]);
 
+  // ── Deep-link resolver ────────────────────────────────────────────────────
+  const allDeliveryOptionsContent = useAppSelector(selecDeliveryOptionsContent);
+  const selectedDeliveryOptions = useAppSelector(selectSelectedDeliveryOptions);
 
-  const handleCreateDeliveryOptions = () => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.CREATE_MODE,
-      deliveryOptions: null,
-    });
+  const resolveDeliveryOptions = (id: string | null): DeliveryOptionsResponseModel | null => {
+    if (!id) return null;
+    return allDeliveryOptionsContent.find(d => d.id === id) || (selectedDeliveryOptions?.id === id ? selectedDeliveryOptions : null);
   };
 
-  const handleEditDeliveryOptions = (
-    deliveryOptions: DeliveryOptionsResponseModel,
-  ) => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.UPDATE_MODE,
-      deliveryOptions: deliveryOptions,
-    });
-  };
+  const deleteDeliveryOptions = resolveDeliveryOptions(deleteId);
 
-  const handleDeliveryOptionsViewDetail = (
-    deliveryOptions: DeliveryOptionsResponseModel,
-  ) => {
-    setDetailModalState({
-      isOpen: true,
-      deliveryOptions: deliveryOptions,
-    });
-  };
+  useEffect(() => {
+    if (deleteId && !deleteDeliveryOptions) {
+      dispatch(fetchDeliveryOptionsByIdService(deleteId));
+    }
+  }, [deleteId, deleteDeliveryOptions, dispatch]);
 
-  const handleDeleteDeliveryOptions = (
-    deliveryOptions: DeliveryOptionsResponseModel,
-  ) => {
-    setDeleteState({
-      isOpen: true,
-      deliveryOptions: deliveryOptions,
-    });
-  };
+  // ── Table action handlers ─────────────────────────────────────────────────
+  const handleCreateDeliveryOptions = () => openCreate();
+  const handleEditDeliveryOptions = (deliveryOptions: DeliveryOptionsResponseModel) => openEdit(deliveryOptions.id || "");
+  const handleDeliveryOptionsViewDetail = (deliveryOptions: DeliveryOptionsResponseModel) => openView(deliveryOptions.id || "");
+  const handleDeleteDeliveryOptions = (deliveryOptions: DeliveryOptionsResponseModel) => openDelete(deliveryOptions.id || "");
 
   const handleToggleDeliveryOptionsStatus = (deliveryOption: DeliveryOptionsResponseModel) => {
     if (!deliveryOption?.id) return;
@@ -165,14 +153,6 @@ function DeliveryOptionsPageInner() {
     [deliveryOptionsState, tableHandlers],
   );
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchFilter(e.target.value));
-  };
-
-  const handleStatusChange = (status: Status) => {
-    dispatch(setStatusFilter(status));
-  };
-
   const handlePageChangeWrapper = (page: number) => {
     dispatch(setPageNo(page));
     handlePageChange(page);
@@ -183,23 +163,35 @@ function DeliveryOptionsPageInner() {
     dispatch(setPageNo(1));
   };
 
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Delivery Options Information",
+    searchValue: filters.search,
+    searchPlaceholder: "Search delivery options...",
+    onSearchChange: (e) => dispatch(setSearchFilter(e.target.value)),
+    buttonText: "New",
+    buttonTooltip: "Create a new delivery options",
+    onButtonClick: handleCreateDeliveryOptions,
+    filters: [
+      {
+        id: "status",
+        type: "select",
+        label: "Delivery Options Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => dispatch(setStatusFilter(value as Status)),
+        options: DELIVERY_OPTIONS_FILTER,
+      },
+    ],
+  }), [filters.search, filters.status]);
+
   const handleDelete = async () => {
-    if (!deleteState.deliveryOptions?.id) return;
-
+    if (!deleteId) return;
     try {
-      await dispatch(
-        deleteDeliveryOptionsService(deleteState.deliveryOptions.id),
-      ).unwrap();
-
+      await dispatch(deleteDeliveryOptionsService(deleteId)).unwrap();
       showToast.success(
-        `Delivery options "${
-          deleteState.deliveryOptions.name ?? ""
-        }" deleted successfully`,
+        `Delivery options "${deleteDeliveryOptions?.name ?? ""}" deleted successfully`,
       );
-
-      closeDeleteModal();
-
-
+      closeModal();
       if (deliveryOptionsContent.length === 1 && pagination.currentPage > 1) {
         const newPage = pagination.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -210,60 +202,18 @@ function DeliveryOptionsPageInner() {
     }
   };
 
-  const closeModal = () => {
-    setModalState({
-      isOpen: false,
-      mode: ModalMode.CREATE_MODE,
-      deliveryOptions: null,
-    });
-  };
-
-  const closeDetailModal = () => {
-    setDetailModalState({
-      isOpen: false,
-      deliveryOptions: null,
-    });
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteState({
-      isOpen: false,
-      deliveryOptions: null,
-    });
-  };
-
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
-        <CardHeaderSection
-          title="Delivery Options Information"
-          buttonTooltip="Create a new delivery options"
-          searchValue={filters.search}
-          searchPlaceholder="Search delivery options..."
-          buttonIcon={<Plus className="w-2 h-2" />}
-          buttonText="New"
-          onSearchChange={handleSearchChange}
-          openModal={handleCreateDeliveryOptions}
-        >
-          <div className="flex flex-wrap items-center gap-1">
-            <CustomSelect
-              options={DELIVERY_OPTIONS_FILTER}
-              value={filters.status}
-              placeholder="All Status"
-              onValueChange={(value) => handleStatusChange(value as Status)}
-              label="Delivery Options Status"
-            />
-          </div>
-        </CardHeaderSection>
+        <CollapsibleFilterPanel config={filterConfig} essentialFilterIds={["status"]} />
 
-        {}
         <DataTableWithPagination
           data={deliveryOptionsContent}
           columns={columns}
           loading={isLoading}
           emptyMessage="No Delivery options found"
           getRowKey={(deliveryOptions) => deliveryOptions.id}
-          currentPage={filters.pageNo}
+          currentPage={pagination.currentPage}
           totalElements={pagination.totalElements}
           totalPages={pagination.totalPages}
           onPageChange={handlePageChangeWrapper}
@@ -273,35 +223,28 @@ function DeliveryOptionsPageInner() {
         />
       </div>
 
-      {}
       <DeliveryOptionsModal
-        isOpen={modalState.isOpen}
+        isOpen={createMode || !!editId}
         onClose={closeModal}
-        deliveryOptions={modalState.deliveryOptions}
-        mode={modalState.mode}
+        deliveryOptionsId={editId || undefined}
+        mode={createMode ? ModalMode.CREATE_MODE : ModalMode.UPDATE_MODE}
       />
 
-      {}
       <DeliveryOptionsDetailModal
-        deliveryOptions={detailModalState.deliveryOptions}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        deliveryOptionsId={viewId || undefined}
+        isOpen={!!viewId}
+        onClose={closeModal}
       />
 
-      {}
       <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
+        isOpen={!!deleteId}
+        onClose={closeModal}
         onDelete={handleDelete}
         title="Delete Delivery Options"
         description={`Are you sure you want to delete this Delivery Options ${
-          deleteState.deliveryOptions?.name ||
-          deleteState.deliveryOptions?.description
+          deleteDeliveryOptions?.name || deleteDeliveryOptions?.description || ""
         }?`}
-        itemName={
-          deleteState.deliveryOptions?.name ||
-          deleteState.deliveryOptions?.description
-        }
+        itemName={deleteDeliveryOptions?.name || deleteDeliveryOptions?.description || ""}
         isSubmitting={operations.isDeleting}
       />
     </div>

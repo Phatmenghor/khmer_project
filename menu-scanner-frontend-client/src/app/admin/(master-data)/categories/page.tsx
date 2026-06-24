@@ -1,12 +1,10 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, useState, Suspense} from "react";
-import { Plus } from "lucide-react";
+import { useEffect, useMemo, Suspense } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CardHeaderSection } from "@/components/layout/card-header-section";
-import { CustomSelect } from "@/components/shared/common/custom-select";
+import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { DataTableWithPagination } from "@/components/shared/common/data-table";
 import { showToast } from "@/components/shared/common/show-toast";
@@ -25,10 +23,12 @@ import {
   deleteCategoriesService,
   toggleCategoriesStatusService,
   fetchAllCategoriesWithProductCountService,
+  fetchCategoriesByIdService,
 } from "@/features/master-data/store/thunks/categories-thunks";
 import {
   selectCategoriesWithProductCountContent,
   selectPaginationWithProductCount,
+  selectSelectedCategories,
 } from "@/features/master-data/store/selectors/categories-selector";
 import { categoriesTableColumns } from "@/features/master-data/table/categories-table";
 import CategoriesModal from "@/features/master-data/components/categories-modal";
@@ -38,50 +38,55 @@ import { AppDefault } from "@/constants/app-resource/default/default";
 import { setGlobalPageSize } from "@/store/slices/global-settings-slice";
 import { selectGlobalPageSize } from "@/store/selectors/global-settings-selectors";
 import { useAppSelector } from "@/store";
+import { useActionRouting } from "@/hooks/use-action-routing";
+import { useAdminFilterUrlSync } from "@/hooks/use-admin-filter-url-sync";
 
 function CategoriesPageInner() {
-
   useAdminCleanup(resetState);
-
 
   const {
     categoriesState,
-    categoriesData,
-    categoriesContent,
     isLoading,
     filters,
     operations,
-    pagination,
     dispatch,
   } = useCategoriesState();
 
+  const {
+    viewId,
+    editId,
+    deleteId,
+    createMode,
+    openView,
+    openEdit,
+    openDelete,
+    openCreate,
+    closeModal,
+  } = useActionRouting();
 
   const categoriesWithProductCount = useAppSelector(selectCategoriesWithProductCountContent);
   const paginationWithProductCount = useAppSelector(selectPaginationWithProductCount);
 
-
-  const [modalState, setModalState] = useState({
-    isOpen: false,
-    mode: ModalMode.CREATE_MODE,
-    categories: null as CategoriesResponseModel | null,
-  });
-
-  const [detailModalState, setDetailModalState] = useState({
-    isOpen: false,
-    categories: null as CategoriesResponseModel | null,
-  });
-
-  const [deleteState, setDeleteState] = useState({
-    isOpen: false,
-    categories: null as CategoriesResponseModel | null,
-  });
-
-
   const globalPageSize = useAppSelector(selectGlobalPageSize);
+  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
 
-  const debouncedSearch = useDebounce(filters.search, 400);
+  // ── Sync filters ↔ URL ────────────────────────────────────────────────────
+  useAdminFilterUrlSync({
+    filters: {
+      search: filters.search,
+      status: filters.status !== Status.ALL ? filters.status : "",
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
+    },
+    onInit: (params) => {
+      if (params.search) dispatch(setSearchFilter(params.search));
+      if (params.status) dispatch(setStatusFilter(params.status as Status));
+      if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
+      if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
+    },
+  });
 
-  const { currentPage, updateUrlWithPage, handlePageChange } = usePagination({
+  const { updateUrlWithPage, handlePageChange } = usePagination({
     baseRoute: ROUTES.ADMIN.CATEGORIES,
     syncPageToRedux: (page) => dispatch(setPageNo(page)),
   });
@@ -90,52 +95,37 @@ function CategoriesPageInner() {
     const promise = dispatch(
       fetchAllCategoriesWithProductCountService({
         search: debouncedSearch,
-        pageNo: currentPage,
+        pageNo: filters.pageNo,
         pageSize: globalPageSize,
-        status: filters.status == Status.ALL ? undefined : filters.status,
+        status: filters.status === Status.ALL ? undefined : filters.status,
       }),
     );
     return () => {
       promise.abort();
     };
-  }, [
-    dispatch,
-    debouncedSearch,
-    filters.status,
-    currentPage,
-    globalPageSize,
-  ]);
+  }, [dispatch, debouncedSearch, filters.status, filters.pageNo, globalPageSize]);
 
+  // ── Deep-link resolver ────────────────────────────────────────────────────
+  const selectedCategories = useAppSelector(selectSelectedCategories);
 
-  const handleCreateCategories = () => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.CREATE_MODE,
-      categories: null,
-    });
+  const resolveCategories = (id: string | null): CategoriesResponseModel | null => {
+    if (!id) return null;
+    return categoriesWithProductCount.find(c => c.id === id) || (selectedCategories?.id === id ? selectedCategories : null);
   };
 
-  const handleEditCategories = (categories: CategoriesResponseModel) => {
-    setModalState({
-      isOpen: true,
-      mode: ModalMode.UPDATE_MODE,
-      categories: categories,
-    });
-  };
+  const deleteCategories = resolveCategories(deleteId);
 
-  const handleCategoriesViewDetail = (categories: CategoriesResponseModel) => {
-    setDetailModalState({
-      isOpen: true,
-      categories: categories,
-    });
-  };
+  useEffect(() => {
+    if (deleteId && !deleteCategories) {
+      dispatch(fetchCategoriesByIdService(deleteId));
+    }
+  }, [deleteId, deleteCategories, dispatch]);
 
-  const handleDeleteCategories = (categories: CategoriesResponseModel) => {
-    setDeleteState({
-      isOpen: true,
-      categories: categories,
-    });
-  };
+  // ── Table action handlers ─────────────────────────────────────────────────
+  const handleCreateCategories = () => openCreate();
+  const handleEditCategories = (categories: CategoriesResponseModel) => openEdit(categories.id || "");
+  const handleCategoriesViewDetail = (categories: CategoriesResponseModel) => openView(categories.id || "");
+  const handleDeleteCategories = (categories: CategoriesResponseModel) => openDelete(categories.id || "");
 
   const handleToggleCategoryStatus = (category: CategoriesResponseModel) => {
     if (!category?.id) return;
@@ -166,14 +156,6 @@ function CategoriesPageInner() {
     [categoriesState, tableHandlers],
   );
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setSearchFilter(e.target.value));
-  };
-
-  const handleStatusChange = (status: Status) => {
-    dispatch(setStatusFilter(status));
-  };
-
   const handlePageChangeWrapper = (page: number) => {
     dispatch(setPageNo(page));
     handlePageChange(page);
@@ -184,21 +166,35 @@ function CategoriesPageInner() {
     dispatch(setPageNo(1));
   };
 
+  const filterConfig = useMemo((): FilterPanelConfig => ({
+    title: "Categories Information",
+    searchValue: filters.search,
+    searchPlaceholder: "Search categories...",
+    onSearchChange: (e) => dispatch(setSearchFilter(e.target.value)),
+    buttonText: "New",
+    buttonTooltip: "Create a new category",
+    onButtonClick: handleCreateCategories,
+    filters: [
+      {
+        id: "status",
+        type: "select",
+        label: "Categories Status",
+        placeholder: "All Status",
+        value: filters.status,
+        onChange: (value) => dispatch(setStatusFilter(value as Status)),
+        options: STATUS_FILTER,
+      },
+    ],
+  }), [filters.search, filters.status]);
+
   const handleDelete = async () => {
-    if (!deleteState.categories?.id) return;
-
+    if (!deleteId) return;
     try {
-      await dispatch(
-        deleteCategoriesService(deleteState.categories.id),
-      ).unwrap();
-
+      await dispatch(deleteCategoriesService(deleteId)).unwrap();
       showToast.success(
-        `Categories "${deleteState.categories.name ?? ""}" deleted successfully`,
+        `Categories "${deleteCategories?.name ?? ""}" deleted successfully`,
       );
-
-      closeDeleteModal();
-
-
+      closeModal();
       if (categoriesWithProductCount.length === 1 && paginationWithProductCount.currentPage > 1) {
         const newPage = paginationWithProductCount.currentPage - 1;
         dispatch(setPageNo(newPage));
@@ -209,53 +205,11 @@ function CategoriesPageInner() {
     }
   };
 
-  const closeModal = () => {
-    setModalState({
-      isOpen: false,
-      mode: ModalMode.CREATE_MODE,
-      categories: null,
-    });
-  };
-
-  const closeDetailModal = () => {
-    setDetailModalState({
-      isOpen: false,
-      categories: null,
-    });
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteState({
-      isOpen: false,
-      categories: null,
-    });
-  };
-
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
-        <CardHeaderSection
-          title="Categories Information"
-          searchValue={filters.search}
-          searchPlaceholder="Search categories..."
-          buttonTooltip="Create a new banner"
-          buttonIcon={<Plus className="w-2 h-2" />}
-          buttonText="New"
-          onSearchChange={handleSearchChange}
-          openModal={handleCreateCategories}
-        >
-          <div className="flex flex-wrap items-center gap-1">
-            <CustomSelect
-              options={STATUS_FILTER}
-              value={filters.status}
-              placeholder="All Status"
-              onValueChange={(value) => handleStatusChange(value as Status)}
-              label="Categories Status"
-            />
-          </div>
-        </CardHeaderSection>
+        <CollapsibleFilterPanel config={filterConfig} essentialFilterIds={["status"]} />
 
-        {}
         <DataTableWithPagination
           data={categoriesWithProductCount}
           columns={columns}
@@ -272,31 +226,28 @@ function CategoriesPageInner() {
         />
       </div>
 
-      {}
       <CategoriesModal
-        isOpen={modalState.isOpen}
+        isOpen={createMode || !!editId}
         onClose={closeModal}
-        categories={modalState.categories}
-        mode={modalState.mode}
+        categoriesId={editId || undefined}
+        mode={createMode ? ModalMode.CREATE_MODE : ModalMode.UPDATE_MODE}
       />
 
-      {}
       <CategoriesDetailModal
-        categories={detailModalState.categories}
-        isOpen={detailModalState.isOpen}
-        onClose={closeDetailModal}
+        categoriesId={viewId || undefined}
+        isOpen={!!viewId}
+        onClose={closeModal}
       />
 
-      {}
       <DeleteConfirmationModal
-        isOpen={deleteState.isOpen}
-        onClose={closeDeleteModal}
+        isOpen={!!deleteId}
+        onClose={closeModal}
         onDelete={handleDelete}
         title="Delete Categories"
         description={`Are you sure you want to delete this categories ${
-          deleteState.categories?.name || ""
+          deleteCategories?.name || ""
         }?`}
-        itemName={deleteState.categories?.name || ""}
+        itemName={deleteCategories?.name || ""}
         isSubmitting={operations.isDeleting}
       />
     </div>

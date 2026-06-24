@@ -15,8 +15,10 @@ import { FormFooter } from "@/components/shared/form-field/form-footer";
 import { ModalMode, Status } from "@/constants/status/status";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
+  selecBannerContent,
   selectError,
   selectOperations,
+  selectSelectedBanner,
 } from "../store/selectors/banner-selector";
 import {
   CreateBannerData,
@@ -25,6 +27,7 @@ import {
 } from "../store/models/schema/banner-schema";
 import {
   createBannerService,
+  fetchBannerByIdService,
   updateBannerService,
 } from "../store/thunks/banner-thunks";
 import { clearError, clearSelectedBanner } from "../store/slice/banner-slice";
@@ -33,11 +36,11 @@ import { BANNER_STATUS_CREATE_UPDATE } from "@/constants/status/create-update-st
 import { SpacesImageUpload } from "@/components/shared/form-field/spaces-image-upload";
 import { uploadMultiSize } from "@/services/spaces-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
-import { BannerResponseModel } from "../store/models/response/banner-response";
+import { Loading } from "@/components/shared/common/loading";
 
 type Props = {
   mode: ModalMode;
-  banner?: BannerResponseModel | null;
+  bannerId?: string;
   onClose: () => void;
   isOpen: boolean;
 };
@@ -45,7 +48,7 @@ type Props = {
 export default function BannerModal({
   isOpen,
   onClose,
-  banner,
+  bannerId,
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
@@ -66,7 +69,11 @@ export default function BannerModal({
 
   const operations = useAppSelector(selectOperations);
   const reduxError = useAppSelector(selectError);
-  const { isCreating, isUpdating } = operations;
+  const { isCreating, isUpdating, isFetchingDetail } = operations;
+
+  const bannerContent = useAppSelector(selecBannerContent);
+  const selectedBanner = useAppSelector(selectSelectedBanner);
+  const banner = bannerContent.find(b => b.id === bannerId) || (selectedBanner?.id === bannerId ? selectedBanner : null);
 
   const {
     control,
@@ -83,6 +90,12 @@ export default function BannerModal({
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (isOpen && !isCreate && bannerId && !banner) {
+      dispatch(fetchBannerByIdService(bannerId));
+    }
+  }, [isOpen, isCreate, bannerId, banner, dispatch]);
 
   useEffect(() => {
     if (isOpen) {
@@ -186,6 +199,11 @@ export default function BannerModal({
           isCreate={isCreate}
         />
 
+        {!isCreate && isFetchingDetail ? (
+          <div className="p-4 flex items-center justify-center min-h-[200px] flex-1">
+            <Loading />
+          </div>
+        ) : (
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-visible"
@@ -279,6 +297,7 @@ export default function BannerModal({
             />
           </FormFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

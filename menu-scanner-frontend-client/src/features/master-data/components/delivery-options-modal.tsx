@@ -25,9 +25,12 @@ import {
 } from "../store/models/schema/delivery-options-schema";
 import {
   createDeliveryOptionsService,
+  fetchDeliveryOptionsByIdService,
   updateDeliveryOptionsService,
 } from "../store/thunks/delivery-options-thunks";
 import {
+  selecDeliveryOptionsContent,
+  selectSelectedDeliveryOptions,
   selectError,
   selectOperations,
 } from "../store/selectors/delivery-options-selector";
@@ -37,11 +40,11 @@ import {
 } from "../store/slice/delivery-options-slice";
 import { TextField } from "@/components/shared/form-field/text-field";
 import { TextareaField } from "@/components/shared/form-field/text-area-field";
-import { DeliveryOptionsResponseModel } from "../store/models/response/delivery-options-response";
+import { Loading } from "@/components/shared/common/loading";
 
 type Props = {
   mode: ModalMode;
-  deliveryOptions?: DeliveryOptionsResponseModel | null;
+  deliveryOptionsId?: string;
   onClose: () => void;
   isOpen: boolean;
 };
@@ -49,7 +52,7 @@ type Props = {
 export default function DeliveryOptionsModal({
   isOpen,
   onClose,
-  deliveryOptions,
+  deliveryOptionsId,
   mode,
 }: Props) {
   const isCreate = mode === ModalMode.CREATE_MODE;
@@ -68,7 +71,11 @@ export default function DeliveryOptionsModal({
 
   const operations = useAppSelector(selectOperations);
   const reduxError = useAppSelector(selectError);
-  const { isCreating, isUpdating } = operations;
+  const { isCreating, isUpdating, isFetchingDetail } = operations;
+
+  const deliveryOptionsContent = useAppSelector(selecDeliveryOptionsContent);
+  const selectedDeliveryOptions = useAppSelector(selectSelectedDeliveryOptions);
+  const deliveryOptions = deliveryOptionsContent.find(d => d.id === deliveryOptionsId) || (selectedDeliveryOptions?.id === deliveryOptionsId ? selectedDeliveryOptions : null);
 
   const {
     control,
@@ -89,6 +96,12 @@ export default function DeliveryOptionsModal({
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (isOpen && !isCreate && deliveryOptionsId && !deliveryOptions) {
+      dispatch(fetchDeliveryOptionsByIdService(deliveryOptionsId));
+    }
+  }, [isOpen, isCreate, deliveryOptionsId, deliveryOptions, dispatch]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -203,6 +216,11 @@ export default function DeliveryOptionsModal({
           isCreate={isCreate}
         />
 
+        {!isCreate && isFetchingDetail ? (
+          <div className="p-4 flex items-center justify-center min-h-[200px] flex-1">
+            <Loading />
+          </div>
+        ) : (
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col flex-1 overflow-visible"
@@ -320,6 +338,7 @@ export default function DeliveryOptionsModal({
             />
           </FormFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );
