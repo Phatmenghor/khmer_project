@@ -86,7 +86,7 @@ export function TextField<T extends FieldValues = FieldValues>({
                 onCustomChange?.(value);
               }
             }}
-            pattern={pattern}
+            pattern={pattern ? `${pattern}*` : undefined}
             className={cn(
               disabled && "bg-muted/50",
               error && "border-red-500 focus:border-red-500 focus:ring-red-500/30",
