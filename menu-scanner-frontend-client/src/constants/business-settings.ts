@@ -3,7 +3,7 @@
 
 export const BUSINESS_SETTINGS_DEFAULTS = {
 
-  BUSINESS_NAME: null,
+  BUSINESS_NAME: "ScanMeKH",
 
 
   PRIMARY_COLOR: null,

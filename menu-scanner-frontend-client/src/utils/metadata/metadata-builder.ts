@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { BUSINESS_SETTINGS_DEFAULTS } from "@/constants/business-settings";
 
+const LOGO_PATH = "/assets/image/scanmekhlogo.png";
+
+const LOGO_ICONS: Metadata["icons"] = {
+  icon: LOGO_PATH,
+  shortcut: LOGO_PATH,
+  apple: LOGO_PATH,
+};
 
 export const buildMetadata = (
   businessName: string | null = BUSINESS_SETTINGS_DEFAULTS.BUSINESS_NAME
@@ -14,6 +21,14 @@ export const buildMetadata = (
     keywords: name ? [name, "restaurant", "menu", "management", "scanner"] : undefined,
     authors: name ? [{ name }] : undefined,
     creator: name ?? undefined,
+    icons: LOGO_ICONS,
+    openGraph: name
+      ? {
+          title: name,
+          description: `${name} - Manage your restaurant operations`,
+          images: [{ url: LOGO_PATH }],
+        }
+      : undefined,
   };
 };
 
@@ -28,6 +43,7 @@ export const buildAdminMetadata = (
       : undefined,
     description: name ? `${name} Admin Panel - Manage your restaurant operations` : undefined,
     keywords: name ? [name, "admin", "restaurant", "menu", "management"] : undefined,
+    icons: LOGO_ICONS,
   };
 };
 
@@ -39,6 +55,7 @@ export const buildAuthMetadata = (
   return {
     title: name ? `Sign In | ${name}` : "Sign In",
     description: name ? `Sign in to ${name}` : undefined,
+    icons: LOGO_ICONS,
   };
 };
 
@@ -56,5 +73,6 @@ export const buildPublicMetadata = (
     title,
     description: name ? `Explore ${name} menu and place orders` : undefined,
     keywords: name ? [name, "menu", "order", "restaurant"] : undefined,
+    icons: LOGO_ICONS,
   };
 };

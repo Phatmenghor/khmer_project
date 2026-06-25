@@ -6,8 +6,13 @@ interface AuthLayoutProps {
 }
 
 export const metadata = {
-  title: "Authentication",
+  title: "Authentication | ScanMeKH",
   description: "Sign in to your account",
+  icons: {
+    icon: "/images/logo/my_logo.png",
+    shortcut: "/images/logo/my_logo.png",
+    apple: "/images/logo/my_logo.png",
+  },
 };
 
 export default function AuthLayout({ children }: AuthLayoutProps) {

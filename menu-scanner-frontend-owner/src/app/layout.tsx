@@ -33,15 +33,26 @@ interface RootLayoutProps {
 // Enhanced metadata (removed viewport - now separate export)
 export const metadata = {
   title: {
-    template: "%s | Menu Scanner",
-    default: "Menu Scanner - Professional Restaurant Management",
+    template: "%s | ScanMeKH",
+    default: "ScanMeKH - Professional Restaurant Management",
   },
   description:
     "Professional dashboard for menu scanning and restaurant management",
   keywords: ["dashboard", "menu", "scanner", "management", "restaurant"],
-  authors: [{ name: "Menu Scanner Team" }],
-  creator: "Menu Scanner",
-  publisher: "Menu Scanner",
+  authors: [{ name: "ScanMeKH" }],
+  creator: "ScanMeKH",
+  publisher: "ScanMeKH",
+  icons: {
+    icon: "/images/logo/my_logo.png",
+    shortcut: "/images/logo/my_logo.png",
+    apple: "/images/logo/my_logo.png",
+  },
+  openGraph: {
+    title: "ScanMeKH",
+    description:
+      "Professional dashboard for menu scanning and restaurant management",
+    images: [{ url: "/images/logo/my_logo.png" }],
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -61,10 +72,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0b0b" },
-  ],
+  themeColor: "#ffffff",
   interactiveWidget: "resizes-content",
 };
 
@@ -80,7 +88,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       suppressHydrationWarning
     >
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/images/logo/my_logo.png" />
         <link rel="preconnect" href="http://165.22.247.142:8080" />
         <link rel="dns-prefetch" href="http://165.22.247.142:8080" />
         <meta name="mobile-web-app-capable" content="yes" />

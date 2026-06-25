@@ -31,6 +31,7 @@ export const metadata = {
     description:
       "Complete restaurant platform with QR menus, POS, real-time orders, loyalty programs, analytics. Free trial available.",
     type: "website",
+    images: [{ url: "/images/logo/my_logo.png" }],
   },
 };
 

@@ -9,10 +9,15 @@ interface DashboardGroupLayoutProps {
 
 export const metadata = {
   title: {
-    template: "%s | Dashboard",
-    default: "Dashboard",
+    template: "%s | ScanMeKH",
+    default: "Dashboard | ScanMeKH",
   },
-  description: "Menu Scanner Dashboard - Manage your restaurant operations",
+  description: "ScanMeKH Dashboard - Manage your restaurant operations",
+  icons: {
+    icon: "/images/logo/my_logo.png",
+    shortcut: "/images/logo/my_logo.png",
+    apple: "/images/logo/my_logo.png",
+  },
 };
 
 export default function DashboardGroupLayout({
