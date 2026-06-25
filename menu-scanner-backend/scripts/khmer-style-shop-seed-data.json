@@ -1,0 +1,232 @@
+{
+  "business": {
+    "name": "Khmer Style Shop",
+    "phone": "+855-23-900-123",
+    "email": "hello@khmerstyleshop.com",
+    "address": "#45, Street 113, Toul Kork, Phnom Penh, Cambodia",
+    "status": "ACTIVE"
+  },
+  "roles": [
+    { "name": "Business Owner", "description": "Full access to own business: products, orders, staff", "userType": "BUSINESS_USER" },
+    { "name": "Staff", "description": "Manage products, orders, inventory (no settings/finance)", "userType": "BUSINESS_USER" },
+    { "name": "Customer Service", "description": "View orders/customers, handle support, no product edit", "userType": "BUSINESS_USER" },
+    { "name": "Super Admin", "description": "Full platform access, manages all businesses", "userType": "PLATFORM_USER" }
+  ],
+  "users": [
+    { "userIdentifier": "admin@khmerstyle.com", "password": "Password123!", "userType": "PLATFORM_USER", "role": "Super Admin", "firstName": "Platform", "lastName": "Admin", "phoneNumber": "+855-12-000-001" },
+    { "userIdentifier": "owner@khmerstyle.com", "password": "Password123!", "userType": "BUSINESS_USER", "role": "Business Owner", "firstName": "Vannak", "lastName": "Sok", "phoneNumber": "+855-12-000-002" },
+    { "userIdentifier": "sokha.staff@khmerstyle.com", "password": "Password123!", "userType": "BUSINESS_USER", "role": "Staff", "firstName": "Sokha", "lastName": "Pen", "phoneNumber": "+855-12-000-003" },
+    { "userIdentifier": "dara.support@khmerstyle.com", "password": "Password123!", "userType": "BUSINESS_USER", "role": "Customer Service", "firstName": "Dara", "lastName": "Chan", "phoneNumber": "+855-12-000-004" }
+  ],
+  "customers": [
+    { "userIdentifier": "sopheak.chan@gmail.com", "firstName": "Sopheak", "lastName": "Chan", "phoneNumber": "012345671", "address": "Toul Kork, Phnom Penh" },
+    { "userIdentifier": "sreymom.vong@gmail.com", "firstName": "Sreymom", "lastName": "Vong", "phoneNumber": "012345672", "address": "Chamkar Mon, Phnom Penh" },
+    { "userIdentifier": "vichea.long@gmail.com", "firstName": "Vichea", "lastName": "Long", "phoneNumber": "012345673", "address": "Sen Sok, Phnom Penh" },
+    { "userIdentifier": "channary.pich@gmail.com", "firstName": "Channary", "lastName": "Pich", "phoneNumber": "012345674", "address": "Siem Reap City" },
+    { "userIdentifier": "bunthoeun.heng@gmail.com", "firstName": "Bunthoeun", "lastName": "Heng", "phoneNumber": "012345675", "address": "Battambang City" },
+    { "userIdentifier": "sreyleak.im@gmail.com", "firstName": "Sreyleak", "lastName": "Im", "phoneNumber": "012345676", "address": "Toul Tom Poung, Phnom Penh" },
+    { "userIdentifier": "pisach.roeun@gmail.com", "firstName": "Pisach", "lastName": "Roeun", "phoneNumber": "012345677", "address": "Boeung Keng Kang, Phnom Penh" },
+    { "userIdentifier": "chanthou.sok@gmail.com", "firstName": "Chanthou", "lastName": "Sok", "phoneNumber": "012345678", "address": "Kampong Cham City" },
+    { "userIdentifier": "maly.ouk@gmail.com", "firstName": "Maly", "lastName": "Ouk", "phoneNumber": "012345679", "address": "Sihanoukville" },
+    { "userIdentifier": "rithy.kong@gmail.com", "firstName": "Rithy", "lastName": "Kong", "phoneNumber": "012345680", "address": "Russey Keo, Phnom Penh" }
+  ],
+  "banners": [
+    { "description": "New Year Mega Sale — Up to 50% off all hoodies", "status": "ACTIVE" },
+    { "description": "Khmer New Year Collection 2026 — Shop Now", "status": "ACTIVE" },
+    { "description": "Free Delivery in Phnom Penh on orders over $20", "status": "ACTIVE" },
+    { "description": "New Arrivals: Custom Print T-Shirts", "status": "ACTIVE" },
+    { "description": "Buy 2 Get 1 Free — Caps & Hats", "status": "ACTIVE" },
+    { "description": "Pchum Ben Special — Family Bundle Discount", "status": "ACTIVE" },
+    { "description": "Back to School Backpack Sale", "status": "ACTIVE" },
+    { "description": "Limited Edition Angkor Heritage Tee", "status": "ACTIVE" },
+    { "description": "Rainy Season Jacket Collection", "status": "ACTIVE" },
+    { "description": "Flash Sale 24H — Accessories", "status": "ACTIVE" }
+  ],
+  "categories": [
+    { "name": "T-Shirts", "status": "ACTIVE" },
+    { "name": "Hoodies & Jackets", "status": "ACTIVE" },
+    { "name": "Caps & Hats", "status": "ACTIVE" },
+    { "name": "Bags & Accessories", "status": "ACTIVE" },
+    { "name": "Footwear", "status": "ACTIVE" },
+    { "name": "Home & Lifestyle", "status": "ACTIVE" }
+  ],
+  "brands": [
+    { "name": "Khmer Style", "description": "In-house flagship brand", "status": "ACTIVE" },
+    { "name": "Angkor Wear", "description": "Heritage-inspired streetwear", "status": "ACTIVE" },
+    { "name": "Mekong Threads", "description": "Sustainable cotton apparel", "status": "ACTIVE" },
+    { "name": "Tonle Sap Co.", "description": "Casual everyday fashion", "status": "ACTIVE" },
+    { "name": "Bayon Active", "description": "Sportswear and activewear", "status": "ACTIVE" },
+    { "name": "Naga Street", "description": "Urban streetwear", "status": "ACTIVE" },
+    { "name": "Kampuchea Krom", "description": "Traditional-modern fusion", "status": "ACTIVE" },
+    { "name": "Reach Denim", "description": "Denim and jeans specialist", "status": "ACTIVE" },
+    { "name": "Apsara Collective", "description": "Women's fashion line", "status": "ACTIVE" },
+    { "name": "Sambor Kids", "description": "Children's clothing", "status": "ACTIVE" },
+    { "name": "Phnom Outdoor", "description": "Outdoor and travel gear", "status": "ACTIVE" },
+    { "name": "Lotus & Co", "description": "Accessories and lifestyle goods", "status": "ACTIVE" }
+  ],
+  "exchangeRates": [
+    { "usdToKhrRate": 4100.0, "isActive": false, "notes": "Jan 2026 rate" },
+    { "usdToKhrRate": 4105.0, "isActive": false, "notes": "Feb 2026 rate" },
+    { "usdToKhrRate": 4110.0, "isActive": false, "notes": "Mar 2026 rate" },
+    { "usdToKhrRate": 4108.0, "isActive": false, "notes": "Apr 2026 rate" },
+    { "usdToKhrRate": 4112.0, "isActive": false, "notes": "May 2026 rate" },
+    { "usdToKhrRate": 4115.0, "isActive": false, "notes": "Early Jun 2026 rate" },
+    { "usdToKhrRate": 4118.0, "isActive": false, "notes": "Mid Jun 2026 rate" },
+    { "usdToKhrRate": 4120.0, "isActive": false, "notes": "Jun 20 2026 rate" },
+    { "usdToKhrRate": 4122.0, "isActive": false, "notes": "Jun 22 2026 rate" },
+    { "usdToKhrRate": 4119.0, "isActive": false, "notes": "Jun 23 2026 rate" },
+    { "usdToKhrRate": 4121.0, "isActive": false, "notes": "Jun 24 2026 rate" },
+    { "usdToKhrRate": 4123.0, "isActive": true, "notes": "Current active rate (Jun 25 2026)" }
+  ],
+  "deliveryOptions": [
+    { "name": "Standard Delivery (Phnom Penh)", "description": "1-2 business days within Phnom Penh", "price": 1.50, "status": "ACTIVE" },
+    { "name": "Express Delivery (Phnom Penh)", "description": "Same-day delivery within Phnom Penh", "price": 3.00, "status": "ACTIVE" },
+    { "name": "Standard Delivery (Provinces)", "description": "2-4 business days to provinces", "price": 3.50, "status": "ACTIVE" },
+    { "name": "Express Delivery (Provinces)", "description": "1-2 business days to provinces", "price": 6.00, "status": "ACTIVE" },
+    { "name": "Free Delivery (Orders over $20)", "description": "Free shipping promo, Phnom Penh only", "price": 0.00, "status": "ACTIVE" },
+    { "name": "J&T Express", "description": "Delivered via J&T Express courier", "price": 2.00, "status": "ACTIVE" },
+    { "name": "Virak Buntham Logistics", "description": "Inter-province bus delivery", "price": 2.50, "status": "ACTIVE" },
+    { "name": "Store Pickup", "description": "Pick up at Khmer Style Shop outlet", "price": 0.00, "status": "ACTIVE" },
+    { "name": "Cambodia Post", "description": "Standard national postal delivery", "price": 1.80, "status": "ACTIVE" },
+    { "name": "VET (Virak Express Transport)", "description": "Cross-province parcel service", "price": 2.20, "status": "ACTIVE" },
+    { "name": "Grab Express", "description": "On-demand courier within city", "price": 3.50, "status": "ACTIVE" },
+    { "name": "International Shipping", "description": "Delivery outside Cambodia, 5-10 days", "price": 15.00, "status": "ACTIVE" }
+  ],
+  "paymentOptions": [
+    { "name": "Cash on Delivery", "paymentOptionType": "CASH", "status": "ACTIVE" },
+    { "name": "Cash at Store", "paymentOptionType": "CASH", "status": "ACTIVE" },
+    { "name": "ABA Bank Transfer", "paymentOptionType": "BANK", "status": "ACTIVE" },
+    { "name": "ACLEDA Bank Transfer", "paymentOptionType": "BANK", "status": "ACTIVE" },
+    { "name": "Canadia Bank Transfer", "paymentOptionType": "BANK", "status": "ACTIVE" },
+    { "name": "Wing Money", "paymentOptionType": "BANK", "status": "ACTIVE" },
+    { "name": "Bakong (NBC)", "paymentOptionType": "BANK", "status": "ACTIVE" },
+    { "name": "TrueMoney", "paymentOptionType": "BANK", "status": "ACTIVE" },
+    { "name": "PiPay", "paymentOptionType": "BANK", "status": "ACTIVE" },
+    { "name": "Sathapana Bank Transfer", "paymentOptionType": "BANK", "status": "ACTIVE" },
+    { "name": "PayPal", "paymentOptionType": "BANK", "status": "ACTIVE" },
+    { "name": "Visa / Mastercard", "paymentOptionType": "BANK", "status": "ACTIVE" }
+  ],
+  "productsNoSize": [
+    { "name": "Khmer Style Canvas Tote Bag", "category": "Bags & Accessories", "brand": "Lotus & Co", "price": 8.00, "sku": "KS-BAG-001" },
+    { "name": "Angkor Wat Embroidered Cap", "category": "Caps & Hats", "brand": "Angkor Wear", "price": 7.50, "sku": "KS-CAP-001" },
+    { "name": "Leather Wallet Classic Brown", "category": "Bags & Accessories", "brand": "Reach Denim", "price": 12.00, "sku": "KS-WAL-001" },
+    { "name": "Naga Street Bucket Hat", "category": "Caps & Hats", "brand": "Naga Street", "price": 9.00, "sku": "KS-CAP-002" },
+    { "name": "Bayon Active Sports Socks (3-pack)", "category": "Bags & Accessories", "brand": "Bayon Active", "price": 5.00, "sku": "KS-SOX-001" },
+    { "name": "Mekong Threads Travel Backpack", "category": "Bags & Accessories", "brand": "Mekong Threads", "price": 22.00, "sku": "KS-BAG-002" },
+    { "name": "Phnom Outdoor Waist Bag", "category": "Bags & Accessories", "brand": "Phnom Outdoor", "price": 10.00, "sku": "KS-BAG-003" },
+    { "name": "Apsara Collective Hair Scarf", "category": "Bags & Accessories", "brand": "Apsara Collective", "price": 4.50, "sku": "KS-ACC-001" },
+    { "name": "Tonle Sap Co. Sunglasses", "category": "Bags & Accessories", "brand": "Tonle Sap Co.", "price": 6.50, "sku": "KS-ACC-002" },
+    { "name": "Khmer Style Keychain Set", "category": "Bags & Accessories", "brand": "Khmer Style", "price": 3.00, "sku": "KS-ACC-003" },
+    { "name": "Sambor Kids Mini Backpack", "category": "Bags & Accessories", "brand": "Sambor Kids", "price": 11.00, "sku": "KS-BAG-004" },
+    { "name": "Kampuchea Krom Woven Belt", "category": "Bags & Accessories", "brand": "Kampuchea Krom", "price": 7.00, "sku": "KS-ACC-004" }
+  ],
+  "productsWithSize": [
+    { "name": "Classic Logo T-Shirt", "category": "T-Shirts", "brand": "Khmer Style", "basePrice": 6.00, "sku": "KS-TS-001", "sizes": [ {"name":"S","price":6.00}, {"name":"M","price":6.50}, {"name":"L","price":7.00}, {"name":"XL","price":7.50} ] },
+    { "name": "Angkor Heritage Graphic Tee", "category": "T-Shirts", "brand": "Angkor Wear", "basePrice": 6.50, "sku": "KS-TS-002", "sizes": [ {"name":"S","price":6.50}, {"name":"M","price":7.00}, {"name":"L","price":7.50}, {"name":"XL","price":8.00} ] },
+    { "name": "Mekong Threads Organic Cotton Tee", "category": "T-Shirts", "brand": "Mekong Threads", "basePrice": 7.00, "sku": "KS-TS-003", "sizes": [ {"name":"S","price":7.00}, {"name":"M","price":7.50}, {"name":"L","price":8.00}, {"name":"XL","price":8.50} ] },
+    { "name": "Naga Street Oversized Hoodie", "category": "Hoodies & Jackets", "brand": "Naga Street", "basePrice": 14.00, "sku": "KS-HD-001", "sizes": [ {"name":"S","price":14.00}, {"name":"M","price":14.50}, {"name":"L","price":15.00}, {"name":"XL","price":15.50} ] },
+    { "name": "Bayon Active Zip-Up Jacket", "category": "Hoodies & Jackets", "brand": "Bayon Active", "basePrice": 15.00, "sku": "KS-HD-002", "sizes": [ {"name":"S","price":15.00}, {"name":"M","price":15.50}, {"name":"L","price":16.00}, {"name":"XL","price":16.50} ] },
+    { "name": "Reach Denim Jacket", "category": "Hoodies & Jackets", "brand": "Reach Denim", "basePrice": 18.00, "sku": "KS-HD-003", "sizes": [ {"name":"S","price":18.00}, {"name":"M","price":18.50}, {"name":"L","price":19.00}, {"name":"XL","price":19.50} ] },
+    { "name": "Apsara Collective Blouse", "category": "T-Shirts", "brand": "Apsara Collective", "basePrice": 8.00, "sku": "KS-TS-004", "sizes": [ {"name":"S","price":8.00}, {"name":"M","price":8.50}, {"name":"L","price":9.00}, {"name":"XL","price":9.50} ] },
+    { "name": "Tonle Sap Co. Polo Shirt", "category": "T-Shirts", "brand": "Tonle Sap Co.", "basePrice": 7.50, "sku": "KS-TS-005", "sizes": [ {"name":"S","price":7.50}, {"name":"M","price":8.00}, {"name":"L","price":8.50}, {"name":"XL","price":9.00} ] },
+    { "name": "Sambor Kids Graphic Tee", "category": "T-Shirts", "brand": "Sambor Kids", "basePrice": 5.50, "sku": "KS-TS-006", "sizes": [ {"name":"S","price":5.50}, {"name":"M","price":6.00}, {"name":"L","price":6.50}, {"name":"XL","price":7.00} ] },
+    { "name": "Phnom Outdoor Windbreaker", "category": "Hoodies & Jackets", "brand": "Phnom Outdoor", "basePrice": 16.00, "sku": "KS-HD-004", "sizes": [ {"name":"S","price":16.00}, {"name":"M","price":16.50}, {"name":"L","price":17.00}, {"name":"XL","price":17.50} ] },
+    { "name": "Kampuchea Krom Sweatshirt", "category": "Hoodies & Jackets", "brand": "Kampuchea Krom", "basePrice": 14.50, "sku": "KS-HD-005", "sizes": [ {"name":"S","price":14.50}, {"name":"M","price":15.00}, {"name":"L","price":15.50}, {"name":"XL","price":16.00} ] },
+    { "name": "Khmer Style Rain Jacket", "category": "Hoodies & Jackets", "brand": "Khmer Style", "basePrice": 17.00, "sku": "KS-HD-006", "sizes": [ {"name":"S","price":17.00}, {"name":"M","price":17.50}, {"name":"L","price":18.00}, {"name":"XL","price":18.50} ] }
+  ],
+  "productsWithCustomize": [
+    { "name": "Custom Photo Mug", "category": "Home & Lifestyle", "brand": "Khmer Style", "price": 6.00, "sku": "KS-CUS-001" },
+    { "name": "Personalized Phone Case", "category": "Home & Lifestyle", "brand": "Lotus & Co", "price": 8.50, "sku": "KS-CUS-002" },
+    { "name": "Custom Name Keychain", "category": "Home & Lifestyle", "brand": "Khmer Style", "price": 4.00, "sku": "KS-CUS-003" },
+    { "name": "Engraved Wooden Photo Frame", "category": "Home & Lifestyle", "brand": "Angkor Wear", "price": 10.00, "sku": "KS-CUS-004" },
+    { "name": "Custom Embroidered Tote Bag", "category": "Bags & Accessories", "brand": "Mekong Threads", "price": 9.50, "sku": "KS-CUS-005" },
+    { "name": "Personalized Leather Wallet", "category": "Bags & Accessories", "brand": "Reach Denim", "price": 14.00, "sku": "KS-CUS-006" },
+    { "name": "Custom Print Canvas Print", "category": "Home & Lifestyle", "brand": "Apsara Collective", "price": 15.00, "sku": "KS-CUS-007" },
+    { "name": "Custom Initial Necklace", "category": "Bags & Accessories", "brand": "Lotus & Co", "price": 7.00, "sku": "KS-CUS-008" },
+    { "name": "Personalized Water Bottle", "category": "Home & Lifestyle", "brand": "Bayon Active", "price": 8.00, "sku": "KS-CUS-009" },
+    { "name": "Custom Family Calendar", "category": "Home & Lifestyle", "brand": "Khmer Style", "price": 6.50, "sku": "KS-CUS-010" },
+    { "name": "Custom Pet Portrait Print", "category": "Home & Lifestyle", "brand": "Apsara Collective", "price": 18.00, "sku": "KS-CUS-011" },
+    { "name": "Personalized Cap (No Size)", "category": "Caps & Hats", "brand": "Naga Street", "price": 9.00, "sku": "KS-CUS-012" }
+  ],
+  "productCustomizationOptions": [
+    { "name": "Add Custom Text", "priceAdjustment": 1.00 },
+    { "name": "Add Custom Photo", "priceAdjustment": 2.00 },
+    { "name": "Gift Wrapping", "priceAdjustment": 1.50 },
+    { "name": "Premium Material Upgrade", "priceAdjustment": 3.00 }
+  ],
+  "productsWithSizeAndCustomize": [
+    { "name": "Custom Name Print T-Shirt", "category": "T-Shirts", "brand": "Khmer Style", "basePrice": 7.00, "sku": "KS-SCU-001" },
+    { "name": "Custom Team Jersey", "category": "T-Shirts", "brand": "Bayon Active", "basePrice": 9.00, "sku": "KS-SCU-002" },
+    { "name": "Personalized Hoodie", "category": "Hoodies & Jackets", "brand": "Naga Street", "basePrice": 14.00, "sku": "KS-SCU-003" },
+    { "name": "Custom Family Matching Tee", "category": "T-Shirts", "brand": "Sambor Kids", "basePrice": 6.50, "sku": "KS-SCU-004" },
+    { "name": "Custom Wedding Couple Shirt", "category": "T-Shirts", "brand": "Apsara Collective", "basePrice": 8.00, "sku": "KS-SCU-005" },
+    { "name": "Custom Embroidered Jacket", "category": "Hoodies & Jackets", "brand": "Reach Denim", "basePrice": 18.00, "sku": "KS-SCU-006" },
+    { "name": "Custom Logo Polo Shirt (Company)", "category": "T-Shirts", "brand": "Tonle Sap Co.", "basePrice": 8.50, "sku": "KS-SCU-007" },
+    { "name": "Custom Graphic Print Hoodie", "category": "Hoodies & Jackets", "brand": "Mekong Threads", "basePrice": 15.00, "sku": "KS-SCU-008" },
+    { "name": "Custom School Uniform Shirt", "category": "T-Shirts", "brand": "Sambor Kids", "basePrice": 5.50, "sku": "KS-SCU-009" },
+    { "name": "Custom Event Staff T-Shirt", "category": "T-Shirts", "brand": "Khmer Style", "basePrice": 6.00, "sku": "KS-SCU-010" },
+    { "name": "Personalized Sports Jacket", "category": "Hoodies & Jackets", "brand": "Bayon Active", "basePrice": 17.00, "sku": "KS-SCU-011" },
+    { "name": "Custom Anniversary Couple Hoodie", "category": "Hoodies & Jackets", "brand": "Angkor Wear", "basePrice": 16.00, "sku": "KS-SCU-012" }
+  ],
+  "sizeIncrements": [ {"name":"S","increment":0.0}, {"name":"M","increment":0.5}, {"name":"L","increment":1.0}, {"name":"XL","increment":1.5} ],
+  "sizeAndCustomizeOptions": [
+    { "name": "Add Custom Text", "priceAdjustment": 1.00 },
+    { "name": "Add Custom Photo", "priceAdjustment": 2.00 },
+    { "name": "Add Custom Name & Date", "priceAdjustment": 1.50 },
+    { "name": "Premium Fabric Upgrade", "priceAdjustment": 3.00 }
+  ],
+  "portfolio": {
+    "businessName": "Khmer Style Shop",
+    "description": "Khmer Style Shop is a Cambodian-born fashion and lifestyle brand offering trendy apparel, accessories, and fully customizable prints — blending modern streetwear with Khmer heritage design since 2020.",
+    "contactEmail": "hello@khmerstyleshop.com",
+    "contactPhone": "023 900 123",
+    "contactWhatsapp": "855 12 345 671",
+    "contactTelegram": "@khmerstyleshop",
+    "address": "#45, Street 113, Toul Kork, Phnom Penh, Cambodia",
+    "mapLink": "https://maps.google.com/?q=Khmer+Style+Shop+Phnom+Penh",
+    "contactPhones": ["023 900 123", "012 345 671", "096 555 871"],
+    "socialMedia": [
+      { "name": "Facebook", "url": "https://facebook.com/khmerstyleshop" },
+      { "name": "Instagram", "url": "https://instagram.com/khmerstyleshop" },
+      { "name": "TikTok", "url": "https://tiktok.com/@khmerstyleshop" },
+      { "name": "Telegram", "url": "https://t.me/khmerstyleshop" }
+    ],
+    "features": [
+      "Free Delivery in Phnom Penh on orders over $20",
+      "Custom Printing on almost any product",
+      "Authentic Quality — premium cotton and durable materials",
+      "Fast Support — replies within 30 minutes on Telegram/WhatsApp"
+    ],
+    "businessHours": [
+      { "day": "MONDAY", "openTime": "08:00", "closeTime": "19:00" },
+      { "day": "TUESDAY", "openTime": "08:00", "closeTime": "19:00" },
+      { "day": "WEDNESDAY", "openTime": "08:00", "closeTime": "19:00" },
+      { "day": "THURSDAY", "openTime": "08:00", "closeTime": "19:00" },
+      { "day": "FRIDAY", "openTime": "08:00", "closeTime": "20:00" },
+      { "day": "SATURDAY", "openTime": "08:00", "closeTime": "20:00" },
+      { "day": "SUNDAY", "openTime": "09:00", "closeTime": "18:00" }
+    ],
+    "gallery": [
+      "Our flagship store in Toul Kork",
+      "Custom print studio in action",
+      "The Khmer Style Shop team",
+      "2026 New Year Collection launch"
+    ],
+    "services": [
+      { "name": "Custom Apparel Printing", "description": "Bulk and individual custom printing for events, teams, schools" },
+      { "name": "Corporate Uniform Orders", "description": "Custom branded uniforms for businesses" },
+      { "name": "Gift Wrapping & Personalization", "description": "Personalized gifts for special occasions" }
+    ],
+    "team": [
+      { "name": "Vannak Sok", "position": "Founder & CEO", "bio": "Leads brand vision and strategy for Khmer Style Shop." },
+      { "name": "Sreypov Chan", "position": "Head of Design", "bio": "Creates the seasonal collections and custom print designs." },
+      { "name": "Sokha Pen", "position": "Operations Manager", "bio": "Oversees daily operations, inventory and order fulfillment." }
+    ],
+    "customStats": [
+      { "label": "Happy Customers", "value": "5,000+" },
+      { "label": "Products Sold", "value": "20,000+" },
+      { "label": "Years in Business", "value": "6" },
+      { "label": "Provinces Delivered", "value": "25" }
+    ]
+  }
+}
