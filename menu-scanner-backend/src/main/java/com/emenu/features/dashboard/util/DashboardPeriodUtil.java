@@ -14,6 +14,7 @@ public final class DashboardPeriodUtil {
             case "7D"  -> now.minusDays(7).toLocalDate().atStartOfDay();
             case "30D" -> now.minusDays(30).toLocalDate().atStartOfDay();
             case "90D" -> now.minusDays(90).toLocalDate().atStartOfDay();
+            case "ALL" -> LocalDate.of(2000, 1, 1).atStartOfDay();
             default    -> LocalDate.now().atStartOfDay(); // TODAY
         };
         return new LocalDateTime[]{start, now};

@@ -10,6 +10,7 @@ const PERIOD_OPTIONS: { label: string; value: DashboardPeriod }[] = [
   { label: "7 Days", value: "7D" },
   { label: "30 Days", value: "30D" },
   { label: "90 Days", value: "90D" },
+  { label: "All Time", value: "ALL" },
 ];
 
 interface DashboardHeaderProps {

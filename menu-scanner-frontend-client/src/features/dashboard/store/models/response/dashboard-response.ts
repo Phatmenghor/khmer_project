@@ -154,7 +154,7 @@ export interface DashboardPromotionsResponse {
 
 // ─── Period Filter ────────────────────────────────────────────────────────────
 
-export type DashboardPeriod = "TODAY" | "7D" | "30D" | "90D";
+export type DashboardPeriod = "TODAY" | "7D" | "30D" | "90D" | "ALL";
 
 export interface DashboardPeriodParams {
   period: DashboardPeriod;
