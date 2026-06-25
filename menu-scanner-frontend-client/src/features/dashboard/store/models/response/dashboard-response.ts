@@ -110,14 +110,17 @@ export interface DashboardHourlySalesResponse {
   currentHour: number;
 }
 
-// ─── Customer Stats ───────────────────────────────────────────────────────────
+// ─── Customer Growth ──────────────────────────────────────────────────────────
 
-export interface DashboardCustomerStatsResponse {
+export interface CustomerGrowthPoint {
+  date: string;
   newCustomers: number;
-  returningCustomers: number;
-  returnRate: number;
   totalCustomers: number;
-  avgOrderValue: number;
+}
+
+export interface DashboardCustomerGrowthResponse {
+  data: CustomerGrowthPoint[];
+  totalCustomers: number;
 }
 
 // ─── Period Filter ────────────────────────────────────────────────────────────

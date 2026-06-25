@@ -103,16 +103,14 @@ public class DashboardController {
         return ResponseEntity.ok(ApiResponse.success("Hourly sales retrieved", data));
     }
 
-    // ── Customer Stats ─────────────────────────────────────────────────────────
+    // ── Customer Growth ────────────────────────────────────────────────────────
 
-    @GetMapping("/customers")
-    public ResponseEntity<ApiResponse<DashboardCustomerStatsResponse>> getCustomerStats(
-            @RequestParam(defaultValue = "TODAY") String period) {
-
+    @GetMapping("/customer-growth")
+    public ResponseEntity<ApiResponse<DashboardCustomerGrowthResponse>> getCustomerGrowth() {
         UUID businessId = getBusinessId();
-        log.info("Endpoint: dashboard/customers - business={} period={}", businessId, period);
-        DashboardCustomerStatsResponse data = dashboardService.getCustomerStats(businessId, period);
-        return ResponseEntity.ok(ApiResponse.success("Customer stats retrieved", data));
+        log.info("Endpoint: dashboard/customer-growth - business={}", businessId);
+        DashboardCustomerGrowthResponse data = dashboardService.getCustomerGrowth(businessId);
+        return ResponseEntity.ok(ApiResponse.success("Customer growth retrieved", data));
     }
 
     // ─── helper ───────────────────────────────────────────────────────────────

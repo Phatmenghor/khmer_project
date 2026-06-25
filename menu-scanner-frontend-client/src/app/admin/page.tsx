@@ -18,14 +18,13 @@ import {
   fetchDashboardOrdersService,
   fetchDashboardTopProductsService,
   fetchDashboardHourlySalesService,
-  fetchDashboardCustomerStatsService,
+  fetchDashboardCustomerGrowthService,
 } from "@/features/dashboard/store/thunks/dashboard-thunks";
 import dynamic from "next/dynamic";
 import { ChartSkeleton } from "@/components/admin/dashboard/chart-skeleton";
 import { DashboardHeader } from "@/components/admin/dashboard/dashboard-header";
 import { KpiSection } from "@/components/admin/dashboard/kpi-section";
 import { ExchangeRateCard } from "@/components/admin/dashboard/exchange-rate-card";
-import { CustomerStatsCard } from "@/components/admin/dashboard/customer-stats-card";
 import { RecentOrdersCard } from "@/components/admin/dashboard/recent-orders-card";
 import { InventoryStatusCard } from "@/components/admin/dashboard/inventory-status-card";
 
@@ -49,11 +48,15 @@ const HourlySalesCard = dynamic(
   () => import("@/components/admin/dashboard/hourly-sales-card").then((m) => m.HourlySalesCard),
   { ssr: false, loading: () => <ChartSkeleton /> }
 );
+const CustomerGrowthCard = dynamic(
+  () => import("@/components/admin/dashboard/customer-growth-card").then((m) => m.CustomerGrowthCard),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
 
 export default function AdminDashboardPage() {
   useAdminCleanup(resetState);
 
-  const { summary, sales, payments, stock, orders, topProducts, hourlySales, customerStats, loading, error, dispatch } = useDashboardState();
+  const { summary, sales, payments, stock, orders, topProducts, hourlySales, customerGrowth, loading, error, dispatch } = useDashboardState();
   const { user } = useAuthState();
   const { exchangeRateContent, dispatch: erDispatch } = useExchangeRateState();
   const activeRate = exchangeRateContent?.find((r) => r.status === "ACTIVE") ?? exchangeRateContent?.[0];
@@ -66,7 +69,7 @@ export default function AdminDashboardPage() {
     dispatch(fetchDashboardOrdersService({ period: "ALL" }));
     dispatch(fetchDashboardTopProductsService({ period: "ALL" }));
     dispatch(fetchDashboardHourlySalesService({ period: "TODAY" }));
-    dispatch(fetchDashboardCustomerStatsService({ period: "ALL" }));
+    dispatch(fetchDashboardCustomerGrowthService());
   }, [dispatch]);
 
   const handleOrderEvent = useCallback((type: string) => {
@@ -104,7 +107,7 @@ export default function AdminDashboardPage() {
         <TopProductsCard topProducts={topProducts} loading={loading.topProducts} />
         <div className="flex flex-col gap-3">
           <ExchangeRateCard activeRate={activeRate} />
-          <CustomerStatsCard customerStats={customerStats} loading={loading.customerStats} />
+          <CustomerGrowthCard customerGrowth={customerGrowth} loading={loading.customerGrowth} />
         </div>
       </div>
       <HourlySalesCard hourlySales={hourlySales} loading={loading.hourlySales} currentHour={cambodiaCurrentHour} />

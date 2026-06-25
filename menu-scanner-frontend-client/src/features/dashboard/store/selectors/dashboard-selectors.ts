@@ -11,6 +11,6 @@ export const selectDashboardStock = createSelector(selectDashboardState, (s) => 
 export const selectDashboardOrders = createSelector(selectDashboardState, (s) => s.orders);
 export const selectDashboardTopProducts = createSelector(selectDashboardState, (s) => s.topProducts);
 export const selectDashboardHourlySales = createSelector(selectDashboardState, (s) => s.hourlySales);
-export const selectDashboardCustomerStats = createSelector(selectDashboardState, (s) => s.customerStats);
+export const selectDashboardCustomerGrowth = createSelector(selectDashboardState, (s) => s.customerGrowth);
 export const selectDashboardLoading = createSelector(selectDashboardState, (s) => s.loading);
 export const selectDashboardError = createSelector(selectDashboardState, (s) => s.error);

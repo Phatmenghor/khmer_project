@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  DashboardCustomerStatsResponse,
+  DashboardCustomerGrowthResponse,
   DashboardHourlySalesResponse,
   DashboardOrdersResponse,
   DashboardPaymentsResponse,
@@ -11,7 +11,7 @@ import {
   DashboardTopProductsResponse,
 } from "../models/response/dashboard-response";
 import {
-  fetchDashboardCustomerStatsService,
+  fetchDashboardCustomerGrowthService,
   fetchDashboardHourlySalesService,
   fetchDashboardOrdersService,
   fetchDashboardPaymentsService,
@@ -31,7 +31,7 @@ interface DashboardState {
   orders: DashboardOrdersResponse | null;
   topProducts: DashboardTopProductsResponse | null;
   hourlySales: DashboardHourlySalesResponse | null;
-  customerStats: DashboardCustomerStatsResponse | null;
+  customerGrowth: DashboardCustomerGrowthResponse | null;
 
   loading: {
     summary: boolean;
@@ -41,7 +41,7 @@ interface DashboardState {
     orders: boolean;
     topProducts: boolean;
     hourlySales: boolean;
-    customerStats: boolean;
+    customerGrowth: boolean;
   };
 
   error: string | null;
@@ -57,7 +57,7 @@ const initialState: DashboardState = {
   orders: null,
   topProducts: null,
   hourlySales: null,
-  customerStats: null,
+  customerGrowth: null,
 
   loading: {
     summary: true,
@@ -67,7 +67,7 @@ const initialState: DashboardState = {
     orders: true,
     topProducts: true,
     hourlySales: true,
-    customerStats: true,
+    customerGrowth: true,
   },
 
   error: null,
@@ -122,9 +122,9 @@ const dashboardSlice = createSlice({
       .addCase(fetchDashboardHourlySalesService.rejected, (state) => { state.loading.hourlySales = false; });
 
     builder
-      .addCase(fetchDashboardCustomerStatsService.pending, (state) => { state.loading.customerStats = true; })
-      .addCase(fetchDashboardCustomerStatsService.fulfilled, (state, action) => { state.customerStats = action.payload; state.loading.customerStats = false; })
-      .addCase(fetchDashboardCustomerStatsService.rejected, (state) => { state.loading.customerStats = false; });
+      .addCase(fetchDashboardCustomerGrowthService.pending, (state) => { state.loading.customerGrowth = true; })
+      .addCase(fetchDashboardCustomerGrowthService.fulfilled, (state, action) => { state.customerGrowth = action.payload; state.loading.customerGrowth = false; })
+      .addCase(fetchDashboardCustomerGrowthService.rejected, (state) => { state.loading.customerGrowth = false; });
   },
 });
 

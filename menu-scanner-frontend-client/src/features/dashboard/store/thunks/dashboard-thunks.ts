@@ -1,7 +1,7 @@
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
 import {
-  DashboardCustomerStatsResponse,
+  DashboardCustomerGrowthResponse,
   DashboardHourlySalesResponse,
   DashboardOrdersResponse,
   DashboardPaymentsResponse,
@@ -68,10 +68,10 @@ export const fetchDashboardHourlySalesService = createApiThunk<
   return response.data.data;
 });
 
-export const fetchDashboardCustomerStatsService = createApiThunk<
-  DashboardCustomerStatsResponse,
-  DashboardPeriodParams
->("dashboard/fetchCustomerStats", async (params) => {
-  const response = await axiosClientWithAuth.get("/api/admin/dashboard/customers", { params });
+export const fetchDashboardCustomerGrowthService = createApiThunk<
+  DashboardCustomerGrowthResponse,
+  void
+>("dashboard/fetchCustomerGrowth", async () => {
+  const response = await axiosClientWithAuth.get("/api/admin/dashboard/customer-growth");
   return response.data.data;
 });

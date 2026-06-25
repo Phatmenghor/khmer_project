@@ -388,61 +388,41 @@ public class DashboardServiceImpl implements DashboardService {
             .build();
     }
 
-    // ─── Customer Stats ───────────────────────────────────────────────────────
-
     @Override
-    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':customerStats:' + #period")
-    public DashboardCustomerStatsResponse getCustomerStats(UUID businessId, String period) {
-        LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
+    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':customerGrowth'")
+    public DashboardCustomerGrowthResponse getCustomerGrowth(UUID businessId) {
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = em.createNativeQuery(
+            "WITH first_orders AS (" +
+            "    SELECT COALESCE(customer_id::text, customer_name) AS cust_key, " +
+            "           MIN(DATE(created_at)) AS first_day " +
+            "    FROM orders " +
+            "    WHERE business_id = :bid AND is_deleted = false " +
+            "    GROUP BY COALESCE(customer_id::text, customer_name)" +
+            ") " +
+            "SELECT first_day, COUNT(*) AS new_customers " +
+            "FROM first_orders " +
+            "GROUP BY first_day " +
+            "ORDER BY first_day")
+            .setParameter("bid", businessId)
+            .getResultList();
 
-        // All distinct customer IDs in the period (guests included via customer_name)
-        Object totalResult = em.createNativeQuery(
-            "SELECT COUNT(DISTINCT COALESCE(customer_id::text, customer_name)) " +
-            "FROM orders " +
-            "WHERE business_id = :bid " +
-            "  AND created_at >= :start AND created_at < :end " +
-            "  AND is_deleted = false")
-            .setParameter("bid",   businessId)
-            .setParameter("start", range[0])
-            .setParameter("end",   range[1])
-            .getSingleResult();
+        List<DashboardCustomerGrowthResponse.CustomerGrowthPoint> points = new ArrayList<>();
+        long running = 0;
 
-        // Returning = customers who placed an order BEFORE the period start
-        Object returningResult = em.createNativeQuery(
-            "SELECT COUNT(DISTINCT o.customer_id) " +
-            "FROM orders o " +
-            "WHERE o.business_id = :bid " +
-            "  AND o.created_at >= :start AND o.created_at < :end " +
-            "  AND o.customer_id IS NOT NULL " +
-            "  AND o.is_deleted = false " +
-            "  AND EXISTS (" +
-            "      SELECT 1 FROM orders o2 " +
-            "      WHERE o2.customer_id = o.customer_id " +
-            "        AND o2.business_id = :bid " +
-            "        AND o2.created_at < :start " +
-            "        AND o2.is_deleted = false)")
-            .setParameter("bid",   businessId)
-            .setParameter("start", range[0])
-            .setParameter("end",   range[1])
-            .getSingleResult();
+        for (Object[] row : rows) {
+            long newCustomers = toLong(row[1]);
+            running += newCustomers;
+            points.add(DashboardCustomerGrowthResponse.CustomerGrowthPoint.builder()
+                .date(row[0] != null ? row[0].toString() : "")
+                .newCustomers(newCustomers)
+                .totalCustomers(running)
+                .build());
+        }
 
-        long total      = toLong(totalResult);
-        long returning  = toLong(returningResult);
-        long newCust    = Math.max(0, total - returning);
-        double rate     = total > 0 ? (returning * 100.0 / total) : 0.0;
-
-        BigDecimal revenue = queryRevenue(businessId, range[0], range[1]);
-        long orders        = queryOrderCount(businessId, range[0], range[1]);
-        BigDecimal avg     = orders > 0
-            ? revenue.divide(BigDecimal.valueOf(orders), 2, RoundingMode.HALF_UP)
-            : BigDecimal.ZERO;
-
-        return DashboardCustomerStatsResponse.builder()
-            .totalCustomers(total)
-            .newCustomers(newCust)
-            .returningCustomers(returning)
-            .returnRate(rate)
-            .avgOrderValue(avg)
+        return DashboardCustomerGrowthResponse.builder()
+            .data(points)
+            .totalCustomers(running)
             .build();
     }
 
