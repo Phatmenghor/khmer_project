@@ -36,7 +36,26 @@
       "role": "Super Admin",
       "firstName": "Platform",
       "lastName": "Admin",
-      "phoneNumber": "+855-12-000-001"
+      "nickname": "Bong Admin",
+      "gender": "MALE",
+      "dateOfBirth": "1990-01-15",
+      "phoneNumber": "+855-12-000-001",
+      "remark": "Platform super admin account, manages all businesses on the system.",
+      "employment": {
+        "employeeId": "EMP-0001",
+        "position": "System Administrator",
+        "department": "Platform Operations",
+        "employmentType": "FULL_TIME",
+        "joinDate": "2023-01-10",
+        "shift": "Day"
+      },
+      "address": {
+        "current": { "houseNo": "12", "street": "Street 271", "village": "Boeung Tumpun", "commune": "Boeung Tumpun", "district": "Mean Chey", "province": "Phnom Penh", "country": "Cambodia" },
+        "placeOfBirth": { "village": "Kandal Steung", "commune": "Kandal Steung", "district": "Kandal Steung", "province": "Kandal", "country": "Cambodia" }
+      },
+      "emergencyContact": { "name": "Sophea Lim", "phone": "+855-12-100-001", "relationship": "Spouse" },
+      "education": { "level": "MASTER", "schoolName": "Royal University of Phnom Penh", "fieldOfStudy": "Information Technology", "startYear": "2010", "endYear": "2012", "isGraduated": true },
+      "document": { "type": "ID_CARD", "number": "001-123456789" }
     },
     {
       "userIdentifier": "owner@khmerstyle.com",
@@ -45,7 +64,26 @@
       "role": "Business Owner",
       "firstName": "Vannak",
       "lastName": "Sok",
-      "phoneNumber": "+855-12-000-002"
+      "nickname": "Bong Nak",
+      "gender": "MALE",
+      "dateOfBirth": "1985-05-22",
+      "phoneNumber": "+855-12-000-002",
+      "remark": "Owner of Khmer Style Shop, oversees products, orders and staff.",
+      "employment": {
+        "employeeId": "EMP-0002",
+        "position": "Business Owner",
+        "department": "Management",
+        "employmentType": "FULL_TIME",
+        "joinDate": "2023-02-01",
+        "shift": "Day"
+      },
+      "address": {
+        "current": { "houseNo": "45", "street": "Street 113", "village": "Boeung Kak 1", "commune": "Toul Kork", "district": "Toul Kork", "province": "Phnom Penh", "country": "Cambodia" },
+        "placeOfBirth": { "village": "Wat Bo", "commune": "Sla Kram", "district": "Siem Reap", "province": "Siem Reap", "country": "Cambodia" }
+      },
+      "emergencyContact": { "name": "Channary Sok", "phone": "+855-12-100-002", "relationship": "Spouse" },
+      "education": { "level": "BACHELOR", "schoolName": "National University of Management", "fieldOfStudy": "Business Administration", "startYear": "2005", "endYear": "2009", "isGraduated": true },
+      "document": { "type": "ID_CARD", "number": "001-987654321" }
     },
     {
       "userIdentifier": "sokha.staff@khmerstyle.com",
@@ -54,7 +92,26 @@
       "role": "Staff",
       "firstName": "Sokha",
       "lastName": "Pen",
-      "phoneNumber": "+855-12-000-003"
+      "nickname": "Sokha",
+      "gender": "FEMALE",
+      "dateOfBirth": "1996-09-03",
+      "phoneNumber": "+855-12-000-003",
+      "remark": "Full-time sales staff, handles daily order fulfillment and inventory.",
+      "employment": {
+        "employeeId": "EMP-0003",
+        "position": "Sales Staff",
+        "department": "Sales & Service",
+        "employmentType": "FULL_TIME",
+        "joinDate": "2023-03-15",
+        "shift": "Morning"
+      },
+      "address": {
+        "current": { "houseNo": "8B", "street": "Street 360", "village": "Boeung Keng Kang 3", "commune": "Boeung Keng Kang 3", "district": "Chamkar Mon", "province": "Phnom Penh", "country": "Cambodia" },
+        "placeOfBirth": { "village": "Prek Pra", "commune": "Prek Pra", "district": "Chbar Ampov", "province": "Phnom Penh", "country": "Cambodia" }
+      },
+      "emergencyContact": { "name": "Sokunthea Pen", "phone": "+855-12-100-003", "relationship": "Mother" },
+      "education": { "level": "BACHELOR", "schoolName": "Royal University of Phnom Penh", "fieldOfStudy": "Marketing", "startYear": "2015", "endYear": "2019", "isGraduated": true },
+      "document": { "type": "ID_CARD", "number": "001-456789123" }
     },
     {
       "userIdentifier": "dara.support@khmerstyle.com",
@@ -63,7 +120,26 @@
       "role": "Customer Service",
       "firstName": "Dara",
       "lastName": "Chan",
-      "phoneNumber": "+855-12-000-004"
+      "nickname": "Dara",
+      "gender": "FEMALE",
+      "dateOfBirth": "1998-11-30",
+      "phoneNumber": "+855-12-000-004",
+      "remark": "Part-time customer service agent, handles customer chats and support tickets.",
+      "employment": {
+        "employeeId": "EMP-0004",
+        "position": "Customer Service Agent",
+        "department": "Customer Support",
+        "employmentType": "PART_TIME",
+        "joinDate": "2023-06-01",
+        "shift": "Afternoon"
+      },
+      "address": {
+        "current": { "houseNo": "21", "street": "Street 70", "village": "Phsar Doeum Thkov", "commune": "Phsar Doeum Thkov", "district": "Chamkar Mon", "province": "Phnom Penh", "country": "Cambodia" },
+        "placeOfBirth": { "village": "Svay Pak", "commune": "Bek Chan", "district": "Battambang", "province": "Battambang", "country": "Cambodia" }
+      },
+      "emergencyContact": { "name": "Visal Chan", "phone": "+855-12-100-004", "relationship": "Brother" },
+      "education": { "level": "DIPLOMA", "schoolName": "National Polytechnic Institute of Cambodia", "fieldOfStudy": "Office Administration", "startYear": "2016", "endYear": "2018", "isGraduated": true },
+      "document": { "type": "ID_CARD", "number": "001-789123456" }
     }
   ],
   "customers": [

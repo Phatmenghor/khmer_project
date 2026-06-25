@@ -51,9 +51,9 @@ public class StorageServiceImpl implements StorageService {
 
             log.info("[{}][{}] Upload succeeded: key=[{}]", ctx.getProjectCode(), resolvedPath, response.getKey());
             return response;
-        } catch (IOException e) {
-            log.error("[{}][{}] Upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage());
-            throw new RuntimeException("Image upload failed: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("[{}][{}] Upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage(), e);
+            throw new RuntimeException("Image upload failed: " + e.getMessage(), e);
         }
     }
 
@@ -77,9 +77,9 @@ public class StorageServiceImpl implements StorageService {
                     .md(md)
                     .o(o)
                     .build();
-        } catch (IOException e) {
-            log.error("[{}][{}] Multi-upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage());
-            throw new RuntimeException("Multi-size image upload failed: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("[{}][{}] Multi-upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage(), e);
+            throw new RuntimeException("Multi-size image upload failed: " + e.getMessage(), e);
         }
     }
 
@@ -116,6 +116,9 @@ public class StorageServiceImpl implements StorageService {
 
         if (maxWidth > 0) {
             BufferedImage img = javax.imageio.ImageIO.read(new ByteArrayInputStream(original));
+            if (img == null) {
+                throw new IOException("Unsupported or corrupt image format: " + originalFilename);
+            }
             int targetWidth = Math.min(img.getWidth(), maxWidth);
             builder = builder.width(targetWidth);
         } else {

@@ -1,6 +1,8 @@
 -- ============================================================================
 -- KHMER STYLE SHOP — SAMPLE SEED DATA
--- 1 Business · 4 Roles · 4 Users · 10 Customers · 10 Banners · 6 Categories
+-- 1 Business · 4 Roles · 4 Users (full HR profile: employment, address,
+-- emergency contact, education, ID document, remark) · 10 Customers ·
+-- 10 Banners · 6 Categories
 -- 12 Brands · 12 Exchange Rates · 12 Delivery Options · 12 Payment Options
 -- 48 Products (12 no-size, 12 with-size, 12 with-customize, 12 size+customize)
 -- 1 Full Portfolio Profile
@@ -57,6 +59,77 @@ INSERT INTO user_roles (user_id, role_id) VALUES
   ('a1000000-0000-4000-8000-000000000202', 'a1000000-0000-4000-8000-000000000101'),
   ('a1000000-0000-4000-8000-000000000203', 'a1000000-0000-4000-8000-000000000102'),
   ('a1000000-0000-4000-8000-000000000204', 'a1000000-0000-4000-8000-000000000103')
+ON CONFLICT DO NOTHING;
+
+-- Extra profile fields (nickname / gender / date_of_birth) for the 4 seed users
+UPDATE user_profiles SET nickname = 'Bong Admin', gender = 'MALE',   date_of_birth = '1990-01-15' WHERE user_id = 'a1000000-0000-4000-8000-000000000201';
+UPDATE user_profiles SET nickname = 'Bong Nak',   gender = 'MALE',   date_of_birth = '1985-05-22' WHERE user_id = 'a1000000-0000-4000-8000-000000000202';
+UPDATE user_profiles SET nickname = 'Sokha',      gender = 'FEMALE', date_of_birth = '1996-09-03' WHERE user_id = 'a1000000-0000-4000-8000-000000000203';
+UPDATE user_profiles SET nickname = 'Dara',       gender = 'FEMALE', date_of_birth = '1998-11-30' WHERE user_id = 'a1000000-0000-4000-8000-000000000204';
+
+-- Remarks for the 4 seed users
+UPDATE users SET remark = 'Platform super admin account, manages all businesses on the system.'        WHERE id = 'a1000000-0000-4000-8000-000000000201';
+UPDATE users SET remark = 'Owner of Khmer Style Shop, oversees products, orders and staff.'             WHERE id = 'a1000000-0000-4000-8000-000000000202';
+UPDATE users SET remark = 'Full-time sales staff, handles daily order fulfillment and inventory.'       WHERE id = 'a1000000-0000-4000-8000-000000000203';
+UPDATE users SET remark = 'Part-time customer service agent, handles customer chats and support tickets.' WHERE id = 'a1000000-0000-4000-8000-000000000204';
+
+-- ============================================================================
+-- 3a. USER EMPLOYMENT — position/department/join date for staff users
+-- ============================================================================
+INSERT INTO user_employments (id, user_id, employee_id, position, department, employment_type, join_date, leave_date, shift, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  ('a1000000-0000-4000-8000-000000000401', 'a1000000-0000-4000-8000-000000000201', 'EMP-0001', 'System Administrator',  'Platform Operations',  'FULL_TIME', '2023-01-10', NULL, 'Day',       0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000402', 'a1000000-0000-4000-8000-000000000202', 'EMP-0002', 'Business Owner',        'Management',            'FULL_TIME', '2023-02-01', NULL, 'Day',       0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000403', 'a1000000-0000-4000-8000-000000000203', 'EMP-0003', 'Sales Staff',           'Sales & Service',       'FULL_TIME', '2023-03-15', NULL, 'Morning',   0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000404', 'a1000000-0000-4000-8000-000000000204', 'EMP-0004', 'Customer Service Agent','Customer Support',      'PART_TIME', '2023-06-01', NULL, 'Afternoon', 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- ============================================================================
+-- 3b. USER ADDRESSES — current address + place of birth for each seed user
+-- ============================================================================
+INSERT INTO user_addresses (id, user_id, address_type, house_no, street, village, commune, district, province, country, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  ('a1000000-0000-4000-8000-000000000501', 'a1000000-0000-4000-8000-000000000201', 'CURRENT',       '12', 'Street 271', 'Boeung Tumpun', 'Boeung Tumpun', 'Mean Chey',  'Phnom Penh', 'Cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000502', 'a1000000-0000-4000-8000-000000000202', 'CURRENT',       '45', 'Street 113', 'Boeung Kak 1',  'Toul Kork',     'Toul Kork',  'Phnom Penh', 'Cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000503', 'a1000000-0000-4000-8000-000000000203', 'CURRENT',       '8B', 'Street 360', 'Boeung Keng Kang 3', 'Boeung Keng Kang 3', 'Chamkar Mon', 'Phnom Penh', 'Cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000504', 'a1000000-0000-4000-8000-000000000204', 'CURRENT',       '21', 'Street 70',  'Phsar Doeum Thkov', 'Phsar Doeum Thkov', 'Chamkar Mon', 'Phnom Penh', 'Cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000511', 'a1000000-0000-4000-8000-000000000201', 'PLACE_OF_BIRTH', NULL, NULL, 'Kandal Steung', 'Kandal Steung', 'Kandal Steung', 'Kandal',      'Cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000512', 'a1000000-0000-4000-8000-000000000202', 'PLACE_OF_BIRTH', NULL, NULL, 'Wat Bo',        'Sla Kram',       'Siem Reap',     'Siem Reap',   'Cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000513', 'a1000000-0000-4000-8000-000000000203', 'PLACE_OF_BIRTH', NULL, NULL, 'Prek Pra',      'Prek Pra',       'Chbar Ampov',   'Phnom Penh',  'Cambodia', 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000514', 'a1000000-0000-4000-8000-000000000204', 'PLACE_OF_BIRTH', NULL, NULL, 'Svay Pak',      'Bek Chan',       'Battambang',    'Battambang',  'Cambodia', 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- ============================================================================
+-- 3c. USER EMERGENCY CONTACTS
+-- ============================================================================
+INSERT INTO user_emergency_contacts (id, user_id, name, phone, relationship, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  ('a1000000-0000-4000-8000-000000000601', 'a1000000-0000-4000-8000-000000000201', 'Sophea Lim',   '+855-12-100-001', 'Spouse',  0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000602', 'a1000000-0000-4000-8000-000000000202', 'Channary Sok', '+855-12-100-002', 'Spouse',  0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000603', 'a1000000-0000-4000-8000-000000000203', 'Sokunthea Pen','+855-12-100-003', 'Mother',  0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000604', 'a1000000-0000-4000-8000-000000000204', 'Visal Chan',   '+855-12-100-004', 'Brother', 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- ============================================================================
+-- 3d. USER EDUCATIONS
+-- ============================================================================
+INSERT INTO user_educations (id, user_id, level, school_name, field_of_study, start_year, end_year, is_graduated, certificate_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  ('a1000000-0000-4000-8000-000000000701', 'a1000000-0000-4000-8000-000000000201', 'MASTER',   'Royal University of Phnom Penh',          'Information Technology', '2010', '2012', true, NULL, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000702', 'a1000000-0000-4000-8000-000000000202', 'BACHELOR', 'National University of Management',       'Business Administration', '2005', '2009', true, NULL, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000703', 'a1000000-0000-4000-8000-000000000203', 'BACHELOR', 'Royal University of Phnom Penh',          'Marketing',               '2015', '2019', true, NULL, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000704', 'a1000000-0000-4000-8000-000000000204', 'DIPLOMA',  'National Polytechnic Institute of Cambodia','Office Administration', '2016', '2018', true, NULL, 0, false, NOW(), NOW(), 'admin', 'admin')
+ON CONFLICT DO NOTHING;
+
+-- ============================================================================
+-- 3e. USER DOCUMENTS — National ID cards
+-- ============================================================================
+INSERT INTO user_documents (id, user_id, type, number, file_url, version, is_deleted, created_at, updated_at, created_by, updated_by)
+VALUES
+  ('a1000000-0000-4000-8000-000000000801', 'a1000000-0000-4000-8000-000000000201', 'ID_CARD', '001-123456789', NULL, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000802', 'a1000000-0000-4000-8000-000000000202', 'ID_CARD', '001-987654321', NULL, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000803', 'a1000000-0000-4000-8000-000000000203', 'ID_CARD', '001-456789123', NULL, 0, false, NOW(), NOW(), 'admin', 'admin'),
+  ('a1000000-0000-4000-8000-000000000804', 'a1000000-0000-4000-8000-000000000204', 'ID_CARD', '001-789123456', NULL, 0, false, NOW(), NOW(), 'admin', 'admin')
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
