@@ -3,25 +3,14 @@
 import { RefreshCw } from "lucide-react";
 import { CustomButton } from "@/components/shared/button/custom-button";
 import { cn } from "@/lib/utils";
-import { DashboardPeriod } from "@/features/dashboard/store/models/response/dashboard-response";
-
-const PERIOD_OPTIONS: { label: string; value: DashboardPeriod }[] = [
-  { label: "Today", value: "TODAY" },
-  { label: "7 Days", value: "7D" },
-  { label: "30 Days", value: "30D" },
-  { label: "90 Days", value: "90D" },
-  { label: "All Time", value: "ALL" },
-];
 
 interface DashboardHeaderProps {
   today: string;
-  period: DashboardPeriod;
   isLive: boolean;
-  onPeriodChange: (p: DashboardPeriod) => void;
   onRefresh: () => void;
 }
 
-export function DashboardHeader({ today, period, isLive, onPeriodChange, onRefresh }: DashboardHeaderProps) {
+export function DashboardHeader({ today, isLive, onRefresh }: DashboardHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div>
@@ -47,22 +36,6 @@ export function DashboardHeader({ today, period, isLive, onPeriodChange, onRefre
         <p className="text-xs text-muted-foreground mt-0.5">{today}</p>
       </div>
       <div className="flex items-center gap-2 flex-wrap">
-        <div className="flex bg-muted rounded-md p-1 gap-0.5">
-          {PERIOD_OPTIONS.map((opt) => (
-            <CustomButton variant="unstyled" size="unstyled"
-              key={opt.value}
-              onClick={() => onPeriodChange(opt.value)}
-              className={cn(
-                "px-3 py-1 rounded text-xs font-medium transition-all duration-150",
-                period === opt.value
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {opt.label}
-            </CustomButton>
-          ))}
-        </div>
         <CustomButton variant="outline" size="sm" className="gap-1.5 h-8" onClick={onRefresh}>
           <RefreshCw className="h-3.5 w-3.5" />
           Refresh

@@ -1,24 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  DashboardBranchesResponse,
   DashboardCustomerStatsResponse,
   DashboardHourlySalesResponse,
   DashboardOrdersResponse,
   DashboardPaymentsResponse,
   DashboardPeriod,
-  DashboardPromotionsResponse,
   DashboardSalesResponse,
   DashboardStockResponse,
   DashboardSummaryResponse,
   DashboardTopProductsResponse,
 } from "../models/response/dashboard-response";
 import {
-  fetchDashboardBranchesService,
   fetchDashboardCustomerStatsService,
   fetchDashboardHourlySalesService,
   fetchDashboardOrdersService,
   fetchDashboardPaymentsService,
-  fetchDashboardPromotionsService,
   fetchDashboardSalesService,
   fetchDashboardStockService,
   fetchDashboardSummaryService,
@@ -33,11 +29,9 @@ interface DashboardState {
   payments: DashboardPaymentsResponse | null;
   stock: DashboardStockResponse | null;
   orders: DashboardOrdersResponse | null;
-  branches: DashboardBranchesResponse | null;
   topProducts: DashboardTopProductsResponse | null;
   hourlySales: DashboardHourlySalesResponse | null;
   customerStats: DashboardCustomerStatsResponse | null;
-  promotions: DashboardPromotionsResponse | null;
 
   loading: {
     summary: boolean;
@@ -45,29 +39,25 @@ interface DashboardState {
     payments: boolean;
     stock: boolean;
     orders: boolean;
-    branches: boolean;
     topProducts: boolean;
     hourlySales: boolean;
     customerStats: boolean;
-    promotions: boolean;
   };
 
   error: string | null;
 }
 
 const initialState: DashboardState = {
-  period: "TODAY",
+  period: "ALL",
 
   summary: null,
   sales: null,
   payments: null,
   stock: null,
   orders: null,
-  branches: null,
   topProducts: null,
   hourlySales: null,
   customerStats: null,
-  promotions: null,
 
   loading: {
     summary: true,
@@ -75,11 +65,9 @@ const initialState: DashboardState = {
     payments: true,
     stock: true,
     orders: true,
-    branches: true,
     topProducts: true,
     hourlySales: true,
     customerStats: true,
-    promotions: true,
   },
 
   error: null,
@@ -124,11 +112,6 @@ const dashboardSlice = createSlice({
       .addCase(fetchDashboardOrdersService.rejected, (state) => { state.loading.orders = false; });
 
     builder
-      .addCase(fetchDashboardBranchesService.pending, (state) => { state.loading.branches = true; })
-      .addCase(fetchDashboardBranchesService.fulfilled, (state, action) => { state.branches = action.payload; state.loading.branches = false; })
-      .addCase(fetchDashboardBranchesService.rejected, (state) => { state.loading.branches = false; });
-
-    builder
       .addCase(fetchDashboardTopProductsService.pending, (state) => { state.loading.topProducts = true; })
       .addCase(fetchDashboardTopProductsService.fulfilled, (state, action) => { state.topProducts = action.payload; state.loading.topProducts = false; })
       .addCase(fetchDashboardTopProductsService.rejected, (state) => { state.loading.topProducts = false; });
@@ -142,11 +125,6 @@ const dashboardSlice = createSlice({
       .addCase(fetchDashboardCustomerStatsService.pending, (state) => { state.loading.customerStats = true; })
       .addCase(fetchDashboardCustomerStatsService.fulfilled, (state, action) => { state.customerStats = action.payload; state.loading.customerStats = false; })
       .addCase(fetchDashboardCustomerStatsService.rejected, (state) => { state.loading.customerStats = false; });
-
-    builder
-      .addCase(fetchDashboardPromotionsService.pending, (state) => { state.loading.promotions = true; })
-      .addCase(fetchDashboardPromotionsService.fulfilled, (state, action) => { state.promotions = action.payload; state.loading.promotions = false; })
-      .addCase(fetchDashboardPromotionsService.rejected, (state) => { state.loading.promotions = false; });
   },
 });
 

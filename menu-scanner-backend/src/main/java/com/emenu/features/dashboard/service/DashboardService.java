@@ -11,9 +11,7 @@ public interface DashboardService {
     DashboardPaymentsResponse    getPayments(UUID businessId, String period);
     DashboardStockResponse       getStock(UUID businessId);
     DashboardOrdersResponse      getRecentOrders(UUID businessId, String period);
-    DashboardBranchesResponse    getBranches(UUID businessId, String period);
     DashboardTopProductsResponse getTopProducts(UUID businessId, String period);
     DashboardHourlySalesResponse getHourlySales(UUID businessId, String period);
     DashboardCustomerStatsResponse getCustomerStats(UUID businessId, String period);
-    DashboardPromotionsResponse  getPromotions(UUID businessId, String period);
 }

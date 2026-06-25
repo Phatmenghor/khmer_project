@@ -1,13 +1,11 @@
 import { axiosClientWithAuth } from "@/utils/axios";
 import { createApiThunk } from "@/utils/axios/api-wrapper";
 import {
-  DashboardBranchesResponse,
   DashboardCustomerStatsResponse,
   DashboardHourlySalesResponse,
   DashboardOrdersResponse,
   DashboardPaymentsResponse,
   DashboardPeriodParams,
-  DashboardPromotionsResponse,
   DashboardSalesResponse,
   DashboardStockResponse,
   DashboardSummaryResponse,
@@ -54,14 +52,6 @@ export const fetchDashboardOrdersService = createApiThunk<
   return response.data.data;
 });
 
-export const fetchDashboardBranchesService = createApiThunk<
-  DashboardBranchesResponse,
-  DashboardPeriodParams
->("dashboard/fetchBranches", async (params) => {
-  const response = await axiosClientWithAuth.get("/api/admin/dashboard/branches", { params });
-  return response.data.data;
-});
-
 export const fetchDashboardTopProductsService = createApiThunk<
   DashboardTopProductsResponse,
   DashboardPeriodParams
@@ -83,13 +73,5 @@ export const fetchDashboardCustomerStatsService = createApiThunk<
   DashboardPeriodParams
 >("dashboard/fetchCustomerStats", async (params) => {
   const response = await axiosClientWithAuth.get("/api/admin/dashboard/customers", { params });
-  return response.data.data;
-});
-
-export const fetchDashboardPromotionsService = createApiThunk<
-  DashboardPromotionsResponse,
-  DashboardPeriodParams
->("dashboard/fetchPromotions", async (params) => {
-  const response = await axiosClientWithAuth.get("/api/admin/dashboard/promotions", { params });
   return response.data.data;
 });

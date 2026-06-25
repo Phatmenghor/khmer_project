@@ -79,18 +79,6 @@ public class DashboardController {
         return ResponseEntity.ok(ApiResponse.success("Recent orders retrieved", data));
     }
 
-    // ── Branch / Channel Performance ───────────────────────────────────────────
-
-    @GetMapping("/branches")
-    public ResponseEntity<ApiResponse<DashboardBranchesResponse>> getBranches(
-            @RequestParam(defaultValue = "TODAY") String period) {
-
-        UUID businessId = getBusinessId();
-        log.info("Endpoint: dashboard/branches - business={} period={}", businessId, period);
-        DashboardBranchesResponse data = dashboardService.getBranches(businessId, period);
-        return ResponseEntity.ok(ApiResponse.success("Branch performance retrieved", data));
-    }
-
     // ── Top Products ───────────────────────────────────────────────────────────
 
     @GetMapping("/top-products")
@@ -125,18 +113,6 @@ public class DashboardController {
         log.info("Endpoint: dashboard/customers - business={} period={}", businessId, period);
         DashboardCustomerStatsResponse data = dashboardService.getCustomerStats(businessId, period);
         return ResponseEntity.ok(ApiResponse.success("Customer stats retrieved", data));
-    }
-
-    // ── Promotion Performance ──────────────────────────────────────────────────
-
-    @GetMapping("/promotions")
-    public ResponseEntity<ApiResponse<DashboardPromotionsResponse>> getPromotions(
-            @RequestParam(defaultValue = "TODAY") String period) {
-
-        UUID businessId = getBusinessId();
-        log.info("Endpoint: dashboard/promotions - business={} period={}", businessId, period);
-        DashboardPromotionsResponse data = dashboardService.getPromotions(businessId, period);
-        return ResponseEntity.ok(ApiResponse.success("Promotions retrieved", data));
     }
 
     // ─── helper ───────────────────────────────────────────────────────────────

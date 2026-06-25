@@ -286,77 +286,6 @@ public class DashboardServiceImpl implements DashboardService {
             .build();
     }
 
-    // ─── Branches (grouped by source) ────────────────────────────────────────
-
-    @Override
-    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':branches:' + #period")
-    public DashboardBranchesResponse getBranches(UUID businessId, String period) {
-        LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
-        LocalDateTime[] prev  = new LocalDateTime[]{
-            range[0].minusDays(period != null && period.equals("TODAY") ? 1 : 30),
-            range[0]
-        };
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> curr = em.createNativeQuery(
-            "SELECT source, " +
-            "       COALESCE(SUM(total_amount), 0) AS revenue, " +
-            "       COUNT(*) AS orders " +
-            "FROM orders " +
-            "WHERE business_id = :bid " +
-            "  AND created_at >= :start AND created_at < :end " +
-            "  AND is_deleted = false " +
-            "GROUP BY source " +
-            "ORDER BY revenue DESC")
-            .setParameter("bid",   businessId)
-            .setParameter("start", range[0])
-            .setParameter("end",   range[1])
-            .getResultList();
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> prevRows = em.createNativeQuery(
-            "SELECT source, COALESCE(SUM(total_amount), 0) AS revenue " +
-            "FROM orders " +
-            "WHERE business_id = :bid " +
-            "  AND created_at >= :start AND created_at < :end " +
-            "  AND is_deleted = false " +
-            "GROUP BY source")
-            .setParameter("bid",   businessId)
-            .setParameter("start", prev[0])
-            .setParameter("end",   prev[1])
-            .getResultList();
-
-        Map<String, BigDecimal> prevMap = new HashMap<>();
-        for (Object[] r : prevRows) prevMap.put(str(r[0]), toBigDecimal(r[1]));
-
-        List<DashboardBranchesResponse.BranchPerformance> list = new ArrayList<>();
-        int rank = 1;
-        String topId = null;
-
-        for (Object[] row : curr) {
-            String src = str(row[0]);
-            BigDecimal rev = toBigDecimal(row[1]);
-            BigDecimal prevRev = prevMap.getOrDefault(src, BigDecimal.ZERO);
-            String id = src.toLowerCase().replace(" ", "-");
-            if (rank == 1) topId = id;
-            list.add(DashboardBranchesResponse.BranchPerformance.builder()
-                .id(id)
-                .name(friendlySource(src))
-                .location("")
-                .revenue(rev)
-                .orders(toLong(row[2]))
-                .rank(rank++)
-                .revenueChange(DashboardPeriodUtil.percentageChange(
-                    rev.doubleValue(), prevRev.doubleValue()))
-                .build());
-        }
-
-        return DashboardBranchesResponse.builder()
-            .data(list)
-            .topBranchId(topId != null ? topId : "")
-            .build();
-    }
-
     // ─── Top Products ─────────────────────────────────────────────────────────
 
     @Override
@@ -517,49 +446,6 @@ public class DashboardServiceImpl implements DashboardService {
             .build();
     }
 
-    // ─── Promotion Performance ────────────────────────────────────────────────
-
-    @Override
-    @Cacheable(value = CacheNames.DASHBOARD_STATS, key = "#businessId + ':promotions:' + #period")
-    public DashboardPromotionsResponse getPromotions(UUID businessId, String period) {
-        LocalDateTime[] range = DashboardPeriodUtil.getRange(period);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> rows = em.createNativeQuery(
-            "SELECT discount_type, " +
-            "       COUNT(*)                               AS times_used, " +
-            "       COALESCE(SUM(total_amount), 0)         AS revenue, " +
-            "       COALESCE(SUM(discount_amount), 0)      AS discount " +
-            "FROM orders " +
-            "WHERE business_id = :bid " +
-            "  AND created_at >= :start AND created_at < :end " +
-            "  AND discount_type IS NOT NULL " +
-            "  AND is_deleted = false " +
-            "GROUP BY discount_type " +
-            "ORDER BY times_used DESC " +
-            "LIMIT 10")
-            .setParameter("bid",   businessId)
-            .setParameter("start", range[0])
-            .setParameter("end",   range[1])
-            .getResultList();
-
-        List<DashboardPromotionsResponse.DashboardPromotion> items = new ArrayList<>();
-        int idx = 1;
-        for (Object[] row : rows) {
-            String dtype = str(row[0]);
-            items.add(DashboardPromotionsResponse.DashboardPromotion.builder()
-                .id(String.valueOf(idx++))
-                .name(friendlyDiscountType(dtype))
-                .type(dtype)
-                .timesUsed(toLong(row[1]))
-                .revenueGenerated(toBigDecimal(row[2]))
-                .discountGiven(toBigDecimal(row[3]))
-                .build());
-        }
-
-        return DashboardPromotionsResponse.builder().data(items).build();
-    }
-
     // ─── Private helpers ──────────────────────────────────────────────────────
 
     private BigDecimal queryRevenue(UUID businessId, LocalDateTime start, LocalDateTime end) {
@@ -655,21 +541,4 @@ public class DashboardServiceImpl implements DashboardService {
         try { return UUID.fromString(v.toString()); } catch (Exception e) { return null; }
     }
 
-    private String friendlySource(String source) {
-        if (source == null) return "Unknown";
-        return switch (source.toUpperCase()) {
-            case "POS"    -> "POS Terminal";
-            case "PUBLIC" -> "Online Orders";
-            default       -> source;
-        };
-    }
-
-    private String friendlyDiscountType(String dtype) {
-        if (dtype == null) return "Unknown Discount";
-        return switch (dtype.toUpperCase()) {
-            case "PERCENTAGE"   -> "Percentage Discount";
-            case "FIXED_AMOUNT" -> "Fixed Amount Discount";
-            default             -> dtype;
-        };
-    }
 }

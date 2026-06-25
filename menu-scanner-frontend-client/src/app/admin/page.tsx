@@ -9,28 +9,23 @@ import { useDashboardState } from "@/features/dashboard/store/state/dashboard-st
 import { useAuthState } from "@/features/auth/store/state/auth-state";
 import { useExchangeRateState } from "@/features/master-data/store/state/exchange-rate-state";
 import { fetchAllMyBusinessExchangeRateService } from "@/features/master-data/store/thunks/exchange-rate-thunks";
-import { setPeriod, resetState } from "@/features/dashboard/store/slice/dashboard-slice";
+import { resetState } from "@/features/dashboard/store/slice/dashboard-slice";
 import {
   fetchDashboardSummaryService,
   fetchDashboardSalesService,
   fetchDashboardPaymentsService,
   fetchDashboardStockService,
   fetchDashboardOrdersService,
-  fetchDashboardBranchesService,
   fetchDashboardTopProductsService,
   fetchDashboardHourlySalesService,
   fetchDashboardCustomerStatsService,
-  fetchDashboardPromotionsService,
 } from "@/features/dashboard/store/thunks/dashboard-thunks";
-import { DashboardPeriod } from "@/features/dashboard/store/models/response/dashboard-response";
 import dynamic from "next/dynamic";
 import { ChartSkeleton } from "@/components/admin/dashboard/chart-skeleton";
 import { DashboardHeader } from "@/components/admin/dashboard/dashboard-header";
 import { KpiSection } from "@/components/admin/dashboard/kpi-section";
 import { ExchangeRateCard } from "@/components/admin/dashboard/exchange-rate-card";
 import { CustomerStatsCard } from "@/components/admin/dashboard/customer-stats-card";
-import { PromotionPerformanceCard } from "@/components/admin/dashboard/promotion-performance-card";
-import { BranchPerformanceCard } from "@/components/admin/dashboard/branch-performance-card";
 import { RecentOrdersCard } from "@/components/admin/dashboard/recent-orders-card";
 import { InventoryStatusCard } from "@/components/admin/dashboard/inventory-status-card";
 
@@ -58,39 +53,37 @@ const HourlySalesCard = dynamic(
 export default function AdminDashboardPage() {
   useAdminCleanup(resetState);
 
-  const { period, summary, sales, payments, stock, orders, branches, topProducts, hourlySales, customerStats, promotions, loading, error, dispatch } = useDashboardState();
+  const { summary, sales, payments, stock, orders, topProducts, hourlySales, customerStats, loading, error, dispatch } = useDashboardState();
   const { user } = useAuthState();
   const { exchangeRateContent, dispatch: erDispatch } = useExchangeRateState();
   const activeRate = exchangeRateContent?.find((r) => r.status === "ACTIVE") ?? exchangeRateContent?.[0];
 
-  const fetchAll = useCallback((p: DashboardPeriod) => {
-    dispatch(fetchDashboardSummaryService({ period: p }));
+  const fetchAll = useCallback(() => {
+    dispatch(fetchDashboardSummaryService({ period: "ALL" }));
     dispatch(fetchDashboardSalesService({ period: "7D" }));
-    dispatch(fetchDashboardPaymentsService({ period: p }));
+    dispatch(fetchDashboardPaymentsService({ period: "ALL" }));
     dispatch(fetchDashboardStockService());
-    dispatch(fetchDashboardOrdersService({ period: p }));
-    dispatch(fetchDashboardBranchesService({ period: p }));
-    dispatch(fetchDashboardTopProductsService({ period: p }));
+    dispatch(fetchDashboardOrdersService({ period: "ALL" }));
+    dispatch(fetchDashboardTopProductsService({ period: "ALL" }));
     dispatch(fetchDashboardHourlySalesService({ period: "TODAY" }));
-    dispatch(fetchDashboardCustomerStatsService({ period: p }));
-    dispatch(fetchDashboardPromotionsService({ period: "TODAY" }));
+    dispatch(fetchDashboardCustomerStatsService({ period: "ALL" }));
   }, [dispatch]);
 
   const handleOrderEvent = useCallback((type: string) => {
-    fetchAll(period);
+    fetchAll();
     showToast.info(type === "NEW_ORDER" ? "New order received" : "Order status updated");
-  }, [fetchAll, period]);
+  }, [fetchAll]);
 
   const handleStockEvent = useCallback((_type: string) => {
-    fetchAll(period);
-  }, [fetchAll, period]);
+    fetchAll();
+  }, [fetchAll]);
 
   const { isConnected } = useDashboardWebSocket({ businessId: user?.businessId, onOrderEvent: handleOrderEvent, onStockEvent: handleStockEvent });
 
   useEffect(() => {
-    fetchAll(period);
+    fetchAll();
     erDispatch(fetchAllMyBusinessExchangeRateService({ pageNo: 1, pageSize: 5 }));
-  }, [period, fetchAll, erDispatch]);
+  }, [fetchAll, erDispatch]);
 
   useEffect(() => {
     if (error) showToast.error(error);
@@ -101,8 +94,8 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <DashboardHeader today={today} period={period} isLive={isConnected} onPeriodChange={(p) => dispatch(setPeriod(p))} onRefresh={() => fetchAll(period)} />
-      <KpiSection summary={summary} customerStats={customerStats} loading={loading} />
+      <DashboardHeader today={today} isLive={isConnected} onRefresh={() => fetchAll()} />
+      <KpiSection summary={summary} loading={loading} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <SalesAnalyticsCard sales={sales} loading={loading.sales} />
         <PaymentMethodsCard payments={payments} loading={loading.payments} />
@@ -115,10 +108,6 @@ export default function AdminDashboardPage() {
         </div>
       </div>
       <HourlySalesCard hourlySales={hourlySales} loading={loading.hourlySales} currentHour={cambodiaCurrentHour} />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <PromotionPerformanceCard promotions={promotions} loading={loading.promotions} />
-        <BranchPerformanceCard branches={branches} loading={loading.branches} />
-      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <RecentOrdersCard orders={orders} loading={loading.orders} />
         <InventoryStatusCard stock={stock} loading={loading.stock} />

@@ -80,23 +80,6 @@ export interface DashboardOrdersResponse {
   totalElements: number;
 }
 
-// ─── Branch Performance ───────────────────────────────────────────────────────
-
-export interface BranchPerformance {
-  id: string;
-  name: string;
-  location: string;
-  revenue: number;
-  orders: number;
-  rank: number;
-  revenueChange: number;
-}
-
-export interface DashboardBranchesResponse {
-  data: BranchPerformance[];
-  topBranchId: string;
-}
-
 // ─── Top Products ─────────────────────────────────────────────────────────────
 
 export interface DashboardTopProduct {
@@ -137,24 +120,9 @@ export interface DashboardCustomerStatsResponse {
   avgOrderValue: number;
 }
 
-// ─── Promotion Performance ────────────────────────────────────────────────────
-
-export interface DashboardPromotion {
-  id: string;
-  name: string;
-  type: string;
-  timesUsed: number;
-  revenueGenerated: number;
-  discountGiven: number;
-}
-
-export interface DashboardPromotionsResponse {
-  data: DashboardPromotion[];
-}
-
 // ─── Period Filter ────────────────────────────────────────────────────────────
 
-export type DashboardPeriod = "TODAY" | "7D" | "30D" | "90D" | "ALL";
+export type DashboardPeriod = "TODAY" | "7D" | "ALL";
 
 export interface DashboardPeriodParams {
   period: DashboardPeriod;

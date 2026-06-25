@@ -1,6 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
-  selectDashboardBranches,
   selectDashboardCustomerStats,
   selectDashboardError,
   selectDashboardHourlySales,
@@ -8,7 +7,6 @@ import {
   selectDashboardOrders,
   selectDashboardPayments,
   selectDashboardPeriod,
-  selectDashboardPromotions,
   selectDashboardSales,
   selectDashboardStock,
   selectDashboardSummary,
@@ -24,11 +22,9 @@ export const useDashboardState = () => {
   const payments = useAppSelector(selectDashboardPayments);
   const stock = useAppSelector(selectDashboardStock);
   const orders = useAppSelector(selectDashboardOrders);
-  const branches = useAppSelector(selectDashboardBranches);
   const topProducts = useAppSelector(selectDashboardTopProducts);
   const hourlySales = useAppSelector(selectDashboardHourlySales);
   const customerStats = useAppSelector(selectDashboardCustomerStats);
-  const promotions = useAppSelector(selectDashboardPromotions);
   const loading = useAppSelector(selectDashboardLoading);
   const error = useAppSelector(selectDashboardError);
 
@@ -39,11 +35,9 @@ export const useDashboardState = () => {
     payments,
     stock,
     orders,
-    branches,
     topProducts,
     hourlySales,
     customerStats,
-    promotions,
     loading,
     error,
     dispatch,

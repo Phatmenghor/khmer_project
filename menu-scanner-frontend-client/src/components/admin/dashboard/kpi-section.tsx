@@ -7,17 +7,12 @@ import {
   DollarSign,
   AlertTriangle,
   Bell,
-  ArrowUpRight,
-  RotateCcw,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/utils/common/currency-format";
 import { cn } from "@/lib/utils";
-import {
-  DashboardSummaryResponse,
-  DashboardCustomerStatsResponse,
-} from "@/features/dashboard/store/models/response/dashboard-response";
+import { DashboardSummaryResponse } from "@/features/dashboard/store/models/response/dashboard-response";
 
 interface KpiCardProps {
   title: string;
@@ -78,17 +73,14 @@ function KpiCardSkeleton() {
 
 interface KpiSectionProps {
   summary: DashboardSummaryResponse | null;
-  customerStats: DashboardCustomerStatsResponse | null;
-  loading: { summary: boolean; customerStats: boolean };
+  loading: { summary: boolean };
 }
 
-export function KpiSection({ summary, customerStats, loading }: KpiSectionProps) {
+export function KpiSection({ summary, loading }: KpiSectionProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
-      {loading.summary || loading.customerStats ? (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {loading.summary ? (
         <>
-          <KpiCardSkeleton />
-          <KpiCardSkeleton />
           <KpiCardSkeleton />
           <KpiCardSkeleton />
           <KpiCardSkeleton />
@@ -109,20 +101,6 @@ export function KpiSection({ summary, customerStats, loading }: KpiSectionProps)
             change={summary?.totalOrdersChange}
             icon={<ShoppingCart className="h-4 w-4 text-sky-600" />}
             iconBg="bg-sky-100 dark:bg-sky-950/40"
-          />
-          <KpiCard
-            title="Avg Order Value"
-            value={formatCurrency(summary?.avgOrderValue ?? 0)}
-            icon={<ArrowUpRight className="h-4 w-4 text-violet-600" />}
-            iconBg="bg-violet-100 dark:bg-violet-950/40"
-            description="Per transaction"
-          />
-          <KpiCard
-            title="Return Customers"
-            value={`${customerStats?.returnRate?.toFixed(0) ?? 0}%`}
-            icon={<RotateCcw className="h-4 w-4 text-emerald-600" />}
-            iconBg="bg-emerald-100 dark:bg-emerald-950/40"
-            description={`${customerStats?.returningCustomers ?? 0} returning`}
           />
           <KpiCard
             title="Low Stock Items"
