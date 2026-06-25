@@ -14,6 +14,8 @@ import com.emenu.features.storage.util.StorageNameUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
+import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -24,8 +26,12 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -37,17 +43,20 @@ public class StorageServiceImpl implements StorageService {
     private final StorageResourceRepository storageResourceRepository;
     private final StorageAuditService storageAuditService;
 
+    @Qualifier("taskExecutor")
+    private final Executor taskExecutor;
+
     // ── Upload ───────────────────────────────────────────────────────────────
 
     @Override
     public StorageUploadResponse upload(MultipartFile file, String customPath, ApiKeyContext ctx) {
         try {
-            byte[] original = file.getBytes();
+            byte[] decodable = ensureDecodable(file.getBytes(), file.getOriginalFilename());
             String name = StorageNameUtil.generateName();
             String originalFilename = file.getOriginalFilename();
             String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
 
-            StorageUploadResponse response = uploadResized(original, ctx.getProjectCode(), resolvedPath, name, 0, originalFilename);
+            StorageUploadResponse response = uploadResized(decodable, ctx.getProjectCode(), resolvedPath, name, 0, originalFilename);
 
             log.info("[{}][{}] Upload succeeded: key=[{}]", ctx.getProjectCode(), resolvedPath, response.getKey());
             return response;
@@ -60,14 +69,26 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public StorageMultiUploadResponse uploadMulti(MultipartFile file, String customPath, ApiKeyContext ctx) {
         try {
-            byte[] original = file.getBytes();
+            byte[] decodable = ensureDecodable(file.getBytes(), file.getOriginalFilename());
             String base = StorageNameUtil.generateBase();
             String originalFilename = file.getOriginalFilename();
             String resolvedPath = StorageKeyUtil.resolvePath(ctx.getPath(), customPath);
 
-            StorageUploadResponse sm = uploadResized(original, ctx.getProjectCode(), resolvedPath, base + "-sm.jpg", 300, originalFilename);
-            StorageUploadResponse md = uploadResized(original, ctx.getProjectCode(), resolvedPath, base + "-md.jpg", 600, originalFilename);
-            StorageUploadResponse o  = uploadResized(original, ctx.getProjectCode(), resolvedPath, base + ".jpg", 0, originalFilename);
+            // Run the 3 size variants concurrently — each does CPU-bound resize + a blocking S3
+            // put, so doing them sequentially on the request thread triples the response latency.
+            // MDC (traceId etc.) is copied across since taskExecutor threads don't inherit it.
+            var mdcContext = MDC.getCopyOfContextMap();
+            CompletableFuture<StorageUploadResponse> smF = CompletableFuture.supplyAsync(
+                    withMdc(mdcContext, () -> uploadResizedUnchecked(decodable, ctx.getProjectCode(), resolvedPath, base + "-sm.jpg", 300, originalFilename)), taskExecutor);
+            CompletableFuture<StorageUploadResponse> mdF = CompletableFuture.supplyAsync(
+                    withMdc(mdcContext, () -> uploadResizedUnchecked(decodable, ctx.getProjectCode(), resolvedPath, base + "-md.jpg", 600, originalFilename)), taskExecutor);
+            CompletableFuture<StorageUploadResponse> oF = CompletableFuture.supplyAsync(
+                    withMdc(mdcContext, () -> uploadResizedUnchecked(decodable, ctx.getProjectCode(), resolvedPath, base + ".jpg", 0, originalFilename)), taskExecutor);
+
+            CompletableFuture.allOf(smF, mdF, oF).join();
+            StorageUploadResponse sm = smF.join();
+            StorageUploadResponse md = mdF.join();
+            StorageUploadResponse o = oF.join();
 
             log.info("[{}][{}] Multi-upload succeeded: base=[{}]", ctx.getProjectCode(), resolvedPath, base);
             return StorageMultiUploadResponse.builder()
@@ -81,6 +102,29 @@ public class StorageServiceImpl implements StorageService {
             log.error("[{}][{}] Multi-upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage(), e);
             throw new RuntimeException("Multi-size image upload failed: " + e.getMessage(), e);
         }
+    }
+
+    private StorageUploadResponse uploadResizedUnchecked(byte[] decodable, String projectCode, String resolvedPath,
+                                                           String name, int maxWidth, String originalFilename) {
+        try {
+            return uploadResized(decodable, projectCode, resolvedPath, name, maxWidth, originalFilename);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private java.util.function.Supplier<StorageUploadResponse> withMdc(
+            java.util.Map<String, String> mdcContext, java.util.function.Supplier<StorageUploadResponse> task) {
+        return () -> {
+            if (mdcContext != null) {
+                MDC.setContextMap(mdcContext);
+            }
+            try {
+                return task.get();
+            } finally {
+                MDC.clear();
+            }
+        };
     }
 
     // ── Delete ───────────────────────────────────────────────────────────────
@@ -104,21 +148,18 @@ public class StorageServiceImpl implements StorageService {
      * Resizes (if requested), uploads to S3, and responds immediately on success.
      * The audit row is persisted asynchronously so the DB write never blocks the response.
      */
-    private StorageUploadResponse uploadResized(byte[] original, String projectCode, String resolvedPath,
+    private StorageUploadResponse uploadResized(byte[] decodable, String projectCode, String resolvedPath,
                                                  String name, int maxWidth,
                                                  String originalFilename) throws IOException {
         String key = StorageKeyUtil.key(resolvedPath, name);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        var builder = Thumbnails.of(new ByteArrayInputStream(original))
+        var builder = Thumbnails.of(new ByteArrayInputStream(decodable))
                 .outputFormat("jpg")
                 .outputQuality(0.85);
 
         if (maxWidth > 0) {
-            BufferedImage img = javax.imageio.ImageIO.read(new ByteArrayInputStream(original));
-            if (img == null) {
-                throw new IOException("Unsupported or corrupt image format: " + originalFilename);
-            }
+            BufferedImage img = javax.imageio.ImageIO.read(new ByteArrayInputStream(decodable));
             int targetWidth = Math.min(img.getWidth(), maxWidth);
             builder = builder.width(targetWidth);
         } else {
@@ -151,6 +192,62 @@ public class StorageServiceImpl implements StorageService {
                 .build());
 
         return StorageUploadResponse.builder().key(key).url(url).build();
+    }
+
+    /**
+     * ImageIO can't decode AVIF/HEIC and a few other modern formats out of the box.
+     * Falls back to ffmpeg (must be installed on the host) to re-encode those into
+     * a JPEG that the rest of the pipeline (Thumbnails/ImageIO) can read normally.
+     */
+    private byte[] ensureDecodable(byte[] original, String originalFilename) throws IOException {
+        if (javax.imageio.ImageIO.read(new ByteArrayInputStream(original)) != null) {
+            return original;
+        }
+
+        log.info("ImageIO could not decode [{}] directly, converting via ffmpeg", originalFilename);
+        byte[] converted = convertWithFfmpeg(original);
+
+        if (javax.imageio.ImageIO.read(new ByteArrayInputStream(converted)) == null) {
+            throw new IOException("Unsupported or corrupt image format: " + originalFilename);
+        }
+        return converted;
+    }
+
+    private byte[] convertWithFfmpeg(byte[] original) throws IOException {
+        Process process = new ProcessBuilder(
+                "ffmpeg", "-y", "-i", "pipe:0", "-frames:v", "1", "-f", "image2", "-vcodec", "mjpeg", "pipe:1"
+        ).start();
+
+        Thread stdinWriter = new Thread(() -> {
+            try (var stdin = process.getOutputStream()) {
+                stdin.write(original);
+            } catch (IOException ignored) {
+                // process may have already exited/closed its stdin on a decode failure
+            }
+        });
+        stdinWriter.start();
+
+        byte[] converted;
+        try (InputStream stdout = process.getInputStream()) {
+            converted = stdout.readAllBytes();
+        }
+
+        try {
+            stdinWriter.join(15_000);
+            boolean finished = process.waitFor(15, TimeUnit.SECONDS);
+            if (!finished) {
+                process.destroyForcibly();
+                throw new IOException("ffmpeg conversion timed out");
+            }
+            if (process.exitValue() != 0 || converted.length == 0) {
+                throw new IOException("ffmpeg could not decode image (exit=" + process.exitValue() + ")");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("ffmpeg conversion interrupted", e);
+        }
+
+        return converted;
     }
 
     private List<String> deleteByPrefix(String prefix) {
