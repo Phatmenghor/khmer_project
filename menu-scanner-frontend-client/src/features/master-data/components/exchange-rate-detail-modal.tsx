@@ -20,22 +20,7 @@ interface DetailModalProps {
   onClose: () => void;
 }
 
-function InfoRow({ label, value, fullWidth }: { label: string; value: React.ReactNode; fullWidth?: boolean }) {
-  return (
-    <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
-      <span className="text-xs font-semibold text-muted-foreground">{label}</span>
-      <span className="text-xs text-foreground break-words">{value || "-"}</span>
-    </div>
-  );
-}
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="col-span-2 mt-2 mb-0.5 first:mt-0 border-b border-border/40 pb-1">
-      <h3 className="text-xs font-bold text-primary">{children}</h3>
-    </div>
-  );
-}
+import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section";
 
 export function ExchangeRateDetailModal({
   exchangeRateId,

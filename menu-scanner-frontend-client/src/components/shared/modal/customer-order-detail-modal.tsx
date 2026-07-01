@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { Copy, MapPin, Package, Check, XCircle } from "lucide-react";
 import { showToast } from "@/components/shared/common/show-toast";
 import { Messages } from "@/constants/messages";
+import { SectionTitle, InfoRow } from "./detail-section";
 
 const STATUS_CONFIG: Record<
   string,
@@ -54,35 +55,6 @@ const STEP_ORDER: Record<string, number> = {
   CONFIRMED: 1,
   COMPLETED: 2,
 };
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mb-2.5">
-      <h3 className="text-xs font-bold text-foreground">
-        {children}
-      </h3>
-    </div>
-  );
-}
-
-function InfoRow({
-  label,
-  value,
-  fullWidth,
-}: {
-  label: string;
-  value: React.ReactNode;
-  fullWidth?: boolean;
-}) {
-  return (
-    <div className={cn("flex flex-col gap-0.5", fullWidth && "col-span-2")}>
-      <span className="text-xs font-semibold text-muted-foreground">
-        {label}
-      </span>
-      <span className="text-xs text-foreground">{value || "-"}</span>
-    </div>
-  );
-}
 
 interface CustomerOrderDetailModalProps {
   orderId?: string;

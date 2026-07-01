@@ -142,10 +142,11 @@ export const userBusinessTableColumns = ({
         return (
           <div className="flex items-center gap-1">
             {!isDisabled && (
-              <Switch
-                checked={user?.accountStatus === "ACTIVE"}
-                onCheckedChange={() => handleToggleStatus(user)}
-              />
+              <></>
+              // <Switch
+              //   checked={user?.accountStatus === "ACTIVE"}
+              //   onCheckedChange={() => handleToggleStatus(user)}
+              // />
             )}
             <span className="text-xs text-muted-foreground">
               {user?.accountStatus

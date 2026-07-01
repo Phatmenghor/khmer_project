@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Download, FileSpreadsheet } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -286,3 +286,78 @@ export const ConditionalActionButton = ({
     </TooltipProvider>
   );
 };
+
+export interface DownloadTemplateButtonProps {
+  onDownload: () => void | Promise<void>;
+  className?: string;
+}
+
+export function DownloadTemplateButton({
+  onDownload,
+  className,
+}: DownloadTemplateButtonProps) {
+  const [isDownloading, setIsDownloading] = React.useState(false);
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      // Visual feedback delay
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      await onDownload();
+    } catch (err) {
+      console.error("Failed to download template:", err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return (
+    <CustomButton
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={handleDownload}
+      disabled={isDownloading}
+      isLoading={isDownloading}
+      icon={!isDownloading ? <Download className="w-3.5 h-3.5" /> : undefined}
+      className={cn(
+        "gap-1.5 h-[28px] text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500 min-w-[95px]",
+        className
+      )}
+      title="Download Excel template"
+    >
+      {isDownloading ? "Loading..." : "Template"}
+    </CustomButton>
+  );
+}
+
+export interface ImportSpreadsheetButtonProps {
+  onClick: () => void;
+  className?: string;
+  title?: string;
+  label?: string;
+}
+
+export function ImportSpreadsheetButton({
+  onClick,
+  className,
+  title = "Import from Excel",
+  label = "Import",
+}: ImportSpreadsheetButtonProps) {
+  return (
+    <CustomButton
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={onClick}
+      icon={<FileSpreadsheet className="w-3.5 h-3.5" />}
+      className={cn(
+        "gap-1.5 h-[28px] text-xs border-pink-500/30 text-pink-600 dark:text-pink-400 hover:bg-pink-500/10 hover:border-pink-500 min-w-[75px]",
+        className
+      )}
+      title={title}
+    >
+      {label}
+    </CustomButton>
+  );
+}

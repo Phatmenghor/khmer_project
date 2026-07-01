@@ -1,14 +1,16 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, Suspense, useState } from "react";
+import { useEffect, useMemo, Suspense, useState, useRef } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
-import { Download, FileSpreadsheet } from "lucide-react";
 import { downloadUserTemplate } from "@/utils/excel/user-excel.utils";
-import UserImportModal from "@/features/auth/components/user-import-modal";
+import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/app-routes/routes";
-import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
-import { CustomButton } from "@/components/shared/button/custom-button";
+import {
+  CollapsibleFilterPanel,
+  FilterPanelConfig,
+} from "@/components/shared/common/collapsible-filter-panel";
+import { CustomButton, DownloadTemplateButton, ImportSpreadsheetButton } from "@/components/shared/button/custom-button";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { userBusinessTableColumns } from "@/features/auth/table/users-business-table";
@@ -72,6 +74,8 @@ function UserBusinessPageInner() {
     dispatch,
   } = useUsersState();
 
+  const isFirstRender = useRef(true);
+
   const {
     viewId,
     editId,
@@ -86,24 +90,39 @@ function UserBusinessPageInner() {
     closeModal,
   } = useActionRouting();
 
-  const [importModalOpen, setImportModalOpen] = useState(false);
+  const router = useRouter();
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
-  const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
+  const debouncedSearch = useDebounce(
+    filters.search,
+    AppDefault.DEFAULT_DEBOUNCE_MS,
+  );
+
+  const prevDeps = useRef({
+    debouncedSearch,
+    accountStatus: filters.accountStatus,
+    role: filters.role,
+    pageNo: filters.pageNo,
+    globalPageSize,
+  });
   const rolesContent = useAppSelector(selectRolesList);
 
   // ── Sync filters ↔ URL ────────────────────────────────────────────────────
   useAdminFilterUrlSync({
     filters: {
       search: filters.search,
-      accountStatus: filters.accountStatus !== AccountStatus.ALL ? filters.accountStatus : "",
+      accountStatus:
+        filters.accountStatus !== AccountStatus.ALL
+          ? filters.accountStatus
+          : "",
       role: filters.role !== UserRole.ALL ? filters.role : "",
       pageNo: filters.pageNo,
       pageSize: globalPageSize !== AppDefault.PAGE_SIZE ? globalPageSize : "",
     },
     onInit: (params) => {
       if (params.search) dispatch(setSearchFilter(params.search));
-      if (params.accountStatus) dispatch(setAccountStatusFilter(params.accountStatus as AccountStatus));
+      if (params.accountStatus)
+        dispatch(setAccountStatusFilter(params.accountStatus as AccountStatus));
       if (params.role) dispatch(setRoleFilter(params.role as UserRole));
       if (params.pageNo) dispatch(setPageNo(Number(params.pageNo)));
       if (params.pageSize) dispatch(setGlobalPageSize(Number(params.pageSize)));
@@ -116,7 +135,10 @@ function UserBusinessPageInner() {
 
   const resolveUser = (id: string | null): UserResponseModel | null => {
     if (!id) return null;
-    return allUsersContent.find(u => u.id === id) || (selectedUser?.id === id ? selectedUser : null);
+    return (
+      allUsersContent.find((u) => u.id === id) ||
+      (selectedUser?.id === id ? selectedUser : null)
+    );
   };
 
   const deleteUser = resolveUser(deleteId);
@@ -159,6 +181,33 @@ function UserBusinessPageInner() {
   }, [dispatch, rolesContent]);
 
   useEffect(() => {
+    const depsChanged =
+      !isFirstRender.current && (
+        prevDeps.current.debouncedSearch !== debouncedSearch ||
+        prevDeps.current.accountStatus !== filters.accountStatus ||
+        prevDeps.current.role !== filters.role ||
+        prevDeps.current.pageNo !== filters.pageNo ||
+        prevDeps.current.globalPageSize !== globalPageSize
+      );
+
+    // Update ref for next run
+    prevDeps.current = {
+      debouncedSearch,
+      accountStatus: filters.accountStatus,
+      role: filters.role,
+      pageNo: filters.pageNo,
+      globalPageSize,
+    };
+
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (usersData) {
+        return;
+      }
+    } else if (!depsChanged) {
+      return;
+    }
+
     const filterPayload = {
       search: debouncedSearch,
       pageNo: filters.pageNo,
@@ -184,23 +233,8 @@ function UserBusinessPageInner() {
   // ── Table action handlers ─────────────────────────────────────────────────
   const handleCreateUser = () => openCreate();
 
-  const handleOpenImport = () => setImportModalOpen(true);
-  const handleCloseImport = () => setImportModalOpen(false);
-
-  const handleImportSuccess = () => {
-    setImportModalOpen(false);
-    const filterPayload = {
-      search: debouncedSearch,
-      pageNo: filters.pageNo,
-      pageSize: globalPageSize,
-      roles: filters.role === UserRole.ALL ? [] : [filters.role],
-      userTypes: [UserGropeType.BUSINESS_USER],
-      accountStatuses:
-        filters.accountStatus === AccountStatus.ALL
-          ? []
-          : [filters.accountStatus],
-    };
-    dispatch(fetchAllUsersService(filterPayload));
+  const handleOpenImport = () => {
+    router.push("/admin/users/import");
   };
 
   const handleEditUser = (user: UserResponseModel) => {
@@ -236,7 +270,10 @@ function UserBusinessPageInner() {
       await dispatch(toggleUserStatusService(user)).unwrap();
       showToast.success(Messages.users.statusUpdated);
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || Messages.users.statusUpdateFailed);
+      showToast.error(
+        (error as { message?: string })?.message ||
+          Messages.users.statusUpdateFailed,
+      );
     }
   };
 
@@ -271,61 +308,45 @@ function UserBusinessPageInner() {
     dispatch(setPageNo(1));
   };
 
-  const filterConfig = useMemo((): FilterPanelConfig => ({
-    title: "Business Users",
-    searchValue: filters.search,
-    searchPlaceholder: "Search users business...",
-    onSearchChange: (e) => dispatch(setSearchFilter(e.target.value)),
-    buttonText: "New User",
-    buttonDisabled: false,
-    onButtonClick: handleCreateUser,
-    extraActions: (
-      <div className="flex items-center gap-1">
-        <CustomButton
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={downloadUserTemplate}
-          className="gap-1 h-[28px] text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500"
-          title="Download Excel template"
-          icon={<Download className="w-3 h-3" />}
-        >
-          Template
-        </CustomButton>
-        <CustomButton
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleOpenImport}
-          className="gap-1 h-[28px] text-xs border-pink-500/30 text-pink-600 dark:text-pink-400 hover:bg-pink-500/10 hover:border-pink-500"
-          title="Import users from Excel"
-          icon={<FileSpreadsheet className="w-3 h-3" />}
-        >
-          Import
-        </CustomButton>
-      </div>
-    ),
-    filters: [
-      {
-        id: "accountStatus",
-        type: "select",
-        label: "Account Status",
-        placeholder: "All Status",
-        value: filters.accountStatus,
-        onChange: (value) => dispatch(setAccountStatusFilter(value as AccountStatus)),
-        options: ACCOUNT_STATUS_FILTER,
-      },
-      {
-        id: "role",
-        type: "select",
-        label: "Business Role",
-        placeholder: "All Roles",
-        value: filters.role,
-        onChange: (value) => dispatch(setRoleFilter(value as UserRole)),
-        options: roleFilterOptions,
-      },
-    ],
-  }), [filters.search, filters.accountStatus, filters.role, roleFilterOptions]);
+  const filterConfig = useMemo(
+    (): FilterPanelConfig => ({
+      title: "Business Users",
+      searchValue: filters.search,
+      searchPlaceholder: "Search users business...",
+      onSearchChange: (e) => dispatch(setSearchFilter(e.target.value)),
+      buttonText: "New User",
+      buttonDisabled: false,
+      onButtonClick: handleCreateUser,
+      extraActions: (
+        <div className="flex items-center gap-1">
+          <DownloadTemplateButton onDownload={downloadUserTemplate} />
+          <ImportSpreadsheetButton onClick={handleOpenImport} title="Import users from Excel" />
+        </div>
+      ),
+      filters: [
+        {
+          id: "accountStatus",
+          type: "select",
+          label: "Account Status",
+          placeholder: "All Status",
+          value: filters.accountStatus,
+          onChange: (value) =>
+            dispatch(setAccountStatusFilter(value as AccountStatus)),
+          options: ACCOUNT_STATUS_FILTER,
+        },
+        {
+          id: "role",
+          type: "select",
+          label: "Business Role",
+          placeholder: "All Roles",
+          value: filters.role,
+          onChange: (value) => dispatch(setRoleFilter(value as UserRole)),
+          options: roleFilterOptions,
+        },
+      ],
+    }),
+    [filters.search, filters.accountStatus, filters.role, roleFilterOptions],
+  );
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -341,14 +362,19 @@ function UserBusinessPageInner() {
         updateUrlWithPage(newPage);
       }
     } catch (error: unknown) {
-      showToast.error((error as { message?: string })?.message || Messages.users.deleteFailed);
+      showToast.error(
+        (error as { message?: string })?.message || Messages.users.deleteFailed,
+      );
     }
   };
 
   return (
     <div className="flex flex-1 flex-col gap-3 px-1">
       <div className="space-y-3">
-        <CollapsibleFilterPanel config={filterConfig} essentialFilterIds={["accountStatus", "role"]} />
+        <CollapsibleFilterPanel
+          config={filterConfig}
+          essentialFilterIds={["accountStatus", "role"]}
+        />
 
         <DataTableWithPagination
           data={usersContent}
@@ -365,14 +391,6 @@ function UserBusinessPageInner() {
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
-
-      <UserImportModal
-        isOpen={importModalOpen}
-        onClose={handleCloseImport}
-        onSuccess={handleImportSuccess}
-        userType="BUSINESS_USER"
-        businessId={currentUserId}
-      />
 
       <UserBusinessModal
         isOpen={createMode || !!editId}

@@ -20,34 +20,7 @@ interface UserDetailModalProps {
   onClose: () => void;
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="col-span-2 mt-2 mb-0.5 first:mt-0 border-b border-border/40 pb-1">
-      <h3 className="text-xs font-bold text-primary">
-        {children}
-      </h3>
-    </div>
-  );
-}
-
-function InfoRow({
-  label,
-  value,
-  fullWidth,
-}: {
-  label: string;
-  value: React.ReactNode;
-  fullWidth?: boolean;
-}) {
-  return (
-    <div className={cn("flex flex-col gap-0.5 min-w-0", fullWidth && "col-span-2")}>
-      <span className="text-xs font-semibold text-muted-foreground">
-        {label}
-      </span>
-      <span className="text-xs text-foreground break-all whitespace-normal">{value || "-"}</span>
-    </div>
-  );
-}
+import { SectionTitle, InfoRow } from "@/components/shared/modal/detail-section";
 
 function statusColor(s?: string) {
   if (s === "ACTIVE") return "text-green-600";
@@ -212,7 +185,7 @@ export function UserBusinessDetailModal({
                 {userData.addresses.map((addr: any, idx: number) => (
                   <div
                     key={idx}
-                    className="p-2 rounded border border-border/40 bg-muted/20 text-left"
+                    className="p-2 rounded border border-border bg-muted/20 text-left"
                   >
                     <div className="flex items-center gap-1 mb-1.5">
                       <span className="text-xs font-semibold text-foreground">
@@ -248,7 +221,7 @@ export function UserBusinessDetailModal({
                   {userData.emergencyContacts.map((c: any, idx: number) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between gap-2 p-2 rounded border border-border/40 bg-muted/20 text-left"
+                      className="flex items-center justify-between gap-2 p-2 rounded border border-border bg-muted/20 text-left"
                     >
                       <div className="min-w-0">
                         <p className="text-xs font-semibold text-foreground">
@@ -275,7 +248,7 @@ export function UserBusinessDetailModal({
                 {userData.documents.map((doc: any, idx: number) => (
                   <div
                     key={idx}
-                    className="flex gap-2 p-2 rounded border border-border/40 bg-muted/20 text-left"
+                    className="flex gap-2 p-2 rounded border border-border bg-muted/20 text-left"
                   >
                     {doc.fileUrl && (
                       <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden border border-border/50">
@@ -309,7 +282,7 @@ export function UserBusinessDetailModal({
                 {userData.educations.map((edu: any, idx: number) => (
                   <div
                     key={idx}
-                    className="flex gap-2 p-2 rounded border border-border/40 bg-muted/20 text-left"
+                    className="flex gap-2 p-2 rounded border border-border bg-muted/20 text-left"
                   >
                     {edu.certificateUrl && (
                       <div className="relative flex-shrink-0 w-12 h-12 rounded overflow-hidden border border-border/50">
@@ -374,7 +347,7 @@ export function UserBusinessDetailModal({
 
           {/* Remarks */}
           {userData.remark && (
-            <div className="col-span-2 rounded border border-border/40 bg-muted/10 p-2 text-left mt-2">
+            <div className="col-span-2 rounded border border-border bg-muted/10 p-2 text-left mt-2">
               <SectionTitle>Remarks</SectionTitle>
               <p className="text-xs text-foreground leading-relaxed">
                 {userData.remark}

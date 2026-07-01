@@ -73,6 +73,8 @@ function isLocalPreviewUrl(src?: string | null) {
  * Wraps next/image by default; falls back to a plain <img> for blob/data
  * URLs or when `raw` is explicitly requested.
  */
+const loadedUrlsCache = new Set<string>();
+
 function SmartImageComponent({
   src,
   alt,
@@ -95,19 +97,25 @@ function SmartImageComponent({
   onError,
   ...rest
 }: SmartImageProps) {
-  const [loaded, setLoaded] = useState(false);
+  const sanitizedSrc = sanitizeImageUrl(src, fallbackSrc);
+  const [loaded, setLoaded] = useState(() => {
+    return !!sanitizedSrc && loadedUrlsCache.has(sanitizedSrc);
+  });
   const [errored, setErrored] = useState(false);
 
-  const sanitizedSrc = sanitizeImageUrl(src, fallbackSrc);
   const resolvedSrc = errored ? fallbackSrc : sanitizedSrc;
   const usePlainImg = raw || isLocalPreviewUrl(resolvedSrc);
 
   useEffect(() => {
-    setLoaded(false);
+    const isCached = !!sanitizedSrc && loadedUrlsCache.has(sanitizedSrc);
+    setLoaded(isCached);
     setErrored(false);
-  }, [src]);
+  }, [src, sanitizedSrc]);
 
   const handleLoad = () => {
+    if (sanitizedSrc) {
+      loadedUrlsCache.add(sanitizedSrc);
+    }
     setLoaded(true);
     onLoad?.();
   };
