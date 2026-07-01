@@ -28,6 +28,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -288,57 +290,81 @@ public class StorageServiceImpl implements StorageService {
         return null; // let ImageIO try first
     }
 
+    /**
+     * Converts an image to JPEG using ffmpeg, reading from a temp file on disk.
+     *
+     * <p>AVIF, HEIC and other ISOBMFF-based containers are <em>seekable</em> formats:
+     * ffmpeg must jump around the file to locate the {@code moov}/{@code ftyp} box.
+     * Piping bytes via {@code pipe:0} gives ffmpeg a non-seekable stream and causes
+     * it to exit with code 183 (ENOTSUP / cannot seek). Writing to a temp file on
+     * disk restores random-access and lets ffmpeg decode any container format.</p>
+     */
     private byte[] convertWithFfmpeg(byte[] original, String originalFilename) throws IOException {
-        Process process;
+        Path tempInput  = Files.createTempFile("storage-in-",  ".tmp");
+        Path tempOutput = Files.createTempFile("storage-out-", ".jpg");
         try {
-            process = new ProcessBuilder(
-                    "ffmpeg", "-y", "-i", "pipe:0", "-frames:v", "1", "-f", "image2", "-vcodec", "mjpeg", "pipe:1"
-            ).start();
-        } catch (IOException e) {
-            // "error=2" means the executable was not found on the host PATH
-            if (e.getMessage() != null && e.getMessage().contains("error=2")) {
-                log.warn("ffmpeg is not installed on this host — cannot decode [{}]. "
-                        + "Install ffmpeg or convert the image to JPEG/PNG before uploading.", originalFilename);
+            // Write raw bytes to a real file so ffmpeg can seek freely
+            Files.write(tempInput, original);
+
+            ProcessBuilder pb = new ProcessBuilder(
+                    "ffmpeg", "-y",
+                    "-i",         tempInput.toString(),
+                    "-frames:v",  "1",
+                    "-vf",        "scale=iw:ih",   // preserve dimensions
+                    "-q:v",       "2",              // high quality JPEG (1=best, 31=worst)
+                    tempOutput.toString()
+            );
+            pb.redirectErrorStream(true); // merge stderr so we can log it on failure
+
+            Process process;
+            try {
+                process = pb.start();
+            } catch (IOException e) {
+                if (e.getMessage() != null && e.getMessage().contains("error=2")) {
+                    log.warn("ffmpeg is not installed — cannot decode [{}]", originalFilename);
+                    throw new UnsupportedImageFormatException(
+                            "The image format '" + originalFilename + "' requires ffmpeg to be decoded, "
+                            + "but ffmpeg is not available on this server. "
+                            + "Please upload a JPEG, PNG, WebP, or other standard image format.", e);
+                }
+                throw e;
+            }
+
+            // Drain ffmpeg stdout/stderr (redirected to stdout above) to prevent blocking
+            String ffmpegOutput;
+            try (InputStream stdout = process.getInputStream()) {
+                ffmpegOutput = new String(stdout.readAllBytes());
+            }
+
+            try {
+                boolean finished = process.waitFor(30, TimeUnit.SECONDS);
+                if (!finished) {
+                    process.destroyForcibly();
+                    throw new IOException("ffmpeg conversion timed out for file: " + originalFilename);
+                }
+                if (process.exitValue() != 0) {
+                    log.warn("ffmpeg exit={} for [{}]: {}", process.exitValue(), originalFilename, ffmpegOutput);
+                    throw new UnsupportedImageFormatException(
+                            "ffmpeg could not decode '" + originalFilename + "' (exit=" + process.exitValue() + "). "
+                            + "The file may be corrupt or in an unsupported format.");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("ffmpeg conversion interrupted for file: " + originalFilename, e);
+            }
+
+            byte[] result = Files.readAllBytes(tempOutput);
+            if (result.length == 0) {
                 throw new UnsupportedImageFormatException(
-                        "The image format '" + originalFilename + "' requires ffmpeg to be decoded, "
-                        + "but ffmpeg is not available on this server. "
-                        + "Please upload a JPEG, PNG, WebP, or other standard image format.", e);
-            }
-            throw e;
-        }
-
-        Thread stdinWriter = new Thread(() -> {
-            try (var stdin = process.getOutputStream()) {
-                stdin.write(original);
-            } catch (IOException ignored) {
-                // process may have already exited/closed its stdin on a decode failure
-            }
-        });
-        stdinWriter.start();
-
-        byte[] converted;
-        try (InputStream stdout = process.getInputStream()) {
-            converted = stdout.readAllBytes();
-        }
-
-        try {
-            stdinWriter.join(15_000);
-            boolean finished = process.waitFor(15, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                throw new IOException("ffmpeg conversion timed out for file: " + originalFilename);
-            }
-            if (process.exitValue() != 0 || converted.length == 0) {
-                throw new UnsupportedImageFormatException(
-                        "ffmpeg could not decode '" + originalFilename + "' (exit=" + process.exitValue() + "). "
+                        "ffmpeg produced an empty output for '" + originalFilename + "'. "
                         + "The file may be corrupt or in an unsupported format.");
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("ffmpeg conversion interrupted for file: " + originalFilename, e);
-        }
+            return result;
 
-        return converted;
+        } finally {
+            Files.deleteIfExists(tempInput);
+            Files.deleteIfExists(tempOutput);
+        }
     }
 
     private List<String> deleteByPrefix(String prefix) {
