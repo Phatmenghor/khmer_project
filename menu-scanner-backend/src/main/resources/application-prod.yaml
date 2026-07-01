@@ -45,7 +45,7 @@ telegram:
   bot:
     token: "${TELEGRAM_BOT_TOKEN:8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU}"
     enabled: true
-    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:{}}"
+    group-chat-id: "${TELEGRAM_GROUP_CHAT_ID:-1002784141362}"
     webhook-url: "${TELEGRAM_WEBHOOK_URL:https://api.emenu-cambodia.com}"
     auto-setup: true
 

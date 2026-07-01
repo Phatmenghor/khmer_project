@@ -1,10 +1,14 @@
 "use client";
 
 import { Messages } from "@/constants/messages";
-import { useEffect, useMemo, Suspense } from "react";
+import { useEffect, useMemo, Suspense, useState } from "react";
 import { useDebounce } from "@/utils/debounce/debounce";
+import { Download, FileSpreadsheet } from "lucide-react";
+import { downloadUserTemplate } from "@/utils/excel/user-excel.utils";
+import UserImportModal from "@/features/auth/components/user-import-modal";
 import { ROUTES } from "@/constants/app-routes/routes";
 import { CollapsibleFilterPanel, FilterPanelConfig } from "@/components/shared/common/collapsible-filter-panel";
+import { CustomButton } from "@/components/shared/button/custom-button";
 import ResetPasswordModal from "@/components/shared/modal/reset-password-modal";
 import { DeleteConfirmationModal } from "@/components/shared/modal/delete-confirmation-modal";
 import { userBusinessTableColumns } from "@/features/auth/table/users-business-table";
@@ -81,6 +85,8 @@ function UserBusinessPageInner() {
     openResetPassword,
     closeModal,
   } = useActionRouting();
+
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   const globalPageSize = useAppSelector(selectGlobalPageSize);
   const debouncedSearch = useDebounce(filters.search, AppDefault.DEFAULT_DEBOUNCE_MS);
@@ -178,6 +184,25 @@ function UserBusinessPageInner() {
   // ── Table action handlers ─────────────────────────────────────────────────
   const handleCreateUser = () => openCreate();
 
+  const handleOpenImport = () => setImportModalOpen(true);
+  const handleCloseImport = () => setImportModalOpen(false);
+
+  const handleImportSuccess = () => {
+    setImportModalOpen(false);
+    const filterPayload = {
+      search: debouncedSearch,
+      pageNo: filters.pageNo,
+      pageSize: globalPageSize,
+      roles: filters.role === UserRole.ALL ? [] : [filters.role],
+      userTypes: [UserGropeType.BUSINESS_USER],
+      accountStatuses:
+        filters.accountStatus === AccountStatus.ALL
+          ? []
+          : [filters.accountStatus],
+    };
+    dispatch(fetchAllUsersService(filterPayload));
+  };
+
   const handleEditUser = (user: UserResponseModel) => {
     const isSelf = user?.id === currentUserId;
     const isBusinessOwner = user?.roles?.includes(UserRole.BUSINESS_OWNER);
@@ -254,6 +279,32 @@ function UserBusinessPageInner() {
     buttonText: "New User",
     buttonDisabled: false,
     onButtonClick: handleCreateUser,
+    extraActions: (
+      <div className="flex items-center gap-1">
+        <CustomButton
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={downloadUserTemplate}
+          className="gap-1 h-[28px] text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500"
+          title="Download Excel template"
+          icon={<Download className="w-3 h-3" />}
+        >
+          Template
+        </CustomButton>
+        <CustomButton
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleOpenImport}
+          className="gap-1 h-[28px] text-xs border-pink-500/30 text-pink-600 dark:text-pink-400 hover:bg-pink-500/10 hover:border-pink-500"
+          title="Import users from Excel"
+          icon={<FileSpreadsheet className="w-3 h-3" />}
+        >
+          Import
+        </CustomButton>
+      </div>
+    ),
     filters: [
       {
         id: "accountStatus",
@@ -314,6 +365,14 @@ function UserBusinessPageInner() {
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
+
+      <UserImportModal
+        isOpen={importModalOpen}
+        onClose={handleCloseImport}
+        onSuccess={handleImportSuccess}
+        userType="BUSINESS_USER"
+        businessId={currentUserId}
+      />
 
       <UserBusinessModal
         isOpen={createMode || !!editId}

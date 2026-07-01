@@ -8,6 +8,7 @@ import {
 } from "../services/business-settings-service";
 import { AppDefault } from "@/constants/app-resource/default/default";
 import { clearBusinessSettings } from "../slice/business-settings-slice";
+import { RootState } from "@/store";
 
 export const fetchBusinessSettingsThunk = createAsyncThunk<
   BusinessSettingsResponse,
@@ -23,6 +24,16 @@ export const fetchBusinessSettingsThunk = createAsyncThunk<
       const errorMessage = error instanceof Error ? error.message : "Failed to fetch business settings";
       return rejectWithValue(errorMessage);
     }
+  },
+  {
+    condition: (_, { getState }) => {
+      const state = getState() as RootState;
+      const { data, isLoading } = state.businessSettings;
+      if (data || isLoading) {
+        return false;
+      }
+      return true;
+    },
   }
 );
 

@@ -15,4 +15,6 @@ public interface BusinessSettingRepository extends JpaRepository<BusinessSetting
     Optional<BusinessSetting> findByIdAndIsDeletedFalse(UUID id);
 
     boolean existsByBusinessIdAndIsDeletedFalse(UUID businessId);
+
+    Optional<BusinessSetting> findFirstByTelegramGroupChatIdAndIsDeletedFalse(String telegramGroupChatId);
 }

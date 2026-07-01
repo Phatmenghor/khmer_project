@@ -15,6 +15,7 @@ import com.emenu.features.auth.repository.BusinessRepository;
 import com.emenu.features.auth.repository.BusinessSettingRepository;
 import com.emenu.features.auth.service.BusinessSettingService;
 import com.emenu.security.SecurityUtils;
+import com.emenu.features.notification.telegram.repository.TelegramMessageLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
     private final BusinessRepository businessRepository;
     private final BusinessSettingMapper businessSettingMapper;
     private final SecurityUtils securityUtils;
+    private final TelegramMessageLogRepository telegramMessageLogRepository;
 
     @Override
     public BusinessSettingResponse createBusinessSetting(BusinessSettingCreateRequest request) {
@@ -72,6 +74,9 @@ public class BusinessSettingServiceImpl implements BusinessSettingService {
                 .orElseThrow(() -> new ValidationException("Business not found"));
 
         businessSettingMapper.updateEntity(request, businessSetting);
+
+        // Explicitly set telegramGroupChatId to support updating and clearing it
+        businessSetting.setTelegramGroupChatId(request.getTelegramGroupChatId());
 
         // Update Business entity with contact information if provided
         if (request.getBusinessName() != null) {

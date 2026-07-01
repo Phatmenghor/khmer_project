@@ -7,6 +7,8 @@ import com.emenu.features.notification.telegram.dto.response.TelegramStatusRespo
 import com.emenu.features.notification.telegram.mapper.TelegramNotificationMapper;
 import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.emenu.features.order.models.Order;
+import com.emenu.features.notification.telegram.models.TelegramMessageLog;
+import com.emenu.features.notification.telegram.repository.TelegramMessageLogRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,14 +44,17 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     private final BusinessSettingRepository businessSettingRepository;
     private final TelegramNotificationMapper telegramNotificationMapper;
     private final RestTemplate restTemplate;
+    private final TelegramMessageLogRepository telegramMessageLogRepository;
 
     public TelegramNotificationServiceImpl(
             BusinessSettingRepository businessSettingRepository,
             TelegramNotificationMapper telegramNotificationMapper,
-            @Qualifier("telegramRestTemplate") RestTemplate restTemplate) {
+            @Qualifier("telegramRestTemplate") RestTemplate restTemplate,
+            TelegramMessageLogRepository telegramMessageLogRepository) {
         this.businessSettingRepository = businessSettingRepository;
         this.telegramNotificationMapper = telegramNotificationMapper;
         this.restTemplate = restTemplate;
+        this.telegramMessageLogRepository = telegramMessageLogRepository;
     }
 
     // ── Status & management ───────────────────────────────────────────────────
@@ -198,6 +203,9 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     private void sendToChatId(String chatId, String text, String parseMode) {
         if (!enabled) return;
 
+        String status = "SUCCESS";
+        String errorMessage = null;
+
         try {
             String url = String.format(SEND_MESSAGE_URL, botToken);
 
@@ -212,7 +220,29 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
             restTemplate.postForObject(url, new HttpEntity<>(body, headers), String.class);
             log.info("[Telegram] Message sent to chat_id={}", chatId);
         } catch (Exception e) {
+            status = "FAILED";
+            errorMessage = e.getMessage();
             log.warn("[Telegram] Failed to send to chat_id={}: {}", chatId, e.getMessage());
+        }
+
+        // Log to database
+        try {
+            UUID businessId = businessSettingRepository.findFirstByTelegramGroupChatIdAndIsDeletedFalse(chatId)
+                    .map(BusinessSetting::getBusinessId)
+                    .orElse(null);
+
+            TelegramMessageLog logEntity = TelegramMessageLog.builder()
+                    .businessId(businessId)
+                    .chatId(chatId)
+                    .messageText(text)
+                    .parseMode(parseMode)
+                    .status(status)
+                    .errorMessage(errorMessage)
+                    .build();
+
+            telegramMessageLogRepository.save(logEntity);
+        } catch (Exception dbEx) {
+            log.error("Failed to save telegram message log in database", dbEx);
         }
     }
 

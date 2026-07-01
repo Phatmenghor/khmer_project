@@ -67,18 +67,34 @@ export const fetchCurrentBusinessSettings = async (): Promise<BusinessSettingsRe
 };
 
 
+const activePromises = new Map<string, Promise<BusinessSettingsResponse>>();
+
 export const fetchBusinessSettingsByBusinessId = async (
   businessId: string
 ): Promise<BusinessSettingsResponse> => {
-  const response = await axiosClient.get<{ data: BusinessSettingsResponse }>(
-    `/api/v1/public/business-settings/${businessId}`,
-    {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-      }
+  const key = `fetch_settings_${businessId}`;
+  if (activePromises.has(key)) {
+    return activePromises.get(key)!;
+  }
+
+  const promise = (async () => {
+    try {
+      const response = await axiosClient.get<{ data: BusinessSettingsResponse }>(
+        `/api/v1/public/business-settings/${businessId}`,
+        {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+          }
+        }
+      );
+      return response.data.data;
+    } finally {
+      activePromises.delete(key);
     }
-  );
-  return response.data.data;
+  })();
+
+  activePromises.set(key, promise);
+  return promise;
 };
 
 

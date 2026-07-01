@@ -47,8 +47,8 @@ public class AuditLogServiceImpl implements AuditLogService {
     @Override
     @Transactional(readOnly = true)
     public PaginationResponse<AuditLogResponseDTO> searchAuditLogs(AuditLogFilterDTO filter) {
-        log.info("Audit logs search initiated: pageNo={}, pageSize={}, userId={}, userType={}",
-            filter.getPageNo(), filter.getPageSize(), filter.getUserId(), filter.getUserType());
+//        log.info("Audit logs search initiated: pageNo={}, pageSize={}, userId={}, userType={}",
+//            filter.getPageNo(), filter.getPageSize(), filter.getUserId(), filter.getUserType());
 
         Pageable pageable = PaginationUtils.createPageable(filter.getPageNo(), filter.getPageSize(), filter.getSortBy(), filter.getSortDirection());
 
@@ -66,8 +66,8 @@ public class AuditLogServiceImpl implements AuditLogService {
                 .map(auditLogMapper::toResponseDTO)
                 .collect(Collectors.toList());
 
-        log.info("Audit logs search completed: totalElements={}, totalPages={}, currentPage={}",
-            page.getTotalElements(), page.getTotalPages(), filter.getPageNo());
+//        log.info("Audit logs search completed: totalElements={}, totalPages={}, currentPage={}",
+//            page.getTotalElements(), page.getTotalPages(), filter.getPageNo());
         return paginationMapper.toPaginationResponse(page, content);
     }
 
@@ -132,8 +132,8 @@ public class AuditLogServiceImpl implements AuditLogService {
         try {
             AuditLog auditLog = auditLogMapper.createFromHelper(helper);
             auditLogRepository.save(auditLog);
-            log.info("Audit log saved successfully: endpoint={}, userIdentifier={}, statusCode={}, responseTime={}ms",
-                helper.getEndpoint(), helper.getUserIdentifier(), helper.getStatusCode(), helper.getResponseTimeMs());
+//            log.info("Audit log saved successfully: endpoint={}, userIdentifier={}, statusCode={}, responseTime={}ms",
+//                helper.getEndpoint(), helper.getUserIdentifier(), helper.getStatusCode(), helper.getResponseTimeMs());
         } catch (Exception e) {
             log.error("Failed to save audit log: endpoint={}, error={}", helper.getEndpoint(), e.getMessage(), e);
         }
@@ -158,8 +158,8 @@ public class AuditLogServiceImpl implements AuditLogService {
         stats.setLast24Hours(last24HoursCount);
         stats.setLast7Days(last7DaysCount);
 
-        log.info("Audit statistics retrieved: totalLogs={}, last24Hours={}, last7Days={}",
-            totalLogs, last24HoursCount, last7DaysCount);
+//        log.info("Audit statistics retrieved: totalLogs={}, last24Hours={}, last7Days={}",
+//            totalLogs, last24HoursCount, last7DaysCount);
         return stats;
     }
 
