@@ -21,7 +21,6 @@ import com.emenu.features.auth.specification.UserSpecification;
 import com.emenu.features.auth.service.BusinessService;
 import com.emenu.features.auth.service.UserService;
 import com.emenu.features.auth.service.UserValidationService;
-import com.emenu.features.notification.telegram.service.TelegramNotificationService;
 import com.emenu.features.notification.websocket.service.WebSocketNotificationService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.shared.domain.BaseUUIDEntity;
@@ -65,7 +64,6 @@ public class UserServiceImpl implements UserService {
     private final SecurityUtils securityUtils;
     private final UserValidationService userValidationService;
     private final PaginationMapper paginationMapper;
-    private final TelegramNotificationService telegramNotificationService;
     private final WebSocketNotificationService webSocketNotificationService;
 
     @Override
@@ -88,22 +86,6 @@ public class UserServiceImpl implements UserService {
                 savedUserEntity.getUserType(),
                 countTotalRelatedRecords(savedUserEntity));
         webSocketNotificationService.notifyPlatformEvent("USER_CHANGED", Map.of("action", "created", "userId", savedUserEntity.getId().toString()));
-
-        if (requestData.getBusinessId() != null) {
-            String firstName = requestData.getFirstName() != null ? requestData.getFirstName() : "";
-            String lastName  = requestData.getLastName()  != null ? requestData.getLastName()  : "";
-            String fullName  = (firstName + " " + lastName).trim();
-            if (fullName.isEmpty()) fullName = requestData.getUserIdentifier();
-
-            telegramNotificationService.notifyNewStaff(
-                requestData.getBusinessId(),
-                fullName,
-                requestData.getPosition(),
-                requestData.getPhoneNumber(),
-                requestData.getEmail(),
-                requestData.getRoles()
-            );
-        }
 
         return userMapper.toResponse(savedUserEntity);
     }
@@ -254,7 +236,6 @@ public class UserServiceImpl implements UserService {
         log.info("User updated successfully: id={}, identifier={}, total_changes={}",
                 updatedUserEntity.getId(), updatedUserEntity.getUserIdentifier(),
                 countTotalRelatedRecords(updatedUserEntity));
-        webSocketNotificationService.notifyPlatformEvent("USER_CHANGED", Map.of("action", "updated", "userId", updatedUserEntity.getId().toString()));
 
         return userMapper.toResponse(updatedUserEntity);
     }

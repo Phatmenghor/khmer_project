@@ -18,9 +18,35 @@ import java.util.UUID;
                 @UniqueConstraint(name = "uk_business_user_identifier", columnNames = {"user_identifier", "business_id"})
         },
         indexes = {
+                // ── Single-column — high-cardinality lookups ──────────────────────
                 @Index(name = "idx_users_user_identifier",  columnList = "user_identifier"),
                 @Index(name = "idx_users_business_id",      columnList = "business_id"),
-                @Index(name = "idx_users_account_status",   columnList = "account_status")
+                @Index(name = "idx_users_user_type",        columnList = "user_type"),
+                @Index(name = "idx_users_account_status",   columnList = "account_status"),
+                @Index(name = "idx_users_status",           columnList = "status"),
+                @Index(name = "idx_users_is_deleted",       columnList = "is_deleted"),
+
+                // ── Composite — covers the most frequent WHERE combinations ───────
+                // Every active-user query: WHERE is_deleted = false
+                // business list:           WHERE business_id = ? AND is_deleted = false
+                @Index(name = "idx_users_business_deleted",
+                        columnList = "business_id, is_deleted"),
+
+                // Type-scoped lookup:      WHERE user_type = ? AND is_deleted = false
+                @Index(name = "idx_users_type_deleted",
+                        columnList = "user_type, is_deleted"),
+
+                // Status filter:           WHERE account_status = ? AND is_deleted = false
+                @Index(name = "idx_users_status_deleted",
+                        columnList = "account_status, is_deleted"),
+
+                // Full business + type:    WHERE business_id = ? AND user_type = ? AND is_deleted = false
+                @Index(name = "idx_users_business_type_deleted",
+                        columnList = "business_id, user_type, is_deleted"),
+
+                // Full business + status:  WHERE business_id = ? AND account_status = ? AND is_deleted = false
+                @Index(name = "idx_users_business_status_deleted",
+                        columnList = "business_id, account_status, is_deleted"),
         }
 )
 @Data

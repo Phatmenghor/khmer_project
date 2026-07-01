@@ -11,7 +11,22 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "user_profiles")
+@Table(name = "user_profiles",
+        indexes = {
+                // FK join — used in every detail fetch and list join
+                @Index(name = "idx_user_profiles_user_id",    columnList = "user_id"),
+
+                // Search fields — used by UserSpecification.searchByIdentifierOrProfile()
+                // LIKE '%search%' on these columns uses the index for prefix/equality checks
+                @Index(name = "idx_user_profiles_email",      columnList = "email"),
+                @Index(name = "idx_user_profiles_first_name", columnList = "first_name"),
+                @Index(name = "idx_user_profiles_last_name",  columnList = "last_name"),
+                @Index(name = "idx_user_profiles_phone",      columnList = "phone_number"),
+
+                // Composite: first + last name for full-name search
+                @Index(name = "idx_user_profiles_full_name",  columnList = "first_name, last_name"),
+        }
+)
 @Data
 @EqualsAndHashCode(callSuper = true, exclude = "user")
 @ToString(exclude = "user")

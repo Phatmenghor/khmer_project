@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Download, FileSpreadsheet, Plus } from "lucide-react";
 import { useDebounce } from "@/utils/debounce/debounce";
+import { downloadPlatformUserTemplate } from "@/utils/excel/user-excel.utils";
 import { ROUTES } from "@/constants/app-routes/routes";
 import {
   AccountStatus,
@@ -44,6 +45,7 @@ import {
 import UserPlatformModal from "@/redux/features/auth/components/user-platform-modal";
 import { UserPlatformDetailModal } from "@/redux/features/auth/components/user-platform-detail-modal";
 import { UserResponseModel } from "@/redux/features/auth/store/models/response/users-response";
+import UserImportModal from "@/redux/features/auth/components/user-import-modal";
 
 export default function UserPage() {
   const searchParams = useSearchParams();
@@ -94,6 +96,8 @@ export default function UserPage() {
     isOpen: false,
     user: null as UserResponseModel | null,
   });
+
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   const debouncedSearch = useDebounce(filters.search, 400);
 
@@ -150,6 +154,26 @@ export default function UserPage() {
       mode: ModalMode.CREATE_MODE,
       userId: "",
     });
+  };
+
+  const handleOpenImport = () => setImportModalOpen(true);
+  const handleCloseImport = () => setImportModalOpen(false);
+
+  const handleImportSuccess = () => {
+    setImportModalOpen(false);
+    dispatch(
+      fetchAllUsersService({
+        search: debouncedSearch,
+        pageNo: filters.pageNo,
+        pageSize: globalPageSize,
+        roles: filters.role === UserRole.ALL ? [] : [filters.role],
+        userTypes: [UserGropeType.PLATFORM_USER],
+        accountStatus:
+          filters.accountStatus === AccountStatus.ALL
+            ? []
+            : [filters.accountStatus],
+      })
+    );
   };
 
   const handleEditUser = (user: UserResponseModel) => {
@@ -299,11 +323,31 @@ export default function UserPage() {
           title="Platform Users"
           searchValue={filters.search}
           searchPlaceholder="Search users platform..."
-          buttonTooltip="Create a new users"
+          buttonTooltip="Create a new platform user"
           buttonIcon={<Plus className="w-2 h-2" />}
           buttonText="New"
           onSearchChange={handleSearchChange}
           openModal={handleCreateUser}
+          customAddNewButton={
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={downloadPlatformUserTemplate}
+                title="Download Excel template"
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-700 bg-transparent px-3 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:border-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400"
+              >
+                <Download className="h-3 w-3" />
+                Template
+              </button>
+              <button
+                onClick={handleOpenImport}
+                title="Import users from Excel"
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-700 bg-transparent px-3 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:border-pink-500 hover:bg-pink-500/10 hover:text-pink-400"
+              >
+                <FileSpreadsheet className="h-3 w-3" />
+                Import
+              </button>
+            </div>
+          }
         >
           <div className="flex items-center gap-2">
             <CustomSelect
@@ -341,6 +385,14 @@ export default function UserPage() {
           pageSizeOptions={AppDefault.PAGE_SIZE_OPTIONS}
         />
       </div>
+
+      {/* Import Modal */}
+      <UserImportModal
+        isOpen={importModalOpen}
+        onClose={handleCloseImport}
+        onSuccess={handleImportSuccess}
+        userType="PLATFORM_USER"
+      />
 
       {/* Modals Add/Edit */}
       <UserPlatformModal
