@@ -25,6 +25,16 @@ public class GlobalExceptionHandler {
         return body(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    /**
+     * Handles unsupported or undecodable image formats (AVIF without ffmpeg, corrupt files, etc.).
+     * Returns HTTP 422 so the client knows the request itself was the problem — not the server.
+     */
+    @ExceptionHandler(UnsupportedImageFormatException.class)
+    public ResponseEntity<Map<String, Object>> handleUnsupportedImageFormat(UnsupportedImageFormatException e) {
+        log.warn("Unsupported image format rejected: {}", e.getMessage());
+        return body(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException e) {
         log.error("Unhandled request failure: {}", e.getMessage(), e);

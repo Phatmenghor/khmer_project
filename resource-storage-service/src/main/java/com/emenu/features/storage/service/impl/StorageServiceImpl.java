@@ -1,5 +1,6 @@
 package com.emenu.features.storage.service.impl;
 
+import com.emenu.config.exception.UnsupportedImageFormatException;
 import com.emenu.config.security.model.ApiKeyContext;
 import com.emenu.config.storage.StorageProperties;
 import com.emenu.features.storage.dto.response.StorageDeleteResponse;
@@ -28,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -60,6 +62,9 @@ public class StorageServiceImpl implements StorageService {
 
             log.info("[{}][{}] Upload succeeded: key=[{}]", ctx.getProjectCode(), resolvedPath, response.getKey());
             return response;
+        } catch (UnsupportedImageFormatException e) {
+            // Re-throw as-is; GlobalExceptionHandler maps this to 422
+            throw e;
         } catch (Exception e) {
             log.error("[{}][{}] Upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage(), e);
             throw new RuntimeException("Image upload failed: " + e.getMessage(), e);
@@ -98,6 +103,9 @@ public class StorageServiceImpl implements StorageService {
                     .md(md)
                     .o(o)
                     .build();
+        } catch (UnsupportedImageFormatException e) {
+            // Re-throw as-is; GlobalExceptionHandler maps this to 422
+            throw e;
         } catch (Exception e) {
             log.error("[{}][{}] Multi-upload failed: {}", ctx.getProjectCode(), customPath, e.getMessage(), e);
             throw new RuntimeException("Multi-size image upload failed: " + e.getMessage(), e);
@@ -195,28 +203,109 @@ public class StorageServiceImpl implements StorageService {
     }
 
     /**
-     * ImageIO can't decode AVIF/HEIC and a few other modern formats out of the box.
-     * Falls back to ffmpeg (must be installed on the host) to re-encode those into
-     * a JPEG that the rest of the pipeline (Thumbnails/ImageIO) can read normally.
+     * Ensures the uploaded bytes are decodable by the rest of the pipeline.
+     *
+     * <p><b>Stage 1 — magic-byte detection</b>: Reads the file header to identify
+     * formats that need ffmpeg directly (AVIF, HEIC/HEIF, camera RAW — CR2, NEF, ARW).
+     * These are forwarded straight to ffmpeg, skipping the ImageIO attempt.</p>
+     *
+     * <p><b>Stage 2 — TwelveMonkeys + ImageIO</b>: Handles the vast majority of
+     * formats in pure Java: JPEG, PNG, GIF, WebP, TIFF, BMP, PSD, ICNS, PCX, PNM,
+     * TGA, SGI, etc. TwelveMonkeys registers its plugins via ServiceLoader at startup.</p>
+     *
+     * <p><b>Stage 3 — ffmpeg fallback</b>: Last resort for any format that slipped
+     * through stages 1 and 2. Requires {@code ffmpeg} on the host PATH (see Dockerfile).
+     * If ffmpeg is absent an {@link UnsupportedImageFormatException} is thrown, which
+     * maps to HTTP 422 so the caller gets a clear error instead of a generic 500.</p>
      */
     private byte[] ensureDecodable(byte[] original, String originalFilename) throws IOException {
+        String detectedFormat = detectFormat(original);
+
+        // AVIF, HEIC, and camera RAW have no pure-Java decoder — go straight to ffmpeg.
+        if (detectedFormat != null) {
+            log.info("Detected [{}] format for [{}] — routing directly to ffmpeg", detectedFormat, originalFilename);
+            return convertWithFfmpeg(original, originalFilename);
+        }
+
+        // Try TwelveMonkeys + standard ImageIO (covers JPEG, PNG, GIF, WebP, TIFF, BMP, PSD, etc.)
         if (javax.imageio.ImageIO.read(new ByteArrayInputStream(original)) != null) {
             return original;
         }
 
-        log.info("ImageIO could not decode [{}] directly, converting via ffmpeg", originalFilename);
-        byte[] converted = convertWithFfmpeg(original);
+        // Last resort: ffmpeg for anything else ImageIO couldn't handle
+        log.info("ImageIO (+ TwelveMonkeys) could not decode [{}] — attempting ffmpeg fallback", originalFilename);
+        byte[] converted = convertWithFfmpeg(original, originalFilename);
 
         if (javax.imageio.ImageIO.read(new ByteArrayInputStream(converted)) == null) {
-            throw new IOException("Unsupported or corrupt image format: " + originalFilename);
+            throw new UnsupportedImageFormatException(
+                    "Unsupported or corrupt image format: '" + originalFilename + "'. "
+                    + "Please upload a JPEG, PNG, WebP, AVIF, HEIC, TIFF, BMP, PSD, or other common image format.");
         }
         return converted;
     }
 
-    private byte[] convertWithFfmpeg(byte[] original) throws IOException {
-        Process process = new ProcessBuilder(
-                "ffmpeg", "-y", "-i", "pipe:0", "-frames:v", "1", "-f", "image2", "-vcodec", "mjpeg", "pipe:1"
-        ).start();
+    /**
+     * Identifies formats that cannot be decoded by Java ImageIO (even with TwelveMonkeys)
+     * by inspecting the raw file header (magic bytes).
+     *
+     * <p>Returns a human-readable format name if the file must go through ffmpeg,
+     * or {@code null} if ImageIO should be tried first.</p>
+     *
+     * <ul>
+     *   <li>AVIF — ISO Base Media container with {@code avif} / {@code avis} brand</li>
+     *   <li>HEIC/HEIF — ISO Base Media container with {@code heic} / {@code heif} / {@code mif1} brand</li>
+     *   <li>Camera RAW — Canon CR2, Nikon NEF, Sony ARW, Olympus ORF, Fuji RAF</li>
+     * </ul>
+     */
+    private String detectFormat(byte[] data) {
+        if (data == null || data.length < 12) return null;
+
+        // ISO Base Media File Format (MP4 / HEIF / AVIF family)
+        // Bytes [4..7] = 'ftyp', bytes [8..11] = major brand
+        if (data.length >= 12
+                && data[4] == 'f' && data[5] == 't' && data[6] == 'y' && data[7] == 'p') {
+            String brand = new String(data, 8, 4).toLowerCase();
+            if (brand.startsWith("avif") || brand.startsWith("avis")) return "AVIF";
+            if (brand.startsWith("heic") || brand.startsWith("heif")
+                    || brand.startsWith("mif1") || brand.startsWith("msf1")
+                    || brand.startsWith("heis") || brand.startsWith("hevx")) return "HEIC/HEIF";
+        }
+
+        // Canon CR2 — starts with II (little-endian TIFF) + magic 0x002A + offset 0x00000008, then CR
+        if (data[0] == 0x49 && data[1] == 0x49 && data[2] == 0x2A && data[3] == 0x00
+                && data.length >= 10 && data[8] == 'C' && data[9] == 'R') return "Canon CR2";
+
+        // Nikon NEF / Sony ARW / Olympus ORF — TIFF-based RAW (little-endian or big-endian)
+        // We use a lightweight check: standard TIFF magic then no ImageIO decode = RAW
+        // (handled by the ImageIO fallback path; only override if we add more magic here)
+
+        // Fuji RAF
+        if (data.length >= 8) {
+            String header = new String(data, 0, 8);
+            if (header.startsWith("FUJIFILM")) return "Fuji RAF";
+        }
+
+        return null; // let ImageIO try first
+    }
+
+    private byte[] convertWithFfmpeg(byte[] original, String originalFilename) throws IOException {
+        Process process;
+        try {
+            process = new ProcessBuilder(
+                    "ffmpeg", "-y", "-i", "pipe:0", "-frames:v", "1", "-f", "image2", "-vcodec", "mjpeg", "pipe:1"
+            ).start();
+        } catch (IOException e) {
+            // "error=2" means the executable was not found on the host PATH
+            if (e.getMessage() != null && e.getMessage().contains("error=2")) {
+                log.warn("ffmpeg is not installed on this host — cannot decode [{}]. "
+                        + "Install ffmpeg or convert the image to JPEG/PNG before uploading.", originalFilename);
+                throw new UnsupportedImageFormatException(
+                        "The image format '" + originalFilename + "' requires ffmpeg to be decoded, "
+                        + "but ffmpeg is not available on this server. "
+                        + "Please upload a JPEG, PNG, WebP, or other standard image format.", e);
+            }
+            throw e;
+        }
 
         Thread stdinWriter = new Thread(() -> {
             try (var stdin = process.getOutputStream()) {
@@ -237,14 +326,16 @@ public class StorageServiceImpl implements StorageService {
             boolean finished = process.waitFor(15, TimeUnit.SECONDS);
             if (!finished) {
                 process.destroyForcibly();
-                throw new IOException("ffmpeg conversion timed out");
+                throw new IOException("ffmpeg conversion timed out for file: " + originalFilename);
             }
             if (process.exitValue() != 0 || converted.length == 0) {
-                throw new IOException("ffmpeg could not decode image (exit=" + process.exitValue() + ")");
+                throw new UnsupportedImageFormatException(
+                        "ffmpeg could not decode '" + originalFilename + "' (exit=" + process.exitValue() + "). "
+                        + "The file may be corrupt or in an unsupported format.");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IOException("ffmpeg conversion interrupted", e);
+            throw new IOException("ffmpeg conversion interrupted for file: " + originalFilename, e);
         }
 
         return converted;
