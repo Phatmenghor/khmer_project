@@ -39,8 +39,14 @@ public class ApplicationConfig {
         javaTimeModule.addSerializer(LocalTime.class, new LocalTimeSerializer(TIME_FORMATTER));
         javaTimeModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(TIME_FORMATTER));
 
+        // Global String trim: strips leading/trailing whitespace from every JSON String field.
+        // Blank strings ("   ") are normalised to null.
+        com.fasterxml.jackson.databind.module.SimpleModule trimModule =
+                new com.fasterxml.jackson.databind.module.SimpleModule("StringTrimModule");
+        trimModule.addDeserializer(String.class, new StringTrimDeserializer());
+
         return Jackson2ObjectMapperBuilder.json()
-                .modules(javaTimeModule)
+                .modules(javaTimeModule, trimModule)
                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build();
     }

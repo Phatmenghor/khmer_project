@@ -17,7 +17,7 @@ import java.util.UUID;
 @MappedSuperclass
 @Getter
 @Setter
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners({AuditingEntityListener.class, StringTrimEntityListener.class})
 public abstract class BaseUUIDEntity {
 
     @Id

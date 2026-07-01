@@ -7,7 +7,9 @@ import lombok.*;
 @Entity
 @Table(name = "user_emergency_contacts",
         indexes = {
-                @Index(name = "idx_user_emergency_contacts_user_id", columnList = "user_id")
+                @Index(name = "idx_user_emergency_contacts_user_id",      columnList = "user_id"),
+                // Composite for soft-delete filter: WHERE user_id = ? AND is_deleted = false
+                @Index(name = "idx_user_emergency_contacts_user_deleted", columnList = "user_id, is_deleted"),
         }
 )
 @Data
