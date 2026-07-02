@@ -4,10 +4,12 @@ import com.emenu.enums.user.EmploymentType;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDate;
 
 @Entity
+@BatchSize(size = 30)
 @Table(name = "user_employments",
         indexes = {
                 // FK join — used in every detail fetch

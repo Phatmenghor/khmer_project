@@ -5,12 +5,14 @@ import com.emenu.shared.domain.BaseUUIDEntity;
 import com.emenu.shared.dto.ImageUrls;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
 
 @Entity
+@BatchSize(size = 30)
 @Table(name = "user_profiles",
         indexes = {
                 // FK join — used in every detail fetch and list join

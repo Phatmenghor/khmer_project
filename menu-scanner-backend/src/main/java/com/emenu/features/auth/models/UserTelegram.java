@@ -3,11 +3,13 @@ package com.emenu.features.auth.models;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@BatchSize(size = 30)
 @Table(name = "user_telegrams", uniqueConstraints = {
         @UniqueConstraint(name = "uk_telegram_per_business", columnNames = {"telegram_id", "business_id"})
 })
