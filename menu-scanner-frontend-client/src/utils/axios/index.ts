@@ -21,7 +21,7 @@ const getActiveToken = (): string | undefined => {
   if (isAdminPath()) {
     return getAdminToken();
   }
-  return getToken();
+  return getToken() || getAdminToken();
 };
 
 const getActiveRefreshToken = (): string | undefined => {
@@ -30,7 +30,7 @@ const getActiveRefreshToken = (): string | undefined => {
   if (isAdminPath()) {
     return getAdminRefreshToken();
   }
-  return getRefreshToken();
+  return getRefreshToken() || getAdminRefreshToken();
 };
 
 const isAdminUser = (): boolean => {

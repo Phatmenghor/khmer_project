@@ -236,8 +236,9 @@ export function DataTableWithPagination<T = any>({
           <div className="text-xs text-muted-foreground font-medium">
             {totalItems > 0 && (
               <span>
-                Showing {Math.min(totalItems, (currentPage - 1) * pageSize + 1)} to{" "}
-                {Math.min(totalItems, currentPage * pageSize)} of {totalItems} entries
+                Showing {Math.min(totalItems, (currentPage - 1) * pageSize + 1)}{" "}
+                to {Math.min(totalItems, currentPage * pageSize)} of{" "}
+                {totalItems} entries
               </span>
             )}
           </div>
@@ -375,7 +376,7 @@ export function DataTableWithPagination<T = any>({
           )}
 
           {}
-          {totalPages > 1 && (
+          {totalElements > 10 && (
             <div className="flex items-center gap-1">
               {}
               <CustomButton

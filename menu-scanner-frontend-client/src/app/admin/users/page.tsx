@@ -74,8 +74,6 @@ function UserBusinessPageInner() {
     dispatch,
   } = useUsersState();
 
-  const isFirstRender = useRef(true);
-
   const {
     viewId,
     editId,
@@ -98,13 +96,6 @@ function UserBusinessPageInner() {
     AppDefault.DEFAULT_DEBOUNCE_MS,
   );
 
-  const prevDeps = useRef({
-    debouncedSearch,
-    accountStatus: filters.accountStatus,
-    role: filters.role,
-    pageNo: filters.pageNo,
-    globalPageSize,
-  });
   const rolesContent = useAppSelector(selectRolesList);
 
   // ── Sync filters ↔ URL ────────────────────────────────────────────────────
@@ -181,33 +172,6 @@ function UserBusinessPageInner() {
   }, [dispatch, rolesContent]);
 
   useEffect(() => {
-    const depsChanged =
-      !isFirstRender.current && (
-        prevDeps.current.debouncedSearch !== debouncedSearch ||
-        prevDeps.current.accountStatus !== filters.accountStatus ||
-        prevDeps.current.role !== filters.role ||
-        prevDeps.current.pageNo !== filters.pageNo ||
-        prevDeps.current.globalPageSize !== globalPageSize
-      );
-
-    // Update ref for next run
-    prevDeps.current = {
-      debouncedSearch,
-      accountStatus: filters.accountStatus,
-      role: filters.role,
-      pageNo: filters.pageNo,
-      globalPageSize,
-    };
-
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      if (usersData) {
-        return;
-      }
-    } else if (!depsChanged) {
-      return;
-    }
-
     const filterPayload = {
       search: debouncedSearch,
       pageNo: filters.pageNo,
